@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --nav-active-bg: 245 248 255;
+    --nav-active-text: 10 11 13;
+  }
+}

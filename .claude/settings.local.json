@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(export PATH=\"/opt/homebrew/bin:$PATH\")",
+      "Bash(php artisan serve:*)",
+      "Bash(npm run dev:*)"
+    ]
+  }
+}
