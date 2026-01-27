@@ -21,65 +21,42 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        // Get profile completion status
-        $profileCompletion = $this->getProfileCompletionStatus($user);
-
-        // Get family members count
-        // TODO: Replace with actual database query when family members are implemented
-        $familyMembers = [
-            [
-                'id' => 1,
-                'name' => 'Sanjana Jaisinghani',
-                'avatar_url' => '/assets/icons/Avatar-3.svg',
-            ],
-        ];
-
-        // Get upcoming appointments count
-        $upcomingAppointmentsCount = 0; // TODO: Implement when appointments are set up
+        // Get empty state tasks
+        $tasks = $this->getEmptyStateTasks();
 
         return Inertia::render('Dashboard', [
             'user' => $user->load('patient'),
-            'profileCompletion' => $profileCompletion,
-            'familyMembers' => $familyMembers,
-            'upcomingAppointmentsCount' => $upcomingAppointmentsCount,
+            'tasks' => $tasks,
         ]);
     }
 
     /**
-     * Calculate profile completion status.
-     * This is simple logic, so it's acceptable in the controller.
-     * If it becomes complex, move to a service.
+     * Get empty state tasks for the dashboard.
      */
-    private function getProfileCompletionStatus($user): array
+    private function getEmptyStateTasks(): array
     {
-        $steps = [
+        return [
             [
-                'id' => 'account_created',
-                'title' => 'Account created',
-                'description' => 'Basic details saved',
-                'completed' => true, // Always true if they're logged in
-            ],
-            [
-                'id' => 'add_family_members',
+                'id' => 1,
+                'number' => 1,
                 'title' => 'Add family members',
                 'description' => 'Manage health for your loved ones',
-                'completed' => $user->familyMembers()->exists(),
+                'href' => '/family-members/create',
             ],
             [
-                'id' => 'link_insurance',
+                'id' => 2,
+                'number' => 2,
                 'title' => 'Link insurance',
                 'description' => 'Make insurance claims hassle free',
-                'completed' => $user->patient && $user->patient->insurance_linked,
+                'href' => '/insurance/setup',
             ],
-        ];
-
-        $completedCount = collect($steps)->where('completed', true)->count();
-        $totalCount = count($steps);
-
-        return [
-            'steps' => $steps,
-            'completed' => $completedCount,
-            'total' => $totalCount,
+            [
+                'id' => 3,
+                'number' => 3,
+                'title' => 'Book your first appointment',
+                'description' => 'Find doctors and book consultations',
+                'href' => '/appointments/create',
+            ],
         ];
     }
 }

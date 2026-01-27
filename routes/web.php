@@ -17,42 +17,40 @@ Route::get('/dashboard', function () {
         'name' => 'Sanjana Jaisinghani',
         'email' => 'sanjana@example.com',
         'avatar_url' => null,
+        'patient' => null,
+    ];
+
+    // Get profile completion steps
+    $profileSteps = [
+        [
+            'id' => 1,
+            'number' => 1,
+            'title' => 'Complete your health profile',
+            'subtitle' => 'Add DOB, blood group, allergies, medical history',
+            'completed' => false,
+            'href' => '/profile/health',
+        ],
+        [
+            'id' => 2,
+            'number' => 2,
+            'title' => 'Link insurance',
+            'subtitle' => 'Make insurance claims hassle free',
+            'completed' => false,
+            'href' => '/insurance/setup',
+        ],
+        [
+            'id' => 3,
+            'number' => 3,
+            'title' => 'Add family members',
+            'subtitle' => 'Manage appointments for your entire family',
+            'completed' => false,
+            'href' => '/family-members/create',
+        ],
     ];
 
     return \Inertia\Inertia::render('Dashboard', [
         'user' => $mockUser,
-        'profileCompletion' => [
-            'steps' => [
-                [
-                    'id' => 'account_created',
-                    'title' => 'Account created',
-                    'description' => 'Basic details saved',
-                    'completed' => true,
-                ],
-                [
-                    'id' => 'add_family_members',
-                    'title' => 'Add family members',
-                    'description' => 'Manage health for your loved ones',
-                    'completed' => false,
-                ],
-                [
-                    'id' => 'link_insurance',
-                    'title' => 'Link insurance',
-                    'description' => 'Make insurance claims hassle free',
-                    'completed' => false,
-                ],
-            ],
-            'completed' => 1,
-            'total' => 3,
-        ],
-        'familyMembers' => [
-            (object) [
-                'id' => 1,
-                'name' => 'Sanjana',
-                'avatar_url' => null,
-            ],
-        ],
-        'upcomingAppointmentsCount' => 0,
+        'profileSteps' => $profileSteps,
     ]);
 })->name('dashboard');
 

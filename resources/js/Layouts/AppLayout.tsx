@@ -43,7 +43,7 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
       {/* Main Content Area */}
       <div className="flex flex-col flex-1 overflow-hidden">
         {/* Top Header */}
-        <header className="bg-white" style={{ height: '80px', borderBottom: '1px solid #CED2DB' }}>
+        <header className="bg-white" style={{ height: '80px', borderBottom: '1px solid #E5E5E5' }}>
           <div className="h-full flex items-center justify-between px-6">
             {/* Page Title */}
             <div className="flex items-center gap-3">
@@ -53,76 +53,25 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-3">
-              {/* Search */}
-              <div className="relative" style={{ width: '294px' }}>
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#5B636E' }} />
-                <Input
-                  type="search"
-                  placeholder="search records, appointment"
-                  className="pl-10 h-12 border-0 rounded-full"
-                  style={{ backgroundColor: '#EEF0F3', color: '#5B636E' }}
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
-                />
-              </div>
+              {/* Search Icon Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-12 w-12 rounded-full hover:bg-gray-100"
+                style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5' }}
+              >
+                <Search className="h-5 w-5" style={{ color: '#171717', strokeWidth: 2 }} />
+              </Button>
 
               {/* Notifications */}
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-12 w-12 rounded-full hover:bg-transparent"
-                style={{ backgroundColor: '#EEF0F3' }}
+                className="h-12 w-12 rounded-full hover:bg-gray-100"
+                style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5' }}
               >
-                <Bell className="h-6 w-6" style={{ color: '#0A0B0D', strokeWidth: 1.5 }} />
+                <Bell className="h-5 w-5" style={{ color: '#171717', strokeWidth: 2 }} />
               </Button>
-
-              {/* AI Assistant with gradient border */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-12 w-12 rounded-full hover:bg-transparent"
-                style={{
-                  backgroundColor: '#F5F8FF',
-                  border: '1px solid transparent',
-                  backgroundImage: 'linear-gradient(#F5F8FF, #F5F8FF), linear-gradient(135deg, #FFFFFF 0%, #0052FF 50%, #FFFFFF 100%)',
-                  backgroundOrigin: 'border-box',
-                  backgroundClip: 'padding-box, border-box'
-                }}
-              >
-                <img src="/assets/icons/ai.svg" alt="AI Assistant" className="h-6 w-6" />
-              </Button>
-
-              {/* User Profile Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="hover:opacity-80 transition-opacity">
-                    <img
-                      src="/assets/icons/avatar-sanjana.svg"
-                      alt={user.name}
-                      className="h-12 w-12 rounded-full"
-                    />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <div className="px-2 py-1.5">
-                    <p className="text-sm font-medium">{user.name}</p>
-                    <p className="text-xs text-muted-foreground">{user.email}</p>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/settings/profile">Profile Settings</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/settings/preferences">Preferences</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/logout" method="post" as="button" className="w-full">
-                      Log Out
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
           </div>
         </header>
@@ -147,7 +96,7 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
  */
 function Sidebar() {
   return (
-    <aside className="w-80 bg-background flex flex-col" style={{ borderRight: '1px solid #CED2DB' }}>
+    <aside className="w-80 bg-background flex flex-col" style={{ borderRight: '1px solid #E5E5E5' }}>
       {/* Logo */}
       <div className="px-6 py-8">
         <Link href="/dashboard" className="flex items-center gap-3">
