@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import {
   PromptInput,
@@ -7,6 +7,7 @@ import {
   PromptInputAction,
 } from '@/Components/ui/prompt-input';
 import { PromptInputContainer } from '@/Components/ui/prompt-input-container';
+import { PromptSuggestion } from '@/Components/ui/prompt-suggestion';
 import { Button } from '@/Components/ui/button';
 
 interface User {
@@ -32,15 +33,17 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 
+  const startConversation = (type: 'doctor' | 'lab_test', initialMessage?: string) => {
+    setIsLoading(true);
+    router.post('/booking/start', {
+      type,
+      initial_message: initialMessage,
+    });
+  };
+
   const handleSubmit = () => {
     if (!query.trim()) return;
-    setIsLoading(true);
-    // Handle AI query submission
-    console.log('Submitting query:', query);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+    startConversation('doctor', query.trim());
   };
 
   return (
@@ -475,71 +478,19 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
               flexWrap: 'wrap',
             }}
           >
-            {/* Book a doctor */}
-            <button
-              onClick={() => setSelectedOption('doctor')}
-              className="font-medium"
-              style={{
-                height: '44px',
-                padding: '0 24px',
-                backgroundColor:
-                  selectedOption === 'doctor' ? '#0A0B0D' : '#FFFFFF',
-                border: '1px solid #E5E7EB',
-                borderRadius: '9999px',
-                fontSize: '15px',
-                fontWeight: 500,
-                lineHeight: '22px',
-                color: selectedOption === 'doctor' ? '#FFFFFF' : '#0A0B0D',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                whiteSpace: 'nowrap',
-              }}
-              onMouseEnter={(e) => {
-                if (selectedOption !== 'doctor') {
-                  e.currentTarget.style.backgroundColor = '#F9FAFB';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (selectedOption !== 'doctor') {
-                  e.currentTarget.style.backgroundColor = '#FFFFFF';
-                }
-              }}
+            <PromptSuggestion
+              onClick={() => startConversation('doctor')}
+              disabled={isLoading}
             >
               Book a doctor
-            </button>
+            </PromptSuggestion>
 
-            {/* Book a test */}
-            <button
-              onClick={() => setSelectedOption('test')}
-              className="font-medium"
-              style={{
-                height: '44px',
-                padding: '0 24px',
-                backgroundColor:
-                  selectedOption === 'test' ? '#0A0B0D' : '#FFFFFF',
-                border: '1px solid #E5E7EB',
-                borderRadius: '9999px',
-                fontSize: '15px',
-                fontWeight: 500,
-                lineHeight: '22px',
-                color: selectedOption === 'test' ? '#FFFFFF' : '#0A0B0D',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                whiteSpace: 'nowrap',
-              }}
-              onMouseEnter={(e) => {
-                if (selectedOption !== 'test') {
-                  e.currentTarget.style.backgroundColor = '#F9FAFB';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (selectedOption !== 'test') {
-                  e.currentTarget.style.backgroundColor = '#FFFFFF';
-                }
-              }}
+            <PromptSuggestion
+              onClick={() => startConversation('lab_test')}
+              disabled={isLoading}
             >
               Book a test
-            </button>
+            </PromptSuggestion>
           </div>
 
           {/* Disclaimer */}
