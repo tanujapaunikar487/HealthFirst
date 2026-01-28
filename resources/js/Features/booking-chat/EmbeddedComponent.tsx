@@ -303,16 +303,16 @@ function PatientSelector({ patients, selected, onSelect, disabled }: any) {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <div className="font-medium text-[13px] leading-tight text-foreground truncate">{patient.name}</div>
+              <div className="font-medium text-sm leading-tight text-foreground truncate">{patient.name}</div>
               {patient.relation && (
-                <div className="text-[11px] leading-tight text-muted-foreground mt-0.5">{patient.relation}</div>
+                <div className="text-xs leading-tight text-muted-foreground mt-0.5">{patient.relation}</div>
               )}
             </div>
           </button>
         ))}
       </div>
 
-      <button className="text-[13px] text-foreground hover:text-primary transition-colors flex items-center gap-1 mt-2">
+      <button className="text-sm text-foreground hover:text-primary transition-colors flex items-center gap-1 mt-2">
         Add family member or guest →
       </button>
     </div>
