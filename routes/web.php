@@ -27,7 +27,7 @@ Route::get('/dashboard', function () {
             'number' => 1,
             'title' => 'Complete your health profile',
             'subtitle' => 'Add DOB, blood group, allergies, medical history',
-            'completed' => false,
+            'completed' => true,
             'href' => '/profile/health',
         ],
         [
@@ -35,7 +35,7 @@ Route::get('/dashboard', function () {
             'number' => 2,
             'title' => 'Link insurance',
             'subtitle' => 'Make insurance claims hassle free',
-            'completed' => false,
+            'completed' => true,
             'href' => '/insurance/setup',
         ],
         [
@@ -43,7 +43,7 @@ Route::get('/dashboard', function () {
             'number' => 3,
             'title' => 'Add family members',
             'subtitle' => 'Manage appointments for your entire family',
-            'completed' => false,
+            'completed' => true,
             'href' => '/family-members/create',
         ],
     ];
@@ -53,6 +53,22 @@ Route::get('/dashboard', function () {
         'profileSteps' => $profileSteps,
     ]);
 })->name('dashboard');
+
+// Appointments
+Route::get('/appointments/create', function () {
+    // Create a mock user for demo
+    $mockUser = (object) [
+        'id' => 1,
+        'name' => 'Sanjana Jaisinghani',
+        'email' => 'sanjana@example.com',
+        'avatar_url' => null,
+        'patient' => null,
+    ];
+
+    return \Inertia\Inertia::render('Appointments/Create', [
+        'user' => $mockUser,
+    ]);
+})->name('appointments.create');
 
 // Auth routes (commented out for demo)
 // require __DIR__.'/auth.php';
