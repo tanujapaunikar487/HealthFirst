@@ -709,8 +709,14 @@ open http://127.0.0.1:3000
   * "Add family member" link: text-[13px] → text-sm (14px)
 - ✅ Maintains 14px base font size standard across all booking components
 
+### UX Improvements - Placeholder Text (January 29, 2026)
+- ✅ Enhanced placeholder text in conversation text input
+  * followup_update: "Share any updates, new symptoms, or concerns... (or leave blank to skip)"
+  * Default: "Type your message here..." (more descriptive than "Type here...")
+- ✅ Provides better context-aware guidance during conversation flow
+
 ---
 
 **Last Updated**: January 29, 2026
-**Latest Commit**: e64ad52 (Font size consistency fix)
+**Latest Commit**: b4dc52c (Placeholder text improvements)
 **Status**: ✅ Dashboard Complete | ✅ AI Booking Flow Complete | 🎨 Font Standardization Complete | ✅ Follow-Up Flow Complete | ✅ Calendar Integration Complete
