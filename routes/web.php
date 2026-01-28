@@ -3,6 +3,8 @@
 use App\Http\Controllers\BookingConversationController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GuidedDoctorController;
+use App\Http\Controllers\GuidedLabController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -91,6 +93,33 @@ Route::prefix('booking')->name('booking.')->group(function () {
     // Calendar routes
     Route::get('/{conversation}/calendar/google', [CalendarController::class, 'googleCalendar'])->name('calendar.google');
     Route::get('/{conversation}/calendar/download', [CalendarController::class, 'downloadIcs'])->name('calendar.download');
+
+    // Guided Doctor Booking Flow
+    Route::prefix('doctor')->name('doctor.')->group(function () {
+        Route::get('/patient', [GuidedDoctorController::class, 'patient'])->name('patient');
+        Route::post('/patient', [GuidedDoctorController::class, 'storePatient']);
+
+        Route::get('/concerns', [GuidedDoctorController::class, 'concerns'])->name('concerns');
+        Route::post('/concerns', [GuidedDoctorController::class, 'storeConcerns']);
+
+        Route::get('/doctor-time', [GuidedDoctorController::class, 'doctorTime'])->name('doctor-time');
+        Route::post('/doctor-time', [GuidedDoctorController::class, 'storeDoctorTime']);
+
+        Route::get('/confirm', [GuidedDoctorController::class, 'confirm'])->name('confirm');
+        Route::post('/confirm', [GuidedDoctorController::class, 'processPayment']);
+    });
+
+    // Guided Lab Booking Flow
+    Route::prefix('lab')->name('lab.')->group(function () {
+        Route::get('/patient-test', [GuidedLabController::class, 'patientTest'])->name('patient-test');
+        Route::post('/patient-test', [GuidedLabController::class, 'storePatientTest']);
+
+        Route::get('/packages-schedule', [GuidedLabController::class, 'packagesSchedule'])->name('packages-schedule');
+        Route::post('/packages-schedule', [GuidedLabController::class, 'storePackagesSchedule']);
+
+        Route::get('/confirm', [GuidedLabController::class, 'confirm'])->name('confirm');
+        Route::post('/confirm', [GuidedLabController::class, 'processPayment']);
+    });
 });
 
 // Booking confirmation page
