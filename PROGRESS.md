@@ -522,6 +522,42 @@ open http://127.0.0.1:3000
 
 ---
 
-**Last Updated**: January 28, 2026
-**Latest Commit**: 02943c9
-**Status**: ✅ Dashboard Complete | 🚧 AI Booking Backend In Progress
+---
+
+## 🆕 Recent Updates (January 29, 2026)
+
+### Font Standardization & UI Consistency
+- ✅ Standardized base font size to 14px (text-sm) across all booking components
+- ✅ Established typography hierarchy:
+  * Primary text: text-sm (14px)
+  * Secondary/metadata: text-xs (12px)
+  * Tertiary/labels: text-[10px] (10px)
+- ✅ Updated all embedded booking components:
+  * EmbeddedConsultationMode
+  * EmbeddedBookingSummary
+  * EmbeddedPackageList
+  * EmbeddedLocationSelector
+  * EmbeddedDateTimePicker
+  * EmbeddedDoctorList
+  * Confirmation page
+- ✅ Updated Button component: all sizes (lg, xl, cta) now use text-sm
+
+### UI Improvements
+- ✅ Human-readable selection text instead of JSON in conversation
+- ✅ Dynamic doctor listing messages based on urgency selection
+- ✅ Improved dropdown z-index (z-[9999]) for proper layering
+- ✅ Reduced table cell padding (px-4 py-3) for compact layout
+- ✅ Button group center alignment on confirmation page
+- ✅ Added flex-col to date buttons for vertical layout
+
+### Bug Fixes
+- ✅ Fixed dropdown overlay issues with proper z-index
+- ✅ Fixed font size inconsistencies in package metadata
+- ✅ Fixed warning message font sizes in date/time picker
+- ✅ Fixed user message display to show readable text
+
+---
+
+**Last Updated**: January 29, 2026
+**Latest Commit**: 49de1e1
+**Status**: ✅ Dashboard Complete | ✅ AI Booking Flow Complete | 🎨 Font Standardization Complete
