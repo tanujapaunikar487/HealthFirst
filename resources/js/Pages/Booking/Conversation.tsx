@@ -61,9 +61,18 @@ export default function Conversation({ conversation }: Props) {
     const trimmedContent = content.trim();
     setInput('');
 
+    // If we're on the followup_update step, send as user_selection
+    const isFollowupUpdate = conversation.current_step === 'followup_update';
+
     router.post(
       `/booking/${conversation.id}/message`,
-      { content: trimmedContent },
+      {
+        content: trimmedContent,
+        ...(isFollowupUpdate && {
+          component_type: 'text_input',
+          user_selection: { text: trimmedContent }
+        })
+      },
       {
         preserveScroll: true,
         onFinish: () => setIsLoading(false),
@@ -80,6 +89,20 @@ export default function Conversation({ conversation }: Props) {
 
       case 'consultation_type_selector':
         return value.consultation_type === 'new' ? 'New Consultation' : 'Follow-up';
+
+      case 'followup_flow':
+        const reasonMap: Record<string, string> = {
+          'scheduled': 'Scheduled follow-up',
+          'new_concern': 'New concern',
+          'ongoing_issue': 'Ongoing issue'
+        };
+        return reasonMap[value.reason] || value.reason;
+
+      case 'previous_doctors':
+        if (value.action === 'see_other_doctors') {
+          return 'See other doctors instead';
+        }
+        return `Dr. ${value.doctorId} at ${value.time}`;
 
       case 'urgency_selector':
         const urgencyMap: Record<string, string> = {
@@ -227,7 +250,7 @@ export default function Conversation({ conversation }: Props) {
                   </div>
                 )}
 
-                {conversation.messages.map((message) => (
+                {conversation.messages.map((message, index) => (
                   <MessageBubble
                     key={message.id}
                     message={message}
@@ -236,6 +259,7 @@ export default function Conversation({ conversation }: Props) {
                     conversationId={conversation.id}
                     onSelection={sendSelection}
                     disabled={isLoading}
+                    hasNextMessage={index < conversation.messages.length - 1}
                   />
                 ))}
 
@@ -459,6 +483,7 @@ function MessageBubble({
   conversationId,
   onSelection,
   disabled,
+  hasNextMessage,
 }: {
   message: ConversationMessage;
   user: any;
@@ -466,6 +491,7 @@ function MessageBubble({
   conversationId: string;
   onSelection: (type: string, value: any) => void;
   disabled: boolean;
+  hasNextMessage: boolean;
 }) {
   if (message.role === 'user') {
     return (
@@ -484,7 +510,7 @@ function MessageBubble({
         {/* Text content */}
         {message.content && (
           <div className="rounded-2xl px-4 py-2.5 bg-[#F3F4F6] text-[#0A0B0D] mb-2.5">
-            <p className="text-sm leading-relaxed">{message.content}</p>
+            <p className="text-sm leading-relaxed whitespace-pre-line">{message.content}</p>
           </div>
         )}
 
@@ -498,7 +524,7 @@ function MessageBubble({
               familyMembers={familyMembers}
               conversationId={conversationId}
               onSelect={(value) => onSelection(message.component_type!, value)}
-              disabled={disabled || message.user_selection !== null}
+              disabled={disabled || message.user_selection !== null || hasNextMessage}
             />
           </div>
         )}
@@ -515,7 +541,9 @@ function getPlaceholder(step: string): string {
       return "Enter a date like '25 Dec evening'...";
     case 'test_type':
       return "Describe what test you need...";
+    case 'followup_update':
+      return "(or leave blank)...";
     default:
-      return "Type doctor's name";
+      return "Type here...";
   }
 }

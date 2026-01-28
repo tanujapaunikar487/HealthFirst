@@ -10,6 +10,8 @@ import { EmbeddedConsultationType } from './embedded/EmbeddedConsultationType';
 import { EmbeddedUrgencySelector } from './embedded/EmbeddedUrgencySelector';
 import { EmbeddedConsultationMode } from './embedded/EmbeddedConsultationMode';
 import { EmbeddedBookingSummary } from './embedded/EmbeddedBookingSummary';
+import { EmbeddedFollowUpFlow } from './embedded/EmbeddedFollowUpFlow';
+import { EmbeddedPreviousDoctorsList } from './embedded/EmbeddedPreviousDoctorsList';
 
 /**
  * EmbeddedComponent
@@ -244,6 +246,29 @@ export function EmbeddedComponent({
           onSelect={(date, time) => onSelect({ date, time })}
           disabled={disabled || isSelected}
           warning={data?.warning}
+        />
+      );
+
+    case 'followup_flow':
+      return (
+        <EmbeddedFollowUpFlow
+          previousVisit={data?.previousVisit}
+          selectedReason={selection?.reason}
+          onSelect={(reason) => onSelect({ reason })}
+          disabled={disabled || isSelected}
+        />
+      );
+
+    case 'previous_doctors':
+      return (
+        <EmbeddedPreviousDoctorsList
+          primaryDoctor={data?.primaryDoctor}
+          otherDoctors={data?.otherDoctors || []}
+          selectedDoctorId={selection?.doctorId}
+          selectedTime={selection?.time}
+          onSelect={(doctorId, time) => onSelect({ doctorId, time })}
+          onSeeOtherDoctors={() => onSelect({ action: 'see_other_doctors' })}
+          disabled={disabled || isSelected}
         />
       );
 

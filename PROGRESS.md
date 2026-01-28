@@ -1,9 +1,9 @@
 # Healthcare Platform Implementation Progress
 
-## Latest Update: January 28, 2026
+## Latest Update: January 29, 2026
 
 ## Summary
-Successfully implemented the patient dashboard and AI-powered appointment booking flow with pixel-perfect Figma design specifications using React, TypeScript, Inertia.js, Laravel 11.x, and Prompt Kit integration.
+Successfully implemented the patient dashboard and AI-powered appointment booking flow with pixel-perfect Figma design specifications. Completed follow-up consultation flow with reason selection, conditional messaging, and previous doctor suggestions using React, TypeScript, Inertia.js, Laravel 11.x, and Prompt Kit integration.
 
 ---
 
@@ -103,7 +103,45 @@ Successfully implemented the patient dashboard and AI-powered appointment bookin
 - **Disclaimer**: "AI may make mistakes..." (14px, gray)
 - **Background**: Light blue (#F5F8FF)
 
-### 6. Design System Components (NEW)
+### 6. Follow-Up Consultation Flow (NEW)
+#### Components Created
+- **EmbeddedFollowUpFlow.tsx**: Combined view with previous visit card and reason selector
+- **EmbeddedPreviousVisit.tsx**: Displays last consultation details
+  - Clock icon with formatted date (e.g., "15 Jan 2026")
+  - Doctor info with avatar, name, and specialization
+  - Reason for visit in bordered container
+  - Doctor's notes section
+- **EmbeddedFollowUpReason.tsx**: Three-option selector with colored dots
+  - Scheduled follow-up (blue dot)
+  - New concern (amber dot)
+  - Ongoing issue (red dot)
+- **EmbeddedPreviousDoctorsList.tsx**: Shows previously seen doctors
+  - Primary doctor with prominent display
+  - Last visit badge and previous symptoms
+  - Time slot selection grid
+  - "See other doctors" option
+
+#### Conditional AI Messages
+- Different prompts based on selected reason:
+  - **Scheduled**: "Got it. Any updates you'd like to share with the doctor?"
+  - **New concern**: "What new symptoms or changes have you noticed?"
+  - **Ongoing issue**: "I'm sorry to hear that. Can you describe what's still bothering you?"
+
+#### Backend Logic
+- **ConversationOrchestrator.php**:
+  - `handleFollowUpFlow()`: Manages reason selection
+  - `handleFollowUpUpdate()`: Collects optional patient updates
+  - `handlePreviousDoctorsSelection()`: Processes doctor/time selection
+  - `updateCurrentStep()`: Helper to sync model and collected_data
+  - `shouldIgnoreSelection()`: Prevents duplicate submissions
+
+#### Key Fixes Implemented
+1. **Duplicate selection prevention**: Frontend disables components after response
+2. **Message repetition fix**: Backend validates before adding user messages
+3. **Step synchronization**: Both `current_step` (model) and `collected_data['current_step']` updated together
+4. **Text formatting**: Supports line breaks with `whitespace-pre-line` CSS
+
+### 7. Design System Components
 #### Toast Component (`resources/js/Components/ui/toast.tsx`)
 - Auto-dismiss notification with configurable duration
 - Dark background (#0A0B0D), white text
@@ -191,7 +229,21 @@ Gradients:
    - Focus state management
    - Option buttons for doctor/test selection
 
-3. **resources/js/Layouts/AppLayout.tsx**
+3. **resources/js/Pages/Booking/Conversation.tsx** (NEW)
+   - Conversational booking interface
+   - Message bubble components
+   - Embedded component integration
+   - Text input with step-aware submission
+   - Component disabling after user response
+
+4. **resources/js/Features/booking-chat/embedded/** (NEW)
+   - EmbeddedFollowUpFlow.tsx
+   - EmbeddedFollowUpReason.tsx
+   - EmbeddedPreviousVisit.tsx
+   - EmbeddedPreviousDoctorsList.tsx
+   - EmbeddedComponent.tsx (router)
+
+5. **resources/js/Layouts/AppLayout.tsx**
    - Sidebar with navigation
    - Top header with search and actions
    - User dropdown menu
@@ -213,13 +265,38 @@ Gradients:
 ### Backend
 1. **routes/web.php**
    - Dashboard route with completed profile steps
-   - `/appointments/create` route (NEW)
+   - `/appointments/create` route
+   - `/booking/{conversation}/message` route (NEW)
    - Mock user data setup
 
 2. **app/Http/Controllers/DashboardController.php**
    - Profile completion status calculation
    - Mock family members data
    - Inertia.js response rendering
+
+3. **app/Http/Controllers/BookingConversationController.php** (NEW)
+   - `start()`: Initializes booking conversation
+   - `show()`: Renders conversation view
+   - `message()`: Processes user responses
+   - Integrates with ConversationOrchestrator
+
+4. **app/Services/Booking/ConversationOrchestrator.php** (NEW)
+   - Multi-step conversation flow management
+   - Follow-up consultation logic
+   - Previous doctor retrieval
+   - Step validation and duplicate prevention
+   - Current step synchronization (model + JSON)
+
+5. **app/BookingConversation.php** (NEW)
+   - Model with UUID primary key
+   - JSON cast for collected_data
+   - Message relationship
+   - Helper methods for step management
+
+6. **app/ConversationMessage.php** (NEW)
+   - Stores user and assistant messages
+   - JSON cast for component_data and user_selection
+   - Links to BookingConversation
 
 ### Assets
 1. **public/assets/images/**
@@ -556,8 +633,33 @@ open http://127.0.0.1:3000
 - ✅ Fixed warning message font sizes in date/time picker
 - ✅ Fixed user message display to show readable text
 
+### Follow-Up Appointment Flow
+- ✅ Created EmbeddedPreviousVisit component - displays previous consultation details
+- ✅ Created EmbeddedFollowUpReason component - three reason options with colored dots
+- ✅ Created EmbeddedFollowUpFlow component - combines previous visit + reason selector
+- ✅ Created EmbeddedPreviousDoctorsList component - shows previous doctors with context
+- ✅ Created EmbeddedTextInput component - text input with skip option
+- ✅ Updated ConversationOrchestrator backend logic:
+  * handleFollowUpFlow - displays previous visit and collects reason
+  * handleFollowUpUpdate - conditional AI messages based on reason
+  * handlePreviousDoctorsSelection - shows previous doctors or redirects
+  * getPreviousConsultation and getPreviousDoctors helper methods
+- ✅ Updated EmbeddedComponent router with new component types
+- ✅ Updated Conversation page with dynamic placeholders
+- ✅ Updated formatSelectionText for follow-up flow components
+
+**Follow-Up Flow Steps**:
+1. User selects "Follow-up" consultation type
+2. System displays previous visit card with reason selector
+3. User selects reason (scheduled/new concern/ongoing issue)
+4. System asks for updates with conditional messaging
+5. User provides updates or skips
+6. System shows previous doctors with last visit context
+7. User selects doctor + time or "See other doctors instead"
+8. Continues to consultation mode → summary → payment
+
 ---
 
 **Last Updated**: January 29, 2026
 **Latest Commit**: 49de1e1
-**Status**: ✅ Dashboard Complete | ✅ AI Booking Flow Complete | 🎨 Font Standardization Complete
+**Status**: ✅ Dashboard Complete | ✅ AI Booking Flow Complete | 🎨 Font Standardization Complete | ✅ Follow-Up Flow Complete

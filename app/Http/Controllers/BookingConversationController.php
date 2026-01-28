@@ -76,16 +76,8 @@ class BookingConversationController extends Controller
             'user_selection' => 'nullable|array',
         ]);
 
-        // Only add user message if there's actual text content (not component selections)
-        if (!empty($validated['content']) && empty($validated['user_selection'])) {
-            $conversation->addMessage(
-                'user',
-                $validated['content'],
-                $validated['component_type'] ?? null
-            );
-        }
-
         // Process the conversation with user input
+        // The orchestrator will handle adding the user message
         $response = $this->orchestrator->process(
             $conversation,
             $validated['content'] ?? null,

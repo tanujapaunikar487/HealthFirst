@@ -13,19 +13,54 @@ class ConversationOrchestrator
      */
     public function process(BookingConversation $conversation, ?string $userInput = null, ?array $componentSelection = null): array
     {
+        // Determine current step
+        $currentStep = $conversation->collected_data['current_step'] ?? 'initial';
+        $bookingType = $conversation->collected_data['booking_type'] ?? null;
+
+        // Check if this is a duplicate selection that should be ignored
+        if ($componentSelection && $this->shouldIgnoreSelection($conversation, $currentStep, $componentSelection)) {
+            // Don't add user message, don't process - just return current state
+            return ['status' => 'ignored'];
+        }
+
         // Add user message if there's input
         if ($userInput || $componentSelection) {
             $this->addUserMessage($conversation, $userInput, $componentSelection);
         }
 
-        // Determine current step
-        $currentStep = $conversation->collected_data['current_step'] ?? 'initial';
-        $bookingType = $conversation->collected_data['booking_type'] ?? null;
-
         // Process the current step
         $response = $this->handleStep($conversation, $currentStep, $bookingType, $componentSelection);
 
         return $response;
+    }
+
+    /**
+     * Check if a selection should be ignored (duplicate or invalid)
+     */
+    protected function shouldIgnoreSelection(BookingConversation $conversation, string $currentStep, array $selection): bool
+    {
+        // Ignore duplicate follow-up reason selections
+        if ($currentStep === 'followup_reason' && isset($selection['reason']) && isset($conversation->collected_data['followup_reason'])) {
+            return true;
+        }
+
+        // Ignore follow-up reason selections when we're past that step
+        if ($currentStep === 'followup_update' && isset($selection['reason'])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Update current step in both collected_data and model attribute
+     */
+    protected function updateCurrentStep(BookingConversation $conversation, string $step): void
+    {
+        $conversation->collected_data = array_merge($conversation->collected_data, [
+            'current_step' => $step,
+        ]);
+        $conversation->current_step = $step;
     }
 
     /**
@@ -86,6 +121,15 @@ class ConversationOrchestrator
 
             case 'consultation_type':
                 return $this->handleConsultationType($conversation, $selection);
+
+            case 'followup_reason':
+                return $this->handleFollowUpFlow($conversation, $selection);
+
+            case 'followup_update':
+                return $this->handleFollowUpUpdate($conversation, $selection);
+
+            case 'previous_doctors':
+                return $this->handlePreviousDoctorsSelection($conversation, $selection);
 
             case 'urgency':
                 return $this->handleUrgency($conversation, $selection);
@@ -181,6 +225,17 @@ class ConversationOrchestrator
             ]);
         }
 
+        // If follow-up, start follow-up flow
+        if ($selection['consultation_type'] === 'followup') {
+            $conversation->collected_data = array_merge($conversation->collected_data, [
+                'consultation_type' => $selection['consultation_type'],
+                'current_step' => 'followup_reason',
+            ]);
+            $conversation->save();
+            return $this->handleFollowUpFlow($conversation, null);
+        }
+
+        // Otherwise, continue with regular flow
         $conversation->collected_data = array_merge($conversation->collected_data, [
             'consultation_type' => $selection['consultation_type'],
             'current_step' => 'urgency',
@@ -188,6 +243,130 @@ class ConversationOrchestrator
         $conversation->save();
 
         return $this->handleUrgency($conversation, null);
+    }
+
+    /**
+     * Handle follow-up flow with reason selection
+     */
+    protected function handleFollowUpFlow(BookingConversation $conversation, ?array $selection): array
+    {
+        if (!$selection) {
+            // Fetch the most recent consultation for this patient
+            $previousVisit = $this->getPreviousConsultation($conversation->collected_data['patient_id']);
+
+            if (!$previousVisit) {
+                // No previous visits found - redirect to regular flow
+                return $this->addAssistantMessage($conversation, [
+                    'text' => "I couldn't find any previous consultations. Let's book a new appointment instead.",
+                    'component_type' => null,
+                    'component_data' => null,
+                    'next_step' => 'urgency',
+                ]);
+            }
+
+            return $this->addAssistantMessage($conversation, [
+                'text' => 'I found your previous consultation. What brings you back today?',
+                'component_type' => 'followup_flow',
+                'component_data' => [
+                    'previousVisit' => $previousVisit,
+                ],
+                'next_step' => 'followup_update',
+            ]);
+        }
+
+        // Store the selected reason and update step
+        $conversation->collected_data = array_merge($conversation->collected_data, [
+            'followup_reason' => $selection['reason'],
+        ]);
+        $this->updateCurrentStep($conversation, 'followup_update');
+        $conversation->save();
+
+        return $this->handleFollowUpUpdate($conversation, null);
+    }
+
+    /**
+     * Handle follow-up update collection
+     */
+    protected function handleFollowUpUpdate(BookingConversation $conversation, ?array $selection): array
+    {
+        $reason = $conversation->collected_data['followup_reason'];
+
+        // Customize message based on reason
+        $messageText = match ($reason) {
+            'scheduled' => "Got it. Any updates you'd like to share with the doctor?\nThis will help the doctor prepare for your visit. You can also skip this.",
+            'new_concern' => "What new symptoms or changes have you noticed?\nThis will help the doctor prepare for your visit. You can also skip this.",
+            'ongoing_issue' => "I'm sorry to hear that. Can you describe what's still bothering you?\nThis will help the doctor prepare for your visit. You can also skip this.",
+            default => "Would you like to share any updates about your condition?\nThis will help the doctor prepare for your visit. You can also skip this.",
+        };
+
+        // If no user input yet, show the message and wait
+        if (!$selection) {
+            return $this->addAssistantMessage($conversation, [
+                'text' => $messageText,
+                'component_type' => null,
+                'component_data' => null,
+                'next_step' => 'previous_doctors',
+            ]);
+        }
+
+        // Store the update (user typed something or skipped)
+        $conversation->collected_data = array_merge($conversation->collected_data, [
+            'followup_update' => $selection['text'] ?? null,
+        ]);
+        $this->updateCurrentStep($conversation, 'previous_doctors');
+        $conversation->save();
+
+        return $this->handlePreviousDoctorsSelection($conversation, null);
+    }
+
+    /**
+     * Handle previous doctors selection
+     */
+    protected function handlePreviousDoctorsSelection(BookingConversation $conversation, ?array $selection): array
+    {
+        // If selection doesn't have doctorId or action, treat as no selection
+        // (This handles cases where text input from previous step is passed)
+        if (!$selection || (!isset($selection['doctorId']) && !isset($selection['action']))) {
+            $patientId = $conversation->collected_data['patient_id'];
+            $previousDoctors = $this->getPreviousDoctors($patientId);
+
+            if (empty($previousDoctors)) {
+                // No previous doctors - go to regular doctor selection
+                $this->updateCurrentStep($conversation, 'doctor_selection');
+                $conversation->save();
+                return $this->handleDoctorSelection($conversation, null);
+            }
+
+            $primaryDoctor = $previousDoctors[0];
+            $otherDoctors = array_slice($previousDoctors, 1, 2); // Show up to 2 other doctors
+
+            return $this->addAssistantMessage($conversation, [
+                'text' => 'Here are doctors you\'ve seen before with available slots:',
+                'component_type' => 'previous_doctors',
+                'component_data' => [
+                    'primaryDoctor' => $primaryDoctor,
+                    'otherDoctors' => $otherDoctors,
+                ],
+                'next_step' => 'consultation_mode',
+            ]);
+        }
+
+        // Check if user wants to see other doctors
+        if (isset($selection['action']) && $selection['action'] === 'see_other_doctors') {
+            $this->updateCurrentStep($conversation, 'doctor_selection');
+            $conversation->save();
+            return $this->handleDoctorSelection($conversation, null);
+        }
+
+        // Store selected doctor and time
+        $conversation->collected_data = array_merge($conversation->collected_data, [
+            'doctor_id' => $selection['doctorId'],
+            'time' => $selection['time'],
+            'current_step' => 'consultation_mode',
+        ]);
+        $conversation->save();
+
+        return $this->handleConsultationMode($conversation, null);
     }
 
     /**
@@ -617,6 +796,105 @@ class ConversationOrchestrator
             'id' => 'HF3VY6A550',
             'booking_id' => 'HF3VY6A550',
             'type' => $conversation->collected_data['booking_type'],
+        ];
+    }
+
+    /**
+     * Get the most recent consultation for a patient
+     */
+    protected function getPreviousConsultation(int $patientId): ?array
+    {
+        // Mock data - replace with actual database query
+        // Query: Appointment::where('patient_id', $patientId)
+        //          ->where('status', 'completed')
+        //          ->with('doctor')
+        //          ->orderBy('appointment_date', 'desc')
+        //          ->first();
+
+        return [
+            'doctor' => [
+                'id' => '1',
+                'name' => 'Dr. Sarah Johnson',
+                'avatar' => null,
+                'specialization' => 'General Physician',
+            ],
+            'date' => '2026-01-15',
+            'reason' => 'Persistent headaches, difficulty sleeping',
+            'doctorNotes' => 'Advised stress management techniques and prescribed mild pain relief. Follow-up recommended in 2 weeks.',
+        ];
+    }
+
+    /**
+     * Get previous doctors this patient has seen, with available slots
+     */
+    protected function getPreviousDoctors(int $patientId): array
+    {
+        // Mock data - replace with actual database query
+        // Query: Doctor::whereHas('appointments', function($q) use ($patientId) {
+        //            $q->where('patient_id', $patientId)
+        //              ->where('status', 'completed');
+        //        })
+        //        ->with(['appointments' => function($q) use ($patientId) {
+        //            $q->where('patient_id', $patientId)
+        //              ->where('status', 'completed')
+        //              ->orderBy('appointment_date', 'desc')
+        //              ->limit(1);
+        //        }])
+        //        ->get();
+
+        return [
+            [
+                'id' => '1',
+                'name' => 'Dr. Sarah Johnson',
+                'avatar' => null,
+                'specialization' => 'General Physician',
+                'experience_years' => 15,
+                'rating' => 4.8,
+                'reviewCount' => 324,
+                'price' => 800,
+                'lastVisitDate' => '2026-01-15',
+                'previousSymptoms' => ['Headaches', 'Sleep issues'],
+                'slots' => [
+                    ['time' => '09:00', 'available' => true],
+                    ['time' => '10:00', 'available' => true],
+                    ['time' => '14:00', 'available' => true],
+                    ['time' => '15:00', 'available' => true],
+                ],
+            ],
+            [
+                'id' => '2',
+                'name' => 'Dr. Michael Chen',
+                'avatar' => null,
+                'specialization' => 'Cardiologist',
+                'experience_years' => 12,
+                'rating' => 4.9,
+                'reviewCount' => 156,
+                'price' => 1200,
+                'lastVisitDate' => '2025-12-20',
+                'previousSymptoms' => ['Chest pain', 'Irregular heartbeat'],
+                'slots' => [
+                    ['time' => '11:00', 'available' => true],
+                    ['time' => '16:00', 'available' => true],
+                    ['time' => '17:00', 'available' => true],
+                ],
+            ],
+            [
+                'id' => '3',
+                'name' => 'Dr. Priya Sharma',
+                'avatar' => null,
+                'specialization' => 'Dermatologist',
+                'experience_years' => 10,
+                'rating' => 4.7,
+                'reviewCount' => 289,
+                'price' => 900,
+                'lastVisitDate' => '2025-11-10',
+                'previousSymptoms' => ['Skin rash', 'Acne'],
+                'slots' => [
+                    ['time' => '10:00', 'available' => true],
+                    ['time' => '13:00', 'available' => true],
+                    ['time' => '15:00', 'available' => true],
+                ],
+            ],
         ];
     }
 }
