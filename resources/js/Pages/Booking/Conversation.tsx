@@ -542,8 +542,8 @@ function getPlaceholder(step: string): string {
     case 'test_type':
       return "Describe what test you need...";
     case 'followup_update':
-      return "(or leave blank)...";
+      return "Share any updates, new symptoms, or concerns... (or leave blank to skip)";
     default:
-      return "Type here...";
+      return "Type your message here...";
   }
 }
