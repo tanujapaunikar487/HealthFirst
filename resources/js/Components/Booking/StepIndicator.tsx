@@ -19,7 +19,7 @@ export function StepIndicator({ steps, currentStepId, className }: StepIndicator
 
   return (
     <div className={cn('px-6 py-3 bg-white', className)}>
-      <div className="w-full">
+      <div className="w-full max-w-[800px] mx-auto">
         {/* Progress line container */}
         <div className="relative mb-2 h-1">
           {/* Background line */}
@@ -34,8 +34,11 @@ export function StepIndicator({ steps, currentStepId, className }: StepIndicator
           {/* Current step circle indicator - positioned at the end of progress */}
           {currentIndex < steps.length && (
             <div
-              className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-blue-600 rounded-full z-10 transition-all duration-300"
-              style={{ left: `${progressPercentage}%`, transform: 'translate(-50%, -50%)' }}
+              className="absolute top-1/2 w-3.5 h-3.5 bg-blue-600 rounded-full z-10 transition-all duration-300"
+              style={{
+                left: `${progressPercentage}%`,
+                transform: 'translate(-50%, -50%)',
+              }}
             />
           )}
         </div>
