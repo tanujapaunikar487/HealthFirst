@@ -12,51 +12,81 @@ interface StepIndicatorProps {
 }
 
 export function StepIndicator({ steps, currentStepId, className }: StepIndicatorProps) {
-  const currentIndex = steps.findIndex(s => s.id === currentStepId);
+  const currentIndex = steps.findIndex((s) => s.id === currentStepId);
 
   return (
-    <div className={cn("px-6 py-4 bg-white border-b border-gray-200", className)}>
-      <div className="flex items-center justify-between max-w-3xl mx-auto">
-        {steps.map((step, index) => {
-          const isCompleted = index < currentIndex;
-          const isCurrent = index === currentIndex;
-          const isLast = index === steps.length - 1;
+    <div className={cn('px-6 py-4 bg-white', className)}>
+      <div className="max-w-3xl mx-auto">
+        {/* Progress line container */}
+        <div className="relative mb-3">
+          <div className="flex items-center">
+            {steps.map((step, index) => {
+              const isCompleted = index < currentIndex;
+              const isCurrent = index === currentIndex;
+              const isLast = index === steps.length - 1;
 
-          return (
-            <div key={step.id} className="flex items-center flex-1">
-              {/* Step label */}
-              <div className="flex flex-col items-center relative z-10">
-                <span className={cn(
-                  "text-sm whitespace-nowrap",
-                  isCurrent ? "font-semibold text-foreground" : "text-muted-foreground"
-                )}>
+              return (
+                <div key={step.id} className="flex items-center flex-1">
+                  {/* Progress segment */}
+                  <div className="relative h-1 flex-1">
+                    {/* Background line */}
+                    <div className="absolute inset-0 bg-gray-200" />
+
+                    {/* Active progress line */}
+                    {(isCompleted || isCurrent) && (
+                      <div className="absolute inset-0 bg-primary transition-all duration-300" />
+                    )}
+
+                    {/* Current step circle indicator */}
+                    {isCurrent && !isLast && (
+                      <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/2 w-3.5 h-3.5 bg-primary rounded-full" />
+                    )}
+                  </div>
+
+                  {/* Last step has a circle at the end */}
+                  {isLast && (
+                    <div
+                      className={cn(
+                        'w-3.5 h-3.5 rounded-full transition-colors',
+                        isCurrent || isCompleted ? 'bg-primary' : 'bg-gray-200'
+                      )}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Step labels */}
+        <div className="flex items-center justify-between">
+          {steps.map((step, index) => {
+            const isCurrent = index === currentIndex;
+
+            return (
+              <div
+                key={step.id}
+                className={cn('text-sm whitespace-nowrap', index === 0 ? 'text-left' : '')}
+                style={
+                  index === 0
+                    ? { flex: '0 0 auto' }
+                    : index === steps.length - 1
+                      ? { flex: '0 0 auto' }
+                      : { flex: '1 1 0%', textAlign: 'center' }
+                }
+              >
+                <span
+                  className={cn(
+                    'transition-colors',
+                    isCurrent ? 'font-semibold text-foreground' : 'text-muted-foreground'
+                  )}
+                >
                   {step.label}
                 </span>
               </div>
-
-              {/* Connector line */}
-              {!isLast && (
-                <div className="flex-1 mx-4 h-0.5 relative" style={{ marginTop: '-12px' }}>
-                  {/* Background line */}
-                  <div className="absolute inset-0 bg-gray-200 rounded-full" />
-
-                  {/* Progress line */}
-                  <div
-                    className={cn(
-                      "absolute inset-y-0 left-0 bg-primary rounded-full transition-all duration-300",
-                      isCompleted || isCurrent ? "w-full" : "w-0"
-                    )}
-                  />
-
-                  {/* Current step indicator dot */}
-                  {isCurrent && (
-                    <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/2 w-3 h-3 bg-primary rounded-full shadow-sm" />
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
