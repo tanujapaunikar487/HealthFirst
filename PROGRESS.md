@@ -700,6 +700,17 @@ open http://127.0.0.1:3000
 
 ---
 
+---
+
+### Font Size Consistency Fix (January 29, 2026)
+- ✅ Fixed PatientSelector component font sizes
+  * Patient name: text-[13px] → text-sm (14px)
+  * Patient relation: text-[11px] → text-xs (12px)
+  * "Add family member" link: text-[13px] → text-sm (14px)
+- ✅ Maintains 14px base font size standard across all booking components
+
+---
+
 **Last Updated**: January 29, 2026
-**Latest Commit**: c0044d9 (Calendar Integration)
+**Latest Commit**: e64ad52 (Font size consistency fix)
 **Status**: ✅ Dashboard Complete | ✅ AI Booking Flow Complete | 🎨 Font Standardization Complete | ✅ Follow-Up Flow Complete | ✅ Calendar Integration Complete
