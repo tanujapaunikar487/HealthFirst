@@ -15,10 +15,10 @@ export function StepIndicator({ steps, currentStepId, className }: StepIndicator
   const currentIndex = steps.findIndex((s) => s.id === currentStepId);
 
   return (
-    <div className={cn('px-6 py-4 bg-white', className)}>
+    <div className={cn('px-6 py-3 bg-white', className)}>
       <div className="max-w-3xl mx-auto">
         {/* Progress line container */}
-        <div className="relative mb-3">
+        <div className="relative mb-2">
           <div className="flex items-center">
             {steps.map((step, index) => {
               const isCompleted = index < currentIndex;
@@ -29,17 +29,17 @@ export function StepIndicator({ steps, currentStepId, className }: StepIndicator
                 <div key={step.id} className="flex items-center flex-1">
                   {/* Progress segment */}
                   <div className="relative h-1 flex-1">
-                    {/* Background line */}
-                    <div className="absolute inset-0 bg-gray-200" />
+                    {/* Background line with full radius */}
+                    <div className="absolute inset-0 bg-gray-200 rounded-full" />
 
-                    {/* Active progress line */}
+                    {/* Active progress line with full radius */}
                     {(isCompleted || isCurrent) && (
-                      <div className="absolute inset-0 bg-primary transition-all duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full transition-all duration-300" />
                     )}
 
-                    {/* Current step circle indicator */}
+                    {/* Current step circle indicator - positioned on top */}
                     {isCurrent && !isLast && (
-                      <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/2 w-3.5 h-3.5 bg-primary rounded-full" />
+                      <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/2 w-3.5 h-3.5 bg-blue-600 rounded-full z-10" />
                     )}
                   </div>
 
@@ -47,8 +47,8 @@ export function StepIndicator({ steps, currentStepId, className }: StepIndicator
                   {isLast && (
                     <div
                       className={cn(
-                        'w-3.5 h-3.5 rounded-full transition-colors',
-                        isCurrent || isCompleted ? 'bg-primary' : 'bg-gray-200'
+                        'w-3.5 h-3.5 rounded-full transition-colors z-10',
+                        isCurrent || isCompleted ? 'bg-blue-600' : 'bg-gray-200'
                       )}
                     />
                   )}
