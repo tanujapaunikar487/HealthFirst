@@ -31,9 +31,25 @@ export default function BookingIndex() {
     });
   };
 
+  const startGuidedBooking = (type: 'doctor' | 'lab_test') => {
+    if (type === 'doctor') {
+      router.get('/booking/doctor/patient');
+    } else {
+      router.get('/booking/lab/patient-test');
+    }
+  };
+
   const handleSubmit = () => {
     if (!input.trim()) return;
     startConversation('doctor', input.trim());
+  };
+
+  const handleBookingAction = (type: 'doctor' | 'lab_test') => {
+    if (mode === 'ai') {
+      startConversation(type);
+    } else {
+      startGuidedBooking(type);
+    }
   };
 
   return (
@@ -139,153 +155,155 @@ export default function BookingIndex() {
             What would you like to book today?
           </h1>
 
-          {/* Input with gradient background box */}
-          <PromptInputContainer
-            style={{ maxWidth: '720px', width: '100%' }}
-            gradient={
-              isFocused || input.length > 0
-                ? 'linear-gradient(265deg, #93C5FD 24.67%, #BFDBFE 144.07%)'
-                : 'linear-gradient(265deg, #BFDBFE 24.67%, #FFF 144.07%)'
-            }
-          >
-            <PromptInput
-              value={input}
-              onValueChange={setInput}
-              isLoading={isLoading}
-              onSubmit={handleSubmit}
-              className="w-full border-0 bg-transparent"
+          {/* AI Input - only show in AI mode */}
+          {mode === 'ai' && (
+            <PromptInputContainer
+              style={{ maxWidth: '720px', width: '100%' }}
+              gradient={
+                isFocused || input.length > 0
+                  ? 'linear-gradient(265deg, #93C5FD 24.67%, #BFDBFE 144.07%)'
+                  : 'linear-gradient(265deg, #BFDBFE 24.67%, #FFF 144.07%)'
+              }
             >
-              <PromptInputTextarea
-                placeholder="Type your symptom's"
-                className="text-base text-[#0A0B0D] placeholder:text-[#9CA3AF] min-h-[140px]"
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
-              />
-              <PromptInputActions className="absolute bottom-4 left-4 right-4 flex justify-between">
-                <div className="flex items-center gap-1">
-                  {/* Add Button */}
-                  <PromptInputAction tooltip="Add attachment">
+              <PromptInput
+                value={input}
+                onValueChange={setInput}
+                isLoading={isLoading}
+                onSubmit={handleSubmit}
+                className="w-full border-0 bg-transparent"
+              >
+                <PromptInputTextarea
+                  placeholder="Type your symptom's"
+                  className="text-base text-[#0A0B0D] placeholder:text-[#9CA3AF] min-h-[140px]"
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setIsFocused(false)}
+                />
+                <PromptInputActions className="absolute bottom-4 left-4 right-4 flex justify-between">
+                  <div className="flex items-center gap-1">
+                    {/* Add Button */}
+                    <PromptInputAction tooltip="Add attachment">
+                      <button
+                        style={{
+                          width: '40px',
+                          height: '40px',
+                          backgroundColor: '#FFFFFF',
+                          border: '1px solid #E5E7EB',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#F9FAFB';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = '#FFFFFF';
+                        }}
+                      >
+                        <Plus className="w-[18px] h-[18px]" />
+                      </button>
+                    </PromptInputAction>
+
+                    {/* Search Button */}
+                    <PromptInputAction tooltip="Search">
+                      <button
+                        style={{
+                          height: '40px',
+                          padding: '0 16px',
+                          backgroundColor: '#FFFFFF',
+                          border: '1px solid #E5E7EB',
+                          borderRadius: '20px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          fontSize: '15px',
+                          fontWeight: 400,
+                          color: '#0A0B0D',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#F9FAFB';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = '#FFFFFF';
+                        }}
+                      >
+                        <Globe className="w-[18px] h-[18px]" />
+                        Search
+                      </button>
+                    </PromptInputAction>
+
+                    {/* More Options Button */}
+                    <PromptInputAction tooltip="More options">
+                      <button
+                        style={{
+                          width: '40px',
+                          height: '40px',
+                          backgroundColor: '#FFFFFF',
+                          border: '1px solid #E5E7EB',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#F9FAFB';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = '#FFFFFF';
+                        }}
+                      >
+                        <MoreVertical className="w-[18px] h-[18px]" />
+                      </button>
+                    </PromptInputAction>
+                  </div>
+
+                  {/* Submit Button */}
+                  <PromptInputAction tooltip="Submit">
                     <button
+                      onClick={handleSubmit}
+                      disabled={isLoading || !input.trim()}
                       style={{
                         width: '40px',
                         height: '40px',
-                        backgroundColor: '#FFFFFF',
-                        border: '1px solid #E5E7EB',
+                        backgroundColor: isLoading || !input.trim() ? '#E5E7EB' : '#0052FF',
+                        border: 'none',
                         borderRadius: '50%',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        cursor: 'pointer',
+                        cursor: isLoading || !input.trim() ? 'not-allowed' : 'pointer',
                         transition: 'all 0.2s ease',
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#F9FAFB';
+                        if (!isLoading && input.trim()) {
+                          e.currentTarget.style.backgroundColor = '#0041CC';
+                        }
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = '#FFFFFF';
+                        if (!isLoading && input.trim()) {
+                          e.currentTarget.style.backgroundColor = '#0052FF';
+                        }
                       }}
                     >
-                      <Plus className="w-[18px] h-[18px]" />
+                      <ArrowUp className="w-5 h-5 text-white" />
                     </button>
                   </PromptInputAction>
-
-                  {/* Search Button */}
-                  <PromptInputAction tooltip="Search">
-                    <button
-                      style={{
-                        height: '40px',
-                        padding: '0 16px',
-                        backgroundColor: '#FFFFFF',
-                        border: '1px solid #E5E7EB',
-                        borderRadius: '20px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '6px',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        fontSize: '15px',
-                        fontWeight: 400,
-                        color: '#0A0B0D',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#F9FAFB';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = '#FFFFFF';
-                      }}
-                    >
-                      <Globe className="w-[18px] h-[18px]" />
-                      Search
-                    </button>
-                  </PromptInputAction>
-
-                  {/* More Options Button */}
-                  <PromptInputAction tooltip="More options">
-                    <button
-                      style={{
-                        width: '40px',
-                        height: '40px',
-                        backgroundColor: '#FFFFFF',
-                        border: '1px solid #E5E7EB',
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#F9FAFB';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = '#FFFFFF';
-                      }}
-                    >
-                      <MoreVertical className="w-[18px] h-[18px]" />
-                    </button>
-                  </PromptInputAction>
-                </div>
-
-                {/* Submit Button */}
-                <PromptInputAction tooltip="Submit">
-                  <button
-                    onClick={handleSubmit}
-                    disabled={isLoading || !input.trim()}
-                    style={{
-                      width: '40px',
-                      height: '40px',
-                      backgroundColor: isLoading || !input.trim() ? '#E5E7EB' : '#0052FF',
-                      border: 'none',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: isLoading || !input.trim() ? 'not-allowed' : 'pointer',
-                      transition: 'all 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isLoading && input.trim()) {
-                        e.currentTarget.style.backgroundColor = '#0041CC';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isLoading && input.trim()) {
-                        e.currentTarget.style.backgroundColor = '#0052FF';
-                      }
-                    }}
-                  >
-                    <ArrowUp className="w-5 h-5 text-white" />
-                  </button>
-                </PromptInputAction>
-              </PromptInputActions>
-            </PromptInput>
-          </PromptInputContainer>
+                </PromptInputActions>
+              </PromptInput>
+            </PromptInputContainer>
+          )}
 
           {/* Action buttons */}
           <div className="flex gap-4 mt-6">
             <PromptSuggestion
-              onClick={() => startConversation('doctor')}
+              onClick={() => handleBookingAction('doctor')}
               disabled={isLoading}
               className="flex items-center gap-2"
             >
@@ -297,7 +315,7 @@ export default function BookingIndex() {
               Book a doctor
             </PromptSuggestion>
             <PromptSuggestion
-              onClick={() => startConversation('lab_test')}
+              onClick={() => handleBookingAction('lab_test')}
               disabled={isLoading}
               className="flex items-center gap-2"
             >
