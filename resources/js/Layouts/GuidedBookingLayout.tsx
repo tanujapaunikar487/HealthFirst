@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
 import { Link } from '@inertiajs/react';
-import { Calendar, Sparkles, BarChart3 } from 'lucide-react';
+import { Sparkles, BarChart3 } from 'lucide-react';
 import { Button } from '@/Components/ui/button';
 import { StepIndicator } from '@/Components/Booking/StepIndicator';
 import { cn } from '@/Lib/utils';
@@ -40,18 +40,26 @@ export function GuidedBookingLayout({
       <header className="flex-none border-b bg-white">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-gray-600" />
-            <span className="font-medium">Booking an appointment</span>
+            <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-5 h-5" />
+            <span className="font-medium text-sm">Booking an appointment</span>
           </div>
-          <div className="flex items-center gap-1 border rounded-full p-1">
+          <div className="flex items-center gap-1 border rounded-full p-1 bg-gray-50">
             <Link
               href="/booking?mode=ai"
-              className="p-2 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
+              className="p-1.5 rounded-full hover:bg-gray-100 transition-all"
             >
-              <Sparkles className="h-4 w-4" />
+              <img
+                src="/assets/icons/hugeicons/ai-magic-1.svg"
+                alt=""
+                className="w-4 h-4"
+              />
             </Link>
-            <div className="p-2 rounded-full bg-gray-100">
-              <BarChart3 className="h-4 w-4" />
+            <div className="p-1.5 rounded-full bg-white shadow-md">
+              <img
+                src="/assets/icons/hugeicons/stairs-01-1.svg"
+                alt=""
+                className="w-4 h-4"
+              />
             </div>
           </div>
         </div>
