@@ -38,12 +38,18 @@ export function GuidedBookingLayout({
     <div className="min-h-screen flex flex-col bg-white">
       {/* Header */}
       <header className="flex-none border-b bg-white">
-        <div className="flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-8 px-6 py-4">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-5 h-5" />
             <span className="font-medium text-sm">Booking an appointment</span>
           </div>
-          <div className="flex items-center gap-1 border rounded-full p-1 bg-gray-50">
+
+          {/* Step indicator - inline */}
+          <div className="flex-1 min-w-0">
+            <StepIndicator steps={steps} currentStepId={currentStepId} className="!px-0 !py-0" />
+          </div>
+
+          <div className="flex items-center gap-1 border rounded-full p-1 bg-gray-50 flex-shrink-0">
             <Link
               href="/booking?mode=ai"
               className="p-1.5 rounded-full hover:bg-gray-100 transition-all"
@@ -63,9 +69,6 @@ export function GuidedBookingLayout({
             </div>
           </div>
         </div>
-
-        {/* Step indicator */}
-        <StepIndicator steps={steps} currentStepId={currentStepId} />
       </header>
 
       {/* Content */}

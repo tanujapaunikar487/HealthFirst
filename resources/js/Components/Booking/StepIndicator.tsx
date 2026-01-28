@@ -19,7 +19,7 @@ export function StepIndicator({ steps, currentStepId, className }: StepIndicator
 
   return (
     <div className={cn('px-6 py-3 bg-white', className)}>
-      <div className="max-w-3xl mx-auto">
+      <div className="w-full">
         {/* Progress line container */}
         <div className="relative mb-2 h-1">
           {/* Background line */}
