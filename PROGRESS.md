@@ -711,12 +711,13 @@ open http://127.0.0.1:3000
 
 ### UX Improvements - Placeholder Text (January 29, 2026)
 - ✅ Enhanced placeholder text in conversation text input
-  * followup_update: "Share any updates, new symptoms, or concerns... (or leave blank to skip)"
+  * followup_update: "Share any updates, new symptoms, or concerns..."
+  * Removed confusing "(or leave blank to skip)" text
   * Default: "Type your message here..." (more descriptive than "Type here...")
 - ✅ Provides better context-aware guidance during conversation flow
 
 ---
 
 **Last Updated**: January 29, 2026
-**Latest Commit**: b4dc52c (Placeholder text improvements)
+**Latest Commit**: 46c302b (Remove optional skip text from placeholder)
 **Status**: ✅ Dashboard Complete | ✅ AI Booking Flow Complete | 🎨 Font Standardization Complete | ✅ Follow-Up Flow Complete | ✅ Calendar Integration Complete
