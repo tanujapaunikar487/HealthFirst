@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BookingConversationController;
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
@@ -86,6 +87,10 @@ Route::prefix('booking')->name('booking.')->group(function () {
     // Payment routes
     Route::post('/{conversation}/payment/create-order', [PaymentController::class, 'createOrder'])->name('payment.create-order');
     Route::post('/{conversation}/payment/verify', [PaymentController::class, 'verifyPayment'])->name('payment.verify');
+
+    // Calendar routes
+    Route::get('/{conversation}/calendar/google', [CalendarController::class, 'googleCalendar'])->name('calendar.google');
+    Route::get('/{conversation}/calendar/download', [CalendarController::class, 'downloadIcs'])->name('calendar.download');
 });
 
 // Booking confirmation page

@@ -15,6 +15,10 @@ export default {
             fontFamily: {
                 sans: ['Inter', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                primary: '#0052FF',
+                success: '#10B981',
+            },
         },
     },
 

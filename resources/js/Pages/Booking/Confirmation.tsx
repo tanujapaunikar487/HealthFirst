@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
+import { AddToCalendarButton } from '@/Components/AddToCalendarButton';
 import { Check, Info } from 'lucide-react';
 
 interface Booking {
@@ -109,12 +110,18 @@ export default function Confirmation({ booking }: Props) {
         </div>
 
         {/* Action buttons */}
-        <div className="flex gap-3 justify-center">
-          <Button variant="outline" asChild size="lg" rounded="full">
+        <div className="space-y-3">
+          <AddToCalendarButton
+            conversationId={booking.id}
+            variant="primary"
+          />
+          <Button
+            variant="outline"
+            asChild
+            size="lg"
+            className="w-full"
+          >
             <Link href="/appointments">Back to Appointments</Link>
-          </Button>
-          <Button size="lg" rounded="full" className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white">
-            Add to Calendar
           </Button>
         </div>
       </div>

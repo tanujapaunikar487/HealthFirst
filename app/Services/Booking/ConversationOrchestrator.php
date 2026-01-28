@@ -102,8 +102,8 @@ class ConversationOrchestrator
         // Store booking type
         $conversation->collected_data = array_merge($conversation->collected_data, [
             'booking_type' => $selection['booking_type'],
-            'current_step' => 'patient_selection',
         ]);
+        $this->updateCurrentStep($conversation, 'patient_selection');
         $conversation->save();
 
         // Move to patient selection
@@ -197,10 +197,11 @@ class ConversationOrchestrator
         }
 
         // Store patient selection
+        $nextStep = $conversation->collected_data['booking_type'] === 'doctor' ? 'consultation_type' : 'package_selection';
         $conversation->collected_data = array_merge($conversation->collected_data, [
             'patient_id' => $selection['patient_id'],
-            'current_step' => $conversation->collected_data['booking_type'] === 'doctor' ? 'consultation_type' : 'package_selection',
         ]);
+        $this->updateCurrentStep($conversation, $nextStep);
         $conversation->save();
 
         // Move to next step
@@ -229,8 +230,8 @@ class ConversationOrchestrator
         if ($selection['consultation_type'] === 'followup') {
             $conversation->collected_data = array_merge($conversation->collected_data, [
                 'consultation_type' => $selection['consultation_type'],
-                'current_step' => 'followup_reason',
             ]);
+            $this->updateCurrentStep($conversation, 'followup_reason');
             $conversation->save();
             return $this->handleFollowUpFlow($conversation, null);
         }
@@ -238,8 +239,8 @@ class ConversationOrchestrator
         // Otherwise, continue with regular flow
         $conversation->collected_data = array_merge($conversation->collected_data, [
             'consultation_type' => $selection['consultation_type'],
-            'current_step' => 'urgency',
         ]);
+        $this->updateCurrentStep($conversation, 'urgency');
         $conversation->save();
 
         return $this->handleUrgency($conversation, null);
@@ -362,8 +363,8 @@ class ConversationOrchestrator
         $conversation->collected_data = array_merge($conversation->collected_data, [
             'doctor_id' => $selection['doctorId'],
             'time' => $selection['time'],
-            'current_step' => 'consultation_mode',
         ]);
+        $this->updateCurrentStep($conversation, 'consultation_mode');
         $conversation->save();
 
         return $this->handleConsultationMode($conversation, null);
@@ -385,8 +386,8 @@ class ConversationOrchestrator
 
         $conversation->collected_data = array_merge($conversation->collected_data, [
             'urgency' => $selection['urgency'],
-            'current_step' => 'doctor_selection',
         ]);
+        $this->updateCurrentStep($conversation, 'doctor_selection');
         $conversation->save();
 
         return $this->handleDoctorSelection($conversation, null);
@@ -417,8 +418,8 @@ class ConversationOrchestrator
         $conversation->collected_data = array_merge($conversation->collected_data, [
             'doctor_id' => $selection['doctor_id'],
             'time' => $selection['time'],
-            'current_step' => 'consultation_mode',
         ]);
+        $this->updateCurrentStep($conversation, 'consultation_mode');
         $conversation->save();
 
         return $this->handleConsultationMode($conversation, null);
@@ -445,8 +446,8 @@ class ConversationOrchestrator
 
         $conversation->collected_data = array_merge($conversation->collected_data, [
             'mode' => $selection['mode'],
-            'current_step' => 'summary',
         ]);
+        $this->updateCurrentStep($conversation, 'summary');
         $conversation->save();
 
         return $this->handleBookingSummary($conversation, null);
@@ -489,8 +490,8 @@ class ConversationOrchestrator
 
         $conversation->collected_data = array_merge($conversation->collected_data, [
             'package_id' => $selection['package_id'],
-            'current_step' => 'location_selection',
         ]);
+        $this->updateCurrentStep($conversation, 'location_selection');
         $conversation->save();
 
         return $this->handleLocationSelection($conversation, null);
@@ -514,8 +515,8 @@ class ConversationOrchestrator
 
         $conversation->collected_data = array_merge($conversation->collected_data, [
             'location_id' => $selection['location_id'],
-            'current_step' => 'date_time_selection',
         ]);
+        $this->updateCurrentStep($conversation, 'date_time_selection');
         $conversation->save();
 
         return $this->handleDateTimeSelection($conversation, null);
@@ -543,8 +544,8 @@ class ConversationOrchestrator
         $conversation->collected_data = array_merge($conversation->collected_data, [
             'date' => $selection['date'],
             'time' => $selection['time'],
-            'current_step' => 'summary',
         ]);
+        $this->updateCurrentStep($conversation, 'summary');
         $conversation->save();
 
         return $this->handleLabSummary($conversation, null);

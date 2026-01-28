@@ -660,6 +660,46 @@ open http://127.0.0.1:3000
 
 ---
 
+### Add to Calendar Integration
+- ✅ Created CalendarService.php - generates calendar events
+  * generateGoogleCalendarUrl() - Creates Google Calendar link
+  * generateIcsContent() - Generates ICS file for Apple Calendar
+  * buildEventFromBookingData() - Builds event from conversation data
+  * Separate builders for doctor appointments and lab tests
+  * Includes reminders at 24 hours and 1 hour before appointment
+  * Proper ICS formatting with RFC 5545 compliance
+- ✅ Created CalendarController.php - handles calendar requests
+  * googleCalendar() - Returns Google Calendar URL as JSON
+  * downloadIcs() - Returns ICS file download
+  * Fallback to mock data for demo confirmation page
+- ✅ Added calendar routes to web.php:
+  * GET /booking/{conversation}/calendar/google - Google Calendar URL
+  * GET /booking/{conversation}/calendar/download - ICS file download
+- ✅ Created AddToCalendarButton.tsx component:
+  * Dropdown menu with Google Calendar and Apple Calendar options
+  * Button changes to "Added to Calendar" with checkmark after selection
+  * Click-outside detection to close dropdown
+  * Loading states and error handling
+  * HTTP error handling with user feedback
+  * Primary and secondary variants
+- ✅ Updated Confirmation.tsx page:
+  * Integrated AddToCalendarButton component
+  * Full-width button layout
+  * Proper conversation ID passing
+- ✅ Updated tailwind.config.js:
+  * Added primary color (#0052FF)
+  * Added success color (#10B981)
+
+**Calendar Features**:
+- **Google Calendar**: Opens Google Calendar in new tab with pre-filled event
+- **Apple Calendar**: Downloads .ics file that opens in Calendar app
+- **Event Details**: Includes title, date/time, location, description, reminders
+- **Reminders**: 24 hours and 1 hour before appointment
+- **UTC Timezone**: Proper timezone conversion for cross-timezone bookings
+- **Demo Support**: Works with mock confirmation page for testing
+
+---
+
 **Last Updated**: January 29, 2026
-**Latest Commit**: 49de1e1
-**Status**: ✅ Dashboard Complete | ✅ AI Booking Flow Complete | 🎨 Font Standardization Complete | ✅ Follow-Up Flow Complete
+**Latest Commit**: d488b02 (Follow-up flow) | NEW: Calendar Integration
+**Status**: ✅ Dashboard Complete | ✅ AI Booking Flow Complete | 🎨 Font Standardization Complete | ✅ Follow-Up Flow Complete | ✅ Calendar Integration Complete
