@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
+import { Card } from '@/Components/ui/card';
 import { cn } from '@/Lib/utils';
 import { ArrowRight, User, Video, MapPin, Star } from 'lucide-react';
 
@@ -211,7 +212,7 @@ export default function PatientStep({ familyMembers, previousConsultations, save
                 {selectedPatient?.name}'s previous consultations
               </h3>
 
-              <div className="space-y-0 border rounded-xl overflow-hidden divide-y">
+              <Card className="space-y-0 overflow-hidden divide-y">
                 {patientPreviousConsultations.map((consultation) => (
                   <DoctorCard
                     key={consultation.doctor.id}
@@ -224,7 +225,7 @@ export default function PatientStep({ familyMembers, previousConsultations, save
                     onSelectTime={(time) => handleQuickBook(consultation.doctor.id, time)}
                   />
                 ))}
-              </div>
+              </Card>
             </section>
           )}
       </div>

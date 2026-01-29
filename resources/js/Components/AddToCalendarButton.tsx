@@ -82,7 +82,7 @@ export function AddToCalendarButton({
         onClick={() => !isAdded && setIsOpen(!isOpen)}
         disabled={isLoading || isAdded}
         className={`
-          w-full px-6 py-3 rounded-lg font-medium text-base
+          w-full px-6 py-3 rounded-full font-medium text-base
           transition-all duration-200
           flex items-center justify-center gap-2
           ${isAdded ? 'bg-success text-white cursor-default' : buttonClasses}

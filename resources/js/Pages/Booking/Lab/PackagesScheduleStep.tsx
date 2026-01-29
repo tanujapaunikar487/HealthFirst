@@ -5,6 +5,7 @@ import { PackageCard } from '@/Components/Booking/PackageCard';
 import { LocationSelector } from '@/Components/Booking/LocationSelector';
 import { FastingAlert } from '@/Components/Booking/FastingAlert';
 import { TimeSlotGrid } from '@/Components/Booking/TimeSlotGrid';
+import { Card } from '@/Components/ui/card';
 import { cn } from '@/Lib/utils';
 
 const labSteps = [
@@ -155,11 +156,11 @@ export default function PackagesScheduleStep({
       priceEstimate={getPriceEstimate()}
     >
       <div className="space-y-10">
-        {/* Section 1: Recommended Packages */}
+        {/* Section 1: Recommended Packages - Always visible */}
         <section>
           <h2 className="text-xl font-semibold mb-4">Recommended packages</h2>
 
-          <div className="border rounded-xl overflow-hidden divide-y">
+          <Card className="overflow-hidden divide-y">
             {packages.map((pkg) => (
               <PackageCard
                 key={pkg.id}
@@ -168,69 +169,73 @@ export default function PackagesScheduleStep({
                 onSelect={() => handlePackageSelect(pkg.id)}
               />
             ))}
-          </div>
+          </Card>
 
           {errors.package && <p className="text-sm text-destructive mt-2">{errors.package}</p>}
         </section>
 
-        {/* Section 2: Location Selection */}
-        <section>
-          <h2 className="text-xl font-semibold mb-4">Where should we collect the sample?</h2>
+        {/* Section 2: Location Selection - Only show after package is selected */}
+        {selectedPackageId && (
+          <section>
+            <h2 className="text-xl font-semibold mb-4">Where should we collect the sample?</h2>
 
-          <LocationSelector
-            locations={locations}
-            selectedLocation={selectedLocation}
-            onSelect={(type) => setSelectedLocation(type)}
-          />
+            <LocationSelector
+              locations={locations}
+              selectedLocation={selectedLocation}
+              onSelect={(type) => setSelectedLocation(type)}
+            />
 
-          {errors.location && <p className="text-sm text-destructive mt-2">{errors.location}</p>}
-        </section>
+            {errors.location && <p className="text-sm text-destructive mt-2">{errors.location}</p>}
+          </section>
+        )}
 
-        {/* Section 3: Date & Time Selection */}
-        <section>
-          <h2 className="text-xl font-semibold mb-4">Select Date</h2>
+        {/* Section 3: Date & Time Selection - Only show after location is selected */}
+        {selectedPackageId && selectedLocation && (
+          <section>
+            <h2 className="text-xl font-semibold mb-4">Select Date</h2>
 
-          {showFastingAlert && (
-            <FastingAlert hours={selectedPackage.fasting_hours!} className="mb-4" />
-          )}
+            {showFastingAlert && (
+              <FastingAlert hours={selectedPackage.fasting_hours!} className="mb-4" />
+            )}
 
-          {/* Date Selector */}
-          <div className="flex gap-2 overflow-x-auto pb-2 mb-6">
-            {availableDates.map((dateOption) => (
-              <button
-                key={dateOption.date}
-                onClick={() => handleDateChange(dateOption.date)}
-                className={cn(
-                  'flex-shrink-0 px-4 py-3 rounded-xl border transition-all min-w-[100px]',
-                  selectedDate === dateOption.date
-                    ? 'bg-foreground text-background border-foreground'
-                    : 'bg-background hover:border-primary/50'
-                )}
-              >
-                <p className="font-medium text-sm">{dateOption.label}</p>
-                <p
+            {/* Date Selector */}
+            <div className="flex gap-2 overflow-x-auto pb-2 mb-6">
+              {availableDates.map((dateOption) => (
+                <button
+                  key={dateOption.date}
+                  onClick={() => handleDateChange(dateOption.date)}
                   className={cn(
-                    'text-xs',
+                    'flex-shrink-0 px-4 py-3 rounded-xl border transition-all min-w-[100px]',
                     selectedDate === dateOption.date
-                      ? 'text-background/70'
-                      : 'text-muted-foreground'
+                      ? 'bg-foreground text-background border-foreground'
+                      : 'bg-background hover:border-primary/50'
                   )}
                 >
-                  {dateOption.sublabel}
-                </p>
-              </button>
-            ))}
-          </div>
+                  <p className="font-medium text-sm">{dateOption.label}</p>
+                  <p
+                    className={cn(
+                      'text-xs',
+                      selectedDate === dateOption.date
+                        ? 'text-background/70'
+                        : 'text-muted-foreground'
+                    )}
+                  >
+                    {dateOption.sublabel}
+                  </p>
+                </button>
+              ))}
+            </div>
 
-          {/* Time Slots */}
-          <TimeSlotGrid
-            slots={timeSlots}
-            selectedTime={selectedTime}
-            onSelect={(time) => setSelectedTime(time)}
-          />
+            {/* Time Slots */}
+            <TimeSlotGrid
+              slots={timeSlots}
+              selectedTime={selectedTime}
+              onSelect={(time) => setSelectedTime(time)}
+            />
 
-          {errors.time && <p className="text-sm text-destructive mt-2">{errors.time}</p>}
-        </section>
+            {errors.time && <p className="text-sm text-destructive mt-2">{errors.time}</p>}
+          </section>
+        )}
       </div>
     </GuidedBookingLayout>
   );

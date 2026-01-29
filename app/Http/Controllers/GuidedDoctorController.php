@@ -201,8 +201,8 @@ class GuidedDoctorController extends Controller
             ];
         }
 
-        // Mock doctors data
-        $doctors = [
+        // Mock doctors data - vary based on selected date
+        $allDoctors = [
             [
                 'id' => 'd1',
                 'name' => 'Dr. Sarah Johnson',
@@ -212,6 +212,7 @@ class GuidedDoctorController extends Controller
                 'consultation_modes' => ['video', 'in_person'],
                 'video_fee' => 800,
                 'in_person_fee' => 1200,
+                'available_dates' => [0, 1, 2, 3, 4], // Available all days
                 'slots' => [
                     ['time' => '9:00 AM', 'available' => true, 'preferred' => true],
                     ['time' => '10:00 AM', 'available' => false, 'preferred' => false],
@@ -230,6 +231,7 @@ class GuidedDoctorController extends Controller
                 'consultation_modes' => ['video', 'in_person'],
                 'video_fee' => 900,
                 'in_person_fee' => 1300,
+                'available_dates' => [0, 2, 4], // Available on days 0, 2, 4
                 'slots' => [
                     ['time' => '9:00 AM', 'available' => true, 'preferred' => false],
                     ['time' => '10:00 AM', 'available' => true, 'preferred' => true],
@@ -239,7 +241,72 @@ class GuidedDoctorController extends Controller
                     ['time' => '4:00 PM', 'available' => true, 'preferred' => false],
                 ],
             ],
+            [
+                'id' => 'd3',
+                'name' => 'Dr. Emily Rodriguez',
+                'avatar' => null,
+                'specialization' => 'Family Medicine',
+                'experience_years' => 15,
+                'consultation_modes' => ['video'],
+                'video_fee' => 750,
+                'in_person_fee' => 0,
+                'available_dates' => [1, 3], // Available on days 1, 3
+                'slots' => [
+                    ['time' => '10:00 AM', 'available' => true, 'preferred' => true],
+                    ['time' => '11:00 AM', 'available' => true, 'preferred' => false],
+                    ['time' => '1:00 PM', 'available' => true, 'preferred' => false],
+                    ['time' => '3:00 PM', 'available' => true, 'preferred' => true],
+                    ['time' => '5:00 PM', 'available' => true, 'preferred' => false],
+                ],
+            ],
+            [
+                'id' => 'd4',
+                'name' => 'Dr. James Wilson',
+                'avatar' => null,
+                'specialization' => 'General Physician',
+                'experience_years' => 10,
+                'consultation_modes' => ['video', 'in_person'],
+                'video_fee' => 850,
+                'in_person_fee' => 1100,
+                'available_dates' => [0, 1, 4], // Available on days 0, 1, 4
+                'slots' => [
+                    ['time' => '9:00 AM', 'available' => true, 'preferred' => false],
+                    ['time' => '11:00 AM', 'available' => true, 'preferred' => true],
+                    ['time' => '2:00 PM', 'available' => true, 'preferred' => false],
+                    ['time' => '4:00 PM', 'available' => true, 'preferred' => true],
+                ],
+            ],
+            [
+                'id' => 'd5',
+                'name' => 'Dr. Priya Sharma',
+                'avatar' => null,
+                'specialization' => 'Internal Medicine',
+                'experience_years' => 6,
+                'consultation_modes' => ['video', 'in_person'],
+                'video_fee' => 700,
+                'in_person_fee' => 1000,
+                'available_dates' => [2, 3, 4], // Available on days 2, 3, 4
+                'slots' => [
+                    ['time' => '8:00 AM', 'available' => true, 'preferred' => true],
+                    ['time' => '10:00 AM', 'available' => true, 'preferred' => false],
+                    ['time' => '12:00 PM', 'available' => true, 'preferred' => false],
+                    ['time' => '3:00 PM', 'available' => true, 'preferred' => true],
+                    ['time' => '5:00 PM', 'available' => true, 'preferred' => false],
+                ],
+            ],
         ];
+
+        // Filter doctors based on selected date
+        $dayIndex = now()->diffInDays($selectedDate);
+        $doctors = array_values(array_filter($allDoctors, function ($doctor) use ($dayIndex) {
+            return in_array($dayIndex, $doctor['available_dates']);
+        }));
+
+        // Remove the available_dates field before sending to frontend
+        $doctors = array_map(function ($doctor) {
+            unset($doctor['available_dates']);
+            return $doctor;
+        }, $doctors);
 
         return Inertia::render('Booking/Doctor/DoctorTimeStep', [
             'availableDates' => $availableDates,

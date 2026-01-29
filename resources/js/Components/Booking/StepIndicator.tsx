@@ -14,8 +14,13 @@ interface StepIndicatorProps {
 export function StepIndicator({ steps, currentStepId, className }: StepIndicatorProps) {
   const currentIndex = steps.findIndex((s) => s.id === currentStepId);
 
-  // Calculate progress percentage for gradient width
+  // Calculate progress percentage for gradient width (goes to end of current step)
   const progressPercentage = ((currentIndex + 1) / steps.length) * 100;
+
+  // Calculate dot position (aligned with current step label)
+  const dotPercentage = steps.length > 1
+    ? (currentIndex / (steps.length - 1)) * 100
+    : 0;
 
   return (
     <div className={cn('px-6 py-3 bg-white', className)}>
@@ -31,12 +36,12 @@ export function StepIndicator({ steps, currentStepId, className }: StepIndicator
             style={{ width: `${progressPercentage}%` }}
           />
 
-          {/* Current step circle indicator - positioned at the end of progress */}
+          {/* Current step circle indicator - positioned at current step label */}
           {currentIndex < steps.length && (
             <div
               className="absolute top-1/2 w-3.5 h-3.5 bg-blue-600 rounded-full z-10 transition-all duration-300"
               style={{
-                left: `${progressPercentage}%`,
+                left: `${dotPercentage}%`,
                 transform: 'translate(-50%, -50%)',
               }}
             />
@@ -44,21 +49,18 @@ export function StepIndicator({ steps, currentStepId, className }: StepIndicator
         </div>
 
         {/* Step labels */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center">
           {steps.map((step, index) => {
             const isCurrent = index === currentIndex;
 
             return (
               <div
                 key={step.id}
-                className={cn('text-sm whitespace-nowrap', index === 0 ? 'text-left' : '')}
-                style={
-                  index === 0
-                    ? { flex: '0 0 auto' }
-                    : index === steps.length - 1
-                      ? { flex: '0 0 auto' }
-                      : { flex: '1 1 0%', textAlign: 'center' }
-                }
+                className="text-sm whitespace-nowrap"
+                style={{
+                  flex: '1 1 0%',
+                  textAlign: index === 0 ? 'left' : index === steps.length - 1 ? 'right' : 'center',
+                }}
               >
                 <span
                   className={cn(

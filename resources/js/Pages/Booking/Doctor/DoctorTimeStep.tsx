@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { ConsultationModeSelector } from '@/Components/Booking/ConsultationModeSelector';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
+import { Card } from '@/Components/ui/card';
 import { Input } from '@/Components/ui/input';
 import {
   Select,
@@ -240,7 +241,7 @@ export default function DoctorTimeStep({ availableDates, doctors, savedData }: P
             </div>
           </div>
 
-          <div className="border rounded-xl overflow-hidden divide-y">
+          <Card className="overflow-hidden divide-y">
             {filteredDoctors.map((doctor) => (
               <DoctorCard
                 key={doctor.id}
@@ -251,7 +252,7 @@ export default function DoctorTimeStep({ availableDates, doctors, savedData }: P
                 onSelectTime={(time) => handleDoctorTimeSelect(doctor.id, time)}
               />
             ))}
-          </div>
+          </Card>
 
           {errors.doctor && <p className="text-sm text-destructive mt-2">{errors.doctor}</p>}
         </section>

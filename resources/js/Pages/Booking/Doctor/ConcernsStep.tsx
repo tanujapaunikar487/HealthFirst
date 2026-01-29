@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { FollowUpBanner } from '@/Components/Booking/FollowUpBanner';
 import { SymptomChips } from '@/Components/Booking/SymptomChips';
+import { Card } from '@/Components/ui/card';
 import { Textarea } from '@/Components/ui/textarea';
 import { cn } from '@/Lib/utils';
 
@@ -107,7 +108,7 @@ export default function ConcernsStep({
           />
         )}
 
-        {/* Symptoms */}
+        {/* Symptoms - Always visible */}
         <section>
           <h2 className="text-xl font-semibold mb-2">What symptoms are you experiencing?</h2>
           <p className="text-sm text-muted-foreground mb-4">
@@ -130,45 +131,47 @@ export default function ConcernsStep({
           </div>
         </section>
 
-        {/* Urgency */}
-        <section>
-          <h2 className="text-xl font-semibold mb-2">How soon do you need to see a doctor?</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            This determines which slots you'll see
-          </p>
+        {/* Urgency - Show after symptoms are selected or notes are entered */}
+        {(selectedSymptoms.length > 0 || symptomNotes.trim().length > 0) && (
+          <section>
+            <h2 className="text-xl font-semibold mb-2">How soon do you need to see a doctor?</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              This determines which slots you'll see
+            </p>
 
-          <div className="border rounded-xl overflow-hidden divide-y">
-            {urgencyOptions.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => setUrgency(option.value)}
-                className={cn(
-                  'w-full flex items-center gap-3 p-4 text-left transition-all',
-                  'hover:bg-muted/50',
-                  urgency === option.value && 'bg-primary/5'
-                )}
-              >
-                <div
+            <Card className="overflow-hidden divide-y">
+              {urgencyOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setUrgency(option.value)}
                   className={cn(
-                    'w-3 h-3 rounded-full flex-shrink-0',
-                    dotColors[option.value] || 'bg-gray-400'
+                    'w-full flex items-center gap-3 p-4 text-left transition-all',
+                    'hover:bg-muted/50',
+                    urgency === option.value && 'bg-primary/5'
                   )}
-                />
-                <div className="flex-1">
-                  <p className="font-medium">{option.label}</p>
-                  <p className="text-sm text-muted-foreground">{option.description}</p>
-                </div>
-                {option.doctorCount !== undefined ? (
-                  <span className="text-sm text-muted-foreground">{option.doctorCount} doctors</span>
-                ) : (
-                  <span className="text-sm text-muted-foreground">Full flexibility</span>
-                )}
-              </button>
-            ))}
-          </div>
+                >
+                  <div
+                    className={cn(
+                      'w-3 h-3 rounded-full flex-shrink-0',
+                      dotColors[option.value] || 'bg-gray-400'
+                    )}
+                  />
+                  <div className="flex-1">
+                    <p className="font-medium">{option.label}</p>
+                    <p className="text-sm text-muted-foreground">{option.description}</p>
+                  </div>
+                  {option.doctorCount !== undefined ? (
+                    <span className="text-sm text-muted-foreground">{option.doctorCount} doctors</span>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">Full flexibility</span>
+                  )}
+                </button>
+              ))}
+            </Card>
 
-          {errors.urgency && <p className="text-sm text-destructive mt-2">{errors.urgency}</p>}
-        </section>
+            {errors.urgency && <p className="text-sm text-destructive mt-2">{errors.urgency}</p>}
+          </section>
+        )}
       </div>
     </GuidedBookingLayout>
   );

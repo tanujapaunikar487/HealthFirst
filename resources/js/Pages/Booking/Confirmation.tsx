@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
+import { Card } from '@/Components/ui/card';
 import { AddToCalendarButton } from '@/Components/AddToCalendarButton';
 import { Check, Info } from 'lucide-react';
 
@@ -67,7 +68,7 @@ export default function Confirmation({ booking }: Props) {
         </div>
 
         {/* Details card */}
-        <div className="border rounded-xl overflow-hidden bg-white divide-y">
+        <Card className="overflow-hidden bg-white divide-y">
           {/* Doctor/Package row */}
           {booking.doctor_name && (
             <DetailRow label="Doctor" value={booking.doctor_name} />
@@ -87,7 +88,7 @@ export default function Confirmation({ booking }: Props) {
 
           {/* Amount row */}
           <DetailRow label="Amount Paid" value={`₹${booking.fee.toLocaleString()}`} />
-        </div>
+        </Card>
 
         {/* What's next box */}
         <div className="bg-blue-50 rounded-xl p-4">
@@ -119,7 +120,7 @@ export default function Confirmation({ booking }: Props) {
             variant="outline"
             asChild
             size="lg"
-            className="w-full"
+            className="w-full rounded-full"
           >
             <Link href="/appointments">Back to Appointments</Link>
           </Button>

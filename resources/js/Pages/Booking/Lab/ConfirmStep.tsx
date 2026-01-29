@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
+import { Card } from '@/Components/ui/card';
 import { format, parseISO } from 'date-fns';
 
 const labSteps = [
@@ -65,7 +66,7 @@ export default function ConfirmStep({ summary }: Props) {
         <h2 className="text-xl font-semibold">Booking Summary</h2>
 
         {/* Summary Table */}
-        <div className="border rounded-xl overflow-hidden divide-y bg-white">
+        <Card className="overflow-hidden divide-y bg-white">
           <SummaryRow
             label="Package"
             value={<span className="font-medium">{summary.package.name}</span>}

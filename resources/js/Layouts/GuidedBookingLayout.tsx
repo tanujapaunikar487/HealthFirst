@@ -44,7 +44,7 @@ export function GuidedBookingLayout({
             <span className="font-medium text-sm">Booking an appointment</span>
           </div>
 
-          {/* Step indicator - inline */}
+          {/* Step indicator - inline, will handle its own 800px centering */}
           <div className="flex-1 min-w-0">
             <StepIndicator steps={steps} currentStepId={currentStepId} className="!px-0 !py-0" />
           </div>
@@ -74,8 +74,8 @@ export function GuidedBookingLayout({
       {/* Content */}
       <main className="flex-1 overflow-y-auto">
         {/* Blue gradient at top */}
-        <div className="bg-gradient-to-b from-blue-50 to-white min-h-full">
-          <div className={cn("max-w-3xl mx-auto px-6 py-8", className)}>
+        <div className="bg-gradient-to-b from-blue-50 to-white min-h-full px-6 py-8">
+          <div className={cn("max-w-[800px] mx-auto", className)}>
             {children}
           </div>
         </div>
@@ -83,7 +83,7 @@ export function GuidedBookingLayout({
 
       {/* Footer */}
       <footer className="flex-none border-t bg-white px-6 py-4">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
+        <div className="max-w-[800px] mx-auto flex items-center justify-between">
           <Button
             variant="outline"
             onClick={onBack}
@@ -102,7 +102,7 @@ export function GuidedBookingLayout({
             <Button
               onClick={onContinue}
               disabled={continueDisabled || isProcessing}
-              className="rounded-full min-w-[120px]"
+              className="rounded-full min-w-[120px] text-white"
             >
               {isProcessing ? 'Processing...' : continueLabel}
             </Button>

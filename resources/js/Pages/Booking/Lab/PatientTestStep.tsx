@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
+import { Card } from '@/Components/ui/card';
 import { Textarea } from '@/Components/ui/textarea';
 import { ArrowRight } from 'lucide-react';
 import { cn } from '@/Lib/utils';
@@ -83,7 +84,7 @@ export default function PatientTestStep({ familyMembers, savedData }: Props) {
       continueDisabled={!patientId}
     >
       <div className="space-y-10">
-        {/* Patient Selection */}
+        {/* Patient Selection - Always visible */}
         <section>
           <h2 className="text-xl font-semibold mb-2">Who is this for?</h2>
           <p className="text-sm text-muted-foreground mb-4">
@@ -120,40 +121,42 @@ export default function PatientTestStep({ familyMembers, savedData }: Props) {
           {errors.patient && <p className="text-sm text-destructive mt-2">{errors.patient}</p>}
         </section>
 
-        {/* Test Type Selection */}
-        <section>
-          <h2 className="text-xl font-semibold mb-2">What kind of test are you looking for?</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Select a common test or describe your needs
-          </p>
+        {/* Test Type Selection - Only show after patient is selected */}
+        {patientId && (
+          <section>
+            <h2 className="text-xl font-semibold mb-2">What kind of test are you looking for?</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Select a common test or describe your needs
+            </p>
 
-          <div className="space-y-4">
-            <div className="flex flex-wrap gap-2">
-              {testTypes.map((test) => (
-                <button
-                  key={test.id}
-                  onClick={() => handleTestTypeToggle(test.id)}
-                  className={cn(
-                    'px-4 py-2 rounded-full border text-sm transition-all',
-                    'hover:border-primary/50 hover:bg-primary/5',
-                    selectedTestTypes.includes(test.id)
-                      ? 'bg-primary/10 border-primary text-primary font-medium'
-                      : 'bg-background border-border text-foreground'
-                  )}
-                >
-                  {test.name}
-                </button>
-              ))}
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {testTypes.map((test) => (
+                  <button
+                    key={test.id}
+                    onClick={() => handleTestTypeToggle(test.id)}
+                    className={cn(
+                      'px-4 py-2 rounded-full border text-sm transition-all',
+                      'hover:border-primary/50 hover:bg-primary/5',
+                      selectedTestTypes.includes(test.id)
+                        ? 'bg-primary/10 border-primary text-primary font-medium'
+                        : 'bg-background border-border text-foreground'
+                    )}
+                  >
+                    {test.name}
+                  </button>
+                ))}
+              </div>
+
+              <Textarea
+                placeholder="Describe your symptoms, concerns, or tests you're looking for.."
+                value={testNotes}
+                onChange={(e) => setTestNotes(e.target.value)}
+                rows={4}
+              />
             </div>
-
-            <Textarea
-              placeholder="Describe your symptoms, concerns, or tests you're looking for.."
-              value={testNotes}
-              onChange={(e) => setTestNotes(e.target.value)}
-              rows={4}
-            />
-          </div>
-        </section>
+          </section>
+        )}
       </div>
     </GuidedBookingLayout>
   );

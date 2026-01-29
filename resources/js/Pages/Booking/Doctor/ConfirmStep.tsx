@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
+import { Card } from '@/Components/ui/card';
 import { format, parseISO } from 'date-fns';
 
 const doctorSteps = [
@@ -73,7 +74,7 @@ export default function ConfirmStep({ summary }: Props) {
       <div>
         <h2 className="text-xl font-semibold mb-6">Booking Summary</h2>
 
-        <div className="border rounded-xl overflow-hidden divide-y bg-white">
+        <Card className="overflow-hidden divide-y bg-white">
           {/* Doctor */}
           <SummaryRow
             label="Doctor"
@@ -127,7 +128,7 @@ export default function ConfirmStep({ summary }: Props) {
             <span className="text-muted-foreground">Consultation Fee</span>
             <span className="font-semibold">₹{summary.fee.toLocaleString()}</span>
           </div>
-        </div>
+        </Card>
       </div>
     </GuidedBookingLayout>
   );
