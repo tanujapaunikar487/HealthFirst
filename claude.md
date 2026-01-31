@@ -166,6 +166,36 @@ When user typed both doctor name + time, `mergeEntities` only stored the name as
 
 ---
 
+## Architectural Refactor: Better AI Entity Extraction (January 31, 2026)
+
+Replaced the fragile pattern of individual fixes in a 350+ line `mergeEntities()` with a 3-service architecture:
+
+### New Services
+
+| Service | File | Purpose |
+|---------|------|---------|
+| `DoctorService` | `app/Services/Booking/DoctorService.php` | Single source of truth for doctor data. Replaces 3 duplicate hardcoded arrays. Methods: `getById()`, `findByName()`, `getDaysOff()`, `isAvailableOn()`, `getAvailableDates()`, `getSupportedModes()`, `getDefaultMode()`, `checkAvailability()`, `formatForPrompt()`, `search()` |
+| `BookingPromptBuilder` | `app/Services/Booking/BookingPromptBuilder.php` | Builds a dynamic AI system prompt with today's date (resolves "tomorrow"), full doctor list with modes/fees/days-off, current booking state, strict format rules (24h time, ISO dates), and examples |
+| `EntityNormalizer` | `app/Services/Booking/EntityNormalizer.php` | Post-AI validation/normalization: date fixing (past year→current), time (12h→24h), doctor name→ID resolution, mode normalization ("online"→"video"), patient relation mapping, doctor+date and doctor+mode conflict detection |
+
+### Changes to Existing Files
+
+- **`AIService.php`**: Added optional `?string $systemPrompt` parameter to `classifyIntent()` (backward-compatible)
+- **`IntelligentBookingOrchestrator.php`**: Injected 3 new services via constructor. `parseUserMessage()` uses dynamic prompt. `mergeEntities()` reduced from ~350 to ~120 lines — delegates validation to `EntityNormalizer`, keeps merge logic and cascade clearing. Removed 4 dead methods and 3 duplicate doctor arrays (~420 lines removed).
+
+### How the Pipeline Works
+
+```
+User message
+  → BookingPromptBuilder.build(collectedData)    # dynamic prompt with date/doctors/state
+  → AIService.classifyIntent(msg, history, prompt) # AI extracts entities
+  → EntityNormalizer.normalize(entities, data)    # validate, fix formats, detect conflicts
+  → mergeEntities(data, normalized, parsed)       # merge + cascade clearing
+  → BookingStateMachine.determineCurrentState()   # next UI step
+```
+
+---
+
 ## Key Files
 
 ### Backend
@@ -173,6 +203,9 @@ When user typed both doctor name + time, `mergeEntities` only stored the name as
 |------|---------|
 | `app/Services/Booking/IntelligentBookingOrchestrator.php` | Main AI booking orchestrator |
 | `app/Services/Booking/BookingStateMachine.php` | State machine for booking flow |
+| `app/Services/Booking/DoctorService.php` | Centralized doctor data and availability |
+| `app/Services/Booking/BookingPromptBuilder.php` | Dynamic context-aware AI prompt builder |
+| `app/Services/Booking/EntityNormalizer.php` | Post-AI entity validation and normalization |
 | `app/Http/Controllers/BookingConversationController.php` | Conversation HTTP handler |
 | `app/Http/Controllers/GuidedDoctorController.php` | Guided doctor booking flow |
 | `app/Http/Controllers/GuidedLabController.php` | Guided lab booking flow |
@@ -233,4 +266,4 @@ php artisan test --filter=BookingStateMachine
 ---
 
 **Last Updated**: January 31, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored

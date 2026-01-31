@@ -28,13 +28,13 @@ class AIService
      * @param  array  $conversationHistory  Previous messages for context
      * @return array Intent classification result
      */
-    public function classifyIntent(string $message, array $conversationHistory = []): array
+    public function classifyIntent(string $message, array $conversationHistory = [], ?string $systemPrompt = null): array
     {
         if (!config('ai.features.intent_classification')) {
             throw new \Exception('Intent classification feature is disabled.');
         }
 
-        $systemPrompt = config('ai.prompts.intent_classifier');
+        $systemPrompt = $systemPrompt ?? config('ai.prompts.intent_classifier');
 
         $messages = [
             ['role' => 'system', 'content' => $systemPrompt],

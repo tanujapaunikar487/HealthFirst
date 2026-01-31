@@ -18,9 +18,20 @@ use Carbon\Carbon;
  */
 class IntelligentBookingOrchestrator
 {
+    private DoctorService $doctorService;
+    private BookingPromptBuilder $promptBuilder;
+    private EntityNormalizer $entityNormalizer;
+
     public function __construct(
-        private AIService $aiService
-    ) {}
+        private AIService $aiService,
+        ?DoctorService $doctorService = null,
+        ?BookingPromptBuilder $promptBuilder = null,
+        ?EntityNormalizer $entityNormalizer = null
+    ) {
+        $this->doctorService = $doctorService ?? new DoctorService();
+        $this->promptBuilder = $promptBuilder ?? new BookingPromptBuilder($this->doctorService);
+        $this->entityNormalizer = $entityNormalizer ?? new EntityNormalizer($this->doctorService);
+    }
 
     /**
      * Process user input using AI-driven entity extraction
@@ -149,8 +160,7 @@ class IntelligentBookingOrchestrator
             // Validate detected mode against doctor's supported modes
             if ($detectedMode) {
                 $doctorId = $currentData['selectedDoctorId'] ?? null;
-                $doctor = $doctorId ? $this->getDoctorDetailsById($doctorId) : null;
-                $supportedModes = $doctor['consultation_modes'] ?? ['video', 'in_person'];
+                $supportedModes = $doctorId ? $this->doctorService->getSupportedModes($doctorId) : ['video', 'in_person'];
 
                 if (in_array($detectedMode, $supportedModes)) {
                     $parsed['entities']['consultation_mode'] = $detectedMode;
@@ -292,12 +302,16 @@ class IntelligentBookingOrchestrator
             ->toArray();
 
         try {
-            Log::info('🤖 AI Classification: Calling classifyIntent', [
+            // Build a context-aware prompt with today's date, doctor list, and booking state
+            $dynamicPrompt = $this->promptBuilder->build($conversation->collected_data);
+
+            Log::info('🤖 AI Classification: Calling classifyIntent with dynamic prompt', [
                 'message' => $message,
                 'history_count' => count($history),
+                'prompt_length' => strlen($dynamicPrompt),
             ]);
 
-            $result = $this->aiService->classifyIntent($message, $history);
+            $result = $this->aiService->classifyIntent($message, $history, $dynamicPrompt);
 
             Log::info('🤖 AI Classification: Result received', [
                 'full_result' => $result,
@@ -340,354 +354,173 @@ class IntelligentBookingOrchestrator
     }
 
     /**
-     * Intelligently merge AI-extracted entities with existing data
+     * Intelligently merge AI-extracted entities with existing data.
      *
-     * Key principle: Don't blindly overwrite. Only update if:
-     * 1. Field is currently empty
-     * 2. User is explicitly correcting/changing
-     * 3. New value is more specific than existing value
+     * Delegates normalization/validation to EntityNormalizer, then handles
+     * merge logic: field updates, cascade clearing, and textMentionedFields tracking.
      */
     protected function mergeEntities(array $currentData, array $newEntities, array $parsed): array
     {
         $updated = $currentData;
 
-        // Map AI entities to our data structure
-        $entityMap = [
-            'patient_relation' => 'patientRelation',
-            'appointment_type' => 'appointmentType',
-            'symptoms' => 'symptoms',
-            'urgency' => 'urgency',
-            'specific_date' => 'selectedDate',
-            'date' => 'selectedDate',
-            'time' => 'selectedTime',
-            'doctor_id' => 'selectedDoctorId',
-            'doctor_name' => 'selectedDoctorName',
-            'followup_reason' => 'followup_reason',
-            'followup_notes' => 'followup_notes',
-            'mode' => 'consultationMode',
-            'consultation_mode' => 'consultationMode', // Alternative key
-        ];
-
         Log::info('🔀 Entity Merge: Starting', [
             'new_entities_received' => $newEntities,
             'current_data_keys' => array_keys($currentData),
-            'entity_map' => $entityMap,
         ]);
+
+        if (empty($newEntities)) {
+            return $updated;
+        }
+
+        // Step 1: Normalize and validate all entities via EntityNormalizer
+        $normalized = $this->entityNormalizer->normalize($newEntities, $currentData);
+        $entities = $normalized['entities'];
+        $warnings = $normalized['warnings'];
+
+        if (!empty($warnings)) {
+            Log::info('🔧 Entity Merge: Normalizer warnings', ['warnings' => $warnings]);
+        }
 
         $isCorrection = $parsed['is_correction'] ?? false;
         $appointmentType = $currentData['appointmentType'] ?? null;
         $hasFollowupReason = !empty($currentData['followup_reason']);
 
-        foreach ($newEntities as $entityKey => $entityValue) {
-            if (empty($entityValue)) {
-                Log::debug('🔀 Entity Merge: Skipping empty entity', ['entity_key' => $entityKey]);
+        // Step 2: Merge normalized entities into current data
+        foreach ($entities as $dataKey => $entityValue) {
+            if (empty($entityValue) && $entityValue !== 0 && $entityValue !== '0') {
                 continue;
             }
 
-            // CRITICAL: For follow-up appointments, don't accept symptoms if followup_reason is missing
-            // User must first select a followup_reason from the component
-            if ($appointmentType === 'followup' && !$hasFollowupReason && $entityKey === 'symptoms') {
-                Log::info('⛔ Entity Merge: BLOCKING symptoms for follow-up until followup_reason is selected', [
-                    'entity_key' => $entityKey,
-                    'value' => $entityValue,
-                    'reason' => 'followup_reason must be selected first',
-                ]);
-                continue; // Skip this entity
+            // Block symptoms for follow-up until followup_reason is selected
+            if ($appointmentType === 'followup' && !$hasFollowupReason && $dataKey === 'symptoms') {
+                Log::info('⛔ Entity Merge: BLOCKING symptoms until followup_reason selected');
+                continue;
             }
 
-            $dataKey = $entityMap[$entityKey] ?? $entityKey;
             $currentValue = $updated[$dataKey] ?? null;
 
-            Log::info('🔀 Entity Merge: Processing entity', [
-                'ai_entity_key' => $entityKey,
-                'mapped_data_key' => $dataKey,
+            // Decide if we should update this field
+            if (!$this->shouldUpdateField($dataKey, $entityValue, $currentValue, $isCorrection)) {
+                continue;
+            }
+
+            Log::info('✅ Entity Merge: UPDATING field', [
+                'field' => $dataKey,
+                'old_value' => $currentValue,
                 'new_value' => $entityValue,
-                'current_value' => $currentValue,
-                'is_correction' => $isCorrection,
             ]);
 
-            // Decide if we should update this field
-            if ($this->shouldUpdateField($dataKey, $entityValue, $currentValue, $isCorrection)) {
-                Log::info('✅ Entity Merge: UPDATING field', [
-                    'field' => $dataKey,
-                    'old_value' => $currentValue,
-                    'new_value' => $entityValue,
-                    'reason' => $isCorrection ? 'correction' : 'new_data',
-                ]);
+            $updated[$dataKey] = $entityValue;
 
-                $updated[$dataKey] = $entityValue;
+            // Track fields explicitly mentioned in user's text input
+            $textMentioned = $updated['textMentionedFields'] ?? [];
+            if (!in_array($dataKey, $textMentioned)) {
+                $textMentioned[] = $dataKey;
+                $updated['textMentionedFields'] = $textMentioned;
+            }
 
-                // Track fields explicitly mentioned in user's text input
-                // so they survive appointment_type selection clearing
-                $textMentioned = $updated['textMentionedFields'] ?? [];
-                if (!in_array($dataKey, $textMentioned)) {
-                    $textMentioned[] = $dataKey;
-                    $updated['textMentionedFields'] = $textMentioned;
-                }
+            // === Cascade clearing for field changes ===
 
-                // Handle patient relation special case
-                if ($dataKey === 'patientRelation') {
-                    if ($entityValue === 'self') {
-                        $updated['selectedPatientId'] = 1;
-                        $updated['selectedPatientName'] = 'Yourself';
-                        $updated['selectedPatientAvatar'] = '/assets/avatars/self.png';
-                    } else {
-                        // Non-self patient (e.g., "my mother", "my son") — clear existing
-                        // patient data so the patient selector is shown for confirmation
-                        unset($updated['selectedPatientId']);
-                        $updated['selectedPatientName'] = $entityValue;
-                        unset($updated['selectedPatientAvatar']);
-                        $updated['completedSteps'] = array_values(array_diff(
-                            $updated['completedSteps'] ?? [],
-                            ['patient']
-                        ));
-                    }
-                }
-
-                // Handle appointment type change — clear downstream fields
-                if ($dataKey === 'appointmentType' && !empty($currentValue) && $entityValue !== $currentValue) {
-                    Log::info('🔄 Appointment type changed via text', [
-                        'old_type' => $currentValue,
-                        'new_type' => $entityValue,
-                    ]);
-                    // Clear all downstream fields since a type change resets the flow
-                    unset($updated['urgency']);
-                    unset($updated['selectedDoctorId']);
-                    unset($updated['selectedDoctorName']);
-                    unset($updated['selectedDoctorAvatar']);
-                    unset($updated['selectedDoctorSpecialization']);
-                    unset($updated['doctorSearchQuery']);
-                    unset($updated['selectedDate']);
-                    unset($updated['selectedTime']);
-                    unset($updated['consultationMode']);
-                    // Clear followup-specific fields if leaving followup mode
-                    if ($currentValue === 'followup') {
-                        unset($updated['followup_reason']);
-                        unset($updated['followup_notes']);
-                        unset($updated['followup_notes_asked']);
-                        unset($updated['previous_doctors_shown']);
-                    }
+            // Patient relation → resolve to patient data
+            if ($dataKey === 'patientRelation') {
+                if ($entityValue === 'self') {
+                    $updated['selectedPatientId'] = 1;
+                    $updated['selectedPatientName'] = 'Yourself';
+                    $updated['selectedPatientAvatar'] = '/assets/avatars/self.png';
+                } else {
+                    unset($updated['selectedPatientId']);
+                    $updated['selectedPatientName'] = $entityValue;
+                    unset($updated['selectedPatientAvatar']);
                     $updated['completedSteps'] = array_values(array_diff(
-                        $updated['completedSteps'] ?? [],
-                        ['urgency', 'doctor', 'date', 'time', 'mode', 'followup_reason', 'followup_notes']
+                        $updated['completedSteps'] ?? [], ['patient']
                     ));
-                }
-
-                // Handle urgency change — clear downstream date/time so the date picker is shown
-                if ($dataKey === 'urgency' && !empty($currentValue) && $entityValue !== $currentValue) {
-                    Log::info('🔄 Urgency changed via text', [
-                        'old_urgency' => $currentValue,
-                        'new_urgency' => $entityValue,
-                    ]);
-                    // Different urgency means different date window — clear date, time, and mode
-                    // so the user sees a fresh date picker for the new urgency window
-                    unset($updated['selectedDate']);
-                    unset($updated['selectedTime']);
-                    unset($updated['consultationMode']);
-                    $updated['completedSteps'] = array_values(array_diff(
-                        $updated['completedSteps'] ?? [],
-                        ['date', 'time', 'mode']
-                    ));
-                }
-
-                // Handle date formatting and doctor availability check
-                if ($dataKey === 'selectedDate' && is_string($entityValue)) {
-                    try {
-                        $parsedDate = Carbon::parse($entityValue);
-
-                        // If the parsed date is in the past, adjust to the current/next year
-                        // This handles cases where AI returns "3 feb" as 2024-02-03 instead of 2026-02-03
-                        if ($parsedDate->isPast() && $parsedDate->diffInDays(Carbon::today()) > 1) {
-                            $parsedDate = $parsedDate->year(Carbon::today()->year);
-                            // If still in the past (e.g., Jan date when it's already Feb), use next year
-                            if ($parsedDate->isPast() && $parsedDate->diffInDays(Carbon::today()) > 1) {
-                                $parsedDate = $parsedDate->addYear();
-                            }
-                        }
-
-                        $formattedDate = $parsedDate->format('Y-m-d');
-                        $updated[$dataKey] = $formattedDate;
-
-                        // If a doctor is already selected, check availability on the new date
-                        $existingDoctorId = $updated['selectedDoctorId'] ?? null;
-                        if ($existingDoctorId) {
-                            $availability = $this->checkDoctorAvailabilityForDate($existingDoctorId, $formattedDate);
-                            if (!$availability['available']) {
-                                $doctorName = $updated['selectedDoctorName'] ?? 'your doctor';
-                                Log::info('⚠️ Date change: doctor not available on new date', [
-                                    'doctor_id' => $existingDoctorId,
-                                    'doctor_name' => $doctorName,
-                                    'new_date' => $formattedDate,
-                                ]);
-
-                                $updated['doctor_unavailable_on_date'] = true;
-                                $updated['doctor_unavailable_context'] = [
-                                    'doctor_name' => $doctorName,
-                                    'requested_date' => $formattedDate,
-                                    'next_available_date' => $availability['next_available_date'] ?? null,
-                                    'alternative_doctors' => $availability['alternative_doctors'] ?? [],
-                                ];
-
-                                unset($updated['selectedDoctorId']);
-                                unset($updated['selectedDoctorName']);
-                                unset($updated['selectedDoctorAvatar']);
-                                unset($updated['selectedDoctorSpecialization']);
-                                unset($updated['selectedTime']);
-                                unset($updated['consultationMode']);
-                                // Clean up completedSteps for cleared fields
-                                $updated['completedSteps'] = array_values(array_diff(
-                                    $updated['completedSteps'] ?? [],
-                                    ['doctor', 'time', 'mode']
-                                ));
-                            } else if (!empty($updated['selectedTime'])) {
-                                // Doctor available but check if the specific time is still valid
-                                $timeAvailable = $this->validateTimeSlotForDoctor(
-                                    $existingDoctorId, $formattedDate, $updated['selectedTime']
-                                );
-                                if (!$timeAvailable) {
-                                    unset($updated['selectedTime']);
-                                    unset($updated['consultationMode']);
-                                    $updated['completedSteps'] = array_values(array_diff(
-                                        $updated['completedSteps'] ?? [],
-                                        ['time', 'mode']
-                                    ));
-                                }
-                            }
-                        }
-                    } catch (\Exception $e) {
-                        Log::warning('Date parsing failed', ['date' => $entityValue]);
-                    }
-                }
-
-                // Handle doctor name - store as search query for filtered doctor list
-                if ($dataKey === 'selectedDoctorName' && !empty($entityValue)) {
-                    $doctorId = $this->getDoctorIdByName($entityValue);
-                    $existingDoctorId = $updated['selectedDoctorId'] ?? null;
-                    $isDifferentDoctor = $doctorId && $existingDoctorId && $doctorId != $existingDoctorId;
-
-                    // Store the search query so the doctor list can be filtered
-                    $updated['doctorSearchQuery'] = $entityValue;
-
-                    if ($doctorId && $existingDoctorId && $isDifferentDoctor) {
-                        // User is changing to a different doctor (already had one selected)
-                        // Clear the old doctor so the filtered list is shown
-                        Log::info('🔄 Doctor change detected via free text', [
-                            'old_doctor_id' => $existingDoctorId,
-                            'new_doctor_id' => $doctorId,
-                        ]);
-                        unset($updated['selectedDoctorId']);
-                        unset($updated['selectedDoctorName']);
-                        unset($updated['selectedDoctorAvatar']);
-                        unset($updated['selectedDoctorSpecialization']);
-                        unset($updated['selectedTime']);
-                        unset($updated['consultationMode']);
-                        $updated['completedSteps'] = array_values(array_diff(
-                            $updated['completedSteps'] ?? [],
-                            ['doctor', 'time', 'mode']
-                        ));
-                    } elseif ($doctorId && empty($existingDoctorId)) {
-                        // Check if the user also provided a time — strong signal they want
-                        // this specific doctor (e.g. "Dr. Vikram at 10:00"). Auto-select.
-                        $alsoProvidedTime = !empty($newEntities['time']);
-                        if ($alsoProvidedTime) {
-                            $doctor = $this->getDoctorDetailsById($doctorId);
-                            $updated['selectedDoctorId'] = $doctorId;
-                            $updated['selectedDoctorName'] = $doctor['name'] ?? $entityValue;
-                            $updated['selectedDoctorSpecialization'] = $doctor['specialization'] ?? '';
-                            if (!in_array('doctor', $updated['completedSteps'] ?? [])) {
-                                $updated['completedSteps'][] = 'doctor';
-                            }
-                            unset($updated['doctorSearchQuery']);
-
-                            Log::info('🔍 Doctor auto-selected (name + time provided)', [
-                                'doctor_id' => $doctorId,
-                                'doctor_name' => $doctor['name'] ?? $entityValue,
-                            ]);
-                        } else {
-                            // Name only - show filtered list for confirmation
-                            $updated['selectedDoctorName'] = $entityValue;
-
-                            Log::info('🔍 Doctor name extracted, showing filtered list', [
-                                'extracted_name' => $entityValue,
-                                'matched_doctor_id' => $doctorId,
-                            ]);
-                        }
-                    }
-                }
-
-                // Handle time change via text — normalize format and validate against doctor
-                if ($dataKey === 'selectedTime' && !empty($entityValue)) {
-                    // Normalize 12-hour format to 24-hour (e.g., "3:00 PM" -> "15:00")
-                    $normalizedTime = $entityValue;
-                    if (preg_match('/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i', trim($entityValue), $matches)) {
-                        $hours = (int) $matches[1];
-                        $minutes = $matches[2];
-                        $period = strtoupper($matches[3]);
-                        if ($period === 'PM' && $hours !== 12) $hours += 12;
-                        if ($period === 'AM' && $hours === 12) $hours = 0;
-                        $normalizedTime = sprintf('%02d:%s', $hours, $minutes);
-                    }
-                    $updated['selectedTime'] = $normalizedTime;
-
-                    // Validate against doctor's available slots
-                    $doctorId = $updated['selectedDoctorId'] ?? null;
-                    if ($doctorId) {
-                        $isValid = $this->validateTimeSlotForDoctor(
-                            $doctorId, $updated['selectedDate'] ?? null, $normalizedTime
-                        );
-                        if (!$isValid) {
-                            Log::warning('⚠️ Time from text not available for doctor', [
-                                'original' => $entityValue,
-                                'normalized' => $normalizedTime,
-                                'doctor_id' => $doctorId,
-                            ]);
-                            // Keep the time anyway — the state machine will show time_selection
-                            // with the correct available slots for the user to pick from
-                            unset($updated['selectedTime']);
-                            $updated['completedSteps'] = array_values(array_diff(
-                                $updated['completedSteps'] ?? [],
-                                ['time']
-                            ));
-                        }
-                    }
-                }
-
-                // Handle consultation mode change — validate against doctor's supported modes
-                if ($dataKey === 'consultationMode' && !empty($entityValue)) {
-                    $doctorId = $updated['selectedDoctorId'] ?? null;
-                    if ($doctorId) {
-                        $doctor = $this->getDoctorDetailsById($doctorId);
-                        if ($doctor) {
-                            $supportedModes = $doctor['consultation_modes'] ?? [];
-                            $doctorName = $doctor['name'] ?? 'this doctor';
-                            if (!in_array($entityValue, $supportedModes)) {
-                                $modeLabel = $entityValue === 'video' ? 'video consultations' : 'in-person visits';
-                                if (count($supportedModes) === 1) {
-                                    $onlyModeLabel = $supportedModes[0] === 'video' ? 'video appointments' : 'in-person visits';
-                                    $updated['consultationMode'] = $supportedModes[0];
-                                    $updated['mode_conflict'] = [
-                                        'doctor_name' => $doctorName,
-                                        'requested_mode' => $entityValue,
-                                        'available_mode' => $supportedModes[0],
-                                        'message' => "{$doctorName} only offers {$onlyModeLabel}. I've updated the consultation mode. If you'd prefer {$modeLabel}, you can change the doctor.",
-                                    ];
-                                    Log::info('🔧 Mode auto-corrected with notification', [
-                                        'requested' => $entityValue,
-                                        'corrected_to' => $supportedModes[0],
-                                        'doctor_id' => $doctorId,
-                                    ]);
-                                } else {
-                                    Log::warning('⚠️ Mode not supported by doctor', [
-                                        'requested' => $entityValue,
-                                        'supported' => $supportedModes,
-                                        'doctor_id' => $doctorId,
-                                    ]);
-                                }
-                            }
-                        }
-                    }
                 }
             }
+
+            // Appointment type change → clear all downstream
+            if ($dataKey === 'appointmentType' && !empty($currentValue) && $entityValue !== $currentValue) {
+                unset($updated['urgency'], $updated['selectedDoctorId'], $updated['selectedDoctorName']);
+                unset($updated['selectedDoctorAvatar'], $updated['selectedDoctorSpecialization']);
+                unset($updated['doctorSearchQuery'], $updated['selectedDate']);
+                unset($updated['selectedTime'], $updated['consultationMode']);
+                if ($currentValue === 'followup') {
+                    unset($updated['followup_reason'], $updated['followup_notes']);
+                    unset($updated['followup_notes_asked'], $updated['previous_doctors_shown']);
+                }
+                $updated['completedSteps'] = array_values(array_diff(
+                    $updated['completedSteps'] ?? [],
+                    ['urgency', 'doctor', 'date', 'time', 'mode', 'followup_reason', 'followup_notes']
+                ));
+            }
+
+            // Urgency change → clear downstream date/time
+            if ($dataKey === 'urgency' && !empty($currentValue) && $entityValue !== $currentValue) {
+                unset($updated['selectedDate'], $updated['selectedTime'], $updated['consultationMode']);
+                $updated['completedSteps'] = array_values(array_diff(
+                    $updated['completedSteps'] ?? [], ['date', 'time', 'mode']
+                ));
+            }
+
+            // Doctor name handling — auto-select if resolved by normalizer, otherwise show list
+            if ($dataKey === 'selectedDoctorName' && !empty($entityValue)) {
+                $doctorId = $entities['selectedDoctorId'] ?? $this->doctorService->findByName($entityValue);
+                $existingDoctorId = $updated['selectedDoctorId'] ?? null;
+
+                if ($doctorId && $existingDoctorId && $doctorId != $existingDoctorId) {
+                    // Changing doctor — clear old selection
+                    unset($updated['selectedDoctorId'], $updated['selectedDoctorName']);
+                    unset($updated['selectedDoctorAvatar'], $updated['selectedDoctorSpecialization']);
+                    unset($updated['selectedTime'], $updated['consultationMode']);
+                    $updated['completedSteps'] = array_values(array_diff(
+                        $updated['completedSteps'] ?? [], ['doctor', 'time', 'mode']
+                    ));
+                } elseif ($doctorId && empty($existingDoctorId)) {
+                    // Doctor resolved — auto-select them
+                    $doctor = $this->doctorService->getById($doctorId);
+                    $updated['selectedDoctorId'] = $doctorId;
+                    $updated['selectedDoctorName'] = $doctor['name'] ?? $entityValue;
+                    $updated['selectedDoctorSpecialization'] = $doctor['specialization'] ?? '';
+                    $updated['selectedDoctorAvatar'] = $doctor['avatar'] ?? '';
+                    if (!in_array('doctor', $updated['completedSteps'] ?? [])) {
+                        $updated['completedSteps'][] = 'doctor';
+                    }
+                    unset($updated['doctorSearchQuery']);
+                }
+            }
+        }
+
+        // Step 3: Apply normalizer-detected conflicts
+        if (!empty($entities['mode_conflict'])) {
+            $updated['mode_conflict'] = $entities['mode_conflict'];
+        }
+        if (!empty($entities['doctor_date_conflict'])) {
+            $conflict = $entities['doctor_date_conflict'];
+            Log::info('⚠️ Entity Merge: Doctor-date conflict detected by normalizer', [
+                'doctor' => $conflict['searched_doctor'] ?? '',
+                'date' => $conflict['date'] ?? '',
+            ]);
+
+            // Clear the conflicting date so state machine goes to date_selection
+            unset($updated['selectedDate']);
+            unset($updated['selectedTime']);
+            unset($updated['consultationMode']);
+            $updated['completedSteps'] = array_values(array_diff(
+                $updated['completedSteps'] ?? [],
+                ['date', 'time', 'mode']
+            ));
+            // Remove date from textMentionedFields since it was invalid
+            $updated['textMentionedFields'] = array_values(array_diff(
+                $updated['textMentionedFields'] ?? [],
+                ['selectedDate']
+            ));
+            // Set urgency to prevent regression past urgency step
+            if (empty($updated['urgency'])) {
+                $updated['urgency'] = 'this_week';
+            }
+            // Store the conflict info so buildResponseFromStateMachine can show it
+            // The doctor_date_conflict will be picked up by getDoctorListForDate
+            // or we store it directly for the response builder
+            $updated['doctor_date_conflict'] = $conflict;
         }
 
         return $updated;
@@ -1132,6 +965,14 @@ class IntelligentBookingOrchestrator
 
             // Clear the flag so it doesn't repeat
             unset($data['mode_conflict']);
+        }
+
+        // Check for doctor-date conflict from entity normalization
+        if (!empty($data['doctor_date_conflict'])) {
+            $message = $data['doctor_date_conflict']['message'];
+
+            // Clear the flag so it doesn't repeat
+            unset($data['doctor_date_conflict']);
         }
 
         // Save data
@@ -1620,7 +1461,7 @@ class IntelligentBookingOrchestrator
     protected function buildSummaryData(array $data): array
     {
         $doctorId = $data['selectedDoctorId'] ?? null;
-        $doctor = $doctorId ? $this->getDoctorDetailsById($doctorId) : null;
+        $doctor = $doctorId ? $this->doctorService->getById($doctorId) : null;
         $supportedModes = $doctor['consultation_modes'] ?? ['video', 'in_person'];
 
         return [
@@ -1649,7 +1490,7 @@ class IntelligentBookingOrchestrator
         $mode = $data['consultationMode'] ?? $this->getDefaultModeForDoctor($doctorId);
 
         if ($doctorId) {
-            $doctor = $this->getDoctorDetailsById($doctorId);
+            $doctor = $this->doctorService->getById($doctorId);
             if ($doctor) {
                 return $mode === 'in_person'
                     ? ($doctor['in_person_fee'] ?? 1200)
@@ -1798,7 +1639,7 @@ class IntelligentBookingOrchestrator
             }
 
             // Validate and auto-select consultation mode based on doctor's supported modes
-            $doctor = $this->getDoctorDetailsById($selection['doctor_id']);
+            $doctor = $this->doctorService->getById($selection['doctor_id']);
             if ($doctor) {
                 $supportedModes = $doctor['consultation_modes'] ?? [];
                 $currentMode = $updated['consultationMode'] ?? null;
@@ -1875,7 +1716,7 @@ class IntelligentBookingOrchestrator
 
             // Validate mode against doctor's supported modes
             if ($doctorId) {
-                $doctor = $this->getDoctorDetailsById($doctorId);
+                $doctor = $this->doctorService->getById($doctorId);
                 if ($doctor) {
                     $supportedModes = $doctor['consultation_modes'] ?? [];
                     if (!in_array($selectedMode, $supportedModes)) {
@@ -2020,7 +1861,7 @@ class IntelligentBookingOrchestrator
         // Handle mode change from summary
         if (isset($selection['change_mode']) && $selection['change_mode']) {
             $doctorId = $updated['selectedDoctorId'] ?? null;
-            $doctor = $doctorId ? $this->getDoctorDetailsById($doctorId) : null;
+            $doctor = $doctorId ? $this->doctorService->getById($doctorId) : null;
             $supportedModes = $doctor['consultation_modes'] ?? ['video', 'in_person'];
 
             if (count($supportedModes) <= 1) {
@@ -2134,7 +1975,7 @@ class IntelligentBookingOrchestrator
     {
         // If a doctor is already selected, only show dates they're available
         $selectedDoctorId = $data['selectedDoctorId'] ?? null;
-        $checkDoctorIds = $selectedDoctorId ? [$selectedDoctorId] : [1, 2, 3, 4, 5];
+        $checkDoctorIds = $selectedDoctorId ? [$selectedDoctorId] : $this->doctorService->getAllIds();
 
         $fullWeekDates = [];
         for ($i = 0; $i < 7; $i++) {
@@ -2144,7 +1985,7 @@ class IntelligentBookingOrchestrator
             // Only include dates where the relevant doctor(s) are available
             $anyAvailable = false;
             foreach ($checkDoctorIds as $docId) {
-                $daysOff = $this->getDoctorDaysOff($docId);
+                $daysOff = $this->doctorService->getDaysOff($docId);
                 if (!in_array($dayOfWeek, $daysOff)) {
                     $anyAvailable = true;
                     break;
@@ -2185,14 +2026,14 @@ class IntelligentBookingOrchestrator
             // Check if a searched doctor is unavailable on this date
             $searchQuery = $data['doctorSearchQuery'] ?? null;
             if ($searchQuery) {
-                $doctorId = $this->getDoctorIdByName($searchQuery);
+                $doctorId = $this->doctorService->findByName($searchQuery);
                 if ($doctorId) {
-                    $daysOff = $this->getDoctorDaysOff($doctorId);
+                    $daysOff = $this->doctorService->getDaysOff($doctorId);
                     if (in_array($dayOfWeek, $daysOff)) {
                         // Doctor is NOT available on the selected date.
                         // Show the doctor with their available dates this week instead.
                         $dateFormatted = Carbon::parse($selectedDate)->format('M j');
-                        $availableDays = $this->getDoctorAvailableDatesThisWeek($doctorId);
+                        $availableDays = $this->doctorService->getAvailableDates($doctorId);
                         $dayLabels = array_map(fn($d) => Carbon::parse($d)->format('D'), $availableDays);
 
                         // Strip "Dr." prefix to avoid "Dr. Dr. Vikram"
@@ -2236,7 +2077,7 @@ class IntelligentBookingOrchestrator
             }
             // Filter doctors to those available on the selected date
             $filteredDoctors = array_values(array_filter($result['doctors'], function ($doc) use ($dayOfWeek) {
-                $daysOff = $this->getDoctorDaysOff($doc['id']);
+                $daysOff = $this->doctorService->getDaysOff($doc['id']);
                 return !in_array($dayOfWeek, $daysOff);
             }));
 
@@ -2247,98 +2088,25 @@ class IntelligentBookingOrchestrator
         return $result;
     }
 
-    /**
-     * Get available dates this week for a specific doctor.
-     */
-    protected function getDoctorAvailableDatesThisWeek(int $doctorId): array
-    {
-        $daysOff = $this->getDoctorDaysOff($doctorId);
-        $availableDates = [];
-
-        for ($i = 0; $i < 7; $i++) {
-            $date = Carbon::today()->addDays($i);
-            if (!in_array($date->dayOfWeek, $daysOff)) {
-                $availableDates[] = $date->format('Y-m-d');
-            }
-        }
-
-        return $availableDates;
-    }
-
     protected function getDoctorListData(array $data): array
     {
-        // Mock data with complete doctor information
-        $doctors = [
-            [
-                'id' => 1,
-                'name' => 'Dr. Sarah Johnson',
-                'avatar' => '/assets/avatars/doctor1.jpg',
-                'specialization' => 'General Physician',
-                'experience_years' => 12,
-                'consultation_modes' => ['video', 'in_person'],
-                'video_fee' => 800,
-                'in_person_fee' => 1200,
-                'slots' => $this->generateTimeSlots(),
-            ],
-            [
-                'id' => 2,
-                'name' => 'Dr. Rajesh Kumar',
-                'avatar' => '/assets/avatars/doctor2.jpg',
-                'specialization' => 'Cardiologist',
-                'experience_years' => 18,
-                'consultation_modes' => ['video', 'in_person'],
-                'video_fee' => 1500,
-                'in_person_fee' => 2000,
-                'slots' => $this->generateTimeSlots(),
-            ],
-            [
-                'id' => 3,
-                'name' => 'Dr. Priya Sharma',
-                'avatar' => '/assets/avatars/doctor3.jpg',
-                'specialization' => 'Pediatrician',
-                'experience_years' => 10,
-                'consultation_modes' => ['video', 'in_person'],
-                'video_fee' => 900,
-                'in_person_fee' => 1300,
-                'slots' => $this->generateTimeSlots(),
-            ],
-            [
-                'id' => 4,
-                'name' => 'Dr. Anita Deshmukh',
-                'avatar' => '/assets/avatars/doctor4.jpg',
-                'specialization' => 'Dermatologist',
-                'experience_years' => 15,
-                'consultation_modes' => ['video', 'in_person'],
-                'video_fee' => 1000,
-                'in_person_fee' => 1500,
-                'slots' => $this->generateTimeSlots(),
-            ],
-            [
-                'id' => 5,
-                'name' => 'Dr. Vikram Patel',
-                'avatar' => '/assets/avatars/doctor5.jpg',
-                'specialization' => 'Orthopedist',
-                'experience_years' => 20,
-                'consultation_modes' => ['in_person'],
-                'video_fee' => 0,
-                'in_person_fee' => 1800,
-                'slots' => $this->generateTimeSlots(),
-            ],
-        ];
+        // Get all doctors from centralized DoctorService, add time slots
+        $doctors = array_map(function ($doctor) {
+            $doctor['slots'] = $this->generateTimeSlots();
+            return $doctor;
+        }, $this->doctorService->getAllAsList());
 
         // Filter doctors by search query if the user typed a doctor name
         $searchQuery = $data['doctorSearchQuery'] ?? null;
         $allDoctors = $doctors;
         if ($searchQuery) {
-            $searchLower = strtolower($searchQuery);
-            $filtered = array_filter($doctors, function ($doctor) use ($searchLower) {
-                return stripos(strtolower($doctor['name']), $searchLower) !== false
-                    || stripos(strtolower($doctor['specialization'] ?? ''), $searchLower) !== false;
-            });
+            $filtered = array_map(function ($doctor) {
+                $doctor['slots'] = $this->generateTimeSlots();
+                return $doctor;
+            }, $this->doctorService->search($searchQuery));
             if (!empty($filtered)) {
-                $doctors = array_values($filtered);
+                $doctors = $filtered;
             }
-            // If no matches found, keep the full list so the user can still choose
         }
 
         // Build a full week of dates, but only include dates where at least
@@ -2350,7 +2118,7 @@ class IntelligentBookingOrchestrator
         // Pre-compute each doctor's days-off set for quick lookup
         $doctorDaysOff = [];
         foreach ($doctors as $doctor) {
-            $doctorDaysOff[$doctor['id']] = $this->getDoctorDaysOff($doctor['id']);
+            $doctorDaysOff[$doctor['id']] = $this->doctorService->getDaysOff($doctor['id']);
         }
 
         // Generate 7-day window, keeping only dates with ≥1 available doctor
@@ -2520,84 +2288,9 @@ class IntelligentBookingOrchestrator
      *
      * In production, this would query the database for the doctor's schedule.
      */
-    /**
-     * Get a doctor's days off (mock schedule).
-     * In production, this would come from the database.
-     */
-    protected function getDoctorDaysOff(int $doctorId): array
-    {
-        $doctorDaysOff = [
-            1 => [0],       // Dr. Sarah Johnson: off Sunday
-            2 => [0, 6],    // Dr. Emily Chen: off Sunday, Saturday
-            3 => [0, 3],    // Dr. Rajesh Kumar: off Sunday, Wednesday
-            4 => [0, 6],    // Dr. Anita Deshmukh: off Sunday, Saturday
-            5 => [0, 2, 4], // Dr. Vikram Patel: off Sunday, Tuesday, Thursday
-        ];
-
-        return $doctorDaysOff[$doctorId] ?? [0];
-    }
-
     protected function checkDoctorAvailabilityForDate(int $doctorId, string $date): array
     {
-        $doctor = $this->getDoctorDetailsById($doctorId);
-        if (!$doctor) {
-            return ['available' => false, 'next_available_date' => null, 'alternative_doctors' => []];
-        }
-
-        $dateObj = Carbon::parse($date);
-        $dayOfWeek = $dateObj->dayOfWeek; // 0=Sunday, 6=Saturday
-
-        $daysOff = $this->getDoctorDaysOff($doctorId);
-        $isAvailable = !in_array($dayOfWeek, $daysOff);
-
-        if ($isAvailable) {
-            return ['available' => true];
-        }
-
-        // Find the next available date for this doctor
-        $nextAvailable = null;
-        for ($i = 1; $i <= 14; $i++) {
-            $checkDate = $dateObj->copy()->addDays($i);
-            if (!in_array($checkDate->dayOfWeek, $daysOff)) {
-                $nextAvailable = $checkDate->format('Y-m-d');
-                break;
-            }
-        }
-
-        // Find alternative doctors available on the requested date
-        $alternativeDoctors = [];
-        $allDoctors = [1, 2, 3, 4, 5];
-        foreach ($allDoctors as $altId) {
-            if ($altId === $doctorId) continue;
-            $altDaysOff = $this->getDoctorDaysOff($altId);
-            if (!in_array($dayOfWeek, $altDaysOff)) {
-                $altDoctor = $this->getDoctorDetailsById($altId);
-                if ($altDoctor) {
-                    $alternativeDoctors[] = [
-                        'id' => $altId,
-                        'name' => $altDoctor['name'],
-                        'specialization' => $altDoctor['specialization'],
-                    ];
-                }
-            }
-            if (count($alternativeDoctors) >= 3) break; // Limit to 3 suggestions
-        }
-
-        Log::info('📅 Doctor availability check', [
-            'doctor_id' => $doctorId,
-            'doctor_name' => $doctor['name'],
-            'date' => $date,
-            'day_of_week' => $dayOfWeek,
-            'available' => false,
-            'next_available' => $nextAvailable,
-            'alternative_count' => count($alternativeDoctors),
-        ]);
-
-        return [
-            'available' => false,
-            'next_available_date' => $nextAvailable,
-            'alternative_doctors' => $alternativeDoctors,
-        ];
+        return $this->doctorService->checkAvailability($doctorId, $date);
     }
 
     /**
@@ -2606,7 +2299,7 @@ class IntelligentBookingOrchestrator
     protected function getModeSelectorData(array $data): array
     {
         $doctorId = $data['selectedDoctorId'] ?? null;
-        $doctor = $doctorId ? $this->getDoctorDetailsById($doctorId) : null;
+        $doctor = $doctorId ? $this->doctorService->getById($doctorId) : null;
 
         $modes = [];
 
@@ -2645,11 +2338,11 @@ class IntelligentBookingOrchestrator
     protected function getDateTimeSelectorData(array $data): array
     {
         $doctorId = $data['selectedDoctorId'] ?? null;
-        $doctor = $doctorId ? $this->getDoctorDetailsById($doctorId) : null;
+        $doctor = $doctorId ? $this->doctorService->getById($doctorId) : null;
 
         // Get base dates, then filter by doctor availability
         $dates = $this->getAvailableDates($data);
-        $daysOff = $doctorId ? $this->getDoctorDaysOff($doctorId) : [];
+        $daysOff = $doctorId ? $this->doctorService->getDaysOff($doctorId) : [];
 
         $transformedDates = [];
         foreach ($dates as $date) {
@@ -2840,7 +2533,7 @@ class IntelligentBookingOrchestrator
         // Enhance with availability information if date is selected
         if ($selectedDate) {
             foreach ($previousDoctors as &$doctor) {
-                $doctorDetails = $this->getDoctorDetailsById($doctor['id']);
+                $doctorDetails = $this->doctorService->getById($doctor['id']);
                 if ($doctorDetails) {
                     // Get available time slots for this doctor on the selected date
                     $slots = $doctorDetails['slots'] ?? $this->generateTimeSlots();
@@ -2883,52 +2576,12 @@ class IntelligentBookingOrchestrator
     }
 
     /**
-     * Map doctor name to doctor ID for smart step skipping
-     * Enables "book with Dr. Sarah Johnson" to jump directly to time selection
-     */
-    protected function getDoctorIdByName(string $doctorName): ?int
-    {
-        // Mock doctor name to ID mapping
-        // In production, this would query the database
-        $doctors = [
-            'Dr. Sarah Johnson' => 1,
-            'Dr. Emily Chen' => 2,
-            'Dr. Rajesh Kumar' => 3,
-            'Dr. Meera Iyer' => 3, // Alternative name for same doctor
-            'Dr. Anita Deshmukh' => 4,
-            'Dr. Vikram Patel' => 5,
-        ];
-
-        // Case-insensitive partial match
-        $doctorNameLower = strtolower($doctorName);
-        foreach ($doctors as $name => $id) {
-            $nameLower = strtolower($name);
-            // Match if either name contains the other (handles "Dr. Sarah" matching "Dr. Sarah Johnson")
-            if (stripos($nameLower, $doctorNameLower) !== false || stripos($doctorNameLower, $nameLower) !== false) {
-                Log::info('🔍 Doctor name matched', [
-                    'extracted_name' => $doctorName,
-                    'matched_name' => $name,
-                    'doctor_id' => $id,
-                ]);
-                return $id;
-            }
-        }
-
-        Log::warning('⚠️ Doctor name not matched', [
-            'extracted_name' => $doctorName,
-            'available_doctors' => array_keys($doctors),
-        ]);
-
-        return null;
-    }
-
-    /**
      * Validate if a time slot is available for a specific doctor
      */
     protected function validateTimeSlotForDoctor(int $doctorId, ?string $date, string $time): bool
     {
         // Get doctor details
-        $doctorDetails = $this->getDoctorDetailsById($doctorId);
+        $doctorDetails = $this->doctorService->getById($doctorId);
 
         if (!$doctorDetails) {
             Log::warning('⚠️ Time Validation: Doctor not found', ['doctor_id' => $doctorId]);
@@ -2960,80 +2613,13 @@ class IntelligentBookingOrchestrator
     }
 
     /**
-     * Get doctor details by ID
-     */
-    protected function getDoctorDetailsById(int $doctorId): ?array
-    {
-        $allDoctors = [
-            1 => [
-                'id' => 1,
-                'name' => 'Dr. Sarah Johnson',
-                'avatar' => '/assets/avatars/doctor1.jpg',
-                'specialization' => 'General Physician',
-                'experience_years' => 12,
-                'consultation_modes' => ['video', 'in_person'],
-                'video_fee' => 800,
-                'in_person_fee' => 1200,
-            ],
-            2 => [
-                'id' => 2,
-                'name' => 'Dr. Emily Chen',
-                'avatar' => '/assets/avatars/doctor2.jpg',
-                'specialization' => 'Cardiologist',
-                'experience_years' => 18,
-                'consultation_modes' => ['video', 'in_person'],
-                'video_fee' => 1200,
-                'in_person_fee' => 1500,
-            ],
-            3 => [
-                'id' => 3,
-                'name' => 'Dr. Rajesh Kumar',
-                'avatar' => '/assets/avatars/doctor3.jpg',
-                'specialization' => 'Pediatrician',
-                'experience_years' => 10,
-                'consultation_modes' => ['video', 'in_person'],
-                'video_fee' => 700,
-                'in_person_fee' => 1000,
-            ],
-            4 => [
-                'id' => 4,
-                'name' => 'Dr. Anita Deshmukh',
-                'avatar' => '/assets/avatars/doctor4.jpg',
-                'specialization' => 'Dermatologist',
-                'experience_years' => 15,
-                'consultation_modes' => ['video', 'in_person'],
-                'video_fee' => 1000,
-                'in_person_fee' => 1500,
-            ],
-            5 => [
-                'id' => 5,
-                'name' => 'Dr. Vikram Patel',
-                'avatar' => '/assets/avatars/doctor5.jpg',
-                'specialization' => 'Orthopedist',
-                'experience_years' => 20,
-                'consultation_modes' => ['in_person'],
-                'video_fee' => 0,
-                'in_person_fee' => 1800,
-            ],
-        ];
-
-        return $allDoctors[$doctorId] ?? null;
-    }
-
-    /**
      * Get the default consultation mode for a doctor.
      * Returns the doctor's only supported mode, or 'video' as a generic fallback.
      */
     protected function getDefaultModeForDoctor(?int $doctorId): string
     {
         if ($doctorId) {
-            $doctor = $this->getDoctorDetailsById($doctorId);
-            if ($doctor) {
-                $modes = $doctor['consultation_modes'] ?? [];
-                if (count($modes) === 1) {
-                    return $modes[0];
-                }
-            }
+            return $this->doctorService->getDefaultMode($doctorId);
         }
 
         return 'video';
