@@ -16,6 +16,7 @@ class BookingStateMachine
 {
     // Define ALL possible states
     const STATES = [
+        // Doctor flow states
         'patient_selection',
         'appointment_type',
         'urgency',           // For both new and followup appointments (unless date already known)
@@ -26,6 +27,11 @@ class BookingStateMachine
         'doctor_selection',
         'time_selection',    // Separate from doctor if needed
         'mode_selection',
+        // Lab flow states
+        'package_selection',
+        'location_selection',
+        'lab_date_time_selection',
+        // Common states
         'summary',
         'payment',
         'completed',
@@ -34,18 +40,22 @@ class BookingStateMachine
     private array $data;
     private string $currentState;
     private string $appointmentType;
+    private string $bookingType;
 
     public function __construct(array $collectedData)
     {
         $this->data = $collectedData;
         $this->appointmentType = $collectedData['appointmentType'] ?? 'unknown';
+        $this->bookingType = $collectedData['booking_type'] ?? 'doctor';
         $this->currentState = $this->determineCurrentState();
 
         Log::info('🎰 State Machine Initialized', [
             'current_state' => $this->currentState,
+            'booking_type' => $this->bookingType,
             'appointment_type' => $this->appointmentType,
             'has_patient' => !empty($this->data['selectedPatientId']),
             'has_doctor' => !empty($this->data['selectedDoctorId']),
+            'has_package' => !empty($this->data['selectedPackageId']),
             'has_date' => !empty($this->data['selectedDate']),
             'has_time' => !empty($this->data['selectedTime']),
             'has_mode' => !empty($this->data['consultationMode']),
@@ -63,7 +73,12 @@ class BookingStateMachine
             return 'patient_selection';
         }
 
-        // 2. Must have appointment type
+        // 2. Branch on booking type
+        if ($this->bookingType === 'lab_test') {
+            return $this->determineLabState();
+        }
+
+        // 3. Must have appointment type (doctor flow)
         if (empty($this->data['appointmentType'])) {
             return 'appointment_type';
         }
@@ -163,14 +178,9 @@ class BookingStateMachine
      */
     public function isReadyToBook(): bool
     {
-        $required = [
-            'selectedPatientId',
-            'appointmentType',
-            'selectedDoctorId',
-            'selectedDate',
-            'selectedTime',
-            'consultationMode',
-        ];
+        $required = $this->bookingType === 'lab_test'
+            ? ['selectedPatientId', 'selectedPackageId', 'collectionType', 'selectedDate', 'selectedTime']
+            : ['selectedPatientId', 'appointmentType', 'selectedDoctorId', 'selectedDate', 'selectedTime', 'consultationMode'];
 
         foreach ($required as $field) {
             if (empty($this->data[$field])) {
@@ -184,11 +194,36 @@ class BookingStateMachine
     /**
      * Apply new data and recalculate state
      */
+    /**
+     * Determine current state for lab test booking flow.
+     * Flow: patient → package → location → date+time → summary
+     */
+    private function determineLabState(): string
+    {
+        // Need package selection
+        if (empty($this->data['selectedPackageId'])) {
+            return 'package_selection';
+        }
+
+        // Need location/collection type
+        if (empty($this->data['collectionType'])) {
+            return 'location_selection';
+        }
+
+        // Need date and time
+        if (empty($this->data['selectedDate']) || empty($this->data['selectedTime'])) {
+            return 'lab_date_time_selection';
+        }
+
+        return 'summary';
+    }
+
     public function applyData(array $newData): self
     {
         $before = $this->currentState;
         $this->data = array_merge($this->data, $newData);
         $this->appointmentType = $this->data['appointmentType'] ?? 'unknown';
+        $this->bookingType = $this->data['booking_type'] ?? 'doctor';
         $this->currentState = $this->determineCurrentState();
 
         Log::info('🎰 State Machine: Data Applied', [
@@ -252,6 +287,24 @@ class BookingStateMachine
                 unset($this->data['followup_notes_asked']);
                 unset($this->data['previous_doctors_shown']);
                 unset($this->data['urgency']);
+                break;
+
+            // Lab-specific change requests
+            case 'package':
+                unset($this->data['selectedPackageId']);
+                unset($this->data['selectedPackageName']);
+                unset($this->data['packageRequiresFasting']);
+                unset($this->data['packageFastingHours']);
+                break;
+
+            case 'location':
+            case 'collection':
+                unset($this->data['collectionType']);
+                unset($this->data['selectedCenterId']);
+                unset($this->data['selectedCenterName']);
+                // Clear date/time since location change may affect availability
+                unset($this->data['selectedDate']);
+                unset($this->data['selectedTime']);
                 break;
         }
 
@@ -321,9 +374,26 @@ class BookingStateMachine
                 'message' => 'How would you like to consult?',
                 'awaiting_chat_input' => false,
             ],
+            'package_selection' => [
+                'type' => 'package_list',
+                'message' => 'Which health package would you like to book?',
+                'awaiting_chat_input' => false,
+            ],
+            'location_selection' => [
+                'type' => 'location_selector',
+                'message' => 'Where would you like to get your test done?',
+                'awaiting_chat_input' => false,
+            ],
+            'lab_date_time_selection' => [
+                'type' => 'date_time_selector',
+                'message' => $this->getLabDateTimeMessage(),
+                'awaiting_chat_input' => false,
+            ],
             'summary' => [
                 'type' => 'booking_summary',
-                'message' => 'Here\'s your appointment summary:',
+                'message' => $this->bookingType === 'lab_test'
+                    ? 'Here\'s your lab test booking summary:'
+                    : 'Here\'s your appointment summary:',
                 'awaiting_chat_input' => false,
             ],
             default => [
@@ -419,6 +489,15 @@ class BookingStateMachine
             $missing[] = 'patient';
         }
 
+        if ($this->bookingType === 'lab_test') {
+            if (empty($this->data['selectedPackageId'])) $missing[] = 'package';
+            if (empty($this->data['collectionType'])) $missing[] = 'location';
+            if (empty($this->data['selectedDate'])) $missing[] = 'date';
+            if (empty($this->data['selectedTime'])) $missing[] = 'time';
+            return $missing;
+        }
+
+        // Doctor flow
         if (empty($this->data['appointmentType'])) {
             $missing[] = 'appointment_type';
         }
@@ -478,6 +557,9 @@ class BookingStateMachine
             'date' => !empty($this->data['selectedDate']),
             'time' => !empty($this->data['selectedTime']),
             'mode' => !empty($this->data['consultationMode']),
+            // Lab-specific fields
+            'package' => !empty($this->data['selectedPackageId']),
+            'location' => !empty($this->data['collectionType']),
             default => false,
         };
     }
@@ -487,6 +569,18 @@ class BookingStateMachine
      */
     public function getCompletenessPercentage(): float
     {
+        if ($this->bookingType === 'lab_test') {
+            $total = 5; // patient, package, location, date, time
+            $completed = 0;
+            if ($this->hasField('patient')) $completed++;
+            if ($this->hasField('package')) $completed++;
+            if ($this->hasField('location')) $completed++;
+            if ($this->hasField('date')) $completed++;
+            if ($this->hasField('time')) $completed++;
+            return $total > 0 ? $completed / $total : 0;
+        }
+
+        // Doctor flow
         $total = 6; // patient, type, doctor, date, time, mode
 
         // Add followup-specific fields
@@ -520,12 +614,43 @@ class BookingStateMachine
     }
 
     /**
+     * Get context-aware message for lab date+time selection
+     */
+    private function getLabDateTimeMessage(): string
+    {
+        $packageName = $this->data['selectedPackageName'] ?? null;
+        $requiresFasting = !empty($this->data['packageRequiresFasting']);
+        $fastingHours = $this->data['packageFastingHours'] ?? null;
+
+        $message = 'When would you like to schedule your test?';
+
+        if ($packageName) {
+            $message = "When would you like to schedule your {$packageName}?";
+        }
+
+        if ($requiresFasting && $fastingHours) {
+            $message .= " This test requires {$fastingHours} hours of fasting — morning slots are recommended.";
+        }
+
+        return $message;
+    }
+
+    /**
+     * Get the booking type
+     */
+    public function getBookingType(): string
+    {
+        return $this->bookingType;
+    }
+
+    /**
      * Debug info for logging
      */
     public function getDebugInfo(): array
     {
         return [
             'current_state' => $this->currentState,
+            'booking_type' => $this->bookingType,
             'appointment_type' => $this->appointmentType,
             'completeness' => round($this->getCompletenessPercentage() * 100) . '%',
             'missing_fields' => $this->getMissingFields(),

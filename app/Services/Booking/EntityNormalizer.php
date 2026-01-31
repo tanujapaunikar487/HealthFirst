@@ -18,7 +18,8 @@ use Illuminate\Support\Facades\Log;
 class EntityNormalizer
 {
     public function __construct(
-        private DoctorService $doctorService
+        private DoctorService $doctorService,
+        private LabService $labService,
     ) {}
 
     /**
@@ -49,6 +50,10 @@ class EntityNormalizer
             'followup_notes' => 'followup_notes',
             'mode' => 'consultationMode',
             'consultation_mode' => 'consultationMode',
+            // Lab-specific entity mappings
+            'package_name' => 'selectedPackageName',
+            'package_id' => 'selectedPackageId',
+            'collection_type' => 'collectionType',
         ];
 
         foreach ($rawEntities as $key => $value) {
@@ -68,6 +73,10 @@ class EntityNormalizer
                 'patientRelation' => $this->normalizePatientRelation($value),
                 'urgency' => $this->normalizeUrgency($value),
                 'appointmentType' => $this->normalizeAppointmentType($value),
+                // Lab-specific normalizers
+                'selectedPackageName' => $this->normalizePackageName($value, $rawEntities),
+                'selectedPackageId' => $this->normalizePackageId($value),
+                'collectionType' => $this->normalizeCollectionType($value),
                 default => ['value' => $value, 'warning' => null],
             };
 
@@ -92,6 +101,16 @@ class EntityNormalizer
             $doctor = $this->doctorService->getById($normalized['selectedDoctorId']);
             if ($doctor) {
                 $normalized['selectedDoctorName'] = $doctor['name'];
+            }
+        }
+
+        // Post-normalization: if we have package_id but no package_name, resolve it
+        if (isset($normalized['selectedPackageId']) && !isset($normalized['selectedPackageName'])) {
+            $package = $this->labService->getPackageById($normalized['selectedPackageId']);
+            if ($package) {
+                $normalized['selectedPackageName'] = $package['name'];
+                $normalized['packageRequiresFasting'] = $package['requires_fasting'];
+                $normalized['packageFastingHours'] = $package['fasting_hours'];
             }
         }
 
@@ -404,6 +423,89 @@ class EntityNormalizer
         ];
 
         $normalized = $typeMap[strtolower(trim($value))] ?? $value;
+
+        return ['value' => $normalized, 'warning' => null];
+    }
+
+    /**
+     * Normalize package name — resolve to package ID + metadata from our package list.
+     */
+    private function normalizePackageName($value, array $allEntities): array
+    {
+        if (!is_string($value) || empty(trim($value))) {
+            return ['value' => null, 'warning' => null];
+        }
+
+        $packageId = $this->labService->findPackageByName($value);
+
+        if ($packageId) {
+            $package = $this->labService->getPackageById($packageId);
+            return [
+                'value' => $package['name'],
+                'warning' => null,
+                'extra' => [
+                    'selectedPackageId' => $packageId,
+                    'packageRequiresFasting' => $package['requires_fasting'],
+                    'packageFastingHours' => $package['fasting_hours'],
+                ],
+            ];
+        }
+
+        return [
+            'value' => $value,
+            'warning' => "Package '{$value}' not found in our system",
+            'extra' => [
+                'packageSearchQuery' => $value,
+            ],
+        ];
+    }
+
+    /**
+     * Normalize package ID — verify it exists.
+     */
+    private function normalizePackageId($value): array
+    {
+        $id = is_numeric($value) ? (int) $value : null;
+
+        if ($id && $this->labService->getPackageById($id)) {
+            return ['value' => $id, 'warning' => null];
+        }
+
+        if ($id) {
+            Log::warning('⚠️ EntityNormalizer: Invalid package ID', ['id' => $value]);
+            return ['value' => null, 'warning' => "Package ID {$value} does not exist"];
+        }
+
+        return ['value' => null, 'warning' => null];
+    }
+
+    /**
+     * Normalize collection type — map natural language to 'home' or 'center'.
+     */
+    private function normalizeCollectionType($value): array
+    {
+        $collectionMap = [
+            'home' => 'home',
+            'at home' => 'home',
+            'doorstep' => 'home',
+            'home collection' => 'home',
+            'home visit' => 'home',
+            'center' => 'center',
+            'centre' => 'center',
+            'lab' => 'center',
+            'visit' => 'center',
+            'visit center' => 'center',
+            'visit centre' => 'center',
+            'walk-in' => 'center',
+            'walk in' => 'center',
+            'in-person' => 'center',
+        ];
+
+        $normalized = $collectionMap[strtolower(trim($value))] ?? null;
+
+        if (!$normalized) {
+            return ['value' => null, 'warning' => "Unknown collection type: {$value}"];
+        }
 
         return ['value' => $normalized, 'warning' => null];
     }

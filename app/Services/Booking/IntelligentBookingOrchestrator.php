@@ -19,18 +19,21 @@ use Carbon\Carbon;
 class IntelligentBookingOrchestrator
 {
     private DoctorService $doctorService;
+    private LabService $labService;
     private BookingPromptBuilder $promptBuilder;
     private EntityNormalizer $entityNormalizer;
 
     public function __construct(
         private AIService $aiService,
         ?DoctorService $doctorService = null,
+        ?LabService $labService = null,
         ?BookingPromptBuilder $promptBuilder = null,
         ?EntityNormalizer $entityNormalizer = null
     ) {
         $this->doctorService = $doctorService ?? new DoctorService();
-        $this->promptBuilder = $promptBuilder ?? new BookingPromptBuilder($this->doctorService);
-        $this->entityNormalizer = $entityNormalizer ?? new EntityNormalizer($this->doctorService);
+        $this->labService = $labService ?? new LabService();
+        $this->promptBuilder = $promptBuilder ?? new BookingPromptBuilder($this->doctorService, $this->labService);
+        $this->entityNormalizer = $entityNormalizer ?? new EntityNormalizer($this->doctorService, $this->labService);
     }
 
     /**
@@ -187,7 +190,7 @@ class IntelligentBookingOrchestrator
         // Only when the conversation has no collected data yet (fresh start)
         $intent = $parsed['intent'] ?? 'unclear';
         $currentData = $conversation->collected_data;
-        $hasBookingProgress = !empty($currentData['selectedPatientId']) || !empty($currentData['appointmentType']);
+        $hasBookingProgress = !empty($currentData['selectedPatientId']) || !empty($currentData['appointmentType']) || !empty($currentData['selectedPackageId']);
 
         if (!$hasBookingProgress && in_array($intent, ['greeting', 'question', 'general_info', 'unclear'])) {
             $greetingResponses = [
@@ -244,6 +247,17 @@ class IntelligentBookingOrchestrator
                 $currentData['completedSteps'] ?? [],
                 ['date', 'time', 'mode']
             ));
+            $conversation->collected_data = $currentData;
+        }
+
+        // Auto-detect booking_type from intent
+        $currentData = $conversation->collected_data;
+        $intent = $parsed['intent'] ?? 'unclear';
+        if ($intent === 'booking_lab' && ($currentData['booking_type'] ?? 'doctor') !== 'lab_test') {
+            $currentData['booking_type'] = 'lab_test';
+            $conversation->collected_data = $currentData;
+        } elseif ($intent === 'booking_doctor' && empty($currentData['booking_type'])) {
+            $currentData['booking_type'] = 'doctor';
             $conversation->collected_data = $currentData;
         }
 
@@ -461,6 +475,30 @@ class IntelligentBookingOrchestrator
                 ));
             }
 
+            // Package name handling — auto-select if resolved by normalizer
+            if ($dataKey === 'selectedPackageName' && !empty($entityValue)) {
+                $packageId = $entities['selectedPackageId'] ?? $this->labService->findPackageByName($entityValue);
+                if ($packageId) {
+                    $package = $this->labService->getPackageById($packageId);
+                    $updated['selectedPackageId'] = $packageId;
+                    $updated['selectedPackageName'] = $package['name'] ?? $entityValue;
+                    $updated['packageRequiresFasting'] = $package['requires_fasting'] ?? false;
+                    $updated['packageFastingHours'] = $package['fasting_hours'] ?? null;
+                    if (!in_array('package', $updated['completedSteps'] ?? [])) {
+                        $updated['completedSteps'][] = 'package';
+                    }
+                }
+            }
+
+            // Collection type change → clear date/time
+            if ($dataKey === 'collectionType' && !empty($currentValue) && $entityValue !== $currentValue) {
+                unset($updated['selectedDate'], $updated['selectedTime']);
+                unset($updated['selectedCenterId'], $updated['selectedCenterName']);
+                $updated['completedSteps'] = array_values(array_diff(
+                    $updated['completedSteps'] ?? [], ['location', 'date', 'time']
+                ));
+            }
+
             // Doctor name handling — auto-select if resolved by normalizer, otherwise show list
             if ($dataKey === 'selectedDoctorName' && !empty($entityValue)) {
                 $doctorId = $entities['selectedDoctorId'] ?? $this->doctorService->findByName($entityValue);
@@ -567,6 +605,8 @@ class IntelligentBookingOrchestrator
             'selectedDoctorName', 'selectedDoctorId', 'consultationMode',
             'selectedDate', 'selectedTime', 'urgency',
             'patientRelation', 'appointmentType',
+            // Lab-specific fields
+            'selectedPackageName', 'selectedPackageId', 'collectionType',
         ];
         if (in_array($field, $changeableFields) && $newValue !== $currentValue) {
             return true;
@@ -1144,7 +1184,11 @@ class IntelligentBookingOrchestrator
             'date_doctor_selector' => $this->getDoctorListData($data),
             'time_slot_selector' => $this->getDateTimeSelectorData($data),
             'mode_selector' => $this->getModeSelectorData($data),
-            'booking_summary' => $this->buildSummaryData($data),
+            // Lab-specific components
+            'package_list' => $this->getPackageListData($data),
+            'location_selector' => $this->getLocationSelectorData($data),
+            'date_time_selector' => $this->getLabDateTimeSelectorData($data),
+            'booking_summary' => $this->buildSummaryDataByType($data),
             default => null,
         };
     }
@@ -1509,6 +1553,156 @@ class IntelligentBookingOrchestrator
     }
 
     /**
+     * Route summary building based on booking type
+     */
+    protected function buildSummaryDataByType(array $data): array
+    {
+        $bookingType = $data['booking_type'] ?? 'doctor';
+
+        if ($bookingType === 'lab_test') {
+            return $this->buildLabSummaryData($data);
+        }
+
+        return $this->buildSummaryData($data);
+    }
+
+    /**
+     * Build lab test booking summary data
+     */
+    protected function buildLabSummaryData(array $data): array
+    {
+        $packageId = $data['selectedPackageId'] ?? null;
+        $package = $packageId ? $this->labService->getPackageById($packageId) : null;
+        $collectionType = $data['collectionType'] ?? 'center';
+
+        // Calculate fee
+        $fee = $this->labService->calculateFee($packageId, $collectionType);
+
+        // Get center address
+        $address = 'Address not available';
+        if ($collectionType === 'home') {
+            $address = 'Your registered address';
+        } elseif (!empty($data['selectedCenterId'])) {
+            $center = $this->labService->getCenterById($data['selectedCenterId']);
+            $address = $center['address'] ?? $address;
+        } else {
+            $centers = $this->labService->getAllCenters();
+            if (!empty($centers)) {
+                $address = $centers[0]['address'];
+            }
+        }
+
+        // Build preparation instructions
+        $prepInstructions = [];
+        if ($package && $package['requires_fasting']) {
+            $fastingHours = $package['fasting_hours'] ?? 12;
+            $prepInstructions = [
+                "Fasting for {$fastingHours}-" . ($fastingHours + 2) . " hours required",
+                'Water is allowed',
+                'Avoid alcohol 24 hours before',
+                'Continue regular medications unless advised otherwise',
+            ];
+        }
+
+        return [
+            'package' => [
+                'id' => $data['selectedPackageId'] ?? null,
+                'name' => $data['selectedPackageName'] ?? ($package['name'] ?? 'Unknown Package'),
+            ],
+            'patient' => [
+                'name' => $data['selectedPatientName'] ?? 'Unknown Patient',
+                'avatar' => $data['selectedPatientAvatar'] ?? null,
+            ],
+            'datetime' => $this->formatDateTime($data['selectedDate'] ?? null, $data['selectedTime'] ?? null),
+            'collection' => $collectionType === 'home' ? 'Home Collection' : 'Visit Center',
+            'address' => $address,
+            'fee' => $fee,
+            'prepInstructions' => $prepInstructions,
+        ];
+    }
+
+    /**
+     * Get package list data for lab booking
+     */
+    protected function getPackageListData(array $data): array
+    {
+        $packages = $this->labService->getAllPackages();
+
+        // Format for EmbeddedPackageList component
+        return [
+            'packages' => array_map(fn($p) => [
+                'id' => $p['id'],
+                'name' => $p['name'],
+                'description' => $p['description'] ?? '',
+                'duration_hours' => $p['duration_hours'] ?? null,
+                'tests_count' => $p['tests_count'] ?? 0,
+                'age_range' => $p['age_range'] ?? null,
+                'price' => $p['price'],
+                'original_price' => $p['original_price'] ?? null,
+                'is_recommended' => $p['is_popular'] ?? false,
+                'requires_fasting' => $p['requires_fasting'] ?? false,
+                'fasting_hours' => $p['fasting_hours'] ?? null,
+            ], $packages),
+            'selectedPackageId' => $data['selectedPackageId'] ?? null,
+        ];
+    }
+
+    /**
+     * Get location selector data for lab booking
+     */
+    protected function getLocationSelectorData(array $data): array
+    {
+        $locations = $this->labService->getLocationOptions();
+
+        return [
+            'locations' => $locations,
+            'selectedLocationId' => $data['collectionType'] ?? null,
+        ];
+    }
+
+    /**
+     * Get date+time selector data for lab booking
+     */
+    protected function getLabDateTimeSelectorData(array $data): array
+    {
+        // Build dates for the next 7 days
+        $dates = [];
+        for ($i = 0; $i < 7; $i++) {
+            $date = Carbon::today()->addDays($i);
+            $dates[] = [
+                'value' => $date->format('Y-m-d'),
+                'label' => $i === 0 ? 'Today' : ($i === 1 ? 'Tomorrow' : $date->format('D')),
+                'day' => $date->format('M j'),
+            ];
+        }
+
+        // Lab time slots (morning preferred for fasting tests)
+        $slots = [
+            ['time' => '6:00 AM', 'available' => true, 'preferred' => true],
+            ['time' => '7:00 AM', 'available' => true, 'preferred' => true],
+            ['time' => '8:00 AM', 'available' => true, 'preferred' => true],
+            ['time' => '9:00 AM', 'available' => true, 'preferred' => false],
+            ['time' => '10:00 AM', 'available' => true, 'preferred' => false],
+            ['time' => '11:00 AM', 'available' => true, 'preferred' => false],
+            ['time' => '2:00 PM', 'available' => true, 'preferred' => false],
+            ['time' => '3:00 PM', 'available' => true, 'preferred' => false],
+            ['time' => '4:00 PM', 'available' => true, 'preferred' => false],
+        ];
+
+        $requiresFasting = !empty($data['packageRequiresFasting']);
+        $fastingHours = $data['packageFastingHours'] ?? null;
+
+        return [
+            'dates' => $dates,
+            'slots' => $slots,
+            'selected_date' => $data['selectedDate'] ?? null,
+            'selected_time' => $data['selectedTime'] ?? null,
+            'fastingRequired' => $requiresFasting,
+            'fastingHours' => $fastingHours,
+        ];
+    }
+
+    /**
      * Calculate appointment fee based on mode
      */
     protected function calculateFee(array $data): int
@@ -1781,6 +1975,74 @@ class IntelligentBookingOrchestrator
                 'BEFORE' => $conversation->collected_data['consultationMode'] ?? 'not set',
                 'AFTER' => $updated['consultationMode'],
             ]);
+        }
+
+        // === Lab-specific selection handlers ===
+
+        if (isset($selection['package_id'])) {
+            $packageId = (int) $selection['package_id'];
+            $package = $this->labService->getPackageById($packageId);
+            if ($package) {
+                $updated['selectedPackageId'] = $packageId;
+                $updated['selectedPackageName'] = $package['name'];
+                $updated['packageRequiresFasting'] = $package['requires_fasting'];
+                $updated['packageFastingHours'] = $package['fasting_hours'];
+                if (!in_array('package', $updated['completedSteps'])) {
+                    $updated['completedSteps'][] = 'package';
+                }
+                Log::info('🔒 Selection Handler: Package selected', [
+                    'package_id' => $packageId,
+                    'package_name' => $package['name'],
+                    'requires_fasting' => $package['requires_fasting'],
+                ]);
+            }
+        }
+
+        if (isset($selection['location_id'])) {
+            $locationId = $selection['location_id'];
+            if ($locationId === 'home') {
+                $updated['collectionType'] = 'home';
+                unset($updated['selectedCenterId']);
+                unset($updated['selectedCenterName']);
+            } else {
+                $updated['collectionType'] = 'center';
+                // Extract center ID from "center_X" format
+                $centerId = (int) str_replace('center_', '', $locationId);
+                $center = $this->labService->getCenterById($centerId);
+                if ($center) {
+                    $updated['selectedCenterId'] = $centerId;
+                    $updated['selectedCenterName'] = $center['name'];
+                }
+            }
+            if (!in_array('location', $updated['completedSteps'])) {
+                $updated['completedSteps'][] = 'location';
+            }
+            Log::info('🔒 Selection Handler: Location selected', [
+                'location_id' => $locationId,
+                'collection_type' => $updated['collectionType'],
+            ]);
+        }
+
+        // Handle package change from summary
+        if (isset($selection['change_package']) && $selection['change_package']) {
+            Log::info('🔄 Change Package Requested');
+            unset($updated['selectedPackageId']);
+            unset($updated['selectedPackageName']);
+            unset($updated['packageRequiresFasting']);
+            unset($updated['packageFastingHours']);
+            $updated['completedSteps'] = array_values(array_diff($updated['completedSteps'], ['package']));
+        }
+
+        // Handle location change from summary
+        if (isset($selection['change_location']) && $selection['change_location']) {
+            Log::info('🔄 Change Location Requested');
+            unset($updated['collectionType']);
+            unset($updated['selectedCenterId']);
+            unset($updated['selectedCenterName']);
+            // Clear date/time since location change may affect availability
+            unset($updated['selectedDate']);
+            unset($updated['selectedTime']);
+            $updated['completedSteps'] = array_values(array_diff($updated['completedSteps'], ['location', 'date', 'time']));
         }
 
         // Handle patient change from summary

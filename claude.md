@@ -32,7 +32,7 @@ app/
     Middleware/         HandleInertiaRequests
   Services/
     AI/                AI provider abstraction (AIService, DeepSeekProvider, GroqProvider, OllamaProvider)
-    Booking/           Booking orchestration (IntelligentBookingOrchestrator, BookingStateMachine)
+    Booking/           Booking orchestration (IntelligentBookingOrchestrator, BookingStateMachine, DoctorService, LabService)
     Calendar/          CalendarService (Google Calendar URLs, ICS file generation)
   Policies/            Authorization (BookingConversationPolicy)
   Providers/           AppServiceProvider
@@ -330,5 +330,45 @@ php artisan migrate:fresh --seed
 
 ---
 
+## Lab Test Booking in AI Chat Flow (January 31, 2026)
+
+Added lab test booking path to the AI chat flow, parallel to the existing doctor appointment flow.
+
+### How It Works
+- `BookingStateMachine` branches on `collected_data['booking_type']`:
+  - `'doctor'` → patient → appointment_type → urgency → doctor → time → mode → summary
+  - `'lab_test'` → patient → package → location → date+time → summary
+- AI intent `booking_lab` auto-sets `booking_type = 'lab_test'`
+- AI intent `booking_doctor` keeps `booking_type = 'doctor'`
+
+### Files Created
+- `app/Services/Booking/LabService.php` — Centralized lab data service (packages, centers, fees, prompt formatting)
+
+### Files Modified
+- `BookingStateMachine.php` — `bookingType` property, `determineLabState()`, lab states/fields/completeness
+- `EntityNormalizer.php` — Lab entity mappings (`package_name`, `package_id`, `collection_type`), normalizers
+- `BookingPromptBuilder.php` — Lab package list in AI prompt, lab extraction rules and examples
+- `IntelligentBookingOrchestrator.php` — Lab component data providers (`getPackageListData`, `getLocationSelectorData`, `getLabDateTimeSelectorData`), lab summary builder, lab selection handlers
+- `EmbeddedComponent.tsx` — `display_message` in package/location selection callbacks, fasting prop key compat
+
+### Lab Test collected_data Keys
+```
+booking_type: 'lab_test'
+selectedPatientId, selectedPatientName, selectedPatientAvatar
+selectedPackageId, selectedPackageName
+packageRequiresFasting, packageFastingHours
+collectionType: 'home' | 'center'
+selectedCenterId, selectedCenterName (if center)
+selectedDate, selectedTime
+```
+
+### Frontend Components (pre-existing, now wired to backend)
+- `EmbeddedPackageList` — package selection with pricing
+- `EmbeddedLocationSelector` — home collection vs lab center
+- `EmbeddedDateTimeSelector` — dates + time slots with fasting warning
+- `EmbeddedBookingSummary` — already supports lab fields (package, collection, prepInstructions)
+
+---
+
 **Last Updated**: January 31, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added

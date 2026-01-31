@@ -219,27 +219,39 @@ export function EmbeddedComponent({
       );
 
     case 'package_list':
+      const pkgList = data?.packages || packages;
       return (
         <EmbeddedPackageList
-          packages={packages}
+          packages={pkgList}
           selectedPackageId={selection?.package_id}
-          onSelect={(id) => onSelect({ package_id: id })}
+          onSelect={(id) => {
+            const selectedPkg = pkgList.find((p: any) => p.id === id);
+            onSelect({
+              package_id: id,
+              display_message: selectedPkg ? `Selected: ${selectedPkg.name}` : `Selected package ${id}`,
+            });
+          }}
           disabled={disabled || isSelected}
         />
       );
 
     case 'location_selector':
+      const locList = data?.locations || [];
       return (
         <EmbeddedLocationSelector
-          locations={data?.locations || []}
+          locations={locList}
           selectedLocationId={selection?.location_id}
-          onSelect={(id) => onSelect({ location_id: id })}
+          onSelect={(id) => {
+            const selectedLoc = locList.find((l: any) => l.id === id);
+            onSelect({
+              location_id: id,
+              display_message: selectedLoc ? `Selected: ${selectedLoc.label}` : `Selected location`,
+            });
+          }}
           onChangeAddress={() => {
-            // In real app, send message to AI to change address
             alert('Change address - will allow user to enter new address via AI chat');
           }}
           onChangeBranch={() => {
-            // In real app, send message to AI to change branch
             alert('Change branch - will show available branches via AI chat');
           }}
           disabled={disabled || isSelected}
@@ -251,8 +263,8 @@ export function EmbeddedComponent({
         <EmbeddedDateTimeSelector
           dates={data?.dates || []}
           slots={data?.slots || generateTimeSlots()}
-          fastingRequired={data?.fasting_required}
-          fastingHours={data?.fasting_hours}
+          fastingRequired={data?.fastingRequired || data?.fasting_required}
+          fastingHours={data?.fastingHours || data?.fasting_hours}
           selectedDate={selection?.date}
           selectedTime={selection?.time}
           onSelect={(date, time) => onSelect({

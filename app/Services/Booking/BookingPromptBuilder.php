@@ -17,7 +17,8 @@ use Carbon\Carbon;
 class BookingPromptBuilder
 {
     public function __construct(
-        private DoctorService $doctorService
+        private DoctorService $doctorService,
+        private LabService $labService,
     ) {}
 
     /**
@@ -29,6 +30,7 @@ class BookingPromptBuilder
             $this->buildRoleSection(),
             $this->buildDateSection(),
             $this->buildDoctorSection(),
+            $this->buildLabSection(),
             $this->buildStateSection($collectedData),
             $this->buildIntentSection(),
             $this->buildExtractionRules(),
@@ -84,23 +86,46 @@ IMPORTANT: Only return doctor_name and doctor_id that EXACTLY match our doctor l
 If user mentions a doctor not in this list, set doctor_name to what they said and doctor_id to null.";
     }
 
+    private function buildLabSection(): string
+    {
+        $packageList = $this->labService->formatForPrompt();
+
+        return "AVAILABLE LAB PACKAGES:
+{$packageList}
+
+IMPORTANT: Only return package_name and package_id that EXACTLY match our package list above.
+If user mentions a test not in this list, set package_name to what they said and package_id to null.
+Collection types: 'home' (home collection) or 'center' (visit lab center).";
+    }
+
     private function buildStateSection(array $data): string
     {
         if (empty($data)) {
             return "CURRENT BOOKING STATE: No booking in progress.";
         }
 
+        $bookingType = $data['booking_type'] ?? 'doctor';
         $state = [];
+        $state['booking_type'] = $bookingType;
         $state['patient'] = !empty($data['selectedPatientId'])
             ? ($data['selectedPatientName'] ?? 'Selected')
             : 'not selected';
-        $state['type'] = $data['appointmentType'] ?? 'not selected';
-        $state['doctor'] = !empty($data['selectedDoctorId'])
-            ? ($data['selectedDoctorName'] ?? "ID:{$data['selectedDoctorId']}")
-            : 'not selected';
+
+        if ($bookingType === 'lab_test') {
+            $state['package'] = !empty($data['selectedPackageId'])
+                ? ($data['selectedPackageName'] ?? "ID:{$data['selectedPackageId']}")
+                : 'not selected';
+            $state['collection'] = $data['collectionType'] ?? 'not selected';
+        } else {
+            $state['type'] = $data['appointmentType'] ?? 'not selected';
+            $state['doctor'] = !empty($data['selectedDoctorId'])
+                ? ($data['selectedDoctorName'] ?? "ID:{$data['selectedDoctorId']}")
+                : 'not selected';
+            $state['mode'] = $data['consultationMode'] ?? 'not selected';
+        }
+
         $state['date'] = $data['selectedDate'] ?? 'not selected';
         $state['time'] = $data['selectedTime'] ?? 'not selected';
-        $state['mode'] = $data['consultationMode'] ?? 'not selected';
 
         $stateStr = json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
@@ -149,6 +174,9 @@ Extract these entities when present in the message:
 | consultation_mode | video/in_person         | 'online'/'virtual' → 'video', 'physical'/'clinic' → 'in_person' |
 | symptoms          | Array of strings        | Only for emergency intent                           |
 | duration          | String                  | '2 days', '1 week', etc.                            |
+| package_name      | Exact name from list    | 'blood test'/'full body' → match from package list  |
+| package_id        | Integer                 | Must match our package list above                   |
+| collection_type   | home/center             | 'at home'/'doorstep' → 'home', 'lab'/'visit' → 'center' |
 
 RULES:
 - Only extract entities that are EXPLICITLY mentioned or clearly implied
@@ -190,7 +218,16 @@ User: 'hi'
 → {\"intent\": \"greeting\", \"confidence\": 0.95, \"entities\": {}}
 
 User: 'my daughter has a headache since 2 days'
-→ {\"intent\": \"emergency\", \"confidence\": 0.9, \"entities\": {\"patient_relation\": \"daughter\", \"symptoms\": [\"headache\"], \"duration\": \"2 days\"}}";
+→ {\"intent\": \"emergency\", \"confidence\": 0.9, \"entities\": {\"patient_relation\": \"daughter\", \"symptoms\": [\"headache\"], \"duration\": \"2 days\"}}
+
+User: 'I want a blood test'
+→ {\"intent\": \"booking_lab\", \"confidence\": 0.9, \"entities\": {}}
+
+User: 'book full body checkup at home tomorrow'
+→ {\"intent\": \"booking_lab\", \"confidence\": 0.95, \"entities\": {\"package_name\": \"Full Body Checkup\", \"collection_type\": \"home\", \"date\": \"{$tomorrowFormatted}\"}}
+
+User: 'I need a lab test for my father'
+→ {\"intent\": \"booking_lab\", \"confidence\": 0.9, \"entities\": {\"patient_relation\": \"father\"}}";
     }
 
     private function buildOutputFormat(): string
