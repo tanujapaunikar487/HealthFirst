@@ -259,6 +259,9 @@ php artisan test
 
 # BookingStateMachine tests (19 tests)
 php artisan test --filter=BookingStateMachine
+
+# Booking flow integration tests (31 tests)
+php artisan test --filter=BookingFlowTest
 ```
 
 ---
@@ -568,5 +571,47 @@ When the user typed "Book an appointment for me on 5th of Feb", the AI (qwen2.5:
 
 ---
 
+## Booking Flow Integration Tests (January 31, 2026)
+
+Created comprehensive integration test suite (`tests/Feature/BookingFlowTest.php`) with 31 tests covering the full AI booking orchestrator flow.
+
+### Test Architecture
+- **Mocks only AIService** (external dependency) via Mockery
+- Uses real `DoctorService`, `LabService`, `EntityNormalizer`, `BookingPromptBuilder` with seeded DB data
+- `RefreshDatabase` + `HospitalSeeder` for realistic test data
+- Component selections bypass AI entirely (tested explicitly)
+
+### Test Categories (31 tests, 97 assertions)
+
+| Category | Tests | What's Covered |
+|----------|-------|----------------|
+| Happy Paths | 3 | Full doctor flow (8 steps), lab home collection, lab center visit |
+| Compound Input | 1 | Single message extracts patient, type, doctor, date, time simultaneously |
+| Regex Fallback | 2 | patient_relation "for me" → self, "for my mother" → mother when AI misses it |
+| Intent Gating | 2 | Greeting with no progress → greeting response; greeting with progress → continues flow |
+| Cancellation | 1 | Cancel intent mid-flow sets status=cancelled |
+| Summary Changes | 5 | Change doctor, datetime, mode, appointment type, patient from summary |
+| Flow Switching | 1 | booking_lab intent switches booking_type mid-doctor-flow |
+| Follow-up Flow | 2 | Reason → notes full path; "skip" bypasses notes |
+| Lab-Specific | 5 | Package search no-match, change location/package, home requires address, center requires center |
+| Architecture | 6 | Component bypass, progress tracking, message persistence, auto-mode, entity merging, mixed input |
+
+### Running
+```bash
+# Booking flow tests only (31 tests)
+php artisan test --filter=BookingFlowTest
+
+# All booking tests (31 + 19 state machine tests)
+php artisan test --filter=Booking
+```
+
+### Key Helper Methods
+- `conversation(type, data)` — Creates BookingConversation with seeded user
+- `mockAI(intent, entities, confidence)` — Queues a single AI mock response
+- `getAvailableDateForDoctor(doctorId)` — Finds a real available date from DB
+- `summaryConversation()` — Pre-built conversation at summary step
+
+---
+
 **Last Updated**: January 31, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (31 tests)
