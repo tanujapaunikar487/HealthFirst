@@ -164,7 +164,7 @@ Extract these entities when present in the message:
 
 | Entity            | Format                  | Notes                                              |
 |-------------------|-------------------------|-----------------------------------------------------|
-| patient_relation  | self/father/mother/son/daughter/spouse | 'for me'/'myself' → 'self'           |
+| patient_relation  | self/father/mother/son/daughter/spouse | 'for me'/'myself'/'I need'/'I want' → 'self', 'for my mother' → 'mother' |
 | appointment_type  | new/followup            | 'follow up'/'revisit'/'check back' → 'followup'    |
 | doctor_name       | Exact name from our list | Partial match OK: 'Dr. Sarah' → 'Dr. Sarah Johnson'|
 | doctor_id         | Integer 1-5             | Must match our doctor list above                    |
@@ -210,6 +210,12 @@ User: 'Dr. Vikram on Feb 5 at 10'
 
 User: 'book new appointment for myself'
 → {\"intent\": \"booking_doctor\", \"confidence\": 0.9, \"entities\": {\"patient_relation\": \"self\", \"appointment_type\": \"new\"}}
+
+User: 'Book an appointment for me on 5th Feb'
+→ {\"intent\": \"booking_doctor\", \"confidence\": 0.95, \"entities\": {\"patient_relation\": \"self\", \"date\": \"2026-02-05\"}}
+
+User: 'I want to see a doctor for my mother'
+→ {\"intent\": \"booking_doctor\", \"confidence\": 0.9, \"entities\": {\"patient_relation\": \"mother\"}}
 
 User: 'which doctor has better experience?'
 → {\"intent\": \"question\", \"confidence\": 0.95, \"entities\": {}}

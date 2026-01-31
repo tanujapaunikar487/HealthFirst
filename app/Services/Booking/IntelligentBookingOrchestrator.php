@@ -383,13 +383,25 @@ class IntelligentBookingOrchestrator
                 'is_emergency' => $result['is_emergency'] ?? 'null',
             ]);
 
+            // Fallback: detect patient_relation from message if AI missed it
+            $entities = $result['entities'] ?? [];
+            if (empty($entities['patient_relation'])) {
+                // Check for family member first (more specific), then self (more general)
+                if (preg_match('/\bfor\s+my\s+(mother|mom|father|dad|son|daughter|spouse|wife|husband|brother|sister|grandmother|grandfather)\b/i', $message, $m)) {
+                    $entities['patient_relation'] = strtolower($m[1]);
+                } elseif (preg_match('/\bfor\s+(me|myself)\b/i', $message)) {
+                    $entities['patient_relation'] = 'self';
+                }
+                $result['entities'] = $entities;
+            }
+
             // Determine if this is a correction based on changes_requested
             $isCorrection = !empty($result['changes_requested']);
 
             return [
                 'intent' => $result['intent'] ?? 'unclear',
                 'confidence' => $result['confidence'] ?? 0.5,
-                'entities' => $result['entities'] ?? [],
+                'entities' => $entities,
                 'is_emergency' => $result['is_emergency'] ?? false,
                 'emergency_keywords' => $result['emergency_indicators'] ?? [],
                 'is_correction' => $isCorrection,

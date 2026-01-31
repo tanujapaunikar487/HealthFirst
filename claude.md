@@ -536,5 +536,37 @@ ollama pull qwen2.5:7b  # Download model (~4.7 GB)
 
 ---
 
+## Bug Fix: AI Not Extracting patient_relation from "for me" (January 31, 2026)
+
+When the user typed "Book an appointment for me on 5th of Feb", the AI (qwen2.5:7b) extracted the date correctly but missed `patient_relation: "self"` from the "for me" phrase. This caused the state machine to show the patient selector ("Who is this appointment for?") instead of auto-selecting "Yourself" and proceeding to the next step.
+
+### Root Cause
+1. **Ollama not running** — when the local AI server was down, the fallback returned zero entities, so the patient selector always appeared
+2. **Insufficient prompt examples** — the 7B model had only one example for patient_relation in doctor bookings (`"book new appointment for myself"`), which wasn't enough for it to generalize to variations like "for me" combined with other entities
+
+### Fix
+
+**BookingPromptBuilder.php** — Enhanced AI prompt:
+- Expanded `patient_relation` extraction notes: `'for me'/'myself'/'I need'/'I want' → 'self', 'for my mother' → 'mother'`
+- Added two new examples:
+  - `"Book an appointment for me on 5th Feb"` → `{patient_relation: "self", date: "2026-02-05"}`
+  - `"I want to see a doctor for my mother"` → `{patient_relation: "mother"}`
+
+**IntelligentBookingOrchestrator.php** — Added regex fallback after AI response:
+- If AI misses `patient_relation`, checks for `"for my <relation>"` first (more specific), then `"for me/myself"` (general)
+- Family member patterns checked before "self" to avoid false positives (e.g., "I want to book for my mother" must not match as "self")
+- Only fires on explicit `"for me/myself"` or `"for my <relation>"` — does not match ambiguous phrases like "I need a doctor" (correctly returns null)
+
+### Verified Results
+| Input | patient_relation | Other entities |
+|---|---|---|
+| "Book an appointment for me on 5th of Feb" | self | date: 2026-02-05 |
+| "I want to book for my mother" | mother | — |
+| "Book for myself tomorrow" | self | date: tomorrow |
+| "I need a doctor appointment" | null (correct) | — |
+| "book for my father on Monday" | father | — |
+
+---
+
 **Last Updated**: January 31, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed
