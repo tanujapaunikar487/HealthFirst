@@ -173,6 +173,33 @@ class IntelligentBookingOrchestrator
             return $this->handleEmergency($conversation, $parsed);
         }
 
+        // Detect date/time change intent from text when booking is at or near summary
+        // If user sends urgency or date entities while date/time are already set,
+        // clear them so the date picker is shown instead of looping back to summary
+        $currentData = $conversation->collected_data;
+        $hasExistingDate = !empty($currentData['selectedDate']);
+        $hasExistingTime = !empty($currentData['selectedTime']);
+        $entities = $parsed['entities'] ?? [];
+        $hasDateIntent = isset($entities['urgency']) || isset($entities['specific_date']) || isset($entities['date']);
+
+        if ($hasExistingDate && $hasDateIntent) {
+            Log::info('🔄 Date/time change detected via text at summary stage', [
+                'has_urgency_entity' => isset($entities['urgency']),
+                'has_date_entity' => isset($entities['specific_date']) || isset($entities['date']),
+                'current_date' => $currentData['selectedDate'] ?? null,
+                'current_time' => $currentData['selectedTime'] ?? null,
+            ]);
+            // Pre-clear date/time so the merge + state machine will show the date picker
+            $currentData['selectedDate'] = null;
+            $currentData['selectedTime'] = null;
+            unset($currentData['consultationMode']);
+            $currentData['completedSteps'] = array_values(array_diff(
+                $currentData['completedSteps'] ?? [],
+                ['date', 'time', 'mode']
+            ));
+            $conversation->collected_data = $currentData;
+        }
+
         // Merge extracted entities with existing data (smart merge)
         $updatedData = $this->mergeEntities($conversation->collected_data, $parsed['entities'] ?? [], $parsed);
 
@@ -401,6 +428,23 @@ class IntelligentBookingOrchestrator
                     ));
                 }
 
+                // Handle urgency change — clear downstream date/time so the date picker is shown
+                if ($dataKey === 'urgency' && !empty($currentValue) && $entityValue !== $currentValue) {
+                    Log::info('🔄 Urgency changed via text', [
+                        'old_urgency' => $currentValue,
+                        'new_urgency' => $entityValue,
+                    ]);
+                    // Different urgency means different date window — clear date, time, and mode
+                    // so the user sees a fresh date picker for the new urgency window
+                    unset($updated['selectedDate']);
+                    unset($updated['selectedTime']);
+                    unset($updated['consultationMode']);
+                    $updated['completedSteps'] = array_values(array_diff(
+                        $updated['completedSteps'] ?? [],
+                        ['date', 'time', 'mode']
+                    ));
+                }
+
                 // Handle date formatting and doctor availability check
                 if ($dataKey === 'selectedDate' && is_string($entityValue)) {
                     try {
@@ -552,11 +596,19 @@ class IntelligentBookingOrchestrator
                         $doctor = $this->getDoctorDetailsById($doctorId);
                         if ($doctor) {
                             $supportedModes = $doctor['consultation_modes'] ?? [];
+                            $doctorName = $doctor['name'] ?? 'this doctor';
                             if (!in_array($entityValue, $supportedModes)) {
-                                // Requested mode not supported — auto-correct if single-mode doctor
+                                $modeLabel = $entityValue === 'video' ? 'video consultations' : 'in-person visits';
                                 if (count($supportedModes) === 1) {
+                                    $onlyModeLabel = $supportedModes[0] === 'video' ? 'video appointments' : 'in-person visits';
                                     $updated['consultationMode'] = $supportedModes[0];
-                                    Log::info('🔧 Mode auto-corrected: doctor only supports one mode', [
+                                    $updated['mode_conflict'] = [
+                                        'doctor_name' => $doctorName,
+                                        'requested_mode' => $entityValue,
+                                        'available_mode' => $supportedModes[0],
+                                        'message' => "{$doctorName} only offers {$onlyModeLabel}. I've updated the consultation mode. If you'd prefer {$modeLabel}, you can change the doctor.",
+                                    ];
+                                    Log::info('🔧 Mode auto-corrected with notification', [
                                         'requested' => $entityValue,
                                         'corrected_to' => $supportedModes[0],
                                         'doctor_id' => $doctorId,
@@ -1008,6 +1060,15 @@ class IntelligentBookingOrchestrator
             // Clear the flag so it doesn't repeat
             unset($data['doctor_unavailable_on_date']);
             unset($data['doctor_unavailable_context']);
+        }
+
+        // Check if there's a mode conflict to notify the user about
+        if (!empty($data['mode_conflict'])) {
+            $conflictMsg = $data['mode_conflict']['message'];
+            $message = $conflictMsg . "\n\n" . $message;
+
+            // Clear the flag so it doesn't repeat
+            unset($data['mode_conflict']);
         }
 
         // Save data
@@ -1650,9 +1711,41 @@ class IntelligentBookingOrchestrator
             if ($doctor) {
                 $supportedModes = $doctor['consultation_modes'] ?? [];
                 $currentMode = $updated['consultationMode'] ?? null;
+                $doctorName = $doctor['name'] ?? 'this doctor';
 
-                if (count($supportedModes) === 1) {
-                    // Doctor supports only one mode — auto-select it
+                if ($currentMode && !in_array($currentMode, $supportedModes)) {
+                    // User's previously chosen mode is NOT supported by this doctor
+                    $modeLabel = $currentMode === 'video' ? 'video consultations' : 'in-person visits';
+                    $onlyModeLabel = count($supportedModes) === 1
+                        ? ($supportedModes[0] === 'video' ? 'video appointments' : 'in-person visits')
+                        : null;
+
+                    if (count($supportedModes) === 1) {
+                        // Single-mode doctor — auto-select their only mode but notify user
+                        $updated['consultationMode'] = $supportedModes[0];
+                        if (!in_array('mode', $updated['completedSteps'])) {
+                            $updated['completedSteps'][] = 'mode';
+                        }
+                        $updated['mode_conflict'] = [
+                            'doctor_name' => $doctorName,
+                            'requested_mode' => $currentMode,
+                            'available_mode' => $supportedModes[0],
+                            'message' => "{$doctorName} only offers {$onlyModeLabel}. I've updated the consultation mode. If you'd prefer {$modeLabel}, you can change the doctor.",
+                        ];
+                    } else {
+                        // Multi-mode doctor but current mode not in list — clear and re-ask
+                        unset($updated['consultationMode']);
+                        $updated['completedSteps'] = array_values(array_diff($updated['completedSteps'], ['mode']));
+                    }
+
+                    Log::info('⚠️ Mode conflict detected on doctor selection', [
+                        'doctor_id' => $selection['doctor_id'],
+                        'doctor_name' => $doctorName,
+                        'user_mode' => $currentMode,
+                        'supported_modes' => $supportedModes,
+                    ]);
+                } elseif (count($supportedModes) === 1 && $currentMode !== $supportedModes[0]) {
+                    // No prior mode set, but doctor only supports one — auto-select silently
                     $updated['consultationMode'] = $supportedModes[0];
                     if (!in_array('mode', $updated['completedSteps'])) {
                         $updated['completedSteps'][] = 'mode';
@@ -1660,15 +1753,6 @@ class IntelligentBookingOrchestrator
                     Log::info('🔒 Selection Handler: Auto-selected only supported mode', [
                         'doctor_id' => $selection['doctor_id'],
                         'mode' => $supportedModes[0],
-                    ]);
-                } elseif ($currentMode && !in_array($currentMode, $supportedModes)) {
-                    // Previously selected mode is not supported by new doctor — clear it
-                    unset($updated['consultationMode']);
-                    $updated['completedSteps'] = array_values(array_diff($updated['completedSteps'], ['mode']));
-                    Log::info('🔒 Selection Handler: Cleared incompatible mode for new doctor', [
-                        'doctor_id' => $selection['doctor_id'],
-                        'cleared_mode' => $currentMode,
-                        'supported_modes' => $supportedModes,
                     ]);
                 }
             }

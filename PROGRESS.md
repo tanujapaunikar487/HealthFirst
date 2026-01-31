@@ -827,8 +827,20 @@ open http://127.0.0.1:3000
 - **Fix**: When AI detects a change in appointment type (e.g., from "new" to "follow-up") via text, all downstream fields (urgency, doctor, date, time, mode, follow-up data) are now properly cleared.
 - **Files**: `app/Services/Booking/IntelligentBookingOrchestrator.php`
 
+### Fix 6: Mode Conflict Not Communicated to User
+- **Problem**: When a user had "video" mode selected and then picked a doctor who only supports in-person (e.g., Dr. Vikram Patel), the system silently auto-corrected to in-person with no notification. The user had no idea their preference was overridden.
+- **Fix**: Added `mode_conflict` context that generates a user-facing notification message (e.g., "Dr. Vikram Patel only offers in-person visits. I've updated the consultation mode. If you'd prefer video consultations, you can change the doctor."). Works for both UI component selection and text/AI entity extraction paths.
+- **Files**: `app/Services/Booking/IntelligentBookingOrchestrator.php`
+
+### Fix 7: Date Picker Not Shown When User Types Date Change at Summary
+- **Problem**: When a user typed "i want to book it for this week" while viewing the booking summary, the AI extracted `urgency: 'this_week'` but the existing `selectedDate` and `selectedTime` were not cleared. The state machine saw all fields complete and showed the summary again instead of a date picker.
+- **Fix**:
+  - Added pre-merge date change detection: if the user already has a date selected and the AI extracts any date-related entity (`urgency`, `date`, `specific_date`), the existing date/time/mode are cleared before merging so the state machine routes to the date picker.
+  - Added urgency change handler in `mergeEntities`: when urgency value changes via text (e.g., `'urgent'` → `'this_week'`), downstream fields are cleared since they were based on the old urgency window.
+- **Files**: `app/Services/Booking/IntelligentBookingOrchestrator.php`
+
 ---
 
 **Last Updated**: January 31, 2026
 **Latest Commit**: (pending)
-**Status**: ✅ Dashboard Complete | ✅ AI Booking Flow Complete | ✅ Font Standardization Complete | ✅ Follow-Up Flow Complete | ✅ Calendar Integration Complete | ✅ Guided Booking Flow Enhanced | ✅ Critical Bug Fixes Applied | ✅ Mode Validation Enhanced
+**Status**: ✅ Dashboard Complete | ✅ AI Booking Flow Complete | ✅ Font Standardization Complete | ✅ Follow-Up Flow Complete | ✅ Calendar Integration Complete | ✅ Guided Booking Flow Enhanced | ✅ Critical Bug Fixes Applied | ✅ Mode Validation Enhanced | ✅ Mode Conflict Notifications
