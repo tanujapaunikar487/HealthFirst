@@ -534,16 +534,9 @@ export function EmbeddedComponent({
 
     case 'date_doctor_selector':
       // Combined component for "This Week" urgency
-      // Use selected_date from backend if available, otherwise default to today
-      const initialDate = data?.selected_date || selection?.date || new Date().toISOString().split('T')[0];
-      const [selectedDate, setSelectedDate] = React.useState(initialDate);
-
-      // Sync with backend-provided selected_date when it changes
-      React.useEffect(() => {
-        if (data?.selected_date && data.selected_date !== selectedDate) {
-          setSelectedDate(data.selected_date);
-        }
-      }, [data?.selected_date]);
+      // Track only user-clicked dates; backend selected_date is always the default
+      const [userPickedDate, setUserPickedDate] = React.useState<string | null>(null);
+      const activeDate = userPickedDate || data?.selected_date || selection?.date || new Date().toISOString().split('T')[0];
 
       return (
         <div className="space-y-4">
@@ -551,17 +544,17 @@ export function EmbeddedComponent({
           <div className="flex gap-2 overflow-x-auto pb-2">
             {data?.dates?.map((d: any) => {
               const dateValue = d.value || d.date;
-              const isSelected = dateValue === selectedDate || dateValue === data?.selected_date;
+              const dateIsActive = dateValue === activeDate;
 
               return (
                 <button
                   key={dateValue}
-                  onClick={() => setSelectedDate(dateValue)}
+                  onClick={() => setUserPickedDate(dateValue)}
                   disabled={disabled}
                   className={cn(
                     'px-4 py-2 rounded-lg whitespace-nowrap transition-colors',
                     'disabled:opacity-50 disabled:cursor-not-allowed',
-                    isSelected
+                    dateIsActive
                       ? 'bg-[#0052FF] text-white'
                       : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
                   )}
@@ -590,8 +583,8 @@ export function EmbeddedComponent({
                 doctor_id: doctorId,
                 doctor_name: doctor?.name || 'Doctor',
                 time,
-                date: selectedDate,
-                display_message: `${doctor?.name || 'Doctor'} on ${selectedDate} at ${time}`
+                date: activeDate,
+                display_message: `${doctor?.name || 'Doctor'} on ${activeDate} at ${time}`
               });
             }}
             disabled={disabled || isSelected}

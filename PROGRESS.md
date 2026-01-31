@@ -795,6 +795,40 @@ open http://127.0.0.1:3000
 
 ---
 
+## Booking Flow Improvements (January 31, 2026 - Part 2)
+
+### Fix 5: Consultation Mode Not Validated Against Doctor on Doctor Change
+- **Problem**: When a user clicked "Change" on the Doctor row in the booking summary and selected a new doctor, the previously chosen `consultationMode` was not cleared. This could result in an incompatible mode (e.g., "video" persisting for an in-person-only doctor).
+- **Root Cause**: The `change_doctor` handler in `handleComponentSelection()` cleared doctor fields but did not clear `consultationMode` or remove `'mode'` from `completedSteps`.
+- **Fix**:
+  - `change_doctor` handler now clears `consultationMode` and removes `'mode'` from `completedSteps`, so the mode is re-evaluated for the new doctor.
+  - Doctor selection handler (`doctor_id`) now validates the existing mode against the new doctor's `consultation_modes`. If incompatible, the mode is cleared so the user is prompted to re-select.
+- **Files**: `app/Services/Booking/IntelligentBookingOrchestrator.php`
+
+### Improvement: Mode "Change" Button Hidden for Single-Mode Doctors
+- **Problem**: The booking summary showed a "Change" button on the Mode row even for doctors who only support one consultation mode (e.g., Dr. Vikram Patel with in-person only).
+- **Fix**: Frontend now checks `supported_modes` array length — "Change" button only appears when the doctor supports 2+ modes.
+- **Files**: `resources/js/Features/booking-chat/embedded/EmbeddedBookingSummary.tsx`
+
+### Improvement: Message Ordering Consistency
+- **Fix**: `BookingConversation::messages()` relationship now orders by `created_at ASC, id ASC` to ensure consistent message display order.
+- **Files**: `app/BookingConversation.php`
+
+### Improvement: Date Selector State in Combined Doctor-Date Component
+- **Problem**: The `date_doctor_selector` component's date state could desync with the backend's `selected_date` prop due to React state initialization timing.
+- **Fix**: Replaced single `selectedDate` state with a `userPickedDate` override pattern — backend-provided date is always the default, and only explicit user clicks override it.
+- **Files**: `resources/js/Features/booking-chat/EmbeddedComponent.tsx`
+
+### Improvement: Non-Self Patient Entity Handling
+- **Fix**: When AI extracts a non-self patient relation (e.g., "my mother"), the system now clears any existing patient ID and shows the patient selector for confirmation, instead of silently ignoring the relation.
+- **Files**: `app/Services/Booking/IntelligentBookingOrchestrator.php`
+
+### Improvement: Appointment Type Change Clears Downstream Fields
+- **Fix**: When AI detects a change in appointment type (e.g., from "new" to "follow-up") via text, all downstream fields (urgency, doctor, date, time, mode, follow-up data) are now properly cleared.
+- **Files**: `app/Services/Booking/IntelligentBookingOrchestrator.php`
+
+---
+
 **Last Updated**: January 31, 2026
 **Latest Commit**: (pending)
-**Status**: ✅ Dashboard Complete | ✅ AI Booking Flow Complete | ✅ Font Standardization Complete | ✅ Follow-Up Flow Complete | ✅ Calendar Integration Complete | ✅ Guided Booking Flow Enhanced | ✅ Critical Bug Fixes Applied
+**Status**: ✅ Dashboard Complete | ✅ AI Booking Flow Complete | ✅ Font Standardization Complete | ✅ Follow-Up Flow Complete | ✅ Calendar Integration Complete | ✅ Guided Booking Flow Enhanced | ✅ Critical Bug Fixes Applied | ✅ Mode Validation Enhanced

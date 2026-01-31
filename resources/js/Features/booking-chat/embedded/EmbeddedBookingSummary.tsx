@@ -19,6 +19,7 @@ interface DoctorSummary {
   address?: string;
   fee: number;
   prepInstructions?: string[];
+  supported_modes?: string[];
 }
 
 interface Props {
@@ -211,12 +212,12 @@ export function EmbeddedBookingSummary({ summary, onPay, onSelect, disabled, con
           />
         )}
 
-        {/* Mode row (appointment mode) */}
+        {/* Mode row (appointment mode) - only show Change if doctor supports multiple modes */}
         {summary.mode && (
           <SummaryRow
             label="Mode"
             value={summary.mode === 'video' ? 'Video Appointment' : 'In-Person Visit'}
-            showChange
+            showChange={(summary.supported_modes?.length ?? 0) > 1}
             onChange={() => onSelect?.({ change_mode: true })}
           />
         )}

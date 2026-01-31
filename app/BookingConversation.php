@@ -34,7 +34,9 @@ class BookingConversation extends Model
 
     public function messages(): HasMany
     {
-        return $this->hasMany(ConversationMessage::class, 'conversation_id');
+        return $this->hasMany(ConversationMessage::class, 'conversation_id')
+            ->orderBy('created_at', 'asc')
+            ->orderBy('id', 'asc');
     }
 
     public function addMessage(string $role, string $content, ?string $componentType = null, ?array $componentData = null): ConversationMessage
