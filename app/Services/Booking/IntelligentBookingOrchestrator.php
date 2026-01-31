@@ -4,6 +4,7 @@ namespace App\Services\Booking;
 
 use App\BookingConversation;
 use App\ConversationMessage;
+use App\Models\UserAddress;
 use App\Services\AI\AIService;
 use App\Services\Booking\BookingStateMachine;
 use Illuminate\Support\Facades\Log;
@@ -1235,6 +1236,7 @@ class IntelligentBookingOrchestrator
             // Lab-specific components
             'package_list' => $this->getPackageListData($data),
             'collection_type_selector' => $this->getCollectionTypeSelectorData(),
+            'address_selector' => $this->getAddressSelectorData($data, $userId),
             'center_list' => $this->getCenterListData($data),
             'location_selector' => $this->getLocationSelectorData($data),
             'date_time_selector' => $this->getLabDateTimeSelectorData($data),
@@ -1631,7 +1633,7 @@ class IntelligentBookingOrchestrator
         // Get center address
         $address = 'Address not available';
         if ($collectionType === 'home') {
-            $address = 'Your registered address';
+            $address = $data['selectedAddressText'] ?? 'Your registered address';
         } elseif (!empty($data['selectedCenterId'])) {
             $center = $this->labService->getCenterById($data['selectedCenterId']);
             $address = $center['address'] ?? $address;
@@ -1655,10 +1657,7 @@ class IntelligentBookingOrchestrator
         }
 
         return [
-            'package' => [
-                'id' => $data['selectedPackageId'] ?? null,
-                'name' => $data['selectedPackageName'] ?? ($package['name'] ?? 'Unknown Package'),
-            ],
+            'package' => $data['selectedPackageName'] ?? ($package['name'] ?? 'Unknown Package'),
             'patient' => [
                 'name' => $data['selectedPatientName'] ?? 'Unknown Patient',
                 'avatar' => $data['selectedPatientAvatar'] ?? null,
@@ -1750,6 +1749,32 @@ class IntelligentBookingOrchestrator
     }
 
     /**
+     * Get address selector data for home collection
+     */
+    protected function getAddressSelectorData(array $data, ?string $userId): array
+    {
+        $addresses = [];
+        if ($userId) {
+            $addresses = UserAddress::where('user_id', $userId)
+                ->where('is_active', true)
+                ->orderByDesc('is_default')
+                ->get()
+                ->map(fn($a) => [
+                    'id' => $a->id,
+                    'label' => $a->label,
+                    'address' => $a->getFullAddress(),
+                    'is_default' => $a->is_default,
+                ])
+                ->toArray();
+        }
+
+        return [
+            'addresses' => $addresses,
+            'selectedAddressId' => $data['selectedAddressId'] ?? null,
+        ];
+    }
+
+    /**
      * Get center list data for lab booking (sorted by distance)
      */
     protected function getCenterListData(array $data): array
@@ -1770,9 +1795,9 @@ class IntelligentBookingOrchestrator
         for ($i = 0; $i < 7; $i++) {
             $date = Carbon::today()->addDays($i);
             $dates[] = [
-                'value' => $date->format('Y-m-d'),
+                'date' => $date->format('Y-m-d'),
                 'label' => $i === 0 ? 'Today' : ($i === 1 ? 'Tomorrow' : $date->format('D')),
-                'day' => $date->format('M j'),
+                'sublabel' => $date->format('M j'),
             ];
         }
 
@@ -2130,6 +2155,20 @@ class IntelligentBookingOrchestrator
             ]);
         }
 
+        // Address selection (for home collection)
+        if (isset($selection['address_id'])) {
+            $updated['selectedAddressId'] = $selection['address_id'];
+            $updated['selectedAddressLabel'] = $selection['address_label'] ?? 'Selected address';
+            $updated['selectedAddressText'] = $selection['address_text'] ?? '';
+            if (!in_array('address', $updated['completedSteps'])) {
+                $updated['completedSteps'][] = 'address';
+            }
+            Log::info('🔒 Selection Handler: Address selected', [
+                'address_id' => $selection['address_id'],
+                'address_label' => $selection['address_label'] ?? 'Unknown',
+            ]);
+        }
+
         // Legacy location_id handler (backward compatibility)
         if (isset($selection['location_id'])) {
             $locationId = $selection['location_id'];
@@ -2175,10 +2214,13 @@ class IntelligentBookingOrchestrator
             unset($updated['collectionType']);
             unset($updated['selectedCenterId']);
             unset($updated['selectedCenterName']);
+            unset($updated['selectedAddressId']);
+            unset($updated['selectedAddressLabel']);
+            unset($updated['selectedAddressText']);
             // Clear date/time since location change may affect availability
             unset($updated['selectedDate']);
             unset($updated['selectedTime']);
-            $updated['completedSteps'] = array_values(array_diff($updated['completedSteps'], ['collection_type', 'center', 'location', 'date', 'time']));
+            $updated['completedSteps'] = array_values(array_diff($updated['completedSteps'], ['collection_type', 'center', 'address', 'location', 'date', 'time']));
         }
 
         // Handle patient change from summary

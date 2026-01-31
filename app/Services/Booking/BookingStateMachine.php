@@ -31,6 +31,7 @@ class BookingStateMachine
         'package_inquiry',           // Ask user what test they want (chat input)
         'package_selection',         // Show filtered packages
         'collection_type_selection', // Home Collection or Hospital Visit
+        'address_selection',         // Show saved addresses if home collection
         'center_selection',          // Show lab centers if hospital selected
         'lab_date_time_selection',
         // Common states
@@ -197,6 +198,13 @@ class BookingStateMachine
             return false;
         }
 
+        // Home collection requires a selected address
+        if ($this->bookingType === 'lab_test'
+            && ($this->data['collectionType'] ?? '') === 'home'
+            && empty($this->data['selectedAddressId'])) {
+            return false;
+        }
+
         return true;
     }
 
@@ -222,6 +230,11 @@ class BookingStateMachine
         // Need collection type (home or center)
         if (empty($this->data['collectionType'])) {
             return 'collection_type_selection';
+        }
+
+        // If home collection, need address selection
+        if ($this->data['collectionType'] === 'home' && empty($this->data['selectedAddressId'])) {
+            return 'address_selection';
         }
 
         // If center visit, need center selection
@@ -321,6 +334,9 @@ class BookingStateMachine
                 unset($this->data['collectionType']);
                 unset($this->data['selectedCenterId']);
                 unset($this->data['selectedCenterName']);
+                unset($this->data['selectedAddressId']);
+                unset($this->data['selectedAddressLabel']);
+                unset($this->data['selectedAddressText']);
                 // Clear date/time since location change may affect availability
                 unset($this->data['selectedDate']);
                 unset($this->data['selectedTime']);
@@ -406,6 +422,11 @@ class BookingStateMachine
             'collection_type_selection' => [
                 'type' => 'collection_type_selector',
                 'message' => 'How would you like to get your sample collected?',
+                'awaiting_chat_input' => false,
+            ],
+            'address_selection' => [
+                'type' => 'address_selector',
+                'message' => 'Which address should we collect the sample from?',
                 'awaiting_chat_input' => false,
             ],
             'center_selection' => [
@@ -521,6 +542,7 @@ class BookingStateMachine
         if ($this->bookingType === 'lab_test') {
             if (empty($this->data['selectedPackageId'])) $missing[] = 'package';
             if (empty($this->data['collectionType'])) $missing[] = 'collection_type';
+            if (($this->data['collectionType'] ?? '') === 'home' && empty($this->data['selectedAddressId'])) $missing[] = 'address';
             if (($this->data['collectionType'] ?? '') === 'center' && empty($this->data['selectedCenterId'])) $missing[] = 'center';
             if (empty($this->data['selectedDate'])) $missing[] = 'date';
             if (empty($this->data['selectedTime'])) $missing[] = 'time';
@@ -591,6 +613,7 @@ class BookingStateMachine
             'package' => !empty($this->data['selectedPackageId']),
             'collection_type' => !empty($this->data['collectionType']),
             'location' => !empty($this->data['collectionType']),
+            'address' => !empty($this->data['selectedAddressId']),
             'center' => !empty($this->data['selectedCenterId']),
             default => false,
         };
@@ -602,12 +625,15 @@ class BookingStateMachine
     public function getCompletenessPercentage(): float
     {
         if ($this->bookingType === 'lab_test') {
-            $isCenterVisit = ($this->data['collectionType'] ?? '') === 'center';
-            $total = $isCenterVisit ? 6 : 5; // patient, package, collection_type, [center], date, time
+            $collectionType = $this->data['collectionType'] ?? '';
+            $isCenterVisit = $collectionType === 'center';
+            $isHomeCollection = $collectionType === 'home';
+            $total = 6; // patient, package, collection_type, [address|center], date, time
             $completed = 0;
             if ($this->hasField('patient')) $completed++;
             if ($this->hasField('package')) $completed++;
             if ($this->hasField('collection_type')) $completed++;
+            if ($isHomeCollection && $this->hasField('address')) $completed++;
             if ($isCenterVisit && $this->hasField('center')) $completed++;
             if ($this->hasField('date')) $completed++;
             if ($this->hasField('time')) $completed++;

@@ -15,6 +15,7 @@ use App\Models\InsuranceProvider;
 use App\Models\LabCenter;
 use App\Models\LabPackage;
 use App\Models\LabTestType;
+use App\Models\UserAddress;
 use App\Models\Symptom;
 use App\Models\TimeSlot;
 use App\User;
@@ -38,6 +39,7 @@ class HospitalSeeder extends Seeder
         $user = User::first();
         if ($user) {
             $this->seedFamilyMembers($user);
+            $this->seedUserAddresses($user);
             $this->seedAppointments($user);
             $this->seedInsuranceClaims($user);
         }
@@ -647,6 +649,43 @@ class HospitalSeeder extends Seeder
 
         foreach ($members as $member) {
             FamilyMember::create(array_merge($member, ['user_id' => $user->id]));
+        }
+    }
+
+    private function seedUserAddresses(User $user): void
+    {
+        $addresses = [
+            [
+                'label' => 'Home',
+                'address_line_1' => 'Flat 302, Sunrise Apartments',
+                'address_line_2' => 'Near Phoenix Mall, Viman Nagar',
+                'city' => 'Pune',
+                'state' => 'Maharashtra',
+                'pincode' => '411014',
+                'is_default' => true,
+            ],
+            [
+                'label' => 'Office',
+                'address_line_1' => '5th Floor, TechPark One',
+                'address_line_2' => 'Hinjewadi Phase 1',
+                'city' => 'Pune',
+                'state' => 'Maharashtra',
+                'pincode' => '411057',
+                'is_default' => false,
+            ],
+            [
+                'label' => "Parent's House",
+                'address_line_1' => '12, Green Valley Society',
+                'address_line_2' => 'Koregaon Park',
+                'city' => 'Pune',
+                'state' => 'Maharashtra',
+                'pincode' => '411001',
+                'is_default' => false,
+            ],
+        ];
+
+        foreach ($addresses as $address) {
+            UserAddress::create(array_merge($address, ['user_id' => $user->id]));
         }
     }
 

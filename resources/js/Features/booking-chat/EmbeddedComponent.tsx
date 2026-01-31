@@ -15,6 +15,7 @@ import { EmbeddedPreviousDoctorsList } from './embedded/EmbeddedPreviousDoctorsL
 import { EmbeddedDateTimeSelector } from './embedded/EmbeddedDateTimeSelector';
 import { EmbeddedCollectionMethod } from './embedded/EmbeddedCollectionMethod';
 import { EmbeddedCenterList } from './embedded/EmbeddedCenterList';
+import { EmbeddedAddressSelector } from './embedded/EmbeddedAddressSelector';
 
 /**
  * EmbeddedComponent
@@ -256,6 +257,21 @@ export function EmbeddedComponent({
         />
       );
 
+    case 'address_selector':
+      return (
+        <EmbeddedAddressSelector
+          addresses={data?.addresses || []}
+          selectedAddressId={selection?.address_id}
+          onSelect={(id, label, address) => onSelect({
+            address_id: id,
+            address_label: label,
+            address_text: address,
+            display_message: `${label}: ${address}`,
+          })}
+          disabled={disabled || isSelected}
+        />
+      );
+
     case 'center_list':
       const centerList = data?.centers || [];
       return (
@@ -297,19 +313,23 @@ export function EmbeddedComponent({
       );
 
     case 'date_time_selector':
+      const dtDates = data?.dates || [];
       return (
         <EmbeddedDateTimeSelector
-          dates={data?.dates || []}
+          dates={dtDates}
           slots={data?.slots || generateTimeSlots()}
           fastingRequired={data?.fastingRequired || data?.fasting_required}
           fastingHours={data?.fastingHours || data?.fasting_hours}
           selectedDate={selection?.date}
           selectedTime={selection?.time}
-          onSelect={(date, time) => onSelect({
-            date,
-            time,
-            display_message: `${date} at ${time}`
-          })}
+          onSelect={(date, time) => {
+            const dateLabel = dtDates.find((d: any) => (d.date || d.value) === date)?.label || date;
+            onSelect({
+              date,
+              time,
+              display_message: `${dateLabel} at ${time}`,
+            });
+          }}
           disabled={disabled || isSelected}
         />
       );

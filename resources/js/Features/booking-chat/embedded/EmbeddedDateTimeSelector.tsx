@@ -3,9 +3,11 @@ import { cn } from '@/Lib/utils';
 import { Star } from 'lucide-react';
 
 interface DateOption {
-  date: string;
+  date?: string;
+  value?: string;  // legacy format
   label: string;
-  sublabel: string;
+  sublabel?: string;
+  day?: string;     // legacy format
 }
 
 interface TimeSlot {
@@ -81,13 +83,15 @@ export function EmbeddedDateTimeSelector({
       <div>
         <label className="text-sm font-medium mb-2 block">Date</label>
         <div className="flex gap-2 overflow-x-auto pb-2">
-          {dates.map((dateOption) => {
-            const isDateSelected = localDate === dateOption.date || selectedDate === dateOption.date;
+          {dates.map((dateOption, idx) => {
+            const dateValue = dateOption.date || dateOption.value || '';
+            const subLabel = dateOption.sublabel || dateOption.day || '';
+            const isDateSelected = localDate === dateValue || selectedDate === dateValue;
 
             return (
               <button
-                key={dateOption.date}
-                onClick={() => handleDateSelect(dateOption.date)}
+                key={dateValue || idx}
+                onClick={() => handleDateSelect(dateValue)}
                 disabled={disabled}
                 className={cn(
                   'flex-shrink-0 px-4 py-3 rounded-xl border transition-all min-w-[100px]',
@@ -106,7 +110,7 @@ export function EmbeddedDateTimeSelector({
                     isDateSelected ? 'text-background/70' : 'text-muted-foreground'
                   )}
                 >
-                  {dateOption.sublabel}
+                  {subLabel}
                 </p>
               </button>
             );
