@@ -1000,4 +1000,151 @@ class BookingFlowTest extends TestCase
         // State goes back to address_selection
         $this->assertEquals('address_selection', $r['state']);
     }
+
+    // =========================================================================
+    // INDIVIDUAL LAB TEST BOOKING
+    // =========================================================================
+
+    public function test_individual_test_search_and_selection(): void
+    {
+        $conv = $this->conversation('lab_test', [
+            'booking_type' => 'lab_test',
+            'selectedPatientId' => 1,
+            'selectedPatientName' => 'Test User',
+            'completedSteps' => ['patient'],
+        ]);
+
+        // Simulate user typing "CBC" in package inquiry
+        $r = $this->orchestrator->process($conv, 'CBC');
+        $conv->refresh();
+        $data = $conv->collected_data;
+
+        // CBC should match the individual test
+        $this->assertNotEmpty($data['testSearchResults'] ?? []);
+        $this->assertTrue($data['package_inquiry_asked']);
+
+        // If only 1 test and 0 packages matched, auto-select happens
+        // If multiple results, user sees the list — either way the flow progresses
+        if (!empty($data['selectedTestIds'])) {
+            // Auto-selected: verify test data is set (as arrays)
+            $this->assertIsArray($data['selectedTestIds']);
+            $this->assertNotEmpty($data['selectedTestNames']);
+            $this->assertContains('package', $data['completedSteps']);
+            // State should advance past package selection
+            $this->assertNotEquals('package_selection', $r['state']);
+            $this->assertNotEquals('package_inquiry', $r['state']);
+        } else {
+            // Multiple results: user needs to pick
+            $this->assertEquals('package_selection', $r['state']);
+        }
+    }
+
+    public function test_individual_test_selection_via_component(): void
+    {
+        // Get the first lab test type ID from the database
+        $testType = \App\Models\LabTestType::where('is_active', true)->first();
+        $this->assertNotNull($testType, 'No active lab test types found in DB');
+
+        $conv = $this->conversation('lab_test', [
+            'booking_type' => 'lab_test',
+            'selectedPatientId' => 1,
+            'selectedPatientName' => 'Test User',
+            'package_inquiry_asked' => true,
+            'packageSearchQuery' => 'cbc',
+            'testSearchResults' => [$testType->id],
+            'testMatchCount' => 1,
+            'packageSearchResults' => [],
+            'packageMatchCount' => 0,
+            'completedSteps' => ['patient'],
+        ]);
+
+        // Select the individual test (now sends test_ids array)
+        $r = $this->orchestrator->process($conv, null, [
+            'test_ids' => [$testType->id],
+            'display_message' => "Selected: {$testType->name}",
+        ]);
+        $conv->refresh();
+        $data = $conv->collected_data;
+
+        // Test should be selected as arrays
+        $this->assertEquals([$testType->id], $data['selectedTestIds']);
+        $this->assertEquals([$testType->name], $data['selectedTestNames']);
+        // Package should NOT be selected
+        $this->assertEmpty($data['selectedPackageId'] ?? null);
+        // 'package' step should be completed
+        $this->assertContains('package', $data['completedSteps']);
+        // State should advance to collection_type_selection
+        $this->assertEquals('collection_type_selection', $r['state']);
+    }
+
+    public function test_individual_test_full_flow_to_summary(): void
+    {
+        $testType = \App\Models\LabTestType::where('is_active', true)->first();
+
+        $conv = $this->conversation('lab_test', [
+            'booking_type' => 'lab_test',
+            'selectedPatientId' => 1,
+            'selectedPatientName' => 'Test User',
+            'package_inquiry_asked' => true,
+            'selectedTestIds' => [$testType->id],
+            'selectedTestNames' => [$testType->name],
+            'packageRequiresFasting' => $testType->requires_fasting,
+            'packageFastingHours' => $testType->fasting_hours,
+            'collectionType' => 'center',
+            'selectedCenterId' => 1,
+            'selectedCenterName' => 'Pathology Lab',
+            'selectedDate' => now()->addDays(2)->format('Y-m-d'),
+            'selectedTime' => '09:00',
+            'completedSteps' => ['patient', 'package', 'collection_type', 'center', 'date', 'time'],
+        ]);
+
+        $stateMachine = new \App\Services\Booking\BookingStateMachine($conv->collected_data);
+        $this->assertEquals('summary', $stateMachine->getCurrentState());
+        $this->assertTrue($stateMachine->isReadyToBook());
+    }
+
+    // =========================================================================
+    // MULTI-TEST SELECTION
+    // =========================================================================
+
+    public function test_multi_test_selection_sums_fees(): void
+    {
+        $tests = \App\Models\LabTestType::where('is_active', true)->take(2)->get();
+        $this->assertCount(2, $tests, 'Need at least 2 active lab test types');
+
+        $conv = $this->conversation('lab_test', [
+            'booking_type' => 'lab_test',
+            'selectedPatientId' => 1,
+            'selectedPatientName' => 'Test User',
+            'package_inquiry_asked' => true,
+            'packageSearchQuery' => 'blood',
+            'testSearchResults' => $tests->pluck('id')->toArray(),
+            'testMatchCount' => 2,
+            'packageSearchResults' => [],
+            'packageMatchCount' => 0,
+            'completedSteps' => ['patient'],
+        ]);
+
+        // Select both tests via component
+        $r = $this->orchestrator->process($conv, null, [
+            'test_ids' => $tests->pluck('id')->toArray(),
+            'display_message' => 'Selected: ' . $tests->pluck('name')->join(', '),
+        ]);
+        $conv->refresh();
+        $data = $conv->collected_data;
+
+        // Both tests should be selected
+        $this->assertCount(2, $data['selectedTestIds']);
+        $this->assertCount(2, $data['selectedTestNames']);
+        $this->assertEquals($tests->pluck('id')->map(fn($id) => (int) $id)->toArray(), $data['selectedTestIds']);
+        // Package should NOT be set
+        $this->assertEmpty($data['selectedPackageId'] ?? null);
+        // Flow should advance to collection type
+        $this->assertEquals('collection_type_selection', $r['state']);
+
+        // Verify fee calculation sums both test prices
+        $expectedFee = $tests->sum('price');
+        $actualFee = $this->labService->calculateFee(null, 'center', $data['selectedTestIds']);
+        $this->assertEquals($expectedFee, $actualFee, 'Fee should sum prices of all selected tests');
+    }
 }

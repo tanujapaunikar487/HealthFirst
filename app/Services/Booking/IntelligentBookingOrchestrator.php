@@ -98,6 +98,7 @@ class IntelligentBookingOrchestrator
         if ($bookingType === 'lab_test'
             && !empty($currentData['selectedPatientId'])
             && empty($currentData['selectedPackageId'])
+            && empty($currentData['selectedTestIds'])
             && !$packageInquiryAsked
             && $userInput) {
 
@@ -106,11 +107,27 @@ class IntelligentBookingOrchestrator
 
             $currentData['package_inquiry_asked'] = true;
 
-            // Search for matching packages
+            // Search for matching packages AND individual tests
             $searchResults = $this->labService->searchPackages($trimmedInput);
+            $testResults = $this->labService->searchTests($trimmedInput);
 
-            if (count($searchResults) === 1) {
-                // Exact match — auto-select the package
+            $currentData['packageSearchQuery'] = $trimmedInput;
+            $currentData['testSearchResults'] = array_column($testResults, 'id');
+            $currentData['testMatchCount'] = count($testResults);
+
+            if (count($searchResults) === 0 && count($testResults) === 1) {
+                // Only one individual test matched — auto-select it
+                $test = $testResults[0];
+                $currentData['selectedTestIds'] = [$test['id']];
+                $currentData['selectedTestNames'] = [$test['name']];
+                $currentData['packageRequiresFasting'] = $test['requires_fasting'];
+                $currentData['packageFastingHours'] = $test['fasting_hours'];
+                if (!in_array('package', $currentData['completedSteps'] ?? [])) {
+                    $currentData['completedSteps'][] = 'package';
+                }
+                Log::info('🎯 Individual test auto-selected', ['test' => $test['name']]);
+            } elseif (count($searchResults) === 1 && count($testResults) === 0) {
+                // Only one package matched — auto-select it
                 $pkg = $searchResults[0];
                 $currentData['selectedPackageId'] = $pkg['id'];
                 $currentData['selectedPackageName'] = $pkg['name'];
@@ -122,12 +139,12 @@ class IntelligentBookingOrchestrator
                 Log::info('🎯 Package auto-selected', ['package' => $pkg['name']]);
             } else {
                 // Multiple or no results — store for filtered display
-                $currentData['packageSearchQuery'] = $trimmedInput;
                 $currentData['packageSearchResults'] = array_column($searchResults, 'id');
                 $currentData['packageMatchCount'] = count($searchResults);
-                Log::info('🔍 Package search results', [
+                Log::info('🔍 Search results', [
                     'query' => $trimmedInput,
-                    'match_count' => count($searchResults),
+                    'package_matches' => count($searchResults),
+                    'test_matches' => count($testResults),
                 ]);
             }
 
@@ -1643,11 +1660,13 @@ class IntelligentBookingOrchestrator
     protected function buildLabSummaryData(array $data): array
     {
         $packageId = $data['selectedPackageId'] ?? null;
+        $testIds = $data['selectedTestIds'] ?? [];
+        $testNames = $data['selectedTestNames'] ?? [];
         $package = $packageId ? $this->labService->getPackageById($packageId) : null;
         $collectionType = $data['collectionType'] ?? 'center';
 
         // Calculate fee
-        $fee = $this->labService->calculateFee($packageId, $collectionType);
+        $fee = $this->labService->calculateFee($packageId, $collectionType, !empty($testIds) ? $testIds : null);
 
         // Get center address
         $address = 'Address not available';
@@ -1665,8 +1684,9 @@ class IntelligentBookingOrchestrator
 
         // Build preparation instructions
         $prepInstructions = [];
-        if ($package && $package['requires_fasting']) {
-            $fastingHours = $package['fasting_hours'] ?? 12;
+        $requiresFasting = $package ? ($package['requires_fasting'] ?? false) : !empty($data['packageRequiresFasting']);
+        if ($requiresFasting) {
+            $fastingHours = $package ? ($package['fasting_hours'] ?? 12) : ($data['packageFastingHours'] ?? 12);
             $prepInstructions = [
                 "Fasting for {$fastingHours}-" . ($fastingHours + 2) . " hours required",
                 'Water is allowed',
@@ -1676,7 +1696,7 @@ class IntelligentBookingOrchestrator
         }
 
         return [
-            'package' => $data['selectedPackageName'] ?? ($package['name'] ?? 'Unknown Package'),
+            'package' => $data['selectedPackageName'] ?? (!empty($testNames) ? implode(', ', $testNames) : ($package['name'] ?? 'Unknown Package')),
             'patient' => [
                 'name' => $data['selectedPatientName'] ?? 'Unknown Patient',
                 'avatar' => $data['selectedPatientAvatar'] ?? null,
@@ -1725,9 +1745,32 @@ class IntelligentBookingOrchestrator
             'fasting_hours' => $p['fasting_hours'] ?? null,
         ];
 
+        // Build individual tests list from search results
+        $individualTests = [];
+        $testResultIds = $data['testSearchResults'] ?? [];
+        if (!empty($testResultIds)) {
+            foreach ($testResultIds as $testId) {
+                $test = $this->labService->getTestById($testId);
+                if ($test) {
+                    $individualTests[] = [
+                        'id' => $test['id'],
+                        'name' => $test['name'],
+                        'description' => $test['description'] ?? '',
+                        'category' => $test['category'] ?? '',
+                        'price' => $test['price'],
+                        'turnaround_hours' => $test['turnaround_hours'] ?? null,
+                        'requires_fasting' => $test['requires_fasting'] ?? false,
+                        'fasting_hours' => $test['fasting_hours'] ?? null,
+                    ];
+                }
+            }
+        }
+
         return [
             'packages' => array_map($formatPackage, $packages),
+            'individual_tests' => $individualTests,
             'selectedPackageId' => $data['selectedPackageId'] ?? null,
+            'selectedTestIds' => $data['selectedTestIds'] ?? [],
         ];
     }
 
@@ -2222,6 +2265,9 @@ class IntelligentBookingOrchestrator
                 $updated['selectedPackageName'] = $package['name'];
                 $updated['packageRequiresFasting'] = $package['requires_fasting'];
                 $updated['packageFastingHours'] = $package['fasting_hours'];
+                // Clear any individual test selection
+                unset($updated['selectedTestIds']);
+                unset($updated['selectedTestNames']);
                 if (!in_array('package', $updated['completedSteps'])) {
                     $updated['completedSteps'][] = 'package';
                 }
@@ -2229,6 +2275,43 @@ class IntelligentBookingOrchestrator
                     'package_id' => $packageId,
                     'package_name' => $package['name'],
                     'requires_fasting' => $package['requires_fasting'],
+                ]);
+            }
+        }
+
+        // Individual test(s) selection (supports multi-select)
+        if (isset($selection['test_ids'])) {
+            $testIds = array_map('intval', (array) $selection['test_ids']);
+            $testNames = [];
+            $requiresFasting = false;
+            $maxFastingHours = 0;
+
+            foreach ($testIds as $tid) {
+                $test = $this->labService->getTestById($tid);
+                if ($test) {
+                    $testNames[] = $test['name'];
+                    if ($test['requires_fasting']) {
+                        $requiresFasting = true;
+                        $maxFastingHours = max($maxFastingHours, $test['fasting_hours'] ?? 0);
+                    }
+                }
+            }
+
+            if (!empty($testNames)) {
+                $updated['selectedTestIds'] = $testIds;
+                $updated['selectedTestNames'] = $testNames;
+                $updated['packageRequiresFasting'] = $requiresFasting;
+                $updated['packageFastingHours'] = $maxFastingHours ?: null;
+                // Clear any package selection
+                unset($updated['selectedPackageId']);
+                unset($updated['selectedPackageName']);
+                if (!in_array('package', $updated['completedSteps'])) {
+                    $updated['completedSteps'][] = 'package';
+                }
+                Log::info('🔒 Selection Handler: Individual test(s) selected', [
+                    'test_ids' => $testIds,
+                    'test_names' => $testNames,
+                    'requires_fasting' => $requiresFasting,
                 ]);
             }
         }
@@ -2410,12 +2493,16 @@ class IntelligentBookingOrchestrator
             Log::info('🔄 Change Package Requested');
             unset($updated['selectedPackageId']);
             unset($updated['selectedPackageName']);
+            unset($updated['selectedTestIds']);
+            unset($updated['selectedTestNames']);
             unset($updated['packageRequiresFasting']);
             unset($updated['packageFastingHours']);
             unset($updated['package_inquiry_asked']);
             unset($updated['packageSearchQuery']);
             unset($updated['packageSearchResults']);
             unset($updated['packageMatchCount']);
+            unset($updated['testSearchResults']);
+            unset($updated['testMatchCount']);
             $updated['completedSteps'] = array_values(array_diff($updated['completedSteps'], ['package']));
         }
 

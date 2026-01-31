@@ -231,15 +231,31 @@ export function EmbeddedComponent({
 
     case 'package_list':
       const pkgList = data?.packages || packages;
+      const testList = data?.individual_tests || [];
       return (
         <EmbeddedPackageList
           packages={pkgList}
+          individualTests={testList}
           selectedPackageId={selection?.package_id}
+          selectedTestIds={
+            selection?.test_ids
+              ? (Array.isArray(selection.test_ids) ? selection.test_ids.map(String) : [String(selection.test_ids)])
+              : []
+          }
           onSelect={(id) => {
             const selectedPkg = pkgList.find((p: any) => p.id === id);
             onSelect({
               package_id: id,
               display_message: selectedPkg ? `Selected: ${selectedPkg.name}` : `Selected package ${id}`,
+            });
+          }}
+          onSelectTests={(ids) => {
+            const names = ids
+              .map((id: string) => testList.find((t: any) => String(t.id) === String(id))?.name)
+              .filter(Boolean);
+            onSelect({
+              test_ids: ids,
+              display_message: names.length > 0 ? `Selected: ${names.join(', ')}` : `Selected ${ids.length} test(s)`,
             });
           }}
           disabled={disabled || isSelected}

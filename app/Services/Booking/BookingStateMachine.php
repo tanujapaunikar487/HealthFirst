@@ -181,13 +181,23 @@ class BookingStateMachine
      */
     public function isReadyToBook(): bool
     {
-        $required = $this->bookingType === 'lab_test'
-            ? ['selectedPatientId', 'selectedPackageId', 'collectionType', 'selectedDate', 'selectedTime']
-            : ['selectedPatientId', 'appointmentType', 'selectedDoctorId', 'selectedDate', 'selectedTime', 'consultationMode'];
-
-        foreach ($required as $field) {
-            if (empty($this->data[$field])) {
+        if ($this->bookingType === 'lab_test') {
+            $required = ['selectedPatientId', 'collectionType', 'selectedDate', 'selectedTime'];
+            foreach ($required as $field) {
+                if (empty($this->data[$field])) {
+                    return false;
+                }
+            }
+            // Must have either a package or an individual test
+            if (empty($this->data['selectedPackageId']) && empty($this->data['selectedTestIds'])) {
                 return false;
+            }
+        } else {
+            $required = ['selectedPatientId', 'appointmentType', 'selectedDoctorId', 'selectedDate', 'selectedTime', 'consultationMode'];
+            foreach ($required as $field) {
+                if (empty($this->data[$field])) {
+                    return false;
+                }
             }
         }
 
@@ -217,13 +227,13 @@ class BookingStateMachine
      */
     private function determineLabState(): string
     {
-        // Need package selection
-        if (empty($this->data['selectedPackageId'])) {
+        // Need package or individual test selection
+        if (empty($this->data['selectedPackageId']) && empty($this->data['selectedTestIds'])) {
             // If user hasn't been asked what they're looking for yet
             if (empty($this->data['package_inquiry_asked'])) {
                 return 'package_inquiry';
             }
-            // User responded but no package selected yet — show filtered list
+            // User responded but no package/test selected yet — show filtered list
             return 'package_selection';
         }
 
@@ -325,6 +335,8 @@ class BookingStateMachine
             case 'package':
                 unset($this->data['selectedPackageId']);
                 unset($this->data['selectedPackageName']);
+                unset($this->data['selectedTestIds']);
+                unset($this->data['selectedTestNames']);
                 unset($this->data['packageRequiresFasting']);
                 unset($this->data['packageFastingHours']);
                 break;
@@ -540,7 +552,7 @@ class BookingStateMachine
         }
 
         if ($this->bookingType === 'lab_test') {
-            if (empty($this->data['selectedPackageId'])) $missing[] = 'package';
+            if (empty($this->data['selectedPackageId']) && empty($this->data['selectedTestIds'])) $missing[] = 'package';
             if (empty($this->data['collectionType'])) $missing[] = 'collection_type';
             if (($this->data['collectionType'] ?? '') === 'home' && empty($this->data['selectedAddressId'])) $missing[] = 'address';
             if (($this->data['collectionType'] ?? '') === 'center' && empty($this->data['selectedCenterId'])) $missing[] = 'center';
@@ -610,7 +622,7 @@ class BookingStateMachine
             'time' => !empty($this->data['selectedTime']),
             'mode' => !empty($this->data['consultationMode']),
             // Lab-specific fields
-            'package' => !empty($this->data['selectedPackageId']),
+            'package' => !empty($this->data['selectedPackageId']) || !empty($this->data['selectedTestIds']),
             'collection_type' => !empty($this->data['collectionType']),
             'location' => !empty($this->data['collectionType']),
             'address' => !empty($this->data['selectedAddressId']),
@@ -679,10 +691,18 @@ class BookingStateMachine
     private function getPackageSelectionMessage(): string
     {
         $query = $this->data['packageSearchQuery'] ?? null;
-        $matchCount = $this->data['packageMatchCount'] ?? null;
+        $packageMatchCount = $this->data['packageMatchCount'] ?? 0;
+        $testMatchCount = $this->data['testMatchCount'] ?? 0;
+        $totalMatches = $packageMatchCount + $testMatchCount;
 
-        if ($query && $matchCount === 0) {
+        if ($query && $totalMatches === 0) {
             return "I couldn't find an exact match for \"{$query}\". Here are all our available packages:";
+        }
+        if ($query && $testMatchCount > 0 && $packageMatchCount > 0) {
+            return "Here are the matching tests and packages for \"{$query}\":";
+        }
+        if ($query && $testMatchCount > 0) {
+            return "Here are the matching tests for \"{$query}\":";
         }
         if ($query) {
             return "Based on your search, here are the matching packages:";
@@ -695,7 +715,9 @@ class BookingStateMachine
      */
     private function getLabDateTimeMessage(): string
     {
-        $packageName = $this->data['selectedPackageName'] ?? null;
+        $testNames = $this->data['selectedTestNames'] ?? [];
+        $packageName = $this->data['selectedPackageName']
+            ?? (count($testNames) === 1 ? $testNames[0] : (count($testNames) > 1 ? count($testNames) . ' tests' : null));
         $requiresFasting = !empty($this->data['packageRequiresFasting']);
         $fastingHours = $this->data['packageFastingHours'] ?? null;
 

@@ -4,6 +4,7 @@ namespace App\Services\Booking;
 
 use App\Models\LabCenter;
 use App\Models\LabPackage;
+use App\Models\LabTestType;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -138,14 +139,16 @@ class LabService
     }
 
     /**
-     * Calculate total fee for a package + collection type.
+     * Calculate total fee for a package or test(s) + collection type.
      */
-    public function calculateFee(?int $packageId, string $collectionType): int
+    public function calculateFee(?int $packageId, string $collectionType, ?array $testIds = null): int
     {
-        $packagePrice = 0;
+        $itemPrice = 0;
         if ($packageId) {
             $package = LabPackage::find($packageId);
-            $packagePrice = $package ? $package->price : 0;
+            $itemPrice = $package ? $package->price : 0;
+        } elseif (!empty($testIds)) {
+            $itemPrice = LabTestType::whereIn('id', $testIds)->where('is_active', true)->sum('price');
         }
 
         $collectionFee = 0;
@@ -154,7 +157,7 @@ class LabService
             $collectionFee = $center ? $center->home_collection_fee : 0;
         }
 
-        return $packagePrice + $collectionFee;
+        return $itemPrice + $collectionFee;
     }
 
     /**
@@ -229,6 +232,89 @@ class LabService
     }
 
     /**
+     * Get individual test by ID.
+     */
+    public function getTestById(int $id): ?array
+    {
+        $test = LabTestType::find($id);
+        return $test ? $this->testToArray($test) : null;
+    }
+
+    /**
+     * Search individual lab tests by keyword.
+     * Returns matching tests sorted by relevance score.
+     */
+    public function searchTests(string $query): array
+    {
+        $queryLower = strtolower(trim($query));
+        $keywords = preg_split('/\s+/', $queryLower);
+
+        $tests = LabTestType::where('is_active', true)->get();
+        $scored = [];
+
+        $aliases = [
+            'sugar' => ['blood-sugar-fasting', 'blood-sugar-pp'],
+            'glucose' => ['blood-sugar-fasting', 'blood-sugar-pp'],
+            'cbc' => ['complete-blood-count'],
+            'blood count' => ['complete-blood-count'],
+            'thyroid' => ['thyroid-profile'],
+            'tsh' => ['thyroid-profile'],
+            'lipid' => ['lipid-profile'],
+            'cholesterol' => ['lipid-profile'],
+            'liver' => ['liver-function-test'],
+            'lft' => ['liver-function-test'],
+            'kidney' => ['kidney-function-test'],
+            'kft' => ['kidney-function-test'],
+            'creatinine' => ['kidney-function-test'],
+            'urine' => ['urine-routine'],
+            'vitamin d' => ['vitamin-d'],
+            'vitamin b12' => ['vitamin-b12'],
+            'b12' => ['vitamin-b12'],
+            'hba1c' => ['hba1c'],
+            'iron' => ['iron-studies'],
+            'ferritin' => ['iron-studies'],
+            'crp' => ['crp'],
+            'esr' => ['esr'],
+            'uric acid' => ['uric-acid'],
+            'electrolyte' => ['electrolytes'],
+        ];
+
+        foreach ($tests as $test) {
+            $score = 0;
+            $nameLower = strtolower($test->name);
+            $descLower = strtolower($test->description ?? '');
+            $slugLower = strtolower($test->slug);
+            $catLower = strtolower($test->category ?? '');
+
+            if (stripos($nameLower, $queryLower) !== false) {
+                $score += 10;
+            }
+
+            foreach ($keywords as $kw) {
+                if (strlen($kw) < 2) continue;
+                if (stripos($nameLower, $kw) !== false) $score += 5;
+                if (stripos($descLower, $kw) !== false) $score += 2;
+                if (stripos($slugLower, $kw) !== false) $score += 3;
+                if (stripos($catLower, $kw) !== false) $score += 3;
+            }
+
+            foreach ($aliases as $alias => $slugs) {
+                if (stripos($queryLower, $alias) !== false && in_array($test->slug, $slugs)) {
+                    $score += 8;
+                }
+            }
+
+            if ($score > 0) {
+                $scored[] = ['test' => $this->testToArray($test), 'score' => $score];
+            }
+        }
+
+        usort($scored, fn($a, $b) => $b['score'] - $a['score']);
+
+        return array_map(fn($s) => $s['test'], $scored);
+    }
+
+    /**
      * Format package list for the AI prompt.
      */
     public function formatForPrompt(): string
@@ -268,6 +354,25 @@ class LabService
             'fasting_hours' => $pkg->fasting_hours,
             'is_popular' => (bool) $pkg->is_popular,
             'is_recommended' => (bool) $pkg->is_popular,
+        ];
+    }
+
+    /**
+     * Convert a LabTestType model to array format.
+     */
+    private function testToArray(LabTestType $test): array
+    {
+        return [
+            'id' => $test->id,
+            'name' => $test->name,
+            'slug' => $test->slug,
+            'description' => $test->description,
+            'category' => $test->category,
+            'price' => $test->price,
+            'turnaround_hours' => $test->turnaround_hours,
+            'preparation_instructions' => $test->preparation_instructions,
+            'requires_fasting' => (bool) $test->requires_fasting,
+            'fasting_hours' => $test->fasting_hours,
         ];
     }
 
