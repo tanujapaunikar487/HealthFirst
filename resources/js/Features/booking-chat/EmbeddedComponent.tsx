@@ -351,7 +351,6 @@ export function EmbeddedComponent({
         />
       );
 
-    case 'date_picker':
     case 'time_slot_picker':
       return (
         <DateTimePicker
@@ -508,77 +507,19 @@ export function EmbeddedComponent({
 
     // Intelligent Orchestrator component types
     case 'doctor_selector':
-      console.log('EmbeddedComponent doctor_selector:', {
-        has_data: !!data,
-        doctors_from_data: data?.doctors,
-        doctors_fallback: doctors,
-        doctors_count: data?.doctors?.length || doctors?.length || 0
-      });
-      return (
-        <EmbeddedDoctorList
-          doctors={data?.doctors || doctors}
-          selectedDoctorId={selection?.doctor_id}
-          selectedTime={selection?.time}
-          onSelect={(doctorId, time) => {
-            const doctor = (data?.doctors || doctors).find((d: any) => d.id === doctorId);
-            onSelect({
-              doctor_id: doctorId,
-              doctor_name: doctor?.name || 'Doctor',
-              time,
-              display_message: `${doctor?.name || 'Doctor'} at ${time}`
-            });
-          }}
-          disabled={disabled || isSelected}
-        />
-      );
-
-    case 'date_picker':
-      // Date-only picker - user selects a date, then sees doctors on next step
-      return (
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {data?.dates?.map((d: any) => {
-            const dateValue = d.value || d.date;
-            const dateIsSelected = selection?.date === dateValue;
-
-            return (
-              <button
-                key={dateValue}
-                onClick={() => {
-                  onSelect({
-                    date: dateValue,
-                    display_message: `${d.label}, ${d.day}`
-                  });
-                }}
-                disabled={disabled || isSelected}
-                className={cn(
-                  'px-4 py-2 rounded-lg whitespace-nowrap transition-colors',
-                  'disabled:opacity-50 disabled:cursor-not-allowed',
-                  dateIsSelected
-                    ? 'bg-[#0052FF] text-white'
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
-                )}
-              >
-                <div className="font-medium text-sm">{d.label}</div>
-                <div className="text-xs opacity-75">{d.day}</div>
-              </button>
-            );
-          })}
-        </div>
-      );
-
-    case 'doctor_selector':
-      // Doctor list for an already-selected date (no date pills)
       return (
         <div className="space-y-4">
-          <div>
-            <h3 className="text-lg font-semibold">{data?.doctors_count || 0} doctor{(data?.doctors_count || 0) !== 1 ? 's' : ''} available</h3>
-          </div>
+          {data?.doctors_count !== undefined && (
+            <div>
+              <h3 className="text-lg font-semibold">{data.doctors_count} doctor{data.doctors_count !== 1 ? 's' : ''} available</h3>
+            </div>
+          )}
           <EmbeddedDoctorList
-            doctors={data?.doctors || []}
+            doctors={data?.doctors || doctors}
             selectedDoctorId={selection?.doctor_id}
             selectedTime={selection?.time}
             onSelect={(doctorId, time) => {
-              const doctor = (data?.doctors || []).find((d: any) => d.id === doctorId);
+              const doctor = (data?.doctors || doctors).find((d: any) => d.id === doctorId);
               onSelect({
                 doctor_id: doctorId,
                 doctor_name: doctor?.name || 'Doctor',

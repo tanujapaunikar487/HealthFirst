@@ -586,14 +586,32 @@ class IntelligentBookingOrchestrator
                             ['doctor', 'time', 'mode']
                         ));
                     } elseif ($doctorId && empty($existingDoctorId)) {
-                        // No doctor selected yet - store the name but don't auto-select
-                        // so the user sees the filtered list and can confirm
-                        $updated['selectedDoctorName'] = $entityValue;
+                        // Check if the user also provided a time — strong signal they want
+                        // this specific doctor (e.g. "Dr. Vikram at 10:00"). Auto-select.
+                        $alsoProvidedTime = !empty($newEntities['time']);
+                        if ($alsoProvidedTime) {
+                            $doctor = $this->getDoctorDetailsById($doctorId);
+                            $updated['selectedDoctorId'] = $doctorId;
+                            $updated['selectedDoctorName'] = $doctor['name'] ?? $entityValue;
+                            $updated['selectedDoctorSpecialization'] = $doctor['specialization'] ?? '';
+                            if (!in_array('doctor', $updated['completedSteps'] ?? [])) {
+                                $updated['completedSteps'][] = 'doctor';
+                            }
+                            unset($updated['doctorSearchQuery']);
 
-                        Log::info('🔍 Doctor name extracted, showing filtered list', [
-                            'extracted_name' => $entityValue,
-                            'matched_doctor_id' => $doctorId,
-                        ]);
+                            Log::info('🔍 Doctor auto-selected (name + time provided)', [
+                                'doctor_id' => $doctorId,
+                                'doctor_name' => $doctor['name'] ?? $entityValue,
+                            ]);
+                        } else {
+                            // Name only - show filtered list for confirmation
+                            $updated['selectedDoctorName'] = $entityValue;
+
+                            Log::info('🔍 Doctor name extracted, showing filtered list', [
+                                'extracted_name' => $entityValue,
+                                'matched_doctor_id' => $doctorId,
+                            ]);
+                        }
                     }
                 }
 
@@ -1140,6 +1158,11 @@ class IntelligentBookingOrchestrator
                 $data['textMentionedFields'] ?? [],
                 ['selectedDate']
             ));
+            // Ensure urgency is set so the flow goes to date_selection, not back to urgency.
+            // The user was already past urgency (they had a date), so don't regress.
+            if (empty($data['urgency'])) {
+                $data['urgency'] = 'this_week';
+            }
             $conversation->collected_data = $data;
             $conversation->save();
         }
@@ -2171,11 +2194,13 @@ class IntelligentBookingOrchestrator
                         $availableDays = $this->getDoctorAvailableDatesThisWeek($doctorId);
                         $dayLabels = array_map(fn($d) => Carbon::parse($d)->format('D'), $availableDays);
 
+                        // Strip "Dr." prefix to avoid "Dr. Dr. Vikram"
+                        $cleanName = preg_replace('/^Dr\.?\s*/i', '', $searchQuery);
                         $result['doctor_date_conflict'] = [
                             'searched_doctor' => $searchQuery,
                             'date' => $dateFormatted,
                             'available_dates' => $availableDays,
-                            'message' => "Dr. {$searchQuery} isn't available on {$dateFormatted}. They're available " . implode(', ', $dayLabels) . ' this week.',
+                            'message' => "Dr. {$cleanName} isn't available on {$dateFormatted}. They're available " . implode(', ', $dayLabels) . ' this week.',
                         ];
 
                         // Override: show full week dates filtered to doctor's availability

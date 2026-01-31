@@ -152,6 +152,18 @@ When user said "Book on 5th Feb with Dr. Vikram" then clicked "New Appointment",
 ### Fix 13: Doctor-Date Conflict Shows Empty List
 When searched doctor is unavailable on the selected date, system showed 0 doctors with no explanation. Now detects the conflict, shows the doctor with their available dates this week, clears the conflicting date, and displays a message like "Dr. Vikram isn't available on Feb 5. They're available Mon, Wed, Fri, Sat this week."
 
+### Fix 14: "Dr. Dr. Vikram" Double Prefix in Conflict Message
+`doctorSearchQuery` stored "Dr. Vikram" and the conflict message prepended another "Dr.". Added `preg_replace('/^Dr\.?\s*/i', '', $searchQuery)` to strip existing prefix.
+
+### Fix 15: Urgency Regression After Doctor-Date Conflict
+Conflict handler cleared `selectedDate` but left `urgency` empty, causing the state machine to regress from doctor_selection all the way back to urgency. Now sets `urgency = 'this_week'` as default when clearing date due to conflict.
+
+### Fix 16: Text Input "Dr. Vikram at 10:00" Not Auto-Selecting Doctor
+When user typed both doctor name + time, `mergeEntities` only stored the name as a search query without setting `selectedDoctorId`. Now auto-selects the doctor when both name and time are provided in the same message.
+
+### Fix 17: Duplicate Frontend Component Cases (Dead Code)
+`EmbeddedComponent.tsx` had duplicate `case 'date_picker':` and `case 'doctor_selector':` — the first match always won, making the new date-only and filtered doctor components dead code. Removed duplicates so the correct components render.
+
 ---
 
 ## Key Files
