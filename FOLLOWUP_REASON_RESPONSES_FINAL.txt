@@ -1,0 +1,274 @@
+Follow-up Reason Responses - Context-Aware Messaging
+
+## Purpose
+Provide tailored, empathetic responses based on the specific follow-up reason the user selects. Each reason requires different tone and messaging.
+
+---
+
+## 1. Scheduled Follow-up
+
+**User Selection:** "Scheduled follow-up" (Doctor asked patient to return)
+
+**Context:** This is a planned, routine follow-up as instructed by the doctor. The patient is returning as expected, not due to worsening symptoms.
+
+**Response Template:**
+```
+"Got it. Any updates you'd like to share with the doctor? This will help the doctor prepare for your visit. You can also skip this."
+```
+
+**Alternative Variations:**
+- "Perfect! Any updates you'd like to share with the doctor? This will help the doctor prepare for your visit. You can also skip this."
+- "Understood. Would you like to share any updates since your last visit? This will help the doctor prepare for your visit. You can also skip this."
+- "Got it. Any changes in your condition the doctor should know about? This will help the doctor prepare for your visit. You can also skip this."
+
+**Tone:**
+- Routine, matter-of-fact
+- Not overly concerned
+- Optional/casual about notes
+
+**Storage:**
+```json
+{
+  "followup_reason": "scheduled",
+  "followup_context": "Planned follow-up as instructed by doctor"
+}
+```
+
+**Next Step:** Ask for followup_notes (optional, can skip)
+
+**Component:** Free text input with prominent "Skip" button
+
+---
+
+## 2. New Concern
+
+**User Selection:** "New concern" (Different issue than last visit)
+
+**Context:** Patient is returning but for a DIFFERENT health issue than the previous visit. This is not about the original condition.
+
+**Response Template:**
+```
+"What new symptoms or changes have you noticed? This will help the doctor prepare for your visit. You can also skip this."
+```
+
+**Alternative Variations:**
+- "I see, you have a different concern this time. What new symptoms or changes have you noticed? This will help the doctor prepare for your visit. You can also skip this."
+- "Understood. Could you tell me about the new symptoms? This will help the doctor prepare for your visit. You can also skip this."
+- "Got it. What new symptoms or changes have you noticed? This will help the doctor prepare for your visit. You can also skip this."
+
+**Tone:**
+- Attentive, open
+- Slightly more inquisitive (it's a new issue)
+- Still optional, not pushy
+
+**Storage:**
+```json
+{
+  "followup_reason": "new_concern",
+  "followup_context": "Patient has different/new concern unrelated to previous visit"
+}
+```
+
+**Next Step:** Ask for followup_notes (optional, can skip)
+
+**Component:** Free text input with "Skip" option
+
+**Note:** Doctor may need more context since this isn't about the original condition they treated
+
+---
+
+## 3. Ongoing Issue
+
+**User Selection:** "Ongoing issue" (Same problem, not better)
+
+**Context:** The original condition has NOT improved or has worsened. Patient is concerned that treatment didn't work or symptoms persist.
+
+**Response Template:**
+```
+"I'm sorry to hear that. Can you describe what's still bothering you? This will help the doctor prepare for your visit. You can also skip this."
+```
+
+**Alternative Variations:**
+- "I understand, the previous issue is still bothering you. Can you describe what's still bothering you? This will help the doctor prepare for your visit. You can also skip this."
+- "Got it. How have your symptoms been since the last visit? This will help the doctor prepare for your visit. You can also skip this."
+- "I see. What symptoms are continuing? This will help the doctor prepare for your visit. You can also skip this."
+
+**Tone:**
+- Empathetic, concerned
+- Acknowledges patient's frustration/discomfort
+- Gentle, supportive
+
+**Storage:**
+```json
+{
+  "followup_reason": "ongoing_issue",
+  "followup_context": "Original condition persisting or not improving as expected"
+}
+```
+
+**Next Step:** Ask for followup_notes (optional, can skip)
+
+**Component:** Free text input with "Skip" option
+
+**Note:** This requires the most empathy - patient may be frustrated that treatment didn't work
+
+---
+
+## After Notes Provided or Skipped
+
+### If User Provides Notes
+
+**User Input:** *Any text describing their condition/updates*
+
+**Response Template:**
+```
+"Thanks for sharing that. The doctor will review this before your appointment."
+```
+
+**Alternative Variations:**
+- "Thank you. The doctor will have this information ready for your visit."
+- "Got it, thank you. This will help the doctor prepare for your appointment."
+- "Perfect, the doctor will review these details before you meet."
+
+**Tone:**
+- Appreciative
+- Reassuring (doctor will be prepared)
+- Brief, move forward
+
+**Storage:**
+```json
+{
+  "followup_notes": "user's text input",
+  "notes_provided": true
+}
+```
+
+**Next Step:** Show previous_doctors component
+
+---
+
+### If User Skips
+
+**User Action:** Clicks "Skip" or says "no updates" / "skip" / "nothing to add"
+
+**Response Template:**
+```
+"No problem. Would you like to book with {doctor_name} again? They have your medical history from your last visit."
+```
+
+**Alternative Variations:**
+- "Okay, we can skip that. Would you like to book with {doctor_name} again?"
+- "No worries. Shall we book with {doctor_name} who saw you last time?"
+- "That's fine. Would you prefer to see {doctor_name} again?"
+
+**Tone:**
+- Accepting, non-judgmental
+- Smooth transition to next step
+- No dwelling on the skip
+
+**Storage:**
+```json
+{
+  "followup_notes": null,
+  "notes_provided": false,
+  "notes_skipped": true
+}
+```
+
+**Next Step:** Show previous_doctors component
+
+---
+
+## Transitioning to Previous Doctors
+
+After notes (provided or skipped), always show previous doctors component.
+
+**Primary Doctor Available:**
+```
+"Would you like to book with {doctor_name} again? They have your medical history and context from your last visit on {formatted_date}."
+```
+
+**Multiple Previous Doctors:**
+```
+"Here are the doctors you've seen recently. Would you like to book with any of them?"
+```
+
+**No Previous Doctor Found:**
+```
+"Let me show you our available doctors."
+```
+
+**Component:** `previous_doctors` with:
+- Primary doctor highlighted at top
+- Shows last visit date
+- Shows next 3 available slots for quick booking
+- "See other doctors" option at bottom
+
+---
+
+## Complete Flow Examples
+
+### Example 1: Scheduled Follow-up with Notes
+
+```
+User: [Selects "Scheduled follow-up"]
+Assistant: "Got it. Any updates you'd like to share with the doctor? This will help the doctor prepare for your visit. You can also skip this."
+[Shows text input with Skip button]
+
+User: "Blood pressure has been stable, no issues"
+Assistant: "Thanks for sharing that. The doctor will review this before your appointment. Would you like to book with Dr. Sharma again? They have your medical history from your last visit on Jan 15th."
+[Shows previous_doctors component]
+```
+
+### Example 2: Scheduled Follow-up - User Skips
+
+```
+User: [Selects "Scheduled follow-up"]
+Assistant: "Got it. Any updates you'd like to share with the doctor? This will help the doctor prepare for your visit. You can also skip this."
+[Shows text input with Skip button]
+
+User: [Clicks Skip] or "No updates"
+Assistant: "No problem. Would you like to book with Dr. Sharma again? They have your medical history from your last visit on Jan 15th."
+[Shows previous_doctors component]
+```
+
+### Example 3: New Concern with Details
+
+```
+User: [Selects "New concern"]
+Assistant: "What new symptoms or changes have you noticed? This will help the doctor prepare for your visit. You can also skip this."
+[Shows text input with Skip button]
+
+User: "Started having back pain last week"
+Assistant: "Thank you. The doctor will have this information ready for your visit. Would you like to book with Dr. Patel again?"
+[Shows previous_doctors component]
+```
+
+### Example 4: Ongoing Issue with Empathy
+
+```
+User: [Selects "Ongoing issue"]
+Assistant: "I'm sorry to hear that. Can you describe what's still bothering you? This will help the doctor prepare for your visit. You can also skip this."
+[Shows text input with Skip button]
+
+User: "Headaches are still coming back every few days"
+Assistant: "Thanks for sharing that. The doctor will review this before your appointment. Would you like to book with Dr. Kumar again? They saw you last on Jan 20th."
+[Shows previous_doctors component]
+```
+
+---
+
+## Summary - Key Principles
+
+🎯 **Reason-specific tone:** Match empathy level to the reason
+📝 **Always optional:** Never make notes feel required
+🔄 **Smooth transitions:** Move quickly to previous doctors after notes
+💬 **Concise messaging:** 1-2 sentences per response
+❤️ **Show empathy:** Especially for "ongoing issue"
+✅ **Acknowledge input:** Thank user if they provide notes
+🚫 **No guilt:** Accept skips gracefully
+📅 **Provide context:** Mention last visit date for continuity
+🏥 **Highlight continuity:** Emphasize doctor has patient's history
+⚡ **Keep moving:** Don't dwell on any single step
+
+**Remember:** Follow-up notes are a BONUS for the doctor to prepare, not a REQUIREMENT for booking. Keep the flow moving smoothly while giving users the option to share context if they want to.

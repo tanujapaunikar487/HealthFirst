@@ -54,7 +54,7 @@ class DashboardController extends Controller
                 'id' => 3,
                 'number' => 3,
                 'title' => 'Book your first appointment',
-                'description' => 'Find doctors and book consultations',
+                'description' => 'Find doctors and book appointments',
                 'href' => '/appointments/create',
             ],
         ];

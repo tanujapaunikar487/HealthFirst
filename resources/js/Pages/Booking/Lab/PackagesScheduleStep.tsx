@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { PackageCard } from '@/Components/Booking/PackageCard';
@@ -7,6 +7,7 @@ import { FastingAlert } from '@/Components/Booking/FastingAlert';
 import { TimeSlotGrid } from '@/Components/Booking/TimeSlotGrid';
 import { Card } from '@/Components/ui/card';
 import { cn } from '@/Lib/utils';
+import { User } from 'lucide-react';
 
 const labSteps = [
   { id: 'patient_test', label: 'Patient & Test' },
@@ -54,6 +55,8 @@ interface Props {
   locations: LocationOption[];
   availableDates: DateOption[];
   timeSlots: TimeSlot[];
+  patientName?: string;
+  testTypes?: string;
   savedData?: {
     selectedPackageId?: string;
     selectedLocation?: string;
@@ -67,6 +70,8 @@ export default function PackagesScheduleStep({
   locations,
   availableDates,
   timeSlots,
+  patientName,
+  testTypes,
   savedData,
 }: Props) {
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(
@@ -84,6 +89,27 @@ export default function PackagesScheduleStep({
   const selectedPackage = packages.find((p) => p.id === selectedPackageId);
   const selectedLocationOption = locations.find((l) => l.type === selectedLocation);
 
+  const locationSectionRef = useRef<HTMLDivElement>(null);
+  const dateTimeSectionRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to location section when package is selected
+  useEffect(() => {
+    if (selectedPackageId && locationSectionRef.current) {
+      setTimeout(() => {
+        locationSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [selectedPackageId]);
+
+  // Auto-scroll to date/time section when location is selected
+  useEffect(() => {
+    if (selectedLocation && dateTimeSectionRef.current) {
+      setTimeout(() => {
+        dateTimeSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [selectedLocation]);
+
   const handlePackageSelect = (packageId: string) => {
     setSelectedPackageId(packageId);
   };
@@ -93,6 +119,16 @@ export default function PackagesScheduleStep({
     setSelectedTime(null);
     // In real app, reload time slots for new date
     router.reload({ only: ['timeSlots'], data: { date } });
+  };
+
+  const handleChangeAddress = () => {
+    // In real app, open address selection modal
+    alert('Change address functionality - will open address selector modal');
+  };
+
+  const handleChangeBranch = () => {
+    // In real app, open branch selection modal
+    alert('Change branch functionality - will open branch selector modal');
   };
 
   const handleBack = () => {
@@ -176,13 +212,15 @@ export default function PackagesScheduleStep({
 
         {/* Section 2: Location Selection - Only show after package is selected */}
         {selectedPackageId && (
-          <section>
+          <section ref={locationSectionRef}>
             <h2 className="text-xl font-semibold mb-4">Where should we collect the sample?</h2>
 
             <LocationSelector
               locations={locations}
               selectedLocation={selectedLocation}
               onSelect={(type) => setSelectedLocation(type)}
+              onChangeAddress={handleChangeAddress}
+              onChangeBranch={handleChangeBranch}
             />
 
             {errors.location && <p className="text-sm text-destructive mt-2">{errors.location}</p>}
@@ -191,7 +229,7 @@ export default function PackagesScheduleStep({
 
         {/* Section 3: Date & Time Selection - Only show after location is selected */}
         {selectedPackageId && selectedLocation && (
-          <section>
+          <section ref={dateTimeSectionRef}>
             <h2 className="text-xl font-semibold mb-4">Select Date</h2>
 
             {showFastingAlert && (

@@ -80,11 +80,15 @@ Route::get('/booking', function () {
     return \Inertia\Inertia::render('Booking/Index');
 })->name('booking.index');
 
+// Generic transcription endpoint (without conversation)
+Route::post('/api/transcribe', [BookingConversationController::class, 'transcribeGeneric'])->name('api.transcribe');
+
 // Booking Conversations (temporarily without auth for demo)
 Route::prefix('booking')->name('booking.')->group(function () {
     Route::post('/start', [BookingConversationController::class, 'start'])->name('start');
     Route::get('/{conversation}', [BookingConversationController::class, 'show'])->name('show');
     Route::post('/{conversation}/message', [BookingConversationController::class, 'message'])->name('message');
+    Route::post('/{conversation}/transcribe', [BookingConversationController::class, 'transcribeAudio'])->name('transcribe');
 
     // Payment routes
     Route::post('/{conversation}/payment/create-order', [PaymentController::class, 'createOrder'])->name('payment.create-order');
@@ -98,9 +102,6 @@ Route::prefix('booking')->name('booking.')->group(function () {
     Route::prefix('doctor')->name('doctor.')->group(function () {
         Route::get('/patient', [GuidedDoctorController::class, 'patient'])->name('patient');
         Route::post('/patient', [GuidedDoctorController::class, 'storePatient']);
-
-        Route::get('/concerns', [GuidedDoctorController::class, 'concerns'])->name('concerns');
-        Route::post('/concerns', [GuidedDoctorController::class, 'storeConcerns']);
 
         Route::get('/doctor-time', [GuidedDoctorController::class, 'doctorTime'])->name('doctor-time');
         Route::post('/doctor-time', [GuidedDoctorController::class, 'storeDoctorTime']);
@@ -134,7 +135,7 @@ Route::get('/booking/confirmation/{booking}', function ($booking) {
         'doctor_name' => 'Dr. Sarah Johnson',
         'date' => '2026-01-25',
         'time' => '08:00 AM',
-        'mode' => 'Video Consultation',
+        'mode' => 'Video Appointment',
         'fee' => 800,
     ];
 

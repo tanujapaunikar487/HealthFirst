@@ -9,7 +9,9 @@ import {
 import { PromptInputContainer } from '@/Components/ui/prompt-input-container';
 import { Button } from '@/Components/ui/button';
 import { PromptSuggestion } from '@/Components/ui/prompt-suggestion';
-import { ArrowUp, Mic, Plus, Globe, MoreVertical } from 'lucide-react';
+import { ArrowUp, Plus, Mic, X, Check } from 'lucide-react';
+import { AudioWaveform } from '@/Components/ui/AudioWaveform';
+import { useAudioRecorder } from '@/Hooks/useAudioRecorder';
 import { cn } from '@/Lib/utils';
 
 type BookingMode = 'ai' | 'guided';
@@ -21,6 +23,16 @@ export default function BookingIndex() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedType, setSelectedType] = useState<BookingType>(null);
   const [isFocused, setIsFocused] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+
+  // Audio recording
+  const {
+    isRecording,
+    recordingTime,
+    startRecording,
+    stopRecording,
+    cancelRecording,
+  } = useAudioRecorder();
 
   const startConversation = (type: 'doctor' | 'lab_test', initialMessage?: string) => {
     setSelectedType(type);
@@ -44,12 +56,77 @@ export default function BookingIndex() {
     startConversation('doctor', input.trim());
   };
 
+  const handleMicClick = async () => {
+    if (isRecording) {
+      // Stop recording and transcribe
+      const audioBlob = await stopRecording();
+      if (audioBlob) {
+        await transcribeAudio(audioBlob);
+      }
+    } else {
+      // Start recording
+      try {
+        await startRecording();
+      } catch (error) {
+        console.error('Failed to start recording:', error);
+        alert('Could not access microphone. Please grant permission.');
+      }
+    }
+  };
+
+  const transcribeAudio = async (audioBlob: Blob) => {
+    setIsTranscribing(true);
+
+    try {
+      // For the entry page, we'll create a temporary conversation first
+      // or we can transcribe and then set the input
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'recording.webm');
+      formData.append('language', 'en');
+
+      // Since we don't have a conversation ID yet, we'll use Groq's API directly
+      // For now, let's just set a placeholder - you'd need to add a dedicated endpoint
+      // or start the conversation first
+
+      // Simpler approach: transcribe to text and set input
+      // This requires a dedicated transcription endpoint without conversation
+      const response = await fetch('/api/transcribe', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+        },
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.text) {
+        setInput(result.text);
+      } else {
+        throw new Error(result.error || 'Transcription failed');
+      }
+    } catch (error) {
+      console.error('Transcription error:', error);
+      // Fallback: just start conversation without transcription
+      alert('Transcription not available. Please type your message.');
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
   const handleBookingAction = (type: 'doctor' | 'lab_test') => {
     if (mode === 'ai') {
       startConversation(type);
     } else {
       startGuidedBooking(type);
     }
+  };
+
+  // Format recording time as MM:SS
+  const formatRecordingTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -172,129 +249,184 @@ export default function BookingIndex() {
                 onSubmit={handleSubmit}
                 className="w-full border-0 bg-transparent"
               >
-                <PromptInputTextarea
-                  placeholder="Type your symptom's"
-                  className="text-base text-[#0A0B0D] placeholder:text-[#9CA3AF] min-h-[140px]"
-                  onFocus={() => setIsFocused(true)}
-                  onBlur={() => setIsFocused(false)}
-                />
+                {isRecording ? (
+                  // Recording mode - show waveform
+                  <div className="px-4 py-4 min-h-[140px] flex items-center justify-between">
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                        <span className="text-sm font-medium text-gray-700">
+                          {formatRecordingTime(recordingTime)}
+                        </span>
+                      </div>
+                      <AudioWaveform isRecording={true} className="flex-1 max-w-md" />
+                    </div>
+                  </div>
+                ) : (
+                  // Normal mode - show textarea
+                  <PromptInputTextarea
+                    placeholder="Type your symptom's"
+                    className="text-base text-[#0A0B0D] placeholder:text-[#9CA3AF] min-h-[140px]"
+                    onFocus={() => setIsFocused(true)}
+                    onBlur={() => setIsFocused(false)}
+                  />
+                )}
                 <PromptInputActions className="absolute bottom-4 left-4 right-4 flex justify-between">
                   <div className="flex items-center gap-1">
-                    {/* Add Button */}
-                    <PromptInputAction tooltip="Add attachment">
-                      <button
-                        style={{
-                          width: '40px',
-                          height: '40px',
-                          backgroundColor: '#FFFFFF',
-                          border: '1px solid #E5E7EB',
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#F9FAFB';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '#FFFFFF';
-                        }}
-                      >
-                        <Plus className="w-[18px] h-[18px]" />
-                      </button>
-                    </PromptInputAction>
-
-                    {/* Search Button */}
-                    <PromptInputAction tooltip="Search">
-                      <button
-                        style={{
-                          height: '40px',
-                          padding: '0 16px',
-                          backgroundColor: '#FFFFFF',
-                          border: '1px solid #E5E7EB',
-                          borderRadius: '20px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '6px',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                          fontSize: '15px',
-                          fontWeight: 400,
-                          color: '#0A0B0D',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#F9FAFB';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '#FFFFFF';
-                        }}
-                      >
-                        <Globe className="w-[18px] h-[18px]" />
-                        Search
-                      </button>
-                    </PromptInputAction>
-
-                    {/* More Options Button */}
-                    <PromptInputAction tooltip="More options">
-                      <button
-                        style={{
-                          width: '40px',
-                          height: '40px',
-                          backgroundColor: '#FFFFFF',
-                          border: '1px solid #E5E7EB',
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#F9FAFB';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '#FFFFFF';
-                        }}
-                      >
-                        <MoreVertical className="w-[18px] h-[18px]" />
-                      </button>
-                    </PromptInputAction>
+                    {/* Add Button - hide when recording */}
+                    {!isRecording && (
+                      <PromptInputAction tooltip="Add attachment">
+                        <button
+                          style={{
+                            width: '40px',
+                            height: '40px',
+                            backgroundColor: '#FFFFFF',
+                            border: '1px solid #E5E7EB',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#F9FAFB';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#FFFFFF';
+                          }}
+                        >
+                          <Plus className="w-[18px] h-[18px]" />
+                        </button>
+                      </PromptInputAction>
+                    )}
                   </div>
 
-                  {/* Submit Button */}
-                  <PromptInputAction tooltip="Submit">
-                    <button
-                      onClick={handleSubmit}
-                      disabled={isLoading || !input.trim()}
-                      style={{
-                        width: '40px',
-                        height: '40px',
-                        backgroundColor: isLoading || !input.trim() ? '#E5E7EB' : '#0052FF',
-                        border: 'none',
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: isLoading || !input.trim() ? 'not-allowed' : 'pointer',
-                        transition: 'all 0.2s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isLoading && input.trim()) {
-                          e.currentTarget.style.backgroundColor = '#0041CC';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isLoading && input.trim()) {
-                          e.currentTarget.style.backgroundColor = '#0052FF';
-                        }
-                      }}
-                    >
-                      <ArrowUp className="w-5 h-5 text-white" />
-                    </button>
-                  </PromptInputAction>
+                  {/* Right side buttons */}
+                  <div className="flex items-center gap-1">
+                    {isRecording ? (
+                      // Recording mode - show Cancel (X) and Submit (Check) icons
+                      <>
+                        <PromptInputAction tooltip="Cancel recording">
+                          <button
+                            onClick={() => {
+                              cancelRecording();
+                            }}
+                            style={{
+                              width: '40px',
+                              height: '40px',
+                              backgroundColor: '#FFFFFF',
+                              border: '1px solid #E5E7EB',
+                              borderRadius: '50%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#FEE2E2';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = '#FFFFFF';
+                            }}
+                          >
+                            <X className="w-[18px] h-[18px] text-red-600" />
+                          </button>
+                        </PromptInputAction>
+
+                        <PromptInputAction tooltip="Submit recording">
+                          <button
+                            onClick={handleMicClick}
+                            style={{
+                              width: '40px',
+                              height: '40px',
+                              backgroundColor: '#0052FF',
+                              border: 'none',
+                              borderRadius: '50%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#0041CC';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = '#0052FF';
+                            }}
+                          >
+                            <Check className="w-5 h-5 text-white" />
+                          </button>
+                        </PromptInputAction>
+                      </>
+                    ) : (
+                      // Normal mode - show Mic and Submit buttons
+                      <>
+                        <PromptInputAction tooltip={isTranscribing ? "Transcribing..." : "Voice input"}>
+                          <button
+                            onClick={handleMicClick}
+                            disabled={isLoading}
+                            style={{
+                              width: '40px',
+                              height: '40px',
+                              backgroundColor: '#FFFFFF',
+                              border: '1px solid #E5E7EB',
+                              borderRadius: '50%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#F9FAFB';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = '#FFFFFF';
+                            }}
+                          >
+                            <Mic className={cn(
+                              "w-[18px] h-[18px]",
+                              isTranscribing && "animate-pulse text-blue-600"
+                            )} />
+                          </button>
+                        </PromptInputAction>
+
+                        <PromptInputAction tooltip="Submit">
+                          <button
+                            onClick={handleSubmit}
+                            disabled={isLoading || !input.trim()}
+                            style={{
+                              width: '40px',
+                              height: '40px',
+                              backgroundColor: isLoading || !input.trim() ? '#E5E7EB' : '#0052FF',
+                              border: 'none',
+                              borderRadius: '50%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: isLoading || !input.trim() ? 'not-allowed' : 'pointer',
+                              transition: 'all 0.2s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!isLoading && input.trim()) {
+                                e.currentTarget.style.backgroundColor = '#0041CC';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!isLoading && input.trim()) {
+                                e.currentTarget.style.backgroundColor = '#0052FF';
+                              }
+                            }}
+                          >
+                            <ArrowUp className="w-5 h-5 text-white" />
+                          </button>
+                        </PromptInputAction>
+                      </>
+                    )}
+                  </div>
                 </PromptInputActions>
               </PromptInput>
             </PromptInputContainer>

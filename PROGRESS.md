@@ -755,6 +755,46 @@ open http://127.0.0.1:3000
 
 ---
 
-**Last Updated**: January 29, 2026
-**Latest Commit**: 9762f6f (Implement dynamic doctor count and apply shadcn Card components)
-**Status**: ✅ Dashboard Complete | ✅ AI Booking Flow Complete | 🎨 Font Standardization Complete | ✅ Follow-Up Flow Complete | ✅ Calendar Integration Complete | ✅ Guided Booking Flow Enhanced
+---
+
+## Bug Fixes - AI Booking Flow (January 31, 2026)
+
+### Fix 1: Urgency Step Skipped After Selecting "New Appointment"
+- **Problem**: After selecting "New Appointment", the urgency selector was skipped entirely, jumping straight to doctor selection.
+- **Root Cause**: AI parsing of the initial message ("I want to book a doctor appointment") could extract urgency/date entities prematurely. These persisted in `collected_data`, causing `BookingStateMachine` to skip the urgency step since it checks `!empty($data['urgency'])`.
+- **Fix**: In `IntelligentBookingOrchestrator::handleComponentSelection()`, when `appointment_type` is selected, clear any AI-extracted `urgency` and `selectedDate` that weren't explicitly confirmed by the user (not in `completedSteps`).
+- **Files**: `app/Services/Booking/IntelligentBookingOrchestrator.php`
+
+### Fix 2: Dr. Vikram Patel Incorrectly Showing Video Mode with Rs.0 Fee
+- **Problem**: Dr. Vikram Patel (in-person only doctor) was showing "Video Appointment" in the summary with Rs.0 fee instead of "In-Person Visit" at Rs.1,800.
+- **Root Cause**: Multiple fallback points defaulted to `'video'` when `consultationMode` was not yet set:
+  - Summary mode: `$data['consultationMode'] ?? 'video'`
+  - Fee calculation: `$data['consultationMode'] ?? 'video'`
+  - Frontend mode selector: hardcoded both video and in-person options
+- **Fix**:
+  - Added `getDefaultModeForDoctor()` helper that returns the doctor's only supported mode (or `'video'` as default for multi-mode doctors).
+  - Updated summary and fee calculation to use this helper instead of hardcoded `'video'`.
+  - Added auto-selection of consultation mode when a doctor supports only one mode.
+  - Updated frontend fallback to show only in-person mode by default.
+- **Files**: `app/Services/Booking/IntelligentBookingOrchestrator.php`, `resources/js/Features/booking-chat/EmbeddedComponent.tsx`
+
+### Fix 3: Time Slot Selector Appearing Twice (Infinite Loop)
+- **Problem**: After clicking "Change Date & Time" from the booking summary, the time slot selector would appear, but after selecting a time, it would appear again in an infinite loop.
+- **Root Cause**: The `DateTimePicker` frontend component used hardcoded 12-hour format time slots ("9:00 AM", "11:00 AM") while the backend stores and validates times in 24-hour format ("09:00", "11:00"). When the user selected "11:00 AM", the backend's `validateTimeSlotForDoctor()` compared `"11:00 AM" === "11:00"` which failed, clearing `selectedTime` and triggering the time selector again.
+- **Fix**: Rewrote `DateTimePicker` to:
+  - Use backend `availableSlots` prop (24-hour format) when provided, instead of hardcoded mock data.
+  - Use backend `availableDates` prop when provided (with doctor-specific date filtering).
+  - Display times in 12-hour format for the user via `formatTimeDisplay()` while sending 24-hour values to the backend.
+  - Fallback slots now also use 24-hour format for consistency.
+- **Files**: `resources/js/Features/booking-chat/EmbeddedComponent.tsx`
+
+### Fix 4: Pre-existing Test Failures in BookingStateMachineTest
+- **Problem**: Two follow-up flow tests were failing due to missing `urgency` field in test data.
+- **Fix**: Added `'urgency' => 'this_week'` to test data for `test_followup_shows_previous_doctors_before_full_list` and `test_followup_skips_previous_doctors_if_already_shown`.
+- **Files**: `tests/Unit/BookingStateMachineTest.php`
+
+---
+
+**Last Updated**: January 31, 2026
+**Latest Commit**: (pending)
+**Status**: ✅ Dashboard Complete | ✅ AI Booking Flow Complete | ✅ Font Standardization Complete | ✅ Follow-Up Flow Complete | ✅ Calendar Integration Complete | ✅ Guided Booking Flow Enhanced | ✅ Critical Bug Fixes Applied

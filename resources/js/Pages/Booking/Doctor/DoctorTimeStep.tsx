@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
-import { ConsultationModeSelector } from '@/Components/Booking/ConsultationModeSelector';
+import { AppointmentModeSelector } from '@/Components/Booking/AppointmentModeSelector';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Card } from '@/Components/ui/card';
 import { Input } from '@/Components/ui/input';
@@ -13,10 +13,9 @@ import {
   SelectValue,
 } from '@/Components/ui/select';
 import { cn } from '@/Lib/utils';
-import { Search, Star } from 'lucide-react';
+import { Search, Star, User } from 'lucide-react';
 
 const doctorSteps = [
-  { id: 'patient', label: 'Patient' },
   { id: 'concerns', label: 'Concerns' },
   { id: 'doctor_time', label: 'Doctor & Time' },
   { id: 'confirm', label: 'Confirm' },
@@ -34,7 +33,7 @@ interface Doctor {
   avatar: string | null;
   specialization: string;
   experience_years: number;
-  consultation_modes: string[];
+  appointment_modes: string[];
   video_fee: number;
   in_person_fee: number;
   slots: TimeSlot[];
@@ -49,15 +48,29 @@ interface DateOption {
 interface Props {
   availableDates: DateOption[];
   doctors: Doctor[];
+  patientName?: string;
+  appointmentType?: 'new' | 'followup';
+  followupReason?: string;
+  followupNotes?: string;
+  symptoms?: string;
   savedData?: {
     selectedDate?: string;
     selectedDoctorId?: string;
     selectedTime?: string;
-    consultationMode?: 'video' | 'in_person';
+    appointmentMode?: 'video' | 'in_person';
   };
 }
 
-export default function DoctorTimeStep({ availableDates, doctors, savedData }: Props) {
+export default function DoctorTimeStep({
+  availableDates,
+  doctors,
+  patientName,
+  appointmentType,
+  followupReason,
+  followupNotes,
+  symptoms,
+  savedData
+}: Props) {
   const [selectedDate, setSelectedDate] = useState<string>(
     savedData?.selectedDate || availableDates[0]?.date || ''
   );
@@ -65,23 +78,48 @@ export default function DoctorTimeStep({ availableDates, doctors, savedData }: P
     savedData?.selectedDoctorId || null
   );
   const [selectedTime, setSelectedTime] = useState<string | null>(savedData?.selectedTime || null);
-  const [consultationMode, setConsultationMode] = useState<'video' | 'in_person' | null>(
-    savedData?.consultationMode || null
+  const [appointmentMode, setConsultationMode] = useState<'video' | 'in_person' | null>(
+    savedData?.appointmentMode || null
   );
   const [sortBy, setSortBy] = useState('recommended');
   const [searchQuery, setSearchQuery] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const selectedDoctor = doctors.find((d) => d.id === selectedDoctorId);
+  const appointmentModeSectionRef = useRef<HTMLDivElement>(null);
 
-  // Filter doctors
-  const filteredDoctors = doctors.filter((doctor) => {
-    if (!searchQuery) return true;
-    return (
-      doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doctor.specialization.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  });
+  // Auto-scroll to appointment mode section when doctor and time are selected
+  useEffect(() => {
+    if (selectedDoctor && selectedTime && appointmentModeSectionRef.current) {
+      setTimeout(() => {
+        appointmentModeSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [selectedDoctor, selectedTime]);
+
+  // Filter and sort doctors
+  const filteredDoctors = doctors
+    .filter((doctor) => {
+      if (!searchQuery) return true;
+      return (
+        doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        doctor.specialization.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    })
+    .sort((a, b) => {
+      if (sortBy === 'price_low') {
+        const aMinPrice = Math.min(a.video_fee || Infinity, a.in_person_fee || Infinity);
+        const bMinPrice = Math.min(b.video_fee || Infinity, b.in_person_fee || Infinity);
+        return aMinPrice - bMinPrice;
+      }
+      if (sortBy === 'price_high') {
+        const aMaxPrice = Math.max(a.video_fee || 0, a.in_person_fee || 0);
+        const bMaxPrice = Math.max(b.video_fee || 0, b.in_person_fee || 0);
+        return bMaxPrice - aMaxPrice;
+      }
+      // Default: recommended (keep original order)
+      return 0;
+    });
 
   const handleDateChange = (date: string) => {
     setSelectedDate(date);
@@ -96,51 +134,61 @@ export default function DoctorTimeStep({ availableDates, doctors, savedData }: P
   const handleDoctorTimeSelect = (doctorId: string, time: string) => {
     setSelectedDoctorId(doctorId);
     setSelectedTime(time);
-    // Reset consultation mode when changing doctor
+    // Reset appointment mode when changing doctor
     if (selectedDoctorId !== doctorId) {
       setConsultationMode(null);
     }
   };
 
   const handleBack = () => {
-    router.get('/booking/doctor/concerns');
+    router.get('/booking/doctor/patient');
   };
 
   const handleContinue = () => {
+    console.log('Continue clicked', {
+      selectedDate,
+      selectedDoctorId,
+      selectedTime,
+      appointmentMode,
+    });
+
     const newErrors: Record<string, string> = {};
 
     if (!selectedDoctorId || !selectedTime) {
       newErrors.doctor = 'Please select a doctor and time slot';
     }
-    if (!consultationMode) {
+    if (!appointmentMode) {
       newErrors.mode = 'Please select how you want to consult';
     }
 
     setErrors(newErrors);
 
+    console.log('Errors:', newErrors);
+
     if (Object.keys(newErrors).length === 0) {
+      console.log('Submitting form...');
       router.post('/booking/doctor/doctor-time', {
         selectedDate,
         selectedDoctorId,
         selectedTime,
-        consultationMode,
+        appointmentMode,
       });
     }
   };
 
-  // Get consultation modes for selected doctor
+  // Get appointment modes for selected doctor
   const getModes = () => {
     if (!selectedDoctor) return [];
     const modes = [];
-    if (selectedDoctor.consultation_modes.includes('video')) {
+    if (selectedDoctor.appointment_modes.includes('video')) {
       modes.push({
         type: 'video' as const,
-        label: 'Video Consultation',
+        label: 'Video Appointment',
         description: 'Connect from home via video call',
         price: selectedDoctor.video_fee,
       });
     }
-    if (selectedDoctor.consultation_modes.includes('in_person')) {
+    if (selectedDoctor.appointment_modes.includes('in_person')) {
       modes.push({
         type: 'in_person' as const,
         label: 'In-Person Visit',
@@ -153,9 +201,9 @@ export default function DoctorTimeStep({ availableDates, doctors, savedData }: P
 
   // Price estimate for footer
   const getPriceEstimate = () => {
-    if (selectedDoctor && consultationMode) {
+    if (selectedDoctor && appointmentMode) {
       const fee =
-        consultationMode === 'video' ? selectedDoctor.video_fee : selectedDoctor.in_person_fee;
+        appointmentMode === 'video' ? selectedDoctor.video_fee : selectedDoctor.in_person_fee;
       return `Total: ₹${fee.toLocaleString()}`;
     }
     if (selectedDoctor) {
@@ -173,7 +221,7 @@ export default function DoctorTimeStep({ availableDates, doctors, savedData }: P
       currentStepId="doctor_time"
       onBack={handleBack}
       onContinue={handleContinue}
-      continueDisabled={!selectedDoctorId || !selectedTime || !consultationMode}
+      continueDisabled={!selectedDoctorId || !selectedTime || !appointmentMode}
       priceEstimate={getPriceEstimate()}
     >
       <div className="space-y-10">
@@ -235,7 +283,7 @@ export default function DoctorTimeStep({ availableDates, doctors, savedData }: P
                   placeholder="Search patient, doctor, date"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 w-64"
+                  className="pl-9 w-48"
                 />
               </div>
             </div>
@@ -259,12 +307,12 @@ export default function DoctorTimeStep({ availableDates, doctors, savedData }: P
 
         {/* Consultation Mode */}
         {selectedDoctor && (
-          <section>
+          <section ref={appointmentModeSectionRef}>
             <h2 className="text-xl font-semibold mb-4">How would you like to consult?</h2>
 
-            <ConsultationModeSelector
+            <AppointmentModeSelector
               modes={getModes()}
-              selectedMode={consultationMode}
+              selectedMode={appointmentMode}
               onSelect={(mode) => setConsultationMode(mode as 'video' | 'in_person')}
             />
 
@@ -305,10 +353,10 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: D
 
   const getFeeRange = () => {
     const fees = [];
-    if (doctor.consultation_modes.includes('video')) {
+    if (doctor.appointment_modes.includes('video')) {
       fees.push(doctor.video_fee);
     }
-    if (doctor.consultation_modes.includes('in_person')) {
+    if (doctor.appointment_modes.includes('in_person')) {
       fees.push(doctor.in_person_fee);
     }
 
@@ -342,7 +390,7 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: D
         </div>
         <div className="flex flex-col items-end gap-1">
           <span className="inline-block px-2 py-1 text-xs font-medium text-primary bg-primary/10 rounded whitespace-nowrap">
-            {formatConsultationModes(doctor.consultation_modes)}
+            {formatConsultationModes(doctor.appointment_modes)}
           </span>
           <span className="font-semibold text-sm">{getFeeRange()}</span>
         </div>

@@ -104,8 +104,8 @@ class CalendarService
         ];
         $doctorName = $doctorNames[$doctorId] ?? 'Doctor';
 
-        $consultationType = $isFollowup ? 'Follow-up Consultation' : 'New Consultation';
-        $modeText = $mode === 'video' ? 'Video Consultation' : 'In-Person Visit';
+        $consultationType = $isFollowup ? 'Follow-up Appointment' : 'New Appointment';
+        $modeText = $mode === 'video' ? 'Video Appointment' : 'In-Person Visit';
 
         $description = implode("\n", [
             "Type: {$consultationType}",

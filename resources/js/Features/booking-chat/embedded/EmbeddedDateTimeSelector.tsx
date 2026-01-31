@@ -41,6 +41,7 @@ export function EmbeddedDateTimeSelector({
   const handleDateSelect = (date: string) => {
     if (disabled) return;
     setLocalDate(date);
+    // Immediately call onSelect if time is already selected
     if (localTime) {
       onSelect(date, localTime);
     }
@@ -49,8 +50,11 @@ export function EmbeddedDateTimeSelector({
   const handleTimeSelect = (time: string) => {
     if (disabled) return;
     setLocalTime(time);
-    if (localDate) {
-      onSelect(localDate, time);
+    // Immediately call onSelect if date is already selected
+    // Use localDate from state or the current selectedDate prop
+    const dateToUse = localDate || selectedDate;
+    if (dateToUse) {
+      onSelect(dateToUse, time);
     }
   };
 

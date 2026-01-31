@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { FollowUpBanner } from '@/Components/Booking/FollowUpBanner';
 import { SymptomChips } from '@/Components/Booking/SymptomChips';
 import { Card } from '@/Components/ui/card';
 import { Textarea } from '@/Components/ui/textarea';
+import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
+import { User } from 'lucide-react';
 
 const doctorSteps = [
   { id: 'patient', label: 'Patient' },
@@ -36,6 +38,8 @@ interface Props {
   symptoms: Symptom[];
   urgencyOptions: UrgencyOption[];
   followUp?: FollowUpData;
+  patientName?: string;
+  consultationType?: 'new' | 'followup';
   savedData?: {
     selectedSymptoms?: string[];
     symptomNotes?: string;
@@ -47,6 +51,8 @@ export default function ConcernsStep({
   symptoms,
   urgencyOptions,
   followUp,
+  patientName,
+  consultationType,
   savedData,
 }: Props) {
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>(
@@ -54,12 +60,49 @@ export default function ConcernsStep({
   );
   const [symptomNotes, setSymptomNotes] = useState(savedData?.symptomNotes || '');
   const [urgency, setUrgency] = useState<string | null>(savedData?.urgency || null);
+  const [showUrgency, setShowUrgency] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const urgencySectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (showUrgency && urgencySectionRef.current) {
+      setTimeout(() => {
+        urgencySectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [showUrgency]);
+
   const handleSymptomToggle = (symptomId: string) => {
-    setSelectedSymptoms((prev) =>
-      prev.includes(symptomId) ? prev.filter((id) => id !== symptomId) : [...prev, symptomId]
-    );
+    const symptom = symptoms.find((s) => s.id === symptomId);
+    if (!symptom) return;
+
+    const isCurrentlySelected = selectedSymptoms.includes(symptomId);
+
+    if (isCurrentlySelected) {
+      // Remove from selection and remove from textarea
+      setSelectedSymptoms((prev) => prev.filter((id) => id !== symptomId));
+      setSymptomNotes((prev) => {
+        const symptomName = symptom.name;
+        let updated = prev
+          .replace(new RegExp(`${symptomName},\\s*`, 'g'), '') // "Symptom, " -> ""
+          .replace(new RegExp(`,\\s*${symptomName}`, 'g'), '') // ", Symptom" -> ""
+          .replace(new RegExp(`${symptomName}`, 'g'), '');     // "Symptom" -> ""
+        return updated.trim();
+      });
+    } else {
+      // Add to selection and append to textarea
+      setSelectedSymptoms((prev) => [...prev, symptomId]);
+      setSymptomNotes((prev) => {
+        const symptomName = symptom.name;
+        if (!prev.trim()) return symptomName;
+        return prev.trim() + ', ' + symptomName;
+      });
+    }
+  };
+
+  const handleSymptomContinue = () => {
+    setShowUrgency(true);
   };
 
   const handleBack = () => {
@@ -128,12 +171,23 @@ export default function ConcernsStep({
               onChange={(e) => setSymptomNotes(e.target.value)}
               rows={4}
             />
+
+            {/* Continue button - Show when symptoms are selected or notes entered, hide when urgency is visible */}
+            {(selectedSymptoms.length > 0 || symptomNotes.trim().length > 0) && !showUrgency && (
+              <Button
+                onClick={handleSymptomContinue}
+                variant="outline"
+                className="border-border hover:bg-accent"
+              >
+                Continue
+              </Button>
+            )}
           </div>
         </section>
 
-        {/* Urgency - Show after symptoms are selected or notes are entered */}
-        {(selectedSymptoms.length > 0 || symptomNotes.trim().length > 0) && (
-          <section>
+        {/* Urgency - Show after continue button is clicked */}
+        {showUrgency && (
+          <section ref={urgencySectionRef}>
             <h2 className="text-xl font-semibold mb-2">How soon do you need to see a doctor?</h2>
             <p className="text-sm text-muted-foreground mb-4">
               This determines which slots you'll see

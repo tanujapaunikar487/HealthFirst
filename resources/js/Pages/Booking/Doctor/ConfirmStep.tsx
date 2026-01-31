@@ -5,7 +5,6 @@ import { Card } from '@/Components/ui/card';
 import { format, parseISO } from 'date-fns';
 
 const doctorSteps = [
-  { id: 'patient', label: 'Patient' },
   { id: 'concerns', label: 'Concerns' },
   { id: 'doctor_time', label: 'Doctor & Time' },
   { id: 'confirm', label: 'Confirm' },
@@ -27,7 +26,7 @@ interface Summary {
   doctor: Doctor;
   patient: Patient;
   datetime: string;
-  consultationType: string;
+  appointmentType: string;
   fee: number;
 }
 
@@ -119,13 +118,13 @@ export default function ConfirmStep({ summary }: Props) {
           {/* Type */}
           <SummaryRow
             label="Type"
-            value={<span className="font-medium">{summary.consultationType}</span>}
+            value={<span className="font-medium">{summary.appointmentType}</span>}
             onChangeClick={() => handleChange('doctor-time')}
           />
 
           {/* Fee - no Change button */}
           <div className="flex items-center justify-between p-4">
-            <span className="text-muted-foreground">Consultation Fee</span>
+            <span className="text-muted-foreground">Appointment Fee</span>
             <span className="font-semibold">₹{summary.fee.toLocaleString()}</span>
           </div>
         </Card>

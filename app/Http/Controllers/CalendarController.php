@@ -32,7 +32,7 @@ class CalendarController extends Controller
                 'title' => 'Doctor Appointment - Dr. Sarah Johnson',
                 'start' => \Carbon\Carbon::parse('2026-01-25 08:00'),
                 'duration' => 30,
-                'description' => "Type: New Consultation\nMode: Video Consultation\n\nVideo link will be sent 30 minutes before the appointment.\n\nContact: support@formulahospital.com",
+                'description' => "Type: New Appointment\nMode: Video Appointment\n\nVideo link will be sent 30 minutes before the appointment.\n\nContact: support@formulahospital.com",
                 'location' => 'Video Call (link will be sent via email)',
             ];
         }
@@ -65,7 +65,7 @@ class CalendarController extends Controller
                 'title' => 'Doctor Appointment - Dr. Sarah Johnson',
                 'start' => \Carbon\Carbon::parse('2026-01-25 08:00'),
                 'duration' => 30,
-                'description' => "Type: New Consultation\nMode: Video Consultation\n\nVideo link will be sent 30 minutes before the appointment.\n\nContact: support@formulahospital.com",
+                'description' => "Type: New Appointment\nMode: Video Appointment\n\nVideo link will be sent 30 minutes before the appointment.\n\nContact: support@formulahospital.com",
                 'location' => 'Video Call (link will be sent via email)',
             ];
             $bookingType = 'doctor';

@@ -14,13 +14,17 @@ interface StepIndicatorProps {
 export function StepIndicator({ steps, currentStepId, className }: StepIndicatorProps) {
   const currentIndex = steps.findIndex((s) => s.id === currentStepId);
 
-  // Calculate progress percentage for gradient width (goes to end of current step)
-  const progressPercentage = ((currentIndex + 1) / steps.length) * 100;
+  // Calculate dot position at the center of current step label
+  // Each step label is evenly distributed, so the center of each step is:
+  // Step 0: 12.5% (center of first quarter)
+  // Step 1: 37.5% (center of second quarter)
+  // Step 2: 62.5% (center of third quarter)
+  // Step 3: 87.5% (center of fourth quarter)
+  const stepWidth = 100 / steps.length; // Width of each step segment
+  const dotPercentage = (currentIndex * stepWidth) + (stepWidth / 2);
 
-  // Calculate dot position (aligned with current step label)
-  const dotPercentage = steps.length > 1
-    ? (currentIndex / (steps.length - 1)) * 100
-    : 0;
+  // Gradient should go up to the dot position (not beyond)
+  const progressPercentage = dotPercentage;
 
   return (
     <div className={cn('px-6 py-3 bg-white', className)}>
@@ -49,17 +53,16 @@ export function StepIndicator({ steps, currentStepId, className }: StepIndicator
         </div>
 
         {/* Step labels */}
-        <div className="flex items-center">
+        <div className="flex items-center justify-between">
           {steps.map((step, index) => {
             const isCurrent = index === currentIndex;
 
             return (
               <div
                 key={step.id}
-                className="text-sm whitespace-nowrap"
+                className="text-sm whitespace-nowrap text-center"
                 style={{
                   flex: '1 1 0%',
-                  textAlign: index === 0 ? 'left' : index === steps.length - 1 ? 'right' : 'center',
                 }}
               >
                 <span

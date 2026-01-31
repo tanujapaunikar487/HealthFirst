@@ -39,8 +39,31 @@ class GuidedLabController extends Controller
             ],
         ];
 
+        // Mock urgency options
+        $urgencyOptions = [
+            [
+                'value' => 'urgent',
+                'label' => 'Urgent - Today',
+                'description' => 'Only today\'s slots',
+                'packagesCount' => 3,
+            ],
+            [
+                'value' => 'this_week',
+                'label' => 'This Week',
+                'description' => 'Next 7 days',
+                'packagesCount' => 8,
+            ],
+            [
+                'value' => 'specific_date',
+                'label' => 'Specific date',
+                'description' => 'Choose your date',
+                'packagesCount' => null, // Full flexibility
+            ],
+        ];
+
         return Inertia::render('Booking/Lab/PatientTestStep', [
             'familyMembers' => $familyMembers,
+            'urgencyOptions' => $urgencyOptions,
             'savedData' => $savedData,
         ]);
     }
@@ -55,6 +78,7 @@ class GuidedLabController extends Controller
             'selectedTestTypes' => 'array',
             'selectedTestTypes.*' => 'string',
             'testNotes' => 'nullable|string|max:1000',
+            'urgency' => 'required|string|in:urgent,this_week,specific_date',
         ]);
 
         session([
@@ -79,6 +103,7 @@ class GuidedLabController extends Controller
         }
 
         $selectedDate = $request->get('date', now()->toDateString());
+        $searchQuery = $request->get('search', '');
 
         // Mock packages data
         $packages = [
@@ -167,11 +192,75 @@ class GuidedLabController extends Controller
             ['time' => '4:00 PM', 'available' => false, 'preferred' => false],
         ];
 
+        // Apply fuzzy search if query provided
+        if (!empty($searchQuery)) {
+            $packages = array_values(array_filter($packages, function ($package) use ($searchQuery) {
+                $packageName = strtolower($package['name']);
+                $query = strtolower($searchQuery);
+
+                // Exact match
+                if (str_contains($packageName, $query)) {
+                    return true;
+                }
+
+                // Fuzzy match with Levenshtein distance (3-character tolerance for package names)
+                if (strlen($query) >= 4) {
+                    $distance = levenshtein($query, $packageName);
+                    if ($distance <= 3) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }));
+        }
+
+        // Get patient name for summary
+        $patientName = null;
+        if (isset($savedData['patientId'])) {
+            $familyMembers = $this->getFamilyMembers();
+            $patient = collect($familyMembers)->firstWhere('id', $savedData['patientId']);
+            $patientName = $patient['name'] ?? null;
+        }
+
+        // Format test types for summary
+        $testTypesText = null;
+        if (isset($savedData['selectedTestTypes']) && !empty($savedData['selectedTestTypes'])) {
+            // Get test type names from IDs
+            $allTestTypes = [
+                ['id' => 'annual_checkup', 'name' => 'Annual checkup'],
+                ['id' => 'diabetes_screening', 'name' => 'Diabetes screening'],
+                ['id' => 'heart_health', 'name' => 'Heart health check'],
+                ['id' => 'thyroid_profile', 'name' => 'Thyroid profile'],
+                ['id' => 'kidney_function', 'name' => 'Kidney function'],
+                ['id' => 'liver_function', 'name' => 'Liver function'],
+                ['id' => 'lipid_profile', 'name' => 'Lipid profile'],
+            ];
+            $selectedTestNames = collect($allTestTypes)
+                ->whereIn('id', $savedData['selectedTestTypes'])
+                ->pluck('name')
+                ->toArray();
+            $testTypesText = implode(', ', $selectedTestNames);
+
+            // Add notes if provided
+            if (isset($savedData['testNotes']) && !empty($savedData['testNotes'])) {
+                if (!empty($testTypesText)) {
+                    $testTypesText .= ' - ' . $savedData['testNotes'];
+                } else {
+                    $testTypesText = $savedData['testNotes'];
+                }
+            }
+        } elseif (isset($savedData['testNotes']) && !empty($savedData['testNotes'])) {
+            $testTypesText = $savedData['testNotes'];
+        }
+
         return Inertia::render('Booking/Lab/PackagesScheduleStep', [
             'packages' => $packages,
             'locations' => $locations,
             'availableDates' => $availableDates,
             'timeSlots' => $timeSlots,
+            'patientName' => $patientName,
+            'testTypes' => $testTypesText,
             'savedData' => $savedData,
         ]);
     }
@@ -187,6 +276,22 @@ class GuidedLabController extends Controller
             'selectedDate' => 'required|date',
             'selectedTime' => 'required|string',
         ]);
+
+        $savedData = session('guided_lab_booking', []);
+
+        // Check for duplicate booking (mock check - in production, query actual bookings)
+        // For demo purposes, simulate checking previous lab bookings
+        $requestedDateTime = $validated['selectedDate'] . ' ' . $validated['selectedTime'];
+        $requestedPatientId = $savedData['patientId'] ?? null;
+
+        // Mock existing bookings check
+        // In production: $existingBooking = LabBooking::where('patient_id', $requestedPatientId)
+        //     ->where('date', $validated['selectedDate'])
+        //     ->where('time', $validated['selectedTime'])
+        //     ->first();
+
+        // For now, we'll skip actual duplicate check in guided flow
+        // but the logic structure is here for production implementation
 
         session([
             'guided_lab_booking' => array_merge(
@@ -286,5 +391,17 @@ class GuidedLabController extends Controller
         session()->forget('guided_lab_booking');
 
         return redirect()->route('booking.confirmation', ['booking' => 'LAB-' . time()]);
+    }
+
+    /**
+     * Get family members (mock data - replace with database query in production)
+     */
+    protected function getFamilyMembers()
+    {
+        return [
+            ['id' => '1', 'name' => 'Sanjana Jaisinghani', 'relationship' => 'Self', 'age' => 28],
+            ['id' => '2', 'name' => 'Kriti Jaisinghani', 'relationship' => 'Mother', 'age' => 54],
+            ['id' => '3', 'name' => 'Raj Jaisinghani', 'relationship' => 'Father', 'age' => 58],
+        ];
     }
 }

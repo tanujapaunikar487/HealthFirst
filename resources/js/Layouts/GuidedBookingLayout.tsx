@@ -35,9 +35,9 @@ export function GuidedBookingLayout({
   className,
 }: GuidedBookingLayoutProps) {
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="h-screen flex flex-col bg-white overflow-hidden">
       {/* Header */}
-      <header className="flex-none border-b bg-white">
+      <header className="sticky top-0 z-10 flex-none border-b bg-white">
         <div className="flex items-center justify-between gap-8 px-6 py-4">
           <div className="flex items-center gap-2 flex-shrink-0">
             <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-5 h-5" />
@@ -82,7 +82,7 @@ export function GuidedBookingLayout({
       </main>
 
       {/* Footer */}
-      <footer className="flex-none border-t bg-white px-6 py-4">
+      <footer className="sticky bottom-0 z-10 flex-none border-t bg-white px-6 py-4">
         <div className="max-w-[800px] mx-auto flex items-center justify-between">
           <Button
             variant="outline"
@@ -93,20 +93,13 @@ export function GuidedBookingLayout({
             Back
           </Button>
 
-          <div className="flex items-center gap-4">
-            {priceEstimate && (
-              <span className="text-sm text-muted-foreground">
-                {priceEstimate}
-              </span>
-            )}
-            <Button
-              onClick={onContinue}
-              disabled={continueDisabled || isProcessing}
-              className="rounded-full min-w-[120px] text-white"
-            >
-              {isProcessing ? 'Processing...' : continueLabel}
-            </Button>
-          </div>
+          <Button
+            onClick={onContinue}
+            disabled={continueDisabled || isProcessing}
+            className="rounded-full min-w-[120px] text-white"
+          >
+            {isProcessing ? 'Processing...' : priceEstimate ? `Pay ${priceEstimate.replace(/Total:|Est:/g, '').trim()}` : continueLabel}
+          </Button>
         </div>
       </footer>
     </div>

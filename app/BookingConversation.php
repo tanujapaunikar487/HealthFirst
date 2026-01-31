@@ -23,6 +23,10 @@ class BookingConversation extends Model
         'collected_data' => 'array',
     ];
 
+    protected $appends = [
+        'progress',
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -58,5 +62,19 @@ class BookingConversation extends Model
     {
         $this->current_step = $step;
         $this->save();
+    }
+
+    /**
+     * Get progress information using the state machine
+     */
+    public function getProgressAttribute(): array
+    {
+        $stateMachine = new \App\Services\Booking\BookingStateMachine($this->collected_data ?? []);
+
+        return [
+            'percentage' => $stateMachine->getCompletenessPercentage(),
+            'current_state' => $stateMachine->getCurrentState(),
+            'missing_fields' => $stateMachine->getMissingFields(),
+        ];
     }
 }

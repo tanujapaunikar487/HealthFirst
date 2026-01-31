@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Card } from '@/Components/ui/card';
+import { Textarea } from '@/Components/ui/textarea';
+import { Button } from '@/Components/ui/button';
+import { FollowUpBanner } from '@/Components/Booking/FollowUpBanner';
 import { cn } from '@/Lib/utils';
-import { ArrowRight, User, Video, MapPin, Star } from 'lucide-react';
+import { ArrowRight, Star, Calendar, MessageSquare, AlertCircle } from 'lucide-react';
 
 const doctorSteps = [
-  { id: 'patient', label: 'Patient' },
   { id: 'concerns', label: 'Concerns' },
   { id: 'doctor_time', label: 'Doctor & Time' },
   { id: 'confirm', label: 'Confirm' },
@@ -45,36 +47,222 @@ interface PreviousConsultation {
   slots: TimeSlot[];
 }
 
+interface Symptom {
+  id: string;
+  name: string;
+}
+
+interface UrgencyOption {
+  value: string;
+  label: string;
+  description: string;
+  doctorCount?: number;
+}
+
+interface FollowUpData {
+  symptoms: string[];
+  doctorName: string;
+  date: string;
+}
+
+interface FollowUpReasonOption {
+  value: string;
+  label: string;
+  description: string;
+}
+
 interface Props {
   familyMembers: FamilyMember[];
   previousConsultations: PreviousConsultation[];
+  symptoms: Symptom[];
+  urgencyOptions: UrgencyOption[];
+  followUpReasonOptions: FollowUpReasonOption[];
+  followUp?: FollowUpData;
   savedData?: {
     patientId?: string;
-    consultationType?: 'new' | 'followup';
+    appointmentType?: 'new' | 'followup';
+    followupReason?: string;
+    followupNotes?: string;
     quickBookDoctorId?: string;
     quickBookTime?: string;
+    selectedSymptoms?: string[];
+    symptomNotes?: string;
+    urgency?: string;
   };
 }
 
-export default function PatientStep({ familyMembers, previousConsultations, savedData }: Props) {
+export default function PatientStep({
+  familyMembers,
+  previousConsultations,
+  symptoms,
+  urgencyOptions,
+  followUpReasonOptions,
+  followUp,
+  savedData
+}: Props) {
   const [patientId, setPatientId] = useState<string | null>(savedData?.patientId || null);
-  const [consultationType, setConsultationType] = useState<'new' | 'followup' | null>(
-    savedData?.consultationType || null
+  const [appointmentType, setAppointmentType] = useState<'new' | 'followup' | null>(
+    savedData?.appointmentType || null
   );
+  const [followupReason, setFollowupReason] = useState<string | null>(
+    savedData?.followupReason || null
+  );
+  const [followupNotes, setFollowupNotes] = useState(savedData?.followupNotes || '');
   const [quickBookDoctorId, setQuickBookDoctorId] = useState<string | null>(
     savedData?.quickBookDoctorId || null
   );
   const [quickBookTime, setQuickBookTime] = useState<string | null>(
     savedData?.quickBookTime || null
   );
+  const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>(
+    savedData?.selectedSymptoms || []
+  );
+  const [symptomNotes, setSymptomNotes] = useState(savedData?.symptomNotes || '');
+  const [urgency, setUrgency] = useState<string | null>(savedData?.urgency || null);
+  const [showAppointmentType, setShowAppointmentType] = useState(false);
+  const [showFollowupReason, setShowFollowupReason] = useState(false);
+  const [showFollowupNotes, setShowFollowupNotes] = useState(false);
+  const [showSymptoms, setShowSymptoms] = useState(false);
+  const [showPreviousDoctors, setShowPreviousDoctors] = useState(false);
+  const [showUrgency, setShowUrgency] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const selectedPatient = familyMembers.find((f) => f.id === patientId);
+
+  const appointmentTypeSectionRef = useRef<HTMLDivElement>(null);
+  const followupReasonRef = useRef<HTMLDivElement>(null);
+  const followupNotesRef = useRef<HTMLDivElement>(null);
+  const previousDoctorsRef = useRef<HTMLDivElement>(null);
+  const symptomsSectionRef = useRef<HTMLDivElement>(null);
+  const urgencySectionRef = useRef<HTMLDivElement>(null);
 
   // Filter previous consultations for selected patient
   const patientPreviousConsultations = previousConsultations.filter(
     (c) => c.patientId === patientId
   );
+
+  // Auto-scroll helpers
+  useEffect(() => {
+    if (patientId && showAppointmentType && appointmentTypeSectionRef.current) {
+      setTimeout(() => {
+        appointmentTypeSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [patientId, showAppointmentType]);
+
+  useEffect(() => {
+    if (showFollowupReason && followupReasonRef.current) {
+      setTimeout(() => {
+        followupReasonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [showFollowupReason]);
+
+  useEffect(() => {
+    if (showFollowupNotes && followupNotesRef.current) {
+      setTimeout(() => {
+        followupNotesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [showFollowupNotes]);
+
+  useEffect(() => {
+    if (showPreviousDoctors && previousDoctorsRef.current) {
+      setTimeout(() => {
+        previousDoctorsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [showPreviousDoctors]);
+
+  useEffect(() => {
+    if (showSymptoms && symptomsSectionRef.current) {
+      setTimeout(() => {
+        symptomsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [showSymptoms]);
+
+  useEffect(() => {
+    if (showUrgency && urgencySectionRef.current) {
+      setTimeout(() => {
+        urgencySectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [showUrgency]);
+
+  const handleSymptomToggle = (symptomId: string) => {
+    const symptom = symptoms.find((s) => s.id === symptomId);
+    if (!symptom) return;
+
+    const isCurrentlySelected = selectedSymptoms.includes(symptomId);
+
+    if (isCurrentlySelected) {
+      setSelectedSymptoms((prev) => prev.filter((id) => id !== symptomId));
+      setSymptomNotes((prev) => {
+        const symptomName = symptom.name;
+        let updated = prev
+          .replace(new RegExp(`${symptomName},\\s*`, 'g'), '')
+          .replace(new RegExp(`,\\s*${symptomName}`, 'g'), '')
+          .replace(new RegExp(`${symptomName}`, 'g'), '');
+        return updated.trim();
+      });
+    } else {
+      setSelectedSymptoms((prev) => [...prev, symptomId]);
+      setSymptomNotes((prev) => {
+        const symptomName = symptom.name;
+        if (!prev.trim()) return symptomName;
+        return prev.trim() + ', ' + symptomName;
+      });
+    }
+  };
+
+  const handlePatientContinue = () => {
+    setShowAppointmentType(true);
+  };
+
+  const handleAppointmentTypeSelect = (type: 'new' | 'followup') => {
+    setAppointmentType(type);
+    if (type === 'followup') {
+      // Follow-up: show follow-up reason first
+      setShowFollowupReason(true);
+      setShowSymptoms(false);
+    } else {
+      // New: show symptoms directly
+      setShowFollowupReason(false);
+      setShowFollowupNotes(false);
+      setShowPreviousDoctors(false);
+      setFollowupReason(null);
+      setFollowupNotes('');
+      setShowSymptoms(true);
+    }
+  };
+
+  const handleFollowupReasonSelect = (reason: string) => {
+    setFollowupReason(reason);
+    setShowFollowupNotes(true);
+  };
+
+  const handleFollowupNotesContinue = () => {
+    // After notes, show previous doctors if available, otherwise show urgency
+    if (patientPreviousConsultations.length > 0) {
+      setShowPreviousDoctors(true);
+    } else {
+      setShowUrgency(true);
+    }
+  };
+
+  const handleFollowupNotesSkip = () => {
+    setFollowupNotes('');
+    handleFollowupNotesContinue();
+  };
+
+  const handlePreviousDoctorsContinue = () => {
+    setShowUrgency(true);
+  };
+
+  const handleSymptomContinue = () => {
+    setShowUrgency(true);
+  };
 
   const handleBack = () => {
     router.get('/booking');
@@ -86,8 +274,14 @@ export default function PatientStep({ familyMembers, previousConsultations, save
     if (!patientId) {
       newErrors.patient = 'Please select a patient';
     }
-    if (!consultationType) {
-      newErrors.consultationType = 'Please select consultation type';
+    if (!appointmentType) {
+      newErrors.appointmentType = 'Please select appointment type';
+    }
+    if (appointmentType === 'followup' && !followupReason) {
+      newErrors.followupReason = 'Please select a follow-up reason';
+    }
+    if (!urgency) {
+      newErrors.urgency = 'Please select how soon you need to see a doctor';
     }
 
     setErrors(newErrors);
@@ -95,9 +289,14 @@ export default function PatientStep({ familyMembers, previousConsultations, save
     if (Object.keys(newErrors).length === 0) {
       router.post('/booking/doctor/patient', {
         patientId,
-        consultationType,
+        appointmentType,
+        followupReason,
+        followupNotes,
         quickBookDoctorId,
         quickBookTime,
+        selectedSymptoms,
+        symptomNotes,
+        urgency,
       });
     }
   };
@@ -109,23 +308,70 @@ export default function PatientStep({ familyMembers, previousConsultations, save
 
   const handlePatientSelect = (id: string) => {
     setPatientId(id);
-    // Reset follow-up selection when changing patient
-    if (consultationType === 'followup') {
+    if (appointmentType === 'followup') {
       setQuickBookDoctorId(null);
       setQuickBookTime(null);
     }
   };
 
+  // Context-aware follow-up notes prompt
+  const getFollowupNotesPrompt = () => {
+    switch (followupReason) {
+      case 'scheduled':
+        return {
+          heading: "Any updates for the doctor?",
+          description: "Share any changes since your last visit. This helps the doctor prepare.",
+          placeholder: "e.g., Symptoms improved, new medications started...",
+        };
+      case 'new_concern':
+        return {
+          heading: "What new symptoms have you noticed?",
+          description: "Describe any changes or new concerns since your last visit.",
+          placeholder: "e.g., New rash appeared, headaches started...",
+        };
+      case 'ongoing_issue':
+        return {
+          heading: "How are your symptoms now?",
+          description: "Describe what's still bothering you so the doctor can adjust treatment.",
+          placeholder: "e.g., Pain hasn't improved, medication side effects...",
+        };
+      default:
+        return {
+          heading: "Any notes for the doctor?",
+          description: "Share anything that will help the doctor prepare for your visit.",
+          placeholder: "Describe your concerns...",
+        };
+    }
+  };
+
+  // Follow-up reason icons
+  const getReasonIcon = (value: string) => {
+    switch (value) {
+      case 'scheduled':
+        return <Calendar className="h-5 w-5 text-blue-500" />;
+      case 'new_concern':
+        return <AlertCircle className="h-5 w-5 text-amber-500" />;
+      case 'ongoing_issue':
+        return <MessageSquare className="h-5 w-5 text-red-400" />;
+      default:
+        return null;
+    }
+  };
+
+  const isFollowup = appointmentType === 'followup';
+  const continueDisabled = !patientId || !appointmentType || !urgency ||
+    (isFollowup && !followupReason);
+
   return (
     <GuidedBookingLayout
       steps={doctorSteps}
-      currentStepId="patient"
+      currentStepId="concerns"
       onBack={handleBack}
       onContinue={handleContinue}
-      continueDisabled={!patientId || !consultationType}
+      continueDisabled={continueDisabled}
     >
       <div className="space-y-10">
-        {/* Patient Selection */}
+        {/* 1. Patient Selection - Always visible */}
         <section>
           <h2 className="text-xl font-semibold mb-2">Who is this appointment for?</h2>
           <p className="text-sm text-muted-foreground mb-4">
@@ -162,55 +408,153 @@ export default function PatientStep({ familyMembers, previousConsultations, save
           {errors.patient && (
             <p className="text-sm text-destructive mt-2">{errors.patient}</p>
           )}
-        </section>
 
-        {/* Consultation Type */}
-        <section>
-          <h2 className="text-xl font-semibold mb-2">
-            Is this a new consultation or a follow-up?
-          </h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Follow-ups will show your previous doctors
-          </p>
-
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => setConsultationType('new')}
-              className={cn(
-                'p-4 rounded-xl border text-left transition-all',
-                'hover:border-primary/50 hover:bg-primary/5',
-                consultationType === 'new' && 'border-primary bg-primary/5'
-              )}
+          {patientId && !showAppointmentType && (
+            <Button
+              onClick={handlePatientContinue}
+              variant="outline"
+              className="mt-4 border-border hover:bg-accent"
             >
-              <span className="font-medium">New Consultation</span>
-            </button>
-            <button
-              onClick={() => setConsultationType('followup')}
-              disabled={!patientId}
-              className={cn(
-                'p-4 rounded-xl border text-left transition-all',
-                'hover:border-primary/50 hover:bg-primary/5',
-                consultationType === 'followup' && 'border-primary bg-primary/5',
-                !patientId && 'opacity-50 cursor-not-allowed'
-              )}
-            >
-              <span className="font-medium">Follow-up</span>
-            </button>
-          </div>
-
-          {errors.consultationType && (
-            <p className="text-sm text-destructive mt-2">{errors.consultationType}</p>
+              Continue
+            </Button>
           )}
         </section>
 
-        {/* Previous Consultations (if follow-up and patient selected) */}
-        {consultationType === 'followup' &&
-          patientId &&
+        {/* 2. Appointment Type */}
+        {patientId && showAppointmentType && (
+          <section ref={appointmentTypeSectionRef}>
+            <h2 className="text-xl font-semibold mb-2">
+              Is this a new appointment or a follow-up?
+            </h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Follow-ups will show your previous doctors
+            </p>
+
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => handleAppointmentTypeSelect('new')}
+                className={cn(
+                  'p-4 rounded-xl border text-left transition-all',
+                  'hover:border-primary/50 hover:bg-primary/5',
+                  appointmentType === 'new' && 'border-primary bg-primary/5'
+                )}
+              >
+                <span className="font-medium">New Appointment</span>
+              </button>
+              <button
+                onClick={() => handleAppointmentTypeSelect('followup')}
+                className={cn(
+                  'p-4 rounded-xl border text-left transition-all',
+                  'hover:border-primary/50 hover:bg-primary/5',
+                  appointmentType === 'followup' && 'border-primary bg-primary/5'
+                )}
+              >
+                <span className="font-medium">Follow-up</span>
+              </button>
+            </div>
+
+            {errors.appointmentType && (
+              <p className="text-sm text-destructive mt-2">{errors.appointmentType}</p>
+            )}
+          </section>
+        )}
+
+        {/* 3. Follow-up Reason - Only for follow-up appointments */}
+        {isFollowup && showFollowupReason && (
+          <section ref={followupReasonRef}>
+            <h2 className="text-xl font-semibold mb-2">What brings you back?</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              This helps us prepare for your visit
+            </p>
+
+            <Card className="overflow-hidden divide-y">
+              {followUpReasonOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => handleFollowupReasonSelect(option.value)}
+                  className={cn(
+                    'w-full flex items-center gap-3 p-4 text-left transition-all',
+                    'hover:bg-muted/50',
+                    followupReason === option.value && 'bg-primary/5'
+                  )}
+                >
+                  <div className="flex-shrink-0">
+                    {getReasonIcon(option.value)}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium">{option.label}</p>
+                    <p className="text-sm text-muted-foreground">{option.description}</p>
+                  </div>
+                </button>
+              ))}
+            </Card>
+
+            {errors.followupReason && (
+              <p className="text-sm text-destructive mt-2">{errors.followupReason}</p>
+            )}
+          </section>
+        )}
+
+        {/* 4. Follow-up Notes - Only for follow-up after reason selected */}
+        {isFollowup && followupReason && showFollowupNotes && (
+          <section ref={followupNotesRef}>
+            {followUp && (
+              <FollowUpBanner
+                symptoms={followUp.symptoms}
+                doctorName={followUp.doctorName}
+                date={followUp.date}
+                className="mb-6"
+              />
+            )}
+
+            <h2 className="text-xl font-semibold mb-2">
+              {getFollowupNotesPrompt().heading}
+            </h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              {getFollowupNotesPrompt().description}
+            </p>
+
+            <div className="space-y-4">
+              <Textarea
+                placeholder={getFollowupNotesPrompt().placeholder}
+                value={followupNotes}
+                onChange={(e) => setFollowupNotes(e.target.value)}
+                rows={4}
+              />
+
+              {!showPreviousDoctors && !showUrgency && (
+                <div className="flex gap-3">
+                  <Button
+                    onClick={handleFollowupNotesContinue}
+                    variant="outline"
+                    className="border-border hover:bg-accent"
+                  >
+                    Continue
+                  </Button>
+                  <Button
+                    onClick={handleFollowupNotesSkip}
+                    variant="ghost"
+                    className="text-muted-foreground"
+                  >
+                    Skip
+                  </Button>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* 5. Previous Consultations Quick Book - Follow-up only, after notes */}
+        {isFollowup &&
+          showPreviousDoctors &&
           patientPreviousConsultations.length > 0 && (
-            <section>
-              <h3 className="text-sm font-medium text-muted-foreground mb-4">
-                {selectedPatient?.name}'s previous consultations
-              </h3>
+            <section ref={previousDoctorsRef}>
+              <h2 className="text-xl font-semibold mb-2">
+                Book with a previous doctor?
+              </h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                {selectedPatient?.name}'s previous appointments
+              </p>
 
               <Card className="space-y-0 overflow-hidden divide-y">
                 {patientPreviousConsultations.map((consultation) => (
@@ -226,8 +570,107 @@ export default function PatientStep({ familyMembers, previousConsultations, save
                   />
                 ))}
               </Card>
+
+              {!showUrgency && (
+                <div className="mt-4 flex gap-3">
+                  <Button
+                    onClick={handlePreviousDoctorsContinue}
+                    variant="outline"
+                    className="border-border hover:bg-accent"
+                  >
+                    {quickBookDoctorId ? 'Continue' : 'See all doctors'}
+                  </Button>
+                </div>
+              )}
             </section>
           )}
+
+        {/* 6. Symptoms Section - New appointments: after type, Follow-up: skipped (notes replace it) */}
+        {appointmentType === 'new' && showSymptoms && (
+          <section ref={symptomsSectionRef}>
+            <h2 className="text-xl font-semibold mb-2">What symptoms are you experiencing?</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Select all that apply, or describe in your own words
+            </p>
+
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {symptoms.map((symptom) => (
+                  <button
+                    key={symptom.id}
+                    onClick={() => handleSymptomToggle(symptom.id)}
+                    className={cn(
+                      'px-4 py-2 rounded-full border text-sm transition-all',
+                      'hover:border-primary/50 hover:bg-primary/5',
+                      selectedSymptoms.includes(symptom.id)
+                        ? 'bg-primary/10 border-primary text-primary font-medium'
+                        : 'bg-background border-border text-foreground'
+                    )}
+                  >
+                    {symptom.name}
+                  </button>
+                ))}
+              </div>
+
+              <Textarea
+                placeholder="Describe your symptoms or concerns.."
+                value={symptomNotes}
+                onChange={(e) => setSymptomNotes(e.target.value)}
+                rows={4}
+              />
+
+              {(selectedSymptoms.length > 0 || symptomNotes.trim().length > 0) && !showUrgency && (
+                <Button
+                  onClick={handleSymptomContinue}
+                  variant="outline"
+                  className="border-border hover:bg-accent"
+                >
+                  Continue
+                </Button>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* 7. Urgency - Show for both flows after their respective sections */}
+        {showUrgency && (
+          <section ref={urgencySectionRef}>
+            <h2 className="text-xl font-semibold mb-2">How soon do you need to see a doctor?</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              This determines which slots you'll see
+            </p>
+
+            <Card className="overflow-hidden divide-y">
+              {urgencyOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setUrgency(option.value)}
+                  className={cn(
+                    'w-full flex items-center gap-3 p-4 text-left transition-all',
+                    'hover:bg-muted/50',
+                    urgency === option.value && 'bg-primary/5'
+                  )}
+                >
+                  <div
+                    className={cn(
+                      'w-3 h-3 rounded-full flex-shrink-0',
+                      option.value === 'urgent' ? 'bg-red-500' : 'bg-amber-500'
+                    )}
+                  />
+                  <div className="flex-1">
+                    <p className="font-medium">{option.label}</p>
+                    <p className="text-sm text-muted-foreground">{option.description}</p>
+                  </div>
+                  {option.doctorCount && (
+                    <span className="text-sm text-muted-foreground">{option.doctorCount} doctors</span>
+                  )}
+                </button>
+              ))}
+            </Card>
+
+            {errors.urgency && <p className="text-sm text-destructive mt-2">{errors.urgency}</p>}
+          </section>
+        )}
       </div>
     </GuidedBookingLayout>
   );
@@ -247,7 +690,7 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: D
     return name.charAt(0).toUpperCase();
   };
 
-  const formatConsultationModes = (modes: string[]) => {
+  const formatAppointmentModes = (modes: string[]) => {
     const modeLabels: Record<string, string> = {
       video: 'Video',
       in_person: 'In-hospital',
@@ -273,12 +716,12 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: D
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-foreground">{doctor.name}</h3>
           <p className="text-sm text-muted-foreground">
-            {doctor.specialization} • {doctor.experience_years} years of experience
+            {doctor.specialization} &bull; {doctor.experience_years} years of experience
           </p>
         </div>
         <div className="flex-shrink-0">
           <span className="inline-block px-2 py-1 text-xs font-medium text-primary bg-primary/10 rounded">
-            {formatConsultationModes(doctor.consultation_modes)}
+            {formatAppointmentModes(doctor.consultation_modes)}
           </span>
         </div>
       </div>

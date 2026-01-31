@@ -14,8 +14,11 @@ import {
 } from '@/Components/ui/prompt-input';
 import { PromptInputContainer } from '@/Components/ui/prompt-input-container';
 import { Loader } from '@/Components/ui/loader';
-import { Plus, Globe, MoreVertical, ArrowUp, Mic } from 'lucide-react';
+import { Plus, ArrowUp, Mic, X, Check } from 'lucide-react';
 import { EmbeddedComponent } from '@/Features/booking-chat/EmbeddedComponent';
+import { ThinkingIndicator } from '@/Components/Booking/ThinkingIndicator';
+import { AudioWaveform } from '@/Components/ui/AudioWaveform';
+import { useAudioRecorder } from '@/Hooks/useAudioRecorder';
 import { cn } from '@/Lib/utils';
 
 interface ConversationMessage {
@@ -25,6 +28,7 @@ interface ConversationMessage {
   component_type: string | null;
   component_data: any;
   user_selection: any;
+  thinking_steps?: string[];
 }
 
 interface ConversationData {
@@ -34,6 +38,11 @@ interface ConversationData {
   current_step: string;
   collected_data: Record<string, any>;
   messages: ConversationMessage[];
+  progress: {
+    percentage: number;
+    current_state: string;
+    missing_fields: string[];
+  };
 }
 
 interface Props {
@@ -45,6 +54,19 @@ export default function Conversation({ conversation }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [mode, setMode] = useState<'ai' | 'guided'>('ai');
+  const [isTranscribing, setIsTranscribing] = useState(false);
+
+  // Audio recording
+  const {
+    isRecording,
+    recordingTime,
+    startRecording,
+    stopRecording,
+    cancelRecording,
+  } = useAudioRecorder();
+
+  // Check if conversation is cancelled
+  const isCancelled = conversation.status === 'cancelled';
 
   // Mock user and family data (will be replaced with real data later)
   const user = { id: '1', name: 'Sanjana Jaisinghani', avatar: '' };
@@ -80,59 +102,126 @@ export default function Conversation({ conversation }: Props) {
     );
   };
 
-  const formatSelectionText = (componentType: string, value: any) => {
+  const formatSelectionText = (componentType: string, value: any): string => {
+    // ALWAYS check for display_message first - backend provides this
+    if (value?.display_message) {
+      return value.display_message;
+    }
+
     // Convert selection data into human-readable text
     switch (componentType) {
       case 'patient_selector':
+        if (value.patient_name) return value.patient_name;
         const patient = familyMembers.find(p => p.id === value.patient_id);
-        return patient ? patient.name : 'Unknown patient';
+        return patient ? patient.name : 'Patient selected';
 
-      case 'consultation_type_selector':
-        return value.consultation_type === 'new' ? 'New Consultation' : 'Follow-up';
-
-      case 'followup_flow':
-        const reasonMap: Record<string, string> = {
-          'scheduled': 'Scheduled follow-up',
-          'new_concern': 'New concern',
-          'ongoing_issue': 'Ongoing issue'
-        };
-        return reasonMap[value.reason] || value.reason;
-
-      case 'previous_doctors':
-        if (value.action === 'see_other_doctors') {
-          return 'See other doctors instead';
-        }
-        return `Dr. ${value.doctorId} at ${value.time}`;
+      case 'appointment_type_selector':
+        if (value.appointment_type === 'followup') return 'Follow-up Appointment';
+        if (value.appointment_type === 'new') return 'New Appointment';
+        return 'Appointment type selected';
 
       case 'urgency_selector':
         const urgencyMap: Record<string, string> = {
-          'urgent': 'Urgent (Today/ASAP)',
+          'urgent': 'Urgent - Today/ASAP',
           'this_week': 'This Week',
-          'specific_date': "I've a specific date"
+          'specific_date': "I have a specific date in mind"
         };
-        return urgencyMap[value.urgency] || value.urgency;
+        return urgencyMap[value.urgency] || 'Urgency level selected';
 
-      case 'mode_selector':
-        return value.mode === 'video' ? 'Video Consultation' : 'In-Person Visit';
+      case 'followup_reason_selector':
+      case 'followup_reason':
+        const reasonMap: Record<string, string> = {
+          'scheduled': 'Scheduled follow-up',
+          'new_concern': 'New concern related to previous visit',
+          'ongoing_issue': 'Ongoing issue from before',
+          'test_results': 'Discuss test results',
+          'medication_review': 'Medication review'
+        };
+        return reasonMap[value.followup_reason] || value.followup_reason || 'Follow-up reason selected';
+
+      case 'text_input':
+        if (value.field === 'followup_notes') {
+          return value.text_input ? 'Additional notes provided' : 'Skipped additional notes';
+        }
+        return value.text_input || 'Text input provided';
+
+      case 'previous_doctors':
+        if (value.show_all_doctors) {
+          return 'Show all doctors';
+        }
+        if (value.doctor_name && value.time) {
+          return `${value.doctor_name} at ${value.time}`;
+        }
+        if (value.doctor_name) {
+          return value.doctor_name;
+        }
+        return 'Selected previous doctor';
 
       case 'doctor_list':
-        return `Dr. ${value.doctor_id} at ${value.time}`;
+      case 'date_doctor_selector':
+      case 'doctor_selector':
+        // Comprehensive doctor selection handling
+        if (value.doctor_name && value.time && value.date) {
+          return `${value.doctor_name} on ${value.date} at ${value.time}`;
+        }
+        if (value.doctor_name && value.time) {
+          return `${value.doctor_name} at ${value.time}`;
+        }
+        if (value.doctor_name) {
+          return value.doctor_name;
+        }
+        return 'Doctor selected';
 
-      case 'package_list':
-        return `Package: ${value.package_id}`;
-
-      case 'location_selector':
-        return `Location: ${value.location_id}`;
-
+      case 'date_selector':
       case 'date_picker':
+        if (value.date) return `Date: ${value.date}`;
+        return 'Date selected';
+
       case 'time_slot_picker':
+      case 'time_selector':
+        if (value.time) return `Time: ${value.time}`;
+        return 'Time selected';
+
+      case 'date_time_selector':
         if (value.date && value.time) {
           return `${value.date} at ${value.time}`;
         }
-        return value.date || value.time || JSON.stringify(value);
+        if (value.date) return `Date: ${value.date}`;
+        if (value.time) return `Time: ${value.time}`;
+        return 'Date/time selected';
+
+      case 'mode_selector':
+      case 'appointment_mode':
+      case 'consultation_mode':
+        if (value.mode === 'video') return 'Video Appointment';
+        if (value.mode === 'in_person') return 'In-Person Visit';
+        return 'Appointment mode selected';
+
+      case 'booking_summary':
+        // Handle change actions from summary
+        if (value.change_doctor) return 'Change Doctor';
+        if (value.change_patient) return 'Change Patient';
+        if (value.change_datetime) return 'Change Date & Time';
+        if (value.change_type) return 'Change Appointment Type';
+        if (value.change_mode) return 'Change Appointment Mode';
+        if (value.action === 'pay') return 'Proceed to Payment';
+        if (value.action === 'confirm') return 'Confirm Booking';
+        return 'Selection made';
+
+      case 'package_list':
+        if (value.package_name) return `Package: ${value.package_name}`;
+        return 'Package selected';
+
+      case 'location_selector':
+        if (value.location_name) return `Location: ${value.location_name}`;
+        return 'Location selected';
 
       default:
-        return JSON.stringify(value);
+        // NEVER return JSON.stringify - always return something readable
+        if (typeof value === 'string') return value;
+        if (value?.text) return value.text;
+        if (value?.name) return value.name;
+        return 'Selection confirmed';
     }
   };
 
@@ -157,33 +246,76 @@ export default function Conversation({ conversation }: Props) {
     sendTextMessage(input);
   };
 
-  // Calculate progress based on step
-  const getProgress = () => {
-    const steps =
-      conversation.type === 'doctor'
-        ? [
-            'init',
-            'patient_selection',
-            'consultation_type',
-            'symptoms',
-            'urgency',
-            'date_input',
-            'doctor_selection',
-            'mode_selection',
-            'summary',
-          ]
-        : [
-            'init',
-            'patient_selection',
-            'test_type',
-            'package_selection',
-            'location_selection',
-            'time_selection',
-            'summary',
-          ];
+  const handleMicClick = async () => {
+    if (isRecording) {
+      // Stop recording and transcribe
+      const audioBlob = await stopRecording();
+      if (audioBlob) {
+        await transcribeAndSend(audioBlob);
+      }
+    } else {
+      // Start recording
+      try {
+        await startRecording();
+      } catch (error) {
+        console.error('Failed to start recording:', error);
+        alert('Could not access microphone. Please grant permission.');
+      }
+    }
+  };
 
-    const currentIndex = steps.indexOf(conversation.current_step);
-    return ((currentIndex + 1) / steps.length) * 100;
+  const transcribeAndSend = async (audioBlob: Blob) => {
+    setIsTranscribing(true);
+    setIsLoading(true);
+
+    try {
+      // Create form data with audio file
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'recording.webm');
+      formData.append('language', 'en');
+
+      // Send to transcription endpoint
+      const response = await fetch(`/booking/${conversation.id}/transcribe`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+        },
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.text) {
+        // Send transcribed text as message
+        sendTextMessage(result.text);
+      } else {
+        throw new Error(result.error || 'Transcription failed');
+      }
+    } catch (error) {
+      console.error('Transcription error:', error);
+      alert('Failed to transcribe audio. Please try typing instead.');
+      setIsLoading(false);
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
+  // Calculate progress based on backend state machine
+  const getProgress = () => {
+    // Use backend-calculated progress if available
+    if (conversation.progress?.percentage !== undefined) {
+      return conversation.progress.percentage * 100; // Convert 0-1 to 0-100
+    }
+
+    // Fallback to 0 if no progress data
+    return 0;
+  };
+
+  // Format recording time as MM:SS
+  const formatRecordingTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -193,15 +325,15 @@ export default function Conversation({ conversation }: Props) {
       <div className="flex flex-col h-screen bg-white">
         {/* Header */}
         <header className="bg-white border-b">
-          <div className="flex items-center justify-between px-6 py-4">
+          <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
             <div className="flex items-center gap-2">
-              <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-5 h-5" />
-              <span className="font-medium text-sm">Booking an appointment</span>
+              <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="font-medium text-xs sm:text-sm">Booking an appointment</span>
             </div>
-            <div className="flex items-center gap-1 border rounded-full p-1 bg-gray-50">
+            <div className="flex items-center gap-1 border rounded-full p-0.5 sm:p-1 bg-gray-50">
               <button
                 className={cn(
-                  'p-1.5 rounded-full transition-all',
+                  'p-1 sm:p-1.5 rounded-full transition-all',
                   mode === 'ai' ? 'shadow-md' : ''
                 )}
                 onClick={() => setMode('ai')}
@@ -209,12 +341,12 @@ export default function Conversation({ conversation }: Props) {
                 <img
                   src={mode === 'ai' ? '/assets/icons/hugeicons/ai-magic.svg' : '/assets/icons/hugeicons/ai-magic-1.svg'}
                   alt=""
-                  className="w-4 h-4"
+                  className="w-3.5 h-3.5 sm:w-4 sm:h-4"
                 />
               </button>
               <button
                 className={cn(
-                  'p-1.5 rounded-full transition-all',
+                  'p-1 sm:p-1.5 rounded-full transition-all',
                   mode === 'guided' ? 'shadow-md' : ''
                 )}
                 onClick={() => setMode('guided')}
@@ -222,17 +354,29 @@ export default function Conversation({ conversation }: Props) {
                 <img
                   src={mode === 'guided' ? '/assets/icons/hugeicons/stairs-01-1.svg' : '/assets/icons/hugeicons/stairs-01.svg'}
                   alt=""
-                  className="w-4 h-4"
+                  className="w-3.5 h-3.5 sm:w-4 sm:h-4"
                 />
               </button>
             </div>
           </div>
           {/* Progress bar */}
-          <div className="h-1 bg-gray-100">
-            <div
-              className="h-full w-[16%] bg-blue-600 transition-all duration-300"
-              style={{ width: `${getProgress()}%` }}
-            />
+          <div className="px-4 sm:px-6 pb-2">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-gray-500">
+                {conversation.progress?.current_state
+                  ? conversation.progress.current_state.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+                  : 'Getting started'}
+              </span>
+              <span className="text-xs font-medium text-blue-600">
+                {Math.round(getProgress())}%
+              </span>
+            </div>
+            <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-300 ease-out"
+                style={{ width: `${getProgress()}%` }}
+              />
+            </div>
           </div>
         </header>
 
@@ -240,7 +384,7 @@ export default function Conversation({ conversation }: Props) {
         <div className="flex-1 relative overflow-hidden">
           <ChatContainerRoot className="h-full">
             <ChatContainerContent className="px-4 py-6">
-              <div className="mx-auto space-y-4" style={{ maxWidth: '800px' }}>
+              <div className="mx-auto space-y-4" style={{ maxWidth: '744px' }}>
                 {/* AI Blob - shown when no messages yet */}
                 {conversation.messages.length === 0 && !isLoading && (
                   <div className="flex flex-col items-center justify-center py-20">
@@ -260,6 +404,7 @@ export default function Conversation({ conversation }: Props) {
                     onSelection={sendSelection}
                     disabled={isLoading}
                     hasNextMessage={index < conversation.messages.length - 1}
+                    isCancelled={isCancelled}
                   />
                 ))}
 
@@ -283,7 +428,7 @@ export default function Conversation({ conversation }: Props) {
 
         {/* Input area */}
         <div className="flex-none bg-white p-4">
-          <div className="mx-auto" style={{ maxWidth: '800px' }}>
+          <div className="mx-auto" style={{ maxWidth: '744px' }}>
             <PromptInputContainer
               style={{ width: '100%' }}
               gradient={
@@ -299,157 +444,185 @@ export default function Conversation({ conversation }: Props) {
                 onSubmit={handleSubmit}
                 className="w-full border-0 bg-transparent"
               >
-                <PromptInputTextarea
-                  placeholder={getPlaceholder(conversation.current_step)}
-                  className="text-sm text-[#0A0B0D] placeholder:text-[#9CA3AF] min-h-[80px] px-4 pt-4 pb-16 font-normal"
-                  style={{ fontSize: '14px', lineHeight: '20px' }}
-                  onFocus={() => setIsFocused(true)}
-                  onBlur={() => setIsFocused(false)}
-                />
+                {isRecording ? (
+                  // Recording mode - show waveform
+                  <div className="px-4 py-4 min-h-[80px] flex items-center justify-between">
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                        <span className="text-sm font-medium text-gray-700">
+                          {formatRecordingTime(recordingTime)}
+                        </span>
+                      </div>
+                      <AudioWaveform isRecording={true} className="flex-1 max-w-md" />
+                    </div>
+                  </div>
+                ) : (
+                  // Normal mode - show textarea
+                  <PromptInputTextarea
+                    placeholder={isCancelled ? "Booking cancelled" : getPlaceholder(conversation.current_step)}
+                    className="text-sm text-[#0A0B0D] placeholder:text-[#9CA3AF] min-h-[80px] px-4 pt-4 pb-16 font-normal"
+                    style={{ fontSize: '14px', lineHeight: '20px' }}
+                    onFocus={() => setIsFocused(true)}
+                    onBlur={() => setIsFocused(false)}
+                    disabled={isCancelled}
+                  />
+                )}
                 <PromptInputActions className="absolute bottom-4 left-4 right-4 flex justify-between">
                   <div className="flex items-center gap-1">
-                    {/* Add Button */}
-                    <PromptInputAction tooltip="Add attachment">
-                      <button
-                        style={{
-                          width: '40px',
-                          height: '40px',
-                          backgroundColor: '#FFFFFF',
-                          border: '1px solid #E5E7EB',
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#F9FAFB';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '#FFFFFF';
-                        }}
-                      >
-                        <Plus className="w-[18px] h-[18px]" />
-                      </button>
-                    </PromptInputAction>
-
-                    {/* Search Button */}
-                    <PromptInputAction tooltip="Search">
-                      <button
-                        style={{
-                          height: '40px',
-                          padding: '0 16px',
-                          backgroundColor: '#FFFFFF',
-                          border: '1px solid #E5E7EB',
-                          borderRadius: '20px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '6px',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                          fontSize: '14px',
-                          fontWeight: 400,
-                          color: '#0A0B0D',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#F9FAFB';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '#FFFFFF';
-                        }}
-                      >
-                        <Globe className="w-[18px] h-[18px]" />
-                        Search
-                      </button>
-                    </PromptInputAction>
-
-                    {/* More Options Button */}
-                    <PromptInputAction tooltip="More options">
-                      <button
-                        style={{
-                          width: '40px',
-                          height: '40px',
-                          backgroundColor: '#FFFFFF',
-                          border: '1px solid #E5E7EB',
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#F9FAFB';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '#FFFFFF';
-                        }}
-                      >
-                        <MoreVertical className="w-[18px] h-[18px]" />
-                      </button>
-                    </PromptInputAction>
+                    {/* Add Button - hide when recording */}
+                    {!isRecording && (
+                      <PromptInputAction tooltip="Add attachment">
+                        <button
+                          style={{
+                            width: '40px',
+                            height: '40px',
+                            backgroundColor: '#FFFFFF',
+                            border: '1px solid #E5E7EB',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#F9FAFB';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#FFFFFF';
+                          }}
+                        >
+                          <Plus className="w-[18px] h-[18px]" />
+                        </button>
+                      </PromptInputAction>
+                    )}
                   </div>
 
                   {/* Right side buttons */}
                   <div className="flex items-center gap-1">
-                    <PromptInputAction tooltip="Voice">
-                      <button
-                        style={{
-                          width: '40px',
-                          height: '40px',
-                          backgroundColor: '#FFFFFF',
-                          border: '1px solid #E5E7EB',
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#F9FAFB';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '#FFFFFF';
-                        }}
-                      >
-                        <Mic className="w-[18px] h-[18px]" />
-                      </button>
-                    </PromptInputAction>
+                    {isRecording ? (
+                      // Recording mode - show Cancel (X) and Submit (Check) icons
+                      <>
+                        <PromptInputAction tooltip="Cancel recording">
+                          <button
+                            onClick={() => {
+                              cancelRecording();
+                            }}
+                            style={{
+                              width: '40px',
+                              height: '40px',
+                              backgroundColor: '#FFFFFF',
+                              border: '1px solid #E5E7EB',
+                              borderRadius: '50%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#FEE2E2';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = '#FFFFFF';
+                            }}
+                          >
+                            <X className="w-[18px] h-[18px] text-red-600" />
+                          </button>
+                        </PromptInputAction>
 
-                    {/* Submit Button */}
-                    <PromptInputAction tooltip="Submit">
-                      <button
-                        onClick={handleSubmit}
-                        disabled={isLoading || !input.trim()}
-                        style={{
-                          width: '40px',
-                          height: '40px',
-                          backgroundColor: isLoading || !input.trim() ? '#E5E7EB' : '#0052FF',
-                          border: 'none',
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: isLoading || !input.trim() ? 'not-allowed' : 'pointer',
-                          transition: 'all 0.2s ease',
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!isLoading && input.trim()) {
-                            e.currentTarget.style.backgroundColor = '#0041CC';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!isLoading && input.trim()) {
-                            e.currentTarget.style.backgroundColor = '#0052FF';
-                          }
-                        }}
-                      >
-                        <ArrowUp className="w-5 h-5 text-white" />
-                      </button>
-                    </PromptInputAction>
+                        <PromptInputAction tooltip="Submit recording">
+                          <button
+                            onClick={handleMicClick}
+                            style={{
+                              width: '40px',
+                              height: '40px',
+                              backgroundColor: '#0052FF',
+                              border: 'none',
+                              borderRadius: '50%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#0041CC';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = '#0052FF';
+                            }}
+                          >
+                            <Check className="w-5 h-5 text-white" />
+                          </button>
+                        </PromptInputAction>
+                      </>
+                    ) : (
+                      // Normal mode - show Mic and Submit buttons
+                      <>
+                        <PromptInputAction tooltip={isTranscribing ? "Transcribing..." : "Voice input"}>
+                          <button
+                            onClick={handleMicClick}
+                            disabled={isLoading}
+                            style={{
+                              width: '40px',
+                              height: '40px',
+                              backgroundColor: '#FFFFFF',
+                              border: '1px solid #E5E7EB',
+                              borderRadius: '50%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#F9FAFB';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = '#FFFFFF';
+                            }}
+                          >
+                            <Mic className={cn(
+                              "w-[18px] h-[18px]",
+                              isTranscribing && "animate-pulse text-blue-600"
+                            )} />
+                          </button>
+                        </PromptInputAction>
+
+                        <PromptInputAction tooltip="Submit">
+                          <button
+                            onClick={handleSubmit}
+                            disabled={isLoading || !input.trim() || isCancelled}
+                            style={{
+                              width: '40px',
+                              height: '40px',
+                              backgroundColor: isLoading || !input.trim() || isCancelled ? '#E5E7EB' : '#0052FF',
+                              border: 'none',
+                              borderRadius: '50%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: isLoading || !input.trim() || isCancelled ? 'not-allowed' : 'pointer',
+                              transition: 'all 0.2s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!isLoading && input.trim() && !isCancelled) {
+                                e.currentTarget.style.backgroundColor = '#0041CC';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!isLoading && input.trim() && !isCancelled) {
+                                e.currentTarget.style.backgroundColor = '#0052FF';
+                              }
+                            }}
+                          >
+                            <ArrowUp className="w-5 h-5 text-white" />
+                          </button>
+                        </PromptInputAction>
+                      </>
+                    )}
                   </div>
                 </PromptInputActions>
               </PromptInput>
@@ -484,6 +657,7 @@ function MessageBubble({
   onSelection,
   disabled,
   hasNextMessage,
+  isCancelled,
 }: {
   message: ConversationMessage;
   user: any;
@@ -492,11 +666,12 @@ function MessageBubble({
   onSelection: (type: string, value: any) => void;
   disabled: boolean;
   hasNextMessage: boolean;
+  isCancelled: boolean;
 }) {
   if (message.role === 'user') {
     return (
       <div className="flex gap-3 justify-end">
-        <div className="rounded-2xl px-4 py-2.5 bg-[#F3F4F6] text-[#0A0B0D] max-w-2xl">
+        <div className="rounded-2xl px-4 py-2.5 bg-[#BFDBFE] text-[#0A0B0D] max-w-2xl">
           <p className="text-sm leading-relaxed">{message.content}</p>
         </div>
       </div>
@@ -507,6 +682,13 @@ function MessageBubble({
     <div className="flex gap-3">
       <AIAvatar />
       <div className="flex-1 max-w-3xl">
+        {/* Chain of Thought - Thinking Process */}
+        {message.thinking_steps && message.thinking_steps.length > 0 && (
+          <div className="rounded-2xl px-4 py-3 bg-[#F9FAFB] border border-gray-100 mb-2.5">
+            <ThinkingIndicator steps={message.thinking_steps} />
+          </div>
+        )}
+
         {/* Text content */}
         {message.content && (
           <div className="rounded-2xl px-4 py-2.5 bg-[#F3F4F6] text-[#0A0B0D] mb-2.5">
@@ -514,8 +696,8 @@ function MessageBubble({
           </div>
         )}
 
-        {/* Embedded component */}
-        {message.component_type && (
+        {/* Embedded component - show if it's the last message OR if a selection was made */}
+        {message.component_type && !isCancelled && (
           <div className={message.content ? "mt-2.5" : ""}>
             <EmbeddedComponent
               type={message.component_type}
@@ -524,7 +706,7 @@ function MessageBubble({
               familyMembers={familyMembers}
               conversationId={conversationId}
               onSelect={(value) => onSelection(message.component_type!, value)}
-              disabled={disabled || message.user_selection !== null || hasNextMessage}
+              disabled={disabled || hasNextMessage || message.user_selection !== null}
             />
           </div>
         )}

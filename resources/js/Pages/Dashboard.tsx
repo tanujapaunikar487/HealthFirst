@@ -128,9 +128,9 @@ export default function Dashboard({
           /* Book your first appointment Banner (when all steps completed) */
           <CtaBanner
             heading="Book your first appointment"
-            description="Find doctors, book consultations, and manage your family's health — all in one place."
+            description="Find doctors, book appointments, and manage your family's health — all in one place."
             buttonText="Book Appointment"
-            buttonHref="/appointments/create"
+            buttonHref="/booking"
             imageSrc="/assets/images/booking.png"
             imageAlt="Booking illustration"
           />

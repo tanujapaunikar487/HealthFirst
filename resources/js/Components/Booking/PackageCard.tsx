@@ -80,7 +80,7 @@ export function PackageCard({ package: pkg, isSelected, onSelect, className }: P
               isSelected ? 'bg-foreground text-background hover:bg-foreground' : 'bg-foreground'
             )}
           >
-            Book
+            Select
           </Button>
           <Button size="sm" variant="ghost" className="w-8 h-8 p-0 rounded-full">
             <ChevronRight className="h-4 w-4" />

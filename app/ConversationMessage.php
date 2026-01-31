@@ -17,11 +17,13 @@ class ConversationMessage extends Model
         'component_type',
         'component_data',
         'user_selection',
+        'thinking_steps',
     ];
 
     protected $casts = [
         'component_data' => 'array',
         'user_selection' => 'array',
+        'thinking_steps' => 'array',
     ];
 
     public function conversation(): BelongsTo

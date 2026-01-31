@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->constrained()->onDelete('cascade');
             $table->enum('type', ['doctor', 'lab_test']);
-            $table->enum('status', ['active', 'completed', 'abandoned'])->default('active');
+            $table->enum('status', ['active', 'completed', 'abandoned', 'cancelled'])->default('active');
             $table->string('current_step')->nullable();
             $table->json('collected_data')->default('{}');
             $table->timestamps();

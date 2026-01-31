@@ -1,5 +1,5 @@
 import { cn } from '@/Lib/utils';
-import { Home, Building2 } from 'lucide-react';
+import { Home, Building2, MapPin } from 'lucide-react';
 
 interface Location {
   id: string;
@@ -14,6 +14,8 @@ interface Props {
   locations: Location[];
   selectedLocationId: string | null;
   onSelect: (locationId: string) => void;
+  onChangeAddress?: () => void;
+  onChangeBranch?: () => void;
   disabled: boolean;
 }
 
@@ -28,7 +30,7 @@ const locationConfig = {
   },
 };
 
-export function EmbeddedLocationSelector({ locations, selectedLocationId, onSelect, disabled }: Props) {
+export function EmbeddedLocationSelector({ locations, selectedLocationId, onSelect, onChangeAddress, onChangeBranch, disabled }: Props) {
   return (
     <div className="border rounded-xl overflow-hidden divide-y">
       {locations.map((location) => {
@@ -38,45 +40,75 @@ export function EmbeddedLocationSelector({ locations, selectedLocationId, onSele
         const isFree = location.fee === 'free' || location.fee === 0;
 
         return (
-          <button
-            key={location.id}
-            onClick={() => !disabled && onSelect(location.id)}
-            disabled={disabled}
-            className={cn(
-              "w-full flex items-center gap-4 p-4 text-left transition-all",
-              "hover:bg-muted/50",
-              isSelected && "bg-primary/5 border-l-2 border-l-primary",
-              disabled && !isSelected && "opacity-60"
-            )}
-          >
-            {/* Icon */}
-            <div className={cn(
-              "w-10 h-10 rounded-lg flex items-center justify-center",
-              isSelected ? "bg-primary/10" : "bg-muted"
-            )}>
-              <Icon className={cn("h-5 w-5", isSelected && "text-primary")} />
-            </div>
+          <div key={location.id} className="relative">
+            <button
+              onClick={() => !disabled && onSelect(location.id)}
+              disabled={disabled}
+              className={cn(
+                "w-full flex items-start gap-4 p-4 text-left transition-all",
+                "hover:bg-muted/50",
+                isSelected && "bg-primary/5 border-l-2 border-l-primary",
+                disabled && !isSelected && "opacity-60"
+              )}
+            >
+              {/* Icon */}
+              <div className={cn(
+                "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0",
+                isSelected ? "bg-primary/10" : "bg-muted"
+              )}>
+                <Icon className={cn("h-5 w-5", isSelected && "text-primary")} />
+              </div>
 
-            {/* Text */}
-            <div className="flex-1">
-              <p className="font-medium text-sm">
-                {location.name || config.label}
-                {location.distance_km && (
-                  <span className="text-xs text-muted-foreground ml-2">
-                    ({location.distance_km} km away)
-                  </span>
+              {/* Text */}
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-sm">
+                  {location.name || config.label}
+                  {location.distance_km && (
+                    <span className="text-xs text-muted-foreground ml-2">
+                      ({location.distance_km} km away)
+                    </span>
+                  )}
+                </p>
+                <p className="text-xs text-muted-foreground">{location.address}</p>
+
+                {/* Change link - always visible on the card */}
+                {!disabled && (
+                  <div className="mt-2">
+                    {location.type === 'home' && onChangeAddress ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onChangeAddress();
+                        }}
+                        className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
+                      >
+                        <MapPin className="h-3 w-3" />
+                        Change address
+                      </button>
+                    ) : location.type === 'center' && onChangeBranch ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onChangeBranch();
+                        }}
+                        className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
+                      >
+                        <MapPin className="h-3 w-3" />
+                        Change branch
+                      </button>
+                    ) : null}
+                  </div>
                 )}
-              </p>
-              <p className="text-xs text-muted-foreground">{location.address}</p>
-            </div>
+              </div>
 
-            {/* Fee */}
-            {isFree ? (
-              <span className="font-semibold text-sm text-green-600">Free</span>
-            ) : (
-              <span className="font-semibold text-sm">₹{typeof location.fee === 'number' ? location.fee.toLocaleString() : location.fee}</span>
-            )}
-          </button>
+              {/* Fee */}
+              {isFree ? (
+                <span className="font-semibold text-sm text-green-600 flex-shrink-0">Free</span>
+              ) : (
+                <span className="font-semibold text-sm flex-shrink-0">₹{typeof location.fee === 'number' ? location.fee.toLocaleString() : location.fee}</span>
+              )}
+            </button>
+          </div>
         );
       })}
     </div>

@@ -14,6 +14,7 @@ interface DoctorSummary {
   patient: { name: string; avatar: string | null };
   type: string;
   datetime: string;
+  mode?: string;
   collection?: string;
   address?: string;
   fee: number;
@@ -23,12 +24,25 @@ interface DoctorSummary {
 interface Props {
   summary: DoctorSummary;
   onPay: () => void;
+  onSelect?: (selection: any) => void;
   disabled: boolean;
   conversationId: string;
 }
 
-export function EmbeddedBookingSummary({ summary, onPay, disabled, conversationId }: Props) {
+export function EmbeddedBookingSummary({ summary, onPay, onSelect, disabled, conversationId }: Props) {
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Safety check: if summary is undefined or invalid, show error
+  if (!summary || typeof summary !== 'object') {
+    console.error('EmbeddedBookingSummary: Invalid summary data', summary);
+    return (
+      <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+        <p className="text-red-900 font-medium">Unable to load booking summary</p>
+        <p className="text-red-700 text-sm mt-1">Please try again or contact support.</p>
+      </div>
+    );
+  }
+
   const formatDateTime = (datetime: string) => {
     try {
       const date = parseISO(datetime);
@@ -157,12 +171,18 @@ export function EmbeddedBookingSummary({ summary, onPay, disabled, conversationI
             label="Doctor"
             value={summary.doctor.name}
             showChange
+            onChange={() => onSelect?.({ change_doctor: true })}
           />
         )}
 
         {/* Package row (for lab) */}
         {summary.package && (
-          <SummaryRow label="Package" value={summary.package} showChange />
+          <SummaryRow
+            label="Package"
+            value={summary.package}
+            showChange
+            onChange={() => onSelect?.({ change_package: true })}
+          />
         )}
 
         {/* Patient row */}
@@ -170,6 +190,7 @@ export function EmbeddedBookingSummary({ summary, onPay, disabled, conversationI
           label="Patient"
           value={summary.patient.name}
           showChange
+          onChange={() => onSelect?.({ change_patient: true })}
         />
 
         {/* Date & Time row */}
@@ -177,11 +198,27 @@ export function EmbeddedBookingSummary({ summary, onPay, disabled, conversationI
           label="Date & Time"
           value={formatDateTime(summary.datetime)}
           showChange
+          onChange={() => onSelect?.({ change_datetime: true })}
         />
 
         {/* Type row (for doctor) */}
         {summary.type && !summary.collection && (
-          <SummaryRow label="Type" value={summary.type} showChange />
+          <SummaryRow
+            label="Type"
+            value={summary.type}
+            showChange
+            onChange={() => onSelect?.({ change_type: true })}
+          />
+        )}
+
+        {/* Mode row (appointment mode) */}
+        {summary.mode && (
+          <SummaryRow
+            label="Mode"
+            value={summary.mode === 'video' ? 'Video Appointment' : 'In-Person Visit'}
+            showChange
+            onChange={() => onSelect?.({ change_mode: true })}
+          />
         )}
 
         {/* Collection row (for lab) */}
@@ -196,7 +233,7 @@ export function EmbeddedBookingSummary({ summary, onPay, disabled, conversationI
 
         {/* Fee row - no Change link */}
         <div className="flex items-center justify-between px-4 py-3">
-          <span className="text-sm text-muted-foreground">Consultation Fee</span>
+          <span className="text-sm text-muted-foreground">Appointment Fee</span>
           <span className="text-sm font-medium">₹{summary.fee.toLocaleString()}</span>
         </div>
       </div>
@@ -241,10 +278,12 @@ function SummaryRow({
   label,
   value,
   showChange = false,
+  onChange,
 }: {
   label: string;
   value: React.ReactNode;
   showChange?: boolean;
+  onChange?: () => void;
 }) {
   return (
     <div className="flex items-center justify-between px-4 py-3">
@@ -252,7 +291,11 @@ function SummaryRow({
       <div className="flex items-center gap-3">
         <span className="text-sm text-right">{value}</span>
         {showChange && (
-          <button className="text-primary text-sm hover:underline">
+          <button
+            onClick={onChange}
+            className="text-primary text-sm hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!onChange}
+          >
             Change
           </button>
         )}

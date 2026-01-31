@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('component_type')->nullable();
             $table->json('component_data')->nullable();
             $table->json('user_selection')->nullable();
+            $table->json('thinking_steps')->nullable();
             $table->timestamps();
         });
     }

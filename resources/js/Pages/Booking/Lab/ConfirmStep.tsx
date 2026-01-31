@@ -112,7 +112,7 @@ export default function ConfirmStep({ summary }: Props) {
             <span className="text-muted-foreground">Consultation Fee</span>
             <span className="font-semibold">₹{summary.fee.toLocaleString()}</span>
           </div>
-        </div>
+        </Card>
 
         {/* Preparation Instructions */}
         {summary.prepInstructions.length > 0 && (
