@@ -1518,7 +1518,9 @@ class IntelligentBookingOrchestrator
         }
 
         try {
-            return \Carbon\Carbon::parse("$date $time")->toIso8601String();
+            // Use format without timezone offset so the frontend displays the exact
+            // time the user selected, without any timezone conversion.
+            return \Carbon\Carbon::parse("$date $time")->format('Y-m-d\TH:i:s');
         } catch (\Exception $e) {
             return "$date at $time";
         }

@@ -839,6 +839,12 @@ open http://127.0.0.1:3000
   - Added urgency change handler in `mergeEntities`: when urgency value changes via text (e.g., `'urgent'` → `'this_week'`), downstream fields are cleared since they were based on the old urgency window.
 - **Files**: `app/Services/Booking/IntelligentBookingOrchestrator.php`
 
+### Fix 8: Summary Shows Wrong Time Due to Timezone Conversion
+- **Problem**: When a user selected 17:00 (5:00 PM) from the doctor list, the booking summary displayed "10:30 PM" instead. The user's selected time was not respected.
+- **Root Cause**: `formatDateTime()` used `Carbon::toIso8601String()` which appends the server timezone offset (e.g., `+05:30`). The frontend's `date-fns parseISO()` then interpreted this as a UTC-relative timestamp and converted it to the browser's local time, shifting the display by the timezone offset.
+- **Fix**: Changed `formatDateTime()` to use `Carbon::format('Y-m-d\TH:i:s')` — a timezone-naive ISO format. The frontend now displays the exact time the user selected without any timezone conversion.
+- **Files**: `app/Services/Booking/IntelligentBookingOrchestrator.php`
+
 ---
 
 **Last Updated**: January 31, 2026
