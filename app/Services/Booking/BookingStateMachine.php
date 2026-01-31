@@ -303,7 +303,7 @@ class BookingStateMachine
             ],
             'date_selection' => [
                 'type' => 'date_picker',
-                'message' => 'When would you like your appointment?',
+                'message' => $this->getDateSelectionMessage(),
                 'awaiting_chat_input' => false,
             ],
             'doctor_selection' => [
@@ -354,6 +354,20 @@ class BookingStateMachine
             default =>
                 "Can you describe what's bothering you? This will help the doctor prepare. You can also skip this.",
         };
+    }
+
+    /**
+     * Get context-aware message for date selection
+     */
+    private function getDateSelectionMessage(): string
+    {
+        $doctorName = $this->data['selectedDoctorName'] ?? null;
+
+        if ($doctorName) {
+            return "Pick a date for your appointment with {$doctorName}:";
+        }
+
+        return 'When would you like your appointment?';
     }
 
     /**

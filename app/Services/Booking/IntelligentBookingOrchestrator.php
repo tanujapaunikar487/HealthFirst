@@ -2132,17 +2132,18 @@ class IntelligentBookingOrchestrator
      */
     protected function getDatePickerData(array $data): array
     {
-        // All 5 doctor IDs for availability check
-        $allDoctorIds = [1, 2, 3, 4, 5];
+        // If a doctor is already selected, only show dates they're available
+        $selectedDoctorId = $data['selectedDoctorId'] ?? null;
+        $checkDoctorIds = $selectedDoctorId ? [$selectedDoctorId] : [1, 2, 3, 4, 5];
 
         $fullWeekDates = [];
         for ($i = 0; $i < 7; $i++) {
             $date = Carbon::today()->addDays($i);
             $dayOfWeek = $date->dayOfWeek;
 
-            // Only include dates where at least one doctor is available
+            // Only include dates where the relevant doctor(s) are available
             $anyAvailable = false;
-            foreach ($allDoctorIds as $docId) {
+            foreach ($checkDoctorIds as $docId) {
                 $daysOff = $this->getDoctorDaysOff($docId);
                 if (!in_array($dayOfWeek, $daysOff)) {
                     $anyAvailable = true;
