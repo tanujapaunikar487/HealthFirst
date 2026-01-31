@@ -19,7 +19,7 @@ class GuidedLabController extends Controller
     public function patientTest()
     {
         $savedData = session('guided_lab_booking', []);
-        $user = Auth::user();
+        $user = Auth::user() ?? \App\User::first();
 
         // Family members from database
         $familyMembers = FamilyMember::where('user_id', $user->id)
@@ -175,7 +175,7 @@ class GuidedLabController extends Controller
         ];
 
         // Get patient name for summary
-        $user = Auth::user();
+        $user = Auth::user() ?? \App\User::first();
         $patientName = null;
         if (isset($savedData['patientId'])) {
             $patient = FamilyMember::where('user_id', $user->id)
@@ -243,7 +243,7 @@ class GuidedLabController extends Controller
             return redirect()->route('booking.lab.packages-schedule');
         }
 
-        $user = Auth::user();
+        $user = Auth::user() ?? \App\User::first();
 
         // Get package from database
         $packageId = (int) str_replace('p', '', $savedData['selectedPackageId']);

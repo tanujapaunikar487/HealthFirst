@@ -102,6 +102,7 @@ Route::prefix('booking')->name('booking.')->group(function () {
     Route::prefix('doctor')->name('doctor.')->group(function () {
         Route::get('/patient', [GuidedDoctorController::class, 'patient'])->name('patient');
         Route::post('/patient', [GuidedDoctorController::class, 'storePatient']);
+        Route::post('/add-family-member', [GuidedDoctorController::class, 'addFamilyMember'])->name('add-family-member');
 
         Route::get('/doctor-time', [GuidedDoctorController::class, 'doctorTime'])->name('doctor-time');
         Route::post('/doctor-time', [GuidedDoctorController::class, 'storeDoctorTime']);

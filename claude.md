@@ -662,5 +662,115 @@ Both features follow the same pattern:
 
 ---
 
+## Individual Lab Test Booking in AI Chat (February 1, 2026)
+
+Added the ability to book individual lab tests (not just health packages) through the AI chat flow. When a user searches for a specific test (e.g., "CBC", "thyroid"), the system now searches both packages and individual tests, showing results from both categories.
+
+### What Changed
+
+**LabService.php** — Added 3 new methods:
+- `searchTests(string $query)` — Keyword + alias scoring against `lab_test_types` table (same pattern as `searchPackages`)
+- `getTestById(int $id)` — Fetch single test as array
+- `testToArray(LabTestType $test)` — Model-to-array converter
+
+**BookingStateMachine.php** — Updated all package/test checks to also consider `selectedTestIds`:
+- `determineLabState()`, `isReadyToBook()`, `getMissingFields()`, `hasField('package')`, `requestChange('package')`
+- `getLabDateTimeMessage()` — Shows test name(s) or "X tests" in the scheduling prompt
+- `getPackageSelectionMessage()` — Context-aware messages for test+package combined results
+
+**IntelligentBookingOrchestrator.php** — Major updates:
+- Package inquiry handler now searches both `searchPackages()` and `searchTests()` in parallel
+- Auto-select logic: 1 test + 0 packages → auto-selects as `selectedTestIds: [id]`, `selectedTestNames: [name]`
+- `test_ids` selection handler: iterates array, resolves names, computes max fasting hours across all tests
+- `getPackageListData()` returns both packages and `individual_tests` arrays
+- `buildLabSummaryData()` joins test names with commas, calculates fee for all selected tests
+- `change_package` handler clears `selectedTestIds`, `selectedTestNames`
+
+**EmbeddedPackageList.tsx** — Complete rewrite with tab UI:
+- Two tabs: "Pick Tests" (default when tests exist) / "Health Packages"
+- Tests tab: multi-select checkboxes with running total, "Continue with N tests — ₹X" confirm button
+- Packages tab: unchanged single-select with instant "Book" buttons
+- Tab switcher only shown when both tests and packages are available
+- If only tests or only packages: shown directly without tabs
+
+**EmbeddedComponent.tsx** — Updated `package_list` case:
+- Passes `selectedTestIds` (array) and `onSelectTests` (array callback)
+- Display message shows comma-separated test names
+
+### Data Model Changes (collected_data)
+
+```
+selectedTestIds: number[]       // Array of selected test IDs
+selectedTestNames: string[]     // Array of selected test names
+testSearchResults: int[]        // Matching test IDs from search
+testMatchCount: int             // Number of matching tests
+```
+
+### Tests
+- 3 existing individual test tests updated to use array format (`selectedTestIds`/`selectedTestNames`)
+- 1 new test: `test_multi_test_selection_sums_fees` — selects 2 tests, verifies fee is sum of both prices
+- Total: 36 tests, 121 assertions (all passing)
+
+---
+
+## Guided Doctor Flow UX Improvements (February 1, 2026)
+
+Major UX overhaul of the guided doctor booking flow, improving step organization, date selection, and doctor availability visibility.
+
+### Move Urgency from PatientStep to DoctorTimeStep
+
+Moved the "How soon do you need to see a doctor?" urgency selection from step 1 (PatientStep) to step 2 (DoctorTimeStep), where it logically belongs — urgency directly affects which dates and doctors are shown.
+
+**PatientStep.tsx** — Removed:
+- `UrgencyOption` interface, `urgencyOptions` prop, `urgency` state, `showUrgency` state
+- Urgency JSX section and all urgency-related handlers (`handleSymptomContinue`, `handlePreviousDoctorsContinue`)
+- Removed intermediate "Continue" buttons between sections — sections now auto-advance on selection
+- Added inline "Add family member" form with AJAX endpoint (`/booking/doctor/add-family-member`)
+
+**DoctorTimeStep.tsx** — Added:
+- `UrgencyOption` interface, `urgencyOptions` prop (with `= []` default), `urgency` state
+- Urgency validation in `handleContinue`, urgency in POST payload
+- `continueDisabled` includes `!urgency`
+- `handleUrgencyChange()` — resets doctor/time/mode, sets date per urgency type
+
+**GuidedDoctorController.php** — Moved `urgencyOptions` from `patient()` to `doctorTime()`, moved urgency validation from `storePatient()` to `storeDoctorTime()`. Changed `doctorTime()` guard from checking `urgency` to checking `patientId`. Added `addFamilyMember()` AJAX endpoint.
+
+### Dynamic Date Selection by Urgency
+
+Date selection in DoctorTimeStep responds to urgency choice:
+- **Urgent**: No date picker, auto-selects today with "Showing today's availability" note
+- **This Week**: 7 date pills (extended from 5), each showing doctor count
+- **Specific Date**: Native date input with Calendar icon, min=today
+
+### Doctor Availability on Dates
+
+Added doctor count per date and empty state handling across both booking flows:
+
+**Guided flow** (DoctorTimeStep.tsx):
+- Date pills show `doctorCount` per date, 0-doctor dates dimmed with dashed border
+- Empty state Card when `filteredDoctors.length === 0`: "No doctors available on this date"
+
+**AI chat flow** (EmbeddedComponent.tsx):
+- `doctor_selector` case: Empty state when 0 doctors
+- `date_doctor_selector` case: Doctor count on date pills, empty state when filtered doctors = 0
+
+**Backend** (GuidedDoctorController.php, IntelligentBookingOrchestrator.php):
+- Both query `doctor_availabilities` to count available doctors per day_of_week
+- `doctorCount` / `doctor_count` included in date option arrays
+
+### Fix: Auth Error in Guided Flows
+
+Added `?? \App\User::first()` fallback to all `Auth::user()` calls in `GuidedDoctorController` and `GuidedLabController` for demo/development mode.
+
+### Fix: Progress Bar Styling
+
+Simplified the progress bar in `Conversation.tsx` from a labeled bar with percentage to a minimal 1px bar.
+
+### Fix: TimeSlot SQLite Date Comparison (Bug Fix #21)
+
+`TimeSlot::where('date', $selectedDate)` returned 0 results on SQLite because the `date` column stores datetime values (e.g., `2026-01-31 00:00:00`) and SQLite doesn't auto-cast `'2026-01-31'` to match. Fixed by using `whereDate('date', $selectedDate)` which properly extracts the date part for comparison. This caused doctors to appear with no time slots in the guided flow.
+
+---
+
 **Last Updated**: February 1, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (32 tests) | Inline Add Member & Address Forms
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul

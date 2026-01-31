@@ -2938,15 +2938,14 @@ class IntelligentBookingOrchestrator
             $date = Carbon::today()->addDays($i);
             $dayOfWeek = $date->dayOfWeek; // 0=Sun … 6=Sat
 
-            // Check if ANY doctor is available on this day
-            $anyAvailable = false;
+            // Count how many doctors are available on this day
+            $availableCount = 0;
             foreach ($doctors as $doctor) {
                 if (!in_array($dayOfWeek, $doctorDaysOff[$doctor['id']])) {
-                    $anyAvailable = true;
-                    break;
+                    $availableCount++;
                 }
             }
-            if (!$anyAvailable) {
+            if ($availableCount === 0) {
                 continue; // skip dates where no doctor works
             }
 
@@ -2955,6 +2954,7 @@ class IntelligentBookingOrchestrator
                 'value' => $date->format('Y-m-d'),
                 'label' => $label,
                 'day' => $date->format('M j'),
+                'doctor_count' => $availableCount,
             ];
         }
         $dates = $fullWeekDates;

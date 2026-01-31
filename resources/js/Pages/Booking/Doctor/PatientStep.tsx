@@ -7,7 +7,16 @@ import { Textarea } from '@/Components/ui/textarea';
 import { Button } from '@/Components/ui/button';
 import { FollowUpBanner } from '@/Components/Booking/FollowUpBanner';
 import { cn } from '@/Lib/utils';
-import { ArrowRight, Star, Calendar, MessageSquare, AlertCircle } from 'lucide-react';
+import { ArrowRight, Star, Calendar, MessageSquare, AlertCircle, UserPlus, X } from 'lucide-react';
+
+const RELATION_OPTIONS = [
+  'mother', 'father', 'brother', 'sister',
+  'son', 'daughter', 'spouse',
+  'grandmother', 'grandfather',
+  'friend', 'other',
+];
+
+const GENDER_OPTIONS = ['male', 'female', 'other'];
 
 const doctorSteps = [
   { id: 'concerns', label: 'Concerns' },
@@ -52,13 +61,6 @@ interface Symptom {
   name: string;
 }
 
-interface UrgencyOption {
-  value: string;
-  label: string;
-  description: string;
-  doctorCount?: number;
-}
-
 interface FollowUpData {
   symptoms: string[];
   doctorName: string;
@@ -75,7 +77,6 @@ interface Props {
   familyMembers: FamilyMember[];
   previousConsultations: PreviousConsultation[];
   symptoms: Symptom[];
-  urgencyOptions: UrgencyOption[];
   followUpReasonOptions: FollowUpReasonOption[];
   followUp?: FollowUpData;
   savedData?: {
@@ -87,7 +88,6 @@ interface Props {
     quickBookTime?: string;
     selectedSymptoms?: string[];
     symptomNotes?: string;
-    urgency?: string;
   };
 }
 
@@ -95,7 +95,6 @@ export default function PatientStep({
   familyMembers,
   previousConsultations,
   symptoms,
-  urgencyOptions,
   followUpReasonOptions,
   followUp,
   savedData
@@ -118,23 +117,30 @@ export default function PatientStep({
     savedData?.selectedSymptoms || []
   );
   const [symptomNotes, setSymptomNotes] = useState(savedData?.symptomNotes || '');
-  const [urgency, setUrgency] = useState<string | null>(savedData?.urgency || null);
   const [showAppointmentType, setShowAppointmentType] = useState(false);
   const [showFollowupReason, setShowFollowupReason] = useState(false);
   const [showFollowupNotes, setShowFollowupNotes] = useState(false);
   const [showSymptoms, setShowSymptoms] = useState(false);
   const [showPreviousDoctors, setShowPreviousDoctors] = useState(false);
-  const [showUrgency, setShowUrgency] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const selectedPatient = familyMembers.find((f) => f.id === patientId);
+  // Add member form state
+  const [showAddMemberForm, setShowAddMemberForm] = useState(false);
+  const [members, setMembers] = useState(familyMembers);
+  const [newMemberName, setNewMemberName] = useState('');
+  const [newMemberRelation, setNewMemberRelation] = useState('');
+  const [newMemberAge, setNewMemberAge] = useState('');
+  const [newMemberGender, setNewMemberGender] = useState('');
+  const [isAddingMember, setIsAddingMember] = useState(false);
+  const [addMemberErrors, setAddMemberErrors] = useState<Record<string, string>>({});
+
+  const selectedPatient = members.find((f) => f.id === patientId);
 
   const appointmentTypeSectionRef = useRef<HTMLDivElement>(null);
   const followupReasonRef = useRef<HTMLDivElement>(null);
   const followupNotesRef = useRef<HTMLDivElement>(null);
   const previousDoctorsRef = useRef<HTMLDivElement>(null);
   const symptomsSectionRef = useRef<HTMLDivElement>(null);
-  const urgencySectionRef = useRef<HTMLDivElement>(null);
 
   // Filter previous consultations for selected patient
   const patientPreviousConsultations = previousConsultations.filter(
@@ -182,13 +188,61 @@ export default function PatientStep({
     }
   }, [showSymptoms]);
 
+  // Auto-advance: show next section after follow-up notes are typed
   useEffect(() => {
-    if (showUrgency && urgencySectionRef.current) {
-      setTimeout(() => {
-        urgencySectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
+    if (showFollowupNotes && followupNotes.trim().length > 0) {
+      if (patientPreviousConsultations.length > 0) {
+        setShowPreviousDoctors(true);
+      }
     }
-  }, [showUrgency]);
+  }, [showFollowupNotes, followupNotes, patientPreviousConsultations.length]);
+
+  const handleAddMemberSubmit = async () => {
+    const newErrors: Record<string, string> = {};
+    if (!newMemberName.trim()) newErrors.name = 'Name is required';
+    if (!newMemberRelation) newErrors.relation = 'Please select a relation';
+
+    if (Object.keys(newErrors).length > 0) {
+      setAddMemberErrors(newErrors);
+      return;
+    }
+
+    setIsAddingMember(true);
+    try {
+      const response = await fetch('/booking/doctor/add-family-member', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+        },
+        body: JSON.stringify({
+          name: newMemberName.trim(),
+          relation: newMemberRelation,
+          ...(newMemberAge ? { age: parseInt(newMemberAge, 10) } : {}),
+          ...(newMemberGender ? { gender: newMemberGender } : {}),
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to add member');
+
+      const newMember = await response.json();
+      setMembers((prev) => [...prev, newMember]);
+      setPatientId(newMember.id);
+      setShowAddMemberForm(false);
+      setNewMemberName('');
+      setNewMemberRelation('');
+      setNewMemberAge('');
+      setNewMemberGender('');
+      setAddMemberErrors({});
+      // Auto-advance
+      setShowAppointmentType(true);
+    } catch (error) {
+      console.error('Failed to add member:', error);
+      setAddMemberErrors({ submit: 'Failed to add member. Please try again.' });
+    } finally {
+      setIsAddingMember(false);
+    }
+  };
 
   const handleSymptomToggle = (symptomId: string) => {
     const symptom = symptoms.find((s) => s.id === symptomId);
@@ -216,10 +270,6 @@ export default function PatientStep({
     }
   };
 
-  const handlePatientContinue = () => {
-    setShowAppointmentType(true);
-  };
-
   const handleAppointmentTypeSelect = (type: 'new' | 'followup') => {
     setAppointmentType(type);
     if (type === 'followup') {
@@ -243,25 +293,14 @@ export default function PatientStep({
   };
 
   const handleFollowupNotesContinue = () => {
-    // After notes, show previous doctors if available, otherwise show urgency
     if (patientPreviousConsultations.length > 0) {
       setShowPreviousDoctors(true);
-    } else {
-      setShowUrgency(true);
     }
   };
 
   const handleFollowupNotesSkip = () => {
     setFollowupNotes('');
     handleFollowupNotesContinue();
-  };
-
-  const handlePreviousDoctorsContinue = () => {
-    setShowUrgency(true);
-  };
-
-  const handleSymptomContinue = () => {
-    setShowUrgency(true);
   };
 
   const handleBack = () => {
@@ -280,9 +319,6 @@ export default function PatientStep({
     if (appointmentType === 'followup' && !followupReason) {
       newErrors.followupReason = 'Please select a follow-up reason';
     }
-    if (!urgency) {
-      newErrors.urgency = 'Please select how soon you need to see a doctor';
-    }
 
     setErrors(newErrors);
 
@@ -296,7 +332,6 @@ export default function PatientStep({
         quickBookTime,
         selectedSymptoms,
         symptomNotes,
-        urgency,
       });
     }
   };
@@ -312,6 +347,8 @@ export default function PatientStep({
       setQuickBookDoctorId(null);
       setQuickBookTime(null);
     }
+    // Auto-advance to next section
+    setShowAppointmentType(true);
   };
 
   // Context-aware follow-up notes prompt
@@ -359,7 +396,7 @@ export default function PatientStep({
   };
 
   const isFollowup = appointmentType === 'followup';
-  const continueDisabled = !patientId || !appointmentType || !urgency ||
+  const continueDisabled = !patientId || !appointmentType ||
     (isFollowup && !followupReason);
 
   return (
@@ -379,7 +416,7 @@ export default function PatientStep({
           </p>
 
           <div className="grid grid-cols-2 gap-3">
-            {familyMembers.map((member) => (
+            {members.map((member) => (
               <button
                 key={member.id}
                 onClick={() => handlePatientSelect(member.id)}
@@ -400,24 +437,125 @@ export default function PatientStep({
             ))}
           </div>
 
-          <button className="mt-3 inline-flex items-center gap-1 text-sm text-foreground hover:text-primary transition-colors">
-            Add family member or guest
-            <ArrowRight className="h-4 w-4" />
+          <button
+            onClick={() => setShowAddMemberForm(!showAddMemberForm)}
+            className="mt-3 inline-flex items-center gap-1 text-sm text-foreground hover:text-primary transition-colors"
+          >
+            {showAddMemberForm ? (
+              <>
+                Cancel
+                <X className="h-4 w-4" />
+              </>
+            ) : (
+              <>
+                Add family member or guest
+                <ArrowRight className="h-4 w-4" />
+              </>
+            )}
           </button>
+
+          {showAddMemberForm && (
+            <div className="mt-4 border rounded-xl p-4 space-y-4 max-w-md">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <UserPlus className="h-4 w-4 text-primary" />
+                </div>
+                <h4 className="font-semibold text-sm text-foreground">Add family member or guest</h4>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">
+                  Name <span className="text-destructive">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={newMemberName}
+                  onChange={(e) => { setNewMemberName(e.target.value); setAddMemberErrors((prev) => ({ ...prev, name: '' })); }}
+                  placeholder="Enter full name"
+                  disabled={isAddingMember}
+                  className={cn(
+                    'w-full rounded-lg border border-border bg-background px-3 py-2 text-sm',
+                    'placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary',
+                    addMemberErrors.name && 'border-destructive focus:ring-destructive/20'
+                  )}
+                />
+                {addMemberErrors.name && <p className="text-xs text-destructive">{addMemberErrors.name}</p>}
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">
+                  Relation <span className="text-destructive">*</span>
+                </label>
+                <select
+                  value={newMemberRelation}
+                  onChange={(e) => { setNewMemberRelation(e.target.value); setAddMemberErrors((prev) => ({ ...prev, relation: '' })); }}
+                  disabled={isAddingMember}
+                  className={cn(
+                    'w-full rounded-lg border border-border bg-background px-3 py-2 text-sm',
+                    'focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary',
+                    !newMemberRelation && 'text-muted-foreground',
+                    addMemberErrors.relation && 'border-destructive focus:ring-destructive/20'
+                  )}
+                >
+                  <option value="">Select relation</option>
+                  {RELATION_OPTIONS.map((r) => (
+                    <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
+                  ))}
+                </select>
+                {addMemberErrors.relation && <p className="text-xs text-destructive">{addMemberErrors.relation}</p>}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Age</label>
+                  <input
+                    type="number"
+                    value={newMemberAge}
+                    onChange={(e) => setNewMemberAge(e.target.value)}
+                    placeholder="Optional"
+                    min="0"
+                    max="120"
+                    disabled={isAddingMember}
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Gender</label>
+                  <select
+                    value={newMemberGender}
+                    onChange={(e) => setNewMemberGender(e.target.value)}
+                    disabled={isAddingMember}
+                    className={cn(
+                      'w-full rounded-lg border border-border bg-background px-3 py-2 text-sm',
+                      'focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary',
+                      !newMemberGender && 'text-muted-foreground'
+                    )}
+                  >
+                    <option value="">Optional</option>
+                    {GENDER_OPTIONS.map((g) => (
+                      <option key={g} value={g}>{g.charAt(0).toUpperCase() + g.slice(1)}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {addMemberErrors.submit && <p className="text-xs text-destructive">{addMemberErrors.submit}</p>}
+
+              <Button
+                onClick={handleAddMemberSubmit}
+                disabled={isAddingMember}
+                className="w-full"
+                size="sm"
+              >
+                {isAddingMember ? 'Adding...' : 'Add & Continue'}
+              </Button>
+            </div>
+          )}
 
           {errors.patient && (
             <p className="text-sm text-destructive mt-2">{errors.patient}</p>
           )}
 
-          {patientId && !showAppointmentType && (
-            <Button
-              onClick={handlePatientContinue}
-              variant="outline"
-              className="mt-4 border-border hover:bg-accent"
-            >
-              Continue
-            </Button>
-          )}
         </section>
 
         {/* 2. Appointment Type */}
@@ -522,23 +660,13 @@ export default function PatientStep({
                 rows={4}
               />
 
-              {!showPreviousDoctors && !showUrgency && (
-                <div className="flex gap-3">
-                  <Button
-                    onClick={handleFollowupNotesContinue}
-                    variant="outline"
-                    className="border-border hover:bg-accent"
-                  >
-                    Continue
-                  </Button>
-                  <Button
-                    onClick={handleFollowupNotesSkip}
-                    variant="ghost"
-                    className="text-muted-foreground"
-                  >
-                    Skip
-                  </Button>
-                </div>
+              {!showPreviousDoctors && !followupNotes.trim() && (
+                <button
+                  onClick={handleFollowupNotesSkip}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Skip this step
+                </button>
               )}
             </div>
           </section>
@@ -571,17 +699,6 @@ export default function PatientStep({
                 ))}
               </Card>
 
-              {!showUrgency && (
-                <div className="mt-4 flex gap-3">
-                  <Button
-                    onClick={handlePreviousDoctorsContinue}
-                    variant="outline"
-                    className="border-border hover:bg-accent"
-                  >
-                    {quickBookDoctorId ? 'Continue' : 'See all doctors'}
-                  </Button>
-                </div>
-              )}
             </section>
           )}
 
@@ -618,59 +735,10 @@ export default function PatientStep({
                 onChange={(e) => setSymptomNotes(e.target.value)}
                 rows={4}
               />
-
-              {(selectedSymptoms.length > 0 || symptomNotes.trim().length > 0) && !showUrgency && (
-                <Button
-                  onClick={handleSymptomContinue}
-                  variant="outline"
-                  className="border-border hover:bg-accent"
-                >
-                  Continue
-                </Button>
-              )}
             </div>
           </section>
         )}
 
-        {/* 7. Urgency - Show for both flows after their respective sections */}
-        {showUrgency && (
-          <section ref={urgencySectionRef}>
-            <h2 className="text-xl font-semibold mb-2">How soon do you need to see a doctor?</h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              This determines which slots you'll see
-            </p>
-
-            <Card className="overflow-hidden divide-y">
-              {urgencyOptions.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => setUrgency(option.value)}
-                  className={cn(
-                    'w-full flex items-center gap-3 p-4 text-left transition-all',
-                    'hover:bg-muted/50',
-                    urgency === option.value && 'bg-primary/5'
-                  )}
-                >
-                  <div
-                    className={cn(
-                      'w-3 h-3 rounded-full flex-shrink-0',
-                      option.value === 'urgent' ? 'bg-red-500' : 'bg-amber-500'
-                    )}
-                  />
-                  <div className="flex-1">
-                    <p className="font-medium">{option.label}</p>
-                    <p className="text-sm text-muted-foreground">{option.description}</p>
-                  </div>
-                  {option.doctorCount && (
-                    <span className="text-sm text-muted-foreground">{option.doctorCount} doctors</span>
-                  )}
-                </button>
-              ))}
-            </Card>
-
-            {errors.urgency && <p className="text-sm text-destructive mt-2">{errors.urgency}</p>}
-          </section>
-        )}
       </div>
     </GuidedBookingLayout>
   );

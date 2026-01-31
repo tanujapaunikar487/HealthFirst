@@ -356,23 +356,11 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
             </div>
           </div>
           {/* Progress bar */}
-          <div className="px-4 sm:px-6 pb-2">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs text-gray-500">
-                {conversation.progress?.current_state
-                  ? conversation.progress.current_state.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-                  : 'Getting started'}
-              </span>
-              <span className="text-xs font-medium text-blue-600">
-                {Math.round(getProgress())}%
-              </span>
-            </div>
-            <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-300 ease-out"
-                style={{ width: `${getProgress()}%` }}
-              />
-            </div>
+          <div className="h-1 bg-gray-100">
+            <div
+              className="h-full bg-blue-600 transition-all duration-300"
+              style={{ width: `${Math.max(getProgress(), 2)}%` }}
+            />
           </div>
         </header>
 

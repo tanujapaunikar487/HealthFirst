@@ -520,6 +520,7 @@ export function EmbeddedComponent({
 
     // Intelligent Orchestrator component types
     case 'doctor_selector':
+      const selectorDoctors = data?.doctors || doctors;
       return (
         <div className="space-y-4">
           {data?.doctors_count !== undefined && (
@@ -527,22 +528,29 @@ export function EmbeddedComponent({
               <h3 className="text-lg font-semibold">{data.doctors_count} doctor{data.doctors_count !== 1 ? 's' : ''} available</h3>
             </div>
           )}
-          <EmbeddedDoctorList
-            doctors={data?.doctors || doctors}
-            selectedDoctorId={selection?.doctor_id}
-            selectedTime={selection?.time}
-            onSelect={(doctorId, time) => {
-              const doctor = (data?.doctors || doctors).find((d: any) => d.id === doctorId);
-              onSelect({
-                doctor_id: doctorId,
-                doctor_name: doctor?.name || 'Doctor',
-                time,
-                date: data?.selected_date,
-                display_message: `${doctor?.name || 'Doctor'} at ${time}`
-              });
-            }}
-            disabled={disabled || isSelected}
-          />
+          {selectorDoctors.length === 0 ? (
+            <div className="p-6 text-center rounded-xl border border-dashed">
+              <p className="font-medium text-gray-900">No doctors available on this date</p>
+              <p className="text-sm text-gray-500 mt-1">Some doctors don't work on certain days. Try a different date.</p>
+            </div>
+          ) : (
+            <EmbeddedDoctorList
+              doctors={selectorDoctors}
+              selectedDoctorId={selection?.doctor_id}
+              selectedTime={selection?.time}
+              onSelect={(doctorId, time) => {
+                const doctor = selectorDoctors.find((d: any) => d.id === doctorId);
+                onSelect({
+                  doctor_id: doctorId,
+                  doctor_name: doctor?.name || 'Doctor',
+                  time,
+                  date: data?.selected_date,
+                  display_message: `${doctor?.name || 'Doctor'} at ${time}`
+                });
+              }}
+              disabled={disabled || isSelected}
+            />
+          )}
         </div>
       );
 
@@ -575,6 +583,11 @@ export function EmbeddedComponent({
                 >
                   <div className="font-medium text-sm">{d.label}</div>
                   <div className="text-xs opacity-75">{d.day}</div>
+                  {d.doctor_count !== undefined && (
+                    <div className={cn('text-xs mt-0.5', dateIsActive ? 'opacity-75' : 'opacity-50')}>
+                      {d.doctor_count} dr{d.doctor_count !== 1 ? 's' : ''}
+                    </div>
+                  )}
                 </button>
               );
             })}
@@ -598,22 +611,29 @@ export function EmbeddedComponent({
                 </div>
 
                 {/* Doctor list */}
-                <EmbeddedDoctorList
-                  doctors={filteredDoctors}
-                  selectedDoctorId={selection?.doctor_id}
-                  selectedTime={selection?.time}
-                  onSelect={(doctorId, time) => {
-                    const doctor = allDoctors.find((d: any) => d.id === doctorId);
-                    onSelect({
-                      doctor_id: doctorId,
-                      doctor_name: doctor?.name || 'Doctor',
-                      time,
-                      date: activeDate,
-                      display_message: `${doctor?.name || 'Doctor'} on ${activeDate} at ${time}`
-                    });
-                  }}
-                  disabled={disabled || isSelected}
-                />
+                {filteredDoctors.length === 0 ? (
+                  <div className="p-6 text-center rounded-xl border border-dashed">
+                    <p className="font-medium text-gray-900">No doctors available on this date</p>
+                    <p className="text-sm text-gray-500 mt-1">Try selecting a different date above</p>
+                  </div>
+                ) : (
+                  <EmbeddedDoctorList
+                    doctors={filteredDoctors}
+                    selectedDoctorId={selection?.doctor_id}
+                    selectedTime={selection?.time}
+                    onSelect={(doctorId, time) => {
+                      const doctor = allDoctors.find((d: any) => d.id === doctorId);
+                      onSelect({
+                        doctor_id: doctorId,
+                        doctor_name: doctor?.name || 'Doctor',
+                        time,
+                        date: activeDate,
+                        display_message: `${doctor?.name || 'Doctor'} on ${activeDate} at ${time}`
+                      });
+                    }}
+                    disabled={disabled || isSelected}
+                  />
+                )}
               </>
             );
           })()}
