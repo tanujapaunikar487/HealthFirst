@@ -229,7 +229,7 @@ export function EmbeddedBookingSummary({ summary, onPay, onSelect, disabled, con
 
         {/* Address row (for lab home collection) */}
         {summary.address && (
-          <SummaryRow label="Address" value={summary.address} showChange />
+          <SummaryRow label="Address" value={summary.address} showChange onChange={() => onSelect?.({ change_address: true, display_message: 'Change Address' })} />
         )}
 
         {/* Fee row - no Change link */}

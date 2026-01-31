@@ -1,0 +1,150 @@
+import * as React from 'react';
+import { cn } from '@/Lib/utils';
+import { Button } from '@/Components/ui/button';
+import { UserPlus } from 'lucide-react';
+
+const RELATION_OPTIONS = [
+  'mother', 'father', 'brother', 'sister',
+  'son', 'daughter', 'spouse',
+  'grandmother', 'grandfather',
+  'friend', 'other',
+];
+
+const GENDER_OPTIONS = ['male', 'female', 'other'];
+
+interface Props {
+  onSelect: (value: {
+    new_member_name: string;
+    new_member_relation: string;
+    new_member_age?: number;
+    new_member_gender?: string;
+    display_message: string;
+  }) => void;
+  disabled: boolean;
+}
+
+export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
+  const [name, setName] = React.useState('');
+  const [relation, setRelation] = React.useState('');
+  const [age, setAge] = React.useState('');
+  const [gender, setGender] = React.useState('');
+  const [errors, setErrors] = React.useState<Record<string, string>>({});
+
+  const handleSubmit = () => {
+    const newErrors: Record<string, string> = {};
+    if (!name.trim()) newErrors.name = 'Name is required';
+    if (!relation) newErrors.relation = 'Please select a relation';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    onSelect({
+      new_member_name: name.trim(),
+      new_member_relation: relation,
+      ...(age ? { new_member_age: parseInt(age, 10) } : {}),
+      ...(gender ? { new_member_gender: gender } : {}),
+      display_message: `Added ${name.trim()} (${relation})`,
+    });
+  };
+
+  const inputClasses = cn(
+    'w-full rounded-lg border border-border bg-background px-3 py-2 text-sm',
+    'placeholder:text-muted-foreground',
+    'focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary',
+    'disabled:opacity-50 disabled:cursor-not-allowed',
+  );
+
+  const selectClasses = cn(
+    inputClasses,
+    'appearance-none bg-[url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E")] bg-[length:16px] bg-[right_8px_center] bg-no-repeat pr-8',
+  );
+
+  return (
+    <div className="border rounded-xl p-4 space-y-4 max-w-md">
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+          <UserPlus className="h-4 w-4 text-primary" />
+        </div>
+        <h4 className="font-semibold text-sm text-foreground">Add family member or guest</h4>
+      </div>
+
+      {/* Name */}
+      <div className="space-y-1.5">
+        <label className="text-xs font-medium text-muted-foreground">
+          Name <span className="text-destructive">*</span>
+        </label>
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => { setName(e.target.value); setErrors((prev) => ({ ...prev, name: '' })); }}
+          placeholder="Enter full name"
+          disabled={disabled}
+          className={cn(inputClasses, errors.name && 'border-destructive focus:ring-destructive/20')}
+        />
+        {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+      </div>
+
+      {/* Relation */}
+      <div className="space-y-1.5">
+        <label className="text-xs font-medium text-muted-foreground">
+          Relation <span className="text-destructive">*</span>
+        </label>
+        <select
+          value={relation}
+          onChange={(e) => { setRelation(e.target.value); setErrors((prev) => ({ ...prev, relation: '' })); }}
+          disabled={disabled}
+          className={cn(selectClasses, !relation && 'text-muted-foreground', errors.relation && 'border-destructive focus:ring-destructive/20')}
+        >
+          <option value="">Select relation</option>
+          {RELATION_OPTIONS.map((r) => (
+            <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
+          ))}
+        </select>
+        {errors.relation && <p className="text-xs text-destructive">{errors.relation}</p>}
+      </div>
+
+      {/* Age + Gender row */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-muted-foreground">Age</label>
+          <input
+            type="number"
+            value={age}
+            onChange={(e) => setAge(e.target.value)}
+            placeholder="Optional"
+            min="0"
+            max="120"
+            disabled={disabled}
+            className={inputClasses}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-muted-foreground">Gender</label>
+          <select
+            value={gender}
+            onChange={(e) => setGender(e.target.value)}
+            disabled={disabled}
+            className={cn(selectClasses, !gender && 'text-muted-foreground')}
+          >
+            <option value="">Optional</option>
+            {GENDER_OPTIONS.map((g) => (
+              <option key={g} value={g}>{g.charAt(0).toUpperCase() + g.slice(1)}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Submit */}
+      <Button
+        onClick={handleSubmit}
+        disabled={disabled}
+        className="w-full"
+        size="sm"
+      >
+        Add & Continue
+      </Button>
+    </div>
+  );
+}

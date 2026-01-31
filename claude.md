@@ -581,27 +581,27 @@ Created comprehensive integration test suite (`tests/Feature/BookingFlowTest.php
 - `RefreshDatabase` + `HospitalSeeder` for realistic test data
 - Component selections bypass AI entirely (tested explicitly)
 
-### Test Categories (31 tests, 97 assertions)
+### Test Categories (32 tests, 103 assertions)
 
 | Category | Tests | What's Covered |
 |----------|-------|----------------|
 | Happy Paths | 3 | Full doctor flow (8 steps), lab home collection, lab center visit |
 | Compound Input | 1 | Single message extracts patient, type, doctor, date, time simultaneously |
-| Regex Fallback | 2 | patient_relation "for me" → self, "for my mother" → mother when AI misses it |
+| Regex Fallback | 3 | patient_relation "for me" → self, "for my mother" → mother, ambiguous input → no match |
 | Intent Gating | 2 | Greeting with no progress → greeting response; greeting with progress → continues flow |
 | Cancellation | 1 | Cancel intent mid-flow sets status=cancelled |
-| Summary Changes | 5 | Change doctor, datetime, mode, appointment type, patient from summary |
-| Flow Switching | 1 | booking_lab intent switches booking_type mid-doctor-flow |
+| Summary Changes | 6 | Change doctor, datetime, mode, appointment type, patient, address from summary |
+| Flow Switching | 2 | booking_lab switches mid-doctor-flow, booking_doctor sets type |
 | Follow-up Flow | 2 | Reason → notes full path; "skip" bypasses notes |
 | Lab-Specific | 5 | Package search no-match, change location/package, home requires address, center requires center |
-| Architecture | 6 | Component bypass, progress tracking, message persistence, auto-mode, entity merging, mixed input |
+| Architecture | 7 | Component bypass, progress tracking, message persistence, auto-mode, entity merging, mixed input, empty start |
 
 ### Running
 ```bash
-# Booking flow tests only (31 tests)
+# Booking flow tests only (32 tests)
 php artisan test --filter=BookingFlowTest
 
-# All booking tests (31 + 19 state machine tests)
+# All booking tests (32 + 19 state machine tests)
 php artisan test --filter=Booking
 ```
 
@@ -613,5 +613,54 @@ php artisan test --filter=Booking
 
 ---
 
-**Last Updated**: January 31, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (31 tests)
+## Inline Form Components: Add Family Member & Add Address (February 1, 2026)
+
+Added inline form components to the booking chat flow, allowing users to add new family members and addresses directly without leaving the conversation.
+
+### Add Family Member / Guest
+
+Users can click "Add family member or guest →" from the patient selector to add a new member inline.
+
+**Flow**: Patient selector → click "Add" → inline form (name, relation, age, gender) → submit → member created in DB, auto-selected → flow advances
+
+**Files Created**:
+- `resources/js/Features/booking-chat/embedded/EmbeddedFamilyMemberForm.tsx` — Inline form with Name (required), Relation dropdown (required), Age (optional), Gender (optional)
+
+**Files Modified**:
+- `EmbeddedComponent.tsx` — Added `family_member_form` switch case, wired `onAddMember` callback in PatientSelector
+- `IntelligentBookingOrchestrator.php` — `add_family_member` handler (shows form), `new_member_name` handler (creates FamilyMember record + auto-selects)
+
+### Add New Address
+
+Users can click "Add new address" from the address selector during lab home collection. If no addresses exist, the form appears automatically.
+
+**Flow**: Address selector → click "Add new address" → inline form (label, address, city, state, pincode) → submit → address created in DB, auto-selected → flow advances to date/time
+
+**Files Created**:
+- `resources/js/Features/booking-chat/embedded/EmbeddedAddressForm.tsx` — Inline form with Label, Address Line 1, Address Line 2 (optional), City, State, Pincode
+
+**Files Modified**:
+- `EmbeddedAddressSelector.tsx` — Added `onAddAddress` prop, replaced `alert()` placeholder
+- `EmbeddedComponent.tsx` — Added `address_form` switch case, wired `onAddAddress` in address_selector
+- `EmbeddedBookingSummary.tsx` — Wired `onChange` on Address summary row (`change_address` selection)
+- `IntelligentBookingOrchestrator.php` — `add_address` handler (shows form), `new_address_label` handler (creates UserAddress record), `change_address` handler (clears address + downstream, keeps collectionType), auto-show form when no addresses exist
+
+### Design Pattern
+Both features follow the same pattern:
+1. Button in selector sends `{ add_family_member: true }` or `{ add_address: true }` as a component selection
+2. Orchestrator short-circuits `handleComponentSelection()` and returns the form component
+3. Form submission sends field data as another component selection
+4. Orchestrator creates DB record, auto-selects it, falls through to state machine
+5. No new routes, controllers, state machine states, or migrations needed
+
+### New collected_data Handlers
+- `add_family_member` → shows `family_member_form` component
+- `new_member_name` + `new_member_relation` → creates FamilyMember, sets patient fields
+- `add_address` → shows `address_form` component
+- `new_address_label` + `new_address_line_1` → creates UserAddress, sets address fields
+- `change_address` → clears address + date/time, preserves collectionType='home'
+
+---
+
+**Last Updated**: February 1, 2026
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (32 tests) | Inline Add Member & Address Forms

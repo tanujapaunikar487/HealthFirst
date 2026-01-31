@@ -16,6 +16,8 @@ import { EmbeddedDateTimeSelector } from './embedded/EmbeddedDateTimeSelector';
 import { EmbeddedCollectionMethod } from './embedded/EmbeddedCollectionMethod';
 import { EmbeddedCenterList } from './embedded/EmbeddedCenterList';
 import { EmbeddedAddressSelector } from './embedded/EmbeddedAddressSelector';
+import { EmbeddedFamilyMemberForm } from './embedded/EmbeddedFamilyMemberForm';
+import { EmbeddedAddressForm } from './embedded/EmbeddedAddressForm';
 
 /**
  * EmbeddedComponent
@@ -82,6 +84,12 @@ export function EmbeddedComponent({
               patient_id: id,
               patient_name: patient?.name || 'Patient',
               display_message: patient?.name || 'Patient selected'
+            });
+          }}
+          onAddMember={() => {
+            onSelect({
+              add_family_member: true,
+              display_message: 'Add family member or guest',
             });
           }}
           disabled={disabled || isSelected}
@@ -268,6 +276,12 @@ export function EmbeddedComponent({
             address_text: address,
             display_message: `${label}: ${address}`,
           })}
+          onAddAddress={() => {
+            onSelect({
+              add_address: true,
+              display_message: 'Add new address',
+            });
+          }}
           disabled={disabled || isSelected}
         />
       );
@@ -718,6 +732,22 @@ export function EmbeddedComponent({
     case 'text_input':
       return <TextInputComponent data={data} onSelect={onSelect} disabled={disabled || isSelected} />;
 
+    case 'family_member_form':
+      return (
+        <EmbeddedFamilyMemberForm
+          onSelect={(value) => onSelect(value)}
+          disabled={disabled || isSelected}
+        />
+      );
+
+    case 'address_form':
+      return (
+        <EmbeddedAddressForm
+          onSelect={(value) => onSelect(value)}
+          disabled={disabled || isSelected}
+        />
+      );
+
     default:
       console.warn(`Unknown embedded component type: ${type}`);
       return null;
@@ -725,7 +755,7 @@ export function EmbeddedComponent({
 }
 
 // Patient Selector Component - 2 column grid
-function PatientSelector({ patients, selected, onSelect, disabled }: any) {
+function PatientSelector({ patients, selected, onSelect, onAddMember, disabled }: any) {
   return (
     <div className="space-y-2">
       <div className="grid grid-cols-2 gap-2 max-w-2xl">
@@ -758,8 +788,12 @@ function PatientSelector({ patients, selected, onSelect, disabled }: any) {
         ))}
       </div>
 
-      <button className="text-sm text-foreground hover:text-primary transition-colors flex items-center gap-1 mt-2">
-        Add family member or guest →
+      <button
+        onClick={() => !disabled && onAddMember?.()}
+        disabled={disabled}
+        className="text-sm text-foreground hover:text-primary transition-colors flex items-center gap-1 mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Add family member or guest &rarr;
       </button>
     </div>
   );

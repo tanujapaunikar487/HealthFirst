@@ -12,10 +12,11 @@ interface Props {
   addresses: Address[];
   selectedAddressId: number | null;
   onSelect: (id: number, label: string, address: string) => void;
+  onAddAddress?: () => void;
   disabled: boolean;
 }
 
-export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect, disabled }: Props) {
+export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect, onAddAddress, disabled }: Props) {
   return (
     <div className="space-y-3">
       {/* Saved addresses */}
@@ -77,10 +78,7 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
           'hover:bg-muted/50 hover:border-primary/30',
           'disabled:opacity-50 disabled:cursor-not-allowed',
         )}
-        onClick={() => {
-          // Future: open address form
-          alert('Add new address feature coming soon! Please select from your saved addresses.');
-        }}
+        onClick={() => !disabled && onAddAddress?.()}
       >
         <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
           <Plus className="h-4 w-4 text-muted-foreground" />

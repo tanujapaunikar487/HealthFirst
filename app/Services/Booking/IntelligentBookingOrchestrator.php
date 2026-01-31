@@ -1113,6 +1113,13 @@ class IntelligentBookingOrchestrator
             $componentData = $this->buildComponentDataForType($component['type'], $data, $conversation->user_id);
         }
 
+        // Auto-show address form when user has no saved addresses
+        if ($component['type'] === 'address_selector' && empty($componentData['addresses'] ?? [])) {
+            $component['type'] = 'address_form';
+            $componentData = [];
+            $message = "You don't have any saved addresses yet. Please add one for home collection.";
+        }
+
         // Check for doctor-date conflict (requested doctor unavailable on selected date)
         if (!empty($componentData['doctor_date_conflict'])) {
             $message = $componentData['doctor_date_conflict']['message'];
@@ -1899,6 +1906,97 @@ class IntelligentBookingOrchestrator
             $updated['completedSteps'] = [];
         }
 
+        // Handle "Add family member or guest" trigger from patient selector
+        if (!empty($selection['add_family_member'])) {
+            Log::info('🔒 Selection Handler: Add family member form requested');
+
+            $conversation->collected_data = $updated;
+            $conversation->save();
+
+            $this->addAssistantMessage(
+                $conversation,
+                'Please fill in the details for the new family member or guest.',
+                'family_member_form',
+                [],
+                []
+            );
+
+            return [
+                'status' => 'success',
+                'state' => 'patient_selection',
+                'message' => 'Please fill in the details for the new family member or guest.',
+                'component_type' => 'family_member_form',
+                'component_data' => [],
+                'ready_to_book' => false,
+                'progress' => [
+                    'percentage' => 0,
+                    'current_state' => 'patient_selection',
+                    'missing_fields' => ['patient'],
+                ],
+            ];
+        }
+
+        // Handle new family member form submission
+        if (isset($selection['new_member_name']) && isset($selection['new_member_relation'])) {
+            $memberName = trim($selection['new_member_name']);
+            $memberRelation = strtolower(trim($selection['new_member_relation']));
+            $memberAge = isset($selection['new_member_age']) ? (int) $selection['new_member_age'] : null;
+            $memberGender = isset($selection['new_member_gender']) ? strtolower(trim($selection['new_member_gender'])) : null;
+
+            Log::info('🔒 Selection Handler: Creating new family member', [
+                'name' => $memberName,
+                'relation' => $memberRelation,
+            ]);
+
+            if (empty($memberName) || empty($memberRelation)) {
+                $conversation->collected_data = $updated;
+                $conversation->save();
+
+                $this->addAssistantMessage(
+                    $conversation,
+                    'Name and relation are required. Please try again.',
+                    'family_member_form',
+                    ['error' => 'Name and relation are required.'],
+                    []
+                );
+
+                return [
+                    'status' => 'success',
+                    'state' => 'patient_selection',
+                    'message' => 'Name and relation are required. Please try again.',
+                    'component_type' => 'family_member_form',
+                    'component_data' => ['error' => 'Name and relation are required.'],
+                    'ready_to_book' => false,
+                    'progress' => [
+                        'percentage' => 0,
+                        'current_state' => 'patient_selection',
+                        'missing_fields' => ['patient'],
+                    ],
+                ];
+            }
+
+            $newMember = \App\Models\FamilyMember::create([
+                'user_id' => $conversation->user_id,
+                'name' => $memberName,
+                'relation' => $memberRelation,
+                'age' => $memberAge,
+                'gender' => $memberGender,
+            ]);
+
+            $updated['selectedPatientId'] = $newMember->id;
+            $updated['selectedPatientName'] = $newMember->name;
+            $updated['selectedPatientAvatar'] = '';
+            $updated['patientRelation'] = $memberRelation;
+            if (!in_array('patient', $updated['completedSteps'])) {
+                $updated['completedSteps'][] = 'patient';
+            }
+
+            Log::info('✅ New family member created and auto-selected', [
+                'member_id' => $newMember->id,
+                'member_name' => $newMember->name,
+            ]);
+        }
+
         // Map selection to data fields
         if (isset($selection['patient_id'])) {
             $updated['selectedPatientId'] = $selection['patient_id'];
@@ -2168,6 +2266,107 @@ class IntelligentBookingOrchestrator
         }
 
         // Address selection (for home collection)
+        // Handle "Add new address" trigger from address selector
+        if (!empty($selection['add_address'])) {
+            Log::info('🔒 Selection Handler: Add address form requested');
+
+            $conversation->collected_data = $updated;
+            $conversation->save();
+
+            $this->addAssistantMessage(
+                $conversation,
+                'Please enter the details for your new address.',
+                'address_form',
+                [],
+                []
+            );
+
+            return [
+                'status' => 'success',
+                'state' => 'address_selection',
+                'message' => 'Please enter the details for your new address.',
+                'component_type' => 'address_form',
+                'component_data' => [],
+                'ready_to_book' => false,
+                'progress' => [
+                    'percentage' => 0,
+                    'current_state' => 'address_selection',
+                    'missing_fields' => ['address'],
+                ],
+            ];
+        }
+
+        // Handle new address form submission
+        if (isset($selection['new_address_label']) && isset($selection['new_address_line_1'])) {
+            $addrLabel = trim($selection['new_address_label']);
+            $addrLine1 = trim($selection['new_address_line_1']);
+            $addrLine2 = isset($selection['new_address_line_2']) ? trim($selection['new_address_line_2']) : null;
+            $addrCity = trim($selection['new_address_city'] ?? '');
+            $addrState = trim($selection['new_address_state'] ?? '');
+            $addrPincode = trim($selection['new_address_pincode'] ?? '');
+
+            Log::info('🔒 Selection Handler: Creating new address', [
+                'label' => $addrLabel,
+                'city' => $addrCity,
+            ]);
+
+            if (empty($addrLabel) || empty($addrLine1) || empty($addrCity) || empty($addrState) || empty($addrPincode)) {
+                $conversation->collected_data = $updated;
+                $conversation->save();
+
+                $this->addAssistantMessage(
+                    $conversation,
+                    'Please fill in all required fields (label, address, city, state, pincode).',
+                    'address_form',
+                    ['error' => 'All required fields must be filled.'],
+                    []
+                );
+
+                return [
+                    'status' => 'success',
+                    'state' => 'address_selection',
+                    'message' => 'Please fill in all required fields.',
+                    'component_type' => 'address_form',
+                    'component_data' => ['error' => 'All required fields must be filled.'],
+                    'ready_to_book' => false,
+                    'progress' => [
+                        'percentage' => 0,
+                        'current_state' => 'address_selection',
+                        'missing_fields' => ['address'],
+                    ],
+                ];
+            }
+
+            // First address for user gets is_default = true
+            $hasExistingAddresses = \App\Models\UserAddress::where('user_id', $conversation->user_id)
+                ->where('is_active', true)
+                ->exists();
+
+            $newAddress = \App\Models\UserAddress::create([
+                'user_id' => $conversation->user_id,
+                'label' => $addrLabel,
+                'address_line_1' => $addrLine1,
+                'address_line_2' => $addrLine2,
+                'city' => $addrCity,
+                'state' => $addrState,
+                'pincode' => $addrPincode,
+                'is_default' => !$hasExistingAddresses,
+                'is_active' => true,
+            ]);
+
+            $updated['selectedAddressId'] = $newAddress->id;
+            $updated['selectedAddressLabel'] = $newAddress->label;
+            $updated['selectedAddressText'] = $newAddress->getFullAddress();
+            if (!in_array('address', $updated['completedSteps'])) {
+                $updated['completedSteps'][] = 'address';
+            }
+
+            Log::info('✅ New address created and auto-selected', [
+                'address_id' => $newAddress->id,
+                'label' => $newAddress->label,
+            ]);
+        }
+
         if (isset($selection['address_id'])) {
             $updated['selectedAddressId'] = $selection['address_id'];
             $updated['selectedAddressLabel'] = $selection['address_label'] ?? 'Selected address';
@@ -2233,6 +2432,17 @@ class IntelligentBookingOrchestrator
             unset($updated['selectedDate']);
             unset($updated['selectedTime']);
             $updated['completedSteps'] = array_values(array_diff($updated['completedSteps'], ['collection_type', 'center', 'address', 'location', 'date', 'time']));
+        }
+
+        // Handle address change from summary (keeps collectionType = 'home')
+        if (isset($selection['change_address']) && $selection['change_address']) {
+            Log::info('🔄 Change Address Requested');
+            unset($updated['selectedAddressId']);
+            unset($updated['selectedAddressLabel']);
+            unset($updated['selectedAddressText']);
+            unset($updated['selectedDate']);
+            unset($updated['selectedTime']);
+            $updated['completedSteps'] = array_values(array_diff($updated['completedSteps'], ['address', 'date', 'time']));
         }
 
         // Handle patient change from summary

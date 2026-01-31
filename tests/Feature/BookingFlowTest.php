@@ -959,4 +959,45 @@ class BookingFlowTest extends TestCase
         $this->assertEquals('patient_selection', $r['state']);
         $this->assertNotNull($r['component_type']);
     }
+
+    // =========================================================================
+    // 21. CHANGE ADDRESS FROM SUMMARY
+    // =========================================================================
+
+    public function test_change_address_from_summary_clears_address_and_downstream(): void
+    {
+        $conv = $this->conversation('lab_test', [
+            'booking_type' => 'lab_test',
+            'selectedPatientId' => 1,
+            'selectedPatientName' => 'Yourself',
+            'selectedPackageId' => 1,
+            'selectedPackageName' => 'Complete Health Checkup',
+            'package_inquiry_asked' => true,
+            'collectionType' => 'home',
+            'selectedAddressId' => 1,
+            'selectedAddressLabel' => 'Home',
+            'selectedAddressText' => 'Flat 302, Sunrise Apartments',
+            'selectedDate' => now()->addDays(2)->format('Y-m-d'),
+            'selectedTime' => '10:00',
+            'completedSteps' => ['patient', 'package', 'collection_type', 'address', 'date', 'time'],
+        ]);
+
+        $r = $this->orchestrator->process($conv, null, [
+            'change_address' => true,
+            'display_message' => 'Change Address',
+        ]);
+        $conv->refresh();
+
+        $data = $conv->collected_data;
+        // Address cleared
+        $this->assertEmpty($data['selectedAddressId'] ?? null);
+        $this->assertEmpty($data['selectedAddressLabel'] ?? null);
+        // Date/time cleared (downstream)
+        $this->assertEmpty($data['selectedDate'] ?? null);
+        $this->assertEmpty($data['selectedTime'] ?? null);
+        // Collection type preserved
+        $this->assertEquals('home', $data['collectionType']);
+        // State goes back to address_selection
+        $this->assertEquals('address_selection', $r['state']);
+    }
 }
