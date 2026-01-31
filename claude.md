@@ -370,5 +370,67 @@ selectedDate, selectedTime
 
 ---
 
+## Lab Booking Flow Redesign: Smart Search + 2-Step Collection (January 31, 2026)
+
+Redesigned the lab test booking flow from "show all packages upfront" to a smarter, conversational approach.
+
+### New Flow
+```
+Patient → "What test are you looking for?" (chat input)
+       → Filtered package list (or auto-select if 1 match)
+       → Collection type: Home Collection / Hospital Visit
+       → [If hospital] Center selection (sorted by distance)
+       → Date + Time → Summary
+```
+
+### What Changed
+
+**LabService.php** — Added `searchPackages(string $query)` method:
+- Keyword scoring: exact name match (+10), keyword in name (+5), description (+2), slug (+3)
+- Alias matching (+8): maps common terms like "diabetes"→diabetes-screening, "heart"/"cardiac"→heart-health, "full body"→complete-health-checkup, "women"→womens-health, "senior"→senior-citizen-health
+- Returns packages sorted by relevance score; empty array if no matches
+
+**BookingStateMachine.php** — Added 3 new states to lab flow:
+- `package_inquiry` — chat input asking what test user wants (`awaiting_chat_input: true`)
+- `collection_type_selection` — 2 options: Home Collection / Hospital Visit
+- `center_selection` — lab center list (only shown for hospital visits)
+- Updated `isReadyToBook()` to require `selectedCenterId` when `collectionType === 'center'`
+- Updated `getMissingFields()`, `hasField()`, `getCompletenessPercentage()` for center requirement
+- Added `getPackageSelectionMessage()` for contextual messages (search results vs fallback)
+
+**IntelligentBookingOrchestrator.php** — Major updates:
+- Package inquiry handler in `process()`: searches packages, auto-selects on single match, stores filtered results for multi-match
+- New data providers: `getCollectionTypeSelectorData()`, `getCenterListData()`
+- Modified `getPackageListData()` to filter by `packageSearchResults` IDs
+- New selection handlers: `collection_type` (sets collectionType, clears center if home), `center_id` (sets center)
+- Updated `change_package` to clear inquiry/search state
+- Updated `change_location` to clear collection type and center
+
+**EmbeddedComponent.tsx** — Two new switch cases:
+- `collection_type_selector` — reuses existing `EmbeddedCollectionMethod` component
+- `center_list` — uses new `EmbeddedCenterList` component
+
+**EmbeddedCenterList.tsx** (NEW) — Lab center list component:
+- Shows center name, address, rating (star icon), distance in km
+- Pre-sorted by distance from backend
+- Consistent styling with other embedded components
+
+**EmbeddedBookingSummary.tsx** — Added `onChange` handler to collection row for changing location
+
+### New collected_data Keys
+```
+package_inquiry_asked: boolean       // Whether user was asked what test they want
+packageSearchQuery: string           // What user typed (for filtering)
+packageSearchResults: int[]          // Matching package IDs
+packageMatchCount: int               // Number of matches found
+```
+
+### Bug Fixes Included
+- Fixed `ReferenceError: user is not defined` in Conversation.tsx (removed unused `user` prop from MessageBubble)
+- Fixed missing family member cards in patient selector (operator precedence bug in EmbeddedComponent.tsx)
+- Updated `getPatientSelectorData()` to query real DB family members instead of hardcoded dummy data
+
+---
+
 **Last Updated**: January 31, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search

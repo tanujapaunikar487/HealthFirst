@@ -224,7 +224,7 @@ export function EmbeddedBookingSummary({ summary, onPay, onSelect, disabled, con
 
         {/* Collection row (for lab) */}
         {summary.collection && (
-          <SummaryRow label="Collection" value={summary.collection} showChange />
+          <SummaryRow label="Collection" value={summary.collection} showChange onChange={() => onSelect?.({ change_location: true })} />
         )}
 
         {/* Address row (for lab home collection) */}

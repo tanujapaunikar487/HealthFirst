@@ -158,6 +158,77 @@ class LabService
     }
 
     /**
+     * Search packages by keyword. Matches against name, description, slug.
+     * Returns matching packages sorted by relevance score.
+     */
+    public function searchPackages(string $query): array
+    {
+        $queryLower = strtolower(trim($query));
+        $keywords = preg_split('/\s+/', $queryLower);
+
+        $packages = LabPackage::where('is_active', true)->get();
+        $scored = [];
+
+        // Common search aliases mapped to package slugs
+        $aliases = [
+            'diabetes' => ['diabetes-screening'],
+            'sugar' => ['diabetes-screening'],
+            'hba1c' => ['diabetes-screening'],
+            'heart' => ['heart-health'],
+            'cardiac' => ['heart-health'],
+            'cholesterol' => ['heart-health'],
+            'women' => ['womens-health'],
+            'female' => ['womens-health'],
+            'senior' => ['senior-citizen-health'],
+            'elderly' => ['senior-citizen-health'],
+            'full body' => ['complete-health-checkup'],
+            'complete' => ['complete-health-checkup'],
+            'comprehensive' => ['complete-health-checkup'],
+            'basic' => ['basic-health-panel'],
+            'routine' => ['basic-health-panel'],
+            'general' => ['basic-health-panel', 'complete-health-checkup'],
+            'blood' => ['basic-health-panel', 'complete-health-checkup'],
+            'checkup' => ['complete-health-checkup', 'basic-health-panel'],
+            'health' => ['complete-health-checkup', 'basic-health-panel'],
+        ];
+
+        foreach ($packages as $pkg) {
+            $score = 0;
+            $nameLower = strtolower($pkg->name);
+            $descLower = strtolower($pkg->description ?? '');
+            $slugLower = strtolower($pkg->slug);
+
+            // Exact query match in name
+            if (stripos($nameLower, $queryLower) !== false) {
+                $score += 10;
+            }
+
+            // Keyword matching
+            foreach ($keywords as $kw) {
+                if (strlen($kw) < 3) continue;
+                if (stripos($nameLower, $kw) !== false) $score += 5;
+                if (stripos($descLower, $kw) !== false) $score += 2;
+                if (stripos($slugLower, $kw) !== false) $score += 3;
+            }
+
+            // Alias matching
+            foreach ($aliases as $alias => $slugs) {
+                if (stripos($queryLower, $alias) !== false && in_array($pkg->slug, $slugs)) {
+                    $score += 8;
+                }
+            }
+
+            if ($score > 0) {
+                $scored[] = ['package' => $this->packageToArray($pkg), 'score' => $score];
+            }
+        }
+
+        usort($scored, fn($a, $b) => $b['score'] - $a['score']);
+
+        return array_map(fn($s) => $s['package'], $scored);
+    }
+
+    /**
      * Format package list for the AI prompt.
      */
     public function formatForPrompt(): string

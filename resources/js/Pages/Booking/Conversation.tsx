@@ -394,7 +394,6 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                   <MessageBubble
                     key={message.id}
                     message={message}
-                    user={user}
                     familyMembers={familyMembers}
                     conversationId={conversation.id}
                     onSelection={sendSelection}
@@ -647,7 +646,6 @@ function AIAvatar() {
 // Message bubble component
 function MessageBubble({
   message,
-  user,
   familyMembers,
   conversationId,
   onSelection,
@@ -656,7 +654,6 @@ function MessageBubble({
   isCancelled,
 }: {
   message: ConversationMessage;
-  user: any;
   familyMembers: any[];
   conversationId: string;
   onSelection: (type: string, value: any) => void;

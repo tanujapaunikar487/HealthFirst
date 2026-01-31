@@ -13,6 +13,8 @@ import { EmbeddedBookingSummary } from './embedded/EmbeddedBookingSummary';
 import { EmbeddedFollowUpFlow } from './embedded/EmbeddedFollowUpFlow';
 import { EmbeddedPreviousDoctorsList } from './embedded/EmbeddedPreviousDoctorsList';
 import { EmbeddedDateTimeSelector } from './embedded/EmbeddedDateTimeSelector';
+import { EmbeddedCollectionMethod } from './embedded/EmbeddedCollectionMethod';
+import { EmbeddedCenterList } from './embedded/EmbeddedCenterList';
 
 /**
  * EmbeddedComponent
@@ -63,7 +65,7 @@ export function EmbeddedComponent({
   const isSelected = selection !== null;
 
   // Use dummy data if not provided
-  const patients = data?.patients || familyMembers.length > 0 ? familyMembers : DUMMY_FAMILY_MEMBERS;
+  const patients = data?.patients || (familyMembers.length > 0 ? familyMembers : DUMMY_FAMILY_MEMBERS);
   const doctors = data?.doctors || DUMMY_DOCTORS;
   const packages = data?.packages || DUMMY_PACKAGES;
 
@@ -229,6 +231,42 @@ export function EmbeddedComponent({
             onSelect({
               package_id: id,
               display_message: selectedPkg ? `Selected: ${selectedPkg.name}` : `Selected package ${id}`,
+            });
+          }}
+          disabled={disabled || isSelected}
+        />
+      );
+
+    case 'collection_type_selector':
+      const collMethods = (data?.options || []).map((opt: any) => ({
+        type: opt.id as 'home' | 'center',
+        label: opt.label,
+        address: opt.description,
+        price: 'free' as const,
+      }));
+      return (
+        <EmbeddedCollectionMethod
+          methods={collMethods}
+          selectedMethod={selection?.collection_type}
+          onSelect={(type) => onSelect({
+            collection_type: type,
+            display_message: type === 'home' ? 'Home Collection' : 'Hospital Visit',
+          })}
+          disabled={disabled || isSelected}
+        />
+      );
+
+    case 'center_list':
+      const centerList = data?.centers || [];
+      return (
+        <EmbeddedCenterList
+          centers={centerList}
+          selectedCenterId={selection?.center_id}
+          onSelect={(id) => {
+            const center = centerList.find((c: any) => c.id === id);
+            onSelect({
+              center_id: id,
+              display_message: center ? `Selected: ${center.name}` : 'Center selected',
             });
           }}
           disabled={disabled || isSelected}

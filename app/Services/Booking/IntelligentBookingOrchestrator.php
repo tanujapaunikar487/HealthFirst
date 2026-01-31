@@ -90,6 +90,53 @@ class IntelligentBookingOrchestrator
             return $this->buildResponseFromStateMachine($conversation, $stateMachine, ['entities' => []]);
         }
 
+        // Special handling: If we're waiting for package_inquiry, capture the search input
+        $bookingType = $currentData['booking_type'] ?? 'doctor';
+        $packageInquiryAsked = $currentData['package_inquiry_asked'] ?? false;
+
+        if ($bookingType === 'lab_test'
+            && !empty($currentData['selectedPatientId'])
+            && empty($currentData['selectedPackageId'])
+            && !$packageInquiryAsked
+            && $userInput) {
+
+            $trimmedInput = trim($userInput);
+            Log::info('🔒 Detected package_inquiry response', ['input' => $trimmedInput]);
+
+            $currentData['package_inquiry_asked'] = true;
+
+            // Search for matching packages
+            $searchResults = $this->labService->searchPackages($trimmedInput);
+
+            if (count($searchResults) === 1) {
+                // Exact match — auto-select the package
+                $pkg = $searchResults[0];
+                $currentData['selectedPackageId'] = $pkg['id'];
+                $currentData['selectedPackageName'] = $pkg['name'];
+                $currentData['packageRequiresFasting'] = $pkg['requires_fasting'];
+                $currentData['packageFastingHours'] = $pkg['fasting_hours'];
+                if (!in_array('package', $currentData['completedSteps'] ?? [])) {
+                    $currentData['completedSteps'][] = 'package';
+                }
+                Log::info('🎯 Package auto-selected', ['package' => $pkg['name']]);
+            } else {
+                // Multiple or no results — store for filtered display
+                $currentData['packageSearchQuery'] = $trimmedInput;
+                $currentData['packageSearchResults'] = array_column($searchResults, 'id');
+                $currentData['packageMatchCount'] = count($searchResults);
+                Log::info('🔍 Package search results', [
+                    'query' => $trimmedInput,
+                    'match_count' => count($searchResults),
+                ]);
+            }
+
+            $conversation->collected_data = $currentData;
+            $conversation->save();
+
+            $stateMachine = new BookingStateMachine($currentData);
+            return $this->buildResponseFromStateMachine($conversation, $stateMachine, ['entities' => []]);
+        }
+
         // Use AI to parse the user's message and extract entities
         $parsed = $this->parseUserMessage($conversation, $userInput ?? '');
 
@@ -484,6 +531,7 @@ class IntelligentBookingOrchestrator
                     $updated['selectedPackageName'] = $package['name'] ?? $entityValue;
                     $updated['packageRequiresFasting'] = $package['requires_fasting'] ?? false;
                     $updated['packageFastingHours'] = $package['fasting_hours'] ?? null;
+                    $updated['package_inquiry_asked'] = true; // Skip inquiry since AI resolved it
                     if (!in_array('package', $updated['completedSteps'] ?? [])) {
                         $updated['completedSteps'][] = 'package';
                     }
@@ -1049,7 +1097,7 @@ class IntelligentBookingOrchestrator
         // Build component data
         $componentData = null;
         if ($component['type']) {
-            $componentData = $this->buildComponentDataForType($component['type'], $data);
+            $componentData = $this->buildComponentDataForType($component['type'], $data, $conversation->user_id);
         }
 
         // Check for doctor-date conflict (requested doctor unavailable on selected date)
@@ -1110,14 +1158,14 @@ class IntelligentBookingOrchestrator
     /**
      * Build component data for a given component type
      */
-    protected function buildComponentDataForType(?string $type, array $data): ?array
+    protected function buildComponentDataForType(?string $type, array $data, ?string $userId = null): ?array
     {
         if (!$type) {
             return null;
         }
 
         return match($type) {
-            'patient_selector' => $this->getPatientSelectorData(),
+            'patient_selector' => $this->getPatientSelectorData($userId),
             'appointment_type_selector' => [
                 'options' => [
                     ['id' => 'new', 'label' => 'New Appointment'],
@@ -1186,6 +1234,8 @@ class IntelligentBookingOrchestrator
             'mode_selector' => $this->getModeSelectorData($data),
             // Lab-specific components
             'package_list' => $this->getPackageListData($data),
+            'collection_type_selector' => $this->getCollectionTypeSelectorData(),
+            'center_list' => $this->getCenterListData($data),
             'location_selector' => $this->getLocationSelectorData($data),
             'date_time_selector' => $this->getLabDateTimeSelectorData($data),
             'booking_summary' => $this->buildSummaryDataByType($data),
@@ -1614,7 +1664,9 @@ class IntelligentBookingOrchestrator
                 'avatar' => $data['selectedPatientAvatar'] ?? null,
             ],
             'datetime' => $this->formatDateTime($data['selectedDate'] ?? null, $data['selectedTime'] ?? null),
-            'collection' => $collectionType === 'home' ? 'Home Collection' : 'Visit Center',
+            'collection' => $collectionType === 'home'
+                ? 'Home Collection'
+                : ($data['selectedCenterName'] ?? 'Visit Center'),
             'address' => $address,
             'fee' => $fee,
             'prepInstructions' => $prepInstructions,
@@ -1626,23 +1678,37 @@ class IntelligentBookingOrchestrator
      */
     protected function getPackageListData(array $data): array
     {
-        $packages = $this->labService->getAllPackages();
+        $searchResultIds = $data['packageSearchResults'] ?? null;
+
+        if (!empty($searchResultIds)) {
+            // Show only filtered packages matching search results
+            $allPackages = $this->labService->getAllPackages();
+            $packages = array_values(array_filter(
+                $allPackages,
+                fn($p) => in_array($p['id'], $searchResultIds)
+            ));
+        } else {
+            // Fallback to all packages (no search or zero results)
+            $packages = $this->labService->getAllPackages();
+        }
 
         // Format for EmbeddedPackageList component
+        $formatPackage = fn($p) => [
+            'id' => $p['id'],
+            'name' => $p['name'],
+            'description' => $p['description'] ?? '',
+            'duration_hours' => $p['duration_hours'] ?? null,
+            'tests_count' => $p['tests_count'] ?? 0,
+            'age_range' => $p['age_range'] ?? null,
+            'price' => $p['price'],
+            'original_price' => $p['original_price'] ?? null,
+            'is_recommended' => $p['is_popular'] ?? false,
+            'requires_fasting' => $p['requires_fasting'] ?? false,
+            'fasting_hours' => $p['fasting_hours'] ?? null,
+        ];
+
         return [
-            'packages' => array_map(fn($p) => [
-                'id' => $p['id'],
-                'name' => $p['name'],
-                'description' => $p['description'] ?? '',
-                'duration_hours' => $p['duration_hours'] ?? null,
-                'tests_count' => $p['tests_count'] ?? 0,
-                'age_range' => $p['age_range'] ?? null,
-                'price' => $p['price'],
-                'original_price' => $p['original_price'] ?? null,
-                'is_recommended' => $p['is_popular'] ?? false,
-                'requires_fasting' => $p['requires_fasting'] ?? false,
-                'fasting_hours' => $p['fasting_hours'] ?? null,
-            ], $packages),
+            'packages' => array_map($formatPackage, $packages),
             'selectedPackageId' => $data['selectedPackageId'] ?? null,
         ];
     }
@@ -1657,6 +1723,40 @@ class IntelligentBookingOrchestrator
         return [
             'locations' => $locations,
             'selectedLocationId' => $data['collectionType'] ?? null,
+        ];
+    }
+
+    /**
+     * Get collection type selector data (Home Collection / Hospital Visit)
+     */
+    protected function getCollectionTypeSelectorData(): array
+    {
+        return [
+            'options' => [
+                [
+                    'id' => 'home',
+                    'label' => 'Home Collection',
+                    'description' => 'Sample collected at your doorstep',
+                    'icon' => 'home',
+                ],
+                [
+                    'id' => 'center',
+                    'label' => 'Hospital Visit',
+                    'description' => 'Visit a lab center near you',
+                    'icon' => 'building',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Get center list data for lab booking (sorted by distance)
+     */
+    protected function getCenterListData(array $data): array
+    {
+        return [
+            'centers' => $this->labService->getAllCenters(),
+            'selectedCenterId' => $data['selectedCenterId'] ?? null,
         ];
     }
 
@@ -1998,6 +2098,39 @@ class IntelligentBookingOrchestrator
             }
         }
 
+        // Collection type selection (Home / Hospital)
+        if (isset($selection['collection_type'])) {
+            $updated['collectionType'] = $selection['collection_type'];
+            if ($selection['collection_type'] === 'home') {
+                unset($updated['selectedCenterId']);
+                unset($updated['selectedCenterName']);
+            }
+            if (!in_array('collection_type', $updated['completedSteps'])) {
+                $updated['completedSteps'][] = 'collection_type';
+            }
+            Log::info('🔒 Selection Handler: Collection type selected', [
+                'collection_type' => $selection['collection_type'],
+            ]);
+        }
+
+        // Center selection (for hospital visit)
+        if (isset($selection['center_id'])) {
+            $centerId = (int) $selection['center_id'];
+            $center = $this->labService->getCenterById($centerId);
+            if ($center) {
+                $updated['selectedCenterId'] = $centerId;
+                $updated['selectedCenterName'] = $center['name'];
+            }
+            if (!in_array('center', $updated['completedSteps'])) {
+                $updated['completedSteps'][] = 'center';
+            }
+            Log::info('🔒 Selection Handler: Center selected', [
+                'center_id' => $centerId,
+                'center_name' => $center['name'] ?? 'Unknown',
+            ]);
+        }
+
+        // Legacy location_id handler (backward compatibility)
         if (isset($selection['location_id'])) {
             $locationId = $selection['location_id'];
             if ($locationId === 'home') {
@@ -2006,7 +2139,6 @@ class IntelligentBookingOrchestrator
                 unset($updated['selectedCenterName']);
             } else {
                 $updated['collectionType'] = 'center';
-                // Extract center ID from "center_X" format
                 $centerId = (int) str_replace('center_', '', $locationId);
                 $center = $this->labService->getCenterById($centerId);
                 if ($center) {
@@ -2017,7 +2149,7 @@ class IntelligentBookingOrchestrator
             if (!in_array('location', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'location';
             }
-            Log::info('🔒 Selection Handler: Location selected', [
+            Log::info('🔒 Selection Handler: Location selected (legacy)', [
                 'location_id' => $locationId,
                 'collection_type' => $updated['collectionType'],
             ]);
@@ -2030,6 +2162,10 @@ class IntelligentBookingOrchestrator
             unset($updated['selectedPackageName']);
             unset($updated['packageRequiresFasting']);
             unset($updated['packageFastingHours']);
+            unset($updated['package_inquiry_asked']);
+            unset($updated['packageSearchQuery']);
+            unset($updated['packageSearchResults']);
+            unset($updated['packageMatchCount']);
             $updated['completedSteps'] = array_values(array_diff($updated['completedSteps'], ['package']));
         }
 
@@ -2042,7 +2178,7 @@ class IntelligentBookingOrchestrator
             // Clear date/time since location change may affect availability
             unset($updated['selectedDate']);
             unset($updated['selectedTime']);
-            $updated['completedSteps'] = array_values(array_diff($updated['completedSteps'], ['location', 'date', 'time']));
+            $updated['completedSteps'] = array_values(array_diff($updated['completedSteps'], ['collection_type', 'center', 'location', 'date', 'time']));
         }
 
         // Handle patient change from summary
@@ -2253,15 +2389,32 @@ class IntelligentBookingOrchestrator
 
     // Data provider methods (stub implementations - replace with actual data fetching)
 
-    protected function getPatientSelectorData(): array
+    protected function getPatientSelectorData(?string $userId = null): array
     {
-        return [
-            'patients' => [
-                ['id' => 1, 'name' => 'Yourself', 'relation' => 'self'],
-                ['id' => 2, 'name' => 'Mother', 'relation' => 'mother'],
-                ['id' => 3, 'name' => 'Father', 'relation' => 'father'],
-            ],
-        ];
+        $patients = [];
+
+        if ($userId) {
+            $patients = \App\Models\FamilyMember::where('user_id', $userId)
+                ->get()
+                ->map(fn($m) => [
+                    'id' => $m->id,
+                    'name' => $m->name,
+                    'relation' => ucfirst($m->relation),
+                    'avatar' => $m->avatar_url ?? '',
+                ])
+                ->toArray();
+        }
+
+        // Fallback if no family members found
+        if (empty($patients)) {
+            $patients = [
+                ['id' => 1, 'name' => 'Yourself', 'relation' => 'Self'],
+                ['id' => 2, 'name' => 'Mother', 'relation' => 'Mother'],
+                ['id' => 3, 'name' => 'Father', 'relation' => 'Father'],
+            ];
+        }
+
+        return ['patients' => $patients];
     }
 
     /**

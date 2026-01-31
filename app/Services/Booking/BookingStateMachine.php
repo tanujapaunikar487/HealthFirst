@@ -28,8 +28,10 @@ class BookingStateMachine
         'time_selection',    // Separate from doctor if needed
         'mode_selection',
         // Lab flow states
-        'package_selection',
-        'location_selection',
+        'package_inquiry',           // Ask user what test they want (chat input)
+        'package_selection',         // Show filtered packages
+        'collection_type_selection', // Home Collection or Hospital Visit
+        'center_selection',          // Show lab centers if hospital selected
         'lab_date_time_selection',
         // Common states
         'summary',
@@ -188,6 +190,13 @@ class BookingStateMachine
             }
         }
 
+        // Center visit requires a selected center
+        if ($this->bookingType === 'lab_test'
+            && ($this->data['collectionType'] ?? '') === 'center'
+            && empty($this->data['selectedCenterId'])) {
+            return false;
+        }
+
         return true;
     }
 
@@ -196,18 +205,28 @@ class BookingStateMachine
      */
     /**
      * Determine current state for lab test booking flow.
-     * Flow: patient → package → location → date+time → summary
+     * Flow: patient → inquiry → package → collection type → [center] → date+time → summary
      */
     private function determineLabState(): string
     {
         // Need package selection
         if (empty($this->data['selectedPackageId'])) {
+            // If user hasn't been asked what they're looking for yet
+            if (empty($this->data['package_inquiry_asked'])) {
+                return 'package_inquiry';
+            }
+            // User responded but no package selected yet — show filtered list
             return 'package_selection';
         }
 
-        // Need location/collection type
+        // Need collection type (home or center)
         if (empty($this->data['collectionType'])) {
-            return 'location_selection';
+            return 'collection_type_selection';
+        }
+
+        // If center visit, need center selection
+        if ($this->data['collectionType'] === 'center' && empty($this->data['selectedCenterId'])) {
+            return 'center_selection';
         }
 
         // Need date and time
@@ -374,14 +393,24 @@ class BookingStateMachine
                 'message' => 'How would you like to consult?',
                 'awaiting_chat_input' => false,
             ],
+            'package_inquiry' => [
+                'type' => null,
+                'message' => 'What test or health package are you looking for? (e.g., "diabetes screening", "full body checkup", "blood test")',
+                'awaiting_chat_input' => true,
+            ],
             'package_selection' => [
                 'type' => 'package_list',
-                'message' => 'Which health package would you like to book?',
+                'message' => $this->getPackageSelectionMessage(),
                 'awaiting_chat_input' => false,
             ],
-            'location_selection' => [
-                'type' => 'location_selector',
-                'message' => 'Where would you like to get your test done?',
+            'collection_type_selection' => [
+                'type' => 'collection_type_selector',
+                'message' => 'How would you like to get your sample collected?',
+                'awaiting_chat_input' => false,
+            ],
+            'center_selection' => [
+                'type' => 'center_list',
+                'message' => 'Here are the nearest lab centers. Which one would you like to visit?',
                 'awaiting_chat_input' => false,
             ],
             'lab_date_time_selection' => [
@@ -491,7 +520,8 @@ class BookingStateMachine
 
         if ($this->bookingType === 'lab_test') {
             if (empty($this->data['selectedPackageId'])) $missing[] = 'package';
-            if (empty($this->data['collectionType'])) $missing[] = 'location';
+            if (empty($this->data['collectionType'])) $missing[] = 'collection_type';
+            if (($this->data['collectionType'] ?? '') === 'center' && empty($this->data['selectedCenterId'])) $missing[] = 'center';
             if (empty($this->data['selectedDate'])) $missing[] = 'date';
             if (empty($this->data['selectedTime'])) $missing[] = 'time';
             return $missing;
@@ -559,7 +589,9 @@ class BookingStateMachine
             'mode' => !empty($this->data['consultationMode']),
             // Lab-specific fields
             'package' => !empty($this->data['selectedPackageId']),
+            'collection_type' => !empty($this->data['collectionType']),
             'location' => !empty($this->data['collectionType']),
+            'center' => !empty($this->data['selectedCenterId']),
             default => false,
         };
     }
@@ -570,11 +602,13 @@ class BookingStateMachine
     public function getCompletenessPercentage(): float
     {
         if ($this->bookingType === 'lab_test') {
-            $total = 5; // patient, package, location, date, time
+            $isCenterVisit = ($this->data['collectionType'] ?? '') === 'center';
+            $total = $isCenterVisit ? 6 : 5; // patient, package, collection_type, [center], date, time
             $completed = 0;
             if ($this->hasField('patient')) $completed++;
             if ($this->hasField('package')) $completed++;
-            if ($this->hasField('location')) $completed++;
+            if ($this->hasField('collection_type')) $completed++;
+            if ($isCenterVisit && $this->hasField('center')) $completed++;
             if ($this->hasField('date')) $completed++;
             if ($this->hasField('time')) $completed++;
             return $total > 0 ? $completed / $total : 0;
@@ -611,6 +645,23 @@ class BookingStateMachine
         }
 
         return $total > 0 ? $completed / $total : 0;
+    }
+
+    /**
+     * Get context-aware message for package selection (after search)
+     */
+    private function getPackageSelectionMessage(): string
+    {
+        $query = $this->data['packageSearchQuery'] ?? null;
+        $matchCount = $this->data['packageMatchCount'] ?? null;
+
+        if ($query && $matchCount === 0) {
+            return "I couldn't find an exact match for \"{$query}\". Here are all our available packages:";
+        }
+        if ($query) {
+            return "Based on your search, here are the matching packages:";
+        }
+        return 'Which health package would you like to book?';
     }
 
     /**
