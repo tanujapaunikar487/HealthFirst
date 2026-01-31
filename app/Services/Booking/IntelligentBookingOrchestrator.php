@@ -238,7 +238,7 @@ class IntelligentBookingOrchestrator
         // Only when the conversation has no collected data yet (fresh start)
         $intent = $parsed['intent'] ?? 'unclear';
         $currentData = $conversation->collected_data;
-        $hasBookingProgress = !empty($currentData['selectedPatientId']) || !empty($currentData['appointmentType']) || !empty($currentData['selectedPackageId']);
+        $hasBookingProgress = !empty($currentData['selectedPatientId']) || !empty($currentData['appointmentType']) || !empty($currentData['selectedPackageId']) || !empty($currentData['booking_type']);
 
         if (!$hasBookingProgress && in_array($intent, ['greeting', 'question', 'general_info', 'unclear'])) {
             $greetingResponses = [

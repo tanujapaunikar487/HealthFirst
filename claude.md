@@ -289,15 +289,16 @@ php artisan test --filter=BookingStateMachine
 | `insurance_providers` | 5 | Indian insurance providers (Star Health, HDFC ERGO, etc.) |
 | `insurance_claims` | 4 | Sample claims for testing |
 | `appointments` | 4 | Past appointments for follow-up context |
+| `user_addresses` | 3 | Saved addresses (Home, Office, Parent's House) for home collection |
 
 ### Models (`app/Models/`)
 
-Department, Doctor, DoctorConsultationMode, DoctorAvailability, DoctorAlias, TimeSlot, FamilyMember, Symptom, EmergencyKeyword, LabTestType, LabPackage, LabCenter, InsuranceProvider, InsuranceClaim, Appointment
+Department, Doctor, DoctorConsultationMode, DoctorAvailability, DoctorAlias, TimeSlot, FamilyMember, Symptom, EmergencyKeyword, LabTestType, LabPackage, LabCenter, InsuranceProvider, InsuranceClaim, Appointment, UserAddress
 
 All models have proper Eloquent relationships. Key relationships:
 - Department hasMany Doctors
 - Doctor belongsTo Department, hasMany ConsultationModes/Availabilities/Aliases
-- User hasMany FamilyMembers/Appointments/InsuranceClaims
+- User hasMany FamilyMembers/Appointments/InsuranceClaims/UserAddresses
 - Appointment belongsTo Doctor/User/FamilyMember/Department
 
 ---
@@ -337,7 +338,7 @@ Added lab test booking path to the AI chat flow, parallel to the existing doctor
 ### How It Works
 - `BookingStateMachine` branches on `collected_data['booking_type']`:
   - `'doctor'` → patient → appointment_type → urgency → doctor → time → mode → summary
-  - `'lab_test'` → patient → package → location → date+time → summary
+  - `'lab_test'` → patient → package_inquiry → package → collection_type → [home: address | center: center_selection] → date+time → summary
 - AI intent `booking_lab` auto-sets `booking_type = 'lab_test'`
 - AI intent `booking_doctor` keeps `booking_type = 'doctor'`
 
@@ -432,5 +433,84 @@ packageMatchCount: int               // Number of matches found
 
 ---
 
+## Address Selection for Home Collection (January 31, 2026)
+
+Added user address management and address selection step in the lab home collection flow.
+
+### New Flow
+```
+Patient → Package Search → Package Selection → Collection Type
+  → [If Home] Address Selection (new state) → Date+Time → Summary
+  → [If Hospital] Center Selection → Date+Time → Summary
+```
+
+### Files Created
+- `database/migrations/2026_01_31_145001_create_user_addresses_table.php` — Migration for user_addresses table
+- `app/Models/UserAddress.php` — Eloquent model with `getFullAddress()`, `scopeActive()`, `belongsTo(User)`
+- `resources/js/Features/booking-chat/embedded/EmbeddedAddressSelector.tsx` — Address card selector with saved addresses + "Add new" placeholder
+
+### Files Modified
+- `database/seeders/HospitalSeeder.php` — Seeds 3 addresses (Home, Office, Parent's House) for default user
+- `app/Services/Booking/BookingStateMachine.php` — Added `address_selection` state, updated `isReadyToBook()`, `getMissingFields()`, `hasField()`, `getCompletenessPercentage()`, `requestChange()` for home address requirement
+- `app/Services/Booking/IntelligentBookingOrchestrator.php` — Added `getAddressSelectorData()`, address selection handler, updated summary to show actual address, updated `change_location` to clear address fields
+- `resources/js/Features/booking-chat/EmbeddedComponent.tsx` — Wired `address_selector` case
+
+### New Database Table: `user_addresses`
+| Column | Type | Notes |
+|--------|------|-------|
+| id | bigint | auto-increment |
+| user_id | uuid | FK → users |
+| label | string | "Home", "Office", etc. |
+| address_line_1 | string | Street address |
+| address_line_2 | string (nullable) | Landmark/area |
+| city | string | City |
+| state | string | State |
+| pincode | string | PIN code |
+| is_default | boolean | Default address flag |
+| is_active | boolean | Soft delete flag |
+
+### New collected_data Keys
+```
+selectedAddressId: number       // Selected user address ID
+selectedAddressLabel: string    // Address label (e.g., "Home")
+selectedAddressText: string     // Full address text for summary display
+```
+
+---
+
+## Bug Fix: AI Fallback Shows Generic Greeting (January 31, 2026)
+
+When Groq API hits rate limit (HTTP 429), the fallback returns `intent: "unclear"`. The orchestrator treated this as a non-booking intent and showed "I can help you book a doctor appointment or a lab test" even when the conversation already had `booking_type` set from the `start` endpoint.
+
+**Fix**: Added `!empty($currentData['booking_type'])` to the `hasBookingProgress` check in `IntelligentBookingOrchestrator.php`. When `booking_type` is already set (e.g., `lab_test`), the orchestrator skips the greeting and proceeds to the state machine, which shows the correct next component (e.g., patient selector).
+
+---
+
+## AI Provider Setup
+
+### Current Providers
+| Provider | Model | Status | Notes |
+|----------|-------|--------|-------|
+| Groq (cloud) | llama-3.3-70b-versatile | Rate-limited | 100K tokens/day free tier |
+| Ollama (local) | qwen2.5:7b | Installed | Best JSON reliability at 7B, runs locally, no limits |
+| DeepSeek (cloud) | deepseek-chat | Available | Paid service |
+
+### Switching Providers
+```bash
+# In .env:
+AI_PROVIDER=ollama    # or groq, deepseek, none
+OLLAMA_MODEL=qwen2.5:7b
+GROQ_MODEL=llama-3.3-70b-versatile
+```
+
+### Running Ollama
+```bash
+ollama serve          # Start service
+ollama list           # Check available models
+ollama pull qwen2.5:7b  # Download model (~4.7 GB)
+```
+
+---
+
 **Last Updated**: January 31, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready
