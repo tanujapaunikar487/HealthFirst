@@ -489,7 +489,26 @@ class IntelligentBookingOrchestrator
             }
         }
 
-        // Step 3: Apply normalizer-detected conflicts
+        // Step 3: Apply normalizer-detected conflicts and warnings
+
+        // Past date warning — user typed a date that has already passed
+        if (!empty($entities['past_date_warning'])) {
+            $updated['past_date_warning'] = $entities['past_date_warning'];
+            // Ensure date-related fields are cleared
+            unset($updated['selectedDate']);
+            unset($updated['selectedTime']);
+            $updated['completedSteps'] = array_values(array_diff(
+                $updated['completedSteps'] ?? [], ['date', 'time']
+            ));
+            $updated['textMentionedFields'] = array_values(array_diff(
+                $updated['textMentionedFields'] ?? [], ['selectedDate', 'selectedTime']
+            ));
+            // Set urgency so state machine doesn't regress
+            if (empty($updated['urgency'])) {
+                $updated['urgency'] = 'this_week';
+            }
+        }
+
         if (!empty($entities['mode_conflict'])) {
             $updated['mode_conflict'] = $entities['mode_conflict'];
         }
@@ -973,6 +992,14 @@ class IntelligentBookingOrchestrator
 
             // Clear the flag so it doesn't repeat
             unset($data['doctor_date_conflict']);
+        }
+
+        // Check for past date warning
+        if (!empty($data['past_date_warning'])) {
+            $message = $data['past_date_warning']['message'];
+
+            // Clear the flag so it doesn't repeat
+            unset($data['past_date_warning']);
         }
 
         // Save data
@@ -1701,6 +1728,14 @@ class IntelligentBookingOrchestrator
             if (!in_array('date', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'date';
             }
+            // When user picks a specific date, ensure urgency reflects it
+            // so getAvailableDates() includes that date in downstream components
+            if (empty($updated['urgency']) || $updated['urgency'] === 'urgent') {
+                $updated['urgency'] = 'specific_date';
+            }
+            if (!in_array('urgency', $updated['completedSteps'])) {
+                $updated['completedSteps'][] = 'urgency';
+            }
         }
 
         if (isset($selection['time'])) {
@@ -2003,10 +2038,20 @@ class IntelligentBookingOrchestrator
             ];
         }
 
-        return [
+        $result = [
             'dates' => $fullWeekDates,
             'selected_date' => $data['selectedDate'] ?? null,
         ];
+
+        // Include past date warning if present
+        if (!empty($data['past_date_warning'])) {
+            $result['warning'] = [
+                'title' => 'Date Unavailable',
+                'description' => $data['past_date_warning']['message'],
+            ];
+        }
+
+        return $result;
     }
 
     /**
@@ -2339,38 +2384,22 @@ class IntelligentBookingOrchestrator
     {
         $doctorId = $data['selectedDoctorId'] ?? null;
         $doctor = $doctorId ? $this->doctorService->getById($doctorId) : null;
-
-        // Get base dates, then filter by doctor availability
-        $dates = $this->getAvailableDates($data);
         $daysOff = $doctorId ? $this->doctorService->getDaysOff($doctorId) : [];
 
+        // Always generate a week of available dates for the doctor,
+        // so the user can adjust their selection from the time slot picker
         $transformedDates = [];
-        foreach ($dates as $date) {
-            $dateObj = Carbon::parse($date['value']);
-            $isAvailable = empty($daysOff) || !in_array($dateObj->dayOfWeek, $daysOff);
+        for ($i = 0; $i < 14; $i++) {
+            $date = Carbon::today()->addDays($i);
+            $isAvailable = empty($daysOff) || !in_array($date->dayOfWeek, $daysOff);
 
-            // Only include dates the doctor works on
             if ($isAvailable) {
                 $transformedDates[] = [
-                    'date' => $date['value'],
-                    'label' => $date['label'],
-                    'sublabel' => $date['day'],
+                    'date' => $date->format('Y-m-d'),
+                    'label' => $i === 0 ? 'Today' : ($i === 1 ? 'Tomorrow' : $date->format('D')),
+                    'sublabel' => $date->format('M j'),
                 ];
-            }
-        }
-
-        // If no dates available in the current range, expand search up to 14 days
-        if (empty($transformedDates) && $doctorId) {
-            for ($i = 0; $i < 14; $i++) {
-                $date = Carbon::today()->addDays($i);
-                if (!in_array($date->dayOfWeek, $daysOff)) {
-                    $transformedDates[] = [
-                        'date' => $date->format('Y-m-d'),
-                        'label' => $i === 0 ? 'Today' : ($i === 1 ? 'Tomorrow' : $date->format('M j')),
-                        'sublabel' => $date->format('D'),
-                    ];
-                    if (count($transformedDates) >= 5) break;
-                }
+                if (count($transformedDates) >= 5) break;
             }
         }
 
@@ -2394,6 +2423,7 @@ class IntelligentBookingOrchestrator
             'dates' => $transformedDates,
             'slots' => $slots,
             'doctor_name' => $doctor['name'] ?? null,
+            'selected_date' => $data['selectedDate'] ?? null,
         ];
     }
 

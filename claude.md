@@ -164,6 +164,15 @@ When user typed both doctor name + time, `mergeEntities` only stored the name as
 ### Fix 17: Duplicate Frontend Component Cases (Dead Code)
 `EmbeddedComponent.tsx` had duplicate `case 'date_picker':` and `case 'doctor_selector':` — the first match always won, making the new date-only and filtered doctor components dead code. Removed duplicates so the correct components render.
 
+### Fix 18: Past Date Not Rejected (e.g., "5th Dec" in January)
+Typing a past date like "5th dec" was silently accepted (adjusted to Dec 2026, 10 months away). `EntityNormalizer.normalizeDate()` now detects past dates and dates >14 days out, returns `past_date_warning` with user-facing message. `mergeEntities()` clears date fields and stores warning. `buildResponseFromStateMachine()` shows amber alert above the date picker. Added `date_picker` case to `EmbeddedComponent.tsx` for date-only selection with warning support.
+
+### Fix 19: Date Picker Selection Not Carried to Time Slot Selector
+After selecting a date from `date_picker`, the time slot selector showed only "Today" instead of the selected date. `handleComponentSelection` stored the date but didn't update urgency, so `getAvailableDates()` used the old urgency. Now sets `urgency = 'specific_date'` when user picks a date via component.
+
+### Fix 20: Time Slot Selector Showed Only 1 Date
+`getDateTimeSelectorData()` relied on `getAvailableDates()` which returned a single date for `specific_date` urgency. Rewrote to always generate up to 5 available dates from today (filtered by doctor's days off), giving users flexibility to adjust their date.
+
 ---
 
 ## Architectural Refactor: Better AI Entity Extraction (January 31, 2026)

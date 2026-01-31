@@ -607,6 +607,66 @@ export function EmbeddedComponent({
         </div>
       );
 
+    case 'date_picker':
+      // Date-only picker (no time slots) — used for date_selection state
+      const [pickedDate, setPickedDate] = React.useState<string | null>(data?.selected_date || null);
+
+      return (
+        <div className="space-y-4 max-w-3xl">
+          {/* Warning message (e.g., past date alert) */}
+          {data?.warning && (
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
+                  <span className="text-white text-xs font-bold">!</span>
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-amber-900 mb-1">{data.warning.title}</p>
+                  <p className="text-sm text-amber-800">{data.warning.description}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Date pills */}
+          <div>
+            <h4 className="font-semibold text-sm mb-3 text-foreground">Pick a date</h4>
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {data?.dates?.map((d: any) => {
+                const dateValue = d.value || d.date;
+                const dateIsActive = dateValue === pickedDate;
+
+                return (
+                  <button
+                    key={dateValue}
+                    onClick={() => {
+                      if (disabled || isSelected) return;
+                      setPickedDate(dateValue);
+                      onSelect({ date: dateValue, display_message: `${d.day || d.label}` });
+                    }}
+                    disabled={disabled || isSelected}
+                    className={cn(
+                      'flex-shrink-0 px-6 py-3 rounded-3xl border transition-all min-w-[120px]',
+                      'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
+                      dateIsActive
+                        ? 'border-foreground bg-foreground text-background'
+                        : 'border-border bg-background text-foreground'
+                    )}
+                  >
+                    <div className={cn('font-semibold text-sm', dateIsActive && 'text-background')}>
+                      {d.label}
+                    </div>
+                    <div className={cn('text-xs', dateIsActive ? 'text-background/70' : 'text-muted-foreground')}>
+                      {d.day}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      );
+
     case 'week_date_selector':
       // Simple date pills for "this week" urgency
       const [selectedWeekDate, setSelectedWeekDate] = React.useState(data?.selected_date || new Date().toISOString().split('T')[0]);
@@ -641,17 +701,17 @@ export function EmbeddedComponent({
           selectedTime={null}
           onSelect={(date, time) => onSelect({ date })}
           disabled={disabled || isSelected}
-          warning={data?.fasting_required ? {
+          warning={data?.warning || (data?.fasting_required ? {
             title: 'Fasting Required',
             description: `Please fast for ${data.fasting_hours || 8} hours before your test.`
-          } : null}
+          } : null)}
         />
       );
 
     case 'time_slot_selector':
       return (
         <DateTimePicker
-          selectedDate={data?.date || selection?.date}
+          selectedDate={data?.selected_date || data?.date || selection?.date}
           selectedTime={selection?.time}
           onSelect={(date, time) => onSelect({ date, time })}
           disabled={disabled || isSelected}

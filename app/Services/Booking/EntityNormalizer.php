@@ -127,7 +127,7 @@ class EntityNormalizer
     }
 
     /**
-     * Normalize date to YYYY-MM-DD format. Fix past years.
+     * Normalize date to YYYY-MM-DD format. Detect past dates and out-of-range dates.
      */
     private function normalizeDate($value): array
     {
@@ -137,13 +137,55 @@ class EntityNormalizer
 
         try {
             $parsed = Carbon::parse($value);
+            $today = Carbon::today();
 
-            // Fix past dates (AI might return 2024-02-03 instead of 2026-02-03)
-            if ($parsed->isPast() && $parsed->diffInDays(Carbon::today()) > 1) {
-                $parsed = $parsed->year(Carbon::today()->year);
-                if ($parsed->isPast() && $parsed->diffInDays(Carbon::today()) > 1) {
+            // If parsed date is in the past, try adjusting the year
+            if ($parsed->isPast() && $parsed->diffInDays($today) > 1) {
+                $originalParsed = $parsed->copy();
+                $parsed = $parsed->year($today->year);
+
+                // If still in the past after setting to current year, try next year
+                if ($parsed->isPast() && $parsed->diffInDays($today) > 1) {
                     $parsed = $parsed->addYear();
                 }
+
+                // If the adjusted date is far in the future (> 14 days),
+                // the user likely meant a genuinely past date (e.g. "5th dec" in January)
+                $daysFromNow = $today->diffInDays($parsed);
+                if ($daysFromNow > 14) {
+                    Log::info('⚠️ EntityNormalizer: Past date detected', [
+                        'input' => $value,
+                        'original_parsed' => $originalParsed->format('Y-m-d'),
+                        'adjusted' => $parsed->format('Y-m-d'),
+                        'days_from_now' => $daysFromNow,
+                    ]);
+
+                    return [
+                        'value' => null,
+                        'warning' => 'past_date',
+                        'extra' => [
+                            'past_date_warning' => [
+                                'requested_date' => $originalParsed->format('M j'),
+                                'message' => "{$originalParsed->format('M j')} has already passed. Please pick a date within the next week.",
+                            ],
+                        ],
+                    ];
+                }
+            }
+
+            // Check if date is too far in the future (> 14 days)
+            $daysFromNow = $today->diffInDays($parsed);
+            if ($daysFromNow > 14) {
+                return [
+                    'value' => null,
+                    'warning' => 'date_too_far',
+                    'extra' => [
+                        'past_date_warning' => [
+                            'requested_date' => $parsed->format('M j, Y'),
+                            'message' => "{$parsed->format('M j, Y')} is too far out. Please pick a date within the next week.",
+                        ],
+                    ],
+                ];
             }
 
             return ['value' => $parsed->format('Y-m-d'), 'warning' => null];
