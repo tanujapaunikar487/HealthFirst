@@ -2113,12 +2113,36 @@ class IntelligentBookingOrchestrator
             // If no matches found, keep the full list so the user can still choose
         }
 
-        // Always show a full week of dates in the doctor selector so the user
-        // can browse availability. Use urgency only to pre-select a date.
+        // Build a full week of dates, but only include dates where at least
+        // one doctor is available.  Per doctor, attach the list of dates they
+        // can be booked on so the frontend can filter the doctor list when the
+        // user switches date pills.
         $urgency = $data['urgency'] ?? 'this_week';
+
+        // Pre-compute each doctor's days-off set for quick lookup
+        $doctorDaysOff = [];
+        foreach ($doctors as $doctor) {
+            $doctorDaysOff[$doctor['id']] = $this->getDoctorDaysOff($doctor['id']);
+        }
+
+        // Generate 7-day window, keeping only dates with ≥1 available doctor
         $fullWeekDates = [];
         for ($i = 0; $i < 7; $i++) {
             $date = Carbon::today()->addDays($i);
+            $dayOfWeek = $date->dayOfWeek; // 0=Sun … 6=Sat
+
+            // Check if ANY doctor is available on this day
+            $anyAvailable = false;
+            foreach ($doctors as $doctor) {
+                if (!in_array($dayOfWeek, $doctorDaysOff[$doctor['id']])) {
+                    $anyAvailable = true;
+                    break;
+                }
+            }
+            if (!$anyAvailable) {
+                continue; // skip dates where no doctor works
+            }
+
             $label = $i === 0 ? 'Today' : ($i === 1 ? 'Tomorrow' : $date->format('D'));
             $fullWeekDates[] = [
                 'value' => $date->format('Y-m-d'),
@@ -2127,6 +2151,21 @@ class IntelligentBookingOrchestrator
             ];
         }
         $dates = $fullWeekDates;
+
+        // Attach available_dates to each doctor so the frontend can show/hide
+        // doctors when the user picks a different date pill.
+        foreach ($doctors as &$doctor) {
+            $daysOff = $doctorDaysOff[$doctor['id']];
+            $availDates = [];
+            foreach ($dates as $d) {
+                $dow = Carbon::parse($d['value'])->dayOfWeek;
+                if (!in_array($dow, $daysOff)) {
+                    $availDates[] = $d['value'];
+                }
+            }
+            $doctor['available_dates'] = $availDates;
+        }
+        unset($doctor); // break reference
 
         // Determine which date is pre-selected.
         // Explicit selectedDate always takes priority over urgency-based defaults.

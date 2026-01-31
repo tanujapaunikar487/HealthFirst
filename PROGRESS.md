@@ -845,8 +845,17 @@ open http://127.0.0.1:3000
 - **Fix**: Changed `formatDateTime()` to use `Carbon::format('Y-m-d\TH:i:s')` — a timezone-naive ISO format. The frontend now displays the exact time the user selected without any timezone conversion.
 - **Files**: `app/Services/Booking/IntelligentBookingOrchestrator.php`
 
+### Fix 9: Calendar Showing Unavailable Dates and Doctors (Bad UX)
+- **Problem**: The date picker (date pills) in the `date_doctor_selector` component showed all 7 days of the week, including days when no doctor is available. Similarly, all 5 doctors were shown regardless of which date was selected — users could click on a date where a doctor has a day off and still see that doctor listed with time slots.
+- **Root Cause**: `getDoctorListData()` generated a static 7-day window without consulting `getDoctorDaysOff()`. Each doctor was assigned the same `generateTimeSlots()` output for every date. The frontend rendered the full doctor list without per-date filtering.
+- **Fix**:
+  - **Backend**: `getDoctorListData()` now pre-computes each doctor's days off and filters the 7-day date list to only include dates where at least one doctor is available. Each doctor also receives an `available_dates` array listing the specific dates they can be booked on.
+  - **Frontend**: The `date_doctor_selector` component now filters the doctor list based on the active date — only doctors whose `available_dates` includes the selected date are shown. The doctor count heading updates dynamically.
+  - **Chat path preserved**: The "not available" message (with next available date and alternative doctors) still triggers when a user types a specific date via chat text, since that path goes through `mergeEntities()` → `checkDoctorAvailabilityForDate()`.
+- **Files**: `app/Services/Booking/IntelligentBookingOrchestrator.php`, `resources/js/Features/booking-chat/EmbeddedComponent.tsx`
+
 ---
 
 **Last Updated**: January 31, 2026
 **Latest Commit**: (pending)
-**Status**: ✅ Dashboard Complete | ✅ AI Booking Flow Complete | ✅ Font Standardization Complete | ✅ Follow-Up Flow Complete | ✅ Calendar Integration Complete | ✅ Guided Booking Flow Enhanced | ✅ Critical Bug Fixes Applied | ✅ Mode Validation Enhanced | ✅ Mode Conflict Notifications
+**Status**: ✅ Dashboard Complete | ✅ AI Booking Flow Complete | ✅ Font Standardization Complete | ✅ Follow-Up Flow Complete | ✅ Calendar Integration Complete | ✅ Guided Booking Flow Enhanced | ✅ Critical Bug Fixes Applied | ✅ Mode Validation Enhanced | ✅ Mode Conflict Notifications | ✅ Availability-Filtered Calendar
