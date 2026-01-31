@@ -2414,9 +2414,9 @@ class IntelligentBookingOrchestrator
         Log::info('📅 Built time slot selector data', [
             'doctor_id' => $doctorId,
             'doctor_name' => $doctor['name'] ?? 'none',
-            'total_base_dates' => count($dates),
-            'filtered_dates' => count($transformedDates),
+            'available_dates' => count($transformedDates),
             'slots_count' => count($slots),
+            'selected_date' => $data['selectedDate'] ?? null,
         ]);
 
         return [
