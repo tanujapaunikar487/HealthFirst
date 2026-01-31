@@ -185,7 +185,7 @@ class EntityNormalizer
                         'extra' => [
                             'past_date_warning' => [
                                 'requested_date' => $originalParsed->format('M j'),
-                                'message' => "{$originalParsed->format('M j')} has already passed. Please pick a date within the next week.",
+                                'message' => "{$originalParsed->format('M j')} has already passed. Please pick a date within the next 2 weeks.",
                             ],
                         ],
                     ];
@@ -201,7 +201,7 @@ class EntityNormalizer
                     'extra' => [
                         'past_date_warning' => [
                             'requested_date' => $parsed->format('M j, Y'),
-                            'message' => "{$parsed->format('M j, Y')} is too far out. Please pick a date within the next week.",
+                            'message' => "{$parsed->format('M j, Y')} is too far out. Please pick a date within the next 2 weeks.",
                         ],
                     ],
                 ];

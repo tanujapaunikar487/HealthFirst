@@ -332,7 +332,7 @@ class GuidedDoctorController extends Controller
     {
         $validated = $request->validate([
             'urgency' => 'required|in:urgent,this_week,specific_date',
-            'selectedDate' => 'required|date|after_or_equal:today',
+            'selectedDate' => 'required|date|after_or_equal:today|before_or_equal:' . now()->addDays(14)->format('Y-m-d'),
             'selectedDoctorId' => 'required|string',
             'selectedTime' => 'required|string',
             'appointmentMode' => 'required|in:video,in_person',

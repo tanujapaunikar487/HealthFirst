@@ -168,7 +168,7 @@ Extract these entities when present in the message:
 | appointment_type  | new/followup            | 'follow up'/'revisit'/'check back' → 'followup'    |
 | doctor_name       | Exact name from our list | Partial match OK: 'Dr. Sarah' → 'Dr. Sarah Johnson'|
 | doctor_id         | Integer 1-5             | Must match our doctor list above                    |
-| date              | YYYY-MM-DD              | Resolve relative dates using TODAY above             |
+| date              | YYYY-MM-DD              | Resolve relative dates using TODAY above. Only within next 14 days. |
 | time              | HH:MM (24-hour)         | '3 PM' → '15:00', '10 AM' → '10:00', '3:30' → '15:30' |
 | urgency_level     | urgent/this_week/flexible | 'ASAP'/'today'/'emergency' → 'urgent'             |
 | consultation_mode | video/in_person         | 'online'/'virtual' → 'video', 'physical'/'clinic' → 'in_person' |

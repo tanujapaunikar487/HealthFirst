@@ -375,12 +375,14 @@ export default function DoctorTimeStep({
                 value={selectedDate}
                 onChange={handleSpecificDateChange}
                 min={new Date().toISOString().split('T')[0]}
+                max={new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0]}
                 className={cn(
                   'w-full pl-10 pr-4 py-3 rounded-xl border bg-background text-sm',
                   'focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary'
                 )}
               />
             </div>
+            <p className="text-xs text-muted-foreground mt-2">You can book up to 2 weeks in advance</p>
           </section>
         )}
 

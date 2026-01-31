@@ -772,5 +772,19 @@ Simplified the progress bar in `Conversation.tsx` from a labeled bar with percen
 
 ---
 
+## Enforce 2-Week Maximum Booking Window (February 1, 2026)
+
+Both booking flows now consistently enforce a 14-day maximum booking window.
+
+### Guided Flow
+- **DoctorTimeStep.tsx**: Added `max` attribute on the "Specific date" date input (14 days from today). Browser blocks dates beyond 2 weeks. Added helper text: "You can book up to 2 weeks in advance."
+- **GuidedDoctorController.php**: Added `before_or_equal:` + 14 days validation rule on `selectedDate` in `storeDoctorTime()` as backend safety net.
+
+### AI Chat Flow
+- **EntityNormalizer.php**: Already enforced 14-day limit, but warning messages said "within the next week". Updated both past-date and too-far-out messages to say "within the next 2 weeks."
+- **BookingPromptBuilder.php**: Added "Only within next 14 days" to the date extraction rule so the AI is aware of the constraint.
+
+---
+
 **Last Updated**: February 1, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window
