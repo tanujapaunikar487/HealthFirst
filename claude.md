@@ -25,7 +25,7 @@ AI-powered healthcare platform for appointment booking (doctor and lab tests) wi
 
 ```
 app/
-  Models/              Eloquent models (BookingConversation, ConversationMessage, User)
+  Models/              Eloquent models (15 hospital models + BookingConversation, ConversationMessage, User)
   Http/
     Controllers/       Thin orchestration (DashboardController, BookingConversationController, etc.)
     Requests/          Form request validation
@@ -238,6 +238,9 @@ User message
 ## How to Run
 
 ```bash
+# Fresh database with seed data
+php artisan migrate:fresh --seed
+
 # Start Laravel server
 php artisan serve --port=3000
 
@@ -267,12 +270,65 @@ php artisan test --filter=BookingStateMachine
 - `booking_conversations` - UUID primary key, user_id, type, status, current_step, collected_data (JSON)
 - `conversation_messages` - UUID, conversation_id, role, content, component_type, component_data (JSON), user_selection (JSON)
 
-### Mock Data (to be replaced with real DB)
-- 5 doctors with varying specializations, availability, and consultation modes
-- Doctor days-off schedule (per day-of-week)
-- Time slots 08:00-17:00
+### Hospital Data Tables (15 tables, seeded via `HospitalSeeder`)
+
+| Table | Records | Purpose |
+|-------|---------|---------|
+| `departments` | 10 | Hospital departments (General Medicine, Cardiology, Dermatology, etc.) |
+| `doctors` | 10 | Doctors with specialization, experience, rating, avatar |
+| `doctor_consultation_modes` | 17 | Video/in-person modes with fees per doctor |
+| `doctor_availabilities` | 70 | Day-of-week availability per doctor |
+| `doctor_aliases` | 31 | Name aliases for AI name matching (e.g., "Meera Iyer" → doctor 3) |
+| `time_slots` | ~800 | 14-day generated slots, 8am-5pm, ~20% pre-booked |
+| `family_members` | 6 | Patient profiles (Self, Mother, Father, Brother, Grandmother, Spouse) |
+| `symptoms` | 20 | Common symptoms mapped to departments with severity |
+| `emergency_keywords` | 15 | Emergency detection (chest pain, heart attack, etc.) |
+| `lab_test_types` | 15 | Lab tests (CBC, Lipid Profile, Thyroid, etc.) with pricing |
+| `lab_packages` | 6 | Health packages (Complete Health ₹4999, Diabetes ₹1499, etc.) |
+| `lab_centers` | 4 | Lab centers in Pune with home collection support |
+| `insurance_providers` | 5 | Indian insurance providers (Star Health, HDFC ERGO, etc.) |
+| `insurance_claims` | 4 | Sample claims for testing |
+| `appointments` | 4 | Past appointments for follow-up context |
+
+### Models (`app/Models/`)
+
+Department, Doctor, DoctorConsultationMode, DoctorAvailability, DoctorAlias, TimeSlot, FamilyMember, Symptom, EmergencyKeyword, LabTestType, LabPackage, LabCenter, InsuranceProvider, InsuranceClaim, Appointment
+
+All models have proper Eloquent relationships. Key relationships:
+- Department hasMany Doctors
+- Doctor belongsTo Department, hasMany ConsultationModes/Availabilities/Aliases
+- User hasMany FamilyMembers/Appointments/InsuranceClaims
+- Appointment belongsTo Doctor/User/FamilyMember/Department
+
+---
+
+## Database Migration (January 31, 2026)
+
+Replaced all hardcoded data arrays with a proper database layer:
+
+### What Changed
+- **Created 15 migrations** in `database/migrations/` with foreign keys and indexes
+- **Created 15 Eloquent models** in `app/Models/` with relationships
+- **Created `HospitalSeeder`** with realistic Indian healthcare data (10 doctors, 6 family members, 20 symptoms, 15 lab tests, etc.)
+- **Rewrote `DoctorService.php`** — all methods now use Eloquent queries instead of hardcoded arrays (same public API preserved)
+- **Rewrote `GuidedDoctorController.php`** — family members, doctors, symptoms, emergency keywords, appointments all from DB
+- **Rewrote `GuidedLabController.php`** — packages, test types, lab centers all from DB
+- **Updated `BookingConversationController.php`** — passes family members from DB to frontend via Inertia props
+- **Updated frontend** — removed hardcoded dummy arrays from `EmbeddedComponent.tsx`, `Conversation.tsx` accepts `familyMembers` prop
+
+### Key Design Decisions
+- User model uses UUIDs (`HasUuids` trait) → all user FK references use `foreignUuid()`
+- User model lives at `App\User` (not `App\Models\User`)
+- Doctor IDs 1-5 preserved for backward compatibility
+- Frontend doctor IDs use 'd' prefix (e.g., 'd1', 'd2') — extracted with `str_replace('d', '', $id)`
+- `DoctorService.toArray()` converts Eloquent model to the array format expected system-wide
+
+### Seeding
+```bash
+php artisan migrate:fresh --seed
+```
 
 ---
 
 **Last Updated**: January 31, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created

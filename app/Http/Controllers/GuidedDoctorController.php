@@ -2,7 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Appointment;
+use App\Models\Doctor;
+use App\Models\EmergencyKeyword;
+use App\Models\FamilyMember;
+use App\Models\Symptom;
+use App\Models\TimeSlot;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class GuidedDoctorController extends Controller
@@ -13,82 +21,88 @@ class GuidedDoctorController extends Controller
     public function patient()
     {
         $savedData = session('guided_doctor_booking', []);
+        $user = Auth::user();
 
-        // Mock family members data
-        $familyMembers = [
-            [
-                'id' => '1',
-                'name' => 'Sanjana Jaisinghani',
-                'avatar' => null,
-                'relationship' => 'Self',
-                'age' => 28,
-            ],
-            [
-                'id' => '2',
-                'name' => 'Kriti Jaisinghani',
-                'avatar' => null,
-                'relationship' => 'Mother',
-                'age' => 54,
-            ],
-            [
-                'id' => '3',
-                'name' => 'Raj Jaisinghani',
-                'avatar' => null,
-                'relationship' => 'Father',
-                'age' => 58,
-            ],
-        ];
+        // Family members from database
+        $familyMembers = FamilyMember::where('user_id', $user->id)
+            ->get()
+            ->map(fn($m) => [
+                'id' => (string) $m->id,
+                'name' => $m->name,
+                'avatar' => $m->avatar_url,
+                'relationship' => ucfirst($m->relation),
+                'age' => $m->age,
+            ])
+            ->toArray();
 
-        // Mock previous appointments
-        $previousConsultations = [
-            [
-                'id' => '1',
-                'patientId' => '1',
-                'doctor' => [
-                    'id' => 'd1',
-                    'name' => 'Dr. Sarah Johnson',
-                    'avatar' => null,
-                    'specialization' => 'General Physician',
-                    'experience_years' => 15,
-                    'appointment_modes' => ['video', 'in_person'],
-                    'video_fee' => 800,
-                    'in_person_fee' => 1200,
-                ],
-                'date' => '2026-01-15',
-                'symptoms' => ['Fever', 'Headache'],
-                'slots' => [
-                    ['time' => '9:00 AM', 'available' => true, 'preferred' => true],
-                    ['time' => '2:00 PM', 'available' => true, 'preferred' => false],
-                    ['time' => '4:00 PM', 'available' => false, 'preferred' => false],
-                ],
-            ],
-        ];
+        // Previous appointments from database
+        $previousConsultations = Appointment::where('user_id', $user->id)
+            ->where('appointment_type', 'doctor')
+            ->where('status', 'completed')
+            ->with(['doctor.consultationModes'])
+            ->orderByDesc('appointment_date')
+            ->limit(5)
+            ->get()
+            ->map(function ($appt) {
+                $doctor = $appt->doctor;
+                $slots = $doctor
+                    ? TimeSlot::where('doctor_id', $doctor->id)
+                        ->where('date', Carbon::today()->format('Y-m-d'))
+                        ->where('is_booked', false)
+                        ->limit(6)
+                        ->get()
+                        ->map(fn($s) => [
+                            'time' => Carbon::parse($s->start_time)->format('g:i A'),
+                            'available' => true,
+                            'preferred' => $s->is_preferred,
+                        ])
+                        ->toArray()
+                    : [];
 
-        // Mock symptoms data
-        $symptoms = [
-            ['id' => 's1', 'name' => 'Fever'],
-            ['id' => 's2', 'name' => 'Cough'],
-            ['id' => 's3', 'name' => 'Headache'],
-            ['id' => 's4', 'name' => 'Body ache'],
-            ['id' => 's5', 'name' => 'Fatigue'],
-            ['id' => 's6', 'name' => 'Sore throat'],
-            ['id' => 's7', 'name' => 'Nausea'],
-            ['id' => 's8', 'name' => 'Dizziness'],
-        ];
+                return [
+                    'id' => (string) $appt->id,
+                    'patientId' => (string) $appt->family_member_id,
+                    'doctor' => $doctor ? [
+                        'id' => 'd' . $doctor->id,
+                        'name' => $doctor->name,
+                        'avatar' => $doctor->avatar_url,
+                        'specialization' => $doctor->specialization,
+                        'experience_years' => $doctor->experience_years,
+                        'appointment_modes' => $doctor->consultationModes->pluck('mode')->toArray(),
+                        'video_fee' => $doctor->consultationModes->firstWhere('mode', 'video')?->fee ?? 0,
+                        'in_person_fee' => $doctor->consultationModes->firstWhere('mode', 'in_person')?->fee ?? 0,
+                    ] : null,
+                    'date' => $appt->appointment_date->format('Y-m-d'),
+                    'symptoms' => $appt->symptoms ?? [],
+                    'slots' => $slots,
+                ];
+            })
+            ->toArray();
 
-        // Mock urgency options
+        // Symptoms from database
+        $symptoms = Symptom::where('is_active', true)
+            ->get()
+            ->map(fn($s) => [
+                'id' => 's' . $s->id,
+                'name' => $s->name,
+            ])
+            ->toArray();
+
+        // Urgency options with dynamic doctor count
         $urgencyOptions = [
             [
                 'value' => 'urgent',
                 'label' => 'Urgent - Today',
                 'description' => "Only today's slots",
-                'doctorCount' => 3,
+                'doctorCount' => Doctor::where('is_active', true)
+                    ->whereHas('availabilities', fn($q) => $q->where('day_of_week', Carbon::today()->dayOfWeek)->where('is_available', true))
+                    ->count(),
             ],
             [
                 'value' => 'this_week',
                 'label' => 'This Week',
                 'description' => 'Next 7 days',
-                'doctorCount' => 12,
+                'doctorCount' => Doctor::where('is_active', true)->count(),
             ],
             [
                 'value' => 'specific_date',
@@ -97,33 +111,30 @@ class GuidedDoctorController extends Controller
             ],
         ];
 
-        // Follow-up reason options (matches chat flow)
+        // Follow-up reason options
         $followUpReasonOptions = [
-            [
-                'value' => 'scheduled',
-                'label' => 'Scheduled follow-up',
-                'description' => 'Doctor asked me to come back',
-            ],
-            [
-                'value' => 'new_concern',
-                'label' => 'New concern',
-                'description' => 'Something changed since last visit',
-            ],
-            [
-                'value' => 'ongoing_issue',
-                'label' => 'Ongoing issue',
-                'description' => "Symptoms haven't improved",
-            ],
+            ['value' => 'scheduled', 'label' => 'Scheduled follow-up', 'description' => 'Doctor asked me to come back'],
+            ['value' => 'new_concern', 'label' => 'New concern', 'description' => 'Something changed since last visit'],
+            ['value' => 'ongoing_issue', 'label' => 'Ongoing issue', 'description' => "Symptoms haven't improved"],
         ];
 
-        // Mock follow-up data if applicable
+        // Follow-up data from last appointment
         $followUp = null;
         if (isset($savedData['appointmentType']) && $savedData['appointmentType'] === 'followup') {
-            $followUp = [
-                'symptoms' => ['Fever', 'Headache'],
-                'doctorName' => 'Dr. Sarah Johnson',
-                'date' => 'Jan 15, 2026',
-            ];
+            $lastAppt = Appointment::where('user_id', $user->id)
+                ->where('appointment_type', 'doctor')
+                ->where('status', 'completed')
+                ->with('doctor')
+                ->orderByDesc('appointment_date')
+                ->first();
+
+            if ($lastAppt) {
+                $followUp = [
+                    'symptoms' => $lastAppt->symptoms ?? [],
+                    'doctorName' => $lastAppt->doctor?->name ?? 'Unknown',
+                    'date' => $lastAppt->appointment_date->format('M j, Y'),
+                ];
+            }
         }
 
         return Inertia::render('Booking/Doctor/PatientStep', [
@@ -155,27 +166,20 @@ class GuidedDoctorController extends Controller
             'urgency' => 'required|in:urgent,this_week,specific_date',
         ]);
 
-        // Validate patient ID exists in family members (in production, query database)
-        $familyMembers = $this->getFamilyMembers();
-        $patientExists = collect($familyMembers)->contains('id', $validated['patientId']);
+        // Validate patient ID exists in family members
+        $user = Auth::user();
+        $patientExists = FamilyMember::where('user_id', $user->id)
+            ->where('id', $validated['patientId'])
+            ->exists();
 
         if (!$patientExists) {
             return back()->withErrors(['patientId' => 'Invalid patient selection'])->withInput();
         }
 
-        // Check for emergency symptoms
-        $emergencyKeywords = [
-            'chest pain' => 'cardiac',
-            'heart attack' => 'cardiac',
-            'can\'t breathe' => 'respiratory',
-            'difficulty breathing' => 'respiratory',
-            'severe bleeding' => 'trauma',
-            'unconscious' => 'neurological',
-            'stroke' => 'neurological',
-            'seizure' => 'neurological',
-            'severe head injury' => 'trauma',
-            'suicide' => 'psychiatric',
-        ];
+        // Check for emergency symptoms from database
+        $emergencyKeywords = EmergencyKeyword::all()
+            ->pluck('category', 'keyword')
+            ->toArray();
 
         $symptomsText = implode(' ', $validated['selectedSymptoms'] ?? []);
         if (isset($validated['symptomNotes'])) {
@@ -185,7 +189,6 @@ class GuidedDoctorController extends Controller
 
         foreach ($emergencyKeywords as $keyword => $category) {
             if (str_contains($symptomsText, $keyword)) {
-                // Redirect with emergency warning
                 return back()->withErrors([
                     'emergency' => 'We detected symptoms that may require immediate medical attention. Please call emergency services (911 or your local emergency number) or visit the nearest emergency room immediately.',
                     'emergency_category' => $category,
@@ -195,8 +198,6 @@ class GuidedDoctorController extends Controller
 
         // If quick booking, validate doctor and time exist
         if ($validated['quickBookDoctorId'] && $validated['quickBookTime']) {
-            // In production: validate doctor exists and time slot is available
-            // For now, just ensure both are provided
             if (empty($validated['quickBookDoctorId']) || empty($validated['quickBookTime'])) {
                 return back()->withErrors(['quickBook' => 'Invalid quick booking selection'])->withInput();
             }
@@ -218,18 +219,6 @@ class GuidedDoctorController extends Controller
     }
 
     /**
-     * Get family members (mock data - replace with database query in production)
-     */
-    protected function getFamilyMembers()
-    {
-        return [
-            ['id' => '1', 'name' => 'Sanjana Jaisinghani', 'relationship' => 'Self', 'age' => 28],
-            ['id' => '2', 'name' => 'Kriti Jaisinghani', 'relationship' => 'Mother', 'age' => 54],
-            ['id' => '3', 'name' => 'Raj Jaisinghani', 'relationship' => 'Father', 'age' => 58],
-        ];
-    }
-
-    /**
      * Show doctor and time selection step
      */
     public function doctorTime(Request $request)
@@ -241,9 +230,8 @@ class GuidedDoctorController extends Controller
         }
 
         $selectedDate = $request->get('date', now()->toDateString());
-        $searchQuery = $request->get('search', '');
 
-        // Mock available dates
+        // Available dates (next 5 days)
         $availableDates = [];
         for ($i = 0; $i < 5; $i++) {
             $date = now()->addDays($i);
@@ -254,179 +242,68 @@ class GuidedDoctorController extends Controller
             ];
         }
 
-        // Mock doctors data - vary based on selected date
-        $allDoctors = [
-            [
-                'id' => 'd1',
-                'name' => 'Dr. Sarah Johnson',
-                'avatar' => null,
-                'specialization' => 'General Physician',
-                'experience_years' => 15,
-                'appointment_modes' => ['video', 'in_person'],
-                'video_fee' => 800,
-                'in_person_fee' => 1200,
-                'available_dates' => [0, 1, 2, 3, 4], // Available all days
-                'slots' => [
-                    ['time' => '9:00 AM', 'available' => true, 'preferred' => true],
-                    ['time' => '10:00 AM', 'available' => true, 'preferred' => true],
-                    ['time' => '11:00 AM', 'available' => true, 'preferred' => false],
-                    ['time' => '2:00 PM', 'available' => true, 'preferred' => false],
-                    ['time' => '3:00 PM', 'available' => true, 'preferred' => false],
-                    ['time' => '5:00 PM', 'available' => true, 'preferred' => false],
-                ],
-            ],
-            [
-                'id' => 'd2',
-                'name' => 'Dr. Michael Chen',
-                'avatar' => null,
-                'specialization' => 'Cardiologist',
-                'experience_years' => 12,
-                'appointment_modes' => ['video'],
-                'video_fee' => 1500,
-                'in_person_fee' => 0,
-                'available_dates' => [0, 2, 4], // Available on days 0, 2, 4
-                'slots' => [
-                    ['time' => '9:00 AM', 'available' => true, 'preferred' => true],
-                    ['time' => '10:00 AM', 'available' => true, 'preferred' => true],
-                    ['time' => '11:00 AM', 'available' => true, 'preferred' => false],
-                    ['time' => '2:00 PM', 'available' => true, 'preferred' => false],
-                    ['time' => '3:00 PM', 'available' => true, 'preferred' => false],
-                    ['time' => '5:00 PM', 'available' => true, 'preferred' => false],
-                ],
-            ],
-            [
-                'id' => 'd3',
-                'name' => 'Dr. Priya Sharma',
-                'avatar' => null,
-                'specialization' => 'Dermatologist',
-                'experience_years' => 10,
-                'appointment_modes' => ['in_person'],
-                'video_fee' => 0,
-                'in_person_fee' => 1800,
-                'available_dates' => [0, 1, 2, 3, 4], // Available all days
-                'slots' => [
-                    ['time' => '9:00 AM', 'available' => true, 'preferred' => true],
-                    ['time' => '10:00 AM', 'available' => true, 'preferred' => true],
-                    ['time' => '11:00 AM', 'available' => true, 'preferred' => false],
-                    ['time' => '2:00 PM', 'available' => true, 'preferred' => false],
-                    ['time' => '3:00 PM', 'available' => true, 'preferred' => false],
-                    ['time' => '5:00 PM', 'available' => true, 'preferred' => false],
-                ],
-            ],
-            [
-                'id' => 'd4',
-                'name' => 'Dr. Rajesh Kumar',
-                'avatar' => null,
-                'specialization' => 'Neurologist',
-                'experience_years' => 12,
-                'appointment_modes' => ['video', 'in_person'],
-                'video_fee' => 800,
-                'in_person_fee' => 1200,
-                'available_dates' => [0, 1, 2, 3, 4], // Available all days
-                'slots' => [
-                    ['time' => '9:00 AM', 'available' => true, 'preferred' => true],
-                    ['time' => '10:00 AM', 'available' => true, 'preferred' => true],
-                    ['time' => '11:00 AM', 'available' => true, 'preferred' => false],
-                    ['time' => '2:00 PM', 'available' => true, 'preferred' => false],
-                    ['time' => '3:00 PM', 'available' => true, 'preferred' => false],
-                    ['time' => '5:00 PM', 'available' => true, 'preferred' => false],
-                ],
-            ],
-            [
-                'id' => 'd5',
-                'name' => 'Dr. Meera Iyer',
-                'avatar' => null,
-                'specialization' => 'Neurologist',
-                'experience_years' => 9,
-                'appointment_modes' => ['video'],
-                'video_fee' => 800,
-                'in_person_fee' => 1200,
-                'available_dates' => [0, 1, 2, 3, 4], // Available all days
-                'slots' => [
-                    ['time' => '9:00 AM', 'available' => true, 'preferred' => true],
-                    ['time' => '10:00 AM', 'available' => true, 'preferred' => true],
-                    ['time' => '11:00 AM', 'available' => true, 'preferred' => false],
-                    ['time' => '2:00 PM', 'available' => true, 'preferred' => false],
-                    ['time' => '3:00 PM', 'available' => true, 'preferred' => false],
-                    ['time' => '5:00 PM', 'available' => true, 'preferred' => false],
-                ],
-            ],
-        ];
+        // Doctors available on selected date from database
+        $dayOfWeek = Carbon::parse($selectedDate)->dayOfWeek;
 
-        // Filter doctors based on selected date
-        $selectedDateObj = \Carbon\Carbon::parse($selectedDate);
-        $dayIndex = now()->startOfDay()->diffInDays($selectedDateObj->startOfDay());
-        $doctors = array_values(array_filter($allDoctors, function ($doctor) use ($dayIndex) {
-            return in_array($dayIndex, $doctor['available_dates']);
-        }));
+        $doctorsQuery = Doctor::with(['consultationModes'])
+            ->where('is_active', true)
+            ->whereHas('availabilities', fn($q) => $q->where('day_of_week', $dayOfWeek)->where('is_available', true));
 
-        // Apply fuzzy search if query provided
+        // Apply search filter
+        $searchQuery = $request->get('search', '');
         if (!empty($searchQuery)) {
-            $doctors = array_values(array_filter($doctors, function ($doctor) use ($searchQuery) {
-                $doctorName = strtolower($doctor['name']);
-                $query = strtolower($searchQuery);
-
-                // Exact match
-                if (str_contains($doctorName, $query)) {
-                    return true;
-                }
-
-                // Fuzzy match with Levenshtein distance (2-character tolerance)
-                $doctorNameClean = str_replace([' ', '.', 'dr'], '', $doctorName);
-                $queryClean = str_replace([' ', '.', 'dr'], '', $query);
-
-                if (strlen($queryClean) >= 3) {
-                    $distance = levenshtein($queryClean, $doctorNameClean);
-                    if ($distance <= 2) {
-                        return true;
-                    }
-                }
-
-                return false;
-            }));
+            $search = strtolower($searchQuery);
+            $doctorsQuery->where(function ($q) use ($search) {
+                $q->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('LOWER(specialization) LIKE ?', ["%{$search}%"]);
+            });
         }
 
-        // Remove the available_dates field before sending to frontend
-        $doctors = array_map(function ($doctor) {
-            unset($doctor['available_dates']);
-            return $doctor;
-        }, $doctors);
+        $doctors = $doctorsQuery->get()->map(function ($doctor) use ($selectedDate) {
+            $slots = TimeSlot::where('doctor_id', $doctor->id)
+                ->where('date', $selectedDate)
+                ->where('is_booked', false)
+                ->orderBy('start_time')
+                ->get()
+                ->map(fn($s) => [
+                    'time' => Carbon::parse($s->start_time)->format('g:i A'),
+                    'available' => true,
+                    'preferred' => $s->is_preferred,
+                ])
+                ->toArray();
+
+            return [
+                'id' => 'd' . $doctor->id,
+                'name' => $doctor->name,
+                'avatar' => $doctor->avatar_url,
+                'specialization' => $doctor->specialization,
+                'experience_years' => $doctor->experience_years,
+                'appointment_modes' => $doctor->consultationModes->pluck('mode')->toArray(),
+                'video_fee' => $doctor->consultationModes->firstWhere('mode', 'video')?->fee ?? 0,
+                'in_person_fee' => $doctor->consultationModes->firstWhere('mode', 'in_person')?->fee ?? 0,
+                'slots' => $slots,
+            ];
+        })->toArray();
 
         // Get patient name for summary
+        $user = Auth::user();
         $patientName = null;
         if (isset($savedData['patientId'])) {
-            $familyMembers = $this->getFamilyMembers();
-            $patient = collect($familyMembers)->firstWhere('id', $savedData['patientId']);
-            $patientName = $patient['name'] ?? null;
+            $patient = FamilyMember::where('user_id', $user->id)
+                ->where('id', $savedData['patientId'])
+                ->first();
+            $patientName = $patient?->name;
         }
 
         // Format symptoms for summary
         $symptomsText = null;
         if (isset($savedData['selectedSymptoms']) && !empty($savedData['selectedSymptoms'])) {
-            // Get symptom names from IDs
-            $allSymptoms = [
-                ['id' => 's1', 'name' => 'Fever'],
-                ['id' => 's2', 'name' => 'Cough'],
-                ['id' => 's3', 'name' => 'Headache'],
-                ['id' => 's4', 'name' => 'Body ache'],
-                ['id' => 's5', 'name' => 'Fatigue'],
-                ['id' => 's6', 'name' => 'Sore throat'],
-                ['id' => 's7', 'name' => 'Nausea'],
-                ['id' => 's8', 'name' => 'Dizziness'],
-            ];
-            $selectedSymptomNames = collect($allSymptoms)
-                ->whereIn('id', $savedData['selectedSymptoms'])
-                ->pluck('name')
-                ->toArray();
+            $symptomIds = array_map(fn($s) => (int) str_replace('s', '', $s), $savedData['selectedSymptoms']);
+            $selectedSymptomNames = Symptom::whereIn('id', $symptomIds)->pluck('name')->toArray();
             $symptomsText = implode(', ', $selectedSymptomNames);
 
-            // Add notes if provided
             if (isset($savedData['symptomNotes']) && !empty($savedData['symptomNotes'])) {
-                if (!empty($symptomsText)) {
-                    $symptomsText .= ' - ' . $savedData['symptomNotes'];
-                } else {
-                    $symptomsText = $savedData['symptomNotes'];
-                }
+                $symptomsText .= (!empty($symptomsText) ? ' - ' : '') . $savedData['symptomNotes'];
             }
         } elseif (isset($savedData['symptomNotes']) && !empty($savedData['symptomNotes'])) {
             $symptomsText = $savedData['symptomNotes'];
@@ -456,43 +333,21 @@ class GuidedDoctorController extends Controller
             'appointmentMode' => 'required|in:video,in_person',
         ]);
 
-        $savedData = session('guided_doctor_booking', []);
+        // Extract numeric doctor ID
+        $doctorId = (int) str_replace('d', '', $validated['selectedDoctorId']);
+        $doctor = Doctor::with('consultationModes')->find($doctorId);
 
-        // Validate doctor exists and supports appointment mode
-        $allDoctors = $this->getAllDoctorsData();
-        $selectedDoctor = collect($allDoctors)->firstWhere('id', $validated['selectedDoctorId']);
-
-        if (!$selectedDoctor) {
+        if (!$doctor) {
             return back()->withErrors(['selectedDoctorId' => 'Invalid doctor selection'])->withInput();
         }
 
-        // Validate appointment mode is supported by doctor
-        if (!in_array($validated['appointmentMode'], $selectedDoctor['appointment_modes'])) {
+        // Validate appointment mode is supported
+        $supportedModes = $doctor->consultationModes->pluck('mode')->toArray();
+        if (!in_array($validated['appointmentMode'], $supportedModes)) {
             return back()->withErrors([
-                'appointmentMode' => "Dr. {$selectedDoctor['name']} does not offer {$validated['appointmentMode']} appointments"
+                'appointmentMode' => "{$doctor->name} does not offer {$validated['appointmentMode']} appointments"
             ])->withInput();
         }
-
-        // Validate time slot is available for this doctor
-        $timeSlot = collect($selectedDoctor['slots'])->firstWhere('time', $validated['selectedTime']);
-        if (!$timeSlot || !$timeSlot['available']) {
-            return back()->withErrors(['selectedTime' => 'This time slot is not available'])->withInput();
-        }
-
-        // Check for duplicate booking (mock check - in production, query actual bookings)
-        $requestedDateTime = $validated['selectedDate'] . ' ' . $validated['selectedTime'];
-        $requestedPatientId = $savedData['patientId'] ?? null;
-
-        // In production: Check database for existing booking
-        // $existingBooking = Booking::where('patient_id', $requestedPatientId)
-        //     ->where('doctor_id', $validated['selectedDoctorId'])
-        //     ->where('date', $validated['selectedDate'])
-        //     ->where('time', $validated['selectedTime'])
-        //     ->first();
-        //
-        // if ($existingBooking) {
-        //     return back()->withErrors(['duplicate' => 'You already have an appointment at this time'])->withInput();
-        // }
 
         session([
             'guided_doctor_booking' => array_merge(
@@ -502,56 +357,6 @@ class GuidedDoctorController extends Controller
         ]);
 
         return redirect()->route('booking.doctor.confirm');
-    }
-
-    /**
-     * Get all doctors data (mock - replace with database query in production)
-     */
-    protected function getAllDoctorsData()
-    {
-        return [
-            [
-                'id' => 'd1',
-                'name' => 'Dr. Sarah Johnson',
-                'specialization' => 'General Physician',
-                'appointment_modes' => ['video', 'in_person'],
-                'video_fee' => 800,
-                'in_person_fee' => 1200,
-                'slots' => [
-                    ['time' => '9:00 AM', 'available' => true],
-                    ['time' => '10:00 AM', 'available' => true],
-                    ['time' => '11:00 AM', 'available' => true],
-                    ['time' => '2:00 PM', 'available' => true],
-                    ['time' => '3:00 PM', 'available' => true],
-                    ['time' => '5:00 PM', 'available' => true],
-                ],
-            ],
-            [
-                'id' => 'd2',
-                'name' => 'Dr. Michael Chen',
-                'specialization' => 'Cardiologist',
-                'appointment_modes' => ['video'],
-                'video_fee' => 1500,
-                'in_person_fee' => 0,
-                'slots' => [
-                    ['time' => '9:00 AM', 'available' => true],
-                    ['time' => '10:00 AM', 'available' => true],
-                    ['time' => '11:00 AM', 'available' => true],
-                ],
-            ],
-            [
-                'id' => 'd3',
-                'name' => 'Dr. Priya Sharma',
-                'specialization' => 'Dermatologist',
-                'appointment_modes' => ['in_person'],
-                'video_fee' => 0,
-                'in_person_fee' => 1800,
-                'slots' => [
-                    ['time' => '9:00 AM', 'available' => true],
-                    ['time' => '2:00 PM', 'available' => true],
-                ],
-            ],
-        ];
     }
 
     /**
@@ -565,31 +370,38 @@ class GuidedDoctorController extends Controller
             return redirect()->route('booking.doctor.doctor-time');
         }
 
-        // Mock doctor data
-        $doctor = [
-            'id' => $savedData['selectedDoctorId'],
-            'name' => 'Dr. Sarah Johnson',
-            'avatar' => null,
-        ];
+        $user = Auth::user();
 
-        // Mock patient data
-        $patient = [
-            'id' => $savedData['patientId'],
-            'name' => 'Kriti Jaisinghani',
-            'avatar' => null,
-        ];
+        // Get doctor from database
+        $doctorId = (int) str_replace('d', '', $savedData['selectedDoctorId']);
+        $doctor = Doctor::with('consultationModes')->find($doctorId);
 
-        // Calculate fee based on appointment mode
-        $fee = $savedData['appointmentMode'] === 'video' ? 800 : 1200;
+        // Get patient from database
+        $patient = FamilyMember::where('user_id', $user->id)
+            ->where('id', $savedData['patientId'])
+            ->first();
+
+        // Calculate fee
+        $fee = $doctor?->consultationModes
+            ->firstWhere('mode', $savedData['appointmentMode'] ?? 'video')
+            ?->fee ?? 0;
 
         // Format datetime
         $datetime = $savedData['selectedDate'] . 'T' . str_replace(' ', '', $savedData['selectedTime']);
 
         $summary = [
-            'doctor' => $doctor,
-            'patient' => $patient,
+            'doctor' => [
+                'id' => $savedData['selectedDoctorId'],
+                'name' => $doctor?->name ?? 'Unknown',
+                'avatar' => $doctor?->avatar_url,
+            ],
+            'patient' => [
+                'id' => $savedData['patientId'],
+                'name' => $patient?->name ?? 'Unknown',
+                'avatar' => $patient?->avatar_url,
+            ],
             'datetime' => $datetime,
-            'appointmentType' => $savedData['appointmentMode'] === 'video'
+            'appointmentType' => ($savedData['appointmentMode'] ?? 'video') === 'video'
                 ? 'Video Appointment'
                 : 'In-Person Visit',
             'fee' => $fee,
@@ -606,9 +418,6 @@ class GuidedDoctorController extends Controller
     public function processPayment(Request $request)
     {
         $savedData = session('guided_doctor_booking', []);
-
-        // In production, create booking record and initiate payment
-        // For now, redirect to mock confirmation
 
         // Clear session data
         session()->forget('guided_doctor_booking');

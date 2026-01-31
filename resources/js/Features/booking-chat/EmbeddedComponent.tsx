@@ -31,97 +31,10 @@ interface EmbeddedComponentProps {
   disabled?: boolean;
 }
 
-// Dummy data - avatars will show initials by default, can be updated with profile images later
-const DUMMY_FAMILY_MEMBERS = [
-  { id: 1, name: 'Sanjana Jaisinghani', relation: 'Self', avatar: '' },
-  { id: 2, name: 'Richa Jaisinghani', relation: 'Mother', avatar: '' },
-  { id: 3, name: 'Prateek Jaisinghani', relation: 'Father', avatar: '' },
-  { id: 4, name: 'Manav Jaisinghani', relation: 'Brother', avatar: '' },
-  { id: 5, name: 'Kriti Jaisinghani', relation: 'Sister', avatar: '' },
-  { id: 6, name: 'Prateek Jaisinghani', relation: 'Grandfather', avatar: '' },
-];
-
-const DUMMY_DOCTORS = [
-  {
-    id: '1',
-    name: 'Dr. Sarah Johnson',
-    specialization: 'General Physician',
-    experience_years: 15,
-    avatar: null,
-    consultation_modes: ['video', 'in_person'],
-    video_fee: 800,
-    in_person_fee: 1200,
-    slots: [
-      { time: '09:00', preferred: true, available: true },
-      { time: '10:00', preferred: true, available: true },
-      { time: '11:00', preferred: false, available: true },
-      { time: '14:00', preferred: false, available: true },
-      { time: '15:00', preferred: false, available: true },
-      { time: '17:00', preferred: false, available: true },
-    ],
-  },
-  {
-    id: '2',
-    name: 'Dr. Michael Chen',
-    specialization: 'Cardiologist',
-    experience_years: 12,
-    avatar: null,
-    consultation_modes: ['video', 'in_person'],
-    video_fee: 800,
-    in_person_fee: 1200,
-    slots: [
-      { time: '09:00', preferred: true, available: true },
-      { time: '10:00', preferred: true, available: true },
-      { time: '11:00', preferred: false, available: true },
-      { time: '14:00', preferred: false, available: true },
-      { time: '15:00', preferred: false, available: true },
-      { time: '17:00', preferred: false, available: true },
-    ],
-  },
-  {
-    id: '3',
-    name: 'Dr. Priya Sharma',
-    specialization: 'Dermatologist',
-    experience_years: 10,
-    avatar: null,
-    consultation_modes: ['video', 'in_person'],
-    video_fee: 800,
-    in_person_fee: 1200,
-    slots: [
-      { time: '09:00', preferred: true, available: true },
-      { time: '10:00', preferred: true, available: true },
-      { time: '11:00', preferred: false, available: true },
-      { time: '14:00', preferred: false, available: true },
-      { time: '15:00', preferred: false, available: true },
-      { time: '17:00', preferred: false, available: true },
-    ],
-  },
-];
-
-const DUMMY_PACKAGES = [
-  {
-    id: '1',
-    name: 'Basic Health Checkup',
-    description: 'Essential tests for general wellness monitoring',
-    duration_hours: '2-3',
-    tests_count: 35,
-    age_range: '18-60',
-    price: 1999,
-    original_price: 2999,
-    is_recommended: true,
-  },
-  {
-    id: '2',
-    name: 'Comprehensive Health Package',
-    description: 'Complete health assessment with advanced screenings',
-    duration_hours: '3-4',
-    tests_count: 68,
-    age_range: '18-60',
-    price: 4999,
-    original_price: 7999,
-    is_recommended: false,
-  },
-];
+// Fallback empty arrays — all data should come from the backend via props/data
+const DUMMY_FAMILY_MEMBERS: any[] = [];
+const DUMMY_DOCTORS: any[] = [];
+const DUMMY_PACKAGES: any[] = [];
 
 // Helper function to generate time slots
 function generateTimeSlots() {

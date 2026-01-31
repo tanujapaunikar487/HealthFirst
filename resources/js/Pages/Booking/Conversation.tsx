@@ -47,9 +47,10 @@ interface ConversationData {
 
 interface Props {
   conversation: ConversationData;
+  familyMembers?: Array<{ id: number; name: string; relation: string; avatar: string }>;
 }
 
-export default function Conversation({ conversation }: Props) {
+export default function Conversation({ conversation, familyMembers: propFamilyMembers }: Props) {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -68,13 +69,8 @@ export default function Conversation({ conversation }: Props) {
   // Check if conversation is cancelled
   const isCancelled = conversation.status === 'cancelled';
 
-  // Mock user and family data (will be replaced with real data later)
-  const user = { id: '1', name: 'Sanjana Jaisinghani', avatar: '' };
-  const familyMembers = [
-    { id: 1, name: 'Yourself', relation: 'self', avatar: '' },
-    { id: 2, name: 'John Doe', relation: 'Father', avatar: '' },
-    { id: 3, name: 'Jane Doe', relation: 'Mother', avatar: '' },
-  ];
+  // Family members from database (passed via props)
+  const familyMembers = propFamilyMembers || [];
 
   const sendTextMessage = (content: string) => {
     if (!content.trim() || isLoading) return;

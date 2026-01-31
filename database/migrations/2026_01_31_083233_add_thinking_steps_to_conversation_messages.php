@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('conversation_messages', function (Blueprint $table) {
-            $table->json('thinking_steps')->nullable()->after('user_selection');
-        });
+        if (!Schema::hasColumn('conversation_messages', 'thinking_steps')) {
+            Schema::table('conversation_messages', function (Blueprint $table) {
+                $table->json('thinking_steps')->nullable()->after('user_selection');
+            });
+        }
     }
 
     /**

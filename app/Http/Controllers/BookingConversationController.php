@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\BookingConversation;
+use App\Models\FamilyMember;
 use App\Services\Booking\IntelligentBookingOrchestrator;
 use App\Services\AI\AudioTranscriptionService;
 use Illuminate\Http\Request;
@@ -92,8 +93,20 @@ class BookingConversationController extends Controller
             'ip' => request()->ip(),
         ]);
 
+        // Get family members for the conversation owner
+        $familyMembers = FamilyMember::where('user_id', $conversation->user_id)
+            ->get()
+            ->map(fn($m) => [
+                'id' => $m->id,
+                'name' => $m->name,
+                'relation' => ucfirst($m->relation),
+                'avatar' => $m->avatar_url ?? '',
+            ])
+            ->toArray();
+
         return Inertia::render('Booking/Conversation', [
             'conversation' => $conversation->load('messages'),
+            'familyMembers' => $familyMembers,
         ]);
     }
 
