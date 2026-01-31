@@ -140,6 +140,18 @@ Typing "book for this week" at summary looped back to summary. Added pre-merge d
 ### Fix 9: Calendar Showing Unavailable Dates/Doctors
 Date picker showed all 7 days regardless of doctor availability. Backend now filters dates by doctor days-off and sends `available_dates` per doctor. Frontend filters doctor list per active date.
 
+### Fix 10: "Hi" Showed Patient Selector Instead of Greeting
+`process()` always fell through to the state machine even for greetings. Added intent gate for non-booking intents (`greeting`, `question`, `general_info`, `unclear`) when no booking progress exists — returns a conversational response instead of a component.
+
+### Fix 11: Date and Doctor Selection Combined Into One Step
+User had to see dates and doctors simultaneously. Split into two states: `date_selection` (date pills only via `date_picker` component) → `doctor_selection` (doctors filtered to selected date via `doctor_selector` component). Added `getDatePickerData()` and `getDoctorListForDate()` backend methods.
+
+### Fix 12: AI-Extracted Date/Doctor Cleared on Appointment Type Selection
+When user said "Book on 5th Feb with Dr. Vikram" then clicked "New Appointment", the date and doctor were wiped because they weren't in `completedSteps`. Added `textMentionedFields` tracking in `mergeEntities()` to distinguish user-mentioned values from AI-hallucinated ones. The appointment_type handler now preserves fields in `textMentionedFields`.
+
+### Fix 13: Doctor-Date Conflict Shows Empty List
+When searched doctor is unavailable on the selected date, system showed 0 doctors with no explanation. Now detects the conflict, shows the doctor with their available dates this week, clears the conflicting date, and displays a message like "Dr. Vikram isn't available on Feb 5. They're available Mon, Wed, Fri, Sat this week."
+
 ---
 
 ## Key Files

@@ -173,6 +173,43 @@ class IntelligentBookingOrchestrator
             return $this->handleEmergency($conversation, $parsed);
         }
 
+        // Handle non-booking intents (greeting, question, general_info, unclear)
+        // Only when the conversation has no collected data yet (fresh start)
+        $intent = $parsed['intent'] ?? 'unclear';
+        $currentData = $conversation->collected_data;
+        $hasBookingProgress = !empty($currentData['selectedPatientId']) || !empty($currentData['appointmentType']);
+
+        if (!$hasBookingProgress && in_array($intent, ['greeting', 'question', 'general_info', 'unclear'])) {
+            $greetingResponses = [
+                'greeting' => "Hi there! I'm your booking assistant. I can help you book a doctor appointment or a lab test. What would you like to do?",
+                'question' => $parsed['ai_response'] ?? "I'm here to help you book appointments. Would you like to book a doctor visit or a lab test?",
+                'general_info' => $parsed['ai_response'] ?? "I can help you with booking doctor appointments and lab tests. How can I assist you today?",
+                'unclear' => "I'm your booking assistant. I can help you book a doctor appointment or a lab test. What would you like to do?",
+            ];
+
+            $message = $greetingResponses[$intent];
+
+            Log::info('IntelligentOrchestrator: Non-booking intent detected', [
+                'intent' => $intent,
+                'has_booking_progress' => $hasBookingProgress,
+            ]);
+
+            $this->addAssistantMessage($conversation, $message, null, null);
+
+            return [
+                'status' => 'success',
+                'message' => $message,
+                'component_type' => null,
+                'component_data' => null,
+                'ready_to_book' => false,
+                'progress' => [
+                    'percentage' => 0,
+                    'current_state' => 'greeting',
+                    'missing_fields' => [],
+                ],
+            ];
+        }
+
         // Detect date/time change intent from text when booking is at or near summary
         // If user sends urgency or date entities while date/time are already set,
         // clear them so the date picker is shown instead of looping back to summary
@@ -379,6 +416,14 @@ class IntelligentBookingOrchestrator
                 ]);
 
                 $updated[$dataKey] = $entityValue;
+
+                // Track fields explicitly mentioned in user's text input
+                // so they survive appointment_type selection clearing
+                $textMentioned = $updated['textMentionedFields'] ?? [];
+                if (!in_array($dataKey, $textMentioned)) {
+                    $textMentioned[] = $dataKey;
+                    $updated['textMentionedFields'] = $textMentioned;
+                }
 
                 // Handle patient relation special case
                 if ($dataKey === 'patientRelation') {
@@ -1081,6 +1126,24 @@ class IntelligentBookingOrchestrator
             $componentData = $this->buildComponentDataForType($component['type'], $data);
         }
 
+        // Check for doctor-date conflict (requested doctor unavailable on selected date)
+        if (!empty($componentData['doctor_date_conflict'])) {
+            $message = $componentData['doctor_date_conflict']['message'];
+            // Clear the conflicting date so user can pick an available one
+            unset($data['selectedDate']);
+            $data['completedSteps'] = array_values(array_diff(
+                $data['completedSteps'] ?? [],
+                ['date']
+            ));
+            // Remove from textMentionedFields too since the date was invalid for this doctor
+            $data['textMentionedFields'] = array_values(array_diff(
+                $data['textMentionedFields'] ?? [],
+                ['selectedDate']
+            ));
+            $conversation->collected_data = $data;
+            $conversation->save();
+        }
+
         // Debug: Log selected_date for date_doctor_selector
         if ($component['type'] === 'date_doctor_selector') {
             Log::info('📅 DATE_DOCTOR_SELECTOR component_data', [
@@ -1185,6 +1248,8 @@ class IntelligentBookingOrchestrator
                 'options' => $this->getPreviousDoctors($data),
                 'show_all_doctors_option' => true,
             ],
+            'date_picker' => $this->getDatePickerData($data),
+            'doctor_selector' => $this->getDoctorListForDate($data),
             'date_doctor_selector' => $this->getDoctorListData($data),
             'time_slot_selector' => $this->getDateTimeSelectorData($data),
             'mode_selector' => $this->getModeSelectorData($data),
@@ -1627,13 +1692,14 @@ class IntelligentBookingOrchestrator
                 $updated['completedSteps'][] = 'appointmentType';
             }
 
-            // Clear any AI-extracted urgency/date that wasn't explicitly selected by the user.
-            // Without this, the AI parsing of the initial message (e.g. "I want to book a doctor
-            // appointment") can set urgency prematurely, causing the urgency step to be skipped.
-            if (!in_array('urgency', $updated['completedSteps'])) {
+            // Clear AI-hallucinated urgency/date that wasn't explicitly provided by the user.
+            // Only clear if the field is NOT in completedSteps (UI-selected) AND NOT in
+            // textMentionedFields (explicitly mentioned in user's text, e.g. "5th Feb").
+            $textMentioned = $updated['textMentionedFields'] ?? [];
+            if (!in_array('urgency', $updated['completedSteps']) && !in_array('urgency', $textMentioned)) {
                 unset($updated['urgency']);
             }
-            if (!in_array('date', $updated['completedSteps'])) {
+            if (!in_array('date', $updated['completedSteps']) && !in_array('selectedDate', $textMentioned)) {
                 unset($updated['selectedDate']);
             }
         }
@@ -2035,6 +2101,142 @@ class IntelligentBookingOrchestrator
                 ['id' => 3, 'name' => 'Father', 'relation' => 'father'],
             ],
         ];
+    }
+
+    /**
+     * Build date picker data - shows only date pills, no doctors.
+     * Used when the user needs to pick a date before seeing doctors.
+     */
+    protected function getDatePickerData(array $data): array
+    {
+        // All 5 doctor IDs for availability check
+        $allDoctorIds = [1, 2, 3, 4, 5];
+
+        $fullWeekDates = [];
+        for ($i = 0; $i < 7; $i++) {
+            $date = Carbon::today()->addDays($i);
+            $dayOfWeek = $date->dayOfWeek;
+
+            // Only include dates where at least one doctor is available
+            $anyAvailable = false;
+            foreach ($allDoctorIds as $docId) {
+                $daysOff = $this->getDoctorDaysOff($docId);
+                if (!in_array($dayOfWeek, $daysOff)) {
+                    $anyAvailable = true;
+                    break;
+                }
+            }
+            if (!$anyAvailable) {
+                continue;
+            }
+
+            $label = $i === 0 ? 'Today' : ($i === 1 ? 'Tomorrow' : $date->format('D'));
+            $fullWeekDates[] = [
+                'value' => $date->format('Y-m-d'),
+                'label' => $label,
+                'day' => $date->format('M j'),
+            ];
+        }
+
+        return [
+            'dates' => $fullWeekDates,
+            'selected_date' => $data['selectedDate'] ?? null,
+        ];
+    }
+
+    /**
+     * Build doctor list for a specific already-selected date.
+     * Only shows doctors available on that date.
+     */
+    protected function getDoctorListForDate(array $data): array
+    {
+        $result = $this->getDoctorListData($data);
+
+        // Since the date is already selected, pre-filter doctors to only those
+        // available on the selected date and set it as selected
+        $selectedDate = $data['selectedDate'] ?? null;
+        if ($selectedDate) {
+            $dayOfWeek = Carbon::parse($selectedDate)->dayOfWeek;
+
+            // Check if a searched doctor is unavailable on this date
+            $searchQuery = $data['doctorSearchQuery'] ?? null;
+            if ($searchQuery) {
+                $doctorId = $this->getDoctorIdByName($searchQuery);
+                if ($doctorId) {
+                    $daysOff = $this->getDoctorDaysOff($doctorId);
+                    if (in_array($dayOfWeek, $daysOff)) {
+                        // Doctor is NOT available on the selected date.
+                        // Show the doctor with their available dates this week instead.
+                        $dateFormatted = Carbon::parse($selectedDate)->format('M j');
+                        $availableDays = $this->getDoctorAvailableDatesThisWeek($doctorId);
+                        $dayLabels = array_map(fn($d) => Carbon::parse($d)->format('D'), $availableDays);
+
+                        $result['doctor_date_conflict'] = [
+                            'searched_doctor' => $searchQuery,
+                            'date' => $dateFormatted,
+                            'available_dates' => $availableDays,
+                            'message' => "Dr. {$searchQuery} isn't available on {$dateFormatted}. They're available " . implode(', ', $dayLabels) . ' this week.',
+                        ];
+
+                        // Override: show full week dates filtered to doctor's availability
+                        $result['selected_date'] = null; // Clear so user picks a new date
+                        $result['dates'] = array_values(array_filter($result['dates'], function ($d) use ($availableDays) {
+                            return in_array($d['value'], $availableDays);
+                        }));
+
+                        // Keep only the searched doctor (unfiltered by date)
+                        $result['doctors'] = array_values(array_filter($result['doctors'], function ($doc) use ($doctorId) {
+                            return $doc['id'] === $doctorId;
+                        }));
+                        $result['doctors_count'] = count($result['doctors']);
+
+                        return $result;
+                    }
+                }
+            }
+
+            // Normal flow: filter to selected date
+            $result['selected_date'] = $selectedDate;
+            $result['dates'] = array_values(array_filter($result['dates'], function ($d) use ($selectedDate) {
+                return $d['value'] === $selectedDate;
+            }));
+            if (empty($result['dates'])) {
+                $dateObj = Carbon::parse($selectedDate);
+                $result['dates'] = [[
+                    'value' => $selectedDate,
+                    'label' => $dateObj->isToday() ? 'Today' : $dateObj->format('D'),
+                    'day' => $dateObj->format('M j'),
+                ]];
+            }
+            // Filter doctors to those available on the selected date
+            $filteredDoctors = array_values(array_filter($result['doctors'], function ($doc) use ($dayOfWeek) {
+                $daysOff = $this->getDoctorDaysOff($doc['id']);
+                return !in_array($dayOfWeek, $daysOff);
+            }));
+
+            $result['doctors'] = $filteredDoctors;
+            $result['doctors_count'] = count($filteredDoctors);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get available dates this week for a specific doctor.
+     */
+    protected function getDoctorAvailableDatesThisWeek(int $doctorId): array
+    {
+        $daysOff = $this->getDoctorDaysOff($doctorId);
+        $availableDates = [];
+
+        for ($i = 0; $i < 7; $i++) {
+            $date = Carbon::today()->addDays($i);
+            if (!in_array($date->dayOfWeek, $daysOff)) {
+                $availableDates[] = $date->format('Y-m-d');
+            }
+        }
+
+        return $availableDates;
     }
 
     protected function getDoctorListData(array $data): array

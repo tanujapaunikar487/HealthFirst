@@ -532,6 +532,66 @@ export function EmbeddedComponent({
         />
       );
 
+    case 'date_picker':
+      // Date-only picker - user selects a date, then sees doctors on next step
+      return (
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {data?.dates?.map((d: any) => {
+            const dateValue = d.value || d.date;
+            const dateIsSelected = selection?.date === dateValue;
+
+            return (
+              <button
+                key={dateValue}
+                onClick={() => {
+                  onSelect({
+                    date: dateValue,
+                    display_message: `${d.label}, ${d.day}`
+                  });
+                }}
+                disabled={disabled || isSelected}
+                className={cn(
+                  'px-4 py-2 rounded-lg whitespace-nowrap transition-colors',
+                  'disabled:opacity-50 disabled:cursor-not-allowed',
+                  dateIsSelected
+                    ? 'bg-[#0052FF] text-white'
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
+                )}
+              >
+                <div className="font-medium text-sm">{d.label}</div>
+                <div className="text-xs opacity-75">{d.day}</div>
+              </button>
+            );
+          })}
+        </div>
+      );
+
+    case 'doctor_selector':
+      // Doctor list for an already-selected date (no date pills)
+      return (
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-lg font-semibold">{data?.doctors_count || 0} doctor{(data?.doctors_count || 0) !== 1 ? 's' : ''} available</h3>
+          </div>
+          <EmbeddedDoctorList
+            doctors={data?.doctors || []}
+            selectedDoctorId={selection?.doctor_id}
+            selectedTime={selection?.time}
+            onSelect={(doctorId, time) => {
+              const doctor = (data?.doctors || []).find((d: any) => d.id === doctorId);
+              onSelect({
+                doctor_id: doctorId,
+                doctor_name: doctor?.name || 'Doctor',
+                time,
+                date: data?.selected_date,
+                display_message: `${doctor?.name || 'Doctor'} at ${time}`
+              });
+            }}
+            disabled={disabled || isSelected}
+          />
+        </div>
+      );
+
     case 'date_doctor_selector':
       // Combined component for "This Week" urgency
       // Track only user-clicked dates; backend selected_date is always the default

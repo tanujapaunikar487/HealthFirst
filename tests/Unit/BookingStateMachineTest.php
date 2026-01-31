@@ -100,7 +100,7 @@ class BookingStateMachineTest extends TestCase
             'urgency' => 'this_week',
         ]);
 
-        $this->assertEquals('doctor_selection', $stateMachine->getCurrentState());
+        $this->assertEquals('date_selection', $stateMachine->getCurrentState());
     }
 
     public function test_it_shows_time_selection_if_doctor_selected_without_time()

@@ -22,6 +22,7 @@ class BookingStateMachine
         'followup_reason',   // Only for followup
         'followup_notes',    // Only for followup
         'previous_doctors',  // Only for followup
+        'date_selection',    // Pick a date before seeing doctors
         'doctor_selection',
         'time_selection',    // Separate from doctor if needed
         'mode_selection',
@@ -93,6 +94,11 @@ class BookingStateMachine
                 return 'previous_doctors';
             }
 
+            // Need date selection (pick a date before seeing doctors)
+            if (empty($this->data['selectedDate'])) {
+                return 'date_selection';
+            }
+
             // Need doctor selection
             if (empty($this->data['selectedDoctorId'])) {
                 return 'doctor_selection';
@@ -107,6 +113,11 @@ class BookingStateMachine
 
             if (!$hasDate && !$hasUrgency) {
                 return 'urgency';
+            }
+
+            // Need date selection (pick a date before seeing doctors)
+            if (empty($this->data['selectedDate'])) {
+                return 'date_selection';
             }
 
             // Need doctor selection
@@ -290,8 +301,13 @@ class BookingStateMachine
                 'message' => 'Would you like to book with one of these doctors you\'ve seen before?',
                 'awaiting_chat_input' => false,
             ],
+            'date_selection' => [
+                'type' => 'date_picker',
+                'message' => 'When would you like your appointment?',
+                'awaiting_chat_input' => false,
+            ],
             'doctor_selection' => [
-                'type' => 'date_doctor_selector',
+                'type' => 'doctor_selector',
                 'message' => $this->getDoctorSelectionMessage(),
                 'awaiting_chat_input' => false,
             ],
