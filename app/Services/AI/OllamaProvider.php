@@ -7,14 +7,14 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Ollama Provider for Local DeepSeek Models
+ * Ollama Provider for Local AI Models
  *
- * This provider uses Ollama to run DeepSeek models locally.
+ * This provider uses Ollama to run models locally.
  * No API key required, no external API calls, complete privacy.
  *
  * Setup:
  * 1. Install Ollama: https://ollama.ai/
- * 2. Pull DeepSeek model: ollama pull deepseek-r1:7b
+ * 2. Pull model: ollama pull qwen2.5:7b
  * 3. Start Ollama: ollama serve
  * 4. Configure: AI_PROVIDER=ollama
  */
@@ -28,9 +28,9 @@ class OllamaProvider implements AIProviderInterface
     public function __construct()
     {
         $this->baseUrl = config('ai.providers.ollama.base_url', 'http://localhost:11434');
-        $this->model = config('ai.providers.ollama.model', 'deepseek-r1:7b');
+        $this->model = config('ai.providers.ollama.model', 'qwen2.5:7b');
         $this->maxTokens = config('ai.providers.ollama.max_tokens', 2000);
-        $this->temperature = config('ai.providers.ollama.temperature', 0.7);
+        $this->temperature = config('ai.providers.ollama.temperature', 0.3);
     }
 
     /**
@@ -68,6 +68,13 @@ class OllamaProvider implements AIProviderInterface
                     'num_predict' => $options['max_tokens'] ?? $this->maxTokens,
                 ],
             ];
+
+            // Add JSON format enforcement via Ollama's constrained decoding
+            if (isset($options['json_schema'])) {
+                $payload['format'] = $options['json_schema'];
+            } elseif (!empty($options['json_mode'])) {
+                $payload['format'] = 'json';
+            }
 
             // Add system message if provided in options
             if (isset($options['system'])) {
@@ -126,20 +133,18 @@ class OllamaProvider implements AIProviderInterface
      */
     public function completeJson(string $prompt, array $options = []): array
     {
-        // Add instruction to return JSON
-        $jsonPrompt = $prompt . "\n\nIMPORTANT: Respond with valid JSON only, no additional text or markdown.";
-
-        $response = $this->complete($jsonPrompt, array_merge($options, [
-            'temperature' => 0.3, // Lower temperature for more consistent JSON
+        // Use Ollama's format parameter for guaranteed JSON output
+        $response = $this->complete($prompt, array_merge($options, [
+            'temperature' => 0.3,
+            'json_mode' => true,
         ]));
 
-        // Try to extract JSON from response (handle cases where model adds text around JSON)
+        // Safety net: extract JSON if model wraps it in text
         $jsonMatch = preg_match('/\{[\s\S]*\}/', $response, $matches);
         if ($jsonMatch) {
             $response = $matches[0];
         }
 
-        // Remove markdown code blocks if present
         $response = preg_replace('/```json\s*|\s*```/', '', $response);
         $response = trim($response);
 

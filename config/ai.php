@@ -14,7 +14,7 @@ return [
     |
     | - "groq": Uses Groq API (requires API key, fast cloud inference with llama-3.3-70b)
     | - "deepseek": Uses DeepSeek API (requires API key, paid service)
-    | - "ollama": Uses local Ollama with DeepSeek models (FREE, runs locally, no API key needed)
+    | - "ollama": Uses local Ollama with qwen2.5 (FREE, runs locally, no API key needed)
     | - "none": Disables AI features
     |
     */
@@ -48,9 +48,9 @@ return [
         ],
         'ollama' => [
             'base_url' => env('OLLAMA_BASE_URL', 'http://localhost:11434'),
-            'model' => env('OLLAMA_MODEL', 'deepseek-r1:7b'),
+            'model' => env('OLLAMA_MODEL', 'qwen2.5:7b'),
             'max_tokens' => env('OLLAMA_MAX_TOKENS', 2000),
-            'temperature' => env('OLLAMA_TEMPERATURE', 0.7),
+            'temperature' => env('OLLAMA_TEMPERATURE', 0.3),
         ],
     ],
 

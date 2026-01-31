@@ -486,13 +486,28 @@ When Groq API hits rate limit (HTTP 429), the fallback returns `intent: "unclear
 
 ---
 
-## AI Provider Setup
+## AI Provider: Switched to Local Ollama qwen2.5:7b (January 31, 2026)
+
+Switched from Groq cloud API (rate-limited at 100K tokens/day free tier) to local Ollama with qwen2.5:7b for unlimited, free AI inference.
+
+### Why qwen2.5:7b
+- Best JSON output reliability among 7B models (trained specifically for structured output)
+- Outperforms Llama 3.1 8B on classification benchmarks despite fewer parameters
+- Fast inference (~30-40 tok/s on Apple Silicon)
+- 4.7 GB download, ~6-7 GB RAM usage
+- Ollama's `format: 'json'` parameter enforces valid JSON via grammar-based constrained decoding
+
+### Files Modified
+- `app/Services/AI/OllamaProvider.php` — Added `format` parameter support (`json_mode`, `json_schema` options) for Ollama's constrained JSON decoding, updated defaults to qwen2.5:7b
+- `app/Services/AI/AIService.php` — Added `json_mode: true` to `classifyIntent()` call
+- `config/ai.php` — Changed Ollama defaults from deepseek-r1:7b to qwen2.5:7b, temperature 0.7→0.3
+- `.env` — Switched `AI_PROVIDER=ollama`, `OLLAMA_MODEL=qwen2.5:7b`
 
 ### Current Providers
 | Provider | Model | Status | Notes |
 |----------|-------|--------|-------|
-| Groq (cloud) | llama-3.3-70b-versatile | Rate-limited | 100K tokens/day free tier |
-| Ollama (local) | qwen2.5:7b | Installed | Best JSON reliability at 7B, runs locally, no limits |
+| Ollama (local) | qwen2.5:7b | **Active** | Free, unlimited, best JSON reliability at 7B |
+| Groq (cloud) | llama-3.3-70b-versatile | Available | 100K tokens/day free tier, faster but rate-limited |
 | DeepSeek (cloud) | deepseek-chat | Available | Paid service |
 
 ### Switching Providers
@@ -505,10 +520,19 @@ GROQ_MODEL=llama-3.3-70b-versatile
 
 ### Running Ollama
 ```bash
-ollama serve          # Start service
+ollama serve          # Start service (required before app use)
 ollama list           # Check available models
 ollama pull qwen2.5:7b  # Download model (~4.7 GB)
 ```
+
+### Verified Intent Classification Results
+| Input | Intent | Confidence | Entities |
+|---|---|---|---|
+| "I want to book a lab test" | booking_lab | 0.95 | — |
+| "Book an appointment with Dr. Sarah" | booking_doctor | 0.9 | doctor_name: "Dr. Sarah" |
+| "Hello" | greeting | 0.8 | — |
+| "I have a headache and fever" | emergency | 0.95 | symptoms: ["headache", "fever"] |
+| "blood test for my mother" | booking_lab | 0.85 | test_type, patient_relation: "mother" |
 
 ---
 

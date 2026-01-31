@@ -58,8 +58,9 @@ class AIService
         try {
             $response = $this->provider->chat($messages, [
                 'temperature' => 0.3, // Lower temperature for more consistent classification
-                'max_tokens' => 2000, // Increased for DeepSeek R1 reasoning tokens
+                'max_tokens' => 2000, // Increased for reasoning tokens
                 'extract_thinking' => true, // Enable thinking extraction
+                'json_mode' => true, // Enforce JSON output (used by Ollama's constrained decoding)
             ]);
 
             // Handle thinking extraction response
