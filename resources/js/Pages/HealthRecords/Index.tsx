@@ -941,7 +941,7 @@ export default function Index({ user, records, familyMembers, abnormalCount }: P
             <h3 className="text-lg font-semibold mb-1">No records yet</h3>
             <p className="text-sm text-muted-foreground mb-4">Book an appointment to get started.</p>
             <Button asChild>
-              <Link href="/booking/doctor">Book Appointment</Link>
+              <Link href="/booking">Book Appointment</Link>
             </Button>
           </div>
         )}

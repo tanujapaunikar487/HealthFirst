@@ -82,7 +82,7 @@ export default function Dashboard({
                 className="h-12 font-semibold text-white rounded-full"
                 style={{ width: '241px', height: '48px', backgroundColor: '#0052FF', fontSize: '16px', fontWeight: 600, lineHeight: '24px', paddingLeft: '32px', paddingRight: '32px', gap: '8px' }}
               >
-                <Link href="/appointments/create">
+                <Link href="/booking">
                   <span className="flex items-center gap-2 text-white">
                     <img
                       src="/assets/icons/appointment-2.svg"

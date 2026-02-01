@@ -3,7 +3,6 @@ import { router, usePage } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
-import { Badge } from '@/Components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -20,7 +19,7 @@ import {
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
-import { Plus, Pencil, Trash2, Users, AlertTriangle } from 'lucide-react';
+import { Plus, Users, AlertTriangle, ChevronRight } from 'lucide-react';
 
 /* ─── Types ─── */
 
@@ -32,11 +31,13 @@ interface FamilyMember {
   gender: string | null;
   blood_group: string | null;
   avatar_url: string | null;
+  alert_count: number;
 }
 
 interface Props {
   members: FamilyMember[];
   canCreate: boolean;
+  alertMemberCount: number;
 }
 
 /* ─── Constants ─── */
@@ -87,12 +88,11 @@ const emptyForm = {
 
 /* ─── Component ─── */
 
-export default function FamilyMembersIndex({ members, canCreate }: Props) {
+export default function FamilyMembersIndex({ members, canCreate, alertMemberCount }: Props) {
   const { props } = usePage<{ toast?: string }>();
 
   const [showForm, setShowForm] = useState(false);
   const [editingMember, setEditingMember] = useState<FamilyMember | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<FamilyMember | null>(null);
   const [formData, setFormData] = useState(emptyForm);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -103,7 +103,6 @@ export default function FamilyMembersIndex({ members, canCreate }: Props) {
     const params = new URLSearchParams(window.location.search);
     if (params.get('create') === '1') {
       openAddForm();
-      // Clean URL
       window.history.replaceState({}, '', '/family-members');
     }
   }, []);
@@ -122,21 +121,7 @@ export default function FamilyMembersIndex({ members, canCreate }: Props) {
     setShowForm(true);
   }
 
-  function openEditForm(member: FamilyMember) {
-    setEditingMember(member);
-    setFormData({
-      name: member.name,
-      relation: member.relation,
-      age: member.age?.toString() ?? '',
-      gender: member.gender ?? '',
-      blood_group: member.blood_group ?? '',
-    });
-    setFormErrors({});
-    setShowForm(true);
-  }
-
   function handleSubmit() {
-    // Client-side validation
     const errors: Record<string, string> = {};
     if (!formData.name.trim()) errors.name = 'Name is required';
     if (!formData.relation) errors.relation = 'Relation is required';
@@ -158,40 +143,13 @@ export default function FamilyMembersIndex({ members, canCreate }: Props) {
       blood_group: formData.blood_group || null,
     };
 
-    if (editingMember) {
-      router.put(`/family-members/${editingMember.id}`, payload, {
-        onSuccess: () => {
-          setShowForm(false);
-          setSubmitting(false);
-        },
-        onError: (errors) => {
-          setFormErrors(errors as Record<string, string>);
-          setSubmitting(false);
-        },
-      });
-    } else {
-      router.post('/family-members', payload, {
-        onSuccess: () => {
-          setShowForm(false);
-          setSubmitting(false);
-        },
-        onError: (errors) => {
-          setFormErrors(errors as Record<string, string>);
-          setSubmitting(false);
-        },
-      });
-    }
-  }
-
-  function handleDelete() {
-    if (!deleteTarget) return;
-    setSubmitting(true);
-    router.delete(`/family-members/${deleteTarget.id}`, {
+    router.post('/family-members', payload, {
       onSuccess: () => {
-        setDeleteTarget(null);
+        setShowForm(false);
         setSubmitting(false);
       },
-      onError: () => {
+      onError: (errors) => {
+        setFormErrors(errors as Record<string, string>);
         setSubmitting(false);
       },
     });
@@ -207,26 +165,18 @@ export default function FamilyMembersIndex({ members, canCreate }: Props) {
     >
       <div style={{ width: '100%', maxWidth: '738px', padding: '40px 0' }}>
         {/* Header */}
-        <div className="mb-8 flex items-start justify-between">
-          <div>
-            <h1
-              className="font-bold"
-              style={{
-                fontSize: '36px',
-                lineHeight: '44px',
-                letterSpacing: '-1px',
-                color: '#171717',
-              }}
-            >
-              Family Members
-            </h1>
-            <p
-              className="mt-1"
-              style={{ fontSize: '14px', lineHeight: '20px', color: '#737373' }}
-            >
-              {members.length} {members.length === 1 ? 'member' : 'members'}
-            </p>
-          </div>
+        <div className="mb-6 flex items-center justify-between">
+          <h1
+            className="font-bold"
+            style={{
+              fontSize: '36px',
+              lineHeight: '44px',
+              letterSpacing: '-1px',
+              color: '#171717',
+            }}
+          >
+            Family Members
+          </h1>
           {canCreate && (
             <Button
               onClick={openAddForm}
@@ -239,7 +189,19 @@ export default function FamilyMembersIndex({ members, canCreate }: Props) {
           )}
         </div>
 
-        {/* Card Grid or Empty State */}
+        {/* Alert Banner */}
+        {alertMemberCount > 0 && (
+          <div className="mb-6 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-amber-100">
+              <AlertTriangle className="h-4 w-4 text-amber-600" />
+            </div>
+            <p className="flex-1 text-sm font-medium text-amber-800">
+              {alertMemberCount} {alertMemberCount === 1 ? 'member needs' : 'members need'} attention
+            </p>
+          </div>
+        )}
+
+        {/* Member List or Empty State */}
         {members.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50 py-16">
             <div
@@ -249,76 +211,49 @@ export default function FamilyMembersIndex({ members, canCreate }: Props) {
               <Users className="h-7 w-7" style={{ color: '#1E40AF' }} />
             </div>
             <p className="mb-1 text-base font-semibold text-gray-900">No family members yet</p>
-            <p className="mb-6 text-sm text-gray-500">Add your first family member to manage appointments for everyone.</p>
+            <p className="mb-6 text-center text-sm text-gray-500 px-8">
+              Add family members to book appointments and manage health records for them
+            </p>
             <Button onClick={openAddForm} className="gap-2">
               <Plus className="h-4 w-4" />
-              Add your first member
+              Add Member
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white overflow-hidden">
             {members.map(member => {
               const colors = relationColors[member.relation] || relationColors.other;
-              const details: string[] = [];
-              if (member.age != null) details.push(`${member.age} yrs`);
-              if (member.gender) details.push(capitalize(member.gender));
-              if (member.blood_group) details.push(member.blood_group);
 
               return (
                 <div
                   key={member.id}
-                  className="group relative flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-4 transition-shadow hover:shadow-sm"
+                  onClick={() => router.visit(`/family-members/${member.id}`)}
+                  className="flex items-center gap-4 px-4 py-3.5 cursor-pointer transition-colors hover:bg-gray-50"
                 >
                   {/* Avatar */}
                   <div
-                    className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold"
+                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold"
                     style={{ backgroundColor: colors.bg, color: colors.text }}
                   >
-                    {getInitials(member.name)}
-                  </div>
-
-                  {/* Info */}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="truncate text-sm font-semibold text-gray-900">
-                        {member.name}
-                      </span>
-                      <Badge
-                        variant="secondary"
-                        className="text-xs capitalize"
-                        style={{
-                          backgroundColor: colors.bg,
-                          color: colors.text,
-                          border: 'none',
-                        }}
-                      >
-                        {member.relation}
-                      </Badge>
-                    </div>
-                    {details.length > 0 && (
-                      <p className="mt-1 text-xs text-gray-500">
-                        {details.join(' \u00B7 ')}
-                      </p>
+                    {member.avatar_url ? (
+                      <img src={member.avatar_url} className="h-10 w-10 rounded-full object-cover" alt={member.name} />
+                    ) : (
+                      getInitials(member.name)
                     )}
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                    <button
-                      onClick={() => openEditForm(member)}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </button>
-                    {member.relation !== 'self' && (
-                      <button
-                        onClick={() => setDeleteTarget(member)}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    )}
-                  </div>
+                  {/* Name */}
+                  <span className="flex-1 truncate text-sm font-medium text-gray-900">
+                    {member.name}
+                  </span>
+
+                  {/* Attention dot */}
+                  {member.alert_count > 0 && (
+                    <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full bg-amber-500" />
+                  )}
+
+                  {/* Chevron */}
+                  <ChevronRight className="h-4 w-4 flex-shrink-0 text-gray-400" />
                 </div>
               );
             })}
@@ -326,20 +261,17 @@ export default function FamilyMembersIndex({ members, canCreate }: Props) {
         )}
       </div>
 
-      {/* Add/Edit Sheet */}
+      {/* Add Sheet */}
       <Sheet open={showForm} onOpenChange={setShowForm}>
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>{editingMember ? 'Edit Member' : 'Add Family Member'}</SheetTitle>
+            <SheetTitle>Add Family Member</SheetTitle>
             <SheetDescription>
-              {editingMember
-                ? 'Update the details for this family member.'
-                : 'Add a new family member to manage their appointments and health records.'}
+              Add a new family member to manage their appointments and health records.
             </SheetDescription>
           </SheetHeader>
 
           <div className="mt-6 space-y-5">
-            {/* Name */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 Name <span className="text-red-500">*</span>
@@ -358,7 +290,6 @@ export default function FamilyMembersIndex({ members, canCreate }: Props) {
               )}
             </div>
 
-            {/* Relation */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 Relation <span className="text-red-500">*</span>
@@ -384,7 +315,6 @@ export default function FamilyMembersIndex({ members, canCreate }: Props) {
               )}
             </div>
 
-            {/* Age */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700">Age</label>
               <Input
@@ -400,7 +330,6 @@ export default function FamilyMembersIndex({ members, canCreate }: Props) {
               )}
             </div>
 
-            {/* Gender */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700">Gender</label>
               <Select
@@ -418,7 +347,6 @@ export default function FamilyMembersIndex({ members, canCreate }: Props) {
               </Select>
             </div>
 
-            {/* Blood Group */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700">Blood Group</label>
               <Select
@@ -436,55 +364,17 @@ export default function FamilyMembersIndex({ members, canCreate }: Props) {
               </Select>
             </div>
 
-            {/* Submit */}
             <Button
               onClick={handleSubmit}
               disabled={submitting}
               className="w-full"
               style={{ height: '40px', borderRadius: '10px' }}
             >
-              {submitting
-                ? 'Saving...'
-                : editingMember
-                  ? 'Update Member'
-                  : 'Add Member'}
+              {submitting ? 'Saving...' : 'Add Member'}
             </Button>
           </div>
         </SheetContent>
       </Sheet>
-
-      {/* Delete Confirmation Overlay */}
-      {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="mx-4 w-full max-w-sm rounded-xl bg-white p-6 shadow-lg">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
-              <AlertTriangle className="h-6 w-6 text-red-500" />
-            </div>
-            <h3 className="text-base font-semibold text-gray-900">Remove family member?</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              Are you sure you want to remove <strong>{deleteTarget.name}</strong>? This action cannot be undone.
-            </p>
-            <div className="mt-6 flex gap-3">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => setDeleteTarget(null)}
-                disabled={submitting}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                className="flex-1"
-                onClick={handleDelete}
-                disabled={submitting}
-              >
-                {submitting ? 'Removing...' : 'Remove'}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Toast */}
       <Toast
