@@ -1987,5 +1987,83 @@ Replaced the static CtaBanner on the completed-profile dashboard with a full act
 
 ---
 
+## Persistent Profile Warning Banner (February 2, 2026)
+
+Added a persistent yellow/amber warning banner across all pages when the user has incomplete critical profile information. The banner cannot be dismissed and disappears only when all missing information is added.
+
+### Behavior
+- Checks 3 conditions: active insurance policy, blood group on self member, emergency contact (name + phone)
+- Each missing item renders as an underlined `<Link>` navigating to the relevant page
+- Dynamic text: "Add **insurance details**, **blood type**, and **emergency contact** for hassle-free claims."
+- Banner positioned between header and main content area in AppLayout
+
+### Files Modified
+| File | Changes |
+|------|---------|
+| `app/Http/Middleware/HandleInertiaRequests.php` | Added `profileWarnings` shared prop with `getProfileWarnings()` method |
+| `resources/js/Layouts/AppLayout.tsx` | Added `ProfileWarningBanner` component between header and main |
+
+---
+
+## Dashboard Enhancements (February 2, 2026)
+
+Four enhancements to the active dashboard state.
+
+### 1. "View all" Navigation Links
+- "Up next" section header now has a "View all" link targeting the highest-priority content type:
+  - Overdue bills present → `/billing`
+  - Health alerts present → `/health-records`
+  - Today's appointments only → `/appointments`
+- "Later this week" already links to `/appointments`
+
+### 2. Razorpay Payment on Overdue Bills
+- "Pay" button on overdue bill dashboard cards now triggers the Razorpay payment flow directly
+- Reuses existing `BillingController::createOrder()` and `verifyPayment()` endpoints
+- Mock mode auto-detected (when Razorpay credentials not configured)
+- Shows "Paying..." during processing, success/error toast on completion, page reloads after payment
+
+### 3. Dynamic Promotional Banners
+Replaced the hardcoded Yellow Fever vaccination banner with a database-driven promotions system.
+
+**New database table: `promotions`**
+| Column | Type | Notes |
+|--------|------|-------|
+| id | bigint | auto-increment |
+| title | string | Banner heading |
+| description | text | Banner description |
+| button_text | string | CTA button label (default: "Book Now") |
+| button_href | string | CTA link (default: "/booking") |
+| image_url | string (nullable) | Optional right-side image |
+| bg_gradient | string | CSS gradient for banner background |
+| is_active | boolean | Active flag |
+| priority | integer | Higher = shown first |
+| starts_at | datetime (nullable) | Optional start date |
+| ends_at | datetime (nullable) | Optional end date |
+
+**New model**: `App\Models\Promotion` with `scopeActive()` — filters by is_active, date range, orders by priority desc.
+
+**Seed data**: 3 promotions (Yellow Fever priority 10, Annual Health Checkup priority 5, Free Diabetes Screening priority 3).
+
+**Frontend behavior**:
+- Shows the highest-priority non-dismissed active promotion
+- Per-promotion dismissal via localStorage key `promotion_{id}_dismissed` with 30-day expiry
+- Dismissing one promotion reveals the next highest-priority one
+- Banners without `image_url` render full-width text content
+
+### Files Created
+| File | Purpose |
+|------|---------|
+| `database/migrations/2026_02_02_100001_create_promotions_table.php` | Migration |
+| `app/Models/Promotion.php` | Eloquent model with `scopeActive()` |
+
+### Files Modified
+| File | Changes |
+|------|---------|
+| `resources/js/Pages/Dashboard.tsx` | Razorpay payment flow, "View all" links, dynamic promotion banner, Promotion interface |
+| `app/Http/Controllers/DashboardController.php` | Query and pass `promotions` prop |
+| `database/seeders/HospitalSeeder.php` | Seed 3 promotions |
+
+---
+
 **Last Updated**: February 2, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign | Upload Removed | Razorpay Billing Integration | Uniform Blue Icons | Family Members List + Detail Page | Unified Booking Links | Insurance List + Add Policy + Detail Page | Insurance Claim Detail Page | Claim Detail Edge States & Notification Deep-Linking | Dashboard States (Loading, New User, Partial Onboarding) | Active Dashboard with Aggregated Tasks
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign | Upload Removed | Razorpay Billing Integration | Uniform Blue Icons | Family Members List + Detail Page | Unified Booking Links | Insurance List + Add Policy + Detail Page | Insurance Claim Detail Page | Claim Detail Edge States & Notification Deep-Linking | Dashboard States (Loading, New User, Partial Onboarding) | Active Dashboard with Aggregated Tasks | Profile Warning Banner | Dashboard Enhancements (View All, Razorpay Pay, Dynamic Promotions)

@@ -18,6 +18,7 @@ use App\Models\InsuranceProvider;
 use App\Models\LabCenter;
 use App\Models\LabPackage;
 use App\Models\LabTestType;
+use App\Models\Promotion;
 use App\Models\UserAddress;
 use App\Models\Symptom;
 use App\Models\TimeSlot;
@@ -49,6 +50,8 @@ class HospitalSeeder extends Seeder
             $this->seedBillingNotifications($user);
             $this->seedHealthRecords($user);
         }
+
+        $this->seedPromotions();
 
         // Generate time slots for next 14 days
         $this->seedTimeSlots();
@@ -2686,6 +2689,46 @@ class HospitalSeeder extends Seeder
 
         foreach ($records as $record) {
             HealthRecord::create(array_merge($record, ['user_id' => $user->id]));
+        }
+    }
+
+    private function seedPromotions(): void
+    {
+        $promotions = [
+            [
+                'title' => 'Yellow Fever vaccination now available',
+                'description' => 'Required for travel to Africa & South America. Certificate valid for life. ₹2,500',
+                'button_text' => 'Book Now',
+                'button_href' => '/booking',
+                'image_url' => '/assets/images/vaccination.png',
+                'bg_gradient' => 'linear-gradient(to bottom right, #00184D 0%, #0242B3 83.86%)',
+                'is_active' => true,
+                'priority' => 10,
+            ],
+            [
+                'title' => 'Annual Health Checkup Camp',
+                'description' => 'Comprehensive health screening at 40% off. Includes blood work, ECG, and doctor consultation. Limited slots.',
+                'button_text' => 'Book Checkup',
+                'button_href' => '/booking',
+                'image_url' => null,
+                'bg_gradient' => 'linear-gradient(to bottom right, #065F46 0%, #059669 83.86%)',
+                'is_active' => true,
+                'priority' => 5,
+            ],
+            [
+                'title' => 'Free Diabetes Screening Week',
+                'description' => 'Get your blood sugar levels checked for free. Walk-in available Mon–Sat, 8 AM – 12 PM.',
+                'button_text' => 'Learn More',
+                'button_href' => '/booking',
+                'image_url' => null,
+                'bg_gradient' => 'linear-gradient(to bottom right, #7C2D12 0%, #EA580C 83.86%)',
+                'is_active' => true,
+                'priority' => 3,
+            ],
+        ];
+
+        foreach ($promotions as $promo) {
+            Promotion::create($promo);
         }
     }
 }

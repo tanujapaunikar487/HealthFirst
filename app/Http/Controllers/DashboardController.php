@@ -6,6 +6,7 @@ use App\Models\Appointment;
 use App\Models\FamilyMember;
 use App\Models\HealthRecord;
 use App\Models\InsurancePolicy;
+use App\Models\Promotion;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -137,6 +138,16 @@ class DashboardController extends Controller
             }
         }
 
+        $promotions = Promotion::active()->get()->map(fn ($p) => [
+            'id' => $p->id,
+            'title' => $p->title,
+            'description' => $p->description,
+            'button_text' => $p->button_text,
+            'button_href' => $p->button_href,
+            'image_url' => $p->image_url,
+            'bg_gradient' => $p->bg_gradient,
+        ]);
+
         return Inertia::render('Dashboard', [
             'user' => $user->load('patient'),
             'profileSteps' => $profileSteps,
@@ -145,6 +156,7 @@ class DashboardController extends Controller
             'overdueBills' => $overdueBills,
             'healthAlerts' => $healthAlerts,
             'preventiveCare' => $preventiveCare,
+            'promotions' => $promotions,
         ]);
     }
 

@@ -5,13 +5,19 @@ import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
 import {
   ChevronRight, AlertCircle, RefreshCw, Check, Stethoscope, FlaskConical,
-  Receipt, MoreHorizontal, Calendar, X, FileText, Clock, CreditCard,
+  Receipt, MoreHorizontal, Calendar, X, FileText, Clock, CreditCard, Loader2,
 } from 'lucide-react';
 import { Toast } from '@/Components/ui/toast';
 import { CtaBanner } from '@/Components/ui/cta-banner';
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator,
 } from '@/Components/ui/dropdown-menu';
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 interface User {
   id: number;
@@ -78,6 +84,16 @@ interface PreventiveCarePrompt {
   relation: string;
 }
 
+interface Promotion {
+  id: number;
+  title: string;
+  description: string;
+  button_text: string;
+  button_href: string;
+  image_url: string | null;
+  bg_gradient: string;
+}
+
 interface DashboardProps {
   user: User & { patient?: Patient };
   profileSteps: ProfileStep[];
@@ -86,6 +102,7 @@ interface DashboardProps {
   overdueBills?: OverdueBill[];
   healthAlerts?: HealthAlert[];
   preventiveCare?: PreventiveCarePrompt[];
+  promotions?: Promotion[];
 }
 
 // --- Skeleton Components ---
@@ -296,28 +313,105 @@ export default function Dashboard({
   overdueBills = [],
   healthAlerts = [],
   preventiveCare = [],
+  promotions = [],
 }: DashboardProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [showToast, setShowToast] = useState(profileJustCompleted);
+  const [toastMessage, setToastMessage] = useState('Profile successfully completed!');
+  const [payingBillId, setPayingBillId] = useState<number | null>(null);
   const mountTime = useRef(Date.now());
 
-  // Vaccination banner dismissal with 30-day reshow
-  const [vaccinationDismissed, setVaccinationDismissed] = useState(() => {
-    const dismissed = localStorage.getItem('vaccination_banner_dismissed');
-    if (!dismissed) return false;
-    const dismissedAt = parseInt(dismissed, 10);
+  // Promotion banner dismissal with 30-day reshow (per promotion ID)
+  const [dismissedPromoIds, setDismissedPromoIds] = useState<Set<number>>(() => {
+    const ids = new Set<number>();
     const thirtyDays = 30 * 24 * 60 * 60 * 1000;
-    if (Date.now() - dismissedAt > thirtyDays) {
-      localStorage.removeItem('vaccination_banner_dismissed');
-      return false;
+    for (const promo of promotions) {
+      const dismissed = localStorage.getItem(`promotion_${promo.id}_dismissed`);
+      if (dismissed) {
+        const dismissedAt = parseInt(dismissed, 10);
+        if (Date.now() - dismissedAt > thirtyDays) {
+          localStorage.removeItem(`promotion_${promo.id}_dismissed`);
+        } else {
+          ids.add(promo.id);
+        }
+      }
     }
-    return true;
+    return ids;
   });
 
-  const handleDismissVaccination = () => {
-    localStorage.setItem('vaccination_banner_dismissed', String(Date.now()));
-    setVaccinationDismissed(true);
+  const handleDismissPromotion = (id: number) => {
+    localStorage.setItem(`promotion_${id}_dismissed`, String(Date.now()));
+    setDismissedPromoIds((prev) => new Set([...prev, id]));
+  };
+
+  const activePromotion = promotions.find((p) => !dismissedPromoIds.has(p.id)) ?? null;
+
+  // Razorpay payment for overdue bills
+  const handleBillPayment = async (bill: OverdueBill) => {
+    setPayingBillId(bill.id);
+    try {
+      const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content || '';
+      const res = await fetch(`/billing/${bill.id}/payment/create-order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+        body: JSON.stringify({ amount: bill.amount }),
+      });
+
+      if (!res.ok) throw new Error('Failed to create order');
+      const orderData = await res.json();
+
+      if (orderData.mock_mode) {
+        const verifyRes = await fetch(`/billing/${bill.id}/payment/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+          body: JSON.stringify({
+            razorpay_payment_id: 'pay_mock_' + Math.random().toString(36).substr(2, 9),
+            razorpay_order_id: orderData.order_id,
+            razorpay_signature: 'mock_signature',
+          }),
+        });
+        if (!verifyRes.ok) throw new Error('Payment verification failed');
+        setToastMessage('Payment successful!');
+        setShowToast(true);
+        router.reload();
+        return;
+      }
+
+      // Real Razorpay checkout
+      const options = {
+        key: orderData.key,
+        amount: orderData.amount * 100,
+        currency: 'INR',
+        name: 'Healthcare Platform',
+        description: bill.title,
+        order_id: orderData.order_id,
+        handler: async (response: any) => {
+          const verifyRes = await fetch(`/billing/${bill.id}/payment/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+            body: JSON.stringify({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          });
+          if (verifyRes.ok) {
+            setToastMessage('Payment successful!');
+            setShowToast(true);
+            router.reload();
+          }
+        },
+        modal: { ondismiss: () => setPayingBillId(null) },
+      };
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch {
+      setToastMessage('Payment failed. Please try again.');
+      setShowToast(true);
+    } finally {
+      setPayingBillId(null);
+    }
   };
 
   useEffect(() => {
@@ -434,6 +528,13 @@ export default function Dashboard({
                       {overdueBills.length + healthAlerts.length + todayAppointments.length}
                     </span>
                   </div>
+                  <Link
+                    href={overdueBills.length > 0 ? '/billing' : healthAlerts.length > 0 ? '/health-records' : '/appointments'}
+                    className="text-sm font-medium"
+                    style={{ color: '#0052FF' }}
+                  >
+                    View all
+                  </Link>
                 </div>
 
                 <Card style={{ width: '738px', borderRadius: '24px', border: '1px solid #E5E5E5', overflow: 'hidden' }}>
@@ -449,8 +550,8 @@ export default function Dashboard({
                         patientInitials={bill.patient_initials}
                         badge={`${bill.days_overdue}d overdue`}
                         badgeColor="#DC2626"
-                        actionLabel="Pay"
-                        onAction={() => router.visit(`/billing/${bill.id}`)}
+                        actionLabel={payingBillId === bill.id ? 'Paying...' : 'Pay'}
+                        onAction={() => handleBillPayment(bill)}
                         menuItems={[
                           { label: 'View bill', onClick: () => router.visit(`/billing/${bill.id}`) },
                           { label: 'Payment history', onClick: () => router.visit(`/billing`) },
@@ -670,12 +771,12 @@ export default function Dashboard({
           </>
         )}
 
-        {/* ─── YELLOW FEVER VACCINATION BANNER (all states, dismissible) ─── */}
-        {!vaccinationDismissed && (
-          <div style={{ width: '738px', height: '216px', borderRadius: '24px', background: 'linear-gradient(to bottom right, #00184D 0%, #0242B3 83.86%)', display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4px', position: 'relative', overflow: 'hidden' }}>
+        {/* ─── PROMOTIONAL BANNER (dynamic, dismissible) ─── */}
+        {activePromotion && (
+          <div style={{ width: '738px', height: '216px', borderRadius: '24px', background: activePromotion.bg_gradient, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4px', position: 'relative', overflow: 'hidden' }}>
             {/* Dismiss button */}
             <button
-              onClick={handleDismissVaccination}
+              onClick={() => handleDismissPromotion(activePromotion.id)}
               className="flex items-center justify-center rounded-full hover:bg-white/20 transition-colors"
               style={{ position: 'absolute', top: '16px', right: '16px', width: '32px', height: '32px', zIndex: 20, background: 'rgba(255,255,255,0.15)' }}
             >
@@ -685,34 +786,36 @@ export default function Dashboard({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '32px', flexGrow: 1, zIndex: 10 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '450px' }}>
                 <h2 className="font-semibold" style={{ fontSize: '24px', fontWeight: 600, lineHeight: '32px', letterSpacing: '-0.5px', color: '#FFFFFF', margin: 0 }}>
-                  Yellow Fever vaccination now available
+                  {activePromotion.title}
                 </h2>
                 <p className="font-medium" style={{ fontSize: '14px', fontWeight: 500, lineHeight: '20px', letterSpacing: '0px', color: 'rgba(255, 255, 255, 0.7)', margin: 0 }}>
-                  Required for travel to Africa & South America. Certificate valid for life. ₹2,500
+                  {activePromotion.description}
                 </p>
               </div>
               <Button
                 asChild
                 className="font-semibold rounded-full"
-                style={{ width: '126px', height: '48px', backgroundColor: '#FFFFFF', color: '#00184D', fontSize: '16px', fontWeight: 600, lineHeight: '24px', paddingLeft: '24px', paddingRight: '24px', border: 'none', whiteSpace: 'nowrap' }}
+                style={{ width: 'fit-content', height: '48px', backgroundColor: '#FFFFFF', color: '#00184D', fontSize: '16px', fontWeight: 600, lineHeight: '24px', paddingLeft: '24px', paddingRight: '24px', border: 'none', whiteSpace: 'nowrap' }}
               >
-                <Link href="/vaccinations/yellow-fever">Book Now</Link>
+                <Link href={activePromotion.button_href}>{activePromotion.button_text}</Link>
               </Button>
             </div>
-            <div style={{ width: '220px', height: '216px', overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
-              <img
-                src="/assets/images/vaccination.png"
-                alt="Yellow Fever Vaccination"
-                style={{ width: '700px', height: '700px', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', objectFit: 'contain' }}
-              />
-            </div>
+            {activePromotion.image_url && (
+              <div style={{ width: '220px', height: '216px', overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
+                <img
+                  src={activePromotion.image_url}
+                  alt={activePromotion.title}
+                  style={{ width: '700px', height: '700px', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', objectFit: 'contain' }}
+                />
+              </div>
+            )}
           </div>
         )}
       </div>
 
       <Toast
         show={showToast}
-        message="Profile successfully completed!"
+        message={toastMessage}
         duration={4000}
         onHide={() => setShowToast(false)}
       />

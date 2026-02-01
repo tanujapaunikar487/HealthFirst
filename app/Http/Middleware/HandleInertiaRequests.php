@@ -55,7 +55,42 @@ class HandleInertiaRequests extends Middleware
                         'insurance_claim_id' => $n->data['insurance_claim_id'] ?? null,
                     ])
                 : [],
+            'profileWarnings' => $user ? $this->getProfileWarnings($user) : [],
             'toast' => fn () => $request->session()->get('toast'),
         ];
+    }
+
+    private function getProfileWarnings($user): array
+    {
+        $warnings = [];
+        $selfMember = \App\Models\FamilyMember::where('user_id', $user->id)
+            ->where('relation', 'self')
+            ->first();
+
+        if (!\App\Models\InsurancePolicy::where('user_id', $user->id)->where('is_active', true)->exists()) {
+            $warnings[] = [
+                'key' => 'insurance',
+                'label' => 'insurance details',
+                'href' => '/insurance',
+            ];
+        }
+
+        if (!$selfMember || !$selfMember->blood_group) {
+            $warnings[] = [
+                'key' => 'blood_group',
+                'label' => 'blood type',
+                'href' => '/family-members/' . ($selfMember?->id ?? ''),
+            ];
+        }
+
+        if (!$selfMember || !$selfMember->emergency_contact_name || !$selfMember->emergency_contact_phone) {
+            $warnings[] = [
+                'key' => 'emergency_contact',
+                'label' => 'emergency contact',
+                'href' => '/family-members/' . ($selfMember?->id ?? ''),
+            ];
+        }
+
+        return $warnings;
     }
 }

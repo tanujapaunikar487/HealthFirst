@@ -15,6 +15,7 @@ import {
   Bell, Search, CheckCheck,
   Receipt, Clock, CheckCircle2, XCircle,
   ShieldCheck, ShieldAlert, MessageSquare, CreditCard,
+  AlertTriangle,
 } from 'lucide-react';
 
 // --- Types ---
@@ -159,6 +160,7 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
   const { props } = usePage<{
     notificationUnreadCount: number;
     allNotifications: NotificationItem[];
+    profileWarnings: Array<{ key: string; label: string; href: string }>;
   }>();
 
   const [notifOpen, setNotifOpen] = useState(false);
@@ -166,6 +168,7 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
 
   const unreadCount = props.notificationUnreadCount || 0;
   const allNotifications = props.allNotifications || [];
+  const profileWarnings = props.profileWarnings || [];
 
   const displayedNotifications = notifFilter === 'unread'
     ? allNotifications.filter((n) => !n.read_at)
@@ -232,6 +235,38 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
             </div>
           </div>
         </header>
+
+        {/* Profile Warning Banner */}
+        {profileWarnings.length > 0 && (
+          <div
+            className="flex items-center gap-3"
+            style={{ backgroundColor: '#FFF8E1', borderBottom: '1px solid #FFE082', padding: '12px 24px' }}
+          >
+            <div
+              className="flex h-6 w-6 items-center justify-center rounded-full flex-shrink-0"
+              style={{ backgroundColor: '#FFE082' }}
+            >
+              <AlertTriangle className="h-3.5 w-3.5" style={{ color: '#F57F17' }} />
+            </div>
+            <p className="text-sm font-medium" style={{ color: '#5D4037' }}>
+              Your profile is incomplete. Add{' '}
+              {profileWarnings.map((w, i) => (
+                <span key={w.key}>
+                  {i > 0 && i < profileWarnings.length - 1 && ', '}
+                  {i > 0 && i === profileWarnings.length - 1 && ' and '}
+                  <Link
+                    href={w.href}
+                    className="underline font-semibold hover:text-amber-900"
+                    style={{ color: '#5D4037' }}
+                  >
+                    {w.label}
+                  </Link>
+                </span>
+              ))}{' '}
+              for hassle-free claims.
+            </p>
+          </div>
+        )}
 
         {/* Page Content */}
         <main
