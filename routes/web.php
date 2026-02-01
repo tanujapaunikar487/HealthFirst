@@ -11,6 +11,7 @@ use App\Http\Controllers\HealthRecordController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\FamilyMembersController;
+use App\Http\Controllers\InsuranceController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -46,7 +47,7 @@ Route::get('/dashboard', function () {
             'title' => 'Link insurance',
             'subtitle' => 'Make insurance claims hassle free',
             'completed' => true,
-            'href' => '/insurance/setup',
+            'href' => '/insurance',
         ],
         [
             'id' => 3,
@@ -156,6 +157,12 @@ Route::get('/family-members/{member}', [FamilyMembersController::class, 'show'])
 Route::post('/family-members', [FamilyMembersController::class, 'store'])->name('family-members.store');
 Route::put('/family-members/{member}', [FamilyMembersController::class, 'update'])->name('family-members.update');
 Route::delete('/family-members/{member}', [FamilyMembersController::class, 'destroy'])->name('family-members.destroy');
+
+// Insurance
+Route::get('/insurance', [InsuranceController::class, 'index'])->name('insurance.index');
+Route::post('/insurance', [InsuranceController::class, 'store'])->name('insurance.store');
+Route::get('/insurance/{policy}', [InsuranceController::class, 'show'])->name('insurance.show');
+Route::delete('/insurance/{policy}', [InsuranceController::class, 'destroy'])->name('insurance.destroy');
 
 // Health Records
 Route::get('/health-records', [HealthRecordController::class, 'index'])->name('health-records.index');

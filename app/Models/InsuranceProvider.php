@@ -26,4 +26,9 @@ class InsuranceProvider extends Model
     {
         return $this->hasMany(InsuranceClaim::class);
     }
+
+    public function policies(): HasMany
+    {
+        return $this->hasMany(InsurancePolicy::class);
+    }
 }

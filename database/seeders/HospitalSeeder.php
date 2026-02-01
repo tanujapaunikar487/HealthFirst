@@ -13,6 +13,7 @@ use App\Models\DoctorConsultationMode;
 use App\Models\EmergencyKeyword;
 use App\Models\FamilyMember;
 use App\Models\InsuranceClaim;
+use App\Models\InsurancePolicy;
 use App\Models\InsuranceProvider;
 use App\Models\LabCenter;
 use App\Models\LabPackage;
@@ -43,6 +44,7 @@ class HospitalSeeder extends Seeder
             $this->seedFamilyMembers($user);
             $this->seedUserAddresses($user);
             $this->seedAppointments($user);
+            $this->seedInsurancePolicies($user);
             $this->seedInsuranceClaims($user);
             $this->seedBillingNotifications($user);
             $this->seedHealthRecords($user);
@@ -907,43 +909,132 @@ class HospitalSeeder extends Seeder
         }
     }
 
+    private function seedInsurancePolicies(User $user): void
+    {
+        $starHealth = InsuranceProvider::where('name', 'Star Health Insurance')->first();
+        $hdfcErgo = InsuranceProvider::where('name', 'HDFC ERGO Health')->first();
+
+        $selfMember = FamilyMember::where('user_id', $user->id)->where('relation', 'self')->first();
+        $motherMember = FamilyMember::where('user_id', $user->id)->where('relation', 'mother')->first();
+        $fatherMember = FamilyMember::where('user_id', $user->id)->where('relation', 'father')->first();
+        $spouseMember = FamilyMember::where('user_id', $user->id)->where('relation', 'spouse')->first();
+
+        InsurancePolicy::create([
+            'user_id' => $user->id,
+            'insurance_provider_id' => $starHealth?->id ?? 1,
+            'policy_number' => 'SH-2025-789456',
+            'plan_name' => 'Family Floater Plan',
+            'plan_type' => 'family',
+            'sum_insured' => 500000,
+            'premium_amount' => 12000,
+            'start_date' => '2025-04-01',
+            'end_date' => '2026-03-31',
+            'members' => array_filter([
+                $selfMember?->id,
+                $motherMember?->id,
+                $fatherMember?->id,
+                $spouseMember?->id,
+            ]),
+            'metadata' => [
+                'icu_limit' => '₹10K/day',
+                'copay' => 'None',
+                'tpa' => 'Medi Assist',
+                'tpa_contact' => '1800-102-4488',
+            ],
+        ]);
+
+        InsurancePolicy::create([
+            'user_id' => $user->id,
+            'insurance_provider_id' => $hdfcErgo?->id ?? 2,
+            'policy_number' => 'HE-2026-123456',
+            'plan_name' => 'Individual Health Plan',
+            'plan_type' => 'individual',
+            'sum_insured' => 300000,
+            'premium_amount' => 8500,
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-12-31',
+            'members' => array_filter([$selfMember?->id]),
+            'metadata' => [
+                'icu_limit' => '₹8K/day',
+                'copay' => '10%',
+                'tpa' => 'Paramount Health Services',
+                'tpa_contact' => '1800-233-8080',
+            ],
+        ]);
+    }
+
     private function seedInsuranceClaims(User $user): void
     {
         $starHealth = InsuranceProvider::where('name', 'Star Health Insurance')->first();
         $hdfcErgo = InsuranceProvider::where('name', 'HDFC ERGO Health')->first();
 
+        $starPolicy = InsurancePolicy::where('policy_number', 'SH-2025-789456')->first();
+        $hdfcPolicy = InsurancePolicy::where('policy_number', 'HE-2026-123456')->first();
+
+        $selfMember = FamilyMember::where('user_id', $user->id)->where('relation', 'self')->first();
+        $motherMember = FamilyMember::where('user_id', $user->id)->where('relation', 'mother')->first();
+
+        $appointments = Appointment::where('user_id', $user->id)->orderBy('appointment_date')->get();
+
         $claims = [
             [
                 'insurance_provider_id' => $starHealth?->id ?? 1,
+                'insurance_policy_id' => $starPolicy?->id,
+                'family_member_id' => $selfMember?->id,
+                'appointment_id' => $appointments->get(3)?->id,
                 'policy_number' => 'SH-2025-789456',
                 'claim_amount' => 15000,
-                'status' => 'approved',
+                'status' => 'settled',
                 'description' => 'Annual health checkup claim',
+                'treatment_name' => 'Annual Health Checkup',
                 'claim_date' => Carbon::today()->subDays(45)->format('Y-m-d'),
             ],
             [
                 'insurance_provider_id' => $starHealth?->id ?? 1,
+                'insurance_policy_id' => $starPolicy?->id,
+                'family_member_id' => $selfMember?->id,
+                'appointment_id' => $appointments->get(0)?->id,
                 'policy_number' => 'SH-2025-789456',
                 'claim_amount' => 3500,
-                'status' => 'approved',
+                'status' => 'settled',
                 'description' => 'Consultation and medication for fever',
+                'treatment_name' => 'General Consultation',
                 'claim_date' => Carbon::today()->subDays(16)->format('Y-m-d'),
             ],
             [
                 'insurance_provider_id' => $hdfcErgo?->id ?? 2,
+                'insurance_policy_id' => $hdfcPolicy?->id,
+                'family_member_id' => $motherMember?->id,
+                'appointment_id' => $appointments->get(1)?->id,
                 'policy_number' => 'HE-2026-123456',
                 'claim_amount' => 8000,
-                'status' => 'processing',
+                'status' => 'current',
                 'description' => 'Cardiology consultation and ECG',
+                'treatment_name' => 'Cardiology Consultation & ECG',
                 'claim_date' => Carbon::today()->subDays(5)->format('Y-m-d'),
             ],
             [
                 'insurance_provider_id' => $starHealth?->id ?? 1,
+                'insurance_policy_id' => $starPolicy?->id,
+                'family_member_id' => $selfMember?->id,
+                'appointment_id' => $appointments->get(2)?->id,
                 'policy_number' => 'SH-2025-789456',
                 'claim_amount' => 5000,
                 'status' => 'pending',
                 'description' => 'Dermatology consultation claim',
+                'treatment_name' => 'Dermatology Consultation',
                 'claim_date' => Carbon::today()->subDays(2)->format('Y-m-d'),
+            ],
+            [
+                'insurance_provider_id' => $starHealth?->id ?? 1,
+                'insurance_policy_id' => $starPolicy?->id,
+                'family_member_id' => $motherMember?->id,
+                'policy_number' => 'SH-2025-789456',
+                'claim_amount' => 12000,
+                'status' => 'rejected',
+                'description' => 'Claim rejected — pre-existing condition not covered in waiting period',
+                'treatment_name' => 'Diabetes Management',
+                'claim_date' => Carbon::today()->subDays(60)->format('Y-m-d'),
             ],
         ];
 
