@@ -8,7 +8,7 @@ import { EmbeddedAddressForm } from '@/Features/booking-chat/embedded/EmbeddedAd
 import { EmbeddedCenterList } from '@/Features/booking-chat/embedded/EmbeddedCenterList';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
-import { TestTube, FlaskConical, Home, Building2, Check } from 'lucide-react';
+import { Home, Building2, Check } from 'lucide-react';
 
 const labSteps = [
   { id: 'patient', label: 'Patient' },
@@ -67,13 +67,8 @@ interface Props {
     selectedAddressId?: number;
     selectedCenterId?: number;
   };
-  hasPreSelectedPackage: boolean;
-  hasPreSelectedTests: boolean;
-  preSelectedPackageName?: string | null;
-  preSelectedTestNames?: string[];
-  preSelectedPrice: number;
-  preSelectedRequiresFasting: boolean;
-  preSelectedFastingHours?: number | null;
+  requiresFasting: boolean;
+  fastingHours?: number | null;
 }
 
 export default function ScheduleStep({
@@ -83,13 +78,8 @@ export default function ScheduleStep({
   userAddresses: initialAddresses,
   labCenters,
   savedData,
-  hasPreSelectedPackage,
-  hasPreSelectedTests,
-  preSelectedPackageName,
-  preSelectedTestNames = [],
-  preSelectedPrice,
-  preSelectedRequiresFasting,
-  preSelectedFastingHours,
+  requiresFasting,
+  fastingHours,
 }: Props) {
   const [selectedDate, setSelectedDate] = useState<string>(
     savedData?.selectedDate || availableDates[0]?.date || ''
@@ -111,7 +101,6 @@ export default function ScheduleStep({
   const [userAddresses, setUserAddresses] = useState<UserAddress[]>(initialAddresses);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const selectedLocationOption = locations.find((l) => l.type === selectedLocation);
   const collectionSectionRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to collection section when time is selected
@@ -247,26 +236,6 @@ export default function ScheduleStep({
     }
   };
 
-  const getPriceEstimate = () => {
-    if (preSelectedPrice > 0 && selectedLocationOption) {
-      const total = preSelectedPrice + selectedLocationOption.fee;
-      return `Total: ₹${total.toLocaleString()}`;
-    }
-    if (preSelectedPrice > 0) {
-      const minFee = Math.min(...locations.map((l) => l.fee));
-      const maxFee = Math.max(...locations.map((l) => l.fee));
-      const minTotal = preSelectedPrice + minFee;
-      const maxTotal = preSelectedPrice + maxFee;
-      if (minTotal === maxTotal) return `Total: ₹${minTotal.toLocaleString()}`;
-      return `Est: ₹${minTotal.toLocaleString()} - ₹${maxTotal.toLocaleString()}`;
-    }
-    return undefined;
-  };
-
-  const preSelectionName = hasPreSelectedTests
-    ? preSelectedTestNames.join(', ')
-    : preSelectedPackageName;
-
   return (
     <GuidedBookingLayout
       steps={labSteps}
@@ -274,49 +243,14 @@ export default function ScheduleStep({
       onBack={handleBack}
       onContinue={handleContinue}
       continueDisabled={!selectedTime || !isCollectionComplete()}
-      priceEstimate={getPriceEstimate()}
     >
       <div className="space-y-10">
-        {/* Section 1: Pre-selected test/package banner */}
-        <section>
-          <div className="flex items-center justify-between p-4 bg-primary/5 rounded-xl border border-primary/20">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                {hasPreSelectedTests ? (
-                  <TestTube className="h-4 w-4 text-primary" />
-                ) : (
-                  <FlaskConical className="h-4 w-4 text-primary" />
-                )}
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs text-muted-foreground mb-0.5">
-                  {hasPreSelectedTests
-                    ? `${preSelectedTestNames.length} test${preSelectedTestNames.length > 1 ? 's' : ''}`
-                    : 'Health Package'}
-                </p>
-                <p className="font-medium text-sm truncate">{preSelectionName}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 flex-shrink-0">
-              <span className="font-semibold text-sm">₹{preSelectedPrice.toLocaleString()}</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => router.get('/booking/lab/test-search')}
-                className="text-primary"
-              >
-                Change
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* Section 2: Date Selection */}
+        {/* Date Selection */}
         <section>
           <h2 className="text-xl font-semibold mb-4">Select Date</h2>
 
-          {preSelectedRequiresFasting && preSelectedFastingHours && (
-            <FastingAlert hours={preSelectedFastingHours} className="mb-4" />
+          {requiresFasting && fastingHours && (
+            <FastingAlert hours={fastingHours} className="mb-4" />
           )}
 
           <div className="flex gap-2 overflow-x-auto pb-2">
@@ -411,76 +345,76 @@ export default function ScheduleStep({
             {errors.location && (
               <p className="text-sm text-destructive mt-2">{errors.location}</p>
             )}
-          </section>
-        )}
 
-        {/* Section 5a: Address Selection (Home Collection) */}
-        {selectedLocation === 'home' && !showAddressForm && (
-          <section>
-            <h2 className="text-xl font-semibold mb-4">Select delivery address</h2>
+            {/* Address Selection (Home Collection) */}
+            {selectedLocation === 'home' && !showAddressForm && (
+              <div className="mt-6">
+                <h3 className="text-base font-semibold mb-3">Select delivery address</h3>
 
-            {userAddresses.length > 0 ? (
-              <EmbeddedAddressSelector
-                addresses={userAddresses}
-                selectedAddressId={selectedAddressId}
-                onSelect={handleAddressSelect}
-                onAddAddress={() => setShowAddressForm(true)}
-                disabled={false}
-              />
-            ) : (
-              <div className="text-center py-4">
-                <p className="text-sm text-muted-foreground mb-3">No saved addresses yet</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowAddressForm(true)}
-                >
-                  Add new address
-                </Button>
+                {userAddresses.length > 0 ? (
+                  <EmbeddedAddressSelector
+                    addresses={userAddresses}
+                    selectedAddressId={selectedAddressId}
+                    onSelect={handleAddressSelect}
+                    onAddAddress={() => setShowAddressForm(true)}
+                    disabled={false}
+                  />
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-sm text-muted-foreground mb-3">No saved addresses yet</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowAddressForm(true)}
+                    >
+                      Add new address
+                    </Button>
+                  </div>
+                )}
+
+                {errors.address && (
+                  <p className="text-sm text-destructive mt-2">{errors.address}</p>
+                )}
               </div>
             )}
 
-            {errors.address && (
-              <p className="text-sm text-destructive mt-2">{errors.address}</p>
+            {/* Add Address Form */}
+            {selectedLocation === 'home' && showAddressForm && (
+              <div className="mt-6">
+                <h3 className="text-base font-semibold mb-3">Add new address</h3>
+                <EmbeddedAddressForm
+                  onSelect={handleAddAddressSubmit}
+                  disabled={false}
+                />
+                {userAddresses.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowAddressForm(false)}
+                    className="mt-2 text-muted-foreground"
+                  >
+                    Back to saved addresses
+                  </Button>
+                )}
+              </div>
             )}
-          </section>
-        )}
 
-        {/* Add Address Form */}
-        {selectedLocation === 'home' && showAddressForm && (
-          <section>
-            <h2 className="text-xl font-semibold mb-4">Add new address</h2>
-            <EmbeddedAddressForm
-              onSelect={handleAddAddressSubmit}
-              disabled={false}
-            />
-            {userAddresses.length > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowAddressForm(false)}
-                className="mt-2 text-muted-foreground"
-              >
-                Back to saved addresses
-              </Button>
-            )}
-          </section>
-        )}
+            {/* Center Selection (Hospital Visit) */}
+            {selectedLocation === 'center' && (
+              <div className="mt-6">
+                <h3 className="text-base font-semibold mb-3">Select lab center</h3>
 
-        {/* Section 5b: Center Selection (Hospital Visit) */}
-        {selectedLocation === 'center' && (
-          <section>
-            <h2 className="text-xl font-semibold mb-4">Select lab center</h2>
+                <EmbeddedCenterList
+                  centers={labCenters}
+                  selectedCenterId={selectedCenterId}
+                  onSelect={handleCenterSelect}
+                  disabled={false}
+                />
 
-            <EmbeddedCenterList
-              centers={labCenters}
-              selectedCenterId={selectedCenterId}
-              onSelect={handleCenterSelect}
-              disabled={false}
-            />
-
-            {errors.center && (
-              <p className="text-sm text-destructive mt-2">{errors.center}</p>
+                {errors.center && (
+                  <p className="text-sm text-destructive mt-2">{errors.center}</p>
+                )}
+              </div>
             )}
           </section>
         )}

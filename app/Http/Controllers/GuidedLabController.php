@@ -205,29 +205,22 @@ class GuidedLabController extends Controller
             return redirect()->route('booking.lab.test-search');
         }
 
-        // Pre-selected test/package info for banner
-        $preSelectedPackageName = null;
-        $preSelectedTestNames = [];
-        $preSelectedPrice = 0;
-        $preSelectedRequiresFasting = false;
-        $preSelectedFastingHours = null;
+        // Fasting info for FastingAlert
+        $requiresFasting = false;
+        $fastingHours = null;
 
         if ($hasPackage) {
             $pkg = LabPackage::find($savedData['selectedPackageId']);
             if ($pkg) {
-                $preSelectedPackageName = $pkg->name;
-                $preSelectedPrice = $pkg->price;
-                $preSelectedRequiresFasting = (bool) $pkg->requires_fasting;
-                $preSelectedFastingHours = $pkg->fasting_hours;
+                $requiresFasting = (bool) $pkg->requires_fasting;
+                $fastingHours = $pkg->fasting_hours;
             }
         } elseif ($hasTests) {
-            $preSelectedTestNames = $savedData['selectedTestNames'] ?? [];
             $tests = LabTestType::whereIn('id', $savedData['selectedTestIds'])->where('is_active', true)->get();
-            $preSelectedPrice = $tests->sum('price');
             $maxFasting = $tests->where('requires_fasting', true)->max('fasting_hours');
             if ($maxFasting) {
-                $preSelectedRequiresFasting = true;
-                $preSelectedFastingHours = $maxFasting;
+                $requiresFasting = true;
+                $fastingHours = $maxFasting;
             }
         }
 
@@ -318,13 +311,8 @@ class GuidedLabController extends Controller
             'userAddresses' => $userAddresses,
             'labCenters' => $labCenters,
             'savedData' => $savedData,
-            'hasPreSelectedPackage' => $hasPackage,
-            'hasPreSelectedTests' => $hasTests,
-            'preSelectedPackageName' => $preSelectedPackageName,
-            'preSelectedTestNames' => $preSelectedTestNames,
-            'preSelectedPrice' => $preSelectedPrice,
-            'preSelectedRequiresFasting' => $preSelectedRequiresFasting,
-            'preSelectedFastingHours' => $preSelectedFastingHours,
+            'requiresFasting' => $requiresFasting,
+            'fastingHours' => $fastingHours,
         ]);
     }
 

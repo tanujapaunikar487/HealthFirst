@@ -3,7 +3,7 @@ import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
 import { cn } from '@/Lib/utils';
-import { Clock, FlaskConical, User, ChevronRight, ChevronDown, TestTube, Check, Square, CheckSquare, Sparkles, ClipboardList } from 'lucide-react';
+import { Clock, FlaskConical, ChevronRight, ChevronDown, TestTube, Check, Square, CheckSquare, Sparkles, ClipboardList } from 'lucide-react';
 
 interface Package {
   id: string;
@@ -216,16 +216,19 @@ export function EmbeddedPackageList({
 
                             <p className="text-xs text-muted-foreground mb-1.5">{test.description}</p>
 
-                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-2 flex-wrap">
                               {test.turnaround_hours && (
-                                <span className="flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />
-                                  {test.turnaround_hours}h results
+                                <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                                  Report in {test.turnaround_hours}h
+                                </span>
+                              )}
+                              {test.requires_fasting && test.fasting_hours && (
+                                <span className="text-xs text-orange-700 bg-orange-50 px-2 py-0.5 rounded-full">
+                                  {test.fasting_hours}h fasting
                                 </span>
                               )}
                               {test.category && (
-                                <span className="flex items-center gap-1">
-                                  <FlaskConical className="h-3 w-3" />
+                                <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
                                   {test.category}
                                 </span>
                               )}
@@ -316,82 +319,95 @@ export function EmbeddedPackageList({
               return (
                 <div
                   key={pkg.id}
-                  className={cn(
-                    'transition-colors',
-                    isSelected && 'border-l-4 border-l-primary',
-                  )}
+                  className="transition-colors"
                 >
-                  <div className={cn(
-                    'p-4 hover:bg-accent',
-                    isSelected && 'bg-accent',
-                  )}>
-                    <div className="flex items-start justify-between gap-4 mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium leading-none">{pkg.name}</span>
-                        {pkg.is_recommended && (
-                          <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-100">
-                            Recommended
-                          </Badge>
-                        )}
-                        {pkg.requires_fasting && (
-                          <Badge variant="secondary" className="bg-orange-100 text-orange-700 hover:bg-orange-100 text-[10px] px-1.5 py-0">
-                            Fasting {pkg.fasting_hours}h
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        <span className="text-sm font-medium">₹{pkg.price.toLocaleString()}</span>
-                        {pkg.original_price > pkg.price && (
-                          <span className="text-sm text-muted-foreground line-through ml-2">
-                            ₹{pkg.original_price.toLocaleString()}
-                          </span>
-                        )}
-                      </div>
-                    </div>
+                  <div className="flex">
+                    <button
+                      onClick={() => !disabled && !alreadySubmitted && onSelect(pkg.id)}
+                      disabled={disabled || alreadySubmitted}
+                      className={cn(
+                        'flex-1 text-left p-4 transition-colors',
+                        !alreadySubmitted && 'hover:bg-accent/50 cursor-pointer',
+                        isSelected && 'bg-primary/5',
+                        (disabled || alreadySubmitted) && !isSelected && 'opacity-60',
+                      )}
+                    >
+                      <div className="flex gap-3">
+                        {/* Checkbox */}
+                        <div className="flex-shrink-0 mt-0.5">
+                          {isSelected ? (
+                            <CheckSquare className="h-5 w-5 text-primary" />
+                          ) : (
+                            <Square className="h-5 w-5 text-muted-foreground/50" />
+                          )}
+                        </div>
 
-                    <p className="text-sm text-muted-foreground mb-3">{pkg.description}</p>
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-3 mb-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className={cn('text-sm font-medium', isSelected && 'text-primary')}>
+                                {pkg.name}
+                              </span>
+                              {pkg.is_recommended && (
+                                <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-100">
+                                  Recommended
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <span className="text-sm font-semibold">₹{pkg.price.toLocaleString()}</span>
+                              {pkg.original_price > pkg.price && (
+                                <span className="text-xs text-muted-foreground line-through ml-1.5">
+                                  ₹{pkg.original_price.toLocaleString()}
+                                </span>
+                              )}
+                            </div>
+                          </div>
 
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1.5">
-                          <Clock className="h-4 w-4" />
-                          {pkg.duration_hours} hrs
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <FlaskConical className="h-4 w-4" />
-                          {pkg.tests_count} tests
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <User className="h-4 w-4" />
-                          {pkg.age_range} age
-                        </span>
-                      </div>
+                          <p className="text-xs text-muted-foreground mb-1.5">{pkg.description}</p>
 
-                      <div className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          variant={isSelected ? 'default' : 'secondary'}
-                          onClick={() => !disabled && onSelect(pkg.id)}
-                          disabled={disabled || alreadySubmitted}
-                        >
-                          {isSelected ? 'Selected' : 'Book'}
-                        </Button>
-                        {hasDetails && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 w-8 p-0"
-                            onClick={() => setExpandedPkgId(isExpanded ? null : String(pkg.id))}
-                          >
-                            {isExpanded ? (
-                              <ChevronDown className="h-4 w-4" />
-                            ) : (
-                              <ChevronRight className="h-4 w-4" />
+                          {/* Info badges */}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                              {pkg.duration_hours} hrs
+                            </span>
+                            <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                              {pkg.tests_count} tests
+                            </span>
+                            {pkg.requires_fasting && pkg.fasting_hours && (
+                              <span className="text-xs text-orange-700 bg-orange-50 px-2 py-0.5 rounded-full">
+                                {pkg.fasting_hours}h fasting
+                              </span>
                             )}
-                          </Button>
-                        )}
+                            <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                              {pkg.age_range} age
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    </button>
+
+                    {/* Expand button */}
+                    {hasDetails && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExpandedPkgId(isExpanded ? null : String(pkg.id));
+                        }}
+                        className={cn(
+                          'flex-shrink-0 px-3 flex items-center transition-colors',
+                          'hover:bg-accent/50 text-muted-foreground hover:text-foreground',
+                          isSelected && 'bg-primary/5',
+                        )}
+                      >
+                        {isExpanded ? (
+                          <ChevronDown className="h-4 w-4" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4" />
+                        )}
+                      </button>
+                    )}
                   </div>
 
                   {/* Expanded detail section */}
