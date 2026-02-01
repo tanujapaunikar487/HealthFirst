@@ -161,6 +161,7 @@ Route::delete('/family-members/{member}', [FamilyMembersController::class, 'dest
 // Insurance
 Route::get('/insurance', [InsuranceController::class, 'index'])->name('insurance.index');
 Route::post('/insurance', [InsuranceController::class, 'store'])->name('insurance.store');
+Route::get('/insurance/claims/{claim}', [InsuranceController::class, 'showClaim'])->name('insurance.claim.show');
 Route::get('/insurance/{policy}', [InsuranceController::class, 'show'])->name('insurance.show');
 Route::delete('/insurance/{policy}', [InsuranceController::class, 'destroy'])->name('insurance.destroy');
 

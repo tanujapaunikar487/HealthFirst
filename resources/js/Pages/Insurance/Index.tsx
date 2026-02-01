@@ -707,7 +707,7 @@ export default function InsuranceIndex({
                                   variant="outline"
                                   size="sm"
                                   className="h-7 text-xs"
-                                  onClick={() => showToastMessage('Track claim coming soon')}
+                                  onClick={() => router.visit(`/insurance/claims/${claim.id}`)}
                                 >
                                   Track
                                 </Button>
@@ -720,7 +720,7 @@ export default function InsuranceIndex({
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                   <DropdownMenuItem
-                                    onClick={() => showToastMessage('View Claim coming soon')}
+                                    onClick={() => router.visit(`/insurance/claims/${claim.id}`)}
                                   >
                                     <Eye className="mr-2 h-4 w-4" />
                                     View Claim

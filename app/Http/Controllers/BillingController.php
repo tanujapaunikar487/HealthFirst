@@ -335,6 +335,9 @@ class BillingController extends Controller
             'days_overdue' => in_array($billingStatus, ['due', 'copay_due'])
                 ? max(0, (int) $appt->appointment_date->copy()->addDays(7)->diffInDays(now(), false))
                 : 0,
+            'insurance_claim_id' => in_array($billingStatus, ['claim_pending', 'awaiting_approval', 'covered', 'copay_due', 'reimbursed'])
+                ? InsuranceClaim::where('appointment_id', $appt->id)->value('id')
+                : null,
         ];
     }
 
@@ -408,6 +411,7 @@ class BillingController extends Controller
                 'provider_name' => $claim?->insuranceProvider?->name ?? 'Star Health Insurance',
                 'policy_number' => $claim?->policy_number ?? 'SH-2025-789456',
                 'claim_id' => 'CLM-' . str_pad($appt->id * 31, 8, '0', STR_PAD_LEFT),
+                'insurance_claim_id' => $claim?->id,
                 'claim_status' => match ($billingStatus) {
                     'awaiting_approval' => 'Under Review',
                     'claim_pending' => 'Submitted',

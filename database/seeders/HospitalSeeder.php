@@ -976,6 +976,10 @@ class HospitalSeeder extends Seeder
 
         $appointments = Appointment::where('user_id', $user->id)->orderBy('appointment_date')->get();
 
+        $claimDate1 = Carbon::today()->subDays(45);
+        $claimDate3 = Carbon::today()->subDays(5);
+        $claimDate5 = Carbon::today()->subDays(60);
+
         $claims = [
             [
                 'insurance_provider_id' => $starHealth?->id ?? 1,
@@ -987,7 +991,26 @@ class HospitalSeeder extends Seeder
                 'status' => 'settled',
                 'description' => 'Annual health checkup claim',
                 'treatment_name' => 'Annual Health Checkup',
-                'claim_date' => Carbon::today()->subDays(45)->format('Y-m-d'),
+                'procedure_type' => 'Preventive Care',
+                'claim_date' => $claimDate1->format('Y-m-d'),
+                'financial' => [
+                    'preauth_requested' => 15000,
+                    'preauth_approved' => 15000,
+                    'current_bill' => 15000,
+                    'insurance_covered' => 15000,
+                    'patient_paid' => 0,
+                ],
+                'documents' => [
+                    ['type' => 'Pre-auth Letter', 'date' => $claimDate1->format('d M Y'), 'filename' => 'preauth_letter.pdf'],
+                    ['type' => 'Hospital Bill', 'date' => $claimDate1->addDays(1)->format('d M Y'), 'filename' => 'hospital_bill.pdf'],
+                    ['type' => 'Settlement Letter', 'date' => $claimDate1->addDays(10)->format('d M Y'), 'filename' => 'settlement.pdf'],
+                ],
+                'timeline' => [
+                    ['event' => 'Claim Submitted', 'date' => $claimDate1->subDays(11)->format('d M Y'), 'status' => 'completed'],
+                    ['event' => 'Pre-auth Approved', 'date' => $claimDate1->subDays(10)->format('d M Y'), 'status' => 'completed'],
+                    ['event' => 'Treatment Completed', 'date' => $claimDate1->format('d M Y'), 'status' => 'completed'],
+                    ['event' => 'Claim Settled', 'date' => $claimDate1->addDays(10)->format('d M Y'), 'status' => 'completed'],
+                ],
             ],
             [
                 'insurance_provider_id' => $starHealth?->id ?? 1,
@@ -999,6 +1022,7 @@ class HospitalSeeder extends Seeder
                 'status' => 'settled',
                 'description' => 'Consultation and medication for fever',
                 'treatment_name' => 'General Consultation',
+                'procedure_type' => 'Consultation',
                 'claim_date' => Carbon::today()->subDays(16)->format('Y-m-d'),
             ],
             [
@@ -1011,7 +1035,39 @@ class HospitalSeeder extends Seeder
                 'status' => 'current',
                 'description' => 'Cardiology consultation and ECG',
                 'treatment_name' => 'Cardiology Consultation & ECG',
-                'claim_date' => Carbon::today()->subDays(5)->format('Y-m-d'),
+                'procedure_type' => 'Diagnostic',
+                'claim_date' => $claimDate3->format('Y-m-d'),
+                'stay_details' => [
+                    'admission_date' => $claimDate3->format('Y-m-d'),
+                    'discharge_date' => null,
+                    'days' => 3,
+                    'room_type' => 'Semi-Private',
+                    'room_number' => '304-B',
+                    'daily_rate' => 3500,
+                ],
+                'financial' => [
+                    'preauth_requested' => 350000,
+                    'preauth_approved' => 350000,
+                    'current_bill' => 8000,
+                    'insurance_covered' => null,
+                    'patient_paid' => null,
+                    'estimated_remaining' => 342000,
+                    'estimated_out_of_pocket' => 0,
+                ],
+                'documents' => [
+                    ['type' => 'Pre-auth Letter', 'date' => $claimDate3->format('d M Y'), 'filename' => 'preauth_cardio.pdf'],
+                    ['type' => 'Admission Form', 'date' => $claimDate3->format('d M Y'), 'filename' => 'admission_form.pdf'],
+                    ['type' => 'Consent Form', 'date' => $claimDate3->format('d M Y'), 'filename' => 'consent.pdf'],
+                    ['type' => 'ECG Report', 'date' => $claimDate3->addDays(1)->format('d M Y'), 'filename' => 'ecg_report.pdf'],
+                ],
+                'timeline' => [
+                    ['event' => 'Claim Submitted', 'date' => $claimDate3->subDays(1)->format('d M Y'), 'status' => 'completed'],
+                    ['event' => 'Pre-auth Approved', 'date' => $claimDate3->format('d M Y'), 'status' => 'completed'],
+                    ['event' => 'Admitted', 'date' => $claimDate3->format('d M Y'), 'status' => 'completed'],
+                    ['event' => 'In Treatment', 'date' => $claimDate3->format('d M Y'), 'status' => 'current'],
+                    ['event' => 'Discharge', 'date' => null, 'status' => 'pending'],
+                    ['event' => 'Final Settlement', 'date' => null, 'status' => 'pending'],
+                ],
             ],
             [
                 'insurance_provider_id' => $starHealth?->id ?? 1,
@@ -1023,6 +1079,7 @@ class HospitalSeeder extends Seeder
                 'status' => 'pending',
                 'description' => 'Dermatology consultation claim',
                 'treatment_name' => 'Dermatology Consultation',
+                'procedure_type' => 'Consultation',
                 'claim_date' => Carbon::today()->subDays(2)->format('Y-m-d'),
             ],
             [
@@ -1032,9 +1089,232 @@ class HospitalSeeder extends Seeder
                 'policy_number' => 'SH-2025-789456',
                 'claim_amount' => 12000,
                 'status' => 'rejected',
+                'rejection_reason' => 'Pre-existing condition — 4-year waiting period not met',
                 'description' => 'Claim rejected — pre-existing condition not covered in waiting period',
                 'treatment_name' => 'Diabetes Management',
-                'claim_date' => Carbon::today()->subDays(60)->format('Y-m-d'),
+                'procedure_type' => 'Chronic Care',
+                'claim_date' => $claimDate5->format('Y-m-d'),
+                'financial' => [
+                    'preauth_requested' => 12000,
+                    'preauth_approved' => 0,
+                    'current_bill' => 12000,
+                    'insurance_covered' => 0,
+                    'patient_paid' => 12000,
+                ],
+                'documents' => [
+                    ['type' => 'Pre-auth Request', 'date' => $claimDate5->format('d M Y'), 'filename' => 'preauth_request.pdf'],
+                    ['type' => 'Rejection Letter', 'date' => $claimDate5->addDays(3)->format('d M Y'), 'filename' => 'rejection.pdf'],
+                ],
+                'timeline' => [
+                    ['event' => 'Claim Submitted', 'date' => $claimDate5->subDays(3)->format('d M Y'), 'status' => 'completed'],
+                    ['event' => 'Under Review', 'date' => $claimDate5->subDays(1)->format('d M Y'), 'status' => 'completed'],
+                    ['event' => 'Rejected', 'date' => $claimDate5->addDays(3)->format('d M Y'), 'status' => 'rejected'],
+                ],
+            ],
+        ];
+
+        // Claim 6: partially_approved — Knee Surgery
+        $claimDate6 = Carbon::today()->subDays(3);
+        $claims[] = [
+            'insurance_provider_id' => $hdfcErgo?->id ?? 2,
+            'insurance_policy_id' => $hdfcPolicy?->id,
+            'family_member_id' => $selfMember?->id,
+            'policy_number' => 'HE-2026-123456',
+            'claim_amount' => 350000,
+            'status' => 'partially_approved',
+            'description' => 'Knee replacement surgery — partial approval',
+            'treatment_name' => 'Knee Replacement Surgery',
+            'procedure_type' => 'Orthopaedic Surgery',
+            'rejection_reason' => 'Room rate exceeds policy limit. Difference of ₹500/day for estimated 10 days.',
+            'claim_date' => $claimDate6->format('Y-m-d'),
+            'stay_details' => [
+                'admission_date' => $claimDate6->format('Y-m-d'),
+                'discharge_date' => null,
+                'days' => 3,
+                'room_type' => 'Private',
+                'room_number' => '312',
+                'daily_rate' => 5000,
+            ],
+            'financial' => [
+                'preauth_requested' => 300000,
+                'preauth_approved' => 300000,
+                'not_covered' => 30000,
+                'enhancements' => [
+                    ['id' => 1, 'amount' => 50000, 'status' => 'approved', 'date' => $claimDate6->copy()->subDays(1)->format('d M Y')],
+                    ['id' => 2, 'amount' => 75000, 'status' => 'approved', 'date' => $claimDate6->format('d M Y')],
+                ],
+                'total_approved' => 425000,
+                'current_bill' => null,
+                'insurance_covered' => null,
+                'patient_paid' => null,
+            ],
+            'documents' => [
+                ['type' => 'Pre-auth Letter', 'date' => $claimDate6->copy()->subDays(3)->format('d M Y'), 'filename' => 'preauth_knee.pdf'],
+                ['type' => 'Partial Approval Letter', 'date' => $claimDate6->copy()->subDays(2)->format('d M Y'), 'filename' => 'partial_approval.pdf'],
+                ['type' => 'Enhancement 1 Approval', 'date' => $claimDate6->copy()->subDays(1)->format('d M Y'), 'filename' => 'enhancement1.pdf'],
+                ['type' => 'Enhancement 2 Approval', 'date' => $claimDate6->format('d M Y'), 'filename' => 'enhancement2.pdf'],
+            ],
+            'timeline' => [
+                ['event' => 'Claim Submitted', 'date' => $claimDate6->copy()->subDays(4)->format('d M Y'), 'status' => 'completed'],
+                ['event' => 'Pre-auth approved ₹3L', 'date' => $claimDate6->copy()->subDays(3)->format('d M Y'), 'status' => 'completed'],
+                ['event' => 'Room upgrade not covered (₹30K)', 'date' => $claimDate6->copy()->subDays(2)->format('d M Y'), 'status' => 'rejected', 'note' => 'Patient accepted out-of-pocket responsibility'],
+                ['event' => 'Enhancement 1 approved ₹50K', 'date' => $claimDate6->copy()->subDays(1)->format('d M Y'), 'status' => 'completed', 'details' => [
+                    'Reason' => 'Extended ICU stay',
+                    'Amount' => '₹50,000',
+                ]],
+                ['event' => 'Enhancement 2 approved ₹75K', 'date' => $claimDate6->format('d M Y'), 'status' => 'completed', 'details' => [
+                    'Reason' => 'Additional physiotherapy sessions',
+                    'Amount' => '₹75,000',
+                ]],
+                ['event' => 'Partially Approved', 'date' => $claimDate6->format('d M Y'), 'status' => 'current', 'details' => [
+                    'Total Approved' => '₹4,25,000',
+                    'Not covered' => '₹30,000 (room upgrade)',
+                ]],
+                ['event' => 'Treatment', 'date' => null, 'status' => 'pending'],
+                ['event' => 'Final Settlement', 'date' => null, 'status' => 'pending'],
+            ],
+        ];
+
+        // Claim 7: enhancement_required — Extended treatment
+        $claimDate7 = Carbon::today()->subDays(8);
+        $claims[] = [
+            'insurance_provider_id' => $starHealth?->id ?? 1,
+            'insurance_policy_id' => $starPolicy?->id,
+            'family_member_id' => $motherMember?->id,
+            'policy_number' => 'SH-2025-789456',
+            'claim_amount' => 390000,
+            'status' => 'enhancement_required',
+            'description' => 'Extended cardiac treatment exceeding approved amount',
+            'treatment_name' => 'Cardiac Stent Procedure',
+            'procedure_type' => 'Interventional Cardiology',
+            'claim_date' => $claimDate7->format('Y-m-d'),
+            'stay_details' => [
+                'admission_date' => $claimDate7->format('Y-m-d'),
+                'discharge_date' => null,
+                'days' => 8,
+                'room_type' => 'Semi-Private',
+                'room_number' => '205-A',
+                'daily_rate' => 3500,
+            ],
+            'financial' => [
+                'preauth_requested' => 350000,
+                'preauth_approved' => 350000,
+                'current_bill' => 390000,
+                'original_approved' => 350000,
+                'enhancement_requested' => 100000,
+                'insurance_covered' => null,
+                'patient_paid' => null,
+            ],
+            'documents' => [
+                ['type' => 'Pre-auth Letter', 'date' => $claimDate7->copy()->subDays(1)->format('d M Y'), 'filename' => 'preauth_cardiac.pdf'],
+                ['type' => 'Enhancement Request', 'date' => Carbon::today()->format('d M Y'), 'filename' => 'enhancement_request.pdf'],
+                ['type' => 'Admission Form', 'date' => $claimDate7->format('d M Y'), 'filename' => 'admission_cardiac.pdf'],
+            ],
+            'timeline' => [
+                ['event' => 'Claim Submitted', 'date' => $claimDate7->copy()->subDays(2)->format('d M Y'), 'status' => 'completed'],
+                ['event' => 'Pre-auth Approved', 'date' => $claimDate7->copy()->subDays(1)->format('d M Y'), 'status' => 'completed'],
+                ['event' => 'Admitted', 'date' => $claimDate7->format('d M Y'), 'status' => 'completed'],
+                ['event' => 'Enhancement Required', 'date' => Carbon::today()->format('d M Y'), 'status' => 'current'],
+                ['event' => 'Enhancement Decision', 'date' => null, 'status' => 'pending'],
+                ['event' => 'Discharge', 'date' => null, 'status' => 'pending'],
+                ['event' => 'Final Settlement', 'date' => null, 'status' => 'pending'],
+            ],
+        ];
+
+        // Claim 8: dispute_under_review — Settled but disputed
+        $claimDate8 = Carbon::today()->subDays(25);
+        $claims[] = [
+            'insurance_provider_id' => $hdfcErgo?->id ?? 2,
+            'insurance_policy_id' => $hdfcPolicy?->id,
+            'family_member_id' => $selfMember?->id,
+            'policy_number' => 'HE-2026-123456',
+            'claim_amount' => 280000,
+            'status' => 'dispute_under_review',
+            'description' => 'Settlement disputed — non-medical expenses deducted',
+            'treatment_name' => 'Appendectomy',
+            'procedure_type' => 'General Surgery',
+            'rejection_reason' => 'Non-medical expenses of ₹17,000 deducted from final settlement.',
+            'claim_date' => $claimDate8->format('Y-m-d'),
+            'stay_details' => [
+                'admission_date' => $claimDate8->format('Y-m-d'),
+                'discharge_date' => $claimDate8->copy()->addDays(7)->format('Y-m-d'),
+                'days' => 7,
+                'room_type' => 'Semi-Private',
+                'room_number' => '108',
+                'daily_rate' => 3000,
+            ],
+            'financial' => [
+                'preauth_requested' => 300000,
+                'preauth_approved' => 300000,
+                'current_bill' => 297000,
+                'insurance_covered' => 280000,
+                'patient_paid' => 17000,
+                'deductions' => [
+                    ['label' => 'Non-medical items', 'amount' => 12000],
+                    ['label' => 'Room upgrade', 'amount' => 5000],
+                ],
+            ],
+            'documents' => [
+                ['type' => 'Pre-auth Letter', 'date' => $claimDate8->copy()->subDays(1)->format('d M Y'), 'filename' => 'preauth_appendix.pdf'],
+                ['type' => 'Settlement Letter', 'date' => $claimDate8->copy()->addDays(12)->format('d M Y'), 'filename' => 'settlement_appendix.pdf'],
+                ['type' => 'Dispute Form', 'date' => $claimDate8->copy()->addDays(14)->format('d M Y'), 'filename' => 'dispute_form.pdf'],
+                ['type' => 'Expense Breakdown', 'date' => $claimDate8->copy()->addDays(14)->format('d M Y'), 'filename' => 'expense_breakdown.pdf'],
+            ],
+            'timeline' => [
+                ['event' => 'Claim Submitted', 'date' => $claimDate8->copy()->subDays(2)->format('d M Y'), 'status' => 'completed'],
+                ['event' => 'Pre-auth Approved', 'date' => $claimDate8->copy()->subDays(1)->format('d M Y'), 'status' => 'completed'],
+                ['event' => 'Admitted', 'date' => $claimDate8->format('d M Y'), 'status' => 'completed'],
+                ['event' => 'Discharged', 'date' => $claimDate8->copy()->addDays(7)->format('d M Y'), 'status' => 'completed'],
+                ['event' => 'Claim Settled', 'date' => $claimDate8->copy()->addDays(12)->format('d M Y'), 'status' => 'completed'],
+                ['event' => 'Dispute Filed', 'date' => $claimDate8->copy()->addDays(14)->format('d M Y'), 'status' => 'current'],
+                ['event' => 'Dispute Resolution', 'date' => null, 'status' => 'pending'],
+            ],
+        ];
+
+        // Claim 9: approved — Policy transfer from expired individual to family floater
+        $claimDate9 = Carbon::today()->subDays(20);
+        $claims[] = [
+            'insurance_provider_id' => $starHealth?->id ?? 1,
+            'insurance_policy_id' => $starPolicy?->id,
+            'family_member_id' => $selfMember?->id,
+            'policy_number' => 'SH-2025-789456',
+            'claim_amount' => 180000,
+            'status' => 'approved',
+            'description' => 'Surgery claim transferred from expired policy',
+            'treatment_name' => 'Hernia Repair Surgery',
+            'procedure_type' => 'General Surgery',
+            'claim_date' => $claimDate9->format('Y-m-d'),
+            'stay_details' => [
+                'admission_date' => $claimDate9->format('Y-m-d'),
+                'discharge_date' => $claimDate9->copy()->addDays(5)->format('Y-m-d'),
+                'days' => 5,
+                'room_type' => 'General Ward',
+                'room_number' => '203',
+                'daily_rate' => 2500,
+            ],
+            'financial' => [
+                'preauth_requested' => 180000,
+                'preauth_approved' => 180000,
+                'current_bill' => 180000,
+                'insurance_covered' => 180000,
+                'patient_paid' => 0,
+                'original_policy_id' => $hdfcPolicy?->id,
+                'transfer_date' => $claimDate9->copy()->subDays(5)->format('d M Y'),
+            ],
+            'documents' => [
+                ['type' => 'Transfer Authorization', 'date' => $claimDate9->copy()->subDays(5)->format('d M Y'), 'filename' => 'transfer_auth.pdf'],
+                ['type' => 'Pre-auth Letter', 'date' => $claimDate9->copy()->subDays(3)->format('d M Y'), 'filename' => 'preauth_hernia.pdf'],
+                ['type' => 'Admission Form', 'date' => $claimDate9->format('d M Y'), 'filename' => 'admission_hernia.pdf'],
+            ],
+            'timeline' => [
+                ['event' => 'Claim Submitted to Individual Plan', 'date' => $claimDate9->copy()->subDays(7)->format('d M Y'), 'status' => 'completed'],
+                ['event' => 'Policy Expired', 'date' => $claimDate9->copy()->subDays(5)->format('d M Y'), 'status' => 'warning', 'note' => 'Claim automatically transferred to Family Floater Plan'],
+                ['event' => 'Transfer Authorized', 'date' => $claimDate9->copy()->subDays(5)->format('d M Y'), 'status' => 'completed'],
+                ['event' => 'Pre-auth approved on new policy ₹1.8L', 'date' => $claimDate9->copy()->subDays(3)->format('d M Y'), 'status' => 'completed'],
+                ['event' => 'Admitted', 'date' => $claimDate9->format('d M Y'), 'status' => 'completed'],
+                ['event' => 'Treatment Completed', 'date' => $claimDate9->copy()->addDays(5)->format('d M Y'), 'status' => 'completed'],
+                ['event' => 'Pre-auth Active', 'date' => $claimDate9->copy()->addDays(5)->format('d M Y'), 'status' => 'current'],
+                ['event' => 'Final Settlement', 'date' => null, 'status' => 'pending'],
             ],
         ];
 
@@ -1088,13 +1368,14 @@ class HospitalSeeder extends Seeder
                 'read_at' => now()->subDays(29),
                 'created_at' => now()->subDays(30),
             ];
+            $claimForAppt2 = InsuranceClaim::where('appointment_id', $appt->id)->first();
             $notifications[] = [
                 'appointment_id' => $appt->id,
                 'type' => 'insurance_claim_approved',
                 'title' => 'Insurance Claim Approved',
                 'message' => 'Your insurance claim for INV-000002 has been approved. Coverage: ₹1,200. Your co-pay: ₹300.',
                 'channels' => ['push', 'email'],
-                'data' => ['amount' => 1500, 'coverage' => 1200, 'copay' => 300, 'invoice_number' => 'INV-000002'],
+                'data' => ['amount' => 1500, 'coverage' => 1200, 'copay' => 300, 'invoice_number' => 'INV-000002', 'insurance_claim_id' => $claimForAppt2?->id],
                 'read_at' => now()->subDays(27),
                 'created_at' => now()->subDays(28),
             ];
@@ -1220,14 +1501,15 @@ class HospitalSeeder extends Seeder
             ];
         }
 
-        // General: insurance claim rejected (not tied to specific appointment)
+        // General: insurance claim rejected — linked to the rejected claim in seed data
+        $rejectedClaim = InsuranceClaim::where('user_id', $user->id)->where('status', 'rejected')->first();
         $notifications[] = [
-            'appointment_id' => null,
+            'appointment_id' => $rejectedClaim?->appointment_id,
             'type' => 'insurance_claim_rejected',
             'title' => 'Insurance Claim Rejected',
             'message' => 'Your insurance claim of ₹5,000 was rejected. Reason: Pre-existing condition exclusion. Contact your insurer for details.',
             'channels' => ['push', 'email'],
-            'data' => ['claim_amount' => 5000, 'reason' => 'Pre-existing condition exclusion', 'provider' => 'Star Health Insurance'],
+            'data' => ['claim_amount' => 5000, 'reason' => 'Pre-existing condition exclusion', 'provider' => 'Star Health Insurance', 'insurance_claim_id' => $rejectedClaim?->id],
             'read_at' => null,
             'created_at' => now()->subDays(3),
         ];

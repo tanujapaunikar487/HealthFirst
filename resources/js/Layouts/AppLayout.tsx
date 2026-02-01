@@ -35,6 +35,7 @@ interface NotificationItem {
   read_at: string | null;
   created_at: string;
   appointment_id: number | null;
+  insurance_claim_id: number | null;
 }
 
 interface AppLayoutProps {
@@ -170,7 +171,10 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
       router.post(`/notifications/${notification.id}/read`, {}, { preserveScroll: true });
     }
     setNotifOpen(false);
-    if (notification.appointment_id) {
+    const isInsuranceNotif = ['insurance_claim_approved', 'insurance_claim_rejected'].includes(notification.type);
+    if (isInsuranceNotif && notification.insurance_claim_id) {
+      router.visit(`/insurance/claims/${notification.insurance_claim_id}`);
+    } else if (notification.appointment_id) {
       router.visit(`/billing/${notification.appointment_id}`);
     }
   };

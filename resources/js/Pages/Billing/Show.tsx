@@ -668,6 +668,17 @@ export default function Show({ user, bill }: Props) {
                   }
                 />
               </div>
+              {bill.insurance_details.insurance_claim_id && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-3 w-full text-xs gap-1.5"
+                  onClick={() => router.visit(`/insurance/claims/${bill.insurance_details.insurance_claim_id}`)}
+                >
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  View Claim Details
+                </Button>
+              )}
             </SectionCard>
           )}
 

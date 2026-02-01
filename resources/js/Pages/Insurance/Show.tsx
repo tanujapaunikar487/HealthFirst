@@ -310,7 +310,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                 <button
                   key={claim.id}
                   className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-gray-50"
-                  onClick={() => toast('Claim detail coming soon')}
+                  onClick={() => router.visit(`/insurance/claims/${claim.id}`)}
                 >
                   <div className="min-w-0 flex-1">
                     <div className="mb-1 flex items-center gap-2">

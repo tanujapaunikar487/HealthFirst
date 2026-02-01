@@ -52,6 +52,7 @@ class HandleInertiaRequests extends Middleware
                         'read_at' => $n->read_at?->toIso8601String(),
                         'created_at' => $n->created_at->toIso8601String(),
                         'appointment_id' => $n->appointment_id,
+                        'insurance_claim_id' => $n->data['insurance_claim_id'] ?? null,
                     ])
                 : [],
             'toast' => fn () => $request->session()->get('toast'),

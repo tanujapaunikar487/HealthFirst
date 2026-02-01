@@ -323,6 +323,7 @@ interface HealthRecord {
   file_url: string | null;
   file_type: string | null;
   status: RecordStatus | null;
+  insurance_claim_id: number | null;
 }
 
 interface FamilyMember {
@@ -872,6 +873,14 @@ export default function Index({ user, records, familyMembers, abnormalCount }: P
                                   <Link href={`/appointments/${record.appointment_id}`} className="flex items-center">
                                     <Link2 className="h-4 w-4 mr-2" />
                                     Link to Appointment
+                                  </Link>
+                                </DropdownMenuItem>
+                              )}
+                              {record.insurance_claim_id && (
+                                <DropdownMenuItem asChild>
+                                  <Link href={`/insurance/claims/${record.insurance_claim_id}`} className="flex items-center">
+                                    <ShieldCheck className="h-4 w-4 mr-2" />
+                                    View Insurance Claim
                                   </Link>
                                 </DropdownMenuItem>
                               )}

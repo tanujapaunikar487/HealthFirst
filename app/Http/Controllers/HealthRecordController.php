@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FamilyMember;
 use App\Models\HealthRecord;
+use App\Models\InsuranceClaim;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -41,6 +42,9 @@ class HealthRecordController extends Controller
                     'file_url' => $r->file_url,
                     'file_type' => $r->file_type,
                     'status' => $status,
+                    'insurance_claim_id' => $r->category === 'invoice' && $r->appointment_id
+                        ? InsuranceClaim::where('appointment_id', $r->appointment_id)->value('id')
+                        : null,
                 ];
             });
 

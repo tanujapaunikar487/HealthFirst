@@ -1666,5 +1666,170 @@ All other booking CTAs (Appointments Index, Billing, Booking Index) already poin
 
 ---
 
-**Last Updated**: February 1, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign | Upload Removed | Razorpay Billing Integration | Uniform Blue Icons | Family Members List + Detail Page | Unified Booking Links
+## Insurance Pages (February 1, 2026)
+
+### Insurance List Page (`/insurance`)
+
+Full insurance management page with policy cards and claims history.
+
+**Features:**
+- **Empty state**: Shield icon + "Add your first policy" CTA
+- **Policies on file**: Grid of policy cards with provider initials avatar, plan name, policy number, member count, claims count, expiry badge ("Expires in Nd" for policies within 60 days)
+- **Past Claims table**: Filterable by policy, status, family member, and search. Columns: Date, Appointment (icon + treatment + plan name), Patient (avatar + name), Amount + Status (combined), Actions (Track button for current claims + dropdown menu)
+- **Table footer**: "Showing X of Y" count + "Contact support" link
+
+**Files:**
+- `resources/js/Pages/Insurance/Index.tsx`
+- `app/Http/Controllers/InsuranceController.php`
+- `routes/web.php` — `GET /insurance`, `POST /insurance`
+
+### Add Policy Flow (3-Step Sheet)
+
+Multi-step Sheet flow for adding insurance policies, triggered from "Add Policy" buttons.
+
+**Step 1: Upload** — Drag & drop or click to upload PDF. Validates PDF only, max 10MB. "Enter details manually" link to skip.
+
+**Step 2: Extracting** — Simulated 2-second extraction with spinner. Three possible outcomes:
+- **Full extraction** (~56% chance): All fields populated, green success banner on review
+- **Partial extraction** (~24% chance): Some fields populated, amber warning banner, empty required fields highlighted with amber ring
+- **Extraction failure** (~20% chance): Error screen with "Try again" and "Enter manually" buttons
+
+**Step 3: Review & Confirm** — Pre-filled form with sections: Provider, Policy Details (number, name, type), Coverage (sum insured, premium), Validity (start/end dates), Covered Members (checkboxes). Submits via `router.post('/insurance')`.
+
+**Duplicate detection**: Backend `unique` validation on `policy_number`. When duplicate submitted, amber banner appears: "A policy with this number already exists."
+
+### Insurance Policy Detail Page (`/insurance/{id}`)
+
+Detail page showing full policy information, covered members, and claims for a specific policy.
+
+**Layout:**
+- Back link "← Insurance"
+- Header: Provider initials avatar + plan name (h1) + provider subtitle
+- Action buttons: "Use for Admission" + trash delete icon
+- Expiry warning banner (amber, if within 60 days)
+- Policy Details card: 2-column grid with Policy Number, Valid dates, ICU Limit, Co-pay, TPA, TPA Contact, Sum Insured, Premium
+- Covered Members card: Horizontal pills with initials avatar + name
+- Claims at This Hospital: List of clickable claim cards with status badges (In Treatment, Settled, Rejected, Pending)
+- Empty claims state: "No claims yet" message
+
+**Delete**: Soft-deletes policy (`is_active = false`), redirects to index with toast.
+
+**Files:**
+- `resources/js/Pages/Insurance/Show.tsx`
+- `app/Http/Controllers/InsuranceController.php` — `show()`, `destroy()`
+- `routes/web.php` — `GET /insurance/{policy}`, `DELETE /insurance/{policy}`
+
+### Database Changes
+
+**New migration**: `insurance_policies` table (user_id, insurance_provider_id, policy_number, plan_name, plan_type, sum_insured, premium_amount, start_date, end_date, members JSON, metadata JSON, is_active)
+
+**New migration**: Added columns to `insurance_claims` (insurance_policy_id FK, family_member_id FK, appointment_id FK, treatment_name)
+
+**New migration**: Added `metadata` JSON column to `insurance_policies` for flexible fields (ICU limit, co-pay, TPA name, TPA contact)
+
+**New model**: `InsurancePolicy` with relationships to User, InsuranceProvider, InsuranceClaim. Accessors: `is_expiring_soon` (60-day threshold), `member_count`.
+
+**Updated models**: `InsuranceClaim` (added insurancePolicy, familyMember, appointment relationships), `InsuranceProvider` (added policies relationship)
+
+**Seed data**: 2 policies (Star Health Family Floater ₹5L, HDFC ERGO Individual ₹3L) with metadata, 5 claims linked to policies and family members.
+
+---
+
+## Insurance Claim Detail Page (February 2, 2026)
+
+Full claim detail page at `/insurance/claims/{id}` with status-aware banners, financial breakdown, document management, and timeline tracking.
+
+### Route & Controller
+
+**Route**: `GET /insurance/claims/{claim}` → `InsuranceController@showClaim`
+
+**Controller** (`showClaim()`): Loads claim with relationships (insuranceProvider, insurancePolicy, familyMember, appointment.doctor.department). Generates `claim_reference` as `CLM-2026-XXXX`. Resolves original policy if claim was transferred between policies.
+
+### Page Structure (ClaimDetail.tsx)
+
+1. **Breadcrumb**: Insurance → Policy Name → CLM-2026-XXXX
+2. **Header**: Dynamic icon based on `procedure_type` (surgery→Scissors, consultation→Stethoscope, hospitalization→BedDouble, maternity→Baby, diagnostic→Microscope, emergency→Siren, default→ClipboardList) + treatment name + procedure badge + status badge
+3. **Status Banner**: 14 status variants with colored backgrounds, contextual messages, and action buttons
+4. **Overview Card**: Patient (clickable avatar → `/family-members/{id}`), Doctor (avatar + name + specialization), Stay (days + dates or "Outpatient"), Room (type + number + daily rate)
+5. **Linked Section**: Original Policy (if transferred, struck-through), Current Insurance Plan (→ `/insurance/{id}`), Related Appointment (→ `/appointments/{id}`)
+6. **Financial Summary**: Collapsible section with pre-auth amounts, enhancements (with individual status badges), deductions list, copay calculation, settlement breakdown
+7. **Documents**: List with download buttons and "Download All" action
+8. **Timeline**: Grouped by month when >8 events, colored dots (green=completed, blue=current, yellow=warning, red=rejected, gray=pending), expandable detail rows
+
+### Status Banner Variants
+
+| Status | Color | Title Pattern | Action |
+|--------|-------|---------------|--------|
+| pending | Yellow | Pre-auth in progress / Claim submitted | — |
+| approved | Green | Pre-auth approved for ₹X | — |
+| partially_approved | Amber | Partially approved — ₹X not covered | Accept |
+| rejected | Red | Pre-authorisation rejected on date | Try Different Policy |
+| expired | Red | Pre-authorization expired on date | Request New Pre-Auth |
+| current/processing | Blue | ₹X pre-auth approved. Treatment in progress | — |
+| enhancement_required | Amber | Enhancement required | Request Enhancement |
+| enhancement_in_progress | Amber | Enhancement request in progress | — |
+| enhancement_approved | Green | Enhancement approved! | — |
+| enhancement_rejected | Red | Enhancement request rejected | — |
+| settled | Green | Claim settled on date | Raise Dispute |
+| dispute_under_review | Amber | Settlement disputed under review | — |
+| dispute_resolved | Green | Dispute resolved on date | — |
+
+### Database Changes
+
+**New migration**: `2026_02_01_700004_add_detail_columns_to_insurance_claims_table.php`
+- Added columns: `procedure_type`, `rejection_reason`, `stay_details` (JSON), `financial` (JSON), `documents` (JSON), `timeline` (JSON), `policy_number`
+
+**Updated model** (`InsuranceClaim`): Added JSON casts for `stay_details`, `financial`, `documents`, `timeline`. Added `claim_date` date cast.
+
+**Seed data**: 5 claims with full detail data (stay details, financial breakdowns, documents, timeline events) covering all major status types.
+
+### Cross-Page Linking (Inbound Entry Points)
+
+9 pages now link to the claim detail page:
+
+| Source Page | How | Backend Change |
+|-------------|-----|----------------|
+| Insurance List (`/insurance`) | Click claim row in Past Claims table | Already had route |
+| Insurance Policy Detail (`/insurance/{id}`) | Click claim card | Already had route |
+| Billing List (`/billing`) | "View Insurance Claim" in row dropdown | `BillingController::formatBillSummary()` — added `insurance_claim_id` lookup |
+| Billing Detail (`/billing/{id}`) | "View Claim Details" button in Insurance section | `BillingController::formatBillDetail()` — added `insurance_claim_id` to `insurance_details` |
+| Appointment Detail (`/appointments/{id}`) | "View Insurance Claim" button in billing section | `AppointmentsController::formatDetailedAppointment()` — added `insurance_claim_id` lookup |
+| Health Records (`/health-records`) | "View Insurance Claim" in row dropdown (invoice records) | `HealthRecordController` — added `insurance_claim_id` for invoice category |
+| Notifications (bell icon) | Click insurance notification | `HandleInertiaRequests` — passes `insurance_claim_id` from notification data |
+| Notification seeds | `insurance_claim_approved` / `insurance_claim_rejected` | `HospitalSeeder::seedBillingNotifications()` — added `insurance_claim_id` to data JSON |
+
+### Outbound Links from Claim Detail
+
+| Target | Element | Route |
+|--------|---------|-------|
+| Family Member Profile | Patient name (clickable) | `/family-members/{family_member_id}` |
+| Insurance Policy Detail | Current Insurance Plan row | `/insurance/{policy_id}` |
+| Appointment Detail | Related Appointment row | `/appointments/{appointment_id}` |
+
+### Files Created
+| File | Purpose |
+|------|---------|
+| `resources/js/Pages/Insurance/ClaimDetail.tsx` | Full claim detail page (~1350 lines) |
+| `database/migrations/2026_02_01_700004_add_detail_columns_to_insurance_claims_table.php` | Migration for claim detail columns |
+
+### Files Modified
+| File | Changes |
+|------|---------|
+| `app/Http/Controllers/InsuranceController.php` | Added `showClaim()` method |
+| `app/Http/Controllers/BillingController.php` | Added `insurance_claim_id` to bill summary + detail |
+| `app/Http/Controllers/AppointmentsController.php` | Added `insurance_claim_id` to appointment detail |
+| `app/Http/Controllers/HealthRecordController.php` | Added `insurance_claim_id` for invoice records |
+| `app/Http/Middleware/HandleInertiaRequests.php` | Passes `insurance_claim_id` in notification data |
+| `app/Models/InsuranceClaim.php` | Added JSON casts and date cast |
+| `database/seeders/HospitalSeeder.php` | Full claim detail seed data, notification `insurance_claim_id` |
+| `resources/js/Layouts/AppLayout.tsx` | Routes insurance notifications to claim detail |
+| `resources/js/Pages/Billing/Index.tsx` | "View Insurance Claim" navigates to claim |
+| `resources/js/Pages/Billing/Show.tsx` | "View Claim Details" button |
+| `resources/js/Pages/Appointments/Show.tsx` | "View Insurance Claim" button |
+| `resources/js/Pages/HealthRecords/Index.tsx` | "View Insurance Claim" dropdown item |
+| `routes/web.php` | Added `GET /insurance/claims/{claim}` route |
+
+---
+
+**Last Updated**: February 2, 2026
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign | Upload Removed | Razorpay Billing Integration | Uniform Blue Icons | Family Members List + Detail Page | Unified Booking Links | Insurance List + Add Policy + Detail Page | Insurance Claim Detail Page

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\FamilyMember;
+use App\Models\InsuranceClaim;
 use App\Models\LabTestType;
 use App\Models\TimeSlot;
 use Carbon\Carbon;
@@ -460,6 +461,7 @@ class AppointmentsController extends Controller
             'documents' => $documents,
             'activity' => $activity,
             'follow_up' => $followUp,
+            'insurance_claim_id' => InsuranceClaim::where('appointment_id', $appt->id)->value('id'),
         ]);
     }
 

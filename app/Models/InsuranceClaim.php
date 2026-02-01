@@ -18,7 +18,13 @@ class InsuranceClaim extends Model
         'status',
         'description',
         'treatment_name',
+        'procedure_type',
+        'rejection_reason',
         'claim_date',
+        'stay_details',
+        'financial',
+        'documents',
+        'timeline',
     ];
 
     protected function casts(): array
@@ -26,6 +32,10 @@ class InsuranceClaim extends Model
         return [
             'claim_amount' => 'integer',
             'claim_date' => 'date',
+            'stay_details' => 'array',
+            'financial' => 'array',
+            'documents' => 'array',
+            'timeline' => 'array',
         ];
     }
 

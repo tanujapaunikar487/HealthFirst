@@ -728,12 +728,12 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                               )}
 
                               {/* View Insurance Claim — claim_pending / awaiting_approval / covered */}
-                              {['claim_pending', 'awaiting_approval', 'covered'].includes(bill.billing_status) && (
+                              {['claim_pending', 'awaiting_approval', 'covered'].includes(bill.billing_status) && bill.insurance_claim_id && (
                                 <>
                                   <DropdownMenuSeparator />
                                   <DropdownMenuItem
                                     className="gap-2 cursor-pointer"
-                                    onClick={() => showToast('Insurance claim details opened.')}
+                                    onClick={() => router.visit(`/insurance/claims/${bill.insurance_claim_id}`)}
                                   >
                                     <ShieldCheck className="h-4 w-4" />
                                     View Insurance Claim

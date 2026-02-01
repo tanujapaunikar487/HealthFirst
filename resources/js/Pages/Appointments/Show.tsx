@@ -44,6 +44,7 @@ import {
   X,
   Check,
   FileWarning,
+  ShieldCheck,
 } from 'lucide-react';
 
 /* ─── Types ─── */
@@ -315,7 +316,7 @@ export default function Show({ user, appointment }: Props) {
             )}
             <LabTestsSection tests={appointment.lab_tests ?? []} />
             {appointment.billing && (
-              <BillingSection billing={appointment.billing} appointmentId={appointment.id} onDownloadInvoice={handleDownloadInvoice} />
+              <BillingSection billing={appointment.billing} appointmentId={appointment.id} insuranceClaimId={appointment.insurance_claim_id} onDownloadInvoice={handleDownloadInvoice} />
             )}
             <DocumentsSection documents={appointment.documents ?? []} onPreview={setPreviewDoc} />
             <ActivitySection activity={appointment.activity ?? []} />
@@ -914,7 +915,7 @@ function LabTestsSection({ tests }: { tests: LabTest[] }) {
 
 /* ─── 6. Billing ─── */
 
-function BillingSection({ billing, appointmentId, onDownloadInvoice }: { billing: Billing; appointmentId: number; onDownloadInvoice: () => void }) {
+function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadInvoice }: { billing: Billing; appointmentId: number; insuranceClaimId?: number | null; onDownloadInvoice: () => void }) {
   const statusColor =
     billing.payment_status === 'paid'
       ? 'text-green-600'
@@ -988,6 +989,14 @@ function BillingSection({ billing, appointmentId, onDownloadInvoice }: { billing
               View Full Bill
             </Button>
           </Link>
+          {insuranceClaimId && (
+            <Link href={`/insurance/claims/${insuranceClaimId}`}>
+              <Button variant="ghost" size="sm" className="w-full text-xs gap-1.5" style={{ color: '#0052FF' }}>
+                <ShieldCheck className="h-3.5 w-3.5" />
+                View Insurance Claim
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
     </Section>

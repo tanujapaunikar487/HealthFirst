@@ -145,6 +145,74 @@ class InsuranceController extends Controller
         ]);
     }
 
+    public function showClaim(InsuranceClaim $claim)
+    {
+        $claim->load([
+            'insuranceProvider',
+            'insurancePolicy',
+            'familyMember',
+            'appointment.doctor.department',
+        ]);
+
+        $patient = $claim->familyMember
+            ? [
+                'name' => $claim->familyMember->name,
+                'relation' => $claim->familyMember->relation,
+                'avatar_url' => $claim->familyMember->avatar_url ?? null,
+            ]
+            : ['name' => 'Self', 'relation' => 'self', 'avatar_url' => null];
+
+        $doctor = $claim->appointment?->doctor
+            ? [
+                'name' => $claim->appointment->doctor->name,
+                'specialization' => $claim->appointment->doctor->specialization,
+                'avatar_url' => $claim->appointment->doctor->avatar_url ?? null,
+            ]
+            : null;
+
+        // Load original policy if claim was transferred
+        $originalPolicy = null;
+        $originalPolicyId = $claim->financial['original_policy_id'] ?? null;
+        if ($originalPolicyId) {
+            $originalPolicy = InsurancePolicy::with('insuranceProvider')->find($originalPolicyId);
+        }
+
+        return Inertia::render('Insurance/ClaimDetail', [
+            'claim' => [
+                'id' => $claim->id,
+                'claim_reference' => 'CLM-' . now()->format('Y') . '-' . str_pad($claim->id, 4, '0', STR_PAD_LEFT),
+                'treatment_name' => $claim->treatment_name ?? $claim->description,
+                'procedure_type' => $claim->procedure_type,
+                'status' => $claim->status,
+                'rejection_reason' => $claim->rejection_reason,
+                'claim_amount' => $claim->claim_amount,
+                'claim_date_formatted' => $claim->claim_date?->format('d M Y'),
+                'provider_name' => $claim->insuranceProvider?->name,
+                'policy_id' => $claim->insurance_policy_id,
+                'policy_plan_name' => $claim->insurancePolicy?->plan_name,
+                'original_policy_id' => $originalPolicy?->id,
+                'original_policy_plan_name' => $originalPolicy?->plan_name,
+                'original_policy_expired_date' => $originalPolicy?->end_date?->format('d M Y'),
+                'transfer_date' => $claim->financial['transfer_date'] ?? null,
+                'appointment_id' => $claim->appointment_id,
+                'family_member_id' => $claim->family_member_id,
+                'stay_details' => $claim->stay_details,
+                'financial' => $claim->financial,
+                'documents' => $claim->documents ?? [],
+                'timeline' => $claim->timeline ?? [],
+            ],
+            'patient' => $patient,
+            'doctor' => $doctor,
+            'appointment' => $claim->appointment ? [
+                'id' => $claim->appointment->id,
+                'date_formatted' => $claim->appointment->appointment_date?->format('d M Y'),
+                'time' => $claim->appointment->appointment_time,
+                'type' => $claim->appointment->appointment_type,
+                'status' => $claim->appointment->status,
+            ] : null,
+        ]);
+    }
+
     public function destroy(InsurancePolicy $policy)
     {
         $policy->update(['is_active' => false]);
