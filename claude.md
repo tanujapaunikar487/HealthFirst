@@ -1573,5 +1573,98 @@ self=blue, mother=pink, father=indigo, brother=green, sister=purple, spouse=rose
 
 ---
 
+## Family Members List Redesign + Detail Page (February 1, 2026)
+
+Redesigned the Family Members index from a card grid to a simple list layout, and created a comprehensive member detail page with medical profile, emergency contacts, and health navigation.
+
+### List Page Redesign (Index.tsx)
+
+Replaced 2-column card grid with a single-column list:
+- Each row: avatar (initials with relation color) + name + amber attention dot (if health alerts) + ChevronRight
+- Row click navigates to `/family-members/{id}`
+- Alert banner (conditional): "X members need attention" when members have abnormal lab results
+- Removed edit/delete from list (moved to detail page)
+- Sheet form simplified to add-only
+
+### Member Detail Page (Show.tsx) — NEW
+
+**File**: `resources/js/Pages/FamilyMembers/Show.tsx`
+
+Full medical profile page with 8 sections:
+1. **Back nav**: "← Family Members"
+2. **Alert banner** (conditional): "{alertType} needs attention" + "View records →"
+3. **Profile header**: Large avatar (h-20 w-20), name, patient ID (PT-XXXXXX), "Edit Profile" button
+4. **Personal Information Card**: 2-column grid (DOB, Blood Group, Phone, Address, Primary Doctor, Relationship)
+5. **Medical Conditions Card**: Condition tags (Badge secondary) + Allergy tags (Badge destructive/red)
+6. **Emergency Contact Card**: Avatar + name + relation + phone (or dashed empty state)
+7. **Health Data Links**: 3 clickable cards (Appointments, Health Records, Medications) with blue icons
+8. **Actions**: Edit Profile + Remove Member (non-self only)
+
+**Edit Sheet**: Expanded form with grouped sections (Basic, Contact, Address, Primary Doctor, Medical, Emergency Contact). Inline tag input for conditions/allergies (Input + Enter + Badge chips with × remove).
+
+**Delete overlay**: Confirmation dialog with warning icon, Cancel/Remove buttons.
+
+### Database Migration
+
+**File**: `database/migrations/2026_02_01_600001_add_profile_fields_to_family_members_table.php`
+
+Added 14 columns to `family_members`:
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `patient_id` | string, unique | Auto-generated "PT-000001" format |
+| `date_of_birth` | date, nullable | Primary age source; age computed from DOB |
+| `phone` | string, nullable | Contact number |
+| `address_line_1` | string, nullable | Street address |
+| `address_line_2` | string, nullable | Landmark/area |
+| `city` | string, nullable | |
+| `state` | string, nullable | |
+| `pincode` | string, nullable | |
+| `primary_doctor_id` | FK → doctors, nullable, nullOnDelete | |
+| `medical_conditions` | json, nullable | `["Type 2 Diabetes", "Hypertension"]` |
+| `allergies` | json, nullable | `["Penicillin", "Peanuts"]` |
+| `emergency_contact_name` | string, nullable | |
+| `emergency_contact_relation` | string, nullable | |
+| `emergency_contact_phone` | string, nullable | |
+
+### Model Changes (FamilyMember.php)
+
+- 14 new fields added to `$fillable`
+- Casts: `date_of_birth` → date, `medical_conditions` → array, `allergies` → array
+- `primaryDoctor(): BelongsTo` relationship to Doctor
+- `getComputedAgeAttribute()` — DOB-based age or falls back to raw `age` column
+- `getFullAddressAttribute()` — joins address fields with commas
+- `boot()` — auto-generates `patient_id` as `PT-XXXXXX` on creation
+
+### Controller Changes (FamilyMembersController.php)
+
+- `show()` — Returns all new member fields, doctors list (for edit form), `hasAlerts` boolean, `alertType`
+- `update()` — Expanded validation for 18 fields, auto-computes `age` from DOB for backward compatibility
+- Removed unused `computeStatus()` + 8 status helper methods (health records no longer shown on detail page)
+
+### Seeder Updates (HospitalSeeder.php)
+
+All 6 family members enriched with: DOB, phone, addresses (Pune), medical conditions, allergies, emergency contacts. Patient IDs auto-generated.
+
+### Routes
+
+```php
+Route::get('/family-members/{member}', [FamilyMembersController::class, 'show'])->name('family-members.show');
+```
+
+---
+
+## Unified Booking Links (February 1, 2026)
+
+Standardized all "Book Appointment" buttons across the app to point to `/booking` (the AI booking entry page).
+
+### Changes
+- **Dashboard.tsx**: "Book Appointment" link changed from `/appointments/create` → `/booking`
+- **HealthRecords/Index.tsx**: Empty state "Book Appointment" link changed from `/booking/doctor` → `/booking`
+
+All other booking CTAs (Appointments Index, Billing, Booking Index) already pointed to `/booking` or valid booking routes.
+
+---
+
 **Last Updated**: February 1, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign | Upload Removed | Razorpay Billing Integration | Uniform Blue Icons | Family Members Page
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign | Upload Removed | Razorpay Billing Integration | Uniform Blue Icons | Family Members List + Detail Page | Unified Booking Links
