@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
+import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import {
@@ -149,9 +150,88 @@ const STATUS_CONFIG: Record<BillingStatus, { label: string; color: string; bg: s
 
 const PAYABLE_STATUSES: BillingStatus[] = ['due', 'copay_due'];
 
+/* ─── Skeleton ─── */
+
+function BillingSkeleton() {
+  return (
+    <div style={{ width: '100%', maxWidth: '960px', padding: '40px 0' }}>
+      <div className="mb-8">
+        <Pulse className="h-9 w-32" />
+      </div>
+      {/* Outstanding summary card */}
+      <div className="rounded-xl border border-border p-5 mb-6 flex items-center justify-between">
+        <div className="space-y-2">
+          <Pulse className="h-4 w-40" />
+          <Pulse className="h-7 w-28" />
+        </div>
+        <Pulse className="h-10 w-24 rounded-full" />
+      </div>
+      {/* Tabs + filters */}
+      <div className="flex items-center gap-2 mb-4">
+        {[0, 1, 2].map((i) => (
+          <Pulse key={i} className="h-9 w-28 rounded-full" />
+        ))}
+      </div>
+      <div className="flex items-center gap-3 mb-6">
+        <Pulse className="h-10 w-36 rounded-lg" />
+        <Pulse className="h-10 w-36 rounded-lg" />
+        <div className="ml-auto">
+          <Pulse className="h-10 w-56 rounded-lg" />
+        </div>
+      </div>
+      {/* Table */}
+      <div className="rounded-xl border border-border overflow-hidden">
+        <div className="flex items-center gap-4 px-4 py-3 bg-muted/50 border-b border-border">
+          <Pulse className="h-4 w-4 rounded" />
+          <Pulse className="h-3 w-24" />
+          <Pulse className="h-3 w-40" />
+          <Pulse className="h-3 w-20" />
+          <Pulse className="h-3 w-20" />
+          <Pulse className="h-3 w-16" />
+          <Pulse className="h-3 w-12" />
+        </div>
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-4 px-4 py-5 border-b border-border last:border-0">
+            <Pulse className="h-4 w-4 rounded flex-shrink-0" />
+            <Pulse className="h-4 w-24" />
+            <div className="flex items-center gap-3 w-56">
+              <Pulse className="h-10 w-10 rounded-xl flex-shrink-0" />
+              <div className="space-y-2">
+                <Pulse className="h-4 w-36" />
+                <Pulse className="h-3 w-20" />
+              </div>
+            </div>
+            <Pulse className="h-4 w-16" />
+            <Pulse className="h-4 w-20" />
+            <Pulse className="h-6 w-20 rounded-full" />
+            <Pulse className="h-8 w-8 rounded-lg" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ─── Page ─── */
 
 export default function Index({ user, bills, stats, familyMembers }: Props) {
+  const { isLoading, hasError, retry } = useSkeletonLoading(bills);
+
+  if (hasError) {
+    return (
+      <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing-selected.svg">
+        <ErrorState onRetry={retry} label="Unable to load billing" />
+      </AppLayout>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing-selected.svg">
+        <BillingSkeleton />
+      </AppLayout>
+    );
+  }
   const [tab, setTab] = useState<'all' | 'outstanding' | 'paid'>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [memberFilter, setMemberFilter] = useState<string>('all');

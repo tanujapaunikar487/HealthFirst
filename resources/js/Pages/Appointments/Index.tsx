@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
+import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
@@ -117,9 +118,73 @@ type SheetView =
   | { type: 'share'; appointment: Appointment }
   | null;
 
+/* ─── Skeleton ─── */
+
+function AppointmentsSkeleton() {
+  return (
+    <div style={{ width: '100%', maxWidth: '960px', padding: '40px 0' }}>
+      <div className="flex items-center justify-between mb-8">
+        <Pulse className="h-9 w-48" />
+        <Pulse className="h-10 w-40 rounded-full" />
+      </div>
+      <div className="flex items-center gap-2 mb-6">
+        {[0, 1, 2].map((i) => (
+          <Pulse key={i} className="h-9 w-28 rounded-full" />
+        ))}
+        <div className="ml-auto">
+          <Pulse className="h-10 w-56 rounded-lg" />
+        </div>
+      </div>
+      <div className="rounded-xl border border-border overflow-hidden">
+        <div className="flex items-center gap-4 px-4 py-3 bg-muted/50 border-b border-border">
+          <Pulse className="h-3 w-28" />
+          <Pulse className="h-3 w-20" />
+          <Pulse className="h-3 w-24" />
+          <Pulse className="h-3 w-20" />
+          <Pulse className="h-3 w-16" />
+          <Pulse className="h-3 w-12" />
+        </div>
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-4 px-4 py-5 border-b border-border last:border-0">
+            <div className="flex items-center gap-3 w-64">
+              <Pulse className="h-10 w-10 rounded-xl flex-shrink-0" />
+              <div className="space-y-2">
+                <Pulse className="h-4 w-36" />
+                <Pulse className="h-3 w-24" />
+              </div>
+            </div>
+            <Pulse className="h-4 w-16" />
+            <Pulse className="h-4 w-28" />
+            <Pulse className="h-6 w-20 rounded-full" />
+            <Pulse className="h-4 w-16" />
+            <Pulse className="h-8 w-8 rounded-lg" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ─── Page ─── */
 
 export default function Index({ user, appointments, familyMembers, doctors }: Props) {
+  const { isLoading, hasError, retry } = useSkeletonLoading(appointments);
+
+  if (hasError) {
+    return (
+      <AppLayout user={user} pageTitle="Appointments" pageIcon="/assets/icons/appointment-selected.svg">
+        <ErrorState onRetry={retry} label="Unable to load appointments" />
+      </AppLayout>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <AppLayout user={user} pageTitle="Appointments" pageIcon="/assets/icons/appointment-selected.svg">
+        <AppointmentsSkeleton />
+      </AppLayout>
+    );
+  }
   const [memberFilter, setMemberFilter] = useState<string>('all');
   const [doctorFilter, setDoctorFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');

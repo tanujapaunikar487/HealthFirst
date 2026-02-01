@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
+import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import {
@@ -86,9 +87,56 @@ const emptyForm = {
   blood_group: '',
 };
 
+/* ─── Skeleton ─── */
+
+function FamilyMembersSkeleton() {
+  return (
+    <div style={{ width: '100%', maxWidth: '738px', padding: '40px 0' }}>
+      <div className="flex items-center justify-between mb-8">
+        <div className="space-y-2">
+          <Pulse className="h-9 w-48" />
+          <Pulse className="h-4 w-24" />
+        </div>
+        <Pulse className="h-10 w-32 rounded-full" />
+      </div>
+      <div className="rounded-xl border border-border overflow-hidden">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-4 px-5 py-4 border-b border-border last:border-0">
+            <Pulse className="h-11 w-11 rounded-full flex-shrink-0" />
+            <div className="space-y-2 flex-1">
+              <Pulse className="h-5 w-32" />
+              <Pulse className="h-3 w-16" />
+            </div>
+            <Pulse className="h-5 w-5 rounded flex-shrink-0" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ─── Component ─── */
 
 export default function FamilyMembersIndex({ members, canCreate, alertMemberCount }: Props) {
+  const { isLoading, hasError, retry } = useSkeletonLoading(members);
+
+  if (hasError) {
+    const user = (usePage().props as any).auth?.user;
+    return (
+      <AppLayout user={user} pageTitle="Family Members" pageIcon="/assets/icons/family-selected.svg">
+        <ErrorState onRetry={retry} label="Unable to load family members" />
+      </AppLayout>
+    );
+  }
+
+  if (isLoading) {
+    const user = (usePage().props as any).auth?.user;
+    return (
+      <AppLayout user={user} pageTitle="Family Members" pageIcon="/assets/icons/family-selected.svg">
+        <FamilyMembersSkeleton />
+      </AppLayout>
+    );
+  }
   const { props } = usePage<{ toast?: string }>();
 
   const [showForm, setShowForm] = useState(false);

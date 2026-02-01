@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
+import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { Card } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
@@ -219,12 +220,98 @@ function formatFileSize(bytes: number): string {
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
+function InsuranceSkeleton() {
+  return (
+    <div style={{ width: '100%', maxWidth: '960px', padding: '40px 0' }}>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <Pulse className="h-9 w-36" />
+        <Pulse className="h-10 w-32 rounded-full" />
+      </div>
+      {/* Policy cards */}
+      <div className="mb-8 space-y-3">
+        <Pulse className="h-6 w-32 mb-4" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {[0, 1].map((i) => (
+            <div key={i} className="rounded-xl border border-border p-5 space-y-3">
+              <div className="flex items-center gap-3">
+                <Pulse className="h-10 w-10 rounded-full flex-shrink-0" />
+                <div className="space-y-2 flex-1">
+                  <Pulse className="h-5 w-40" />
+                  <Pulse className="h-3 w-28" />
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <Pulse className="h-4 w-24" />
+                <Pulse className="h-4 w-24" />
+                <Pulse className="h-5 w-20 rounded-full ml-auto" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Claims table */}
+      <div className="space-y-4">
+        <Pulse className="h-6 w-28" />
+        <div className="flex items-center gap-3 mb-4">
+          <Pulse className="h-10 w-36 rounded-lg" />
+          <Pulse className="h-10 w-36 rounded-lg" />
+          <div className="ml-auto">
+            <Pulse className="h-10 w-48 rounded-lg" />
+          </div>
+        </div>
+        <div className="rounded-xl border border-border overflow-hidden">
+          <div className="flex items-center gap-4 px-4 py-3 bg-muted/50 border-b border-border">
+            <Pulse className="h-3 w-20" />
+            <Pulse className="h-3 w-36" />
+            <Pulse className="h-3 w-20" />
+            <Pulse className="h-3 w-24" />
+            <Pulse className="h-3 w-16" />
+          </div>
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-4 px-4 py-4 border-b border-border last:border-0">
+              <Pulse className="h-4 w-20" />
+              <div className="flex items-center gap-3 w-48">
+                <Pulse className="h-9 w-9 rounded-xl flex-shrink-0" />
+                <div className="space-y-2">
+                  <Pulse className="h-4 w-32" />
+                  <Pulse className="h-3 w-20" />
+                </div>
+              </div>
+              <Pulse className="h-4 w-16" />
+              <Pulse className="h-4 w-20" />
+              <Pulse className="h-6 w-20 rounded-full" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function InsuranceIndex({
   policies,
   claims,
   familyMembers,
   insuranceProviders,
 }: Props) {
+  const { isLoading, hasError, retry } = useSkeletonLoading(policies);
+
+  if (hasError) {
+    return (
+      <AppLayout pageTitle="Insurance" pageIcon="insurance">
+        <ErrorState onRetry={retry} label="Unable to load insurance" />
+      </AppLayout>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <AppLayout pageTitle="Insurance" pageIcon="insurance">
+        <InsuranceSkeleton />
+      </AppLayout>
+    );
+  }
   const { props } = usePage<{ toast?: string }>();
 
   // List filters

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
+import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
@@ -418,9 +419,75 @@ function StatusBadge({ status }: { status: RecordStatus }) {
   );
 }
 
+/* ─── Skeleton ─── */
+
+function HealthRecordsSkeleton() {
+  return (
+    <div style={{ width: '100%', maxWidth: '960px', padding: '40px 0' }}>
+      <div className="flex items-start justify-between mb-6">
+        <div className="space-y-2">
+          <Pulse className="h-9 w-48" />
+          <Pulse className="h-4 w-64" />
+        </div>
+      </div>
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        {[0, 1, 2, 3].map((i) => (
+          <Pulse key={i} className="h-10 w-36 rounded-lg" />
+        ))}
+        <div className="ml-auto">
+          <Pulse className="h-10 w-56 rounded-lg" />
+        </div>
+      </div>
+      <div className="rounded-xl border border-border overflow-hidden">
+        <div className="flex items-center gap-4 px-4 py-3 bg-muted/50 border-b border-border">
+          <Pulse className="h-4 w-4 rounded" />
+          <Pulse className="h-3 w-20" />
+          <Pulse className="h-3 w-40" />
+          <Pulse className="h-3 w-20" />
+          <Pulse className="h-3 w-20" />
+          <Pulse className="h-3 w-12" />
+        </div>
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-4 px-4 py-4 border-b border-border last:border-0">
+            <Pulse className="h-4 w-4 rounded flex-shrink-0" />
+            <Pulse className="h-4 w-20" />
+            <div className="flex items-center gap-3 w-64">
+              <Pulse className="h-9 w-9 rounded-xl flex-shrink-0" />
+              <div className="space-y-2">
+                <Pulse className="h-4 w-40" />
+                <Pulse className="h-3 w-24" />
+              </div>
+            </div>
+            <Pulse className="h-4 w-16" />
+            <Pulse className="h-6 w-20 rounded-full" />
+            <Pulse className="h-8 w-8 rounded-lg" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ─── Page ─── */
 
 export default function Index({ user, records, familyMembers, abnormalCount, preSelectedRecordId }: Props) {
+  const { isLoading, hasError, retry } = useSkeletonLoading(records);
+
+  if (hasError) {
+    return (
+      <AppLayout user={user} pageTitle="Health Records" pageIcon="/assets/icons/records-selected.svg">
+        <ErrorState onRetry={retry} label="Unable to load health records" />
+      </AppLayout>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <AppLayout user={user} pageTitle="Health Records" pageIcon="/assets/icons/records-selected.svg">
+        <HealthRecordsSkeleton />
+      </AppLayout>
+    );
+  }
   const [activeTab, setActiveTab] = useState('all');
   const [subCategoryFilter, setSubCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');

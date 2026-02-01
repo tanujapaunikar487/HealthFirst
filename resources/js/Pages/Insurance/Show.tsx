@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
+import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { Card } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
@@ -131,7 +132,81 @@ function getStatusBadge(status: string) {
   );
 }
 
+function InsuranceShowSkeleton() {
+  return (
+    <div className="mx-auto max-w-[960px] px-6 py-8">
+      <Pulse className="h-4 w-24 mb-6" />
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <Pulse className="h-14 w-14 rounded-full flex-shrink-0" />
+          <div className="space-y-2">
+            <Pulse className="h-7 w-56" />
+            <Pulse className="h-4 w-32" />
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Pulse className="h-10 w-36 rounded-lg" />
+          <Pulse className="h-10 w-10 rounded-lg" />
+        </div>
+      </div>
+      {/* Policy details card */}
+      <div className="rounded-xl border border-border p-6 mb-6 space-y-4">
+        <Pulse className="h-5 w-28" />
+        <div className="grid grid-cols-2 gap-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="flex justify-between">
+              <Pulse className="h-4 w-28" />
+              <Pulse className="h-4 w-36" />
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Members */}
+      <div className="rounded-xl border border-border p-6 mb-6">
+        <Pulse className="h-5 w-36 mb-4" />
+        <div className="flex gap-3">
+          {[0, 1, 2].map((i) => (
+            <Pulse key={i} className="h-10 w-28 rounded-full" />
+          ))}
+        </div>
+      </div>
+      {/* Claims */}
+      <div className="rounded-xl border border-border p-6 space-y-4">
+        <Pulse className="h-5 w-40" />
+        {[0, 1].map((i) => (
+          <div key={i} className="flex items-center gap-4 p-4 border border-border rounded-xl">
+            <Pulse className="h-10 w-10 rounded-xl flex-shrink-0" />
+            <div className="space-y-2 flex-1">
+              <Pulse className="h-4 w-40" />
+              <Pulse className="h-3 w-24" />
+            </div>
+            <Pulse className="h-6 w-20 rounded-full" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function InsuranceShow({ policy, coveredMembers, claims }: Props) {
+  const { isLoading, hasError, retry } = useSkeletonLoading(policy);
+
+  if (hasError) {
+    return (
+      <AppLayout pageTitle="Insurance" pageIcon="insurance">
+        <ErrorState onRetry={retry} label="Unable to load policy details" />
+      </AppLayout>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <AppLayout pageTitle="Insurance" pageIcon="insurance">
+        <InsuranceShowSkeleton />
+      </AppLayout>
+    );
+  }
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
 

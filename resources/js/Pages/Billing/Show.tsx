@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
+import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
 import {
@@ -278,7 +279,79 @@ function StatusAlertBanner({ bill }: { bill: Bill }) {
 
 /* ─── Page ─── */
 
+function BillingShowSkeleton() {
+  return (
+    <div style={{ width: '100%', maxWidth: '960px', padding: '40px 0' }}>
+      {/* Breadcrumb */}
+      <Pulse className="h-4 w-32 mb-6" />
+      {/* Status banner */}
+      <Pulse className="h-14 w-full rounded-xl mb-6" />
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="space-y-2">
+          <Pulse className="h-8 w-64" />
+          <Pulse className="h-6 w-20 rounded-full" />
+        </div>
+        <div className="flex gap-2">
+          <Pulse className="h-10 w-28 rounded-lg" />
+          <Pulse className="h-10 w-28 rounded-lg" />
+        </div>
+      </div>
+      {/* Overview card */}
+      <div className="rounded-xl border border-border p-6 mb-6 space-y-4">
+        <Pulse className="h-5 w-24" />
+        <div className="grid grid-cols-2 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="flex justify-between">
+              <Pulse className="h-4 w-28" />
+              <Pulse className="h-4 w-36" />
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Line items */}
+      <div className="rounded-xl border border-border p-6 mb-6 space-y-4">
+        <Pulse className="h-5 w-32" />
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="flex justify-between">
+            <Pulse className="h-4 w-48" />
+            <Pulse className="h-4 w-20" />
+          </div>
+        ))}
+      </div>
+      {/* Timeline */}
+      <div className="rounded-xl border border-border p-6 space-y-4">
+        <Pulse className="h-5 w-28" />
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-4">
+            <Pulse className="h-3 w-3 rounded-full flex-shrink-0" />
+            <Pulse className="h-4 w-56" />
+            <Pulse className="h-3 w-20 ml-auto" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Show({ user, bill }: Props) {
+  const { isLoading, hasError, retry } = useSkeletonLoading(bill);
+
+  if (hasError) {
+    return (
+      <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing-selected.svg">
+        <ErrorState onRetry={retry} label="Unable to load bill details" />
+      </AppLayout>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing-selected.svg">
+        <BillingShowSkeleton />
+      </AppLayout>
+    );
+  }
   const [toastMessage, setToastMessage] = useState('');
   const [paymentLoading, setPaymentLoading] = useState(false);
   const isDoctor = bill.appointment_type === 'doctor';

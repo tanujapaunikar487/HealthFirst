@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
+import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { Card } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
@@ -539,9 +540,70 @@ function TimelineEventRow({
   );
 }
 
+// --- Skeleton ---
+
+function ClaimDetailSkeleton() {
+  return (
+    <div className="mx-auto max-w-[960px] px-6 py-8">
+      <Pulse className="h-4 w-24 mb-6" />
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="space-y-2">
+          <Pulse className="h-7 w-48" />
+          <Pulse className="h-4 w-32" />
+        </div>
+        <Pulse className="h-6 w-24 rounded-full" />
+      </div>
+      {/* Timeline */}
+      <div className="rounded-xl border border-border p-6 mb-6 space-y-4">
+        <Pulse className="h-5 w-24" />
+        <div className="flex items-center gap-6">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="flex flex-col items-center gap-2">
+              <Pulse className="h-8 w-8 rounded-full" />
+              <Pulse className="h-3 w-16" />
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Detail cards */}
+      {[0, 1].map((i) => (
+        <div key={i} className="rounded-xl border border-border p-6 mb-6 space-y-4">
+          <Pulse className="h-5 w-36" />
+          <div className="grid grid-cols-2 gap-4">
+            {Array.from({ length: 4 }).map((_, j) => (
+              <div key={j} className="flex justify-between">
+                <Pulse className="h-4 w-28" />
+                <Pulse className="h-4 w-32" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // --- Main Component ---
 
 export default function ClaimDetail({ claim, patient, doctor, appointment }: Props) {
+  const { isLoading, hasError, retry } = useSkeletonLoading(claim);
+
+  if (hasError) {
+    return (
+      <AppLayout pageTitle="Insurance" pageIcon="insurance">
+        <ErrorState onRetry={retry} label="Unable to load claim details" />
+      </AppLayout>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <AppLayout pageTitle="Insurance" pageIcon="insurance">
+        <ClaimDetailSkeleton />
+      </AppLayout>
+    );
+  }
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [expandedTimeline, setExpandedTimeline] = useState<number[]>([]);

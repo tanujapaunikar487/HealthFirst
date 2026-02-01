@@ -2115,5 +2115,67 @@ Added a global search feature accessible from anywhere in the app via header sea
 
 ---
 
+## Skeleton Loading Screens for All Pages (February 2, 2026)
+
+Added skeleton loading states to all pages that were missing them. Created a shared skeleton module to avoid duplicating loading logic.
+
+### Shared Module: `resources/js/Components/ui/skeleton.tsx`
+
+| Export | Purpose |
+|--------|---------|
+| `Pulse` | Animated placeholder block (`bg-muted animate-pulse rounded`) |
+| `ErrorState` | Full-page error with retry button (10s timeout) |
+| `useSkeletonLoading(data)` | Hook: 300ms minimum display, 10s error timeout, returns `{ isLoading, hasError, retry }` |
+| `TableRowSkeleton` | Single table row skeleton |
+| `TableSkeleton` | Full table skeleton with header + rows |
+| `CardSkeleton` | Card skeleton with title + line items |
+
+### Pages Updated (9 pages)
+
+| Page | Skeleton Layout |
+|------|----------------|
+| `Appointments/Index.tsx` | Tab pills + 5-row table |
+| `HealthRecords/Index.tsx` | Filter controls + 5-row table |
+| `Billing/Index.tsx` | Summary card + tabs + filters + 5-row table |
+| `Billing/Show.tsx` | Breadcrumb + banner + header + overview card + line items + timeline |
+| `Insurance/Index.tsx` | 2 policy cards + filter row + 3-row claims table |
+| `Insurance/Show.tsx` | Header + policy details card + members + claims |
+| `Insurance/ClaimDetail.tsx` | Timeline circles + 2 detail cards |
+| `FamilyMembers/Index.tsx` | 4 member rows (avatar + name + chevron) |
+| `FamilyMembers/Show.tsx` | Profile header + personal info + medical + emergency + health data cards |
+
+Each page uses `useSkeletonLoading` hook with early returns for error/loading states before rendering the main content.
+
+---
+
+## Dashboard: Real Data & Book Appointment Button (February 2, 2026)
+
+### Replaced Mock Dashboard with Real Data
+
+The dashboard route (`routes/web.php`) used an inline closure returning hardcoded mock data. Replaced with the existing `DashboardController::index()` which queries the database for all 5 data types: upcoming appointments, overdue bills, health alerts, preventive care prompts, and promotions.
+
+### Fixed DashboardController
+
+Removed `$user->load('patient')` call — the User model has no `patient` relationship. Frontend already handles null patient via `user.patient?.first_name || user.name.split(' ')[0]`.
+
+### Updated Seeded User Name
+
+Changed seeded user name from "Test User" to "Sanjana Jaisinghani" in `DatabaseSeeder.php` so the dashboard greeting shows a realistic name.
+
+### Book Appointment Button Always Visible
+
+The "Book Appointment" button in the dashboard header was wrapped in `{!allStepsCompleted && (...)}`, hiding it once profile setup was complete. Removed the condition so the button is always visible.
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `routes/web.php` | Replaced 43-line mock closure with `DashboardController::index` |
+| `app/Http/Controllers/DashboardController.php` | Removed `$user->load('patient')` |
+| `database/seeders/DatabaseSeeder.php` | Changed user name to "Sanjana Jaisinghani" |
+| `resources/js/Pages/Dashboard.tsx` | Removed `!allStepsCompleted` condition from Book Appointment button |
+
+---
+
 **Last Updated**: February 2, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign | Upload Removed | Razorpay Billing Integration | Uniform Blue Icons | Family Members List + Detail Page | Unified Booking Links | Insurance List + Add Policy + Detail Page | Insurance Claim Detail Page | Claim Detail Edge States & Notification Deep-Linking | Dashboard States (Loading, New User, Partial Onboarding) | Active Dashboard with Aggregated Tasks | Profile Warning Banner | Dashboard Enhancements (View All, Razorpay Pay, Dynamic Promotions) | Global Search Modal
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign | Upload Removed | Razorpay Billing Integration | Uniform Blue Icons | Family Members List + Detail Page | Unified Booking Links | Insurance List + Add Policy + Detail Page | Insurance Claim Detail Page | Claim Detail Edge States & Notification Deep-Linking | Dashboard States (Loading, New User, Partial Onboarding) | Active Dashboard with Aggregated Tasks | Profile Warning Banner | Dashboard Enhancements (View All, Razorpay Pay, Dynamic Promotions) | Global Search Modal | Skeleton Loading Screens | Dashboard Real Data & Always-Visible Book Button

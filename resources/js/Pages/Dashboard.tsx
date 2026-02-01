@@ -492,22 +492,20 @@ export default function Dashboard({
             </p>
           </div>
 
-          {!allStepsCompleted && (
-            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
-              <Button
-                asChild
-                className="h-12 font-semibold text-white rounded-full"
-                style={{ width: '241px', height: '48px', backgroundColor: '#0052FF', fontSize: '16px', fontWeight: 600, lineHeight: '24px', paddingLeft: '32px', paddingRight: '32px', gap: '8px' }}
-              >
-                <Link href="/booking">
-                  <span className="flex items-center gap-2 text-white">
-                    <img src="/assets/icons/appointment-2.svg" alt="Appointment" className="h-6 w-6" />
-                    Book Appointment
-                  </span>
-                </Link>
-              </Button>
-            </div>
-          )}
+          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
+            <Button
+              asChild
+              className="h-12 font-semibold text-white rounded-full"
+              style={{ width: '241px', height: '48px', backgroundColor: '#0052FF', fontSize: '16px', fontWeight: 600, lineHeight: '24px', paddingLeft: '32px', paddingRight: '32px', gap: '8px' }}
+            >
+              <Link href="/booking">
+                <span className="flex items-center gap-2 text-white">
+                  <img src="/assets/icons/appointment-2.svg" alt="Appointment" className="h-6 w-6" />
+                  Book Appointment
+                </span>
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {/* ─── ACTIVE DASHBOARD (all steps completed) ─── */}

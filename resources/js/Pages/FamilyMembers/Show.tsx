@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
+import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
@@ -188,6 +189,68 @@ function TagInput({
   );
 }
 
+/* ─── Skeleton ─── */
+
+function FamilyMemberShowSkeleton() {
+  return (
+    <div style={{ width: '100%', maxWidth: '738px', padding: '40px 0' }}>
+      {/* Back link */}
+      <Pulse className="h-4 w-32 mb-6" />
+      {/* Profile header */}
+      <div className="flex items-center gap-5 mb-8">
+        <Pulse className="h-20 w-20 rounded-full flex-shrink-0" />
+        <div className="space-y-2 flex-1">
+          <Pulse className="h-7 w-44" />
+          <Pulse className="h-4 w-28" />
+        </div>
+        <Pulse className="h-10 w-28 rounded-lg" />
+      </div>
+      {/* Personal info card */}
+      <div className="rounded-xl border border-border p-6 mb-4 space-y-4">
+        <Pulse className="h-5 w-40" />
+        <div className="grid grid-cols-2 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="space-y-1">
+              <Pulse className="h-3 w-20" />
+              <Pulse className="h-4 w-32" />
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Medical conditions card */}
+      <div className="rounded-xl border border-border p-6 mb-4 space-y-3">
+        <Pulse className="h-5 w-40" />
+        <div className="flex flex-wrap gap-2">
+          {[0, 1, 2].map((i) => (
+            <Pulse key={i} className="h-7 w-28 rounded-full" />
+          ))}
+        </div>
+      </div>
+      {/* Emergency contact card */}
+      <div className="rounded-xl border border-border p-6 mb-4">
+        <Pulse className="h-5 w-36 mb-4" />
+        <div className="flex items-center gap-3">
+          <Pulse className="h-10 w-10 rounded-full flex-shrink-0" />
+          <div className="space-y-2">
+            <Pulse className="h-4 w-32" />
+            <Pulse className="h-3 w-24" />
+          </div>
+        </div>
+      </div>
+      {/* Health data links */}
+      <div className="grid grid-cols-3 gap-4 mt-6">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="rounded-xl border border-border p-5 space-y-3">
+            <Pulse className="h-10 w-10 rounded-xl" />
+            <Pulse className="h-4 w-24" />
+            <Pulse className="h-3 w-16" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ─── Component ─── */
 
 export default function FamilyMemberShow({
@@ -197,6 +260,25 @@ export default function FamilyMemberShow({
   alertType,
   canDelete,
 }: Props) {
+  const { isLoading, hasError, retry } = useSkeletonLoading(member);
+
+  if (hasError) {
+    const user = (usePage().props as any).auth?.user;
+    return (
+      <AppLayout user={user} pageTitle="Family Members" pageIcon="/assets/icons/family-selected.svg">
+        <ErrorState onRetry={retry} label="Unable to load member details" />
+      </AppLayout>
+    );
+  }
+
+  if (isLoading) {
+    const user = (usePage().props as any).auth?.user;
+    return (
+      <AppLayout user={user} pageTitle="Family Members" pageIcon="/assets/icons/family-selected.svg">
+        <FamilyMemberShowSkeleton />
+      </AppLayout>
+    );
+  }
   const { props } = usePage<{ toast?: string }>();
   const user = (usePage().props as any).auth?.user;
 

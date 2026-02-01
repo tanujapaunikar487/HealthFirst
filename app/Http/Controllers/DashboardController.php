@@ -149,7 +149,7 @@ class DashboardController extends Controller
         ]);
 
         return Inertia::render('Dashboard', [
-            'user' => $user->load('patient'),
+            'user' => $user,
             'profileSteps' => $profileSteps,
             'profileJustCompleted' => $profileJustCompleted,
             'upcomingAppointments' => $upcomingAppointments,
