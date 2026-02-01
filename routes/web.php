@@ -7,6 +7,7 @@ use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GuidedDoctorController;
 use App\Http\Controllers\GuidedLabController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -149,6 +150,10 @@ Route::get('/appointments/{appointment}/book-again', [AppointmentsController::cl
 // Billing
 Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');
 Route::get('/billing/{appointment}', [BillingController::class, 'show'])->name('billing.show');
+
+// Notifications
+Route::post('/notifications/{billing_notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
 
 // Auth routes (commented out for demo)
 // require __DIR__.'/auth.php';

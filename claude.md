@@ -1044,5 +1044,193 @@ $exceptions->respond(function (Response $response) {
 
 ---
 
+## Billing Pages (February 1, 2026)
+
+Full billing management system with list page, detail page, and payment summary modal.
+
+### Files Created
+- `app/Http/Controllers/BillingController.php` — Controller with `index()` and `show()` methods
+- `resources/js/Pages/Billing/Index.tsx` — Billing list page with full feature set
+- `resources/js/Pages/Billing/Show.tsx` — Invoice detail page
+
+### Files Modified
+- `routes/web.php` — Added `/billing` and `/billing/{appointment}` routes
+- `resources/js/Pages/Appointments/Show.tsx` — Added "View Full Bill" cross-link in BillingSection
+
+### Architecture
+- No separate billing database tables — all billing data is mock-generated from `Appointment` records
+- Each appointment produces one bill with invoice number format `INV-000001`
+- `BillingController` queries `Appointment` model and formats data as bills
+- Bidirectional navigation between Appointments and Billing pages
+
+### BillingController
+- `getBillingStatus()` — Maps 4 real `payment_status` values (paid, pending, fully_refunded, partially_refunded) to 10 billing statuses using deterministic index-based variation
+- `computeAmountDetails()` — Calculates `due_amount`, `insurance_covered`, `emi_current/emi_total` per status
+- Props: `bills`, `stats` (outstanding count/total), `familyMembers` (for filter dropdown)
+- Bill fields: `billing_status`, `due_amount`, `original_amount`, `insurance_covered`, `emi_current`, `emi_total`, `patient_id`, `time`
+
+### 10 Billing Status Types
+
+| Status | Label | Color | Source payment_status |
+|--------|-------|-------|----------------------|
+| due | Due | red | pending |
+| paid | Paid | green | paid |
+| refunded | Refunded | gray | fully_refunded |
+| awaiting_approval | Awaiting Approval | orange | pending |
+| claim_pending | Claim Pending | orange | pending |
+| copay_due | Co-pay Due | red | pending |
+| emi | EMI X/Y | blue | paid |
+| disputed | Disputed | red | partially_refunded |
+| covered | Covered | green | paid |
+| reimbursed | Reimbursed | green | paid |
+
+### Billing List Page (Index.tsx)
+- **Tabs**: All / Outstanding / Paid (Outstanding = due + copay_due + awaiting_approval + claim_pending + emi; Paid = paid + covered + reimbursed)
+- **Outstanding summary card**: Count + total with "Pay All" CTA (mock toast)
+- **Filters**: Status dropdown (10 types), Family member dropdown, Search (invoice #, title, patient name)
+- **Table columns**: Checkbox, Date & time, Description (type icon + title + invoice #), Patient, Amount (struck-through original for partial), Status tag, Actions (3-dot)
+- **Multi-select checkboxes**: Only enabled for `due`/`copay_due`; floating bar shows "X bills selected" + "Pay ₹X" CTA
+- **Contextual row actions**: View Details, Download Invoice, Pay Now (due/copay_due), Raise Dispute (paid/disputed), Request Reimbursement Letter (paid), View Insurance Claim (claim_pending/awaiting_approval/covered)
+- **Pagination**: 10 items per page with page numbers and prev/next
+- **Empty state**: FileText icon + "No records yet" + "Book Appointment" CTA
+- **Footer**: "Need help with billing? Contact support →"
+
+### Payment Summary Modal
+- Right-side Sheet triggered by clicking a payable row (due/copay_due) or "Pay Now" dropdown action
+- Shows: Patient avatar + name, service description with type icon, reference ID, date, amount (with "of ₹X" for partial co-pay)
+- Primary CTA: "Pay ₹[amount]" button (mock toast)
+
+### Invoice Detail Page (Show.tsx) — Full Rewrite
+- Breadcrumb navigation back to billing list
+- Status badge + contextual action buttons in header
+- **Overview section**: 2-column grid with patient, service type, invoice #, amount, due date, payment method
+- **Service Details section**: Doctor/lab info, consultation mode, department
+- **Itemized Charges table**: Item / Qty / Unit Price / Total columns
+- **Payment Information** (conditional): method, transaction ID, payment date
+- **Insurance Details** (conditional): provider, policy, claim status, coverage, co-pay
+- **EMI Details** (conditional): progress bar, installment X/Y, monthly amount, next due date
+- **Dispute Information** (conditional): reason, status, filed date
+- **Activity Log**: Vertical timeline with status-specific events
+- **Footer Actions**: Contextual per billing status (Pay/Dispute/Download)
+
+---
+
+## Bill Detail Page Rewrite (February 1, 2026)
+
+Complete rewrite of `Billing/Show.tsx` from a basic invoice layout to a comprehensive bill detail page with all billing status contexts.
+
+### `BillingController::formatBillDetail()`
+Returns rich data structure: `billing_status`, overview fields, service details, `line_items` with qty/unit_price, `payment_info`, `insurance_details`, `emi_details`, `dispute_details`, `activity_log`. Each section is conditionally populated based on billing status.
+
+### `buildActivityLog()`
+Generates timeline events based on billing status — e.g., "Bill Generated", "Payment Received", "Insurance Claim Filed", "Dispute Raised", etc.
+
+---
+
+## Pay All Flow (February 1, 2026)
+
+Enhanced the Payment Summary Sheet in `Billing/Index.tsx` to support paying multiple bills at once.
+
+### Behavior
+- "Pay All" button in outstanding summary opens the payment sheet with ALL outstanding bills
+- Each bill card has a checkbox — users can uncheck bills they don't want to pay
+- Last remaining bill's checkbox is disabled (must pay at least one)
+- Dynamic subtitle: "X of Y bills selected" when some are unchecked
+- Processing state: Loader2 spinner + "Processing..." disabled CTA
+- Success state: Green CheckCircle2 + "Payment Successful" + "Done" button
+- Sheet close prevented during processing
+
+### Implementation
+- `excludedPayBillIds: Set<number>` state tracks unchecked bills
+- `paymentState: 'idle' | 'processing' | 'success'` state machine
+- `activePayBills` derived from filter, totals recalculated dynamically
+- 2s simulated processing delay (mock)
+
+---
+
+## Edge Cases & Validation Banners (February 1, 2026)
+
+Added status-aware validation banners and edge case handling across both billing pages.
+
+### Backend: `BillingController.php`
+Added `is_overdue` + `days_overdue` to both `formatBillSummary()` and `formatBillDetail()`:
+- `is_overdue`: true when bill is due/copay_due AND >30 days past appointment date
+- `days_overdue`: days since due date (appointment_date + 7 days), 0 if not overdue
+
+### Index.tsx (List Page)
+- **Overdue indicator**: "Overdue Xd" sub-label below status badge for overdue bills
+- **EMI dropdown action**: "View EMI Schedule" navigating to `/billing/{id}`
+- **Payment sheet overdue warning**: Red inline warning for overdue bills
+
+### Show.tsx (Detail Page)
+- **StatusAlertBanner component**: 11 variants covering all billing statuses:
+  - `due` (normal/overdue), `copay_due` (normal/overdue): Blue/Red with payment info
+  - `awaiting_approval`, `claim_pending`: Amber "Insurance Pending" / "Claim Submitted"
+  - `disputed`: Red "Bill Under Dispute" — payment disabled
+  - `refunded`: Gray "Refund Processed"
+  - `emi`: Blue "EMI Active" with installment progress
+  - `covered`, `reimbursed`: Green "Fully Covered" / "Reimbursed"
+  - `paid`: No banner
+- **EMI-specific CTA**: "Pay EMI ₹X" showing monthly amount (not full) in header + footer
+- **Overdue badge**: Red "{X}d overdue" pill next to Due Date in Overview
+
+---
+
+## Billing Notifications (February 1, 2026)
+
+Added a notification system for billing events with seeded mock data and a side sheet UI.
+
+### Database
+- **Migration**: `billing_notifications` table (id, user_id UUID FK, appointment_id nullable FK, type, title, message, channels JSON, data JSON, read_at nullable, timestamps)
+- **Model**: `App\Models\BillingNotification` with array casts, `scopeUnread()`, `markAsRead()`
+- **User relationship**: `billingNotifications()` HasMany added to `App\User`
+
+### Seed Data (15 notifications, 7 unread)
+Tied to the 7 seeded appointments covering all 8 notification types:
+
+| Type | Channels | Icon | Color |
+|------|----------|------|-------|
+| bill_generated | push, email | Receipt | Blue |
+| payment_due_reminder | push, email | Clock | Amber |
+| payment_successful | push, email, sms | CheckCircle2 | Green |
+| payment_failed | push, email | XCircle | Red |
+| insurance_claim_approved | push, email | ShieldCheck | Green |
+| insurance_claim_rejected | push, email | ShieldAlert | Red |
+| dispute_update | push, email | MessageSquare | Amber |
+| emi_due_reminder | push, email | CreditCard | Blue |
+
+### Backend
+- **NotificationController**: `markAsRead(BillingNotification)` + `markAllAsRead()` (bulk update)
+- **Routes**: `POST /notifications/{billing_notification}/read`, `POST /notifications/mark-all-read`
+- **HandleInertiaRequests**: Shares `notificationUnreadCount` (int) and `allNotifications` (array) globally on every page
+
+### Frontend — Bell Side Sheet (AppLayout.tsx)
+- Bell icon in header with **red dot badge** when unread count > 0
+- Click opens a **right-side Sheet** with:
+  - Header: "Notifications" title + unread count badge + "Mark all read" button
+  - Filter tabs: All / Unread (with count)
+  - Scrollable notification cards: type-specific colored icon, title, message, channel badges (Push/Email/SMS), time ago, blue unread dot
+  - Unread cards have blue-tinted background
+  - Empty state when no notifications
+- Click notification → marks as read + navigates to `/billing/{appointment_id}`
+
+### Files Created
+| File | Purpose |
+|------|---------|
+| `database/migrations/2026_02_01_400001_create_billing_notifications_table.php` | Migration |
+| `app/Models/BillingNotification.php` | Eloquent model |
+| `app/Http/Controllers/NotificationController.php` | Mark read/all read |
+
+### Files Modified
+| File | Changes |
+|------|---------|
+| `app/User.php` | Added `billingNotifications()` relationship |
+| `database/seeders/HospitalSeeder.php` | Added `seedBillingNotifications()` with 15 entries |
+| `app/Http/Middleware/HandleInertiaRequests.php` | Shares `notificationUnreadCount` + `allNotifications` |
+| `resources/js/Layouts/AppLayout.tsx` | Bell → Sheet with notification list, filter tabs, mark-all-read |
+| `routes/web.php` | 2 notification POST routes |
+
+---
+
 **Last Updated**: February 1, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications

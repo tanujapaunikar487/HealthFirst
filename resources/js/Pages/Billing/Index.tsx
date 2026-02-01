@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Button } from '@/Components/ui/button';
@@ -51,6 +51,8 @@ import {
   ChevronRight,
   Calendar,
   X,
+  Loader2,
+  CheckCircle2,
 } from 'lucide-react';
 
 /* ─── Types ─── */
@@ -88,6 +90,8 @@ interface Bill {
   emi_total: number | null;
   payment_method: string;
   payment_date: string;
+  is_overdue: boolean;
+  days_overdue: number;
 }
 
 interface Stats {
@@ -149,7 +153,44 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
   const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [toastMessage, setToastMessage] = useState('');
-  const [payBill, setPayBill] = useState<Bill | null>(null);
+  const [payBills, setPayBills] = useState<Bill[]>([]);
+  const [excludedPayBillIds, setExcludedPayBillIds] = useState<Set<number>>(new Set());
+  const [paymentState, setPaymentState] = useState<'idle' | 'processing' | 'success'>('idle');
+
+  // Reset sheet state when payBills changes
+  useEffect(() => {
+    if (payBills.length > 0) {
+      setExcludedPayBillIds(new Set());
+      setPaymentState('idle');
+    }
+  }, [payBills]);
+
+  // Active bills in sheet (not excluded)
+  const activePayBills = payBills.filter((b) => !excludedPayBillIds.has(b.id));
+  const activePayTotal = activePayBills.reduce((sum, b) => sum + b.due_amount, 0);
+
+  const togglePayBillExclusion = (id: number) => {
+    setExcludedPayBillIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handlePayment = () => {
+    if (activePayBills.length === 0) return;
+    setPaymentState('processing');
+    setTimeout(() => {
+      setPaymentState('success');
+    }, 2000);
+  };
+
+  const handlePaymentDone = () => {
+    setPayBills([]);
+    clearSelection();
+    router.reload();
+  };
 
   // Filter bills
   const filtered = useMemo(() => {
@@ -305,7 +346,13 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
               size="sm"
               className="rounded-full text-xs gap-1.5"
               style={{ backgroundColor: '#0052FF' }}
-              onClick={() => showToast('Payment processing...')}
+              onClick={() => {
+                const outstandingPayable = bills.filter(
+                  (b) => OUTSTANDING_STATUSES.includes(b.billing_status) && PAYABLE_STATUSES.includes(b.billing_status)
+                );
+                if (outstandingPayable.length > 0) setPayBills(outstandingPayable);
+                else showToast('No payable bills found.');
+              }}
             >
               <CreditCard className="h-3.5 w-3.5" />
               Pay All
@@ -387,10 +434,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
               size="sm"
               className="rounded-full text-xs gap-1.5"
               style={{ backgroundColor: '#0052FF' }}
-              onClick={() => {
-                showToast('Payment processing...');
-                clearSelection();
-              }}
+              onClick={() => setPayBills(selectedBills)}
             >
               <CreditCard className="h-3.5 w-3.5" />
               Pay ₹{selectedTotal.toLocaleString()}
@@ -459,7 +503,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                         className="cursor-pointer"
                         onClick={() => {
                           if (isPayable) {
-                            setPayBill(bill);
+                            setPayBills([bill]);
                           } else {
                             router.visit(`/billing/${bill.id}`);
                           }
@@ -535,6 +579,9 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                           >
                             {statusLabel}
                           </span>
+                          {bill.is_overdue && (
+                            <p className="text-[10px] text-red-500 mt-0.5">Overdue {bill.days_overdue}d</p>
+                          )}
                         </TableCell>
 
                         {/* Actions */}
@@ -567,7 +614,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                                   <DropdownMenuSeparator />
                                   <DropdownMenuItem
                                     className="gap-2 cursor-pointer"
-                                    onClick={() => setPayBill(bill)}
+                                    onClick={() => setPayBills([bill])}
                                   >
                                     <CreditCard className="h-4 w-4" />
                                     Pay Now
@@ -610,6 +657,20 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                                   >
                                     <ShieldCheck className="h-4 w-4" />
                                     View Insurance Claim
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+
+                              {/* View EMI Schedule — emi */}
+                              {bill.billing_status === 'emi' && (
+                                <>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    className="gap-2 cursor-pointer"
+                                    onClick={() => router.visit(`/billing/${bill.id}`)}
+                                  >
+                                    <Calendar className="h-4 w-4" />
+                                    View EMI Schedule
                                   </DropdownMenuItem>
                                 </>
                               )}
@@ -677,97 +738,161 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
       </div>
 
       {/* Payment Summary Sheet */}
-      <Sheet open={!!payBill} onOpenChange={(open) => !open && setPayBill(null)}>
-        <SheetContent side="right" className="w-full sm:max-w-md">
-          <SheetHeader className="pb-6">
+      <Sheet
+        open={payBills.length > 0}
+        onOpenChange={(open) => {
+          if (!open && paymentState !== 'processing') setPayBills([]);
+        }}
+      >
+        <SheetContent side="right" className="w-full sm:max-w-md flex flex-col">
+          <SheetHeader className="pb-4">
             <SheetTitle>Payment Summary</SheetTitle>
-            <SheetDescription>1 bill selected</SheetDescription>
+            <SheetDescription>
+              {paymentState === 'success'
+                ? 'Payment complete'
+                : excludedPayBillIds.size > 0
+                  ? `${activePayBills.length} of ${payBills.length} bills selected`
+                  : `${payBills.length} ${payBills.length === 1 ? 'bill' : 'bills'} selected`
+              }
+            </SheetDescription>
           </SheetHeader>
 
-          {payBill && (
-            <div className="flex flex-col h-[calc(100%-80px)]">
-              {/* Bill Card */}
-              <div className="border rounded-lg p-5 space-y-4">
-                {/* Patient */}
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-sm font-semibold" style={{ color: '#171717' }}>
-                    {payBill.patient_name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium" style={{ color: '#171717' }}>{payBill.patient_name}</p>
-                    <p className="text-xs text-muted-foreground">Patient</p>
-                  </div>
-                </div>
+          {payBills.length > 0 && paymentState === 'success' && (
+            <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
+              <div className="h-16 w-16 rounded-full bg-green-50 flex items-center justify-center mb-4">
+                <CheckCircle2 className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="text-lg font-semibold mb-1" style={{ color: '#171717' }}>Payment Successful</h3>
+              <p className="text-sm text-muted-foreground">
+                {activePayBills.length} {activePayBills.length === 1 ? 'bill' : 'bills'} paid — ₹{activePayTotal.toLocaleString()}
+              </p>
+              <Button
+                className="w-full rounded-full gap-2 mt-8"
+                style={{ backgroundColor: '#0052FF' }}
+                onClick={handlePaymentDone}
+              >
+                Done
+              </Button>
+            </div>
+          )}
 
-                <div className="border-t" />
+          {payBills.length > 0 && paymentState !== 'success' && (
+            <>
+              {/* Scrollable bill list */}
+              <div className="flex-1 overflow-y-auto space-y-3 pr-1" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+                {payBills.map((bill) => {
+                  const isExcluded = excludedPayBillIds.has(bill.id);
+                  const isLastActive = activePayBills.length === 1 && !isExcluded;
+                  return (
+                    <div
+                      key={bill.id}
+                      className={cn('border rounded-lg p-4 space-y-3 transition-opacity', isExcluded && 'opacity-40')}
+                    >
+                      {/* Patient + Checkbox */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs font-semibold" style={{ color: '#171717' }}>
+                            {bill.patient_name.charAt(0)}
+                          </div>
+                          <p className="text-sm font-medium" style={{ color: '#171717' }}>{bill.patient_name}</p>
+                        </div>
+                        {payBills.length > 1 && (
+                          <input
+                            type="checkbox"
+                            checked={!isExcluded}
+                            disabled={isLastActive || paymentState === 'processing'}
+                            onChange={() => togglePayBillExclusion(bill.id)}
+                            className={cn(
+                              'h-4 w-4 rounded border-gray-300 accent-blue-600',
+                              (isLastActive || paymentState === 'processing') && 'opacity-40 cursor-not-allowed'
+                            )}
+                          />
+                        )}
+                      </div>
 
-                {/* Service description */}
-                <div className="flex items-center gap-3">
-                  <div
-                    className={cn(
-                      'h-9 w-9 rounded-full flex items-center justify-center flex-shrink-0',
-                      payBill.appointment_type === 'doctor' ? 'bg-blue-50' : 'bg-purple-50'
-                    )}
-                  >
-                    {payBill.appointment_type === 'doctor' ? (
-                      <Stethoscope className="h-4 w-4 text-blue-600" />
-                    ) : (
-                      <TestTube2 className="h-4 w-4 text-purple-600" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium" style={{ color: '#171717' }}>{payBill.appointment_title}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {payBill.appointment_type === 'doctor' ? 'Consultation' : 'Lab Test'}
-                    </p>
-                  </div>
-                </div>
+                      {/* Service */}
+                      <div className="flex items-center gap-2.5">
+                        <div
+                          className={cn(
+                            'h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0',
+                            bill.appointment_type === 'doctor' ? 'bg-blue-50' : 'bg-purple-50'
+                          )}
+                        >
+                          {bill.appointment_type === 'doctor' ? (
+                            <Stethoscope className="h-3.5 w-3.5 text-blue-600" />
+                          ) : (
+                            <TestTube2 className="h-3.5 w-3.5 text-purple-600" />
+                          )}
+                        </div>
+                        <p className="text-sm">{bill.appointment_title}</p>
+                      </div>
 
-                {/* Reference + Date */}
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Reference</span>
-                    <span className="font-mono text-xs">{payBill.invoice_number}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Date</span>
-                    <span className="text-xs">{payBill.date_formatted}</span>
-                  </div>
-                </div>
+                      {/* Reference + Date + Amount */}
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span className="font-mono">{bill.invoice_number}</span>
+                        <span>{bill.date_formatted}</span>
+                      </div>
+                      <div className="flex justify-between items-baseline">
+                        <span className="text-xs text-muted-foreground">Amount</span>
+                        <div className="text-right">
+                          <span className="text-sm font-semibold" style={{ color: '#171717' }}>
+                            ₹{bill.due_amount.toLocaleString()}
+                          </span>
+                          {bill.due_amount !== bill.original_amount && (
+                            <span className="text-xs text-muted-foreground ml-1">
+                              of ₹{bill.original_amount.toLocaleString()}
+                            </span>
+                          )}
+                        </div>
+                      </div>
 
-                <div className="border-t" />
-
-                {/* Amount */}
-                <div className="flex justify-between items-baseline">
-                  <span className="text-sm font-medium">Amount</span>
-                  <div className="text-right">
-                    <p className="text-lg font-bold" style={{ color: '#171717' }}>
-                      ₹{payBill.due_amount.toLocaleString()}
-                    </p>
-                    {payBill.due_amount !== payBill.original_amount && (
-                      <p className="text-xs text-muted-foreground">
-                        of ₹{payBill.original_amount.toLocaleString()}
-                      </p>
-                    )}
-                  </div>
-                </div>
+                      {/* Overdue warning */}
+                      {bill.is_overdue && (
+                        <div className="flex items-start gap-2 rounded-lg px-3 py-2" style={{ backgroundColor: '#FEF2F2' }}>
+                          <AlertCircle className="h-3.5 w-3.5 text-red-500 mt-0.5 flex-shrink-0" />
+                          <p className="text-xs text-red-600">
+                            Overdue by {bill.days_overdue} days. Please pay immediately or contact support.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
-              {/* Pay CTA */}
-              <div className="mt-auto pt-6">
+              {/* Warnings */}
+              <PaymentWarnings bills={activePayBills} />
+
+              {/* Total + CTA */}
+              <div className="border-t pt-4 mt-4">
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="text-sm font-medium">
+                    Total ({activePayBills.length} {activePayBills.length === 1 ? 'bill' : 'bills'})
+                  </span>
+                  <span className="text-xl font-bold" style={{ color: '#171717' }}>
+                    ₹{activePayTotal.toLocaleString()}
+                  </span>
+                </div>
                 <Button
                   className="w-full rounded-full gap-2"
                   style={{ backgroundColor: '#0052FF' }}
-                  onClick={() => {
-                    setPayBill(null);
-                    showToast('Payment processing...');
-                  }}
+                  disabled={activePayBills.length === 0 || paymentState === 'processing'}
+                  onClick={handlePayment}
                 >
-                  <CreditCard className="h-4 w-4" />
-                  Pay ₹{payBill.due_amount.toLocaleString()}
+                  {paymentState === 'processing' ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="h-4 w-4" />
+                      Pay ₹{activePayTotal.toLocaleString()}
+                    </>
+                  )}
                 </Button>
               </div>
-            </div>
+            </>
           )}
         </SheetContent>
       </Sheet>
@@ -779,5 +904,36 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
         onHide={() => setToastMessage('')}
       />
     </AppLayout>
+  );
+}
+
+/* ─── Payment Warnings ─── */
+
+function PaymentWarnings({ bills }: { bills: Bill[] }) {
+  const disputedCount = bills.filter((b) => b.billing_status === 'disputed').length;
+  const uniquePatients = new Set(bills.map((b) => b.patient_id).filter(Boolean));
+  const hasMultiplePatients = uniquePatients.size > 1;
+
+  if (!disputedCount && !hasMultiplePatients) return null;
+
+  return (
+    <div className="space-y-2 mt-3">
+      {disputedCount > 0 && (
+        <div className="flex items-start gap-2 rounded-lg px-3 py-2.5" style={{ backgroundColor: '#FFFBEB' }}>
+          <AlertCircle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-amber-700">
+            {disputedCount} {disputedCount === 1 ? 'bill is' : 'bills are'} under dispute. Payment may be held for review.
+          </p>
+        </div>
+      )}
+      {hasMultiplePatients && (
+        <div className="flex items-start gap-2 rounded-lg px-3 py-2.5" style={{ backgroundColor: '#EFF6FF' }}>
+          <AlertCircle className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-blue-700">
+            Bills for multiple family members selected.
+          </p>
+        </div>
+      )}
+    </div>
   );
 }

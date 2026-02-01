@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Appointment;
+use App\Models\BillingNotification;
 use App\Models\Department;
 use App\Models\Doctor;
 use App\Models\DoctorAlias;
@@ -42,6 +43,7 @@ class HospitalSeeder extends Seeder
             $this->seedUserAddresses($user);
             $this->seedAppointments($user);
             $this->seedInsuranceClaims($user);
+            $this->seedBillingNotifications($user);
         }
 
         // Generate time slots for next 14 days
@@ -846,6 +848,202 @@ class HospitalSeeder extends Seeder
 
         foreach ($claims as $claim) {
             InsuranceClaim::create(array_merge($claim, ['user_id' => $user->id]));
+        }
+    }
+
+    private function seedBillingNotifications(User $user): void
+    {
+        $appointments = Appointment::where('user_id', $user->id)
+            ->with('doctor')
+            ->orderBy('appointment_date')
+            ->get();
+
+        $notifications = [];
+
+        // Appointment 1: doctor, paid, 16 days ago — Dr. Sarah Johnson, ₹800
+        if ($appt = $appointments->get(0)) {
+            $notifications[] = [
+                'appointment_id' => $appt->id,
+                'type' => 'bill_generated',
+                'title' => 'New Bill Generated',
+                'message' => 'Your bill for consultation with Dr. Sarah Johnson has been generated. Amount: ₹800.',
+                'channels' => ['push', 'email'],
+                'data' => ['amount' => 800, 'invoice_number' => 'INV-000001', 'doctor_name' => 'Dr. Sarah Johnson'],
+                'read_at' => now()->subDays(15),
+                'created_at' => now()->subDays(16),
+            ];
+            $notifications[] = [
+                'appointment_id' => $appt->id,
+                'type' => 'payment_successful',
+                'title' => 'Payment Successful',
+                'message' => 'Your payment of ₹800 for INV-000001 has been processed successfully.',
+                'channels' => ['push', 'email', 'sms'],
+                'data' => ['amount' => 800, 'invoice_number' => 'INV-000001', 'payment_method' => 'UPI'],
+                'read_at' => now()->subDays(15),
+                'created_at' => now()->subDays(16),
+            ];
+        }
+
+        // Appointment 2: doctor, paid, 30 days ago — Dr. Emily Chen, ₹1,500
+        if ($appt = $appointments->get(1)) {
+            $notifications[] = [
+                'appointment_id' => $appt->id,
+                'type' => 'bill_generated',
+                'title' => 'New Bill Generated',
+                'message' => 'Your bill for consultation with Dr. Emily Chen has been generated. Amount: ₹1,500.',
+                'channels' => ['push', 'email'],
+                'data' => ['amount' => 1500, 'invoice_number' => 'INV-000002', 'doctor_name' => 'Dr. Emily Chen'],
+                'read_at' => now()->subDays(29),
+                'created_at' => now()->subDays(30),
+            ];
+            $notifications[] = [
+                'appointment_id' => $appt->id,
+                'type' => 'insurance_claim_approved',
+                'title' => 'Insurance Claim Approved',
+                'message' => 'Your insurance claim for INV-000002 has been approved. Coverage: ₹1,200. Your co-pay: ₹300.',
+                'channels' => ['push', 'email'],
+                'data' => ['amount' => 1500, 'coverage' => 1200, 'copay' => 300, 'invoice_number' => 'INV-000002'],
+                'read_at' => now()->subDays(27),
+                'created_at' => now()->subDays(28),
+            ];
+        }
+
+        // Appointment 3: doctor, paid, 45 days ago — Dr. Anita Deshmukh, ₹1,000
+        if ($appt = $appointments->get(2)) {
+            $notifications[] = [
+                'appointment_id' => $appt->id,
+                'type' => 'bill_generated',
+                'title' => 'New Bill Generated',
+                'message' => 'Your bill for consultation with Dr. Anita Deshmukh has been generated. Amount: ₹1,000.',
+                'channels' => ['push', 'email'],
+                'data' => ['amount' => 1000, 'invoice_number' => 'INV-000003', 'doctor_name' => 'Dr. Anita Deshmukh'],
+                'read_at' => now()->subDays(44),
+                'created_at' => now()->subDays(45),
+            ];
+            $notifications[] = [
+                'appointment_id' => $appt->id,
+                'type' => 'payment_successful',
+                'title' => 'Payment Successful',
+                'message' => 'Your payment of ₹1,000 for INV-000003 has been processed successfully.',
+                'channels' => ['push', 'email', 'sms'],
+                'data' => ['amount' => 1000, 'invoice_number' => 'INV-000003', 'payment_method' => 'Credit Card'],
+                'read_at' => now()->subDays(44),
+                'created_at' => now()->subDays(45),
+            ];
+        }
+
+        // Appointment 4: lab, paid, 60 days ago — ₹4,999
+        if ($appt = $appointments->get(3)) {
+            $notifications[] = [
+                'appointment_id' => $appt->id,
+                'type' => 'bill_generated',
+                'title' => 'New Bill Generated',
+                'message' => 'Your bill for Complete Health Checkup has been generated. Amount: ₹4,999.',
+                'channels' => ['push', 'email'],
+                'data' => ['amount' => 4999, 'invoice_number' => 'INV-000004', 'test_name' => 'Complete Health Checkup'],
+                'read_at' => now()->subDays(59),
+                'created_at' => now()->subDays(60),
+            ];
+        }
+
+        // Appointment 5: upcoming doctor, 3 days from now — Dr. Sarah Johnson, ₹800
+        if ($appt = $appointments->get(4)) {
+            $notifications[] = [
+                'appointment_id' => $appt->id,
+                'type' => 'bill_generated',
+                'title' => 'New Bill Generated',
+                'message' => 'Your bill for follow-up consultation with Dr. Sarah Johnson has been generated. Amount: ₹800.',
+                'channels' => ['push', 'email'],
+                'data' => ['amount' => 800, 'invoice_number' => 'INV-000005', 'doctor_name' => 'Dr. Sarah Johnson'],
+                'read_at' => null,
+                'created_at' => now()->subHours(6),
+            ];
+            $notifications[] = [
+                'appointment_id' => $appt->id,
+                'type' => 'payment_due_reminder',
+                'title' => 'Payment Due in 3 Days',
+                'message' => 'Your bill INV-000005 of ₹800 is due on ' . now()->addDays(3)->format('M d') . '. Pay now to avoid late fees.',
+                'channels' => ['push', 'email'],
+                'data' => ['amount' => 800, 'invoice_number' => 'INV-000005', 'due_date' => now()->addDays(3)->format('Y-m-d')],
+                'read_at' => null,
+                'created_at' => now()->subHours(2),
+            ];
+        }
+
+        // Appointment 6: upcoming lab, 5 days from now — ₹4,999
+        if ($appt = $appointments->get(5)) {
+            $notifications[] = [
+                'appointment_id' => $appt->id,
+                'type' => 'bill_generated',
+                'title' => 'New Bill Generated',
+                'message' => 'Your bill for Complete Health Checkup (home collection) has been generated. Amount: ₹4,999.',
+                'channels' => ['push', 'email'],
+                'data' => ['amount' => 4999, 'invoice_number' => 'INV-000006', 'test_name' => 'Complete Health Checkup'],
+                'read_at' => null,
+                'created_at' => now()->subDays(1),
+            ];
+            $notifications[] = [
+                'appointment_id' => $appt->id,
+                'type' => 'emi_due_reminder',
+                'title' => 'EMI Payment Due',
+                'message' => 'Your EMI installment 2/6 of ₹833 is due on ' . now()->addDays(5)->format('M d') . '. Pay to avoid penalties.',
+                'channels' => ['push', 'email'],
+                'data' => ['amount' => 833, 'installment' => 2, 'total_installments' => 6, 'invoice_number' => 'INV-000006'],
+                'read_at' => null,
+                'created_at' => now()->subHours(4),
+            ];
+        }
+
+        // Appointment 7: cancelled, refunded
+        if ($appt = $appointments->get(6)) {
+            $notifications[] = [
+                'appointment_id' => $appt->id,
+                'type' => 'bill_generated',
+                'title' => 'New Bill Generated',
+                'message' => 'Your bill for consultation with Dr. Emily Chen has been generated. Amount: ₹1,500.',
+                'channels' => ['push', 'email'],
+                'data' => ['amount' => 1500, 'invoice_number' => 'INV-000007', 'doctor_name' => 'Dr. Emily Chen'],
+                'read_at' => now()->subDays(1),
+                'created_at' => now()->subDays(2),
+            ];
+            $notifications[] = [
+                'appointment_id' => $appt->id,
+                'type' => 'payment_failed',
+                'title' => 'Payment Failed',
+                'message' => 'Your payment of ₹1,500 for INV-000007 could not be processed. Please try again or use a different payment method.',
+                'channels' => ['push', 'email'],
+                'data' => ['amount' => 1500, 'invoice_number' => 'INV-000007', 'reason' => 'Insufficient funds'],
+                'read_at' => null,
+                'created_at' => now()->subDays(2),
+            ];
+            $notifications[] = [
+                'appointment_id' => $appt->id,
+                'type' => 'dispute_update',
+                'title' => 'Dispute Under Review',
+                'message' => 'Your dispute for INV-000007 is under review. Expected resolution: 5-7 business days.',
+                'channels' => ['push', 'email'],
+                'data' => ['invoice_number' => 'INV-000007', 'dispute_reason' => 'Incorrect charges'],
+                'read_at' => null,
+                'created_at' => now()->subDays(1),
+            ];
+        }
+
+        // General: insurance claim rejected (not tied to specific appointment)
+        $notifications[] = [
+            'appointment_id' => null,
+            'type' => 'insurance_claim_rejected',
+            'title' => 'Insurance Claim Rejected',
+            'message' => 'Your insurance claim of ₹5,000 was rejected. Reason: Pre-existing condition exclusion. Contact your insurer for details.',
+            'channels' => ['push', 'email'],
+            'data' => ['claim_amount' => 5000, 'reason' => 'Pre-existing condition exclusion', 'provider' => 'Star Health Insurance'],
+            'read_at' => null,
+            'created_at' => now()->subDays(3),
+        ];
+
+        foreach ($notifications as $notification) {
+            BillingNotification::create(array_merge($notification, [
+                'user_id' => $user->id,
+            ]));
         }
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Appointment;
 use App\Models\FamilyMember;
+use App\Models\InsuranceClaim;
 use App\Models\LabTestType;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -217,6 +218,11 @@ class BillingController extends Controller
             'emi_total' => $amountDetails['emi_total'],
             'payment_method' => 'UPI (PhonePe)',
             'payment_date' => $appt->created_at->format('d M Y, g:i A'),
+            'is_overdue' => in_array($billingStatus, ['due', 'copay_due'])
+                && $appt->appointment_date->copy()->addDays(30)->isPast(),
+            'days_overdue' => in_array($billingStatus, ['due', 'copay_due'])
+                ? max(0, (int) $appt->appointment_date->copy()->addDays(7)->diffInDays(now(), false))
+                : 0,
         ];
     }
 
@@ -225,31 +231,122 @@ class BillingController extends Controller
         $isDoctor = $appt->appointment_type === 'doctor';
         $consultationFee = $appt->fee ?? 800;
         $platformFee = 49;
-        $gst = 0;
+        $subtotal = $consultationFee + $platformFee;
         $discount = 0;
-        $total = $consultationFee + $platformFee + $gst - $discount;
+        $tax = 0;
 
         $title = 'Appointment';
         $subtitle = '';
+        $serviceType = 'Consultation';
         if ($isDoctor) {
             $title = $appt->doctor?->name ?? 'Doctor Appointment';
             $subtitle = $appt->doctor?->specialization ?? '';
+            $serviceType = 'Consultation';
         } elseif ($appt->labPackage) {
             $title = $appt->labPackage->name;
             $subtitle = 'Health Package';
+            $serviceType = 'Health Package';
         } elseif ($appt->lab_test_ids) {
             $testNames = LabTestType::whereIn('id', $appt->lab_test_ids)->pluck('name')->toArray();
             $title = implode(', ', $testNames);
             $subtitle = count($testNames) . ' test(s)';
+            $serviceType = 'Lab Test';
         } else {
             $title = 'Lab Test';
+            $serviceType = 'Lab Test';
         }
+
+        $billingStatus = $this->getBillingStatus($appt, $appt->id);
+        $amountDetails = $this->computeAmountDetails($billingStatus, $subtotal, $appt->id);
+        $insuranceDeduction = $amountDetails['insurance_covered'];
+        $total = $subtotal + $tax - $discount - $insuranceDeduction;
+        if ($total < 0) $total = 0;
+
+        // Line items with qty/unit_price
+        $lineItems = [
+            ['label' => $isDoctor ? 'Consultation Fee' : 'Test / Package Fee', 'qty' => 1, 'unit_price' => $consultationFee, 'total' => $consultationFee],
+            ['label' => 'Platform Fee', 'qty' => 1, 'unit_price' => $platformFee, 'total' => $platformFee],
+        ];
+
+        // Due date: 7 days after appointment for due/copay_due
+        $dueDate = null;
+        if (in_array($billingStatus, ['due', 'copay_due'])) {
+            $dueDate = $appt->appointment_date->copy()->addDays(7)->format('D, d M Y');
+        }
+
+        // Payment info (for paid statuses)
+        $paymentInfo = null;
+        if (in_array($billingStatus, ['paid', 'covered', 'reimbursed'])) {
+            $paymentInfo = [
+                'method' => 'UPI (PhonePe)',
+                'transaction_id' => 'TXN' . str_pad($appt->id * 7919, 12, '0', STR_PAD_LEFT),
+                'paid_at' => $appt->created_at->format('d M Y, g:i A'),
+                'receipt_number' => 'RCP-' . str_pad($appt->id, 6, '0', STR_PAD_LEFT),
+            ];
+        }
+
+        // Insurance details (for insurance-related statuses)
+        $insuranceDetails = null;
+        if (in_array($billingStatus, ['claim_pending', 'awaiting_approval', 'covered', 'copay_due', 'reimbursed'])) {
+            $claim = InsuranceClaim::where('user_id', $appt->user_id)
+                ->with('insuranceProvider')
+                ->first();
+
+            $insuranceDetails = [
+                'provider_name' => $claim?->insuranceProvider?->name ?? 'Star Health Insurance',
+                'policy_number' => $claim?->policy_number ?? 'SH-2025-789456',
+                'claim_id' => 'CLM-' . str_pad($appt->id * 31, 8, '0', STR_PAD_LEFT),
+                'claim_status' => match ($billingStatus) {
+                    'awaiting_approval' => 'Under Review',
+                    'claim_pending' => 'Submitted',
+                    'covered' => 'Approved',
+                    'copay_due' => 'Partially Approved',
+                    'reimbursed' => 'Reimbursed',
+                    default => 'Pending',
+                },
+                'covered_amount' => $amountDetails['insurance_covered'],
+                'copay_amount' => $amountDetails['due_amount'],
+                'pre_auth_status' => in_array($billingStatus, ['covered', 'reimbursed']) ? 'Approved' : 'Pending',
+            ];
+        }
+
+        // EMI details
+        $emiDetails = null;
+        if ($billingStatus === 'emi') {
+            $planMonths = 6;
+            $monthlyAmount = round($subtotal / $planMonths);
+            $paidInstallments = $amountDetails['emi_current'] ?? 1;
+            $emiDetails = [
+                'total_amount' => $subtotal,
+                'plan_months' => $planMonths,
+                'monthly_amount' => $monthlyAmount,
+                'paid_installments' => $paidInstallments,
+                'total_installments' => $planMonths,
+                'next_due_date' => Carbon::today()->addDays(15)->format('D, d M Y'),
+                'remaining_balance' => $monthlyAmount * ($planMonths - $paidInstallments),
+            ];
+        }
+
+        // Dispute details
+        $disputeDetails = null;
+        if ($billingStatus === 'disputed') {
+            $disputeDetails = [
+                'dispute_id' => 'DSP-' . str_pad($appt->id * 47, 8, '0', STR_PAD_LEFT),
+                'raised_on' => $appt->created_at->copy()->addDays(3)->format('d M Y'),
+                'reason' => 'Incorrect charges applied',
+                'status' => 'Under Review',
+                'resolution_notes' => null,
+            ];
+        }
+
+        // Activity log
+        $activity = $this->buildActivityLog($appt, $billingStatus);
 
         return [
             'id' => $appt->id,
             'invoice_number' => 'INV-' . str_pad($appt->id, 6, '0', STR_PAD_LEFT),
             'appointment_id' => $appt->id,
-            'appointment_type' => $appt->appointment_type,
+            'appointment_type' => $isDoctor ? 'doctor' : 'lab_test',
             'appointment_title' => $title,
             'appointment_subtitle' => $subtitle,
             'appointment_date' => $appt->appointment_date->format('D, d M Y'),
@@ -260,17 +357,90 @@ class BillingController extends Controller
             'appointment_status' => $appt->status,
             'department' => $appt->department?->name,
             'patient_name' => $appt->familyMember?->name ?? 'You',
-            'line_items' => [
-                ['label' => $isDoctor ? 'Consultation Fee' : 'Test / Package Fee', 'amount' => $consultationFee],
-                ['label' => 'Platform Fee', 'amount' => $platformFee],
-                ['label' => 'GST (0%)', 'amount' => $gst],
-                ['label' => 'Discount', 'amount' => -$discount],
-            ],
-            'total' => $total,
-            'payment_status' => $appt->payment_status ?? 'paid',
+
+            // Billing status
+            'billing_status' => $billingStatus,
+            'due_amount' => $amountDetails['due_amount'],
+            'original_amount' => $amountDetails['original_amount'],
+            'insurance_covered' => $amountDetails['insurance_covered'],
+            'emi_current' => $amountDetails['emi_current'],
+            'emi_total' => $amountDetails['emi_total'],
+
+            // Overview
+            'generated_date' => $appt->created_at->format('d M Y'),
+            'due_date' => $dueDate,
+            'reference_number' => ($isDoctor ? 'OPD-' : 'LAB-') . str_pad($appt->id, 6, '0', STR_PAD_LEFT),
+
+            // Service details
+            'service_type' => $serviceType,
+            'doctor_name' => $isDoctor ? ($appt->doctor?->name ?? null) : null,
+            'doctor_specialization' => $isDoctor ? ($appt->doctor?->specialization ?? null) : null,
+            'service_date' => $appt->appointment_date->format('D, d M Y'),
+
+            // Charges
+            'line_items' => $lineItems,
+            'subtotal' => $subtotal,
+            'discount' => $discount,
+            'tax' => $tax,
+            'insurance_deduction' => $insuranceDeduction,
+            'total' => $amountDetails['due_amount'] > 0 ? $amountDetails['due_amount'] : $subtotal,
+
+            // Sections
+            'payment_info' => $paymentInfo,
+            'insurance_details' => $insuranceDetails,
+            'emi_details' => $emiDetails,
+            'dispute_details' => $disputeDetails,
+            'activity_log' => $activity,
+
+            // Overdue
+            'is_overdue' => in_array($billingStatus, ['due', 'copay_due'])
+                && $appt->appointment_date->copy()->addDays(30)->isPast(),
+            'days_overdue' => in_array($billingStatus, ['due', 'copay_due'])
+                ? max(0, (int) $appt->appointment_date->copy()->addDays(7)->diffInDays(now(), false))
+                : 0,
+
+            // Legacy (keep for download)
             'payment_method' => 'UPI (PhonePe)',
             'payment_date' => $appt->created_at->format('d M Y, g:i A'),
             'invoice_date' => $appt->created_at->format('d M Y'),
         ];
+    }
+
+    private function buildActivityLog(Appointment $appt, string $billingStatus): array
+    {
+        $log = [];
+        $created = $appt->created_at;
+
+        $log[] = ['event' => 'Bill generated', 'date' => $created->format('d M Y, g:i A'), 'icon' => 'file'];
+
+        if (in_array($billingStatus, ['claim_pending', 'awaiting_approval', 'covered', 'copay_due', 'reimbursed'])) {
+            $log[] = ['event' => 'Insurance claim submitted', 'date' => $created->copy()->addHours(1)->format('d M Y, g:i A'), 'icon' => 'shield'];
+        }
+
+        if (in_array($billingStatus, ['awaiting_approval'])) {
+            $log[] = ['event' => 'Claim under review', 'date' => $created->copy()->addDays(1)->format('d M Y, g:i A'), 'icon' => 'clock'];
+        }
+
+        if (in_array($billingStatus, ['covered', 'reimbursed'])) {
+            $log[] = ['event' => 'Insurance claim approved', 'date' => $created->copy()->addDays(2)->format('d M Y, g:i A'), 'icon' => 'check'];
+        }
+
+        if (in_array($billingStatus, ['paid', 'covered', 'reimbursed', 'emi'])) {
+            $log[] = ['event' => 'Payment successful', 'date' => $created->copy()->addMinutes(5)->format('d M Y, g:i A'), 'icon' => 'check'];
+            $log[] = ['event' => 'Invoice sent to email', 'date' => $created->copy()->addMinutes(10)->format('d M Y, g:i A'), 'icon' => 'mail'];
+        }
+
+        if ($billingStatus === 'disputed') {
+            $log[] = ['event' => 'Payment successful', 'date' => $created->copy()->addMinutes(5)->format('d M Y, g:i A'), 'icon' => 'check'];
+            $log[] = ['event' => 'Dispute raised', 'date' => $created->copy()->addDays(3)->format('d M Y, g:i A'), 'icon' => 'alert'];
+        }
+
+        if ($billingStatus === 'refunded') {
+            $log[] = ['event' => 'Payment successful', 'date' => $created->copy()->addMinutes(5)->format('d M Y, g:i A'), 'icon' => 'check'];
+            $log[] = ['event' => 'Refund initiated', 'date' => $created->copy()->addDays(1)->format('d M Y, g:i A'), 'icon' => 'rotate'];
+            $log[] = ['event' => 'Refund completed', 'date' => $created->copy()->addDays(3)->format('d M Y, g:i A'), 'icon' => 'check'];
+        }
+
+        return $log;
     }
 }

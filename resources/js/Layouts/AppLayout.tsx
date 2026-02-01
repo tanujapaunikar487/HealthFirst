@@ -1,22 +1,40 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, usePage, router } from '@inertiajs/react';
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
-import { Input } from '@/Components/ui/input';
+import { Badge } from '@/Components/ui/badge';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/Components/ui/dropdown-menu';
-import { Bell, Search, Sparkles } from 'lucide-react';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/Components/ui/sheet';
+import { Tabs, TabsList, TabsTrigger } from '@/Components/ui/tabs';
+import {
+  Bell, Search, CheckCheck,
+  Receipt, Clock, CheckCircle2, XCircle,
+  ShieldCheck, ShieldAlert, MessageSquare, CreditCard,
+} from 'lucide-react';
+
+// --- Types ---
 
 interface User {
   id: number;
   name: string;
   email: string;
   avatar_url?: string;
+}
+
+interface NotificationItem {
+  id: number;
+  type: string;
+  title: string;
+  message: string;
+  channels: string[];
+  read_at: string | null;
+  created_at: string;
+  appointment_id: number | null;
 }
 
 interface AppLayoutProps {
@@ -26,16 +44,140 @@ interface AppLayoutProps {
   pageIcon?: string;
 }
 
-export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLayoutProps) {
-  const [searchValue, setSearchValue] = useState('');
+// --- Notification Helpers ---
 
-  // Get initials for avatar fallback
-  const initials = user.name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
+const notificationIconMap: Record<string, { icon: React.ComponentType<any>; color: string; bg: string }> = {
+  bill_generated:           { icon: Receipt,        color: '#3B82F6', bg: '#EFF6FF' },
+  payment_due_reminder:     { icon: Clock,          color: '#F59E0B', bg: '#FFFBEB' },
+  payment_successful:       { icon: CheckCircle2,   color: '#22C55E', bg: '#F0FDF4' },
+  payment_failed:           { icon: XCircle,        color: '#EF4444', bg: '#FEF2F2' },
+  insurance_claim_approved: { icon: ShieldCheck,    color: '#22C55E', bg: '#F0FDF4' },
+  insurance_claim_rejected: { icon: ShieldAlert,    color: '#EF4444', bg: '#FEF2F2' },
+  dispute_update:           { icon: MessageSquare,  color: '#F59E0B', bg: '#FFFBEB' },
+  emi_due_reminder:         { icon: CreditCard,     color: '#3B82F6', bg: '#EFF6FF' },
+};
+
+const channelLabels: Record<string, string> = {
+  push: 'Push',
+  email: 'Email',
+  sms: 'SMS',
+};
+
+function timeAgo(dateStr: string): string {
+  const now = new Date();
+  const date = new Date(dateStr);
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (seconds < 60) return 'Just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  if (days < 30) return `${Math.floor(days / 7)}w ago`;
+  return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+}
+
+function NotificationIcon({ type }: { type: string }) {
+  const config = notificationIconMap[type] || { icon: Bell, color: '#6B7280', bg: '#F3F4F6' };
+  const Icon = config.icon;
+  return (
+    <div
+      className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0"
+      style={{ backgroundColor: config.bg }}
+    >
+      <Icon className="h-[18px] w-[18px]" style={{ color: config.color }} />
+    </div>
+  );
+}
+
+function NotificationCard({
+  notification,
+  onClick,
+}: {
+  notification: NotificationItem;
+  onClick: () => void;
+}) {
+  const isUnread = !notification.read_at;
+
+  return (
+    <button
+      onClick={onClick}
+      className="w-full text-left rounded-xl p-3.5 transition-colors hover:bg-gray-50"
+      style={{
+        backgroundColor: isUnread ? '#F8FAFF' : '#FFFFFF',
+        border: `1px solid ${isUnread ? '#DBEAFE' : '#F0F0F0'}`,
+      }}
+    >
+      <div className="flex gap-3">
+        <NotificationIcon type={notification.type} />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-[13px] font-semibold truncate" style={{ color: '#00184D' }}>
+              {notification.title}
+            </p>
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                {timeAgo(notification.created_at)}
+              </span>
+              {isUnread && (
+                <span className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0" />
+              )}
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">
+            {notification.message}
+          </p>
+          <div className="flex items-center gap-1.5 mt-2">
+            {notification.channels.map((ch) => (
+              <Badge
+                key={ch}
+                variant="secondary"
+                className="text-[9px] px-1.5 py-0 h-[16px] font-medium rounded"
+                style={{ backgroundColor: '#F3F4F6', color: '#6B7280' }}
+              >
+                {channelLabels[ch] || ch}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      </div>
+    </button>
+  );
+}
+
+// --- Main Layout ---
+
+export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLayoutProps) {
+  const { props } = usePage<{
+    notificationUnreadCount: number;
+    allNotifications: NotificationItem[];
+  }>();
+
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifFilter, setNotifFilter] = useState<'all' | 'unread'>('all');
+
+  const unreadCount = props.notificationUnreadCount || 0;
+  const allNotifications = props.allNotifications || [];
+
+  const displayedNotifications = notifFilter === 'unread'
+    ? allNotifications.filter((n) => !n.read_at)
+    : allNotifications;
+
+  const handleNotificationClick = (notification: NotificationItem) => {
+    if (!notification.read_at) {
+      router.post(`/notifications/${notification.id}/read`, {}, { preserveScroll: true });
+    }
+    setNotifOpen(false);
+    if (notification.appointment_id) {
+      router.visit(`/billing/${notification.appointment_id}`);
+    }
+  };
+
+  const handleMarkAllAsRead = () => {
+    router.post('/notifications/mark-all-read', {}, { preserveScroll: true });
+  };
 
   return (
     <div className="flex h-screen bg-background">
@@ -65,14 +207,18 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
                 <Search className="h-5 w-5" style={{ color: '#171717', strokeWidth: 2 }} />
               </Button>
 
-              {/* Notifications */}
+              {/* Notifications Bell → Opens Sheet */}
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-12 w-12 rounded-full hover:bg-gray-100"
+                className="h-12 w-12 rounded-full hover:bg-gray-100 relative"
                 style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5' }}
+                onClick={() => setNotifOpen(true)}
               >
                 <Bell className="h-5 w-5" style={{ color: '#171717', strokeWidth: 2 }} />
+                {unreadCount > 0 && (
+                  <span className="absolute top-2.5 right-2.5 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" />
+                )}
               </Button>
             </div>
           </div>
@@ -89,6 +235,83 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
           {children}
         </main>
       </div>
+
+      {/* Notifications Side Sheet */}
+      <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col">
+          <SheetHeader className="px-5 pt-5 pb-4" style={{ borderBottom: '1px solid #E5E5E5' }}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <SheetTitle className="text-lg font-bold" style={{ color: '#00184D' }}>
+                  Notifications
+                </SheetTitle>
+                {unreadCount > 0 && (
+                  <span className="text-[11px] font-semibold text-white bg-red-500 rounded-full px-2 py-0.5 leading-none">
+                    {unreadCount}
+                  </span>
+                )}
+              </div>
+              {unreadCount > 0 && (
+                <button
+                  onClick={handleMarkAllAsRead}
+                  className="flex items-center gap-1 text-xs font-medium hover:underline"
+                  style={{ color: '#0052FF' }}
+                >
+                  <CheckCheck className="h-3.5 w-3.5" />
+                  Mark all read
+                </button>
+              )}
+            </div>
+            <SheetDescription className="sr-only">Billing notifications</SheetDescription>
+
+            {/* Filter Tabs */}
+            <Tabs
+              value={notifFilter}
+              onValueChange={(v) => setNotifFilter(v as 'all' | 'unread')}
+              className="mt-3"
+            >
+              <TabsList className="w-full">
+                <TabsTrigger value="all" className="flex-1">All</TabsTrigger>
+                <TabsTrigger value="unread" className="flex-1">
+                  Unread{unreadCount > 0 ? ` (${unreadCount})` : ''}
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </SheetHeader>
+
+          {/* Scrollable Notification List */}
+          <div className="flex-1 overflow-y-auto px-4 py-4">
+            {displayedNotifications.length === 0 ? (
+              <div className="text-center py-16">
+                <div
+                  className="h-14 w-14 rounded-full flex items-center justify-center mx-auto mb-3"
+                  style={{ backgroundColor: '#F3F4F6' }}
+                >
+                  <Bell className="h-6 w-6 text-gray-400" />
+                </div>
+                <p className="text-sm font-medium" style={{ color: '#00184D' }}>
+                  {notifFilter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {notifFilter === 'unread'
+                    ? "You're all caught up!"
+                    : 'Billing notifications will appear here.'}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                {displayedNotifications.map((n) => (
+                  <NotificationCard
+                    key={n.id}
+                    notification={n}
+                    onClick={() => handleNotificationClick(n)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
@@ -156,27 +379,16 @@ interface NavLinkProps {
 }
 
 function NavLink({ href, iconName, label, active = false }: NavLinkProps) {
-  // Exact Figma specs:
-  // - Padding: 12px 16px (py-3 px-4)
-  // - Gap: 12px (gap-3)
-  // - Font: 14px / 600 (font-semibold)
-  // - Height: 50px
   const baseClasses =
     'flex items-center gap-3 px-4 py-3 font-semibold transition-all h-[50px]';
 
-  // Active: pill shape (rounded-full), Rest: rounded-lg (8px)
   const shapeClasses = active ? 'rounded-full' : 'rounded-lg';
-
-  // Rest state: dark text with hover effect
   const restClasses = !active ? 'text-[#0A0B0D] hover:bg-muted' : '';
 
-  // Use filled icon when active, outline when not
   const iconSrc = active
     ? `/assets/icons/${iconName}-selected.svg`
     : `/assets/icons/${iconName}.svg`;
 
-  // Active: #F5F8FF background, #0052FF text
-  // Rest: transparent background, #0A0B0D text (handled by class)
   const activeStyle = active
     ? { backgroundColor: '#F5F8FF', color: '#0052FF' }
     : {};
