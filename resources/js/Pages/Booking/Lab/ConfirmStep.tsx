@@ -6,14 +6,15 @@ import { Card } from '@/Components/ui/card';
 import { format, parseISO } from 'date-fns';
 
 const labSteps = [
-  { id: 'patient_test', label: 'Patient & Test' },
-  { id: 'packages_schedule', label: 'Packages & Schedule' },
+  { id: 'patient', label: 'Patient' },
+  { id: 'test_search', label: 'Find Tests' },
+  { id: 'schedule', label: 'Schedule' },
   { id: 'confirm', label: 'Confirm' },
 ];
 
 interface Props {
   summary: {
-    package: { id: string; name: string };
+    package: { id: string | null; name: string; isTests?: boolean };
     patient: { id: string; name: string; avatar: string | null };
     datetime: string;
     collection: string;
@@ -27,7 +28,7 @@ export default function ConfirmStep({ summary }: Props) {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleBack = () => {
-    router.get('/booking/lab/packages-schedule');
+    router.get('/booking/lab/schedule');
   };
 
   const handlePay = () => {
@@ -68,9 +69,9 @@ export default function ConfirmStep({ summary }: Props) {
         {/* Summary Table */}
         <Card className="overflow-hidden divide-y bg-white">
           <SummaryRow
-            label="Package"
+            label={summary.package.isTests ? 'Tests' : 'Package'}
             value={<span className="font-medium">{summary.package.name}</span>}
-            onChangeClick={() => handleChange('packages-schedule')}
+            onChangeClick={() => handleChange('test-search')}
           />
 
           <SummaryRow
@@ -86,25 +87,25 @@ export default function ConfirmStep({ summary }: Props) {
                 <span className="font-medium">{summary.patient.name}</span>
               </div>
             }
-            onChangeClick={() => handleChange('patient-test')}
+            onChangeClick={() => handleChange('patient')}
           />
 
           <SummaryRow
             label="Date & Time"
             value={<span className="font-medium">{formatDateTime(summary.datetime)}</span>}
-            onChangeClick={() => handleChange('packages-schedule')}
+            onChangeClick={() => handleChange('schedule')}
           />
 
           <SummaryRow
             label="Collection"
             value={<span className="font-medium">{summary.collection}</span>}
-            onChangeClick={() => handleChange('packages-schedule')}
+            onChangeClick={() => handleChange('schedule')}
           />
 
           <SummaryRow
             label="Address"
             value={<span className="font-medium">{summary.address}</span>}
-            onChangeClick={() => handleChange('packages-schedule')}
+            onChangeClick={() => handleChange('schedule')}
           />
 
           {/* Fee - no Change button */}

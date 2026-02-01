@@ -174,6 +174,7 @@ class LabService
 
         // Common search aliases mapped to package slugs
         $aliases = [
+            // Package name aliases
             'diabetes' => ['diabetes-screening'],
             'sugar' => ['diabetes-screening'],
             'hba1c' => ['diabetes-screening'],
@@ -193,6 +194,18 @@ class LabService
             'blood' => ['basic-health-panel', 'complete-health-checkup'],
             'checkup' => ['complete-health-checkup', 'basic-health-panel'],
             'health' => ['complete-health-checkup', 'basic-health-panel'],
+            // Symptom-to-package aliases
+            'fatigue' => ['complete-health-checkup', 'basic-health-panel'],
+            'tired' => ['complete-health-checkup', 'basic-health-panel'],
+            'weakness' => ['complete-health-checkup', 'basic-health-panel'],
+            'nausea' => ['basic-health-panel'],
+            'vomiting' => ['basic-health-panel'],
+            'weight gain' => ['diabetes-screening'],
+            'weight loss' => ['complete-health-checkup'],
+            'hair loss' => ['womens-health'],
+            'hair fall' => ['womens-health'],
+            'chest pain' => ['heart-health'],
+            'frequent urination' => ['diabetes-screening'],
         ];
 
         foreach ($packages as $pkg) {
@@ -253,6 +266,7 @@ class LabService
         $scored = [];
 
         $aliases = [
+            // Test name aliases
             'sugar' => ['blood-sugar-fasting', 'blood-sugar-pp'],
             'glucose' => ['blood-sugar-fasting', 'blood-sugar-pp'],
             'cbc' => ['complete-blood-count'],
@@ -277,6 +291,36 @@ class LabService
             'esr' => ['esr'],
             'uric acid' => ['uric-acid'],
             'electrolyte' => ['electrolytes'],
+            // Symptom-to-test aliases
+            'nausea' => ['liver-function-test', 'kidney-function-test', 'complete-blood-count'],
+            'nauseated' => ['liver-function-test', 'kidney-function-test', 'complete-blood-count'],
+            'vomiting' => ['liver-function-test', 'kidney-function-test', 'complete-blood-count'],
+            'headache' => ['complete-blood-count', 'thyroid-profile'],
+            'fatigue' => ['complete-blood-count', 'thyroid-profile', 'vitamin-d', 'vitamin-b12', 'iron-studies'],
+            'tired' => ['complete-blood-count', 'thyroid-profile', 'vitamin-d', 'vitamin-b12', 'iron-studies'],
+            'weakness' => ['complete-blood-count', 'thyroid-profile', 'vitamin-d', 'vitamin-b12', 'iron-studies'],
+            'fever' => ['complete-blood-count', 'crp', 'urine-routine'],
+            'joint pain' => ['uric-acid', 'crp'],
+            'chest pain' => ['ecg', 'lipid-profile'],
+            'weight gain' => ['thyroid-profile', 'hba1c'],
+            'weight loss' => ['thyroid-profile', 'hba1c', 'complete-blood-count'],
+            'hair loss' => ['thyroid-profile', 'iron-studies', 'vitamin-d'],
+            'hair fall' => ['thyroid-profile', 'iron-studies', 'vitamin-d'],
+            'frequent urination' => ['blood-sugar-fasting', 'blood-sugar-pp', 'hba1c', 'urine-routine', 'kidney-function-test'],
+            'acne' => ['vitamin-d', 'liver-function-test'],
+            'skin' => ['vitamin-d', 'liver-function-test'],
+            'pale' => ['complete-blood-count', 'iron-studies'],
+            'anemia' => ['complete-blood-count', 'iron-studies'],
+            'swelling' => ['kidney-function-test', 'liver-function-test'],
+            'numbness' => ['vitamin-b12'],
+            'tingling' => ['vitamin-b12'],
+            'bone pain' => ['vitamin-d'],
+            'body ache' => ['complete-blood-count', 'crp', 'vitamin-d'],
+            'dizziness' => ['complete-blood-count', 'blood-sugar-fasting', 'iron-studies'],
+            'dizzy' => ['complete-blood-count', 'blood-sugar-fasting', 'iron-studies'],
+            'thirst' => ['blood-sugar-fasting', 'hba1c', 'kidney-function-test'],
+            'itching' => ['liver-function-test', 'kidney-function-test', 'blood-sugar-fasting'],
+            'breathless' => ['complete-blood-count', 'ecg', 'iron-studies'],
         ];
 
         foreach ($tests as $test) {
@@ -354,6 +398,7 @@ class LabService
             'fasting_hours' => $pkg->fasting_hours,
             'is_popular' => (bool) $pkg->is_popular,
             'is_recommended' => (bool) $pkg->is_popular,
+            'test_ids' => $pkg->test_ids ?? [],
         ];
     }
 

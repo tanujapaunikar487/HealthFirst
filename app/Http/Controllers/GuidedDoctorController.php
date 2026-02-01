@@ -206,9 +206,9 @@ class GuidedDoctorController extends Controller
 
         $selectedDate = $request->get('date', now()->toDateString());
 
-        // Available dates (next 7 days) with doctor counts
+        // Available dates (next 14 days) with doctor counts
         $availableDates = [];
-        for ($i = 0; $i < 7; $i++) {
+        for ($i = 0; $i < 14; $i++) {
             $date = now()->addDays($i);
             $dayOfWeek = $date->dayOfWeek;
             $doctorCount = Doctor::where('is_active', true)
@@ -289,33 +289,9 @@ class GuidedDoctorController extends Controller
             $symptomsText = $savedData['symptomNotes'];
         }
 
-        // Urgency options with dynamic doctor count
-        $urgencyOptions = [
-            [
-                'value' => 'urgent',
-                'label' => 'Urgent - Today',
-                'description' => "Only today's slots",
-                'doctorCount' => Doctor::where('is_active', true)
-                    ->whereHas('availabilities', fn($q) => $q->where('day_of_week', Carbon::today()->dayOfWeek)->where('is_available', true))
-                    ->count(),
-            ],
-            [
-                'value' => 'this_week',
-                'label' => 'This Week',
-                'description' => 'Next 7 days',
-                'doctorCount' => Doctor::where('is_active', true)->count(),
-            ],
-            [
-                'value' => 'specific_date',
-                'label' => 'Specific date',
-                'description' => 'Choose your date',
-            ],
-        ];
-
         return Inertia::render('Booking/Doctor/DoctorTimeStep', [
             'availableDates' => $availableDates,
             'doctors' => $doctors,
-            'urgencyOptions' => $urgencyOptions,
             'patientName' => $patientName,
             'appointmentType' => $savedData['appointmentType'] ?? null,
             'followupReason' => $savedData['followupReason'] ?? null,
@@ -331,7 +307,6 @@ class GuidedDoctorController extends Controller
     public function storeDoctorTime(Request $request)
     {
         $validated = $request->validate([
-            'urgency' => 'required|in:urgent,this_week,specific_date',
             'selectedDate' => 'required|date|after_or_equal:today|before_or_equal:' . now()->addDays(14)->format('Y-m-d'),
             'selectedDoctorId' => 'required|string',
             'selectedTime' => 'required|string',

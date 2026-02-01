@@ -113,14 +113,23 @@ Route::prefix('booking')->name('booking.')->group(function () {
 
     // Guided Lab Booking Flow
     Route::prefix('lab')->name('lab.')->group(function () {
-        Route::get('/patient-test', [GuidedLabController::class, 'patientTest'])->name('patient-test');
-        Route::post('/patient-test', [GuidedLabController::class, 'storePatientTest']);
+        Route::get('/patient', [GuidedLabController::class, 'patient'])->name('patient');
+        Route::post('/patient', [GuidedLabController::class, 'storePatient']);
 
-        Route::get('/packages-schedule', [GuidedLabController::class, 'packagesSchedule'])->name('packages-schedule');
-        Route::post('/packages-schedule', [GuidedLabController::class, 'storePackagesSchedule']);
+        Route::get('/test-search', [GuidedLabController::class, 'testSearch'])->name('test-search');
+        Route::post('/test-search', [GuidedLabController::class, 'storeTestSearch']);
+        Route::post('/search-tests', [GuidedLabController::class, 'searchTests'])->name('search-tests');
+
+        Route::get('/schedule', [GuidedLabController::class, 'schedule'])->name('schedule');
+        Route::post('/schedule', [GuidedLabController::class, 'storeSchedule']);
+        Route::post('/add-address', [GuidedLabController::class, 'addAddress']);
 
         Route::get('/confirm', [GuidedLabController::class, 'confirm'])->name('confirm');
         Route::post('/confirm', [GuidedLabController::class, 'processPayment']);
+
+        // Legacy redirects (old 3-step URLs)
+        Route::get('/patient-test', fn() => redirect('/booking/lab/patient'));
+        Route::get('/packages-schedule', fn() => redirect('/booking/lab/schedule'));
     });
 });
 

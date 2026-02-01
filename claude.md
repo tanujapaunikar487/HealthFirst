@@ -786,5 +786,69 @@ Both booking flows now consistently enforce a 14-day maximum booking window.
 
 ---
 
+## Guided Lab Flow: Smart Search, Expandable Cards, Symptom Mapping (February 1, 2026)
+
+Enhanced the guided lab test search with symptom-aware search, expandable detail cards, and improved UX.
+
+### Smart Search with Symptom Mapping
+- **LabService.php**: Added 20+ symptom-to-test aliases (nausea→LFT/KFT/CBC, headache→CBC/thyroid, fatigue→CBC/thyroid/vitamins, fever→CBC/CRP/urine, etc.) and symptom-to-package aliases (fatigue→complete-health-checkup, chest pain→heart-health)
+- **GuidedLabController.php**: `searchTests()` detects symptom queries via keyword list, returns `isSymptomQuery` flag. Resolves package `test_ids` to actual test names via single DB query.
+- **TestSearchStep.tsx**: Shows blue info banner for symptom queries. Improved empty state with suggestion chips. Dynamic footer button label ("Continue with N tests — ₹X" or package name).
+
+### Expandable Detail Cards
+- **EmbeddedPackageList.tsx**: Inline expandable cards for both packages and tests.
+  - Package expanded view: savings highlight ("You save ₹X"), included tests grid (2-col), preparation notes
+  - Test expanded view: fasting preparation details (hours, water allowed)
+  - ChevronRight→ChevronDown toggle, one expanded at a time per category
+- **Package interface** extended with `preparation_notes`, `requires_fasting`, `fasting_hours`, `included_test_names`
+- **LabService.php**: Added `test_ids` to `packageToArray()` return
+
+### Guided Mode for EmbeddedPackageList
+- Added `mode` prop ('chat' | 'guided') and `onCheckedChange` callback
+- In guided mode: confirm button hidden (footer handles it), tests remain toggleable, checked tests float to top
+
+---
+
+## Remove Urgency, Reorder Lab Schedule, Full Collection Flow (February 1, 2026)
+
+Removed the "How soon do you want your test done?" urgency step from both guided doctor and lab flows, reordered the lab schedule sections, and implemented full address/center selection matching the AI chat flow.
+
+### Remove Urgency from Both Flows
+- **DoctorTimeStep.tsx**: Removed urgency state, UI section, and POST payload. Shows 14 date pills directly with doctor counts. `continueDisabled` no longer depends on urgency.
+- **GuidedDoctorController.php**: Removed `urgencyOptions` from `doctorTime()`, removed urgency validation from `storeDoctorTime()`, extended date generation from 7 to 14 days.
+- **ScheduleStep.tsx**: Removed urgency state and conditional visibility. Date and time shown directly on page load.
+- **GuidedLabController.php**: Removed `urgencyOptions` from `schedule()`, removed urgency validation from `storeSchedule()`, extended dates from 5 to 14.
+
+### Reorder Lab Schedule Sections
+New order: Banner → Date (14 pills) → Time → Collection Type → Address/Center Selection
+
+### Full Collection Flow with Address & Center Selection
+Replaced the simplified `LocationSelector` (which only stored 'home'/'center' type) with the same components used in the AI chat flow.
+
+**ScheduleStep.tsx** — Complete rewrite:
+- Collection type selector with Home/Center cards (icons, fee display, check indicator)
+- **Home Collection**: `EmbeddedAddressSelector` shows saved addresses, "Add new address" opens `EmbeddedAddressForm` inline, form POSTs to `/booking/lab/add-address`, auto-selects new address
+- **Hospital Visit**: `EmbeddedCenterList` shows lab centers with name, address, rating, distance
+- Continue disabled until address/center selected based on collection type
+- POST payload: `selectedLocation`, `selectedDate`, `selectedTime`, `selectedAddressId` (home), `selectedCenterId` (center)
+
+**GuidedLabController.php**:
+- `schedule()` passes `userAddresses` and `labCenters` as Inertia props
+- `storeSchedule()` validates `selectedAddressId` (exists:user_addresses) and `selectedCenterId` (exists:lab_centers) conditionally
+- `addAddress()` AJAX endpoint: creates `UserAddress` record, returns JSON
+- `confirm()` resolves actual address text or center name for display
+
+**routes/web.php**: Added `POST /booking/lab/add-address`
+
+**ConfirmStep.tsx**: Shows actual center name (e.g. "Visit Center — HealthFirst Diagnostics") and resolved address text
+
+### New Session Data Keys (guided_lab_booking)
+```
+selectedAddressId: int          // User address ID for home collection
+selectedCenterId: int           // Lab center ID for hospital visit
+```
+
+---
+
 **Last Updated**: February 1, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow

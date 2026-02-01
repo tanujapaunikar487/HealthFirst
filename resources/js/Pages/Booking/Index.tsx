@@ -47,7 +47,7 @@ export default function BookingIndex() {
     if (type === 'doctor') {
       router.get('/booking/doctor/patient');
     } else {
-      router.get('/booking/lab/patient-test');
+      router.get('/booking/lab/patient');
     }
   };
 
