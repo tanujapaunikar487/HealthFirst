@@ -46,6 +46,22 @@ class AppointmentsController extends Controller
         ]);
     }
 
+    public function show(Appointment $appointment)
+    {
+        $user = Auth::user() ?? \App\User::first();
+
+        if ($appointment->user_id !== $user->id) {
+            abort(403);
+        }
+
+        $appointment->load(['doctor', 'familyMember', 'labPackage', 'labCenter', 'userAddress', 'department']);
+
+        return Inertia::render('Appointments/Show', [
+            'user' => $user,
+            'appointment' => $this->formatDetailedAppointment($appointment),
+        ]);
+    }
+
     public function cancel(Request $request, Appointment $appointment)
     {
         $user = Auth::user() ?? \App\User::first();
@@ -104,11 +120,11 @@ class AppointmentsController extends Controller
             $slots = TimeSlot::where('doctor_id', $appointment->doctor_id)
                 ->whereDate('date', $date)
                 ->where('is_booked', false)
-                ->orderBy('time')
+                ->orderBy('start_time')
                 ->get()
                 ->map(fn($slot) => [
-                    'time' => $slot->time,
-                    'display' => Carbon::parse($slot->time)->format('g:i A'),
+                    'time' => Carbon::parse($slot->start_time)->format('H:i'),
+                    'display' => Carbon::parse($slot->start_time)->format('g:i A'),
                 ])
                 ->toArray();
         } else {
@@ -272,6 +288,178 @@ class AppointmentsController extends Controller
 
         return Inertia::render('Booking/Confirmation', [
             'booking' => $bookingData,
+        ]);
+    }
+
+    private function formatDetailedAppointment(Appointment $appt): array
+    {
+        $base = $this->formatAppointment($appt);
+        $isDoctor = $appt->appointment_type === 'doctor';
+        $createdAt = $appt->created_at;
+        $apptDate = $appt->appointment_date;
+
+        // Doctor details
+        $doctor = null;
+        if ($isDoctor && $appt->doctor) {
+            $d = $appt->doctor;
+            $doctor = [
+                'name' => $d->name,
+                'specialization' => $d->specialization ?? '',
+                'qualification' => $d->qualification ?? 'MBBS',
+                'experience_years' => $d->experience_years ?? 10,
+                'rating' => $d->rating ?? 4.5,
+                'bio' => $d->bio ?? '',
+                'avatar_url' => $d->avatar_url,
+            ];
+        }
+
+        // Patient details
+        $patient = null;
+        if ($appt->familyMember) {
+            $fm = $appt->familyMember;
+            $patient = [
+                'name' => $fm->name,
+                'relation' => $fm->relation ?? 'Self',
+                'age' => $fm->age ?? null,
+                'gender' => $fm->gender ?? null,
+                'blood_group' => $fm->blood_group ?? null,
+            ];
+        }
+
+        // Mock vitals (realistic Indian adult values)
+        $vitals = $isDoctor ? [
+            ['label' => 'Blood Pressure', 'value' => '128/82', 'unit' => 'mmHg', 'status' => 'elevated', 'reference' => '< 120/80'],
+            ['label' => 'Pulse Rate', 'value' => '76', 'unit' => 'bpm', 'status' => 'normal', 'reference' => '60-100'],
+            ['label' => 'Weight', 'value' => '68', 'unit' => 'kg', 'status' => 'normal', 'reference' => 'BMI 18.5-24.9'],
+            ['label' => 'Height', 'value' => '165', 'unit' => 'cm', 'status' => 'normal', 'reference' => '—'],
+            ['label' => 'BMI', 'value' => '25.0', 'unit' => 'kg/m²', 'status' => 'elevated', 'reference' => '18.5-24.9'],
+            ['label' => 'SpO2', 'value' => '98', 'unit' => '%', 'status' => 'normal', 'reference' => '95-100'],
+            ['label' => 'Temperature', 'value' => '99.2', 'unit' => '°F', 'status' => 'elevated', 'reference' => '97.8-99.1'],
+        ] : [];
+
+        // Mock clinical summary
+        $symptoms = $appt->symptoms ?? [];
+        $clinicalSummary = $isDoctor ? [
+            'diagnosis' => [
+                'name' => count($symptoms) > 0 && in_array('Fever', $symptoms)
+                    ? 'Acute viral fever with myalgia'
+                    : (count($symptoms) > 0 && in_array('Chest pain', $symptoms)
+                        ? 'Non-cardiac chest pain — musculoskeletal origin'
+                        : (count($symptoms) > 0 && in_array('Skin rash', $symptoms)
+                            ? 'Mild eczema (atopic dermatitis)'
+                            : 'General consultation')),
+                'icd_code' => count($symptoms) > 0 && in_array('Fever', $symptoms)
+                    ? 'J06.9' : (in_array('Chest pain', $symptoms ?? []) ? 'R07.9' : 'L30.9'),
+                'severity' => 'mild',
+            ],
+            'chief_complaint' => implode(', ', $symptoms) ?: 'General check-up',
+            'history_of_present_illness' => 'Patient presents with symptoms for the past 3-4 days. No significant worsening. No associated vomiting or diarrhea. Appetite slightly reduced.',
+            'past_medical_history' => 'No known chronic illnesses. No previous surgeries. Last health checkup 6 months ago — unremarkable.',
+            'family_history' => 'Father — Type 2 Diabetes (managed). Mother — Hypothyroidism. No family history of cardiac disease or malignancy.',
+            'allergies' => ['Sulfonamides', 'Dust mites'],
+            'social_history' => 'Non-smoker. Occasional social drinker. Regular exercise 3x/week. Software professional — sedentary work.',
+            'examination_findings' => 'General: Alert, oriented, mild pallor. CVS: S1S2 normal, no murmurs. RS: Bilateral clear. Abdomen: Soft, non-tender. Throat: Mild pharyngeal congestion.',
+            'assessment' => 'Likely viral upper respiratory tract infection. Low risk for complications. Symptoms expected to resolve within 5-7 days with supportive care.',
+            'treatment_plan' => 'Symptomatic management with antipyretics and antihistamines. Adequate hydration and rest. Follow up in 1 week if symptoms persist or worsen.',
+        ] : [
+            'diagnosis' => ['name' => 'Routine health screening', 'icd_code' => 'Z00.0', 'severity' => 'routine'],
+            'chief_complaint' => 'Annual health checkup',
+            'history_of_present_illness' => 'No acute complaints. Patient requested routine screening.',
+            'past_medical_history' => 'No known chronic illnesses.',
+            'family_history' => 'Father — Type 2 Diabetes.',
+            'allergies' => ['Sulfonamides'],
+            'social_history' => 'Non-smoker. Regular exercise.',
+            'examination_findings' => 'Not applicable — lab visit.',
+            'assessment' => 'Routine screening. Await lab results.',
+            'treatment_plan' => 'Review results at follow-up appointment.',
+        ];
+
+        // Mock prescriptions
+        $prescriptions = $isDoctor ? [
+            ['drug' => 'Paracetamol', 'strength' => '500mg', 'dosage' => '1 tablet', 'frequency' => 'Three times a day', 'duration' => '5 days', 'purpose' => 'Fever and pain relief', 'status' => 'active'],
+            ['drug' => 'Cetirizine', 'strength' => '10mg', 'dosage' => '1 tablet', 'frequency' => 'Once daily at bedtime', 'duration' => '7 days', 'purpose' => 'Allergic rhinitis / congestion', 'status' => 'active'],
+            ['drug' => 'Azithromycin', 'strength' => '500mg', 'dosage' => '1 tablet', 'frequency' => 'Once daily', 'duration' => '3 days', 'purpose' => 'Bacterial infection prophylaxis', 'status' => 'completed'],
+            ['drug' => 'Pantoprazole', 'strength' => '40mg', 'dosage' => '1 tablet', 'frequency' => 'Once daily before breakfast', 'duration' => '7 days', 'purpose' => 'Gastric protection', 'status' => 'active'],
+        ] : [];
+
+        // Mock lab tests
+        $labTests = [
+            ['name' => 'Complete Blood Count (CBC)', 'reason' => 'Routine / Infection markers', 'status' => 'completed', 'result' => 'WBC 8,200 /µL, Hb 13.8 g/dL, Plt 2.4 L', 'date' => $apptDate->format('Y-m-d'), 'is_normal' => true],
+            ['name' => 'C-Reactive Protein (CRP)', 'reason' => 'Inflammation marker', 'status' => 'completed', 'result' => '12.4 mg/L (High)', 'date' => $apptDate->format('Y-m-d'), 'is_normal' => false],
+            ['name' => 'Thyroid Panel (TSH, T3, T4)', 'reason' => 'Routine screening', 'status' => 'pending', 'result' => null, 'date' => null, 'is_normal' => null],
+        ];
+
+        // Mock billing
+        $consultationFee = $appt->fee ?? 800;
+        $platformFee = 49;
+        $gst = 0;
+        $discount = 0;
+        $total = $consultationFee + $platformFee + $gst - $discount;
+
+        $billing = [
+            'line_items' => [
+                ['label' => $isDoctor ? 'Consultation Fee' : 'Test / Package Fee', 'amount' => $consultationFee],
+                ['label' => 'Platform Fee', 'amount' => $platformFee],
+                ['label' => 'GST (0%)', 'amount' => $gst],
+                ['label' => 'Discount', 'amount' => -$discount],
+            ],
+            'total' => $total,
+            'payment_method' => 'UPI (PhonePe)',
+            'payment_status' => $appt->payment_status ?? 'paid',
+            'invoice_number' => 'INV-' . str_pad($appt->id, 6, '0', STR_PAD_LEFT),
+            'payment_date' => $createdAt->format('d M Y, g:i A'),
+        ];
+
+        // Mock documents
+        $documents = [
+            ['name' => 'Prescription', 'type' => 'pdf', 'date' => $apptDate->format('d M Y'), 'size' => '124 KB'],
+            ['name' => 'Visit Summary', 'type' => 'pdf', 'date' => $apptDate->format('d M Y'), 'size' => '89 KB'],
+        ];
+        if (!$isDoctor || count($labTests) > 0) {
+            $documents[] = ['name' => 'Lab Report — CBC', 'type' => 'pdf', 'date' => $apptDate->format('d M Y'), 'size' => '215 KB'];
+        }
+
+        // Mock activity log
+        $activity = [
+            ['event' => 'Appointment Booked', 'timestamp' => $createdAt->format('d M Y, g:i A'), 'icon' => 'calendar'],
+            ['event' => 'Payment Received', 'timestamp' => $createdAt->addMinutes(1)->format('d M Y, g:i A'), 'icon' => 'credit-card'],
+        ];
+        if ($appt->status === 'completed') {
+            $activity[] = ['event' => 'Check-in', 'timestamp' => $apptDate->format('d M Y') . ', ' . $appt->appointment_time, 'icon' => 'log-in'];
+            $activity[] = ['event' => 'Consultation Completed', 'timestamp' => $apptDate->format('d M Y') . ', ' . Carbon::parse($appt->appointment_time)->addMinutes(30)->format('g:i A'), 'icon' => 'check-circle'];
+            if ($isDoctor) {
+                $activity[] = ['event' => 'Prescription Generated', 'timestamp' => $apptDate->format('d M Y') . ', ' . Carbon::parse($appt->appointment_time)->addMinutes(32)->format('g:i A'), 'icon' => 'file-text'];
+            }
+            $activity[] = ['event' => 'Lab Order Placed', 'timestamp' => $apptDate->format('d M Y') . ', ' . Carbon::parse($appt->appointment_time)->addMinutes(35)->format('g:i A'), 'icon' => 'flask'];
+            $activity[] = ['event' => 'Follow-up Recommended', 'timestamp' => $apptDate->format('d M Y') . ', ' . Carbon::parse($appt->appointment_time)->addMinutes(36)->format('g:i A'), 'icon' => 'repeat'];
+        } elseif ($appt->status === 'cancelled') {
+            $activity[] = ['event' => 'Appointment Cancelled', 'timestamp' => $appt->updated_at->format('d M Y, g:i A'), 'icon' => 'x-circle'];
+            $activity[] = ['event' => 'Refund Initiated', 'timestamp' => $appt->updated_at->addMinutes(5)->format('d M Y, g:i A'), 'icon' => 'rotate-ccw'];
+        }
+
+        // Follow-up info
+        $followUp = [
+            'recommended_date' => $apptDate->addDays(14)->format('Y-m-d'),
+            'recommended_date_formatted' => $apptDate->addDays(14)->format('D, d M Y'),
+            'notes' => 'Follow up in 2 weeks if symptoms persist. Contact immediately if you experience high fever (>103°F), difficulty breathing, or chest pain.',
+        ];
+
+        return array_merge($base, [
+            'appointment_id' => strtoupper($isDoctor ? 'APT' : 'LAB') . '-' . str_pad($appt->id, 3, '0', STR_PAD_LEFT),
+            'doctor' => $doctor,
+            'patient' => $patient,
+            'department' => $appt->department?->name,
+            'duration' => '30 min',
+            'notes' => $appt->notes,
+            'symptoms' => $symptoms,
+            'vitals' => $vitals,
+            'clinical_summary' => $clinicalSummary,
+            'prescriptions' => $prescriptions,
+            'lab_tests' => $labTests,
+            'billing' => $billing,
+            'documents' => $documents,
+            'activity' => $activity,
+            'follow_up' => $followUp,
         ]);
     }
 

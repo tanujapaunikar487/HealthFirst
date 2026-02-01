@@ -139,6 +139,7 @@ Route::get('/booking/confirmation/{booking}', [AppointmentsController::class, 's
 
 // My Appointments
 Route::get('/appointments', [AppointmentsController::class, 'index'])->name('appointments.index');
+Route::get('/appointments/{appointment}', [AppointmentsController::class, 'show'])->name('appointments.show');
 Route::post('/appointments/{appointment}/cancel', [AppointmentsController::class, 'cancel'])->name('appointments.cancel');
 Route::post('/appointments/{appointment}/reschedule', [AppointmentsController::class, 'reschedule'])->name('appointments.reschedule');
 Route::get('/appointments/{appointment}/available-slots', [AppointmentsController::class, 'availableSlots'])->name('appointments.available-slots');

@@ -877,5 +877,172 @@ Three UX improvements to the lab test/package selection and scheduling flow.
 
 ---
 
+## My Appointments Page (February 1, 2026)
+
+Built a full-featured appointments management page at `/appointments` with tabbed views, action sheets, and inline appointment management.
+
+### Core Page Structure
+**File**: `resources/js/Pages/Appointments/Index.tsx` (NEW)
+
+- Three tabs: Upcoming, Past, Cancelled — each with filtered appointment table
+- shadcn Table component with columns: Appointment (icon + title + subtitle), Patient, Date & Time, Mode, Fee + Payment Status, Actions
+- Client-side search bar (filters across title, patient_name, subtitle) positioned right of filter row
+- Table cells aligned `align-top` for consistent row layout
+
+### Payment Status Tags
+- Colored text (no background): paid=`text-green-600`, pending=`text-amber-600`, partially_refunded=`text-amber-600`, fully_refunded=`text-red-600`
+- Displayed below the fee amount in each row
+
+### Action Sheets (Side Sheets, not Modals)
+Platform-wide UX decision: use sheets instead of modals for quick actions.
+
+**DetailsSheet** — Shows full appointment details with contextual actions:
+- Upcoming: Primary button = "Reschedule", 3-dot dropdown with Share + Cancel
+- Past: Primary button = "Book Again", 3-dot dropdown with Share
+- Cancelled: Primary button = "Book Again" only
+
+**CancelSheet** — Warning banner, 5 selectable reason options, destructive cancel button. Calls `POST /appointments/{id}/cancel` via Inertia `router.post()`.
+
+**RescheduleSheet** — Guided-flow-style date pills + time slot pills:
+- Date pills: `bg-foreground text-background` when selected, `rounded-xl`, `min-w-[100px]`
+- Time slots: `rounded-full`, `bg-foreground text-background` when selected
+- Fetches available slots via `GET /appointments/{id}/available-slots?date=`
+- Calls `POST /appointments/{id}/reschedule`
+
+**ShareSheet** — Appointment summary preview, Copy to Clipboard with checkmark feedback, WhatsApp share button.
+
+### Toast Notifications
+- Cancel success: "Appointment cancelled. Refund initiated."
+- Reschedule success: "Appointment rescheduled successfully."
+- Auto-dismiss after 3 seconds
+
+### Backend: AppointmentsController
+**File**: `app/Http/Controllers/AppointmentsController.php` (NEW)
+
+| Method | Route | Purpose |
+|--------|-------|---------|
+| `index()` | `GET /appointments` | List all appointments with family members and doctors for filters |
+| `cancel()` | `POST /appointments/{id}/cancel` | Cancel confirmed appointment, set payment_status='fully_refunded' |
+| `reschedule()` | `POST /appointments/{id}/reschedule` | Update date/time (validated: after today, within 14 days) |
+| `availableSlots()` | `GET /appointments/{id}/available-slots` | Return dates (filtered by doctor availability) + time slots |
+| `bookAgain()` | `GET /appointments/{id}/book-again` | Pre-fill session and redirect to guided booking flow |
+| `showConfirmation()` | `GET /booking/confirmation/{id}` | Show booking confirmation (replaces old mock route) |
+
+### Database Changes
+
+**Migration**: `2026_02_01_300001_add_payment_status_to_appointments_table.php`
+- Added `payment_status` (default: 'paid') and `cancellation_reason` (nullable) columns
+
+**Migration**: `2026_02_01_200001_add_lab_fields_to_appointments_table.php`
+- Added lab-related columns: `lab_package_id`, `lab_test_ids`, `collection_type`, `lab_center_id`, `user_address_id`
+
+**Appointment model** — Added `payment_status`, `cancellation_reason`, `lab_test_ids`, `lab_package_id`, `collection_type`, `lab_center_id`, `user_address_id` to fillable. Added `labPackage()`, `labCenter()`, `userAddress()` relationships. Added `lab_test_ids` array cast.
+
+**HospitalSeeder** — Added 3 new seed appointments (2 upcoming confirmed, 1 cancelled) with `payment_status` values. All existing appointments now include `payment_status`.
+
+### Guided Flow → Real Appointment Records
+
+**GuidedDoctorController.php** — `processPayment()` now creates a real `Appointment` record in DB (previously just cleared session and redirected with a fake ID). Calculates fee from doctor consultation modes.
+
+**GuidedLabController.php** — `processPayment()` now creates a real `Appointment` record. Calculates fee from package price or sum of individual test prices + home collection fee.
+
+### Confirmation Page Improvements
+
+**Booking/Confirmation.tsx** — Replaced mock data route with `AppointmentsController::showConfirmation()` that loads real appointment from DB. Added "Book Another Appointment" button below "View My Appointments".
+
+**routes/web.php** — Replaced inline mock confirmation closure with controller method. Added 5 appointment management routes.
+
+### Dynamic Sidebar & Header
+
+**AppLayout.tsx** — Added `pageTitle` and `pageIcon` optional props. Header dynamically shows page-specific title/icon. Sidebar now uses `usePage().url` for active link detection instead of hardcoded `active` prop on Home.
+
+### Other Improvements
+
+**ScheduleStep.tsx** (Lab guided flow) — Time section now hidden until a date is selected. Auto-scrolls to time section on date selection. Removed auto-selecting first date on mount.
+
+**IntelligentBookingOrchestrator.php** — `getPackageListData()` now resolves `included_test_names` from `test_ids` JSON, and includes `preparation_notes` for each package.
+
+### New UI Components
+- `resources/js/Components/ui/sheet.tsx` — shadcn Sheet (side drawer) built on `@radix-ui/react-dialog`
+- `resources/js/Components/ui/table.tsx` — shadcn Table component
+- `resources/js/Components/ui/tabs.tsx` — shadcn Tabs component
+
+---
+
+## Appointment Detail Page (February 1, 2026)
+
+Full-page past appointment details screen at `/appointments/{id}` with sticky side navigation and 10 sections.
+
+### Route & Controller
+
+**routes/web.php** — `GET /appointments/{appointment}` → `AppointmentsController@show`
+
+**AppointmentsController.php** — `show()` method:
+- Authorization check (`$appointment->user_id !== $user->id` → 403)
+- Eager loads doctor, familyMember, labPackage, labCenter, userAddress, department
+- `formatDetailedAppointment()` extends `formatAppointment()` with mock medical data:
+  - Doctor details (name, specialization, qualification, rating, avatar)
+  - Patient details (name, relation, age, gender, blood_group)
+  - 7 vitals (BP, Pulse, Weight, Height, BMI, SpO2, Temperature) with status/reference
+  - Clinical summary (diagnosis with ICD code, 8 subsections: chief complaint, HPI, PMH, family history, allergies, social history, examination, assessment, treatment plan)
+  - 4 prescriptions (drug, strength, dosage, frequency, duration, purpose, status)
+  - 3 lab tests (name, reason, status, result, is_normal)
+  - Billing breakdown (consultation fee, platform fee, GST, discount, total, payment method)
+  - 2-3 documents (Prescription, Visit Summary, Lab Report PDFs)
+  - Activity timeline (booked → payment → check-in → consultation → prescription → lab order → follow-up)
+  - Follow-up info (recommended date + notes)
+
+### Frontend: Show.tsx
+
+**File**: `resources/js/Pages/Appointments/Show.tsx` (NEW)
+
+10 sub-components: SideNav, OverviewSection, VitalsSection, ClinicalSummarySection, PrescriptionsSection, LabTestsSection, BillingSection, DocumentsSection, ActivitySection, FooterActions
+
+**Sticky Side Navigation**:
+- Left column (w-56), sticky at `top: 100px`
+- IntersectionObserver tracks which section is in view → highlights active nav item
+- Smooth scroll on click (`scrollIntoView({ behavior: 'smooth' })`)
+
+**Edge Cases**:
+- **Skeleton loading**: Full-page skeleton when `appointment` is null/undefined (pulse animation placeholders)
+- **Empty states**: Lab tests, documents, activity sections show "No X available" with icon when data is empty
+- **CollapsibleRow**: Skips rendering when content is empty string; auto-expands on print
+- **PDF preview**: Sheet component opens on document row click, shows placeholder preview with Download/Close buttons
+- **Share button**: Copies appointment URL to clipboard, shows toast feedback
+- **Download invoice**: Generates text blob with billing details, triggers browser download
+- **Print CSS**: `@media print` hides nav, header, CTAs; expands all collapsed rows; shows allergies prominently
+
+### Global Error Page
+
+**File**: `resources/js/Pages/Error.tsx` (NEW)
+- Handles 403 (ShieldX icon, "Access Denied", Go Back), 404 (FileQuestion, "Page Not Found", Go Back), 500 (ServerCrash, "Something Went Wrong", Try Again)
+- Fallback for unknown status codes (AlertTriangle)
+- Centered layout, no sidebar
+
+**bootstrap/app.php** — Wired via Laravel exception handler:
+```php
+$exceptions->respond(function (Response $response) {
+    if (in_array($status, [403, 404, 500, 503]) && !request()->expectsJson()) {
+        return Inertia::render('Error', ['status' => $status]);
+    }
+});
+```
+
+### Error Toast on Reschedule/Cancel
+
+**Index.tsx** — Added `onError` callback to CancelSheet and RescheduleSheet:
+- Fetch failures (available slots load) → error toast
+- `router.post` failures (cancel/reschedule) → error toast with `onError` callback
+- All error messages surface via the existing Toast component
+
+### Past Appointments Navigate Directly to Detail Page
+
+**Index.tsx** — Past and cancelled appointment rows are clickable → `router.visit(/appointments/{id})`:
+- Table rows get `cursor-pointer` class and `onClick` handler for non-upcoming tabs
+- Actions menu cell uses `stopPropagation` to prevent row click
+- "View Details" in dropdown also navigates directly for past/cancelled (side sheet only for upcoming)
+
+---
+
 **Last Updated**: February 1, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page

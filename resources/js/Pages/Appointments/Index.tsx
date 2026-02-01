@@ -164,6 +164,10 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
     setToastMessage(message);
   };
 
+  const handleSheetError = (message: string) => {
+    setToastMessage(message);
+  };
+
   return (
     <AppLayout
       user={user}
@@ -306,6 +310,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
             <CancelSheet
               appointment={sheetView.appointment}
               onSuccess={() => handleSheetSuccess('Appointment cancelled. Refund initiated.')}
+              onError={(msg) => handleSheetError(msg)}
               onClose={() => setSheetView(null)}
             />
           )}
@@ -313,6 +318,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
             <RescheduleSheet
               appointment={sheetView.appointment}
               onSuccess={() => handleSheetSuccess('Appointment rescheduled successfully.')}
+              onError={(msg) => handleSheetError(msg)}
               onClose={() => setSheetView(null)}
             />
           )}
@@ -373,8 +379,14 @@ function AppointmentsTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {appointments.map((appt) => (
-            <TableRow key={appt.id}>
+          {appointments.map((appt) => {
+            const clickable = tab !== 'upcoming';
+            return (
+            <TableRow
+              key={appt.id}
+              className={clickable ? 'cursor-pointer' : ''}
+              onClick={clickable ? () => router.visit(`/appointments/${appt.id}`) : undefined}
+            >
               <TableCell className="align-top">
                 <p className="text-sm font-medium">{appt.date_formatted}</p>
                 <p className="text-xs text-muted-foreground">{appt.time}</p>
@@ -393,11 +405,12 @@ function AppointmentsTable({
                 <p className="text-sm font-medium">₹{appt.fee.toLocaleString()}</p>
                 <PaymentStatusTag status={appt.payment_status} />
               </TableCell>
-              <TableCell className="align-top">
+              <TableCell className="align-top" onClick={(e) => e.stopPropagation()}>
                 <ActionsMenu appointment={appt} tab={tab} onAction={onAction} />
               </TableCell>
             </TableRow>
-          ))}
+            );
+          })}
         </TableBody>
       </Table>
     </div>
@@ -440,7 +453,13 @@ function ActionsMenu({
       <DropdownMenuContent align="end" className="w-[160px]">
         <DropdownMenuItem
           className="gap-2 cursor-pointer"
-          onClick={() => onAction({ type: 'details', appointment })}
+          onClick={() => {
+            if (tab === 'upcoming') {
+              onAction({ type: 'details', appointment });
+            } else {
+              router.visit(`/appointments/${appointment.id}`);
+            }
+          }}
         >
           <Eye className="h-4 w-4" />
           View Details
@@ -581,6 +600,15 @@ function DetailsSheet({
             {(appointment.type === 'doctor' ? 'DOC' : 'LAB').toUpperCase()}-{appointment.id}
           </span>
         </DetailRow>
+
+        <Link
+          href={`/appointments/${appointment.id}`}
+          className="flex items-center justify-center gap-2 text-sm font-medium rounded-lg border border-dashed py-2.5 mt-2 hover:bg-muted/50 transition-colors"
+          style={{ color: '#0052FF' }}
+        >
+          <Eye className="h-4 w-4" />
+          View Full Details
+        </Link>
       </div>
 
       {/* Footer: 1 primary action + 3-dot for secondary */}
@@ -699,10 +727,12 @@ function DetailRow({
 function CancelSheet({
   appointment,
   onSuccess,
+  onError,
   onClose,
 }: {
   appointment: Appointment;
   onSuccess: () => void;
+  onError: (message: string) => void;
   onClose: () => void;
 }) {
   const [reason, setReason] = useState('');
@@ -723,7 +753,10 @@ function CancelSheet({
       { cancellation_reason: reason || null },
       {
         onSuccess: () => onSuccess(),
-        onError: () => setSubmitting(false),
+        onError: () => {
+          setSubmitting(false);
+          onError('Failed to cancel appointment. Please try again.');
+        },
       }
     );
   };
@@ -801,10 +834,12 @@ function CancelSheet({
 function RescheduleSheet({
   appointment,
   onSuccess,
+  onError,
   onClose,
 }: {
   appointment: Appointment;
   onSuccess: () => void;
+  onError: (message: string) => void;
   onClose: () => void;
 }) {
   const [dates, setDates] = useState<DateOption[]>([]);
@@ -824,7 +859,10 @@ function RescheduleSheet({
         setSlots(data.slots || []);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        setLoading(false);
+        onError('Failed to load available slots. Please try again.');
+      });
   }, [appointment.id]);
 
   // Refetch slots on date change
@@ -838,7 +876,10 @@ function RescheduleSheet({
         setSlots(data.slots || []);
         setSlotsLoading(false);
       })
-      .catch(() => setSlotsLoading(false));
+      .catch(() => {
+        setSlotsLoading(false);
+        onError('Failed to load time slots. Please try again.');
+      });
   };
 
   const handleReschedule = () => {
@@ -849,7 +890,10 @@ function RescheduleSheet({
       { date: selectedDate, time: selectedTime },
       {
         onSuccess: () => onSuccess(),
-        onError: () => setSubmitting(false),
+        onError: () => {
+          setSubmitting(false);
+          onError('Failed to reschedule appointment. Please try again.');
+        },
       }
     );
   };
@@ -863,7 +907,42 @@ function RescheduleSheet({
         </SheetDescription>
       </SheetHeader>
 
-      <div className="flex-1 space-y-6">
+      <div className="flex-1 space-y-6 overflow-y-auto">
+        {/* Booking Summary */}
+        <div className="rounded-lg bg-muted/50 p-4 space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-background flex items-center justify-center border">
+              {appointment.type === 'doctor' ? (
+                <Stethoscope className="h-5 w-5 text-blue-600" />
+              ) : (
+                <TestTube2 className="h-5 w-5 text-emerald-600" />
+              )}
+            </div>
+            <div>
+              <p className="font-medium text-sm">{appointment.title}</p>
+              {appointment.subtitle && (
+                <p className="text-xs text-muted-foreground">{appointment.subtitle}</p>
+              )}
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+              <User className="h-3.5 w-3.5" />
+              <span>{appointment.patient_name}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+              <Calendar className="h-3.5 w-3.5" />
+              <span>{appointment.date_formatted}</span>
+            </div>
+            <div className="text-muted-foreground">
+              Mode: {appointment.mode}
+            </div>
+            <div className="text-muted-foreground">
+              Fee: ₹{appointment.fee}
+            </div>
+          </div>
+        </div>
+
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full" />
