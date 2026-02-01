@@ -1906,5 +1906,86 @@ Three dashboard states implemented with real data from database.
 
 ---
 
+## Active Dashboard with Aggregated Tasks (February 2, 2026)
+
+Replaced the static CtaBanner on the completed-profile dashboard with a full active dashboard that aggregates overdue bills, health alerts, appointments, and preventive care prompts into prioritized sections.
+
+### Backend: DashboardController.php
+
+**4 data sources** computed when all profile steps are completed:
+
+| Source | Query | Fields |
+|--------|-------|--------|
+| Overdue Bills | `Appointment` with `payment_status='pending'`, due date (appointment_date+7d) in past | id, patient_name, patient_initials, days_overdue, amount, title |
+| Health Alerts | `HealthRecord` with `category='lab_report'`, results containing abnormal/high/borderline status | id, title, patient_name, patient_initials, metric_name, metric_value, metric_reference, record_date_formatted |
+| Upcoming Appointments | `Appointment` with `status='confirmed'`, date >= today, limit 10 | id, type, title, subtitle, patient_name, patient_initials, date_formatted, time, mode, fee, is_today |
+| Preventive Care | `FamilyMember` → last completed doctor `Appointment`, flagged if >6 months or no checkup | id, member_id, patient_name, patient_initials, months_since, relation |
+
+**Profile completion toast**: Session-based `profile_completed_seen` flag fires one-time "Profile successfully completed!" toast on first dashboard visit after all 3 steps complete.
+
+### Frontend: Dashboard.tsx
+
+**DashboardCard component** — Unified card for all item types:
+- Left: Type-colored icon circle (40px)
+- Center: Patient initials avatar (24px) + name, optional badge, title (bold), subtitle (gray)
+- Right: Action button (compact) + 3-dot overflow DropdownMenu
+- `iconOverride` prop for type-specific icons (Stethoscope, FlaskConical, Calendar, Clock)
+
+**Icon/color mapping:**
+| Type | Icon | Icon Color | Background |
+|------|------|-----------|------------|
+| Overdue bill | Receipt | #DC2626 (red) | #FEE2E2 |
+| Health alert | AlertCircle | #D97706 (amber) | #FEF3C7 |
+| Today's appointment | Stethoscope/FlaskConical | #1E40AF (blue) | #BFDBFE |
+| Upcoming appointment | Calendar/FlaskConical | #1E40AF (blue) | #BFDBFE |
+
+**Mode badges on appointment cards:**
+- Video consultations: blue "Video" badge
+- Lab tests: amber "Lab Test" badge
+- In-person: no badge
+
+**Overflow menus per type:**
+- Appointments: View details, Cancel appointment, Add to calendar
+- Bills: View bill, Payment history, Dispute
+- Health alerts: View full report, Dismiss alert
+- Preventive care: View records, Dismiss
+
+**Section layout:**
+```
+"Up next" header + count badge
+─────────────────────────────────
+[overdue bill cards]
+[health alert cards]
+[today's appointment cards]
+
+"Later this week" header + "View all →"
+─────────────────────────────────
+[upcoming appointment cards]
+[preventive care cards]
+```
+
+### Dashboard State Logic
+
+| Condition | "Up next" | "Later this week" | Vaccination Banner | CtaBanner |
+|-----------|-----------|-------------------|--------------------|-----------|
+| Has overdue/alerts/today | Shows | Shows if future items | Dismissible | Hidden |
+| No immediate, has future/preventive | Hidden | Shows as primary | Dismissible | Hidden |
+| No items at all | Hidden | Hidden | Hidden | Shows |
+
+### Dismissible Vaccination Banner
+
+- Yellow Fever banner now shows for ALL dashboard states (both completed and incomplete profile)
+- X button dismisses via `localStorage.setItem('vaccination_banner_dismissed', Date.now())`
+- Auto-reshows after 30 days: checks timestamp on mount, clears if >30 days elapsed
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `app/Http/Controllers/DashboardController.php` | Overdue bills, health alerts, preventive care queries; expanded appointments (limit 10, is_today, patient_initials); profile completion toast; getInitials helper |
+| `resources/js/Pages/Dashboard.tsx` | DashboardCard component, OverdueBill/HealthAlert/PreventiveCarePrompt interfaces, "Up next"/"Later this week" sections, mode badges, overflow menus, dismissible vaccination banner, conditional CtaBanner |
+
+---
+
 **Last Updated**: February 2, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign | Upload Removed | Razorpay Billing Integration | Uniform Blue Icons | Family Members List + Detail Page | Unified Booking Links | Insurance List + Add Policy + Detail Page | Insurance Claim Detail Page | Claim Detail Edge States & Notification Deep-Linking | Dashboard States (Loading, New User, Partial Onboarding)
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign | Upload Removed | Razorpay Billing Integration | Uniform Blue Icons | Family Members List + Detail Page | Unified Booking Links | Insurance List + Add Policy + Detail Page | Insurance Claim Detail Page | Claim Detail Edge States & Notification Deep-Linking | Dashboard States (Loading, New User, Partial Onboarding) | Active Dashboard with Aggregated Tasks
