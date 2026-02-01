@@ -35,4 +35,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(\App\Models\BillingNotification::class);
     }
+
+    public function healthRecords(): HasMany
+    {
+        return $this->hasMany(\App\Models\HealthRecord::class);
+    }
 }

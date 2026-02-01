@@ -7,6 +7,7 @@ use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GuidedDoctorController;
 use App\Http\Controllers\GuidedLabController;
+use App\Http\Controllers\HealthRecordController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
@@ -146,6 +147,9 @@ Route::post('/appointments/{appointment}/cancel', [AppointmentsController::class
 Route::post('/appointments/{appointment}/reschedule', [AppointmentsController::class, 'reschedule'])->name('appointments.reschedule');
 Route::get('/appointments/{appointment}/available-slots', [AppointmentsController::class, 'availableSlots'])->name('appointments.available-slots');
 Route::get('/appointments/{appointment}/book-again', [AppointmentsController::class, 'bookAgain'])->name('appointments.book-again');
+
+// Health Records
+Route::get('/health-records', [HealthRecordController::class, 'index'])->name('health-records.index');
 
 // Billing
 Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');

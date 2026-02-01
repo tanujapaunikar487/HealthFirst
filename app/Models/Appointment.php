@@ -73,4 +73,9 @@ class Appointment extends Model
     {
         return $this->belongsTo(UserAddress::class);
     }
+
+    public function healthRecords(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(HealthRecord::class);
+    }
 }

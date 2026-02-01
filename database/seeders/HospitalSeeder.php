@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Appointment;
 use App\Models\BillingNotification;
+use App\Models\HealthRecord;
 use App\Models\Department;
 use App\Models\Doctor;
 use App\Models\DoctorAlias;
@@ -44,6 +45,7 @@ class HospitalSeeder extends Seeder
             $this->seedAppointments($user);
             $this->seedInsuranceClaims($user);
             $this->seedBillingNotifications($user);
+            $this->seedHealthRecords($user);
         }
 
         // Generate time slots for next 14 days
@@ -1044,6 +1046,837 @@ class HospitalSeeder extends Seeder
             BillingNotification::create(array_merge($notification, [
                 'user_id' => $user->id,
             ]));
+        }
+    }
+
+    private function seedHealthRecords(User $user): void
+    {
+        $appointments = Appointment::where('user_id', $user->id)
+            ->orderBy('id')
+            ->get();
+
+        $selfMember = FamilyMember::where('user_id', $user->id)->where('relation', 'self')->first();
+        $motherMember = FamilyMember::where('user_id', $user->id)->where('relation', 'mother')->first();
+
+        $records = [];
+
+        // === Appointment 1: Dr. Sarah Johnson, Fever/Headache, 16 days ago ===
+        if ($appt = $appointments->get(0)) {
+            $records[] = [
+                'appointment_id' => $appt->id,
+                'family_member_id' => $selfMember?->id,
+                'category' => 'consultation_notes',
+                'title' => 'Consultation Notes — Dr. Sarah Johnson',
+                'description' => 'Patient presented with fever (101°F) and headache for 3 days. Diagnosed as viral fever. Advised rest and hydration.',
+                'doctor_name' => 'Dr. Sarah Johnson',
+                'department_name' => 'General Medicine',
+                'record_date' => Carbon::today()->subDays(16)->format('Y-m-d'),
+                'metadata' => [
+                    'diagnosis' => 'Viral Fever',
+                    'icd_code' => 'R50.9',
+                    'symptoms' => ['Fever', 'Headache'],
+                    'examination_findings' => 'Temperature 101°F, throat mildly congested, no rash. Lungs clear.',
+                    'treatment_plan' => 'Paracetamol 500mg TDS for 5 days. Cetirizine 10mg OD. Rest and fluids. Follow up in 2 weeks if symptoms persist.',
+                ],
+            ];
+            $records[] = [
+                'appointment_id' => $appt->id,
+                'family_member_id' => $selfMember?->id,
+                'category' => 'prescription',
+                'title' => 'Prescription — Viral Fever Treatment',
+                'description' => 'Prescribed medications for viral fever management.',
+                'doctor_name' => 'Dr. Sarah Johnson',
+                'department_name' => 'General Medicine',
+                'record_date' => Carbon::today()->subDays(16)->format('Y-m-d'),
+                'metadata' => [
+                    'drugs' => [
+                        ['name' => 'Paracetamol 500mg', 'dosage' => '1 tablet', 'frequency' => 'Three times a day', 'duration' => '5 days', 'instructions' => 'After meals'],
+                        ['name' => 'Cetirizine 10mg', 'dosage' => '1 tablet', 'frequency' => 'Once daily', 'duration' => '5 days', 'instructions' => 'At bedtime'],
+                    ],
+                    'valid_until' => Carbon::today()->subDays(11)->format('Y-m-d'),
+                ],
+                'file_type' => 'pdf',
+            ];
+            $records[] = [
+                'appointment_id' => $appt->id,
+                'family_member_id' => $selfMember?->id,
+                'category' => 'lab_report',
+                'title' => 'Complete Blood Count (CBC)',
+                'description' => 'Routine blood work ordered to rule out bacterial infection. All parameters within normal range.',
+                'doctor_name' => 'Dr. Sarah Johnson',
+                'department_name' => 'General Medicine',
+                'record_date' => Carbon::today()->subDays(16)->format('Y-m-d'),
+                'metadata' => [
+                    'test_name' => 'Complete Blood Count',
+                    'test_category' => 'Hematology',
+                    'lab_name' => 'Pune Diagnostics Lab',
+                    'results' => [
+                        ['parameter' => 'Hemoglobin', 'value' => '14.2', 'unit' => 'g/dL', 'reference_range' => '13.0-17.0', 'status' => 'normal'],
+                        ['parameter' => 'WBC Count', 'value' => '7,200', 'unit' => 'cells/mcL', 'reference_range' => '4,500-11,000', 'status' => 'normal'],
+                        ['parameter' => 'RBC Count', 'value' => '4.8', 'unit' => 'million/mcL', 'reference_range' => '4.5-5.5', 'status' => 'normal'],
+                        ['parameter' => 'Platelet Count', 'value' => '250,000', 'unit' => '/mcL', 'reference_range' => '150,000-400,000', 'status' => 'normal'],
+                        ['parameter' => 'ESR', 'value' => '12', 'unit' => 'mm/hr', 'reference_range' => '0-20', 'status' => 'normal'],
+                    ],
+                ],
+                'file_type' => 'pdf',
+            ];
+            $records[] = [
+                'appointment_id' => $appt->id,
+                'family_member_id' => $selfMember?->id,
+                'category' => 'invoice',
+                'title' => 'Invoice INV-000001',
+                'description' => 'Consultation with Dr. Sarah Johnson — General Medicine.',
+                'record_date' => Carbon::today()->subDays(16)->format('Y-m-d'),
+                'metadata' => [
+                    'invoice_number' => 'INV-000001',
+                    'amount' => 800,
+                    'payment_status' => 'paid',
+                    'line_items' => [
+                        ['label' => 'Video Consultation — Dr. Sarah Johnson', 'amount' => 800],
+                    ],
+                ],
+            ];
+        }
+
+        // === Appointment 2: Dr. Emily Chen, Chest Pain, mother, 30 days ago ===
+        if ($appt = $appointments->get(1)) {
+            $records[] = [
+                'appointment_id' => $appt->id,
+                'family_member_id' => $motherMember?->id,
+                'category' => 'consultation_notes',
+                'title' => 'Consultation Notes — Dr. Emily Chen',
+                'description' => 'Patient (mother) presented with intermittent chest pain and shortness of breath. ECG normal. Diagnosed as anxiety-related chest pain.',
+                'doctor_name' => 'Dr. Emily Chen',
+                'department_name' => 'Cardiology',
+                'record_date' => Carbon::today()->subDays(30)->format('Y-m-d'),
+                'metadata' => [
+                    'diagnosis' => 'Anxiety-related Chest Pain (Non-cardiac)',
+                    'icd_code' => 'R07.9',
+                    'symptoms' => ['Chest pain', 'Shortness of breath'],
+                    'examination_findings' => 'BP 130/85 mmHg, HR 82 bpm. ECG: Normal sinus rhythm, no ST changes. Chest auscultation clear.',
+                    'treatment_plan' => 'Stress management counseling. Alprazolam 0.25mg SOS. Lifestyle modifications. Referral to psychiatry. Follow-up in 1 month.',
+                ],
+            ];
+            $records[] = [
+                'appointment_id' => $appt->id,
+                'family_member_id' => $motherMember?->id,
+                'category' => 'prescription',
+                'title' => 'Prescription — Anxiety Management',
+                'description' => 'Prescribed anxiolytic and lifestyle modifications for anxiety-related chest pain.',
+                'doctor_name' => 'Dr. Emily Chen',
+                'department_name' => 'Cardiology',
+                'record_date' => Carbon::today()->subDays(30)->format('Y-m-d'),
+                'metadata' => [
+                    'drugs' => [
+                        ['name' => 'Alprazolam 0.25mg', 'dosage' => '1 tablet', 'frequency' => 'As needed (SOS)', 'duration' => '2 weeks', 'instructions' => 'Only when experiencing acute anxiety. Max 2 per day.'],
+                        ['name' => 'Multivitamin', 'dosage' => '1 tablet', 'frequency' => 'Once daily', 'duration' => '30 days', 'instructions' => 'After breakfast'],
+                    ],
+                    'valid_until' => Carbon::today()->subDays(16)->format('Y-m-d'),
+                ],
+                'file_type' => 'pdf',
+            ];
+            $records[] = [
+                'appointment_id' => $appt->id,
+                'family_member_id' => $motherMember?->id,
+                'category' => 'lab_report',
+                'title' => 'Lipid Profile',
+                'description' => 'Lipid panel to assess cardiovascular risk. Borderline high LDL noted.',
+                'doctor_name' => 'Dr. Emily Chen',
+                'department_name' => 'Cardiology',
+                'record_date' => Carbon::today()->subDays(30)->format('Y-m-d'),
+                'metadata' => [
+                    'test_name' => 'Lipid Profile',
+                    'test_category' => 'Biochemistry',
+                    'lab_name' => 'Pune Diagnostics Lab',
+                    'results' => [
+                        ['parameter' => 'Total Cholesterol', 'value' => '210', 'unit' => 'mg/dL', 'reference_range' => '<200', 'status' => 'borderline'],
+                        ['parameter' => 'LDL Cholesterol', 'value' => '138', 'unit' => 'mg/dL', 'reference_range' => '<130', 'status' => 'borderline'],
+                        ['parameter' => 'HDL Cholesterol', 'value' => '52', 'unit' => 'mg/dL', 'reference_range' => '>40', 'status' => 'normal'],
+                        ['parameter' => 'Triglycerides', 'value' => '145', 'unit' => 'mg/dL', 'reference_range' => '<150', 'status' => 'normal'],
+                    ],
+                ],
+                'file_type' => 'pdf',
+            ];
+            $records[] = [
+                'appointment_id' => $appt->id,
+                'family_member_id' => $motherMember?->id,
+                'category' => 'xray_report',
+                'title' => 'Chest X-ray (PA View)',
+                'description' => 'Chest radiograph to rule out cardiac or pulmonary pathology. Normal findings.',
+                'doctor_name' => 'Dr. Emily Chen',
+                'department_name' => 'Cardiology',
+                'record_date' => Carbon::today()->subDays(30)->format('Y-m-d'),
+                'metadata' => [
+                    'body_part' => 'Chest (PA view)',
+                    'indication' => 'Chest pain with shortness of breath — rule out cardiac/pulmonary pathology',
+                    'technique' => 'Standard PA erect view',
+                    'findings' => 'Heart size normal. Lung fields clear. No pleural effusion. Mediastinum normal. Costophrenic angles clear.',
+                    'impression' => 'Normal chest radiograph. No acute cardiopulmonary abnormality.',
+                    'radiologist' => 'Dr. Suresh Patil',
+                ],
+                'file_type' => 'image',
+            ];
+            $records[] = [
+                'appointment_id' => $appt->id,
+                'family_member_id' => $motherMember?->id,
+                'category' => 'ecg_report',
+                'title' => 'ECG — 12 Lead',
+                'description' => 'Routine electrocardiogram during cardiology consultation. Normal sinus rhythm.',
+                'doctor_name' => 'Dr. Emily Chen',
+                'department_name' => 'Cardiology',
+                'record_date' => Carbon::today()->subDays(30)->format('Y-m-d'),
+                'metadata' => [
+                    'indication' => 'Chest pain evaluation',
+                    'heart_rate' => 82,
+                    'rhythm' => 'Normal Sinus Rhythm',
+                    'intervals' => ['pr' => '0.16s', 'qrs' => '0.08s', 'qt' => '0.38s'],
+                    'axis' => 'Normal axis',
+                    'findings' => 'Normal sinus rhythm at 82 bpm. Normal P waves. Normal PR interval. No ST-T changes. No Q waves.',
+                    'impression' => 'Normal ECG. No evidence of ischemia or arrhythmia.',
+                ],
+                'file_type' => 'pdf',
+            ];
+            $records[] = [
+                'appointment_id' => $appt->id,
+                'family_member_id' => $motherMember?->id,
+                'category' => 'referral',
+                'title' => 'Referral to Psychiatry',
+                'description' => 'Referred for stress management and anxiety counseling.',
+                'doctor_name' => 'Dr. Emily Chen',
+                'department_name' => 'Cardiology',
+                'record_date' => Carbon::today()->subDays(30)->format('Y-m-d'),
+                'metadata' => [
+                    'referred_to_doctor' => 'Dr. Meera Iyer',
+                    'referred_to_department' => 'Psychiatry',
+                    'reason' => 'Anxiety-related chest pain. Needs stress management counseling and possible long-term anxiolytic management.',
+                    'priority' => 'routine',
+                ],
+            ];
+            $records[] = [
+                'appointment_id' => $appt->id,
+                'family_member_id' => $motherMember?->id,
+                'category' => 'invoice',
+                'title' => 'Invoice INV-000002',
+                'description' => 'Consultation with Dr. Emily Chen — Cardiology.',
+                'record_date' => Carbon::today()->subDays(30)->format('Y-m-d'),
+                'metadata' => [
+                    'invoice_number' => 'INV-000002',
+                    'amount' => 1500,
+                    'payment_status' => 'paid',
+                    'line_items' => [
+                        ['label' => 'In-person Consultation — Dr. Emily Chen', 'amount' => 1200],
+                        ['label' => 'ECG', 'amount' => 200],
+                        ['label' => 'Chest X-ray', 'amount' => 100],
+                    ],
+                ],
+            ];
+        }
+
+        // === Appointment 3: Dr. Anita Reddy, Skin Rash, 45 days ago ===
+        if ($appt = $appointments->get(2)) {
+            $records[] = [
+                'appointment_id' => $appt->id,
+                'family_member_id' => $selfMember?->id,
+                'category' => 'consultation_notes',
+                'title' => 'Consultation Notes — Dr. Anita Deshmukh',
+                'description' => 'Patient presented with itchy red rash on arms and neck for 1 week. Diagnosed as mild eczema.',
+                'doctor_name' => 'Dr. Anita Deshmukh',
+                'department_name' => 'Dermatology',
+                'record_date' => Carbon::today()->subDays(45)->format('Y-m-d'),
+                'metadata' => [
+                    'diagnosis' => 'Mild Eczema (Atopic Dermatitis)',
+                    'icd_code' => 'L30.9',
+                    'symptoms' => ['Skin rash', 'Itching'],
+                    'examination_findings' => 'Erythematous papular rash on bilateral forearms and neck. No vesicles. Mild scaling. No secondary infection.',
+                    'treatment_plan' => 'Topical hydrocortisone 1% cream BD for 2 weeks. Moisturizer application TDS. Avoid harsh soaps. Follow-up if no improvement in 2 weeks.',
+                ],
+            ];
+            $records[] = [
+                'appointment_id' => $appt->id,
+                'family_member_id' => $selfMember?->id,
+                'category' => 'prescription',
+                'title' => 'Prescription — Eczema Treatment',
+                'description' => 'Topical treatment for mild eczema.',
+                'doctor_name' => 'Dr. Anita Deshmukh',
+                'department_name' => 'Dermatology',
+                'record_date' => Carbon::today()->subDays(45)->format('Y-m-d'),
+                'metadata' => [
+                    'drugs' => [
+                        ['name' => 'Hydrocortisone Cream 1%', 'dosage' => 'Thin layer', 'frequency' => 'Twice daily', 'duration' => '2 weeks', 'instructions' => 'Apply on affected areas only. Do not use on face.'],
+                        ['name' => 'Cetaphil Moisturizing Lotion', 'dosage' => 'Liberal application', 'frequency' => 'Three times daily', 'duration' => '4 weeks', 'instructions' => 'Apply after bathing and throughout the day to prevent dryness.'],
+                    ],
+                    'valid_until' => Carbon::today()->subDays(31)->format('Y-m-d'),
+                ],
+                'file_type' => 'pdf',
+            ];
+            $records[] = [
+                'appointment_id' => $appt->id,
+                'family_member_id' => $selfMember?->id,
+                'category' => 'invoice',
+                'title' => 'Invoice INV-000003',
+                'description' => 'Consultation with Dr. Anita Deshmukh — Dermatology.',
+                'record_date' => Carbon::today()->subDays(45)->format('Y-m-d'),
+                'metadata' => [
+                    'invoice_number' => 'INV-000003',
+                    'amount' => 1000,
+                    'payment_status' => 'paid',
+                    'line_items' => [
+                        ['label' => 'Video Consultation — Dr. Anita Deshmukh', 'amount' => 1000],
+                    ],
+                ],
+            ];
+        }
+
+        // === Appointment 4: Lab - Annual Health Checkup, 60 days ago ===
+        if ($appt = $appointments->get(3)) {
+            $labReports = [
+                [
+                    'title' => 'Complete Blood Count (CBC)',
+                    'description' => 'Annual health checkup — hematology panel. All parameters normal.',
+                    'test_name' => 'Complete Blood Count',
+                    'test_category' => 'Hematology',
+                    'results' => [
+                        ['parameter' => 'Hemoglobin', 'value' => '14.5', 'unit' => 'g/dL', 'reference_range' => '13.0-17.0', 'status' => 'normal'],
+                        ['parameter' => 'WBC Count', 'value' => '6,800', 'unit' => 'cells/mcL', 'reference_range' => '4,500-11,000', 'status' => 'normal'],
+                        ['parameter' => 'Platelet Count', 'value' => '265,000', 'unit' => '/mcL', 'reference_range' => '150,000-400,000', 'status' => 'normal'],
+                    ],
+                ],
+                [
+                    'title' => 'Lipid Profile',
+                    'description' => 'Annual health checkup — lipid panel. All within normal limits.',
+                    'test_name' => 'Lipid Profile',
+                    'test_category' => 'Biochemistry',
+                    'results' => [
+                        ['parameter' => 'Total Cholesterol', 'value' => '185', 'unit' => 'mg/dL', 'reference_range' => '<200', 'status' => 'normal'],
+                        ['parameter' => 'LDL Cholesterol', 'value' => '110', 'unit' => 'mg/dL', 'reference_range' => '<130', 'status' => 'normal'],
+                        ['parameter' => 'HDL Cholesterol', 'value' => '58', 'unit' => 'mg/dL', 'reference_range' => '>40', 'status' => 'normal'],
+                        ['parameter' => 'Triglycerides', 'value' => '120', 'unit' => 'mg/dL', 'reference_range' => '<150', 'status' => 'normal'],
+                    ],
+                ],
+                [
+                    'title' => 'Thyroid Panel (TSH, T3, T4)',
+                    'description' => 'Annual health checkup — thyroid function. Normal thyroid function.',
+                    'test_name' => 'Thyroid Panel',
+                    'test_category' => 'Endocrinology',
+                    'results' => [
+                        ['parameter' => 'TSH', 'value' => '2.8', 'unit' => 'mIU/L', 'reference_range' => '0.4-4.0', 'status' => 'normal'],
+                        ['parameter' => 'T3', 'value' => '1.2', 'unit' => 'ng/mL', 'reference_range' => '0.8-2.0', 'status' => 'normal'],
+                        ['parameter' => 'T4', 'value' => '7.5', 'unit' => 'µg/dL', 'reference_range' => '5.0-12.0', 'status' => 'normal'],
+                    ],
+                ],
+                [
+                    'title' => 'Blood Sugar (Fasting)',
+                    'description' => 'Annual health checkup — fasting glucose. Normal blood sugar level.',
+                    'test_name' => 'Blood Sugar Fasting',
+                    'test_category' => 'Biochemistry',
+                    'results' => [
+                        ['parameter' => 'Fasting Blood Sugar', 'value' => '92', 'unit' => 'mg/dL', 'reference_range' => '70-100', 'status' => 'normal'],
+                        ['parameter' => 'HbA1c', 'value' => '5.4', 'unit' => '%', 'reference_range' => '<5.7', 'status' => 'normal'],
+                    ],
+                ],
+                [
+                    'title' => 'Liver Function Test (LFT)',
+                    'description' => 'Annual health checkup — liver panel. All enzymes within normal range.',
+                    'test_name' => 'Liver Function Test',
+                    'test_category' => 'Biochemistry',
+                    'results' => [
+                        ['parameter' => 'SGPT (ALT)', 'value' => '28', 'unit' => 'U/L', 'reference_range' => '7-56', 'status' => 'normal'],
+                        ['parameter' => 'SGOT (AST)', 'value' => '24', 'unit' => 'U/L', 'reference_range' => '10-40', 'status' => 'normal'],
+                        ['parameter' => 'Total Bilirubin', 'value' => '0.8', 'unit' => 'mg/dL', 'reference_range' => '0.1-1.2', 'status' => 'normal'],
+                        ['parameter' => 'Alkaline Phosphatase', 'value' => '72', 'unit' => 'U/L', 'reference_range' => '44-147', 'status' => 'normal'],
+                    ],
+                ],
+                [
+                    'title' => 'Kidney Function Test (KFT)',
+                    'description' => 'Annual health checkup — renal panel. Normal kidney function.',
+                    'test_name' => 'Kidney Function Test',
+                    'test_category' => 'Biochemistry',
+                    'results' => [
+                        ['parameter' => 'Serum Creatinine', 'value' => '0.9', 'unit' => 'mg/dL', 'reference_range' => '0.7-1.3', 'status' => 'normal'],
+                        ['parameter' => 'Blood Urea', 'value' => '28', 'unit' => 'mg/dL', 'reference_range' => '15-40', 'status' => 'normal'],
+                        ['parameter' => 'Uric Acid', 'value' => '5.2', 'unit' => 'mg/dL', 'reference_range' => '3.4-7.0', 'status' => 'normal'],
+                    ],
+                ],
+            ];
+
+            foreach ($labReports as $report) {
+                $records[] = [
+                    'appointment_id' => $appt->id,
+                    'family_member_id' => $selfMember?->id,
+                    'category' => 'lab_report',
+                    'title' => $report['title'],
+                    'description' => $report['description'],
+                    'doctor_name' => null,
+                    'department_name' => 'Pathology',
+                    'record_date' => Carbon::today()->subDays(60)->format('Y-m-d'),
+                    'metadata' => [
+                        'test_name' => $report['test_name'],
+                        'test_category' => $report['test_category'],
+                        'lab_name' => 'Pune Diagnostics Lab',
+                        'results' => $report['results'],
+                    ],
+                    'file_type' => 'pdf',
+                ];
+            }
+
+            $records[] = [
+                'appointment_id' => $appt->id,
+                'family_member_id' => $selfMember?->id,
+                'category' => 'invoice',
+                'title' => 'Invoice INV-000004',
+                'description' => 'Complete Health Checkup — Annual Package.',
+                'record_date' => Carbon::today()->subDays(60)->format('Y-m-d'),
+                'metadata' => [
+                    'invoice_number' => 'INV-000004',
+                    'amount' => 4999,
+                    'payment_status' => 'paid',
+                    'line_items' => [
+                        ['label' => 'Complete Health Checkup Package', 'amount' => 4999],
+                    ],
+                ],
+            ];
+        }
+
+        // === Standalone Records (no appointment link) ===
+
+        $records[] = [
+            'appointment_id' => null,
+            'family_member_id' => $selfMember?->id,
+            'category' => 'uploaded_document',
+            'title' => 'Previous Hospital Discharge Summary',
+            'description' => 'Discharge summary from City Hospital for dengue fever treatment (uploaded from external records).',
+            'doctor_name' => 'Dr. Rajesh Khanna',
+            'department_name' => 'Internal Medicine',
+            'record_date' => Carbon::today()->subMonths(6)->format('Y-m-d'),
+            'metadata' => [
+                'source' => 'City Hospital, Pune',
+                'notes' => 'Uploaded by patient. Original document from previous hospitalization.',
+            ],
+            'file_type' => 'pdf',
+        ];
+
+        $records[] = [
+            'appointment_id' => null,
+            'family_member_id' => $selfMember?->id,
+            'category' => 'uploaded_document',
+            'title' => 'Old Prescription — Family Doctor',
+            'description' => 'Previous prescription from Dr. Sharma (family physician) for seasonal allergies.',
+            'doctor_name' => 'Dr. R.K. Sharma',
+            'department_name' => null,
+            'record_date' => Carbon::today()->subMonths(5)->format('Y-m-d'),
+            'metadata' => [
+                'source' => 'Dr. Sharma Clinic, Kothrud',
+                'notes' => 'Seasonal allergy prescription. Kept for reference.',
+            ],
+            'file_type' => 'image',
+        ];
+
+        $records[] = [
+            'appointment_id' => null,
+            'family_member_id' => $selfMember?->id,
+            'category' => 'prescription',
+            'title' => 'Ongoing Medication — Vitamin D3',
+            'description' => 'Vitamin D3 supplementation for mild deficiency, prescribed 3 months ago.',
+            'doctor_name' => 'Dr. Sarah Johnson',
+            'department_name' => 'General Medicine',
+            'record_date' => Carbon::today()->subMonths(3)->format('Y-m-d'),
+            'metadata' => [
+                'drugs' => [
+                    ['name' => 'Vitamin D3 60,000 IU', 'dosage' => '1 sachet', 'frequency' => 'Once weekly', 'duration' => '8 weeks', 'instructions' => 'Mix in milk or water. Take after a fatty meal for better absorption.'],
+                    ['name' => 'Calcium + Vitamin D3 500mg', 'dosage' => '1 tablet', 'frequency' => 'Once daily', 'duration' => '3 months', 'instructions' => 'After dinner'],
+                ],
+                'valid_until' => Carbon::today()->format('Y-m-d'),
+            ],
+            'file_type' => 'pdf',
+        ];
+
+        $records[] = [
+            'appointment_id' => null,
+            'family_member_id' => $selfMember?->id,
+            'category' => 'discharge_summary',
+            'title' => 'Discharge Summary — Dengue Fever',
+            'description' => 'Hospitalized for 5 days due to dengue fever with thrombocytopenia. Recovered fully.',
+            'doctor_name' => 'Dr. Rajesh Khanna',
+            'department_name' => 'Internal Medicine',
+            'record_date' => Carbon::today()->subMonths(6)->format('Y-m-d'),
+            'metadata' => [
+                'admission_date' => Carbon::today()->subMonths(6)->subDays(5)->format('Y-m-d'),
+                'discharge_date' => Carbon::today()->subMonths(6)->format('Y-m-d'),
+                'diagnosis' => 'Dengue Fever with Thrombocytopenia',
+                'procedures' => ['IV Fluid Therapy', 'Platelet Monitoring', 'Antipyretic Treatment'],
+                'discharge_instructions' => 'Rest for 2 weeks. Increase fluid intake. Monitor for any recurrence of fever. Follow-up after 1 week with CBC.',
+            ],
+            'file_type' => 'pdf',
+        ];
+
+        $records[] = [
+            'appointment_id' => null,
+            'family_member_id' => $motherMember?->id,
+            'category' => 'mri_report',
+            'title' => 'MRI — Right Knee',
+            'description' => 'MRI of right knee from external clinic. Shows mild osteoarthritic changes.',
+            'doctor_name' => 'Dr. Pradeep Kulkarni',
+            'department_name' => 'Orthopedics',
+            'record_date' => Carbon::today()->subMonths(4)->format('Y-m-d'),
+            'metadata' => [
+                'body_part' => 'Right Knee',
+                'indication' => 'Chronic knee pain with stiffness, rule out meniscal/ligament injury',
+                'technique' => 'MRI without contrast',
+                'contrast' => 'None',
+                'sequences' => 'T1, T2, PD Fat-Sat, STIR',
+                'findings' => 'Mild narrowing of medial joint space. Small osteophyte formation at tibial plateau. Menisci intact. No ligament tears. Mild joint effusion.',
+                'impression' => 'Early osteoarthritic changes in right knee (Grade I-II). No acute pathology. Conservative management recommended.',
+                'radiologist' => 'Dr. Pradeep Kulkarni',
+            ],
+            'file_type' => 'pdf',
+        ];
+
+        // === New Report Types ===
+
+        $records[] = [
+            'appointment_id' => null,
+            'family_member_id' => $selfMember?->id,
+            'category' => 'ultrasound_report',
+            'title' => 'Abdominal Ultrasound',
+            'description' => 'Routine abdominal ultrasound as part of annual checkup. Normal findings.',
+            'doctor_name' => 'Dr. Suresh Patil',
+            'department_name' => 'Radiology',
+            'record_date' => Carbon::today()->subMonths(5)->format('Y-m-d'),
+            'metadata' => [
+                'body_part' => 'Whole Abdomen',
+                'indication' => 'Routine screening, occasional mild abdominal discomfort',
+                'findings' => 'Liver: Normal size and echotexture. No focal lesion. Gallbladder: Normal, no calculi. CBD not dilated. Pancreas: Normal. Spleen: Normal. Both kidneys: Normal size, shape, and cortical thickness. No calculi or hydronephrosis. Urinary bladder: Normal wall, no calculi.',
+                'impression' => 'Normal abdominal ultrasound. No significant abnormality detected.',
+                'sonographer' => 'Dr. Suresh Patil',
+            ],
+            'file_type' => 'pdf',
+        ];
+
+        $records[] = [
+            'appointment_id' => null,
+            'family_member_id' => $selfMember?->id,
+            'category' => 'pathology_report',
+            'title' => 'Skin Biopsy — Forearm Lesion',
+            'description' => 'Punch biopsy of forearm lesion to confirm eczema diagnosis.',
+            'doctor_name' => 'Dr. Anita Deshmukh',
+            'department_name' => 'Dermatology',
+            'record_date' => Carbon::today()->subDays(42)->format('Y-m-d'),
+            'metadata' => [
+                'specimen_type' => 'Skin punch biopsy, left forearm',
+                'gross_description' => 'Single skin punch biopsy specimen, 4mm diameter, tan-pink, submitted entirely.',
+                'microscopic_findings' => 'Epidermis shows spongiosis with mild acanthosis. Superficial perivascular lymphocytic infiltrate in dermis. No granulomas, no atypia. PAS stain negative for fungal elements.',
+                'diagnosis' => 'Subacute spongiotic dermatitis, consistent with eczema/atopic dermatitis',
+                'grade' => null,
+                'pathologist' => 'Dr. Kavita Mane',
+            ],
+            'file_type' => 'pdf',
+        ];
+
+        $records[] = [
+            'appointment_id' => null,
+            'family_member_id' => $selfMember?->id,
+            'category' => 'pft_report',
+            'title' => 'Pulmonary Function Test',
+            'description' => 'Spirometry performed for pre-employment medical evaluation. Normal lung function.',
+            'doctor_name' => 'Dr. Vikram Patel',
+            'department_name' => 'Pulmonology',
+            'record_date' => Carbon::today()->subMonths(4)->format('Y-m-d'),
+            'metadata' => [
+                'indication' => 'Pre-employment health screening',
+                'results' => [
+                    ['parameter' => 'FVC', 'value' => '4.2', 'predicted' => '4.5', 'percent_predicted' => '93', 'status' => 'normal'],
+                    ['parameter' => 'FEV1', 'value' => '3.5', 'predicted' => '3.7', 'percent_predicted' => '95', 'status' => 'normal'],
+                    ['parameter' => 'FEV1/FVC', 'value' => '83', 'predicted' => '82', 'percent_predicted' => '101', 'status' => 'normal'],
+                    ['parameter' => 'PEFR', 'value' => '8.1', 'predicted' => '8.5', 'percent_predicted' => '95', 'status' => 'normal'],
+                    ['parameter' => 'FEF 25-75%', 'value' => '3.2', 'predicted' => '3.5', 'percent_predicted' => '91', 'status' => 'normal'],
+                ],
+                'interpretation' => 'Normal spirometry. FVC, FEV1, and FEV1/FVC ratio are within normal limits. No obstructive or restrictive pattern. Flow-volume loop morphology is normal.',
+            ],
+            'file_type' => 'pdf',
+        ];
+
+        $records[] = [
+            'appointment_id' => null,
+            'family_member_id' => $selfMember?->id,
+            'category' => 'other_report',
+            'title' => 'Audiometry Report',
+            'description' => 'Pure tone audiometry for routine hearing assessment. Normal hearing bilaterally.',
+            'doctor_name' => 'Dr. Neha Joshi',
+            'department_name' => 'ENT',
+            'record_date' => Carbon::today()->subMonths(3)->format('Y-m-d'),
+            'metadata' => [
+                'report_type' => 'Pure Tone Audiometry',
+                'findings' => 'Right ear: Air conduction thresholds 10-20 dB HL across 250-8000 Hz. Bone conduction normal. Left ear: Air conduction thresholds 10-15 dB HL across 250-8000 Hz. Bone conduction normal. No air-bone gap bilaterally.',
+                'impression' => 'Normal hearing sensitivity bilaterally. No conductive or sensorineural hearing loss.',
+            ],
+            'file_type' => 'pdf',
+        ];
+
+        $records[] = [
+            'appointment_id' => null,
+            'family_member_id' => $selfMember?->id,
+            'category' => 'xray_report',
+            'title' => 'X-ray — Lumbar Spine (AP/Lateral)',
+            'description' => 'Lumbar spine radiograph for evaluation of lower back pain.',
+            'doctor_name' => 'Dr. Pradeep Kulkarni',
+            'department_name' => 'Orthopedics',
+            'record_date' => Carbon::today()->subMonths(3)->format('Y-m-d'),
+            'metadata' => [
+                'body_part' => 'Lumbar Spine (AP and Lateral)',
+                'indication' => 'Lower back pain for 2 weeks',
+                'technique' => 'AP and Lateral views',
+                'findings' => 'Normal lumbar lordosis maintained. Vertebral body heights preserved. Disc spaces appear normal. No fracture or listhesis. Sacroiliac joints normal. Mild degenerative changes at L4-L5.',
+                'impression' => 'Mild degenerative changes at L4-L5. No acute bony abnormality. Correlate clinically.',
+                'radiologist' => 'Dr. Suresh Patil',
+            ],
+            'file_type' => 'image',
+        ];
+
+        // === New Visit Types ===
+
+        $records[] = [
+            'appointment_id' => null,
+            'family_member_id' => $selfMember?->id,
+            'category' => 'procedure_notes',
+            'title' => 'Minor Wound Suturing — Left Hand',
+            'description' => 'Laceration repair of left palm after kitchen accident. 4 sutures placed.',
+            'doctor_name' => 'Dr. Amit Kulkarni',
+            'department_name' => 'General Surgery',
+            'record_date' => Carbon::today()->subMonths(5)->format('Y-m-d'),
+            'metadata' => [
+                'procedure_name' => 'Wound Suturing (Primary Closure)',
+                'indication' => '3cm laceration on left palm from kitchen knife',
+                'anesthesia' => 'Local (2% Lignocaine)',
+                'technique' => 'Wound irrigated with normal saline. Wound edges debrided. 4 interrupted non-absorbable sutures (3-0 Nylon) placed. Sterile dressing applied.',
+                'findings' => 'Clean laceration, 3cm, full thickness skin only. No tendon or nerve involvement. No foreign body.',
+                'complications' => 'None',
+                'post_op_instructions' => 'Keep wound dry for 48 hours. Change dressing daily. Take prescribed antibiotics. Suture removal after 7-10 days. Report if redness, swelling, or discharge increases.',
+            ],
+            'file_type' => 'pdf',
+        ];
+
+        $records[] = [
+            'appointment_id' => null,
+            'family_member_id' => $selfMember?->id,
+            'category' => 'er_visit',
+            'title' => 'ER Visit — Acute Gastroenteritis',
+            'description' => 'Emergency department visit for severe vomiting and diarrhea. Treated with IV fluids and discharged.',
+            'doctor_name' => 'Dr. Rahul Desai',
+            'department_name' => 'Emergency Medicine',
+            'record_date' => Carbon::today()->subMonths(7)->format('Y-m-d'),
+            'metadata' => [
+                'chief_complaint' => 'Severe vomiting (8-10 episodes) and watery diarrhea for 12 hours',
+                'triage_level' => 'Level 3 — Urgent',
+                'vitals' => [
+                    'bp' => '100/60 mmHg',
+                    'heart_rate' => '102 bpm',
+                    'temperature' => '99.2°F',
+                    'spo2' => '98%',
+                    'respiratory_rate' => '18/min',
+                ],
+                'examination' => 'Mild dehydration. Abdomen soft, diffuse tenderness, no guarding. Bowel sounds hyperactive.',
+                'diagnosis' => 'Acute Gastroenteritis (likely food poisoning)',
+                'treatment_given' => 'IV Normal Saline 1L bolus, then 500ml/hr. Ondansetron 4mg IV. Pantoprazole 40mg IV. Oral rehydration solution started after vomiting controlled.',
+                'disposition' => 'Discharged after 6 hours of observation. Tolerating oral fluids.',
+                'follow_up' => 'Follow-up with primary care in 2-3 days if symptoms persist.',
+            ],
+            'file_type' => 'pdf',
+        ];
+
+        $records[] = [
+            'appointment_id' => null,
+            'family_member_id' => $motherMember?->id,
+            'category' => 'other_visit',
+            'title' => 'Physiotherapy Session — Knee Rehabilitation',
+            'description' => 'Physiotherapy session for right knee osteoarthritis management.',
+            'doctor_name' => 'Dr. Sneha Rao',
+            'department_name' => 'Physiotherapy',
+            'record_date' => Carbon::today()->subMonths(3)->format('Y-m-d'),
+            'metadata' => [
+                'visit_type' => 'Physiotherapy Session',
+                'notes' => 'Session 4 of 8. Performed quadriceps strengthening exercises, hamstring stretches, and knee ROM exercises. Ultrasound therapy applied to right knee (10 min). Patient reports 40% improvement in pain since starting therapy. Advised home exercises: straight leg raises 3x15, wall squats 3x10.',
+                'follow_up' => 'Next session in 4 days. Continue home exercises daily.',
+            ],
+        ];
+
+        // === New Medication Types ===
+
+        $records[] = [
+            'appointment_id' => null,
+            'family_member_id' => $selfMember?->id,
+            'category' => 'medication_active',
+            'title' => 'Vitamin D3 + Calcium (Active)',
+            'description' => 'Ongoing supplementation for mild Vitamin D deficiency.',
+            'doctor_name' => 'Dr. Sarah Johnson',
+            'department_name' => 'General Medicine',
+            'record_date' => Carbon::today()->subMonths(3)->format('Y-m-d'),
+            'metadata' => [
+                'drug_name' => 'Calcium + Vitamin D3 500mg',
+                'dosage' => '1 tablet',
+                'frequency' => 'Once daily after dinner',
+                'route' => 'Oral',
+                'start_date' => Carbon::today()->subMonths(3)->format('Y-m-d'),
+                'prescribing_doctor' => 'Dr. Sarah Johnson',
+                'condition' => 'Vitamin D Deficiency',
+                'refills_remaining' => 2,
+            ],
+        ];
+
+        $records[] = [
+            'appointment_id' => null,
+            'family_member_id' => $motherMember?->id,
+            'category' => 'medication_active',
+            'title' => 'Metformin 500mg (Active)',
+            'description' => 'Ongoing medication for Type 2 Diabetes management.',
+            'doctor_name' => 'Dr. Sarah Johnson',
+            'department_name' => 'General Medicine',
+            'record_date' => Carbon::today()->subMonths(8)->format('Y-m-d'),
+            'metadata' => [
+                'drug_name' => 'Metformin 500mg',
+                'dosage' => '1 tablet',
+                'frequency' => 'Twice daily (morning and evening)',
+                'route' => 'Oral',
+                'start_date' => Carbon::today()->subMonths(8)->format('Y-m-d'),
+                'prescribing_doctor' => 'Dr. Sarah Johnson',
+                'condition' => 'Type 2 Diabetes Mellitus',
+                'refills_remaining' => 3,
+            ],
+        ];
+
+        if ($appt = $appointments->get(0)) {
+            $records[] = [
+                'appointment_id' => $appt->id,
+                'family_member_id' => $selfMember?->id,
+                'category' => 'medication_past',
+                'title' => 'Paracetamol 500mg (Completed)',
+                'description' => 'Course completed for viral fever treatment.',
+                'doctor_name' => 'Dr. Sarah Johnson',
+                'department_name' => 'General Medicine',
+                'record_date' => Carbon::today()->subDays(16)->format('Y-m-d'),
+                'metadata' => [
+                    'drug_name' => 'Paracetamol 500mg',
+                    'dosage' => '1 tablet, three times a day',
+                    'frequency' => 'TDS (after meals)',
+                    'route' => 'Oral',
+                    'start_date' => Carbon::today()->subDays(16)->format('Y-m-d'),
+                    'end_date' => Carbon::today()->subDays(11)->format('Y-m-d'),
+                    'reason_stopped' => 'Course completed. Symptoms resolved.',
+                    'prescribing_doctor' => 'Dr. Sarah Johnson',
+                ],
+            ];
+        }
+
+        if ($appt = $appointments->get(1)) {
+            $records[] = [
+                'appointment_id' => $appt->id,
+                'family_member_id' => $motherMember?->id,
+                'category' => 'medication_past',
+                'title' => 'Alprazolam 0.25mg (Discontinued)',
+                'description' => 'SOS anxiolytic discontinued after stress management counseling helped.',
+                'doctor_name' => 'Dr. Emily Chen',
+                'department_name' => 'Cardiology',
+                'record_date' => Carbon::today()->subDays(30)->format('Y-m-d'),
+                'metadata' => [
+                    'drug_name' => 'Alprazolam 0.25mg',
+                    'dosage' => '1 tablet as needed',
+                    'frequency' => 'SOS (max 2 per day)',
+                    'route' => 'Oral',
+                    'start_date' => Carbon::today()->subDays(30)->format('Y-m-d'),
+                    'end_date' => Carbon::today()->subDays(16)->format('Y-m-d'),
+                    'reason_stopped' => 'Discontinued by Dr. Meera Iyer. Anxiety managed with counseling and lifestyle changes.',
+                    'prescribing_doctor' => 'Dr. Emily Chen',
+                ],
+            ];
+        }
+
+        // === New Document Types ===
+
+        $records[] = [
+            'appointment_id' => null,
+            'family_member_id' => $selfMember?->id,
+            'category' => 'vaccination',
+            'title' => 'COVID-19 Booster (Covishield)',
+            'description' => 'COVID-19 booster dose administered at vaccination center.',
+            'doctor_name' => null,
+            'department_name' => 'Vaccination Center',
+            'record_date' => Carbon::today()->subMonths(8)->format('Y-m-d'),
+            'metadata' => [
+                'vaccine_name' => 'Covishield (Oxford-AstraZeneca)',
+                'dose_number' => 3,
+                'total_doses' => 3,
+                'batch_number' => 'COVX-4567-2025',
+                'administered_by' => 'Pune Municipal Corporation Vaccination Center',
+                'site' => 'Left Deltoid',
+                'next_due_date' => null,
+            ],
+            'file_type' => 'pdf',
+        ];
+
+        $records[] = [
+            'appointment_id' => null,
+            'family_member_id' => $selfMember?->id,
+            'category' => 'vaccination',
+            'title' => 'Influenza Vaccine 2025-26',
+            'description' => 'Annual flu shot for 2025-26 season.',
+            'doctor_name' => 'Dr. Sarah Johnson',
+            'department_name' => 'General Medicine',
+            'record_date' => Carbon::today()->subMonths(4)->format('Y-m-d'),
+            'metadata' => [
+                'vaccine_name' => 'Quadrivalent Influenza Vaccine (Fluarix)',
+                'dose_number' => 1,
+                'total_doses' => 1,
+                'batch_number' => 'FLU-QIV-8821',
+                'administered_by' => 'Dr. Sarah Johnson, General Medicine',
+                'site' => 'Right Deltoid',
+                'next_due_date' => Carbon::today()->addMonths(8)->format('Y-m-d'),
+            ],
+            'file_type' => 'pdf',
+        ];
+
+        $records[] = [
+            'appointment_id' => null,
+            'family_member_id' => $selfMember?->id,
+            'category' => 'medical_certificate',
+            'title' => 'Fitness Certificate — Office Submission',
+            'description' => 'Medical fitness certificate issued for annual workplace health compliance.',
+            'doctor_name' => 'Dr. Sarah Johnson',
+            'department_name' => 'General Medicine',
+            'record_date' => Carbon::today()->subMonths(2)->format('Y-m-d'),
+            'metadata' => [
+                'certificate_type' => 'Fitness Certificate',
+                'issued_for' => 'Annual workplace health compliance — employer requirement',
+                'valid_from' => Carbon::today()->subMonths(2)->format('Y-m-d'),
+                'valid_until' => Carbon::today()->addMonths(10)->format('Y-m-d'),
+                'issued_by' => 'Dr. Sarah Johnson, General Medicine',
+                'notes' => 'Patient is in good general health. Fit for regular office duties. No medical restrictions.',
+            ],
+            'file_type' => 'pdf',
+        ];
+
+        if ($appt = $appointments->get(0)) {
+            $records[] = [
+                'appointment_id' => $appt->id,
+                'family_member_id' => $selfMember?->id,
+                'category' => 'medical_certificate',
+                'title' => 'Medical Leave Certificate — Viral Fever',
+                'description' => 'Sick leave certificate issued for viral fever episode (5 days).',
+                'doctor_name' => 'Dr. Sarah Johnson',
+                'department_name' => 'General Medicine',
+                'record_date' => Carbon::today()->subDays(16)->format('Y-m-d'),
+                'metadata' => [
+                    'certificate_type' => 'Sick Leave Certificate',
+                    'issued_for' => 'Viral fever with headache — advised rest for 5 days',
+                    'valid_from' => Carbon::today()->subDays(16)->format('Y-m-d'),
+                    'valid_until' => Carbon::today()->subDays(11)->format('Y-m-d'),
+                    'issued_by' => 'Dr. Sarah Johnson, General Medicine',
+                    'notes' => 'Patient diagnosed with viral fever. Advised complete rest and medication for 5 days. Fit to resume duties after the rest period.',
+                ],
+                'file_type' => 'pdf',
+            ];
+        }
+
+        foreach ($records as $record) {
+            HealthRecord::create(array_merge($record, ['user_id' => $user->id]));
         }
     }
 }
