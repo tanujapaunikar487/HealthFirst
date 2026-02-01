@@ -850,5 +850,32 @@ selectedCenterId: int           // Lab center ID for hospital visit
 
 ---
 
+## Package/Test UX Polish (February 1, 2026)
+
+Three UX improvements to the lab test/package selection and scheduling flow.
+
+### Contextual Info Badges on Cards
+
+**EmbeddedPackageList.tsx** — Added inline pill badges below descriptions (always visible, no expand needed):
+- **Packages**: duration (`2-3 hrs`), tests count (`12 tests`), fasting (`10h fasting` in orange), age range
+- **Tests**: turnaround time (`Report in 10h`), fasting (`8h fasting` in orange), category
+- Style: `text-xs bg-muted px-2 py-0.5 rounded-full`, fasting uses `bg-orange-50 text-orange-700`
+
+### Unified Selection UX
+
+**EmbeddedPackageList.tsx** — Replaced the "Book"/"Selected" button on packages with the same checkbox-style selection used for tests:
+- CheckSquare/Square icons instead of Button component
+- `bg-primary/5` row highlight on selection (replaced blue left-border)
+- Expand chevron moved to dedicated column (same layout as test cards)
+- Packages remain single-select, tests remain multi-select
+
+### Removed Pre-Selected Banner from ScheduleStep
+
+**ScheduleStep.tsx** — Deleted the blue banner (Section 1) that showed selected test/package name, price, and "Change" button at the top of step 3. Removed 7 props (`hasPreSelectedPackage`, `hasPreSelectedTests`, `preSelectedPackageName`, `preSelectedTestNames`, `preSelectedPrice`, `preSelectedRequiresFasting`, `preSelectedFastingHours`), `getPriceEstimate()`, `priceEstimate`, and `preSelectionName`. Kept `FastingAlert` with simplified `requiresFasting`/`fastingHours` props.
+
+**GuidedLabController.php** — Simplified `schedule()` to only compute and pass `requiresFasting` and `fastingHours` instead of the full banner data.
+
+---
+
 **Last Updated**: February 1, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish
