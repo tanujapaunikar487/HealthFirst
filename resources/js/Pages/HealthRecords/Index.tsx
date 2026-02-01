@@ -69,6 +69,16 @@ import {
   ChevronLeft,
   ChevronRight,
   Link2,
+  Check,
+  X,
+  MapPin,
+  Clock,
+  Phone,
+  ArrowRight,
+  Calendar,
+  Activity,
+  ShieldCheck,
+  FileDown,
 } from 'lucide-react';
 
 /* ─── Types ─── */
@@ -97,6 +107,51 @@ interface Drug {
   instructions: string;
 }
 
+interface LinkedRecord {
+  icon_type: string;
+  title: string;
+  link_text: string;
+}
+
+interface DischargeMedication {
+  name: string;
+  dosage: string;
+  duration: string;
+}
+
+interface FollowUpItem {
+  description: string;
+  date: string;
+  booked: boolean;
+}
+
+interface Investigation {
+  name: string;
+  result: string;
+  has_link: boolean;
+}
+
+interface VaccinationEntry {
+  vaccine_name: string;
+  date: string;
+  dose_label: string;
+  administered_by: string;
+  batch_number: string;
+  site: string;
+}
+
+interface UpcomingVaccine {
+  vaccine_name: string;
+  due_date: string;
+  dose_label: string;
+}
+
+interface AttachedFile {
+  name: string;
+  type: string;
+  size?: string;
+}
+
 interface RecordMetadata {
   // consultation_notes
   diagnosis?: string;
@@ -104,6 +159,17 @@ interface RecordMetadata {
   symptoms?: string[];
   examination_findings?: string;
   treatment_plan?: string;
+  visit_type_label?: string;
+  opd_number?: string;
+  duration?: string;
+  location?: string;
+  history_of_present_illness?: string;
+  clinical_examination?: string;
+  treatment_plan_steps?: string[];
+  linked_records?: LinkedRecord[];
+  follow_up_date?: string;
+  follow_up_recommendation?: string;
+  vitals_status?: Record<string, string>;
   // prescription
   drugs?: Drug[];
   valid_until?: string;
@@ -150,6 +216,21 @@ interface RecordMetadata {
   discharge_date?: string;
   procedures?: string[];
   discharge_instructions?: string;
+  length_of_stay?: string;
+  treating_doctor?: string;
+  room_info?: string;
+  ipd_number?: string;
+  primary_diagnosis?: string;
+  secondary_diagnosis?: string;
+  procedure_performed?: string;
+  hospital_course?: string;
+  vitals_at_discharge?: Record<string, string>;
+  discharge_medications?: DischargeMedication[];
+  discharge_dos?: string[];
+  discharge_donts?: string[];
+  warning_signs?: string[];
+  emergency_contact?: string;
+  follow_up_schedule?: FollowUpItem[];
   // procedure_notes
   procedure_name?: string;
   anesthesia?: string;
@@ -163,6 +244,15 @@ interface RecordMetadata {
   treatment_given?: string;
   disposition?: string;
   follow_up?: string;
+  er_number?: string;
+  arrival_time?: string;
+  discharge_time?: string;
+  mode_of_arrival?: string;
+  attending_doctor?: string;
+  pain_score?: string;
+  investigations?: Investigation[];
+  treatment_items?: string[];
+  disposition_detail?: string;
   // other_visit
   visit_type?: string;
   notes?: string;
@@ -177,6 +267,15 @@ interface RecordMetadata {
   condition?: string;
   refills_remaining?: number;
   reason_stopped?: string;
+  timing?: string;
+  with_food?: boolean;
+  medication_duration?: string;
+  how_it_works?: string;
+  original_quantity?: number;
+  side_effects?: string[];
+  side_effects_warning?: string;
+  adherence_this_week?: ('taken' | 'missed' | 'upcoming')[];
+  adherence_rate?: number;
   // vaccination
   vaccine_name?: string;
   dose_number?: number;
@@ -185,11 +284,19 @@ interface RecordMetadata {
   administered_by?: string;
   site?: string;
   next_due_date?: string | null;
+  vaccination_history?: VaccinationEntry[];
+  upcoming_vaccinations?: UpcomingVaccine[];
+  attached_certificates?: AttachedFile[];
   // medical_certificate
   certificate_type?: string;
   issued_for?: string;
   valid_from?: string;
   issued_by?: string;
+  certificate_number?: string;
+  certificate_content?: string;
+  examination_findings_list?: string[];
+  digitally_signed?: boolean;
+  verification_url?: string;
   // invoice
   invoice_number?: string;
   amount?: number;
@@ -226,6 +333,9 @@ interface FamilyMember {
   id: number;
   name: string;
   relation: string;
+  age?: number;
+  gender?: string;
+  blood_group?: string;
 }
 
 interface User {
@@ -772,6 +882,7 @@ export default function Index({ user, records, familyMembers, abnormalCount }: P
               record={selectedRecord}
               memberMap={memberMap}
               onDownload={() => toast('Download feature coming soon')}
+              onAction={toast}
             />
           )}
         </SheetContent>
@@ -784,7 +895,7 @@ export default function Index({ user, records, familyMembers, abnormalCount }: P
 
 /* ─── Detail Side Sheet ─── */
 
-function RecordDetailSheet({ record, memberMap, onDownload }: { record: HealthRecord; memberMap: Record<number, FamilyMember>; onDownload: () => void }) {
+function RecordDetailSheet({ record, memberMap, onDownload, onAction }: { record: HealthRecord; memberMap: Record<number, FamilyMember>; onDownload: () => void; onAction: (msg: string) => void }) {
   const config = categoryConfig[record.category] || { label: record.category, color: '#6B7280', bg: '#F3F4F6' };
   const member = record.family_member_id ? memberMap[record.family_member_id] : undefined;
   const meta = record.metadata;
@@ -833,7 +944,7 @@ function RecordDetailSheet({ record, memberMap, onDownload }: { record: HealthRe
         )}
 
         {/* Category-specific content */}
-        {meta && <CategoryDetail category={record.category} meta={meta} />}
+        {meta && <CategoryDetail category={record.category} meta={meta} onAction={onAction} record={record} memberMap={memberMap} />}
       </div>
 
       <div className="pt-6 mt-6 border-t space-y-2">
@@ -866,9 +977,9 @@ function RecordDetailSheet({ record, memberMap, onDownload }: { record: HealthRe
 
 /* ─── Category Detail Router ─── */
 
-function CategoryDetail({ category, meta }: { category: string; meta: RecordMetadata }) {
+function CategoryDetail({ category, meta, onAction, record, memberMap }: { category: string; meta: RecordMetadata; onAction: (msg: string) => void; record: HealthRecord; memberMap: Record<number, FamilyMember> }) {
   switch (category) {
-    case 'consultation_notes': return <ConsultationDetail meta={meta} />;
+    case 'consultation_notes': return <ConsultationDetail meta={meta} onAction={onAction} />;
     case 'prescription': return <PrescriptionDetail meta={meta} />;
     case 'lab_report': return <LabReportDetail meta={meta} />;
     case 'xray_report': return <XrayDetail meta={meta} />;
@@ -878,15 +989,15 @@ function CategoryDetail({ category, meta }: { category: string; meta: RecordMeta
     case 'pathology_report': return <PathologyDetail meta={meta} />;
     case 'pft_report': return <PftDetail meta={meta} />;
     case 'other_report': return <OtherReportDetail meta={meta} />;
-    case 'procedure_notes': return <ProcedureDetail meta={meta} />;
-    case 'er_visit': return <ErVisitDetail meta={meta} />;
+    case 'procedure_notes': return <ProcedureDetail meta={meta} onAction={onAction} />;
+    case 'er_visit': return <ErVisitDetail meta={meta} onAction={onAction} />;
     case 'referral': return <ReferralDetail meta={meta} />;
-    case 'discharge_summary': return <DischargeDetail meta={meta} />;
+    case 'discharge_summary': return <DischargeDetail meta={meta} onAction={onAction} />;
     case 'other_visit': return <OtherVisitDetail meta={meta} />;
-    case 'medication_active': return <MedicationActiveDetail meta={meta} />;
-    case 'medication_past': return <MedicationPastDetail meta={meta} />;
-    case 'vaccination': return <VaccinationDetail meta={meta} />;
-    case 'medical_certificate': return <MedicalCertificateDetail meta={meta} />;
+    case 'medication_active': return <MedicationActiveDetail meta={meta} onAction={onAction} />;
+    case 'medication_past': return <MedicationPastDetail meta={meta} onAction={onAction} />;
+    case 'vaccination': return <VaccinationDetail meta={meta} onAction={onAction} record={record} memberMap={memberMap} />;
+    case 'medical_certificate': return <MedicalCertificateDetail meta={meta} onAction={onAction} />;
     case 'invoice': return <InvoiceDetail meta={meta} />;
     case 'uploaded_document': return <UploadedDocDetail meta={meta} />;
     default: return null;
@@ -915,6 +1026,7 @@ function StatusDot({ status }: { status: string }) {
     abnormal:   { bg: '#FEF2F2', text: '#EF4444', label: 'Abnormal' },
     high:       { bg: '#FEF2F2', text: '#EF4444', label: 'High' },
     low:        { bg: '#FFFBEB', text: '#F59E0B', label: 'Low' },
+    elevated:   { bg: '#FFFBEB', text: '#F59E0B', label: 'Elevated' },
   };
   const c = colors[status] || { bg: '#F3F4F6', text: '#6B7280', label: status };
   return (
@@ -947,45 +1059,196 @@ function FindingsImpression({ findings, impression, impressionColor = '#0E7490',
 
 const fmtDate = (d?: string) => d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
 
+/* ─── New Shared Helpers ─── */
+
+function VitalsGrid({ vitals, statuses, painScore }: { vitals: Record<string, string>; statuses?: Record<string, string>; painScore?: string }) {
+  const allItems = [
+    ...Object.entries(vitals).map(([key, val]) => ({ key, val })),
+    ...(painScore ? [{ key: 'pain_score', val: painScore }] : []),
+  ];
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      {allItems.map(({ key, val }) => {
+        const status = statuses?.[key];
+        return (
+          <div key={key} className="rounded-lg border px-3 py-2">
+            <p className="text-[10px] text-muted-foreground uppercase">{key.replace(/_/g, ' ')}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium">{val}</p>
+              {status && <StatusDot status={status.toLowerCase()} />}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function NumberedList({ items, variant = 'default' }: { items: string[]; variant?: 'default' | 'check' | 'x' | 'warning' }) {
+  const iconMap = {
+    check: <Check className="h-3.5 w-3.5 text-green-600 flex-shrink-0 mt-0.5" />,
+    x: <X className="h-3.5 w-3.5 text-red-500 flex-shrink-0 mt-0.5" />,
+    warning: <AlertTriangle className="h-3.5 w-3.5 text-amber-500 flex-shrink-0 mt-0.5" />,
+  };
+  return (
+    <ol className="space-y-1.5">
+      {items.map((item, i) => (
+        <li key={i} className="text-sm flex items-start gap-2 leading-relaxed" style={{ color: '#374151' }}>
+          {variant === 'default' ? (
+            <span className="text-xs font-medium text-muted-foreground w-4 flex-shrink-0 mt-0.5">{i + 1}.</span>
+          ) : (
+            iconMap[variant]
+          )}
+          <span>{item}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function LinkedRecordsList({ records, onView }: { records: LinkedRecord[]; onView: (title: string) => void }) {
+  return (
+    <div className="space-y-1">
+      {records.map((rec, i) => {
+        const config = categoryConfig[rec.icon_type];
+        return (
+          <button
+            key={i}
+            className="flex items-center gap-2.5 w-full rounded-lg border px-3 py-2 text-left hover:bg-muted/50 transition-colors"
+            onClick={() => onView(rec.title)}
+          >
+            {config ? (
+              <div className="h-6 w-6 rounded flex items-center justify-center flex-shrink-0" style={{ backgroundColor: config.bg }}>
+                <config.icon className="h-3.5 w-3.5" style={{ color: config.color }} />
+              </div>
+            ) : (
+              <div className="h-6 w-6 rounded flex items-center justify-center flex-shrink-0 bg-gray-100">
+                <FileText className="h-3.5 w-3.5 text-gray-500" />
+              </div>
+            )}
+            <span className="text-sm flex-1 truncate">{rec.title}</span>
+            <ArrowRight className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ─── Visit Detail Components ─── */
 
-function ConsultationDetail({ meta }: { meta: RecordMetadata }) {
+function ConsultationDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (msg: string) => void }) {
   return (
-    <div className="space-y-4">
-      {meta.diagnosis && (
+    <div className="space-y-5">
+      {/* Visit Details */}
+      {(meta.visit_type_label || meta.opd_number || meta.duration || meta.location) && (
         <div>
-          <SectionTitle>Diagnosis</SectionTitle>
-          <div className="rounded-lg bg-blue-50 px-3 py-2">
-            <p className="text-sm font-medium" style={{ color: '#1E40AF' }}>{meta.diagnosis}</p>
-            {meta.icd_code && <p className="text-[11px] text-blue-500 mt-0.5">ICD: {meta.icd_code}</p>}
+          <SectionTitle>Visit Details</SectionTitle>
+          <div className="space-y-0">
+            {(meta.visit_type_label || meta.opd_number) && (
+              <DetailRow label="Visit Type">
+                {meta.visit_type_label}{meta.opd_number ? ` | ${meta.opd_number}` : ''}
+              </DetailRow>
+            )}
+            {meta.duration && <DetailRow label="Duration">{meta.duration}</DetailRow>}
+            {meta.location && <DetailRow label="Location">{meta.location}</DetailRow>}
           </div>
         </div>
       )}
-      {meta.symptoms && meta.symptoms.length > 0 && (
+
+      {/* Vitals Recorded */}
+      {meta.vitals && Object.keys(meta.vitals).length > 0 && (
         <div>
-          <SectionTitle>Symptoms</SectionTitle>
-          <div className="flex flex-wrap gap-1.5">
-            {meta.symptoms.map((s, i) => <Badge key={i} variant="secondary" className="text-xs">{s}</Badge>)}
+          <SectionTitle>Vitals Recorded</SectionTitle>
+          <VitalsGrid vitals={meta.vitals} statuses={meta.vitals_status} />
+        </div>
+      )}
+
+      {/* Clinical Summary */}
+      <div className="space-y-4">
+        <SectionTitle>Clinical Summary</SectionTitle>
+        {meta.chief_complaint && (
+          <div>
+            <p className="text-[10px] text-muted-foreground uppercase mb-1">Chief Complaint</p>
+            <div className="rounded-lg bg-blue-50 px-3 py-2">
+              <p className="text-sm" style={{ color: '#1E40AF' }}>{meta.chief_complaint}</p>
+            </div>
           </div>
-        </div>
-      )}
-      {meta.examination_findings && (
-        <div>
-          <SectionTitle>Examination Findings</SectionTitle>
-          <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{meta.examination_findings}</p>
-        </div>
-      )}
-      {meta.treatment_plan && (
+        )}
+        {meta.symptoms && meta.symptoms.length > 0 && (
+          <div>
+            <p className="text-[10px] text-muted-foreground uppercase mb-1">Symptoms</p>
+            <div className="flex flex-wrap gap-1.5">
+              {meta.symptoms.map((s, i) => <Badge key={i} variant="secondary" className="text-xs">{s}</Badge>)}
+            </div>
+          </div>
+        )}
+        {(meta.history_of_present_illness) && (
+          <div>
+            <p className="text-[10px] text-muted-foreground uppercase mb-1">History of Present Illness</p>
+            <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{meta.history_of_present_illness}</p>
+          </div>
+        )}
+        {(meta.clinical_examination || meta.examination_findings) && (
+          <div>
+            <p className="text-[10px] text-muted-foreground uppercase mb-1">Examination</p>
+            <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{meta.clinical_examination || meta.examination_findings}</p>
+          </div>
+        )}
+        {meta.diagnosis && (
+          <div>
+            <p className="text-[10px] text-muted-foreground uppercase mb-1">Diagnosis</p>
+            <div className="rounded-lg bg-blue-50 px-3 py-2">
+              <p className="text-sm font-medium" style={{ color: '#1E40AF' }}>{meta.diagnosis}</p>
+              {meta.icd_code && <p className="text-[11px] text-blue-500 mt-0.5">ICD: {meta.icd_code}</p>}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Treatment Plan */}
+      {(meta.treatment_plan_steps?.length || meta.treatment_plan) && (
         <div>
           <SectionTitle>Treatment Plan</SectionTitle>
-          <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{meta.treatment_plan}</p>
+          {meta.treatment_plan_steps && meta.treatment_plan_steps.length > 0 ? (
+            <NumberedList items={meta.treatment_plan_steps} />
+          ) : meta.treatment_plan ? (
+            <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{meta.treatment_plan}</p>
+          ) : null}
+        </div>
+      )}
+
+      {/* Linked Records */}
+      {meta.linked_records && meta.linked_records.length > 0 && (
+        <div>
+          <SectionTitle>Linked Records</SectionTitle>
+          <LinkedRecordsList records={meta.linked_records} onView={(title) => onAction(`Opening ${title}...`)} />
+        </div>
+      )}
+
+      {/* Follow-up */}
+      {(meta.follow_up_recommendation || meta.follow_up_date || meta.follow_up) && (
+        <div>
+          <SectionTitle>Follow-up</SectionTitle>
+          <div className="rounded-lg border border-blue-200 bg-blue-50/50 px-3 py-3 space-y-2">
+            {(meta.follow_up_recommendation || meta.follow_up) && (
+              <p className="text-sm" style={{ color: '#374151' }}>{meta.follow_up_recommendation || meta.follow_up}</p>
+            )}
+            {meta.follow_up_date && (
+              <p className="text-xs text-muted-foreground">Recommended: {fmtDate(meta.follow_up_date)}</p>
+            )}
+            <Button size="sm" variant="outline" className="w-full gap-2" onClick={() => onAction('Follow-up booking coming soon')}>
+              <Calendar className="h-3.5 w-3.5" />
+              Book Follow-up Appointment
+            </Button>
+          </div>
         </div>
       )}
     </div>
   );
 }
 
-function ProcedureDetail({ meta }: { meta: RecordMetadata }) {
+function ProcedureDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (msg: string) => void }) {
   return (
     <div className="space-y-4">
       {meta.procedure_name && <DetailRow label="Procedure">{meta.procedure_name}</DetailRow>}
@@ -1010,13 +1273,45 @@ function ProcedureDetail({ meta }: { meta: RecordMetadata }) {
           <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{meta.post_op_instructions}</p>
         </div>
       )}
+      {meta.linked_records && meta.linked_records.length > 0 && (
+        <div>
+          <SectionTitle>Linked Records</SectionTitle>
+          <LinkedRecordsList records={meta.linked_records} onView={(title) => onAction(`Opening ${title}...`)} />
+        </div>
+      )}
     </div>
   );
 }
 
-function ErVisitDetail({ meta }: { meta: RecordMetadata }) {
+function ErVisitDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (msg: string) => void }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
+      {/* Visit Details */}
+      {(meta.er_number || meta.arrival_time || meta.triage_level || meta.mode_of_arrival) && (
+        <div>
+          <SectionTitle>Visit Details</SectionTitle>
+          <div className="space-y-0">
+            {meta.er_number && <DetailRow label="ER Number">{meta.er_number}</DetailRow>}
+            {meta.arrival_time && <DetailRow label="Arrival">{meta.arrival_time}</DetailRow>}
+            {meta.discharge_time && <DetailRow label="Discharge">{meta.discharge_time}</DetailRow>}
+            {meta.duration && <DetailRow label="Duration">{meta.duration}</DetailRow>}
+            {meta.triage_level && (
+              <DetailRow label="Triage Level">
+                <Badge variant="secondary" className={cn(
+                  'text-[10px]',
+                  meta.triage_level.includes('1') || meta.triage_level.includes('2') ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-700'
+                )}>
+                  {meta.triage_level}
+                </Badge>
+              </DetailRow>
+            )}
+            {(meta.attending_doctor) && <DetailRow label="Attending">{meta.attending_doctor}</DetailRow>}
+            {meta.mode_of_arrival && <DetailRow label="Mode of Arrival">{meta.mode_of_arrival}</DetailRow>}
+          </div>
+        </div>
+      )}
+
+      {/* Chief Complaint */}
       {meta.chief_complaint && (
         <div>
           <SectionTitle>Chief Complaint</SectionTitle>
@@ -1025,35 +1320,87 @@ function ErVisitDetail({ meta }: { meta: RecordMetadata }) {
           </div>
         </div>
       )}
-      {meta.triage_level && <DetailRow label="Triage">{meta.triage_level}</DetailRow>}
+
+      {/* Vitals on Arrival */}
       {meta.vitals && Object.keys(meta.vitals).length > 0 && (
         <div>
-          <SectionTitle>Vitals</SectionTitle>
-          <div className="grid grid-cols-2 gap-2">
-            {Object.entries(meta.vitals).map(([key, val]) => (
-              <div key={key} className="rounded-lg border px-3 py-2">
-                <p className="text-[10px] text-muted-foreground uppercase">{key.replace(/_/g, ' ')}</p>
-                <p className="text-sm font-medium">{val}</p>
-              </div>
-            ))}
-          </div>
+          <SectionTitle>Vitals on Arrival</SectionTitle>
+          <VitalsGrid vitals={meta.vitals} statuses={meta.vitals_status} painScore={meta.pain_score} />
         </div>
       )}
+
+      {/* Examination */}
       {meta.examination && (
         <div>
           <SectionTitle>Examination</SectionTitle>
           <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{meta.examination}</p>
         </div>
       )}
-      {meta.diagnosis && <DetailRow label="Diagnosis">{meta.diagnosis}</DetailRow>}
-      {meta.treatment_given && (
+
+      {/* Investigations Done */}
+      {meta.investigations && meta.investigations.length > 0 && (
         <div>
-          <SectionTitle>Treatment Given</SectionTitle>
-          <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{meta.treatment_given}</p>
+          <SectionTitle>Investigations Done</SectionTitle>
+          <div className="space-y-1.5">
+            {meta.investigations.map((inv, i) => (
+              <div key={i} className="flex items-start gap-2 text-sm">
+                <span className="h-1.5 w-1.5 rounded-full bg-gray-400 flex-shrink-0 mt-2" />
+                <div className="flex-1">
+                  <span className="font-medium">{inv.name}</span>
+                  <span className="text-muted-foreground"> — {inv.result}</span>
+                </div>
+                {inv.has_link && (
+                  <button className="text-xs text-blue-600 hover:underline flex-shrink-0" onClick={() => onAction(`Opening ${inv.name}...`)}>
+                    View
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
-      {meta.disposition && <DetailRow label="Disposition">{meta.disposition}</DetailRow>}
+
+      {/* Diagnosis */}
+      {meta.diagnosis && (
+        <div>
+          <SectionTitle>Diagnosis</SectionTitle>
+          <div className="rounded-lg bg-amber-50 px-3 py-2">
+            <p className="text-sm font-medium" style={{ color: '#92400E' }}>{meta.diagnosis}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Treatment Given */}
+      {(meta.treatment_items?.length || meta.treatment_given) && (
+        <div>
+          <SectionTitle>Treatment Given in ER</SectionTitle>
+          {meta.treatment_items && meta.treatment_items.length > 0 ? (
+            <NumberedList items={meta.treatment_items} />
+          ) : meta.treatment_given ? (
+            <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{meta.treatment_given}</p>
+          ) : null}
+        </div>
+      )}
+
+      {/* Disposition */}
+      {(meta.disposition || meta.disposition_detail) && (
+        <div>
+          <SectionTitle>Disposition</SectionTitle>
+          {meta.disposition && <p className="text-sm font-medium" style={{ color: '#374151' }}>{meta.disposition}</p>}
+          {meta.disposition_detail && <p className="text-sm leading-relaxed text-muted-foreground mt-1">{meta.disposition_detail}</p>}
+        </div>
+      )}
+
+      {/* Follow-up */}
       {meta.follow_up && <DetailRow label="Follow-up">{meta.follow_up}</DetailRow>}
+
+      {/* Linked Records */}
+      {meta.linked_records && meta.linked_records.length > 0 && (
+        <div>
+          <SectionTitle>Linked Records</SectionTitle>
+          <LinkedRecordsList records={meta.linked_records} onView={(title) => onAction(`Opening ${title}...`)} />
+        </div>
+      )}
     </div>
   );
 }
@@ -1080,14 +1427,63 @@ function ReferralDetail({ meta }: { meta: RecordMetadata }) {
   );
 }
 
-function DischargeDetail({ meta }: { meta: RecordMetadata }) {
+function DischargeDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (msg: string) => void }) {
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        {meta.admission_date && <DetailRow label="Admission Date">{fmtDate(meta.admission_date)}</DetailRow>}
-        {meta.discharge_date && <DetailRow label="Discharge Date">{fmtDate(meta.discharge_date)}</DetailRow>}
-        {meta.diagnosis && <DetailRow label="Diagnosis">{meta.diagnosis}</DetailRow>}
+    <div className="space-y-5">
+      {/* Admission Details */}
+      <div>
+        <SectionTitle>Admission Details</SectionTitle>
+        <div className="space-y-0">
+          {meta.admission_date && <DetailRow label="Admission Date">{fmtDate(meta.admission_date)}</DetailRow>}
+          {meta.discharge_date && <DetailRow label="Discharge Date">{fmtDate(meta.discharge_date)}</DetailRow>}
+          {meta.length_of_stay && <DetailRow label="Length of Stay">{meta.length_of_stay}</DetailRow>}
+          {meta.treating_doctor && <DetailRow label="Treating Doctor">{meta.treating_doctor}</DetailRow>}
+          {meta.room_info && <DetailRow label="Room">{meta.room_info}</DetailRow>}
+          {meta.ipd_number && <DetailRow label="IPD Number">{meta.ipd_number}</DetailRow>}
+        </div>
       </div>
+
+      {/* Diagnosis */}
+      {(meta.primary_diagnosis || meta.diagnosis || meta.secondary_diagnosis || meta.procedure_performed) && (
+        <div>
+          <SectionTitle>Diagnosis</SectionTitle>
+          <div className="space-y-2">
+            {(meta.primary_diagnosis || meta.diagnosis) && (
+              <div className="rounded-lg bg-blue-50 px-3 py-2">
+                <p className="text-[10px] text-blue-500 uppercase mb-0.5">Primary</p>
+                <p className="text-sm font-medium" style={{ color: '#1E40AF' }}>{meta.primary_diagnosis || meta.diagnosis}</p>
+              </div>
+            )}
+            {meta.secondary_diagnosis && (
+              <div className="rounded-lg bg-gray-50 px-3 py-2">
+                <p className="text-[10px] text-muted-foreground uppercase mb-0.5">Secondary</p>
+                <p className="text-sm" style={{ color: '#374151' }}>{meta.secondary_diagnosis}</p>
+              </div>
+            )}
+            {meta.procedure_performed && (
+              <DetailRow label="Procedure">{meta.procedure_performed}</DetailRow>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Hospital Course */}
+      {meta.hospital_course && (
+        <div>
+          <SectionTitle>Hospital Course</SectionTitle>
+          <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{meta.hospital_course}</p>
+        </div>
+      )}
+
+      {/* Vitals at Discharge */}
+      {meta.vitals_at_discharge && Object.keys(meta.vitals_at_discharge).length > 0 && (
+        <div>
+          <SectionTitle>Vitals at Discharge</SectionTitle>
+          <VitalsGrid vitals={meta.vitals_at_discharge} />
+        </div>
+      )}
+
+      {/* Procedures */}
       {meta.procedures && meta.procedures.length > 0 && (
         <div>
           <SectionTitle>Procedures</SectionTitle>
@@ -1100,10 +1496,91 @@ function DischargeDetail({ meta }: { meta: RecordMetadata }) {
           </ul>
         </div>
       )}
-      {meta.discharge_instructions && (
+
+      {/* Discharge Medications */}
+      {meta.discharge_medications && meta.discharge_medications.length > 0 && (
+        <div>
+          <SectionTitle>Discharge Medications</SectionTitle>
+          <ol className="space-y-1.5">
+            {meta.discharge_medications.map((med, i) => (
+              <li key={i} className="text-sm flex items-start gap-2" style={{ color: '#374151' }}>
+                <span className="text-xs font-medium text-muted-foreground w-4 flex-shrink-0 mt-0.5">{i + 1}.</span>
+                <span>{med.name} — {med.dosage} x {med.duration}</span>
+              </li>
+            ))}
+          </ol>
+          <button
+            className="text-xs text-blue-600 hover:underline mt-2"
+            onClick={() => onAction('Opening prescription...')}
+          >
+            View Full Prescription &rarr;
+          </button>
+        </div>
+      )}
+
+      {/* Discharge Instructions (dos/donts or fallback) */}
+      {(meta.discharge_dos?.length || meta.discharge_donts?.length || meta.discharge_instructions) && (
         <div>
           <SectionTitle>Discharge Instructions</SectionTitle>
-          <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{meta.discharge_instructions}</p>
+          {meta.discharge_dos && meta.discharge_dos.length > 0 && (
+            <div className="mb-3">
+              <NumberedList items={meta.discharge_dos} variant="check" />
+            </div>
+          )}
+          {meta.discharge_donts && meta.discharge_donts.length > 0 && (
+            <NumberedList items={meta.discharge_donts} variant="x" />
+          )}
+          {!meta.discharge_dos?.length && !meta.discharge_donts?.length && meta.discharge_instructions && (
+            <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{meta.discharge_instructions}</p>
+          )}
+        </div>
+      )}
+
+      {/* Warning Signs */}
+      {meta.warning_signs && meta.warning_signs.length > 0 && (
+        <div>
+          <SectionTitle>Warning Signs — Contact Immediately If</SectionTitle>
+          <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-3 space-y-2">
+            <NumberedList items={meta.warning_signs} variant="warning" />
+            {meta.emergency_contact && (
+              <div className="flex items-center gap-2 pt-2 border-t border-red-200">
+                <Phone className="h-3.5 w-3.5 text-red-500" />
+                <span className="text-xs font-medium text-red-700">{meta.emergency_contact}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Follow-up Schedule */}
+      {meta.follow_up_schedule && meta.follow_up_schedule.length > 0 && (
+        <div>
+          <SectionTitle>Follow-up Schedule</SectionTitle>
+          <div className="space-y-2">
+            {meta.follow_up_schedule.map((item, i) => (
+              <div key={i} className="flex items-center justify-between rounded-lg border px-3 py-2">
+                <div>
+                  <p className="text-sm">{item.description}</p>
+                  <p className="text-xs text-muted-foreground">{fmtDate(item.date)}</p>
+                </div>
+                {item.booked ? (
+                  <Badge variant="success" className="text-[10px]">Booked</Badge>
+                ) : (
+                  <Button size="sm" variant="outline" className="text-xs h-7" onClick={() => onAction('Follow-up booking coming soon')}>
+                    Book Now
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Linked Records */}
+      {meta.linked_records && meta.linked_records.length > 0 && (
+        <div>
+          <SectionTitle>Linked Records</SectionTitle>
+          <LinkedRecordsList records={meta.linked_records} onView={(title) => onAction(`Opening ${title}...`)} />
         </div>
       )}
     </div>
@@ -1355,31 +1832,144 @@ function PrescriptionDetail({ meta }: { meta: RecordMetadata }) {
   );
 }
 
-function MedicationActiveDetail({ meta }: { meta: RecordMetadata }) {
+function MedicationActiveDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (msg: string) => void }) {
+  const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   return (
-    <div className="space-y-3">
+    <div className="space-y-5">
+      {/* Drug Name Header */}
       {meta.drug_name && (
         <div className="rounded-lg bg-green-50 border border-green-200 px-3 py-2">
           <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-green-500" />
+            <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
             <p className="text-sm font-semibold" style={{ color: '#166534' }}>{meta.drug_name}</p>
           </div>
         </div>
       )}
-      {meta.dosage && <DetailRow label="Dosage">{meta.dosage}</DetailRow>}
-      {meta.frequency && <DetailRow label="Frequency">{meta.frequency}</DetailRow>}
-      {meta.route && <DetailRow label="Route">{meta.route}</DetailRow>}
-      {meta.start_date && <DetailRow label="Started">{fmtDate(meta.start_date)}</DetailRow>}
-      {meta.prescribing_doctor && <DetailRow label="Prescribed By">{meta.prescribing_doctor}</DetailRow>}
-      {meta.condition && <DetailRow label="Condition">{meta.condition}</DetailRow>}
-      {meta.refills_remaining != null && <DetailRow label="Refills Remaining">{meta.refills_remaining}</DetailRow>}
+
+      {/* Dosage Instructions */}
+      {(meta.dosage || meta.frequency || meta.timing || meta.medication_duration || meta.route) && (
+        <div>
+          <SectionTitle>Dosage Instructions</SectionTitle>
+          <div className="space-y-0">
+            {meta.dosage && <DetailRow label="Dose">{meta.dosage}</DetailRow>}
+            {meta.frequency && <DetailRow label="Frequency">{meta.frequency}</DetailRow>}
+            {meta.timing && <DetailRow label="Timing">{meta.timing}</DetailRow>}
+            {meta.with_food && (
+              <DetailRow label="Food">
+                <Badge variant="secondary" className="text-[10px] px-2 py-0.5 bg-green-50 text-green-700">Take with food</Badge>
+              </DetailRow>
+            )}
+            {meta.medication_duration && <DetailRow label="Duration">{meta.medication_duration}</DetailRow>}
+            {meta.route && <DetailRow label="Route">{meta.route}</DetailRow>}
+          </div>
+        </div>
+      )}
+
+      {/* Purpose */}
+      {(meta.condition || meta.how_it_works) && (
+        <div>
+          <SectionTitle>Purpose</SectionTitle>
+          {meta.condition && <p className="text-sm font-medium mb-1" style={{ color: '#374151' }}>{meta.condition}</p>}
+          {meta.how_it_works && <p className="text-sm leading-relaxed text-muted-foreground">{meta.how_it_works}</p>}
+        </div>
+      )}
+
+      {/* Prescription Details */}
+      {(meta.prescribing_doctor || meta.start_date || meta.original_quantity != null || meta.refills_remaining != null) && (
+        <div>
+          <SectionTitle>Prescription Details</SectionTitle>
+          <div className="space-y-0">
+            {meta.prescribing_doctor && <DetailRow label="Prescribed By">{meta.prescribing_doctor}</DetailRow>}
+            {meta.start_date && <DetailRow label="Started">{fmtDate(meta.start_date)}</DetailRow>}
+            {meta.original_quantity != null && <DetailRow label="Qty Dispensed">{meta.original_quantity} tablets</DetailRow>}
+            {meta.refills_remaining != null && <DetailRow label="Refills Remaining">{meta.refills_remaining}</DetailRow>}
+          </div>
+        </div>
+      )}
+
+      {/* Common Side Effects */}
+      {meta.side_effects && meta.side_effects.length > 0 && (
+        <div>
+          <SectionTitle>Common Side Effects</SectionTitle>
+          <ul className="space-y-1">
+            {meta.side_effects.map((se, i) => (
+              <li key={i} className="text-sm flex items-start gap-2 leading-relaxed" style={{ color: '#374151' }}>
+                <span className="h-1.5 w-1.5 rounded-full bg-gray-400 flex-shrink-0 mt-1.5" />
+                {se}
+              </li>
+            ))}
+          </ul>
+          {meta.side_effects_warning && (
+            <div className="mt-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="h-3.5 w-3.5 text-amber-500 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-800">{meta.side_effects_warning}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Adherence Tracking */}
+      {meta.adherence_this_week && meta.adherence_this_week.length > 0 && (
+        <div>
+          <SectionTitle>Adherence This Week</SectionTitle>
+          <div className="flex items-center gap-1.5 mb-2">
+            {meta.adherence_this_week.map((status, i) => (
+              <div key={i} className="flex flex-col items-center gap-1 flex-1">
+                <div className={cn(
+                  'h-8 w-8 rounded-full flex items-center justify-center',
+                  status === 'taken' && 'bg-green-100',
+                  status === 'missed' && 'bg-red-100',
+                  status === 'upcoming' && 'bg-gray-100',
+                )}>
+                  {status === 'taken' && <Check className="h-4 w-4 text-green-600" />}
+                  {status === 'missed' && <X className="h-4 w-4 text-red-500" />}
+                  {status === 'upcoming' && <span className="h-2 w-2 rounded-full bg-gray-300" />}
+                </div>
+                <span className="text-[10px] text-muted-foreground">{dayLabels[i]}</span>
+              </div>
+            ))}
+          </div>
+          {meta.adherence_rate != null && (
+            <div className="flex items-center gap-2 mb-3">
+              <div className="flex-1 h-2 rounded-full bg-gray-100 overflow-hidden">
+                <div
+                  className={cn('h-full rounded-full transition-all', meta.adherence_rate >= 80 ? 'bg-green-500' : meta.adherence_rate >= 60 ? 'bg-amber-500' : 'bg-red-500')}
+                  style={{ width: `${meta.adherence_rate}%` }}
+                />
+              </div>
+              <span className="text-xs font-medium">{meta.adherence_rate}%</span>
+            </div>
+          )}
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => onAction('Dose logged successfully')}>
+              <Check className="h-3.5 w-3.5" />
+              Log Today's Dose
+            </Button>
+            <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => onAction('Full adherence history coming soon')}>
+              <Calendar className="h-3.5 w-3.5" />
+              View History
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Related Records */}
+      {meta.linked_records && meta.linked_records.length > 0 && (
+        <div>
+          <SectionTitle>Related Records</SectionTitle>
+          <LinkedRecordsList records={meta.linked_records} onView={(title) => onAction(`Opening ${title}...`)} />
+        </div>
+      )}
     </div>
   );
 }
 
-function MedicationPastDetail({ meta }: { meta: RecordMetadata }) {
+function MedicationPastDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (msg: string) => void }) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-5">
+      {/* Drug Name Header */}
       {meta.drug_name && (
         <div className="rounded-lg bg-gray-50 border border-gray-200 px-3 py-2">
           <div className="flex items-center gap-2">
@@ -1388,16 +1978,86 @@ function MedicationPastDetail({ meta }: { meta: RecordMetadata }) {
           </div>
         </div>
       )}
-      {meta.dosage && <DetailRow label="Dosage">{meta.dosage}</DetailRow>}
-      {meta.frequency && <DetailRow label="Frequency">{meta.frequency}</DetailRow>}
-      {meta.route && <DetailRow label="Route">{meta.route}</DetailRow>}
-      {meta.start_date && <DetailRow label="Started">{fmtDate(meta.start_date)}</DetailRow>}
-      {meta.end_date && <DetailRow label="Ended">{fmtDate(meta.end_date)}</DetailRow>}
-      {meta.prescribing_doctor && <DetailRow label="Prescribed By">{meta.prescribing_doctor}</DetailRow>}
+
+      {/* Dosage Instructions */}
+      {(meta.dosage || meta.frequency || meta.timing || meta.medication_duration || meta.route) && (
+        <div>
+          <SectionTitle>Dosage Instructions</SectionTitle>
+          <div className="space-y-0">
+            {meta.dosage && <DetailRow label="Dose">{meta.dosage}</DetailRow>}
+            {meta.frequency && <DetailRow label="Frequency">{meta.frequency}</DetailRow>}
+            {meta.timing && <DetailRow label="Timing">{meta.timing}</DetailRow>}
+            {meta.with_food && (
+              <DetailRow label="Food">
+                <Badge variant="secondary" className="text-[10px] px-2 py-0.5 bg-green-50 text-green-700">Take with food</Badge>
+              </DetailRow>
+            )}
+            {meta.medication_duration && <DetailRow label="Duration">{meta.medication_duration}</DetailRow>}
+            {meta.route && <DetailRow label="Route">{meta.route}</DetailRow>}
+          </div>
+        </div>
+      )}
+
+      {/* Purpose */}
+      {(meta.condition || meta.how_it_works) && (
+        <div>
+          <SectionTitle>Purpose</SectionTitle>
+          {meta.condition && <p className="text-sm font-medium mb-1" style={{ color: '#374151' }}>{meta.condition}</p>}
+          {meta.how_it_works && <p className="text-sm leading-relaxed text-muted-foreground">{meta.how_it_works}</p>}
+        </div>
+      )}
+
+      {/* Prescription Details */}
+      {(meta.prescribing_doctor || meta.start_date || meta.end_date || meta.original_quantity != null) && (
+        <div>
+          <SectionTitle>Prescription Details</SectionTitle>
+          <div className="space-y-0">
+            {meta.prescribing_doctor && <DetailRow label="Prescribed By">{meta.prescribing_doctor}</DetailRow>}
+            {meta.start_date && <DetailRow label="Started">{fmtDate(meta.start_date)}</DetailRow>}
+            {meta.end_date && <DetailRow label="Ended">{fmtDate(meta.end_date)}</DetailRow>}
+            {meta.original_quantity != null && <DetailRow label="Qty Dispensed">{meta.original_quantity} tablets</DetailRow>}
+          </div>
+        </div>
+      )}
+
+      {/* Reason Stopped */}
       {meta.reason_stopped && (
         <div>
           <SectionTitle>Reason Stopped</SectionTitle>
-          <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{meta.reason_stopped}</p>
+          <div className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2">
+            <p className="text-sm" style={{ color: '#92400E' }}>{meta.reason_stopped}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Common Side Effects */}
+      {meta.side_effects && meta.side_effects.length > 0 && (
+        <div>
+          <SectionTitle>Common Side Effects</SectionTitle>
+          <ul className="space-y-1">
+            {meta.side_effects.map((se, i) => (
+              <li key={i} className="text-sm flex items-start gap-2 leading-relaxed" style={{ color: '#374151' }}>
+                <span className="h-1.5 w-1.5 rounded-full bg-gray-400 flex-shrink-0 mt-1.5" />
+                {se}
+              </li>
+            ))}
+          </ul>
+          {meta.side_effects_warning && (
+            <div className="mt-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="h-3.5 w-3.5 text-amber-500 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-800">{meta.side_effects_warning}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Related Records */}
+      {meta.linked_records && meta.linked_records.length > 0 && (
+        <div>
+          <SectionTitle>Related Records</SectionTitle>
+          <LinkedRecordsList records={meta.linked_records} onView={(title) => onAction(`Opening ${title}...`)} />
         </div>
       )}
     </div>
@@ -1406,58 +2066,206 @@ function MedicationPastDetail({ meta }: { meta: RecordMetadata }) {
 
 /* ─── Document Detail Components ─── */
 
-function VaccinationDetail({ meta }: { meta: RecordMetadata }) {
+function VaccinationDetail({ meta, onAction, record, memberMap }: { meta: RecordMetadata; onAction: (msg: string) => void; record: HealthRecord; memberMap: Record<number, FamilyMember> }) {
+  const member = record.family_member_id ? memberMap[record.family_member_id] : undefined;
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
+      {/* Vaccine Name Header */}
       {meta.vaccine_name && (
         <div className="rounded-lg bg-green-50 border border-green-200 px-3 py-2.5">
           <p className="text-sm font-semibold" style={{ color: '#166534' }}>{meta.vaccine_name}</p>
         </div>
       )}
-      {meta.dose_number != null && meta.total_doses != null && (
+
+      {/* Patient Details */}
+      {member && (
         <div>
-          <DetailRow label="Dose">
-            {meta.dose_number} of {meta.total_doses}
-          </DetailRow>
-          <div className="mt-1.5 h-2 rounded-full bg-gray-100 overflow-hidden">
-            <div className="h-full rounded-full bg-green-500 transition-all" style={{ width: `${(meta.dose_number / meta.total_doses) * 100}%` }} />
+          <SectionTitle>Patient Details</SectionTitle>
+          <div className="space-y-0">
+            <DetailRow label="Name">{member.name}</DetailRow>
+            {member.age && <DetailRow label="Age">{member.age} years</DetailRow>}
+            {member.gender && <DetailRow label="Gender"><span className="capitalize">{member.gender}</span></DetailRow>}
+            {member.blood_group && <DetailRow label="Blood Group">{member.blood_group}</DetailRow>}
           </div>
         </div>
       )}
-      {meta.batch_number && <DetailRow label="Batch Number">{meta.batch_number}</DetailRow>}
-      {meta.administered_by && <DetailRow label="Administered By">{meta.administered_by}</DetailRow>}
-      {meta.site && <DetailRow label="Injection Site">{meta.site}</DetailRow>}
-      {meta.next_due_date && <DetailRow label="Next Due">{fmtDate(meta.next_due_date)}</DetailRow>}
-      {meta.next_due_date === null && meta.dose_number === meta.total_doses && (
-        <div className="rounded-lg bg-green-50 px-3 py-2 text-center">
-          <p className="text-xs font-medium text-green-700">Vaccination course complete</p>
+
+      {/* Administration Details */}
+      <div>
+        <SectionTitle>Administration Details</SectionTitle>
+        {meta.dose_number != null && meta.total_doses != null && (
+          <div className="mb-2">
+            <DetailRow label="Dose">
+              {meta.dose_number} of {meta.total_doses}
+            </DetailRow>
+            <div className="mt-1.5 h-2 rounded-full bg-gray-100 overflow-hidden">
+              <div className="h-full rounded-full bg-green-500 transition-all" style={{ width: `${(meta.dose_number / meta.total_doses) * 100}%` }} />
+            </div>
+          </div>
+        )}
+        <div className="space-y-0">
+          {meta.batch_number && <DetailRow label="Batch Number">{meta.batch_number}</DetailRow>}
+          {meta.administered_by && <DetailRow label="Administered By">{meta.administered_by}</DetailRow>}
+          {meta.site && <DetailRow label="Injection Site">{meta.site}</DetailRow>}
+          {meta.next_due_date && <DetailRow label="Next Due">{fmtDate(meta.next_due_date)}</DetailRow>}
+        </div>
+        {meta.next_due_date === null && meta.dose_number === meta.total_doses && (
+          <div className="mt-2 rounded-lg bg-green-50 px-3 py-2 text-center">
+            <p className="text-xs font-medium text-green-700">Vaccination course complete</p>
+          </div>
+        )}
+      </div>
+
+      {/* Vaccination History */}
+      {meta.vaccination_history && meta.vaccination_history.length > 0 && (
+        <div>
+          <SectionTitle>Vaccination History</SectionTitle>
+          <div className="rounded-lg border overflow-hidden">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="bg-muted/50">
+                  <th className="text-left px-3 py-2 font-medium">Vaccine</th>
+                  <th className="text-left px-3 py-2 font-medium">Date</th>
+                  <th className="text-left px-3 py-2 font-medium">Dose</th>
+                </tr>
+              </thead>
+              <tbody>
+                {meta.vaccination_history.map((entry, i) => (
+                  <tr key={i} className="border-t">
+                    <td className="px-3 py-2">
+                      <div>{entry.vaccine_name}</div>
+                      <div className="text-muted-foreground">{entry.site}</div>
+                    </td>
+                    <td className="px-3 py-2">{fmtDate(entry.date)}</td>
+                    <td className="px-3 py-2">{entry.dose_label}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Upcoming Vaccinations */}
+      {meta.upcoming_vaccinations && meta.upcoming_vaccinations.length > 0 && (
+        <div>
+          <SectionTitle>Upcoming Vaccinations</SectionTitle>
+          <div className="space-y-2">
+            {meta.upcoming_vaccinations.map((vac, i) => (
+              <div key={i} className="rounded-lg border px-3 py-2.5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium">{vac.vaccine_name}</p>
+                    <p className="text-xs text-muted-foreground">{vac.dose_label} · Due {fmtDate(vac.due_date)}</p>
+                  </div>
+                  <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => onAction(`Scheduling ${vac.vaccine_name}...`)}>
+                    <Calendar className="h-3 w-3" />
+                    Schedule
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Attached Certificates */}
+      {meta.attached_certificates && meta.attached_certificates.length > 0 && (
+        <div>
+          <SectionTitle>Attached Certificates</SectionTitle>
+          <div className="space-y-1.5">
+            {meta.attached_certificates.map((file, i) => (
+              <div key={i} className="flex items-center gap-3 rounded-lg border px-3 py-2">
+                <div className="h-8 w-8 rounded bg-red-50 flex items-center justify-center flex-shrink-0">
+                  <FileDown className="h-4 w-4 text-red-500" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{file.name}</p>
+                  <p className="text-xs text-muted-foreground uppercase">{file.type}{file.size ? ` · ${file.size}` : ''}</p>
+                </div>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => onAction(`Downloading ${file.name}...`)}>
+                  <Download className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
   );
 }
 
-function MedicalCertificateDetail({ meta }: { meta: RecordMetadata }) {
+function MedicalCertificateDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (msg: string) => void }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
+      {/* Certificate Type Header */}
       {meta.certificate_type && (
         <div className="rounded-lg bg-blue-50 border border-blue-200 px-3 py-2">
           <p className="text-sm font-semibold" style={{ color: '#1E40AF' }}>{meta.certificate_type}</p>
         </div>
       )}
-      {meta.issued_for && (
+
+      {/* Certificate Details */}
+      <div>
+        <SectionTitle>Certificate Details</SectionTitle>
+        <div className="space-y-0">
+          {meta.certificate_number && <DetailRow label="Certificate No.">{meta.certificate_number}</DetailRow>}
+          {meta.issued_for && <DetailRow label="Issued For">{meta.issued_for}</DetailRow>}
+          {meta.issued_by && <DetailRow label="Issued By">{meta.issued_by}</DetailRow>}
+          {meta.valid_from && <DetailRow label="Valid From">{fmtDate(meta.valid_from)}</DetailRow>}
+          {meta.valid_until && <DetailRow label="Valid Until">{fmtDate(meta.valid_until)}</DetailRow>}
+        </div>
+      </div>
+
+      {/* Certificate Content */}
+      {(meta.certificate_content || meta.notes) && (
         <div>
-          <SectionTitle>Issued For</SectionTitle>
-          <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{meta.issued_for}</p>
+          <SectionTitle>Certificate Content</SectionTitle>
+          <p className="text-sm leading-relaxed mb-2" style={{ color: '#374151' }}>{meta.certificate_content || meta.notes}</p>
+          {meta.examination_findings_list && meta.examination_findings_list.length > 0 && (
+            <div className="mt-2">
+              <p className="text-xs font-medium text-muted-foreground mb-1.5">Examination Findings</p>
+              <NumberedList items={meta.examination_findings_list} variant="check" />
+            </div>
+          )}
         </div>
       )}
-      {meta.valid_from && <DetailRow label="Valid From">{fmtDate(meta.valid_from)}</DetailRow>}
-      {meta.valid_until && <DetailRow label="Valid Until">{fmtDate(meta.valid_until)}</DetailRow>}
-      {meta.issued_by && <DetailRow label="Issued By">{meta.issued_by}</DetailRow>}
-      {meta.notes && (
+
+      {/* Verification */}
+      {(meta.digitally_signed != null || meta.verification_url) && (
         <div>
-          <SectionTitle>Notes</SectionTitle>
-          <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{meta.notes}</p>
+          <SectionTitle>Verification</SectionTitle>
+          <div className="rounded-lg border px-3 py-2.5">
+            <div className="flex items-center gap-2 mb-1">
+              {meta.digitally_signed ? (
+                <>
+                  <ShieldCheck className="h-4 w-4 text-green-600" />
+                  <span className="text-sm font-medium text-green-700">Digitally Signed & Verified</span>
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="h-4 w-4 text-gray-400" />
+                  <span className="text-sm font-medium text-muted-foreground">Not digitally signed</span>
+                </>
+              )}
+            </div>
+            {meta.verification_url && (
+              <p className="text-xs text-muted-foreground">
+                Verify at:{' '}
+                <button className="text-blue-600 hover:underline" onClick={() => onAction(`Verification URL: ${meta.verification_url}`)}>
+                  {meta.verification_url}
+                </button>
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Linked Records */}
+      {meta.linked_records && meta.linked_records.length > 0 && (
+        <div>
+          <SectionTitle>Linked Records</SectionTitle>
+          <LinkedRecordsList records={meta.linked_records} onView={(title) => onAction(`Opening ${title}...`)} />
         </div>
       )}
     </div>

@@ -1232,5 +1232,227 @@ Tied to the 7 seeded appointments covering all 8 notification types:
 
 ---
 
+## Health Records Page (February 1, 2026)
+
+Full health records management page at `/health-records` with table-based list view, server-computed status badges, filtering, bulk actions, and 21 category-specific detail sheet templates.
+
+### Database
+
+**Migration**: `2026_02_01_500001_create_health_records_table.php`
+- Columns: id, user_id (UUID FK), appointment_id (nullable FK), family_member_id (nullable FK), category, title, description, doctor_name, department_name, record_date, metadata (JSON), file_url, file_type, timestamps
+- Indexes on [user_id, category], [user_id, record_date], [appointment_id]
+- Flexible JSON `metadata` column stores category-specific data without schema changes
+
+**Model**: `App\Models\HealthRecord` with `metadata` (array) and `record_date` (date) casts, relationships to User, Appointment, FamilyMember, `scopeForCategory()`.
+
+**User model**: Added `healthRecords(): HasMany` relationship.
+**Appointment model**: Added `healthRecords(): HasMany` relationship.
+
+### 21 Record Categories (4 Groups)
+
+**Reports** (8): lab_report, xray_report, mri_report, ultrasound_report, ecg_report, pathology_report, pft_report, other_report
+**Visits** (6): consultation_notes, procedure_notes, discharge_summary, er_visit, referral, other_visit
+**Medications** (3): prescription, medication_active, medication_past
+**Documents** (4): vaccination, medical_certificate, invoice, uploaded_document
+
+### Seed Data (42 records)
+
+Tied to 4 completed appointments + standalone records:
+- Appointment 1 (Viral Fever): consultation, prescription, CBC lab report, invoice
+- Appointment 2 (Chest Pain, Mother): consultation, prescription, lipid profile, chest X-ray, ECG, referral, invoice
+- Appointment 3 (Eczema): consultation, prescription, pathology biopsy, invoice
+- Appointment 4 (Annual Checkup): 6 lab reports (CBC, Lipid, Thyroid, Blood Sugar, Liver, Kidney), invoice
+- Standalone: discharge summary (dengue), 2 uploaded docs, Vitamin D3 prescription, MRI knee (mother), ultrasound, PFT, audiometry, lumbar X-ray, wound suturing procedure, ER visit (food poisoning), physiotherapy (mother), 2 active meds, 2 past meds, 2 vaccinations, 2 medical certificates
+
+### Server-Side Status Computation
+
+**HealthRecordController.php** — `computeStatus(category, metadata)` returns `{ label, variant }` for each record:
+
+| Category | Logic | Statuses |
+|----------|-------|----------|
+| lab_report | Scan results[].status for abnormal/high/borderline | Normal (success), Needs Attention (destructive), Borderline (warning) |
+| prescription | Compare valid_until to today | Active (info), Completed (secondary) |
+| medication_active | Always | Active (info) |
+| medication_past | Check reason_stopped for "discontinu" | Discontinued (destructive), Completed (secondary) |
+| consultation/procedure/er/other_visit | Check follow_up field | Completed (success), Follow-up Required (warning) |
+| discharge_summary | Always | Completed (success) |
+| referral | Check priority | Urgent (destructive), Pending (warning) |
+| vaccination | Compare dose_number to total_doses | Complete (success), In Progress (info) |
+| medical_certificate | Compare valid_until to today | Valid (success), Expired (destructive) |
+| invoice | Check payment_status | Paid (success), Pending (warning), Due (destructive) |
+
+`abnormalCount` prop: count of records with "Needs Attention" status for the alert banner.
+
+### Frontend: Table-Based List View
+
+**File**: `resources/js/Pages/HealthRecords/Index.tsx`
+
+**Header**: "Health Records" title + Upload Record / Download All / Share Records buttons (toast placeholders)
+
+**Alert Banner** (conditional): Shows when abnormalCount > 0 — "X reports need attention" with View button that filters to those records.
+
+**5 Filter Controls**:
+1. Document Type: All Types, group filters (All Reports/Visits/Medications/Documents), individual categories
+2. Status: All, Normal, Needs Attention, Active, Completed, Pending, Follow-up Required, Valid, Expired, Discontinued
+3. Family Member: All Members, Yourself, each family member
+4. Date Range: From/To date inputs
+5. Search: title, description, doctor, department, patient name
+
+**Table** (shadcn Table component):
+- Columns: Checkbox, Date, Record (icon + title + category badge + doctor), Patient, Status (badge + Review button for Needs Attention), Actions (3-dot menu)
+- Row click opens detail sheet
+- Checkbox selection with select-all header checkbox
+
+**Bulk Actions Bar**: Appears when checkboxes selected — "N selected" + Download/Share buttons + Clear
+
+**Row Actions** (DropdownMenu): View Details, Download, Share, Print, Link to Appointment (if linked), Delete (only for uploaded_document, destructive styling)
+
+**Pagination**: 10 per page, page numbers, prev/next buttons, "Showing X–Y of Z records"
+
+**Empty State**: FolderOpen icon, "No records yet", "Book an appointment to get started", Book Appointment CTA
+
+**Footer**: "Need help? Contact support →"
+
+### Detail Side Sheet (21 category-specific templates)
+
+Opens via row click, "View Details" action, or "Review" button. Contains:
+- Header: Category icon + title + date + doctor
+- Common fields: Department, Patient, Category badge, Status badge, File type
+- Summary text
+- **Category-specific detail component** (switch router):
+  - ConsultationDetail: diagnosis (ICD code), symptoms badges, examination findings, treatment plan
+  - PrescriptionDetail: drugs table (name, dosage, frequency, duration, instructions), valid_until
+  - LabReportDetail: test category badge, results table (parameter, value, reference, status dots)
+  - XrayDetail/MriDetail/UltrasoundDetail: body part, indication, technique, FindingsImpression component
+  - EcgDetail: heart rate, rhythm, axis, intervals grid (PR/QRS/QT), findings/impression
+  - PathologyDetail: specimen, gross/microscopic findings, diagnosis with grade
+  - PftDetail: results table (parameter, actual, predicted, %, status), interpretation
+  - ProcedureDetail: procedure name, anesthesia, technique, findings, post-op instructions
+  - ErVisitDetail: chief complaint (red box), triage, vitals grid, treatment, disposition
+  - MedicationActiveDetail: green drug badge, dosage, frequency, condition, refills
+  - MedicationPastDetail: gray drug badge, start/end dates, reason stopped
+  - VaccinationDetail: vaccine name, dose progress bar, batch, next due date
+  - MedicalCertificateDetail: type, issued for, validity dates
+  - InvoiceDetail: invoice number, amount, payment status, line items table
+  - UploadedDocDetail: source, notes
+- Footer actions: View Appointment, View Bill, Download
+
+### Design System Additions
+
+**CSS Variables** (`resources/css/app.css`): Added `--success`, `--warning`, `--info` with foreground variants (both light and dark themes)
+
+**Tailwind Config**: Registered `success`, `warning`, `info` color tokens matching the CSS variables
+
+**New Component**: `resources/js/Components/ui/checkbox.tsx` — Standard shadcn Checkbox using `@radix-ui/react-checkbox`
+
+### Files Created
+| File | Purpose |
+|------|---------|
+| `database/migrations/2026_02_01_500001_create_health_records_table.php` | Migration |
+| `app/Models/HealthRecord.php` | Eloquent model |
+| `app/Http/Controllers/HealthRecordController.php` | Controller with status computation |
+| `resources/js/Pages/HealthRecords/Index.tsx` | Full page with table, filters, 21 detail templates |
+| `resources/js/Components/ui/checkbox.tsx` | shadcn Checkbox component |
+
+### Files Modified
+| File | Changes |
+|------|---------|
+| `app/User.php` | Added `healthRecords()` relationship |
+| `app/Models/Appointment.php` | Added `healthRecords()` relationship |
+| `database/seeders/HospitalSeeder.php` | Added `seedHealthRecords()` with 42 records across 21 categories |
+| `routes/web.php` | Added `GET /health-records` route |
+| `resources/css/app.css` | Added success/warning/info CSS variables |
+| `tailwind.config.js` | Added success/warning/info color tokens |
+| `package.json` | Added `@radix-ui/react-checkbox` dependency |
+
+---
+
+## Health Records: Visit Detail Redesign (February 1, 2026)
+
+Redesigned 3 visit-type detail components (Consultation, Discharge Summary, ER Visit) in the Health Records side sheet with richer metadata sections matching clinical document standards.
+
+### New Shared Helper Components
+
+| Component | Props | Purpose |
+|-----------|-------|---------|
+| `VitalsGrid` | vitals, statuses?, painScore? | 2-column grid of vital sign cards with optional colored status pills (Normal/High/Elevated) |
+| `NumberedList` | items, variant? | Numbered steps (default), green checkmarks (check), red X marks (x), amber warnings (warning) |
+| `LinkedRecordsList` | records, onView | Cross-reference cards with category icons and "View →" links triggering toast |
+
+Extended `StatusDot` with "elevated" variant (amber).
+
+### Component Rewrites
+
+**ConsultationDetail** — 6 sections: Visit Details (type/OPD/duration/location), Vitals Recorded (VitalsGrid with status pills), Clinical Summary (chief complaint box + symptoms badges + HPI + examination + diagnosis with ICD), Treatment Plan (NumberedList, fallback to paragraph), Linked Records, Follow-up with booking button
+
+**DischargeDetail** — 10 sections: Admission Details (IPD/LOS/room/doctor), Diagnosis (primary box + secondary + procedure), Hospital Course, Vitals at Discharge, Procedures, Discharge Medications (numbered), Instructions (dos with checkmarks + donts with X marks), Warning Signs (red container + emergency contact), Follow-up Schedule (with booking buttons), Linked Records
+
+**ErVisitDetail** — 9 sections: Visit Details (ER number/triage badge/mode of arrival), Chief Complaint (red box), Vitals with pain score, Examination, Investigations Done (with optional View links), Diagnosis, Treatment Given (NumberedList), Disposition + detail, Follow-up
+
+**ProcedureDetail** — Minor: added linked_records section
+
+### Architecture Changes
+
+- `onAction` callback threaded through `RecordDetailSheet` → `CategoryDetail` → detail components for toast notifications
+- 4 new sub-interfaces: `LinkedRecord`, `DischargeMedication`, `FollowUpItem`, `Investigation`
+- ~25 new optional fields on `RecordMetadata` (consultation, discharge, ER visit)
+- New icon imports: Check, X, MapPin, Clock, Phone, ArrowRight, Calendar, Activity
+
+### Seeder Expansion
+
+- 3 consultation records expanded with vitals, clinical summary, treatment steps, linked records
+- 1 discharge summary expanded with 15+ new fields (hospital course, meds, dos/donts, warning signs, follow-up schedule)
+- 1 ER visit expanded with investigations, treatment items, disposition detail
+- 1 new ER visit added (mother — Syncope Episode, Level 2 triage, ambulance, ECG/CT/CBC, admitted)
+
+---
+
+## Health Records: Medication & Document Detail Redesign (February 1, 2026)
+
+Redesigned 4 detail components (MedicationActive, MedicationPast, Vaccination, MedicalCertificate) with richer metadata sections matching clinical wireframes.
+
+### New Sub-Interfaces
+
+| Interface | Fields | Purpose |
+|-----------|--------|---------|
+| `VaccinationEntry` | vaccine_name, date, dose_label, administered_by, batch_number, site | Vaccination history table rows |
+| `UpcomingVaccine` | vaccine_name, due_date, dose_label | Upcoming vaccination cards |
+| `AttachedFile` | name, type, size? | Downloadable certificate files |
+
+### RecordMetadata Additions
+
+**Medications** (~10 new fields): timing, with_food (boolean), medication_duration, how_it_works, original_quantity, side_effects (string[]), side_effects_warning, adherence_this_week (7-element array of 'taken'|'missed'|'upcoming'), adherence_rate (0-100)
+
+**Vaccination** (3 new fields): vaccination_history (VaccinationEntry[]), upcoming_vaccinations (UpcomingVaccine[]), attached_certificates (AttachedFile[])
+
+**Medical Certificate** (5 new fields): certificate_number, certificate_content, examination_findings_list (string[]), digitally_signed (boolean), verification_url
+
+### Component Rewrites
+
+**MedicationActiveDetail** — 7 sections: Drug header (green, animated pulse dot), Dosage Instructions (dose/frequency/timing/food badge/duration/route), Purpose (condition + mechanism), Prescription Details (doctor/date/qty/refills), Side Effects (bullet list + amber warning box), Adherence Tracking (7-day Mon-Sun visual grid with check/X/circle + percentage bar + Log Dose + View History buttons), Related Records
+
+**MedicationPastDetail** — 7 sections: Drug header (gray), Dosage Instructions, Purpose, Prescription Details (with end date), Reason Stopped (amber box), Side Effects, Related Records
+
+**VaccinationDetail** — 6 sections: Vaccine header, Patient Details (name/age/gender/blood group from memberMap), Administration Details (dose progress bar + batch/site/next due), Vaccination History (HTML table), Upcoming Vaccinations (cards with Schedule buttons), Attached Certificates (file cards with download)
+
+**MedicalCertificateDetail** — 5 sections: Certificate type header, Certificate Details (number/issuer/dates), Certificate Content (narrative + examination findings with checkmark list), Verification (ShieldCheck badge green/gray + verify URL), Linked Records
+
+### Architecture Changes
+
+- `FamilyMember` interface expanded with `age?`, `gender?`, `blood_group?`
+- `HealthRecordController` query updated to include age/gender/blood_group
+- `CategoryDetail` signature expanded with `record` + `memberMap` props (for VaccinationDetail patient details)
+- New icon imports: ShieldCheck, FileDown
+
+### Seeder Expansion
+
+All 8 medication/document records expanded:
+- 2 medication_active: timing, food, mechanism, side effects, adherence data, linked records
+- 2 medication_past: timing, food, mechanism, side effects, linked records
+- 2 vaccination: vaccination history arrays, upcoming vaccinations, attached certificates
+- 2 medical_certificate: certificate number, content, examination findings, digital signature, verification URL, linked records
+
+---
+
 **Last Updated**: February 1, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign

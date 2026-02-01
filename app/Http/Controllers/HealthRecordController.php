@@ -46,7 +46,7 @@ class HealthRecordController extends Controller
             });
 
         $familyMembers = FamilyMember::where('user_id', $user->id)
-            ->get(['id', 'name', 'relation']);
+            ->get(['id', 'name', 'relation', 'age', 'gender', 'blood_group']);
 
         return Inertia::render('HealthRecords/Index', [
             'user' => $user,
