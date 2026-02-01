@@ -52,9 +52,14 @@ const notificationIconMap: Record<string, { icon: React.ComponentType<any>; colo
   payment_due_reminder:     { icon: Clock,          color: '#F59E0B', bg: '#FFFBEB' },
   payment_successful:       { icon: CheckCircle2,   color: '#22C55E', bg: '#F0FDF4' },
   payment_failed:           { icon: XCircle,        color: '#EF4444', bg: '#FEF2F2' },
-  insurance_claim_approved: { icon: ShieldCheck,    color: '#22C55E', bg: '#F0FDF4' },
-  insurance_claim_rejected: { icon: ShieldAlert,    color: '#EF4444', bg: '#FEF2F2' },
-  dispute_update:           { icon: MessageSquare,  color: '#F59E0B', bg: '#FFFBEB' },
+  insurance_claim_approved:       { icon: ShieldCheck,    color: '#22C55E', bg: '#F0FDF4' },
+  insurance_claim_rejected:       { icon: ShieldAlert,    color: '#EF4444', bg: '#FEF2F2' },
+  insurance_preauth_approved:     { icon: ShieldCheck,    color: '#22C55E', bg: '#F0FDF4' },
+  insurance_preauth_rejected:     { icon: ShieldAlert,    color: '#EF4444', bg: '#FEF2F2' },
+  insurance_enhancement_required: { icon: ShieldAlert,    color: '#F59E0B', bg: '#FFFBEB' },
+  insurance_enhancement_approved: { icon: ShieldCheck,    color: '#22C55E', bg: '#F0FDF4' },
+  insurance_claim_settled:        { icon: ShieldCheck,    color: '#22C55E', bg: '#F0FDF4' },
+  dispute_update:                 { icon: MessageSquare,  color: '#F59E0B', bg: '#FFFBEB' },
   emi_due_reminder:         { icon: CreditCard,     color: '#3B82F6', bg: '#EFF6FF' },
 };
 
@@ -171,7 +176,7 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
       router.post(`/notifications/${notification.id}/read`, {}, { preserveScroll: true });
     }
     setNotifOpen(false);
-    const isInsuranceNotif = ['insurance_claim_approved', 'insurance_claim_rejected'].includes(notification.type);
+    const isInsuranceNotif = notification.type.startsWith('insurance_');
     if (isInsuranceNotif && notification.insurance_claim_id) {
       router.visit(`/insurance/claims/${notification.insurance_claim_id}`);
     } else if (notification.appointment_id) {

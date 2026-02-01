@@ -1831,5 +1831,40 @@ Full claim detail page at `/insurance/claims/{id}` with status-aware banners, fi
 
 ---
 
+## Claim Detail: Edge States & Notification Deep-Linking (February 2, 2026)
+
+### Edge/Empty States
+
+- **Timeline empty state**: When `claim.timeline.length === 0`, shows Clock icon + "No activity yet" + "Updates will appear here as your claim progresses." (mirrors Documents empty state pattern)
+- **Timeline "Show all" threshold**: Changed from 5 to 10 events before truncation. "Show all X events" button appears when >10 events.
+- **Documents empty state**: Already existed — "No documents yet" + "Documents will appear here..."
+- **Financial section**: Already hides when `financial` is null
+- **Month grouping**: Already groups timeline by month when >8 events
+
+### Insurance Notification Deep-Linking
+
+Added 5 new notification types that deep-link to the Claim Detail page (`/insurance/claims/{id}`):
+
+| Type | Linked Claim | Icon | Color |
+|------|-------------|------|-------|
+| `insurance_preauth_approved` | Claim 6 (Knee Surgery) | ShieldCheck | Green |
+| `insurance_preauth_rejected` | Claim 5 (Diabetes) | ShieldAlert | Red |
+| `insurance_enhancement_approved` | Claim 6 (Knee Surgery) | ShieldCheck | Green |
+| `insurance_enhancement_required` | Claim 7 (Cardiac Stent) | ShieldAlert | Amber |
+| `insurance_claim_settled` | Claim 1 (Annual Checkup) | ShieldCheck | Green |
+
+Total insurance notification types: 7 (2 existing + 5 new). All route to `/insurance/claims/{id}` on click.
+
+**Routing**: `handleNotificationClick` now uses `notification.type.startsWith('insurance_')` instead of hardcoded array — future-proof for additional insurance notification types.
+
+### Files Modified
+| File | Changes |
+|------|---------|
+| `resources/js/Pages/Insurance/ClaimDetail.tsx` | Timeline empty state, threshold 5→10 |
+| `database/seeders/HospitalSeeder.php` | 5 new insurance notification entries with `insurance_claim_id` |
+| `resources/js/Layouts/AppLayout.tsx` | 5 new icon map entries, simplified insurance routing |
+
+---
+
 **Last Updated**: February 2, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign | Upload Removed | Razorpay Billing Integration | Uniform Blue Icons | Family Members List + Detail Page | Unified Booking Links | Insurance List + Add Policy + Detail Page | Insurance Claim Detail Page
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign | Upload Removed | Razorpay Billing Integration | Uniform Blue Icons | Family Members List + Detail Page | Unified Booking Links | Insurance List + Add Policy + Detail Page | Insurance Claim Detail Page | Claim Detail Edge States & Notification Deep-Linking

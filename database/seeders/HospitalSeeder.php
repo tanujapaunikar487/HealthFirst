@@ -1514,6 +1514,79 @@ class HospitalSeeder extends Seeder
             'created_at' => now()->subDays(3),
         ];
 
+        // Insurance-specific notifications linked to claims
+        $allClaims = InsuranceClaim::where('user_id', $user->id)->orderBy('id')->get();
+
+        // Pre-auth approved — Claim 6 (partially_approved, Knee Surgery)
+        if ($claim = $allClaims->get(5)) {
+            $notifications[] = [
+                'appointment_id' => $claim->appointment_id,
+                'type' => 'insurance_preauth_approved',
+                'title' => 'Pre-auth Approved',
+                'message' => 'Pre-auth approved for ₹3,00,000 for Knee Replacement Surgery. Your treatment can proceed.',
+                'channels' => ['push', 'email'],
+                'data' => ['amount' => 300000, 'treatment' => 'Knee Replacement Surgery', 'insurance_claim_id' => $claim->id],
+                'read_at' => now()->subDays(2),
+                'created_at' => now()->subDays(4),
+            ];
+        }
+
+        // Pre-auth rejected — Claim 5 (rejected, Diabetes)
+        if ($claim = $allClaims->get(4)) {
+            $notifications[] = [
+                'appointment_id' => $claim->appointment_id,
+                'type' => 'insurance_preauth_rejected',
+                'title' => 'Pre-auth Rejected',
+                'message' => 'Pre-auth rejected for Diabetes Management. Reason: Pre-existing condition — 4-year waiting period not met.',
+                'channels' => ['push', 'email'],
+                'data' => ['treatment' => 'Diabetes Management', 'reason' => 'Pre-existing condition exclusion', 'insurance_claim_id' => $claim->id],
+                'read_at' => null,
+                'created_at' => now()->subDays(58),
+            ];
+        }
+
+        // Enhancement approved — Claim 6 (partially_approved, Knee Surgery)
+        if ($claim = $allClaims->get(5)) {
+            $notifications[] = [
+                'appointment_id' => $claim->appointment_id,
+                'type' => 'insurance_enhancement_approved',
+                'title' => 'Enhancement Approved',
+                'message' => 'Enhancement of ₹50,000 approved for Knee Replacement Surgery. Total approved: ₹3,50,000.',
+                'channels' => ['push', 'email'],
+                'data' => ['amount' => 50000, 'total_approved' => 350000, 'treatment' => 'Knee Replacement Surgery', 'insurance_claim_id' => $claim->id],
+                'read_at' => null,
+                'created_at' => now()->subDays(2),
+            ];
+        }
+
+        // Enhancement required — Claim 7 (enhancement_required, Cardiac Stent)
+        if ($claim = $allClaims->get(6)) {
+            $notifications[] = [
+                'appointment_id' => $claim->appointment_id,
+                'type' => 'insurance_enhancement_required',
+                'title' => 'Enhancement Required',
+                'message' => 'Enhancement required for Cardiac Stent Procedure — ₹1,00,000 additional needed. Please submit the enhancement request.',
+                'channels' => ['push', 'email'],
+                'data' => ['amount' => 100000, 'treatment' => 'Cardiac Stent Procedure', 'insurance_claim_id' => $claim->id],
+                'read_at' => null,
+                'created_at' => now()->subHours(8),
+            ];
+        }
+
+        // Claim settled — Claim 1 (settled, Annual Health Checkup)
+        if ($claim = $allClaims->get(0)) {
+            $notifications[] = [
+                'appointment_id' => $claim->appointment_id,
+                'type' => 'insurance_claim_settled',
+                'title' => 'Claim Settled',
+                'message' => 'Your claim for Annual Health Checkup has been settled. ₹15,000 covered by insurance.',
+                'channels' => ['push', 'email'],
+                'data' => ['amount' => 15000, 'treatment' => 'Annual Health Checkup', 'insurance_claim_id' => $claim->id],
+                'read_at' => now()->subDays(30),
+                'created_at' => now()->subDays(35),
+            ];
+        }
+
         foreach ($notifications as $notification) {
             BillingNotification::create(array_merge($notification, [
                 'user_id' => $user->id,

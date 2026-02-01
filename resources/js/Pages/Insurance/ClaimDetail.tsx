@@ -27,6 +27,7 @@ import {
   Shield,
   ClipboardList,
   Scissors,
+  Clock,
   Baby,
   Microscope,
   Siren,
@@ -1210,28 +1211,38 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         </Card>
 
         {/* Timeline */}
-        {claim.timeline.length > 0 && (
-          <Card className="mb-6 p-0">
-            <button
-              className="flex w-full items-center justify-between border-b px-5 py-3.5 md:cursor-default"
-              style={{ backgroundColor: '#FAFAFA' }}
-              onClick={() => toggleSection('timeline')}
-            >
-              <h2 className="text-sm font-semibold text-gray-900">Timeline</h2>
-              <div className="flex items-center gap-2">
-                {lastUpdatedDate && (
-                  <span className="hidden md:inline text-xs text-gray-400">
-                    Last Updated: {lastUpdatedDate}
-                  </span>
-                )}
-                <ChevronDown
-                  className={`h-4 w-4 text-gray-400 transition-transform md:hidden ${
-                    collapsedSections.has('timeline') ? '-rotate-90' : ''
-                  }`}
-                />
+        <Card className="mb-6 p-0">
+          <button
+            className="flex w-full items-center justify-between border-b px-5 py-3.5 md:cursor-default"
+            style={{ backgroundColor: '#FAFAFA' }}
+            onClick={() => toggleSection('timeline')}
+          >
+            <h2 className="text-sm font-semibold text-gray-900">Timeline</h2>
+            <div className="flex items-center gap-2">
+              {lastUpdatedDate && (
+                <span className="hidden md:inline text-xs text-gray-400">
+                  Last Updated: {lastUpdatedDate}
+                </span>
+              )}
+              <ChevronDown
+                className={`h-4 w-4 text-gray-400 transition-transform md:hidden ${
+                  collapsedSections.has('timeline') ? '-rotate-90' : ''
+                }`}
+              />
+            </div>
+          </button>
+          <div className={collapsedSections.has('timeline') ? 'hidden md:block' : ''}>
+            {claim.timeline.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
+                  <Clock className="h-5 w-5 text-gray-400" />
+                </div>
+                <p className="mb-1 text-sm font-medium text-gray-600">No activity yet</p>
+                <p className="max-w-xs text-center text-xs text-gray-400">
+                  Updates will appear here as your claim progresses.
+                </p>
               </div>
-            </button>
-            <div className={collapsedSections.has('timeline') ? 'hidden md:block' : ''}>
+            ) : (
               <div className="px-5 py-4">
                 {/* Last updated on mobile */}
                 {lastUpdatedDate && (
@@ -1266,7 +1277,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   // Flat list
                   <div className="relative ml-3">
                     {claim.timeline
-                      .slice(0, showAllTimeline ? undefined : 5)
+                      .slice(0, showAllTimeline ? undefined : 10)
                       .map((event, idx) => (
                         <TimelineEventRow
                           key={idx}
@@ -1274,7 +1285,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                           isLast={
                             showAllTimeline
                               ? idx === claim.timeline.length - 1
-                              : idx === Math.min(4, claim.timeline.length - 1)
+                              : idx === Math.min(9, claim.timeline.length - 1)
                           }
                           isExpanded={expandedTimeline.includes(idx)}
                           onToggle={() => toggleTimelineDetails(idx)}
@@ -1284,7 +1295,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 )}
 
                 {/* Show all button (when truncated) */}
-                {!useMonthGroups && !showAllTimeline && claim.timeline.length > 5 && (
+                {!useMonthGroups && !showAllTimeline && claim.timeline.length > 10 && (
                   <button
                     className="mt-4 w-full text-center text-sm font-medium text-blue-600 hover:text-blue-700"
                     onClick={() => setShowAllTimeline(true)}
@@ -1293,9 +1304,9 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   </button>
                 )}
               </div>
-            </div>
-          </Card>
-        )}
+            )}
+          </div>
+        </Card>
 
         {/* Actions */}
         <div className="flex flex-wrap items-center gap-3">
