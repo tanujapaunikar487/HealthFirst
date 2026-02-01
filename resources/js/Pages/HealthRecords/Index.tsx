@@ -347,6 +347,7 @@ interface Props {
   records: HealthRecord[];
   familyMembers: FamilyMember[];
   abnormalCount: number;
+  preSelectedRecordId?: number | null;
 }
 
 /* ─── Category Config ─── */
@@ -419,7 +420,7 @@ function StatusBadge({ status }: { status: RecordStatus }) {
 
 /* ─── Page ─── */
 
-export default function Index({ user, records, familyMembers, abnormalCount }: Props) {
+export default function Index({ user, records, familyMembers, abnormalCount, preSelectedRecordId }: Props) {
   const [activeTab, setActiveTab] = useState('all');
   const [subCategoryFilter, setSubCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -432,6 +433,14 @@ export default function Index({ user, records, familyMembers, abnormalCount }: P
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRecord, setSelectedRecord] = useState<HealthRecord | null>(null);
   const [toastMessage, setToastMessage] = useState('');
+
+  // Auto-open detail sheet when deep-linked from search
+  useEffect(() => {
+    if (preSelectedRecordId) {
+      const record = records.find((r) => r.id === preSelectedRecordId);
+      if (record) setSelectedRecord(record);
+    }
+  }, [preSelectedRecordId]);
 
   const memberMap = useMemo(() => {
     const map: Record<number, FamilyMember> = {};

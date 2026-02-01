@@ -2065,5 +2065,55 @@ Replaced the hardcoded Yellow Fever vaccination banner with a database-driven pr
 
 ---
 
+## Global Search Modal (February 2, 2026)
+
+Added a global search feature accessible from anywhere in the app via header search icon or Cmd+K/Ctrl+K keyboard shortcut. Searches across Doctors, Appointments, Health Records, and Bills with categorized, actionable results.
+
+### Architecture
+
+- **Backend**: Single JSON endpoint (`GET /search?q=&category=`) in `SearchController`, not Inertia — returns raw JSON for fetch-based client requests
+- **Frontend**: `SearchModal` component using shadcn Dialog (centered modal via `@radix-ui/react-dialog`), rendered in `AppLayout` so it's available on every page
+- **Trigger**: Header search icon click or Cmd+K / Ctrl+K keyboard shortcut
+
+### Search Capabilities
+
+| Category | Search Fields | Results Cap | Navigation |
+|----------|--------------|-------------|------------|
+| Doctors | name, specialization, aliases (`doctor_aliases` table) | 5 + total count | `/booking` |
+| Appointments | doctor name, patient name, lab package name, appointment_type | 5 + total count | `/appointments/{id}` |
+| Health Records | title, description, doctor_name, department_name, patient name | 5 + total count | `/health-records?record={id}` (deep-links to detail sheet) |
+| Bills | doctor/patient/lab names, invoice number (`INV-XXXXXX` pattern → direct ID lookup) | 5 + total count | `/billing/{id}` |
+
+### Features
+
+- **Debounced search**: 300ms delay, minimum 2 characters
+- **Category filter chips**: All, Doctors, Appointments, Records, Bills — filters server-side
+- **Keyboard navigation**: Arrow keys traverse results, Enter selects, Escape closes
+- **Recent searches**: Persisted in localStorage (max 5), shown when modal opens with no query
+- **Quick links**: View all appointments, health records, bills, book appointment
+- **"View all N results"**: Shown per category when total matches exceed the displayed 5
+- **Error handling**: Network failures show amber warning with "Retry" button
+- **No results state**: Centered message with search icon
+- **Health record deep-linking**: `?record=` query param on `/health-records` auto-opens the detail sheet for that record
+
+### Files Created
+
+| File | Purpose |
+|------|---------|
+| `resources/js/Components/ui/dialog.tsx` | shadcn Dialog component (centered, no close X) |
+| `app/Http/Controllers/SearchController.php` | JSON search endpoint with 4 search methods + total counts |
+| `resources/js/Components/SearchModal.tsx` | Modal UI with debounce, category chips, keyboard nav, error state |
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `routes/web.php` | Added `GET /search` route + SearchController import |
+| `resources/js/Layouts/AppLayout.tsx` | searchOpen state, Cmd+K shortcut, onClick on search button, render SearchModal |
+| `app/Http/Controllers/HealthRecordController.php` | Accept `?record=` query param, pass `preSelectedRecordId` prop |
+| `resources/js/Pages/HealthRecords/Index.tsx` | Auto-open detail sheet from `preSelectedRecordId` on mount |
+
+---
+
 **Last Updated**: February 2, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign | Upload Removed | Razorpay Billing Integration | Uniform Blue Icons | Family Members List + Detail Page | Unified Booking Links | Insurance List + Add Policy + Detail Page | Insurance Claim Detail Page | Claim Detail Edge States & Notification Deep-Linking | Dashboard States (Loading, New User, Partial Onboarding) | Active Dashboard with Aggregated Tasks | Profile Warning Banner | Dashboard Enhancements (View All, Razorpay Pay, Dynamic Promotions)
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign | Upload Removed | Razorpay Billing Integration | Uniform Blue Icons | Family Members List + Detail Page | Unified Booking Links | Insurance List + Add Policy + Detail Page | Insurance Claim Detail Page | Claim Detail Edge States & Notification Deep-Linking | Dashboard States (Loading, New User, Partial Onboarding) | Active Dashboard with Aggregated Tasks | Profile Warning Banner | Dashboard Enhancements (View All, Razorpay Pay, Dynamic Promotions) | Global Search Modal

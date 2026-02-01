@@ -1,5 +1,6 @@
 import { Link, usePage, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import SearchModal from '@/Components/SearchModal';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
@@ -165,6 +166,19 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
 
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifFilter, setNotifFilter] = useState<'all' | 'unread'>('all');
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  // Cmd+K / Ctrl+K keyboard shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen((prev) => !prev);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const unreadCount = props.notificationUnreadCount || 0;
   const allNotifications = props.allNotifications || [];
@@ -215,6 +229,7 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
                 size="icon"
                 className="h-12 w-12 rounded-full hover:bg-gray-100"
                 style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5' }}
+                onClick={() => setSearchOpen(true)}
               >
                 <Search className="h-5 w-5" style={{ color: '#171717', strokeWidth: 2 }} />
               </Button>
@@ -356,6 +371,9 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Global Search Modal */}
+      <SearchModal open={searchOpen} onOpenChange={setSearchOpen} />
     </div>
   );
 }

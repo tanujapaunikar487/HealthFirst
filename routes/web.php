@@ -13,6 +13,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\FamilyMembersController;
 use App\Http\Controllers\InsuranceController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root to dashboard
@@ -173,6 +174,9 @@ Route::get('/billing', [BillingController::class, 'index'])->name('billing.index
 Route::get('/billing/{appointment}', [BillingController::class, 'show'])->name('billing.show');
 Route::post('/billing/{appointment}/payment/create-order', [BillingController::class, 'createOrder'])->name('billing.payment.create-order');
 Route::post('/billing/{appointment}/payment/verify', [BillingController::class, 'verifyPayment'])->name('billing.payment.verify');
+
+// Search
+Route::get('/search', [SearchController::class, 'search'])->name('search');
 
 // Notifications
 Route::post('/notifications/{billing_notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');

@@ -6,12 +6,13 @@ use App\Models\FamilyMember;
 use App\Models\HealthRecord;
 use App\Models\InsuranceClaim;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class HealthRecordController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user() ?? \App\User::first();
 
@@ -51,11 +52,14 @@ class HealthRecordController extends Controller
         $familyMembers = FamilyMember::where('user_id', $user->id)
             ->get(['id', 'name', 'relation', 'age', 'gender', 'blood_group']);
 
+        $preSelectedRecordId = $request->query('record') ? (int) $request->query('record') : null;
+
         return Inertia::render('HealthRecords/Index', [
             'user' => $user,
             'records' => $records,
             'familyMembers' => $familyMembers,
             'abnormalCount' => $abnormalCount,
+            'preSelectedRecordId' => $preSelectedRecordId,
         ]);
     }
 
