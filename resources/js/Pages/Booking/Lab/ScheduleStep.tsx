@@ -82,7 +82,7 @@ export default function ScheduleStep({
   fastingHours,
 }: Props) {
   const [selectedDate, setSelectedDate] = useState<string>(
-    savedData?.selectedDate || availableDates[0]?.date || ''
+    savedData?.selectedDate || ''
   );
   const [selectedTime, setSelectedTime] = useState<string | null>(savedData?.selectedTime || null);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(
@@ -101,7 +101,17 @@ export default function ScheduleStep({
   const [userAddresses, setUserAddresses] = useState<UserAddress[]>(initialAddresses);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const timeSectionRef = useRef<HTMLDivElement>(null);
   const collectionSectionRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to time section when date is selected
+  useEffect(() => {
+    if (selectedDate && !savedData?.selectedDate && timeSectionRef.current) {
+      setTimeout(() => {
+        timeSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [selectedDate]);
 
   // Auto-scroll to collection section when time is selected
   useEffect(() => {
@@ -281,18 +291,20 @@ export default function ScheduleStep({
           </div>
         </section>
 
-        {/* Section 3: Time Selection */}
-        <section>
-          <h2 className="text-xl font-semibold mb-4">Select Time</h2>
+        {/* Time Selection */}
+        {selectedDate && (
+          <section ref={timeSectionRef}>
+            <h2 className="text-xl font-semibold mb-4">Select Time</h2>
 
-          <TimeSlotGrid
-            slots={timeSlots}
-            selectedTime={selectedTime}
-            onSelect={(time) => setSelectedTime(time)}
-          />
+            <TimeSlotGrid
+              slots={timeSlots}
+              selectedTime={selectedTime}
+              onSelect={(time) => setSelectedTime(time)}
+            />
 
-          {errors.time && <p className="text-sm text-destructive mt-2">{errors.time}</p>}
-        </section>
+            {errors.time && <p className="text-sm text-destructive mt-2">{errors.time}</p>}
+          </section>
+        )}
 
         {/* Section 4: Collection Method */}
         {selectedTime && (

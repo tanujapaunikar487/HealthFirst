@@ -492,8 +492,48 @@ class GuidedLabController extends Controller
 
     public function processPayment(Request $request)
     {
+        $savedData = session('guided_lab_booking', []);
+        $user = Auth::user() ?? \App\User::first();
+
+        // Calculate fee
+        $itemPrice = 0;
+        $hasPackage = !empty($savedData['selectedPackageId']);
+        $hasTests = !empty($savedData['selectedTestIds']);
+
+        if ($hasPackage) {
+            $pkg = LabPackage::find($savedData['selectedPackageId']);
+            $itemPrice = $pkg?->price ?? 0;
+        } elseif ($hasTests) {
+            $itemPrice = LabTestType::whereIn('id', $savedData['selectedTestIds'])
+                ->where('is_active', true)
+                ->sum('price');
+        }
+
+        $locationFee = 0;
+        if (($savedData['selectedLocation'] ?? '') === 'home') {
+            $homeCenter = LabCenter::where('home_collection_available', true)->first();
+            $locationFee = $homeCenter?->home_collection_fee ?? 0;
+        }
+
+        // Create appointment record
+        $appointment = \App\Models\Appointment::create([
+            'user_id' => $user->id,
+            'family_member_id' => $savedData['patientId'] ?? null,
+            'appointment_type' => 'lab_test',
+            'lab_package_id' => $hasPackage ? $savedData['selectedPackageId'] : null,
+            'lab_test_ids' => $hasTests ? $savedData['selectedTestIds'] : null,
+            'collection_type' => $savedData['selectedLocation'] ?? null,
+            'lab_center_id' => $savedData['selectedCenterId'] ?? null,
+            'user_address_id' => $savedData['selectedAddressId'] ?? null,
+            'appointment_date' => $savedData['selectedDate'] ?? now()->toDateString(),
+            'appointment_time' => $savedData['selectedTime'] ?? '06:00 AM',
+            'status' => 'confirmed',
+            'payment_status' => 'paid',
+            'fee' => $itemPrice + $locationFee,
+        ]);
+
         session()->forget('guided_lab_booking');
 
-        return redirect()->route('booking.confirmation', ['booking' => 'LAB-' . time()]);
+        return redirect()->route('booking.confirmation', ['booking' => $appointment->id]);
     }
 }

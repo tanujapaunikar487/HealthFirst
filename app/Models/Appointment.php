@@ -12,14 +12,21 @@ class Appointment extends Model
         'family_member_id',
         'doctor_id',
         'department_id',
+        'lab_package_id',
+        'lab_test_ids',
         'appointment_type',
         'consultation_mode',
+        'collection_type',
+        'lab_center_id',
+        'user_address_id',
         'appointment_date',
         'appointment_time',
         'status',
         'symptoms',
         'notes',
         'fee',
+        'payment_status',
+        'cancellation_reason',
     ];
 
     protected function casts(): array
@@ -27,6 +34,7 @@ class Appointment extends Model
         return [
             'appointment_date' => 'date',
             'symptoms' => 'array',
+            'lab_test_ids' => 'array',
             'fee' => 'integer',
         ];
     }
@@ -49,5 +57,20 @@ class Appointment extends Model
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
+    }
+
+    public function labPackage(): BelongsTo
+    {
+        return $this->belongsTo(LabPackage::class);
+    }
+
+    public function labCenter(): BelongsTo
+    {
+        return $this->belongsTo(LabCenter::class);
+    }
+
+    public function userAddress(): BelongsTo
+    {
+        return $this->belongsTo(UserAddress::class);
     }
 }

@@ -1731,19 +1731,33 @@ class IntelligentBookingOrchestrator
         }
 
         // Format for EmbeddedPackageList component
-        $formatPackage = fn($p) => [
-            'id' => $p['id'],
-            'name' => $p['name'],
-            'description' => $p['description'] ?? '',
-            'duration_hours' => $p['duration_hours'] ?? null,
-            'tests_count' => $p['tests_count'] ?? 0,
-            'age_range' => $p['age_range'] ?? null,
-            'price' => $p['price'],
-            'original_price' => $p['original_price'] ?? null,
-            'is_recommended' => $p['is_popular'] ?? false,
-            'requires_fasting' => $p['requires_fasting'] ?? false,
-            'fasting_hours' => $p['fasting_hours'] ?? null,
-        ];
+        $formatPackage = function ($p) {
+            $testIds = is_string($p['test_ids'] ?? null)
+                ? json_decode($p['test_ids'], true)
+                : ($p['test_ids'] ?? []);
+            $testNames = [];
+            if (!empty($testIds)) {
+                $testNames = \App\Models\LabTestType::whereIn('id', $testIds)
+                    ->pluck('name')
+                    ->toArray();
+            }
+
+            return [
+                'id' => $p['id'],
+                'name' => $p['name'],
+                'description' => $p['description'] ?? '',
+                'duration_hours' => $p['duration_hours'] ?? null,
+                'tests_count' => $p['tests_count'] ?? 0,
+                'age_range' => $p['age_range'] ?? null,
+                'price' => $p['price'],
+                'original_price' => $p['original_price'] ?? null,
+                'is_recommended' => $p['is_popular'] ?? false,
+                'requires_fasting' => $p['requires_fasting'] ?? false,
+                'fasting_hours' => $p['fasting_hours'] ?? null,
+                'preparation_notes' => $p['preparation_notes'] ?? null,
+                'included_test_names' => $testNames,
+            ];
+        };
 
         // Build individual tests list from search results
         $individualTests = [];

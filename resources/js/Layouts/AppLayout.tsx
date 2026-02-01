@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
@@ -22,9 +22,11 @@ interface User {
 interface AppLayoutProps {
   children: React.ReactNode;
   user: User;
+  pageTitle?: string;
+  pageIcon?: string;
 }
 
-export default function AppLayout({ children, user }: AppLayoutProps) {
+export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLayoutProps) {
   const [searchValue, setSearchValue] = useState('');
 
   // Get initials for avatar fallback
@@ -47,8 +49,8 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
           <div className="h-full flex items-center justify-between px-6">
             {/* Page Title */}
             <div className="flex items-center gap-3">
-              <img src="/assets/icons/home-3.svg" alt="Home" className="h-6 w-6" />
-              <h2 className="text-base font-semibold" style={{ color: '#00184D' }}>Home</h2>
+              <img src={pageIcon || '/assets/icons/home-3.svg'} alt={pageTitle || 'Home'} className="h-6 w-6" />
+              <h2 className="text-base font-semibold" style={{ color: '#00184D' }}>{pageTitle || 'Home'}</h2>
             </div>
 
             {/* Right Side Actions */}
@@ -95,6 +97,13 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
  * Sidebar Navigation Component
  */
 function Sidebar() {
+  const { url } = usePage();
+
+  const isActive = (href: string) => {
+    if (href === '/dashboard') return url === '/' || url.startsWith('/dashboard');
+    return url.startsWith(href);
+  };
+
   return (
     <aside className="w-80 bg-background flex flex-col" style={{ borderRight: '1px solid #E5E5E5' }}>
       {/* Logo */}
@@ -110,23 +119,26 @@ function Sidebar() {
 
       {/* Navigation Links */}
       <nav className="flex-1 px-6 py-4 space-y-3">
-        <NavLink href="/dashboard" iconName="home" label="Home" active />
+        <NavLink href="/dashboard" iconName="home" label="Home" active={isActive('/dashboard')} />
         <NavLink
           href="/appointments"
           iconName="appointment"
           label="Appointments"
+          active={isActive('/appointments')}
         />
         <NavLink
           href="/health-records"
           iconName="records"
           label="Health Records"
+          active={isActive('/health-records')}
         />
-        <NavLink href="/insurance" iconName="insurance" label="Insurance" />
-        <NavLink href="/billing" iconName="billing" label="Billing" />
+        <NavLink href="/insurance" iconName="insurance" label="Insurance" active={isActive('/insurance')} />
+        <NavLink href="/billing" iconName="billing" label="Billing" active={isActive('/billing')} />
         <NavLink
           href="/family-members"
           iconName="family"
           label="Family Members"
+          active={isActive('/family-members')}
         />
       </nav>
     </aside>

@@ -428,10 +428,34 @@ class GuidedDoctorController extends Controller
     public function processPayment(Request $request)
     {
         $savedData = session('guided_doctor_booking', []);
+        $user = Auth::user() ?? \App\User::first();
 
-        // Clear session data
+        // Calculate fee
+        $doctorId = (int) str_replace('d', '', $savedData['selectedDoctorId'] ?? '');
+        $doctor = Doctor::with('consultationModes')->find($doctorId);
+        $fee = $doctor?->consultationModes
+            ->firstWhere('mode', $savedData['appointmentMode'] ?? 'video')
+            ?->fee ?? 0;
+
+        // Create appointment record
+        $appointment = Appointment::create([
+            'user_id' => $user->id,
+            'family_member_id' => $savedData['patientId'] ?? null,
+            'doctor_id' => $doctorId ?: null,
+            'department_id' => $doctor?->department_id,
+            'appointment_type' => 'doctor',
+            'consultation_mode' => $savedData['appointmentMode'] ?? null,
+            'appointment_date' => $savedData['selectedDate'] ?? now()->toDateString(),
+            'appointment_time' => $savedData['selectedTime'] ?? '09:00 AM',
+            'status' => 'confirmed',
+            'payment_status' => 'paid',
+            'symptoms' => $savedData['selectedSymptoms'] ?? [],
+            'notes' => $savedData['symptomNotes'] ?? null,
+            'fee' => $fee,
+        ]);
+
         session()->forget('guided_doctor_booking');
 
-        return redirect()->route('booking.confirmation', ['booking' => 'DOC-' . time()]);
+        return redirect()->route('booking.confirmation', ['booking' => $appointment->id]);
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AppointmentsController;
 use App\Http\Controllers\BookingConversationController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
@@ -133,26 +134,15 @@ Route::prefix('booking')->name('booking.')->group(function () {
     });
 });
 
-// Booking confirmation page
-Route::get('/booking/confirmation/{booking}', function ($booking) {
-    // Mock booking data - replace with actual database query
-    $bookingData = [
-        'id' => $booking,
-        'booking_id' => $booking,
-        'type' => 'doctor',
-        'status' => 'confirmed',
-        'patient_name' => 'Kriti Jaisinghani',
-        'doctor_name' => 'Dr. Sarah Johnson',
-        'date' => '2026-01-25',
-        'time' => '08:00 AM',
-        'mode' => 'Video Appointment',
-        'fee' => 800,
-    ];
+// Booking confirmation page (loads real data from DB)
+Route::get('/booking/confirmation/{booking}', [AppointmentsController::class, 'showConfirmation'])->name('booking.confirmation');
 
-    return \Inertia\Inertia::render('Booking/Confirmation', [
-        'booking' => $bookingData,
-    ]);
-})->name('booking.confirmation');
+// My Appointments
+Route::get('/appointments', [AppointmentsController::class, 'index'])->name('appointments.index');
+Route::post('/appointments/{appointment}/cancel', [AppointmentsController::class, 'cancel'])->name('appointments.cancel');
+Route::post('/appointments/{appointment}/reschedule', [AppointmentsController::class, 'reschedule'])->name('appointments.reschedule');
+Route::get('/appointments/{appointment}/available-slots', [AppointmentsController::class, 'availableSlots'])->name('appointments.available-slots');
+Route::get('/appointments/{appointment}/book-again', [AppointmentsController::class, 'bookAgain'])->name('appointments.book-again');
 
 // Auth routes (commented out for demo)
 // require __DIR__.'/auth.php';
