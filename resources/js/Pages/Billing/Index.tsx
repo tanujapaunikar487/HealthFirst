@@ -55,6 +55,12 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 /* ─── Types ─── */
 
 type BillingStatus =
@@ -178,12 +184,88 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
     });
   };
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     if (activePayBills.length === 0) return;
     setPaymentState('processing');
-    setTimeout(() => {
-      setPaymentState('success');
-    }, 2000);
+
+    // Process bills sequentially — create order for the first bill
+    // (In production, you'd batch these into a single order)
+    const firstBill = activePayBills[0];
+    const totalAmount = activePayTotal;
+
+    try {
+      const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content || '';
+      const res = await fetch(`/billing/${firstBill.appointment_id}/payment/create-order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+        body: JSON.stringify({ amount: totalAmount }),
+      });
+
+      if (!res.ok) throw new Error('Failed to create order');
+      const orderData = await res.json();
+
+      if (orderData.mock_mode) {
+        // Mock mode — simulate payment verification
+        const verifyRes = await fetch(`/billing/${firstBill.appointment_id}/payment/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+          body: JSON.stringify({
+            razorpay_payment_id: 'pay_mock_' + Math.random().toString(36).substr(2, 9),
+            razorpay_order_id: orderData.order_id,
+            razorpay_signature: 'mock_signature',
+          }),
+        });
+
+        if (!verifyRes.ok) throw new Error('Payment verification failed');
+        setPaymentState('success');
+        return;
+      }
+
+      // Real Razorpay checkout
+      const options = {
+        key: orderData.key,
+        amount: orderData.amount * 100,
+        currency: orderData.currency,
+        name: 'HealthFirst',
+        description: `Payment for ${activePayBills.length} bill(s)`,
+        order_id: orderData.order_id,
+        handler: async (response: any) => {
+          try {
+            const verifyRes = await fetch(`/billing/${firstBill.appointment_id}/payment/verify`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
+
+            if (!verifyRes.ok) throw new Error('Verification failed');
+            setPaymentState('success');
+          } catch {
+            setPaymentState('idle');
+            showToast('Payment verification failed. Please try again.');
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setPaymentState('idle');
+          },
+        },
+        prefill: {
+          name: user.name,
+          email: user.email,
+        },
+        theme: { color: '#0052FF' },
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+    } catch {
+      setPaymentState('idle');
+      showToast('Failed to initiate payment. Please try again.');
+    }
   };
 
   const handlePaymentDone = () => {
@@ -533,15 +615,13 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                         <TableCell className="align-top">
                           <div className="flex items-center gap-2.5">
                             <div
-                              className={cn(
-                                'h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0',
-                                bill.appointment_type === 'doctor' ? 'bg-blue-50' : 'bg-purple-50'
-                              )}
+                              className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0"
+                              style={{ backgroundColor: '#BFDBFE' }}
                             >
                               {bill.appointment_type === 'doctor' ? (
-                                <Stethoscope className="h-3.5 w-3.5 text-blue-600" />
+                                <Stethoscope className="h-3.5 w-3.5" style={{ color: '#1E40AF' }} />
                               ) : (
-                                <TestTube2 className="h-3.5 w-3.5 text-purple-600" />
+                                <TestTube2 className="h-3.5 w-3.5" style={{ color: '#1E40AF' }} />
                               )}
                             </div>
                             <div>
@@ -813,15 +893,13 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                       {/* Service */}
                       <div className="flex items-center gap-2.5">
                         <div
-                          className={cn(
-                            'h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0',
-                            bill.appointment_type === 'doctor' ? 'bg-blue-50' : 'bg-purple-50'
-                          )}
+                          className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0"
+                          style={{ backgroundColor: '#BFDBFE' }}
                         >
                           {bill.appointment_type === 'doctor' ? (
-                            <Stethoscope className="h-3.5 w-3.5 text-blue-600" />
+                            <Stethoscope className="h-3.5 w-3.5" style={{ color: '#1E40AF' }} />
                           ) : (
-                            <TestTube2 className="h-3.5 w-3.5 text-purple-600" />
+                            <TestTube2 className="h-3.5 w-3.5" style={{ color: '#1E40AF' }} />
                           )}
                         </div>
                         <p className="text-sm">{bill.appointment_title}</p>

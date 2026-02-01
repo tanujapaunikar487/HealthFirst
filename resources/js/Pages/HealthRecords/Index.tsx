@@ -34,6 +34,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/Components/ui/dropdown-menu';
+import { Tabs, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
 import {
@@ -45,7 +46,6 @@ import {
   UserPlus,
   FileText,
   Receipt,
-  Upload,
   ExternalLink,
   Download,
   FolderOpen,
@@ -65,7 +65,6 @@ import {
   Share2,
   Printer,
   Eye,
-  Trash2,
   ChevronLeft,
   ChevronRight,
   Link2,
@@ -302,8 +301,6 @@ interface RecordMetadata {
   amount?: number;
   payment_status?: string;
   line_items?: { label: string; amount: number }[];
-  // uploaded_document
-  source?: string;
 }
 
 interface RecordStatus {
@@ -326,7 +323,6 @@ interface HealthRecord {
   file_url: string | null;
   file_type: string | null;
   status: RecordStatus | null;
-  is_user_uploaded: boolean;
 }
 
 interface FamilyMember {
@@ -356,37 +352,36 @@ interface Props {
 
 const categoryConfig: Record<string, { label: string; icon: React.ComponentType<any>; color: string; bg: string }> = {
   // Reports
-  lab_report:         { label: 'Lab Report',   icon: TestTube2,      color: '#22C55E', bg: '#F0FDF4' },
-  xray_report:        { label: 'X-Ray',        icon: ScanLine,       color: '#06B6D4', bg: '#ECFEFF' },
-  mri_report:         { label: 'MRI',          icon: BrainCircuit,   color: '#8B5CF6', bg: '#F5F3FF' },
-  ultrasound_report:  { label: 'Ultrasound',   icon: Radio,          color: '#0D9488', bg: '#F0FDFA' },
-  ecg_report:         { label: 'ECG',          icon: HeartPulse,     color: '#EF4444', bg: '#FEF2F2' },
-  pathology_report:   { label: 'Pathology',    icon: Microscope,     color: '#F59E0B', bg: '#FFFBEB' },
-  pft_report:         { label: 'PFT',          icon: Wind,           color: '#3B82F6', bg: '#EFF6FF' },
-  other_report:       { label: 'Other Report', icon: ClipboardList,  color: '#6B7280', bg: '#F3F4F6' },
+  lab_report:         { label: 'Lab Report',   icon: TestTube2,      color: '#1E40AF', bg: '#BFDBFE' },
+  xray_report:        { label: 'X-Ray',        icon: ScanLine,       color: '#1E40AF', bg: '#BFDBFE' },
+  mri_report:         { label: 'MRI',          icon: BrainCircuit,   color: '#1E40AF', bg: '#BFDBFE' },
+  ultrasound_report:  { label: 'Ultrasound',   icon: Radio,          color: '#1E40AF', bg: '#BFDBFE' },
+  ecg_report:         { label: 'ECG',          icon: HeartPulse,     color: '#1E40AF', bg: '#BFDBFE' },
+  pathology_report:   { label: 'Pathology',    icon: Microscope,     color: '#1E40AF', bg: '#BFDBFE' },
+  pft_report:         { label: 'PFT',          icon: Wind,           color: '#1E40AF', bg: '#BFDBFE' },
+  other_report:       { label: 'Other Report', icon: ClipboardList,  color: '#1E40AF', bg: '#BFDBFE' },
   // Visits
-  consultation_notes: { label: 'Consultation', icon: Stethoscope,    color: '#3B82F6', bg: '#EFF6FF' },
-  procedure_notes:    { label: 'Procedure',    icon: Syringe,        color: '#EA580C', bg: '#FFF7ED' },
-  discharge_summary:  { label: 'Discharge',    icon: FileText,       color: '#EF4444', bg: '#FEF2F2' },
-  er_visit:           { label: 'ER Visit',     icon: Ambulance,      color: '#DC2626', bg: '#FEF2F2' },
-  referral:           { label: 'Referral',     icon: UserPlus,       color: '#F59E0B', bg: '#FFFBEB' },
-  other_visit:        { label: 'Other Visit',  icon: ClipboardCheck, color: '#6B7280', bg: '#F3F4F6' },
+  consultation_notes: { label: 'Consultation', icon: Stethoscope,    color: '#1E40AF', bg: '#BFDBFE' },
+  procedure_notes:    { label: 'Procedure',    icon: Syringe,        color: '#1E40AF', bg: '#BFDBFE' },
+  discharge_summary:  { label: 'Discharge',    icon: FileText,       color: '#1E40AF', bg: '#BFDBFE' },
+  er_visit:           { label: 'ER Visit',     icon: Ambulance,      color: '#1E40AF', bg: '#BFDBFE' },
+  referral:           { label: 'Referral',     icon: UserPlus,       color: '#1E40AF', bg: '#BFDBFE' },
+  other_visit:        { label: 'Other Visit',  icon: ClipboardCheck, color: '#1E40AF', bg: '#BFDBFE' },
   // Medications
-  prescription:       { label: 'Prescription', icon: Pill,           color: '#8B5CF6', bg: '#F5F3FF' },
-  medication_active:  { label: 'Active Med',   icon: Pill,           color: '#22C55E', bg: '#F0FDF4' },
-  medication_past:    { label: 'Past Med',     icon: Archive,        color: '#6B7280', bg: '#F3F4F6' },
+  prescription:       { label: 'Prescription', icon: Pill,           color: '#1E40AF', bg: '#BFDBFE' },
+  medication_active:  { label: 'Active Med',   icon: Pill,           color: '#1E40AF', bg: '#BFDBFE' },
+  medication_past:    { label: 'Past Med',     icon: Archive,        color: '#1E40AF', bg: '#BFDBFE' },
   // Documents
-  vaccination:        { label: 'Vaccination',  icon: Syringe,        color: '#22C55E', bg: '#F0FDF4' },
-  medical_certificate:{ label: 'Certificate',  icon: Award,          color: '#3B82F6', bg: '#EFF6FF' },
-  invoice:            { label: 'Invoice',      icon: Receipt,        color: '#6B7280', bg: '#F3F4F6' },
-  uploaded_document:  { label: 'Uploaded',     icon: Upload,         color: '#6366F1', bg: '#EEF2FF' },
+  vaccination:        { label: 'Vaccination',  icon: Syringe,        color: '#1E40AF', bg: '#BFDBFE' },
+  medical_certificate:{ label: 'Certificate',  icon: Award,          color: '#1E40AF', bg: '#BFDBFE' },
+  invoice:            { label: 'Invoice',      icon: Receipt,        color: '#1E40AF', bg: '#BFDBFE' },
 };
 
 const typeGroups: Record<string, string[]> = {
   reports:      ['lab_report', 'xray_report', 'mri_report', 'ultrasound_report', 'ecg_report', 'pathology_report', 'pft_report', 'other_report'],
   visits:       ['consultation_notes', 'procedure_notes', 'discharge_summary', 'er_visit', 'referral', 'other_visit'],
   medications:  ['prescription', 'medication_active', 'medication_past'],
-  documents:    ['vaccination', 'medical_certificate', 'invoice', 'uploaded_document'],
+  documents:    ['vaccination', 'medical_certificate', 'invoice'],
 };
 
 const RECORDS_PER_PAGE = 10;
@@ -424,9 +419,11 @@ function StatusBadge({ status }: { status: RecordStatus }) {
 /* ─── Page ─── */
 
 export default function Index({ user, records, familyMembers, abnormalCount }: Props) {
-  const [documentTypeFilter, setDocumentTypeFilter] = useState('all');
+  const [activeTab, setActiveTab] = useState('all');
+  const [subCategoryFilter, setSubCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [memberFilter, setMemberFilter] = useState<string>('all');
+  const [datePreset, setDatePreset] = useState('any');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -441,16 +438,78 @@ export default function Index({ user, records, familyMembers, abnormalCount }: P
     return map;
   }, [familyMembers]);
 
+  const groupCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: records.length, reports: 0, visits: 0, medications: 0, documents: 0 };
+    for (const r of records) {
+      for (const [group, cats] of Object.entries(typeGroups)) {
+        if (cats.includes(r.category)) { counts[group]++; break; }
+      }
+    }
+    return counts;
+  }, [records]);
+
+  const effectiveDateRange = useMemo(() => {
+    if (datePreset === 'any') return { computedFrom: '', computedTo: '' };
+    if (datePreset === 'custom') return { computedFrom: dateFrom, computedTo: dateTo };
+    const today = new Date();
+    const to = today.toISOString().slice(0, 10);
+    const d = new Date(today);
+    if (datePreset === 'last_7') d.setDate(d.getDate() - 7);
+    else if (datePreset === 'last_30') d.setDate(d.getDate() - 30);
+    else if (datePreset === 'last_90') d.setDate(d.getDate() - 90);
+    return { computedFrom: d.toISOString().slice(0, 10), computedTo: to };
+  }, [datePreset, dateFrom, dateTo]);
+
+  const subCategoryOptions = useMemo(() => {
+    if (activeTab === 'all') return Object.entries(categoryConfig);
+    const cats = typeGroups[activeTab] || [];
+    return cats.map((key) => [key, categoryConfig[key]] as [string, typeof categoryConfig[string]]).filter(([, v]) => v);
+  }, [activeTab]);
+
+  const activeFilters = useMemo(() => {
+    const filters: { key: string; label: string; onRemove: () => void }[] = [];
+    if (subCategoryFilter !== 'all') {
+      const cfg = categoryConfig[subCategoryFilter];
+      filters.push({ key: 'subcategory', label: cfg?.label || subCategoryFilter, onRemove: () => setSubCategoryFilter('all') });
+    }
+    if (statusFilter !== 'all') {
+      filters.push({ key: 'status', label: statusFilter.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()), onRemove: () => setStatusFilter('all') });
+    }
+    if (memberFilter !== 'all') {
+      const name = memberFilter === 'self' ? 'Yourself' : familyMembers.find((m) => String(m.id) === memberFilter)?.name || memberFilter;
+      filters.push({ key: 'member', label: name, onRemove: () => setMemberFilter('all') });
+    }
+    if (datePreset !== 'any') {
+      const labels: Record<string, string> = { last_7: 'Last 7 days', last_30: 'Last 30 days', last_90: 'Last 3 months', custom: 'Custom dates' };
+      filters.push({ key: 'date', label: labels[datePreset] || datePreset, onRemove: () => { setDatePreset('any'); setDateFrom(''); setDateTo(''); } });
+    }
+    if (searchQuery.trim()) {
+      filters.push({ key: 'search', label: `"${searchQuery}"`, onRemove: () => setSearchQuery('') });
+    }
+    return filters;
+  }, [subCategoryFilter, statusFilter, memberFilter, datePreset, searchQuery, familyMembers]);
+
+  function clearAllFilters() {
+    setSubCategoryFilter('all');
+    setStatusFilter('all');
+    setMemberFilter('all');
+    setDatePreset('any');
+    setDateFrom('');
+    setDateTo('');
+    setSearchQuery('');
+  }
+
   const filteredRecords = useMemo(() => {
     let list = records;
 
-    // Document type filter
-    if (documentTypeFilter !== 'all') {
-      if (typeGroups[documentTypeFilter]) {
-        list = list.filter((r) => typeGroups[documentTypeFilter].includes(r.category));
-      } else {
-        list = list.filter((r) => r.category === documentTypeFilter);
-      }
+    // Tab filter (group level)
+    if (activeTab !== 'all') {
+      list = list.filter((r) => typeGroups[activeTab]?.includes(r.category));
+    }
+
+    // Sub-category filter (individual category)
+    if (subCategoryFilter !== 'all') {
+      list = list.filter((r) => r.category === subCategoryFilter);
     }
 
     // Status filter
@@ -469,9 +528,10 @@ export default function Index({ user, records, familyMembers, abnormalCount }: P
       list = list.filter((r) => String(r.family_member_id) === memberFilter);
     }
 
-    // Date range
-    if (dateFrom) list = list.filter((r) => r.record_date >= dateFrom);
-    if (dateTo) list = list.filter((r) => r.record_date <= dateTo);
+    // Date range (from preset or custom)
+    const { computedFrom, computedTo } = effectiveDateRange;
+    if (computedFrom) list = list.filter((r) => r.record_date >= computedFrom);
+    if (computedTo) list = list.filter((r) => r.record_date <= computedTo);
 
     // Search
     if (searchQuery.trim()) {
@@ -487,12 +547,17 @@ export default function Index({ user, records, familyMembers, abnormalCount }: P
     }
 
     return list;
-  }, [records, documentTypeFilter, statusFilter, memberFilter, dateFrom, dateTo, searchQuery, memberMap]);
+  }, [records, activeTab, subCategoryFilter, statusFilter, memberFilter, effectiveDateRange, searchQuery, memberMap]);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [documentTypeFilter, statusFilter, memberFilter, dateFrom, dateTo, searchQuery]);
+  }, [activeTab, subCategoryFilter, statusFilter, memberFilter, datePreset, dateFrom, dateTo, searchQuery]);
+
+  // Reset sub-category when tab changes
+  useEffect(() => {
+    setSubCategoryFilter('all');
+  }, [activeTab]);
 
   const totalPages = Math.ceil(filteredRecords.length / RECORDS_PER_PAGE);
   const startIdx = (currentPage - 1) * RECORDS_PER_PAGE;
@@ -520,9 +585,11 @@ export default function Index({ user, records, familyMembers, abnormalCount }: P
   }
 
   function handleFilterToAttention() {
-    setDocumentTypeFilter('all');
+    setActiveTab('all');
+    setSubCategoryFilter('all');
     setStatusFilter('needs_attention');
     setMemberFilter('all');
+    setDatePreset('any');
     setDateFrom('');
     setDateTo('');
     setSearchQuery('');
@@ -538,124 +605,142 @@ export default function Index({ user, records, familyMembers, abnormalCount }: P
     >
       <div style={{ width: '100%', maxWidth: '960px', padding: '40px 0' }}>
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h1
-            className="font-bold"
-            style={{ fontSize: '36px', lineHeight: '44px', letterSpacing: '-1px', color: '#171717' }}
-          >
-            Health Records
-          </h1>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => toast('Download feature coming soon')}>
-              <Download className="h-4 w-4" />
-              Download All
-            </Button>
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => toast('Share feature coming soon')}>
-              <Share2 className="h-4 w-4" />
-              Share Records
-            </Button>
-            <Button size="sm" className="gap-1.5" onClick={() => toast('Upload feature coming soon')}>
-              <Upload className="h-4 w-4" />
-              Upload Record
-            </Button>
-          </div>
-        </div>
-
-        {/* Alert Banner */}
-        {abnormalCount > 0 && statusFilter !== 'needs_attention' && (
-          <div className="flex items-center gap-3 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 mb-6">
-            <AlertTriangle className="h-5 w-5 flex-shrink-0 text-destructive" />
-            <p className="text-sm flex-1">
-              <span className="font-semibold">{abnormalCount} {abnormalCount === 1 ? 'report needs' : 'reports need'} attention</span>
-              <span className="text-muted-foreground"> — Some test results are outside normal ranges</span>
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            <h1
+              className="font-bold"
+              style={{ fontSize: '36px', lineHeight: '44px', letterSpacing: '-1px', color: '#171717' }}
+            >
+              Health Records
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              {records.length} records across {familyMembers.length + 1} family members
             </p>
-            <Button variant="outline" size="sm" className="flex-shrink-0" onClick={handleFilterToAttention}>
-              View
-            </Button>
-          </div>
-        )}
-
-        {/* Filters */}
-        <div className="flex items-center gap-3 flex-wrap mb-4">
-          <Select value={documentTypeFilter} onValueChange={setDocumentTypeFilter}>
-            <SelectTrigger className="w-[170px] h-9">
-              <SelectValue placeholder="All Types" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="reports">All Reports</SelectItem>
-              <SelectItem value="visits">All Visits</SelectItem>
-              <SelectItem value="medications">All Medications</SelectItem>
-              <SelectItem value="documents">All Documents</SelectItem>
-              {Object.entries(categoryConfig).map(([key, cfg]) => (
-                <SelectItem key={key} value={key}>{cfg.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[170px] h-9">
-              <SelectValue placeholder="All Statuses" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="normal">Normal</SelectItem>
-              <SelectItem value="needs_attention">Needs Attention</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="follow_up_required">Follow-up Required</SelectItem>
-              <SelectItem value="valid">Valid</SelectItem>
-              <SelectItem value="expired">Expired</SelectItem>
-              <SelectItem value="discontinued">Discontinued</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={memberFilter} onValueChange={setMemberFilter}>
-            <SelectTrigger className="w-[170px] h-9">
-              <SelectValue placeholder="All Members" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Members</SelectItem>
-              <SelectItem value="self">Yourself</SelectItem>
-              {familyMembers.map((m) => (
-                <SelectItem key={m.id} value={String(m.id)}>
-                  {m.name} ({m.relation})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <div className="flex items-center gap-1.5">
-            <Input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              className="h-9 w-[140px] text-sm"
-            />
-            <span className="text-xs text-muted-foreground">to</span>
-            <Input
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              className="h-9 w-[140px] text-sm"
-            />
-          </div>
-
-          <div className="relative ml-auto">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search records..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 h-9 w-[200px]"
-            />
           </div>
         </div>
+
+
+        {/* Tabs + Filters */}
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v)} className="space-y-4">
+          <TabsList className="bg-muted/60">
+            {[
+              { value: 'all', label: 'All' },
+              { value: 'reports', label: 'Reports' },
+              { value: 'visits', label: 'Visits' },
+              { value: 'medications', label: 'Medications' },
+              { value: 'documents', label: 'Documents' },
+            ].map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value} className="gap-1.5">
+                {tab.label}
+                <Badge variant="secondary" className="ml-1 h-5 min-w-[20px] px-1.5 text-[11px]">
+                  {groupCounts[tab.value]}
+                </Badge>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          {/* Filter Row */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <Select value={subCategoryFilter} onValueChange={setSubCategoryFilter}>
+              <SelectTrigger className="w-[170px] h-9">
+                <SelectValue placeholder={activeTab === 'all' ? 'All Categories' : `All ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">
+                  {activeTab === 'all' ? 'All Categories' : `All ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`}
+                </SelectItem>
+                {subCategoryOptions.map(([key, cfg]) => (
+                  <SelectItem key={key} value={key}>{cfg.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[150px] h-9">
+                <SelectValue placeholder="All Statuses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="normal">Normal</SelectItem>
+                <SelectItem value="needs_attention">Needs Attention</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="follow_up_required">Follow-up Required</SelectItem>
+                <SelectItem value="valid">Valid</SelectItem>
+                <SelectItem value="expired">Expired</SelectItem>
+                <SelectItem value="discontinued">Discontinued</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={memberFilter} onValueChange={setMemberFilter}>
+              <SelectTrigger className="w-[150px] h-9">
+                <SelectValue placeholder="All Members" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Members</SelectItem>
+                <SelectItem value="self">Yourself</SelectItem>
+                {familyMembers.map((m) => (
+                  <SelectItem key={m.id} value={String(m.id)}>
+                    {m.name} ({m.relation})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={datePreset} onValueChange={(v) => { setDatePreset(v); if (v !== 'custom') { setDateFrom(''); setDateTo(''); } }}>
+              <SelectTrigger className="w-[150px] h-9">
+                <SelectValue placeholder="Any Time" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="any">Any Time</SelectItem>
+                <SelectItem value="last_7">Last 7 Days</SelectItem>
+                <SelectItem value="last_30">Last 30 Days</SelectItem>
+                <SelectItem value="last_90">Last 3 Months</SelectItem>
+                <SelectItem value="custom">Custom Range</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {datePreset === 'custom' && (
+              <div className="flex items-center gap-1.5">
+                <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="h-9 w-[130px] text-sm" />
+                <span className="text-xs text-muted-foreground">to</span>
+                <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="h-9 w-[130px] text-sm" />
+              </div>
+            )}
+
+            <div className="relative ml-auto">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search records..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-9 w-[200px]"
+              />
+            </div>
+          </div>
+
+          {/* Active Filter Pills */}
+          {activeFilters.length > 0 && (
+            <div className="flex items-center gap-2 flex-wrap">
+              {activeFilters.map((f) => (
+                <Badge key={f.key} variant="secondary" className="gap-1 pl-2.5 pr-1.5 py-1 h-7 text-xs font-medium">
+                  {f.label}
+                  <button onClick={f.onRemove} className="ml-1 rounded-full hover:bg-muted-foreground/20 p-0.5">
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))}
+              <button onClick={clearAllFilters} className="text-xs text-muted-foreground hover:text-foreground ml-1">
+                Clear all
+              </button>
+            </div>
+          )}
+        </Tabs>
 
         {/* Bulk Actions Bar */}
         {selectedIds.size > 0 && (
-          <div className="flex items-center gap-3 rounded-lg bg-muted px-4 py-2.5 mb-4">
+          <div className="flex items-center gap-3 rounded-lg bg-muted px-4 py-2.5 mt-4 mb-4">
             <span className="text-sm font-medium">{selectedIds.size} selected</span>
             <Button variant="outline" size="sm" className="gap-1.5" onClick={() => toast('Download feature coming soon')}>
               <Download className="h-3.5 w-3.5" />
@@ -673,7 +758,7 @@ export default function Index({ user, records, familyMembers, abnormalCount }: P
 
         {/* Table */}
         {filteredRecords.length > 0 ? (
-          <>
+          <div className={selectedIds.size === 0 ? 'mt-4' : ''}>
             <div className="rounded-lg border">
               <Table>
                 <TableHeader>
@@ -790,18 +875,6 @@ export default function Index({ user, records, familyMembers, abnormalCount }: P
                                   </Link>
                                 </DropdownMenuItem>
                               )}
-                              {record.is_user_uploaded && (
-                                <>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    className="text-destructive focus:text-destructive"
-                                    onClick={() => toast('Delete feature coming soon')}
-                                  >
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                    Delete
-                                  </DropdownMenuItem>
-                                </>
-                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
@@ -858,7 +931,7 @@ export default function Index({ user, records, familyMembers, abnormalCount }: P
                 Contact support →
               </a>
             </p>
-          </>
+          </div>
         ) : (
           /* Empty State */
           <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -999,7 +1072,6 @@ function CategoryDetail({ category, meta, onAction, record, memberMap }: { categ
     case 'vaccination': return <VaccinationDetail meta={meta} onAction={onAction} record={record} memberMap={memberMap} />;
     case 'medical_certificate': return <MedicalCertificateDetail meta={meta} onAction={onAction} />;
     case 'invoice': return <InvoiceDetail meta={meta} />;
-    case 'uploaded_document': return <UploadedDocDetail meta={meta} />;
     default: return null;
   }
 }
@@ -2307,16 +2379,3 @@ function InvoiceDetail({ meta }: { meta: RecordMetadata }) {
   );
 }
 
-function UploadedDocDetail({ meta }: { meta: RecordMetadata }) {
-  return (
-    <div className="space-y-3">
-      {meta.source && <DetailRow label="Source">{meta.source}</DetailRow>}
-      {meta.notes && (
-        <div>
-          <SectionTitle>Notes</SectionTitle>
-          <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{meta.notes}</p>
-        </div>
-      )}
-    </div>
-  );
-}

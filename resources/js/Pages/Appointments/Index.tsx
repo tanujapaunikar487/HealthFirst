@@ -392,11 +392,25 @@ function AppointmentsTable({
                 <p className="text-xs text-muted-foreground">{appt.time}</p>
               </TableCell>
               <TableCell className="align-top">
-                <p className="text-sm font-medium">{appt.title}</p>
-                <p className="text-xs text-muted-foreground">
-                  {appt.mode}
-                  {appt.subtitle ? ` • ${appt.subtitle}` : ''}
-                </p>
+                <div className="flex items-center gap-2.5">
+                  <div
+                    className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ backgroundColor: '#BFDBFE' }}
+                  >
+                    {appt.type === 'doctor' ? (
+                      <Stethoscope className="h-3.5 w-3.5" style={{ color: '#1E40AF' }} />
+                    ) : (
+                      <TestTube2 className="h-3.5 w-3.5" style={{ color: '#1E40AF' }} />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">{appt.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {appt.mode}
+                      {appt.subtitle ? ` • ${appt.subtitle}` : ''}
+                    </p>
+                  </div>
+                </div>
               </TableCell>
               <TableCell className="align-top">
                 <p className="text-sm">{appt.patient_name}</p>
@@ -547,15 +561,13 @@ function DetailsSheet({
       <SheetHeader className="pb-6">
         <div className="flex items-center gap-3 mb-1">
           <div
-            className={cn(
-              'h-10 w-10 rounded-full flex items-center justify-center',
-              isDoctor ? 'bg-blue-50' : 'bg-purple-50'
-            )}
+            className="h-10 w-10 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: '#BFDBFE' }}
           >
             {isDoctor ? (
-              <Stethoscope className="h-5 w-5 text-blue-600" />
+              <Stethoscope className="h-5 w-5" style={{ color: '#1E40AF' }} />
             ) : (
-              <TestTube2 className="h-5 w-5 text-purple-600" />
+              <TestTube2 className="h-5 w-5" style={{ color: '#1E40AF' }} />
             )}
           </div>
           <div>
@@ -911,11 +923,11 @@ function RescheduleSheet({
         {/* Booking Summary */}
         <div className="rounded-lg bg-muted/50 p-4 space-y-3">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-background flex items-center justify-center border">
+            <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ backgroundColor: '#BFDBFE' }}>
               {appointment.type === 'doctor' ? (
-                <Stethoscope className="h-5 w-5 text-blue-600" />
+                <Stethoscope className="h-5 w-5" style={{ color: '#1E40AF' }} />
               ) : (
-                <TestTube2 className="h-5 w-5 text-emerald-600" />
+                <TestTube2 className="h-5 w-5" style={{ color: '#1E40AF' }} />
               )}
             </div>
             <div>

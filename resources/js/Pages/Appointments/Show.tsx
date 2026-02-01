@@ -562,8 +562,8 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
           <div className="space-y-3">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Doctor</p>
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
-                <Stethoscope className="h-5 w-5 text-blue-600" />
+              <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ backgroundColor: '#BFDBFE' }}>
+                <Stethoscope className="h-5 w-5" style={{ color: '#1E40AF' }} />
               </div>
               <div>
                 <p className="font-medium text-sm">{appointment.doctor.name}</p>

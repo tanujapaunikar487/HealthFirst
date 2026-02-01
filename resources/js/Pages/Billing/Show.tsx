@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
@@ -145,6 +145,12 @@ interface Props {
   bill: Bill;
 }
 
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 /* ─── Status Config ─── */
 
 const STATUS_CONFIG: Record<BillingStatus, { label: string; color: string; bg: string }> = {
@@ -274,6 +280,7 @@ function StatusAlertBanner({ bill }: { bill: Bill }) {
 
 export default function Show({ user, bill }: Props) {
   const [toastMessage, setToastMessage] = useState('');
+  const [paymentLoading, setPaymentLoading] = useState(false);
   const isDoctor = bill.appointment_type === 'doctor';
   const isPayable = PAYABLE_STATUSES.includes(bill.billing_status);
   const isEmi = bill.billing_status === 'emi';
@@ -336,6 +343,87 @@ export default function Show({ user, bill }: Props) {
     setTimeout(() => setToastMessage(''), 3000);
   };
 
+  const handlePayment = async (amount: number) => {
+    if (paymentLoading) return;
+    setPaymentLoading(true);
+
+    try {
+      const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content || '';
+      const res = await fetch(`/billing/${bill.appointment_id}/payment/create-order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+        body: JSON.stringify({ amount }),
+      });
+
+      if (!res.ok) throw new Error('Failed to create order');
+      const orderData = await res.json();
+
+      if (orderData.mock_mode) {
+        const verifyRes = await fetch(`/billing/${bill.appointment_id}/payment/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+          body: JSON.stringify({
+            razorpay_payment_id: 'pay_mock_' + Math.random().toString(36).substr(2, 9),
+            razorpay_order_id: orderData.order_id,
+            razorpay_signature: 'mock_signature',
+          }),
+        });
+
+        if (!verifyRes.ok) throw new Error('Payment verification failed');
+        showToast('Payment successful!');
+        setPaymentLoading(false);
+        router.reload();
+        return;
+      }
+
+      const options = {
+        key: orderData.key,
+        amount: orderData.amount * 100,
+        currency: orderData.currency,
+        name: 'HealthFirst',
+        description: `Payment for ${bill.invoice_number}`,
+        order_id: orderData.order_id,
+        handler: async (response: any) => {
+          try {
+            const verifyRes = await fetch(`/billing/${bill.appointment_id}/payment/verify`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
+
+            if (!verifyRes.ok) throw new Error('Verification failed');
+            showToast('Payment successful!');
+            setPaymentLoading(false);
+            router.reload();
+          } catch {
+            setPaymentLoading(false);
+            showToast('Payment verification failed. Please try again.');
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setPaymentLoading(false);
+          },
+        },
+        prefill: {
+          name: user.name,
+          email: user.email,
+        },
+        theme: { color: '#0052FF' },
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+    } catch {
+      setPaymentLoading(false);
+      showToast('Failed to initiate payment. Please try again.');
+    }
+  };
+
   return (
     <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing-selected.svg">
       <div style={{ width: '100%', maxWidth: '720px', padding: '40px 0' }}>
@@ -360,20 +448,22 @@ export default function Show({ user, bill }: Props) {
               <Button
                 size="sm"
                 className="text-xs rounded-full gap-1.5"
-                onClick={() => showToast('Redirecting to payment gateway...')}
+                disabled={paymentLoading}
+                onClick={() => handlePayment(bill.due_amount)}
               >
                 <IndianRupee className="h-3.5 w-3.5" />
-                Pay ₹{bill.due_amount.toLocaleString()}
+                {paymentLoading ? 'Processing...' : `Pay ₹${bill.due_amount.toLocaleString()}`}
               </Button>
             )}
             {isEmi && bill.emi_details && (
               <Button
                 size="sm"
                 className="text-xs rounded-full gap-1.5"
-                onClick={() => showToast('Redirecting to payment gateway...')}
+                disabled={paymentLoading}
+                onClick={() => handlePayment(bill.emi_details!.monthly_amount)}
               >
                 <CreditCard className="h-3.5 w-3.5" />
-                Pay EMI ₹{bill.emi_details.monthly_amount.toLocaleString()}
+                {paymentLoading ? 'Processing...' : `Pay EMI ₹${bill.emi_details.monthly_amount.toLocaleString()}`}
               </Button>
             )}
             <Button
@@ -449,8 +539,8 @@ export default function Show({ user, bill }: Props) {
                 label="Description"
                 value={
                   <div className="flex items-center gap-2">
-                    <div className={cn('h-6 w-6 rounded-full flex items-center justify-center', isDoctor ? 'bg-blue-50' : 'bg-purple-50')}>
-                      {isDoctor ? <Stethoscope className="h-3 w-3 text-blue-600" /> : <TestTube2 className="h-3 w-3 text-purple-600" />}
+                    <div className="h-6 w-6 rounded-full flex items-center justify-center" style={{ backgroundColor: '#BFDBFE' }}>
+                      {isDoctor ? <Stethoscope className="h-3 w-3" style={{ color: '#1E40AF' }} /> : <TestTube2 className="h-3 w-3" style={{ color: '#1E40AF' }} />}
                     </div>
                     <span>{bill.appointment_title}</span>
                   </div>
@@ -669,23 +759,25 @@ export default function Show({ user, bill }: Props) {
         <div className="mt-6 space-y-2">
           {isPayable && (
             <button
-              className="w-full flex items-center justify-center gap-2 text-sm font-medium rounded-xl border py-3 transition-colors text-white"
+              className="w-full flex items-center justify-center gap-2 text-sm font-medium rounded-xl border py-3 transition-colors text-white disabled:opacity-50"
               style={{ backgroundColor: '#0052FF', borderColor: '#0052FF' }}
-              onClick={() => showToast('Redirecting to payment gateway...')}
+              disabled={paymentLoading}
+              onClick={() => handlePayment(bill.due_amount)}
             >
               <IndianRupee className="h-4 w-4" />
-              Pay ₹{bill.due_amount.toLocaleString()}
+              {paymentLoading ? 'Processing...' : `Pay ₹${bill.due_amount.toLocaleString()}`}
             </button>
           )}
 
           {isEmi && bill.emi_details && (
             <button
-              className="w-full flex items-center justify-center gap-2 text-sm font-medium rounded-xl border py-3 transition-colors text-white"
+              className="w-full flex items-center justify-center gap-2 text-sm font-medium rounded-xl border py-3 transition-colors text-white disabled:opacity-50"
               style={{ backgroundColor: '#0052FF', borderColor: '#0052FF' }}
-              onClick={() => showToast('Redirecting to payment gateway...')}
+              disabled={paymentLoading}
+              onClick={() => handlePayment(bill.emi_details!.monthly_amount)}
             >
               <CreditCard className="h-4 w-4" />
-              Pay EMI ₹{bill.emi_details.monthly_amount.toLocaleString()}
+              {paymentLoading ? 'Processing...' : `Pay EMI ₹${bill.emi_details.monthly_amount.toLocaleString()}`}
             </button>
           )}
 

@@ -1523,38 +1523,6 @@ class HospitalSeeder extends Seeder
         $records[] = [
             'appointment_id' => null,
             'family_member_id' => $selfMember?->id,
-            'category' => 'uploaded_document',
-            'title' => 'Previous Hospital Discharge Summary',
-            'description' => 'Discharge summary from City Hospital for dengue fever treatment (uploaded from external records).',
-            'doctor_name' => 'Dr. Rajesh Khanna',
-            'department_name' => 'Internal Medicine',
-            'record_date' => Carbon::today()->subMonths(6)->format('Y-m-d'),
-            'metadata' => [
-                'source' => 'City Hospital, Pune',
-                'notes' => 'Uploaded by patient. Original document from previous hospitalization.',
-            ],
-            'file_type' => 'pdf',
-        ];
-
-        $records[] = [
-            'appointment_id' => null,
-            'family_member_id' => $selfMember?->id,
-            'category' => 'uploaded_document',
-            'title' => 'Old Prescription — Family Doctor',
-            'description' => 'Previous prescription from Dr. Sharma (family physician) for seasonal allergies.',
-            'doctor_name' => 'Dr. R.K. Sharma',
-            'department_name' => null,
-            'record_date' => Carbon::today()->subMonths(5)->format('Y-m-d'),
-            'metadata' => [
-                'source' => 'Dr. Sharma Clinic, Kothrud',
-                'notes' => 'Seasonal allergy prescription. Kept for reference.',
-            ],
-            'file_type' => 'image',
-        ];
-
-        $records[] = [
-            'appointment_id' => null,
-            'family_member_id' => $selfMember?->id,
             'category' => 'prescription',
             'title' => 'Ongoing Medication — Vitamin D3',
             'description' => 'Vitamin D3 supplementation for mild deficiency, prescribed 3 months ago.',

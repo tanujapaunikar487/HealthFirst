@@ -7,8 +7,11 @@ use App\Models\FamilyMember;
 use App\Models\InsuranceClaim;
 use App\Models\LabTestType;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Razorpay\Api\Api;
 
 class BillingController extends Controller
 {
@@ -82,6 +85,115 @@ class BillingController extends Controller
             'user' => $user,
             'bill' => $this->formatBillDetail($appointment),
         ]);
+    }
+
+    /**
+     * Create a Razorpay order for billing payment.
+     */
+    public function createOrder(Request $request, Appointment $appointment)
+    {
+        $user = Auth::user() ?? \App\User::first();
+
+        if ($appointment->user_id !== $user->id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'amount' => 'required|numeric|min:1',
+        ]);
+
+        $amount = (int) $validated['amount'];
+
+        try {
+            $key = config('razorpay.key');
+            $secret = config('razorpay.secret');
+
+            $isMockMode = empty($key) || empty($secret) ||
+                str_contains($key, 'your_key_here') ||
+                str_contains($secret, 'your_secret_here');
+
+            if ($isMockMode) {
+                $orderId = 'order_mock_' . uniqid();
+
+                return response()->json([
+                    'order_id' => $orderId,
+                    'amount' => $amount,
+                    'currency' => 'INR',
+                    'key' => 'rzp_test_mock',
+                    'mock_mode' => true,
+                ]);
+            }
+
+            $razorpay = new Api($key, $secret);
+
+            $order = $razorpay->order->create([
+                'amount' => $amount * 100,
+                'currency' => 'INR',
+                'receipt' => 'bill_' . $appointment->id,
+                'notes' => [
+                    'appointment_id' => $appointment->id,
+                    'invoice_number' => 'INV-' . str_pad($appointment->id, 6, '0', STR_PAD_LEFT),
+                ],
+            ]);
+
+            return response()->json([
+                'order_id' => $order->id,
+                'amount' => $amount,
+                'currency' => 'INR',
+                'key' => $key,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Billing Razorpay order creation failed: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to create payment order'], 500);
+        }
+    }
+
+    /**
+     * Verify Razorpay payment for billing.
+     */
+    public function verifyPayment(Request $request, Appointment $appointment)
+    {
+        $user = Auth::user() ?? \App\User::first();
+
+        if ($appointment->user_id !== $user->id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'razorpay_payment_id' => 'required|string',
+            'razorpay_order_id' => 'required|string',
+            'razorpay_signature' => 'required|string',
+        ]);
+
+        try {
+            $key = config('razorpay.key');
+            $secret = config('razorpay.secret');
+
+            $isMockMode = empty($key) || empty($secret) ||
+                str_contains($key, 'your_key_here') ||
+                str_contains($secret, 'your_secret_here');
+
+            if (!$isMockMode) {
+                $razorpay = new Api($key, $secret);
+                $razorpay->utility->verifyPaymentSignature([
+                    'razorpay_order_id' => $validated['razorpay_order_id'],
+                    'razorpay_payment_id' => $validated['razorpay_payment_id'],
+                    'razorpay_signature' => $validated['razorpay_signature'],
+                ]);
+            }
+
+            // Update appointment payment status
+            $appointment->payment_status = 'paid';
+            $appointment->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment successful',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Billing payment verification failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'error' => 'Payment verification failed'], 400);
+        }
     }
 
     /**

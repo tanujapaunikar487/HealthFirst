@@ -41,7 +41,6 @@ class HealthRecordController extends Controller
                     'file_url' => $r->file_url,
                     'file_type' => $r->file_type,
                     'status' => $status,
-                    'is_user_uploaded' => $r->category === 'uploaded_document',
                 ];
             });
 

@@ -10,6 +10,7 @@ use App\Http\Controllers\GuidedLabController;
 use App\Http\Controllers\HealthRecordController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\FamilyMembersController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -148,12 +149,21 @@ Route::post('/appointments/{appointment}/reschedule', [AppointmentsController::c
 Route::get('/appointments/{appointment}/available-slots', [AppointmentsController::class, 'availableSlots'])->name('appointments.available-slots');
 Route::get('/appointments/{appointment}/book-again', [AppointmentsController::class, 'bookAgain'])->name('appointments.book-again');
 
+// Family Members
+Route::get('/family-members', [FamilyMembersController::class, 'index'])->name('family-members.index');
+Route::get('/family-members/create', [FamilyMembersController::class, 'create'])->name('family-members.create');
+Route::post('/family-members', [FamilyMembersController::class, 'store'])->name('family-members.store');
+Route::put('/family-members/{member}', [FamilyMembersController::class, 'update'])->name('family-members.update');
+Route::delete('/family-members/{member}', [FamilyMembersController::class, 'destroy'])->name('family-members.destroy');
+
 // Health Records
 Route::get('/health-records', [HealthRecordController::class, 'index'])->name('health-records.index');
 
 // Billing
 Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');
 Route::get('/billing/{appointment}', [BillingController::class, 'show'])->name('billing.show');
+Route::post('/billing/{appointment}/payment/create-order', [BillingController::class, 'createOrder'])->name('billing.payment.create-order');
+Route::post('/billing/{appointment}/payment/verify', [BillingController::class, 'verifyPayment'])->name('billing.payment.verify');
 
 // Notifications
 Route::post('/notifications/{billing_notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
