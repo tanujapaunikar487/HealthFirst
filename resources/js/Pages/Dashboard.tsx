@@ -128,7 +128,7 @@ function DashboardSkeleton() {
           <Pulse className="h-5 w-20" />
         </div>
 
-        <Card style={{ width: '738px', borderRadius: '24px', border: '1px solid #E5E5E5', overflow: 'hidden' }}>
+        <Card className="overflow-hidden" style={{ width: '738px' }}>
           <CardContent className="p-0">
             {[0, 1, 2].map((i) => (
               <div
@@ -192,7 +192,7 @@ interface DashboardCardProps {
   badge?: string;
   badgeColor?: string;
   actionLabel: string;
-  actionVariant?: 'default' | 'outline';
+  actionVariant?: 'accent' | 'outline';
   onAction: () => void;
   menuItems: { label: string; onClick: () => void; destructive?: boolean }[];
   isLast: boolean;
@@ -208,7 +208,7 @@ const cardConfig: Record<CardType, { icon: typeof Receipt; iconColor: string; ic
 
 function DashboardCard({
   type, title, subtitle, patientName, patientInitials, badge, badgeColor,
-  actionLabel, actionVariant = 'default', onAction, menuItems, isLast, iconOverride,
+  actionLabel, actionVariant = 'accent', onAction, menuItems, isLast, iconOverride,
 }: DashboardCardProps) {
   const config = cardConfig[type];
   const Icon = iconOverride || config.icon;
@@ -464,7 +464,7 @@ export default function Dashboard({
   const today = new Date();
   const dateOptions: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
   const formattedDate = today.toLocaleDateString('en-US', dateOptions);
-  const firstName = user.patient?.first_name || user.name.split(' ')[0];
+  const firstName = user.name?.split(' ')[0] ?? '';
   const allStepsCompleted = profileSteps.every(step => step.completed);
 
   // Split appointments into today vs later
@@ -513,30 +513,29 @@ export default function Dashboard({
           <>
             {/* Up next section */}
             {hasUpNextItems && (
-              <div style={{ display: 'flex', flexDirection: 'column', width: '738px', gap: '24px' }}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: '#171717' }}>
-                      Up next
-                    </h2>
-                    <span
-                      className="text-xs font-medium px-2 py-0.5 rounded-full"
-                      style={{ backgroundColor: '#EEF0F3', color: '#525252' }}
-                    >
-                      {overdueBills.length + healthAlerts.length + todayAppointments.length}
-                    </span>
-                  </div>
-                  <Link
-                    href={overdueBills.length > 0 ? '/billing' : healthAlerts.length > 0 ? '/health-records' : '/appointments'}
-                    className="text-sm font-medium"
-                    style={{ color: '#0052FF' }}
-                  >
-                    View all
-                  </Link>
-                </div>
-
-                <Card style={{ width: '738px', borderRadius: '24px', border: '1px solid #E5E5E5', overflow: 'hidden' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', width: '738px' }}>
+                <Card className="overflow-hidden" style={{ width: '738px' }}>
                   <CardContent className="p-0">
+                    <div className="flex items-center justify-between px-5 pt-5 pb-3">
+                      <div className="flex items-center gap-3">
+                        <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: '#171717' }}>
+                          Up next
+                        </h2>
+                        <span
+                          className="text-xs font-medium px-2 py-0.5 rounded-full"
+                          style={{ backgroundColor: '#EEF0F3', color: '#525252' }}
+                        >
+                          {overdueBills.length + healthAlerts.length + todayAppointments.length}
+                        </span>
+                      </div>
+                      <Link
+                        href={overdueBills.length > 0 ? '/billing' : healthAlerts.length > 0 ? '/health-records' : '/appointments'}
+                        className="text-sm font-medium"
+                        style={{ color: '#0052FF' }}
+                      >
+                        View all
+                      </Link>
+                    </div>
                     {/* Overdue bills (highest priority) */}
                     {overdueBills.map((bill, i) => (
                       <DashboardCard
@@ -610,18 +609,17 @@ export default function Dashboard({
 
             {/* Later this week section */}
             {hasLaterItems && (
-              <div style={{ display: 'flex', flexDirection: 'column', width: '738px', gap: '24px' }}>
-                <div className="flex items-center justify-between">
-                  <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: '#171717' }}>
-                    Later this week
-                  </h2>
-                  <Link href="/appointments" className="text-sm font-medium" style={{ color: '#0052FF' }}>
-                    View all
-                  </Link>
-                </div>
-
-                <Card style={{ width: '738px', borderRadius: '24px', border: '1px solid #E5E5E5', overflow: 'hidden' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', width: '738px' }}>
+                <Card className="overflow-hidden" style={{ width: '738px' }}>
                   <CardContent className="p-0">
+                    <div className="flex items-center justify-between px-5 pt-5 pb-3">
+                      <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: '#171717' }}>
+                        Later this week
+                      </h2>
+                      <Link href="/appointments" className="text-sm font-medium" style={{ color: '#0052FF' }}>
+                        View all
+                      </Link>
+                    </div>
                     {laterAppointments.map((appt, i) => (
                       <DashboardCard
                         key={`later-${appt.id}`}
@@ -692,7 +690,7 @@ export default function Dashboard({
                 <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: '#171717' }}>
                   Up next
                 </h2>
-                <Card style={{ width: '738px', borderRadius: '24px', border: '1px solid #E5E5E5', overflow: 'hidden' }}>
+                <Card className="overflow-hidden" style={{ width: '738px' }}>
                   <CardContent className="p-0">
                     {upcomingAppointments.map((appt, index) => (
                       <Link key={appt.id} href="/appointments" className="block">
@@ -753,7 +751,7 @@ export default function Dashboard({
                 </p>
               </div>
 
-              <Card style={{ width: '738px', borderRadius: '24px', border: '1px solid #E5E5E5', overflow: 'hidden' }}>
+              <Card className="overflow-hidden" style={{ width: '738px' }}>
                 <CardContent className="p-0">
                   {profileSteps.map((step, index) => (
                     <ProfileStepItem

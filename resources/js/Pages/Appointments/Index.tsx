@@ -169,22 +169,6 @@ function AppointmentsSkeleton() {
 
 export default function Index({ user, appointments, familyMembers, doctors }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(appointments);
-
-  if (hasError) {
-    return (
-      <AppLayout user={user} pageTitle="Appointments" pageIcon="/assets/icons/appointment-selected.svg">
-        <ErrorState onRetry={retry} label="Unable to load appointments" />
-      </AppLayout>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <AppLayout user={user} pageTitle="Appointments" pageIcon="/assets/icons/appointment-selected.svg">
-        <AppointmentsSkeleton />
-      </AppLayout>
-    );
-  }
   const [memberFilter, setMemberFilter] = useState<string>('all');
   const [doctorFilter, setDoctorFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -232,6 +216,22 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
   const handleSheetError = (message: string) => {
     setToastMessage(message);
   };
+
+  if (hasError) {
+    return (
+      <AppLayout user={user} pageTitle="Appointments" pageIcon="/assets/icons/appointment-selected.svg">
+        <ErrorState onRetry={retry} label="Unable to load appointments" />
+      </AppLayout>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <AppLayout user={user} pageTitle="Appointments" pageIcon="/assets/icons/appointment-selected.svg">
+        <AppointmentsSkeleton />
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout

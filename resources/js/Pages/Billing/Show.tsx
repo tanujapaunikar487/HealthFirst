@@ -336,22 +336,6 @@ function BillingShowSkeleton() {
 
 export default function Show({ user, bill }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(bill);
-
-  if (hasError) {
-    return (
-      <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing-selected.svg">
-        <ErrorState onRetry={retry} label="Unable to load bill details" />
-      </AppLayout>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing-selected.svg">
-        <BillingShowSkeleton />
-      </AppLayout>
-    );
-  }
   const [toastMessage, setToastMessage] = useState('');
   const [paymentLoading, setPaymentLoading] = useState(false);
   const isDoctor = bill.appointment_type === 'doctor';
@@ -496,6 +480,22 @@ export default function Show({ user, bill }: Props) {
       showToast('Failed to initiate payment. Please try again.');
     }
   };
+
+  if (hasError) {
+    return (
+      <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing-selected.svg">
+        <ErrorState onRetry={retry} label="Unable to load bill details" />
+      </AppLayout>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing-selected.svg">
+        <BillingShowSkeleton />
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing-selected.svg">

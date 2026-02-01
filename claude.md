@@ -105,7 +105,7 @@ Two parallel booking systems:
 ### Design System
 - shadcn/ui component library
 - Design tokens (colors, spacing, typography, borders)
-- Button variants (default, destructive, outline, secondary, ghost, link, cta)
+- Button variants (default, destructive, outline, secondary, ghost, link, accent, cta)
 - Toast notifications, tooltips, dropdown menus
 - Prompt input components with gradient container
 
@@ -2177,5 +2177,67 @@ The "Book Appointment" button in the dashboard header was wrapped in `{!allSteps
 
 ---
 
+## UI Polish: Card Styling, Accent Button, Dashboard Layout (February 2, 2026)
+
+### Card Component Global Styling
+
+Updated the base Card component to use 24px border-radius globally:
+- `card.tsx`: Changed default class from `rounded-lg` to `rounded-3xl`
+- Removed inline `borderRadius: '24px'` and `border: '1px solid #E5E5E5'` from 5 Dashboard Card instances (now inherited from base component)
+- Updated `skeleton.tsx` skeleton containers from `rounded-xl` to `rounded-3xl` to match
+
+### Accent Button Variant
+
+Added `accent` variant to the Button component for dark inverse action buttons:
+```
+accent: 'bg-[#171717] text-white rounded-full hover:bg-[#171717]/90'
+```
+Used as the default action button style in Dashboard "Up Next" section cards.
+
+### Dashboard Layout Improvements
+
+- Moved "Up next" and "Later this week" section headers (title + count badge + "View all" link) inside their Card components with `px-5 pt-5 pb-3` padding
+- Changed DashboardCard default `actionVariant` from `'default'` to `'accent'`
+- Cleaned up greeting to use `user.name?.split(' ')[0] ?? ''` (removed dead `user.patient?.first_name` reference)
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `resources/js/Components/ui/card.tsx` | `rounded-lg` → `rounded-3xl` |
+| `resources/js/Components/ui/button.tsx` | Added `accent` variant |
+| `resources/js/Components/ui/skeleton.tsx` | `rounded-xl` → `rounded-3xl` |
+| `resources/js/Pages/Dashboard.tsx` | Moved headers inside cards, accent buttons, greeting cleanup |
+
+---
+
+## Fix: React Hooks Ordering in Skeleton-Equipped Pages (February 2, 2026)
+
+Fixed "React has detected a change in the order of Hooks" error across all 8 pages that use `useSkeletonLoading`.
+
+### Root Cause
+
+The skeleton loading pattern placed early returns (`if (hasError)` / `if (isLoading)`) **before** other hooks (`useState`, `useEffect`, `useMemo`, `useCallback`, `usePage`). During loading, React saw N hooks; after loading resolved, it saw N+M hooks. React requires the same hooks in the same order on every render.
+
+### Fix Pattern
+
+Moved ALL hooks above the early returns. The early returns now sit between the last hook call and the main `return` statement, so React always sees the same hook count regardless of loading state.
+
+### Pages Fixed (8 total)
+
+| Page | Hooks moved above early returns |
+|------|--------------------------------|
+| `Insurance/Index.tsx` | `usePage`, 12 `useState`, 2 `useEffect`, 2 `useMemo`, 2 `useCallback` |
+| `Appointments/Index.tsx` | 5 `useState`, 1 `useMemo` |
+| `HealthRecords/Index.tsx` | 12 `useState`, 3 `useEffect`, 6 `useMemo` |
+| `Billing/Index.tsx` | 10 `useState`, 1 `useEffect`, 1 `useMemo` |
+| `Billing/Show.tsx` | 2 `useState` |
+| `Insurance/Show.tsx` | 2 `useState` |
+| `Insurance/ClaimDetail.tsx` | 5 `useState` |
+| `FamilyMembers/Index.tsx` | `usePage`, 6 `useState`, 2 `useEffect` |
+| `FamilyMembers/Show.tsx` | `usePage`, 5 `useState`, 1 `useEffect` |
+
+---
+
 **Last Updated**: February 2, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign | Upload Removed | Razorpay Billing Integration | Uniform Blue Icons | Family Members List + Detail Page | Unified Booking Links | Insurance List + Add Policy + Detail Page | Insurance Claim Detail Page | Claim Detail Edge States & Notification Deep-Linking | Dashboard States (Loading, New User, Partial Onboarding) | Active Dashboard with Aggregated Tasks | Profile Warning Banner | Dashboard Enhancements (View All, Razorpay Pay, Dynamic Promotions) | Global Search Modal | Skeleton Loading Screens | Dashboard Real Data & Always-Visible Book Button
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign | Upload Removed | Razorpay Billing Integration | Uniform Blue Icons | Family Members List + Detail Page | Unified Booking Links | Insurance List + Add Policy + Detail Page | Insurance Claim Detail Page | Claim Detail Edge States & Notification Deep-Linking | Dashboard States (Loading, New User, Partial Onboarding) | Active Dashboard with Aggregated Tasks | Profile Warning Banner | Dashboard Enhancements (View All, Razorpay Pay, Dynamic Promotions) | Global Search Modal | Skeleton Loading Screens | Dashboard Real Data & Always-Visible Book Button | Card & Button Polish | React Hooks Ordering Fix

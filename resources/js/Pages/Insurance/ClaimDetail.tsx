@@ -588,22 +588,6 @@ function ClaimDetailSkeleton() {
 
 export default function ClaimDetail({ claim, patient, doctor, appointment }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(claim);
-
-  if (hasError) {
-    return (
-      <AppLayout pageTitle="Insurance" pageIcon="insurance">
-        <ErrorState onRetry={retry} label="Unable to load claim details" />
-      </AppLayout>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <AppLayout pageTitle="Insurance" pageIcon="insurance">
-        <ClaimDetailSkeleton />
-      </AppLayout>
-    );
-  }
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [expandedTimeline, setExpandedTimeline] = useState<number[]>([]);
@@ -698,6 +682,22 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
       </DropdownMenuContent>
     </DropdownMenu>
   );
+
+  if (hasError) {
+    return (
+      <AppLayout pageTitle="Insurance" pageIcon="insurance">
+        <ErrorState onRetry={retry} label="Unable to load claim details" />
+      </AppLayout>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <AppLayout pageTitle="Insurance" pageIcon="insurance">
+        <ClaimDetailSkeleton />
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout pageTitle="Insurance" pageIcon="insurance">

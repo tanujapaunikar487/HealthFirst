@@ -119,25 +119,8 @@ function FamilyMembersSkeleton() {
 
 export default function FamilyMembersIndex({ members, canCreate, alertMemberCount }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(members);
-
-  if (hasError) {
-    const user = (usePage().props as any).auth?.user;
-    return (
-      <AppLayout user={user} pageTitle="Family Members" pageIcon="/assets/icons/family-selected.svg">
-        <ErrorState onRetry={retry} label="Unable to load family members" />
-      </AppLayout>
-    );
-  }
-
-  if (isLoading) {
-    const user = (usePage().props as any).auth?.user;
-    return (
-      <AppLayout user={user} pageTitle="Family Members" pageIcon="/assets/icons/family-selected.svg">
-        <FamilyMembersSkeleton />
-      </AppLayout>
-    );
-  }
   const { props } = usePage<{ toast?: string }>();
+  const user = (usePage().props as any).auth?.user;
 
   const [showForm, setShowForm] = useState(false);
   const [editingMember, setEditingMember] = useState<FamilyMember | null>(null);
@@ -161,6 +144,22 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
       setToastMessage(props.toast);
     }
   }, [props.toast]);
+
+  if (hasError) {
+    return (
+      <AppLayout user={user} pageTitle="Family Members" pageIcon="/assets/icons/family-selected.svg">
+        <ErrorState onRetry={retry} label="Unable to load family members" />
+      </AppLayout>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <AppLayout user={user} pageTitle="Family Members" pageIcon="/assets/icons/family-selected.svg">
+        <FamilyMembersSkeleton />
+      </AppLayout>
+    );
+  }
 
   function openAddForm() {
     setEditingMember(null);
@@ -202,8 +201,6 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
       },
     });
   }
-
-  const user = (usePage().props as any).auth?.user;
 
   return (
     <AppLayout

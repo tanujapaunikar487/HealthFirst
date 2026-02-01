@@ -296,22 +296,6 @@ export default function InsuranceIndex({
   insuranceProviders,
 }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(policies);
-
-  if (hasError) {
-    return (
-      <AppLayout pageTitle="Insurance" pageIcon="insurance">
-        <ErrorState onRetry={retry} label="Unable to load insurance" />
-      </AppLayout>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <AppLayout pageTitle="Insurance" pageIcon="insurance">
-        <InsuranceSkeleton />
-      </AppLayout>
-    );
-  }
   const { props } = usePage<{ toast?: string }>();
 
   // List filters
@@ -530,6 +514,22 @@ export default function InsuranceIndex({
       extractionType === 'partial' && cameFromUpload && !policyForm[field],
     [extractionType, cameFromUpload, policyForm]
   );
+
+  if (hasError) {
+    return (
+      <AppLayout pageTitle="Insurance" pageIcon="insurance">
+        <ErrorState onRetry={retry} label="Unable to load insurance" />
+      </AppLayout>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <AppLayout pageTitle="Insurance" pageIcon="insurance">
+        <InsuranceSkeleton />
+      </AppLayout>
+    );
+  }
 
   function handleSubmitPolicy() {
     const errors: Record<string, string> = {};

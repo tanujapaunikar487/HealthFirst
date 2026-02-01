@@ -191,6 +191,20 @@ function InsuranceShowSkeleton() {
 
 export default function InsuranceShow({ policy, coveredMembers, claims }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(policy);
+  const [toastMessage, setToastMessage] = useState('');
+  const [showToast, setShowToast] = useState(false);
+
+  const toast = (msg: string) => {
+    setToastMessage(msg);
+    setShowToast(true);
+  };
+
+  function handleDelete() {
+    if (!window.confirm('Remove this policy? It can be re-added later.')) return;
+    router.delete(`/insurance/${policy.id}`, {
+      preserveScroll: true,
+    });
+  }
 
   if (hasError) {
     return (
@@ -206,20 +220,6 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
         <InsuranceShowSkeleton />
       </AppLayout>
     );
-  }
-  const [toastMessage, setToastMessage] = useState('');
-  const [showToast, setShowToast] = useState(false);
-
-  const toast = (msg: string) => {
-    setToastMessage(msg);
-    setShowToast(true);
-  };
-
-  function handleDelete() {
-    if (!window.confirm('Remove this policy? It can be re-added later.')) return;
-    router.delete(`/insurance/${policy.id}`, {
-      preserveScroll: true,
-    });
   }
 
   const meta = policy.metadata;

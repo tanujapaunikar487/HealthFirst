@@ -261,47 +261,29 @@ export default function FamilyMemberShow({
   canDelete,
 }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(member);
-
-  if (hasError) {
-    const user = (usePage().props as any).auth?.user;
-    return (
-      <AppLayout user={user} pageTitle="Family Members" pageIcon="/assets/icons/family-selected.svg">
-        <ErrorState onRetry={retry} label="Unable to load member details" />
-      </AppLayout>
-    );
-  }
-
-  if (isLoading) {
-    const user = (usePage().props as any).auth?.user;
-    return (
-      <AppLayout user={user} pageTitle="Family Members" pageIcon="/assets/icons/family-selected.svg">
-        <FamilyMemberShowSkeleton />
-      </AppLayout>
-    );
-  }
   const { props } = usePage<{ toast?: string }>();
   const user = (usePage().props as any).auth?.user;
 
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [formData, setFormData] = useState({
-    name: member.name,
-    relation: member.relation,
-    date_of_birth: member.date_of_birth ?? '',
-    gender: member.gender ?? '',
-    blood_group: member.blood_group ?? '',
-    phone: member.phone ?? '',
-    address_line_1: member.address_line_1 ?? '',
-    address_line_2: member.address_line_2 ?? '',
-    city: member.city ?? '',
-    state: member.state ?? '',
-    pincode: member.pincode ?? '',
-    primary_doctor_id: member.primary_doctor_id?.toString() ?? '',
-    medical_conditions: member.medical_conditions ?? [],
-    allergies: member.allergies ?? [],
-    emergency_contact_name: member.emergency_contact_name ?? '',
-    emergency_contact_relation: member.emergency_contact_relation ?? '',
-    emergency_contact_phone: member.emergency_contact_phone ?? '',
+    name: member?.name ?? '',
+    relation: member?.relation ?? '',
+    date_of_birth: member?.date_of_birth ?? '',
+    gender: member?.gender ?? '',
+    blood_group: member?.blood_group ?? '',
+    phone: member?.phone ?? '',
+    address_line_1: member?.address_line_1 ?? '',
+    address_line_2: member?.address_line_2 ?? '',
+    city: member?.city ?? '',
+    state: member?.state ?? '',
+    pincode: member?.pincode ?? '',
+    primary_doctor_id: member?.primary_doctor_id?.toString() ?? '',
+    medical_conditions: member?.medical_conditions ?? [],
+    allergies: member?.allergies ?? [],
+    emergency_contact_name: member?.emergency_contact_name ?? '',
+    emergency_contact_relation: member?.emergency_contact_relation ?? '',
+    emergency_contact_phone: member?.emergency_contact_phone ?? '',
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -312,6 +294,22 @@ export default function FamilyMemberShow({
       setToastMessage(props.toast);
     }
   }, [props.toast]);
+
+  if (hasError) {
+    return (
+      <AppLayout user={user} pageTitle="Family Members" pageIcon="/assets/icons/family-selected.svg">
+        <ErrorState onRetry={retry} label="Unable to load member details" />
+      </AppLayout>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <AppLayout user={user} pageTitle="Family Members" pageIcon="/assets/icons/family-selected.svg">
+        <FamilyMemberShowSkeleton />
+      </AppLayout>
+    );
+  }
 
   function openEditForm() {
     setFormData({

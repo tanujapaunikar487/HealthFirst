@@ -216,22 +216,6 @@ function BillingSkeleton() {
 
 export default function Index({ user, bills, stats, familyMembers }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(bills);
-
-  if (hasError) {
-    return (
-      <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing-selected.svg">
-        <ErrorState onRetry={retry} label="Unable to load billing" />
-      </AppLayout>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing-selected.svg">
-        <BillingSkeleton />
-      </AppLayout>
-    );
-  }
   const [tab, setTab] = useState<'all' | 'outstanding' | 'paid'>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [memberFilter, setMemberFilter] = useState<string>('all');
@@ -462,6 +446,22 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
     setPage(1);
     setSelectedIds(new Set());
   };
+
+  if (hasError) {
+    return (
+      <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing-selected.svg">
+        <ErrorState onRetry={retry} label="Unable to load billing" />
+      </AppLayout>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing-selected.svg">
+        <BillingSkeleton />
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout

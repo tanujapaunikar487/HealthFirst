@@ -472,22 +472,6 @@ function HealthRecordsSkeleton() {
 
 export default function Index({ user, records, familyMembers, abnormalCount, preSelectedRecordId }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(records);
-
-  if (hasError) {
-    return (
-      <AppLayout user={user} pageTitle="Health Records" pageIcon="/assets/icons/records-selected.svg">
-        <ErrorState onRetry={retry} label="Unable to load health records" />
-      </AppLayout>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <AppLayout user={user} pageTitle="Health Records" pageIcon="/assets/icons/records-selected.svg">
-        <HealthRecordsSkeleton />
-      </AppLayout>
-    );
-  }
   const [activeTab, setActiveTab] = useState('all');
   const [subCategoryFilter, setSubCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -673,6 +657,22 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
   }
 
   const toast = (msg: string) => setToastMessage(msg);
+
+  if (hasError) {
+    return (
+      <AppLayout user={user} pageTitle="Health Records" pageIcon="/assets/icons/records-selected.svg">
+        <ErrorState onRetry={retry} label="Unable to load health records" />
+      </AppLayout>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <AppLayout user={user} pageTitle="Health Records" pageIcon="/assets/icons/records-selected.svg">
+        <HealthRecordsSkeleton />
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout

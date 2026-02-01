@@ -81,7 +81,7 @@ export function TableRowSkeleton({ cols }: { cols: number }) {
 
 export function TableSkeleton({ rows = 5, cols = 5 }: { rows?: number; cols?: number }) {
   return (
-    <div className="rounded-xl border border-border overflow-hidden">
+    <div className="rounded-3xl border border-border overflow-hidden">
       <div className="flex items-center gap-4 px-4 py-3 bg-muted/50 border-b border-border">
         {Array.from({ length: cols }).map((_, i) => (
           <Pulse key={i} className={`h-3 ${i === 0 ? 'w-16' : i === 1 ? 'w-32' : 'w-20'}`} />
@@ -100,7 +100,7 @@ export function TableSkeleton({ rows = 5, cols = 5 }: { rows?: number; cols?: nu
 
 export function CardSkeleton({ lines = 3 }: { lines?: number }) {
   return (
-    <div className="rounded-xl border border-border p-5 space-y-4">
+    <div className="rounded-3xl border border-border p-5 space-y-4">
       <Pulse className="h-5 w-32" />
       {Array.from({ length: lines }).map((_, i) => (
         <div key={i} className="flex justify-between">
