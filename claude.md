@@ -1866,5 +1866,45 @@ Total insurance notification types: 7 (2 existing + 5 new). All route to `/insur
 
 ---
 
+## Dashboard Loading, Completion & Partial Onboarding States (February 2, 2026)
+
+Three dashboard states implemented with real data from database.
+
+### Loading State
+- **DashboardSkeleton**: Pulse-animated placeholders matching final layout (header, section header, 3 step cards, banner)
+- **300ms minimum display**: Prevents flash of loading state using `useRef(Date.now())` + `setTimeout`
+- **10-second timeout**: Shows `ErrorState` with retry button if content hasn't loaded
+- **Retry**: `router.reload()` resets loading state
+
+### New User State (0 completed steps)
+- **Real completion detection** from database:
+  1. Health profile: `FamilyMember` (self) has `date_of_birth` AND `blood_group`
+  2. Insurance: Active `InsurancePolicy` exists for user
+  3. Family members: Non-self `FamilyMember` exists
+- **Progress indicator**: "X of 3 done"
+- **Completed step styling**: Green checkmark (`#16A34A`) in mint circle (`#DCFCE7`) with `checkmark-pop` CSS animation, green row background (`#F0FDF4`), no chevron, not wrapped in `<Link>`
+- **Incomplete step styling**: Gray numbered circle (`#EEF0F3`), chevron arrow, white background, hover state, wrapped in `<Link>`
+- **Vaccination banner**: Always shown when profile incomplete
+
+### Partial Onboarding State (1-2 completed steps)
+- **"Up next" section**: Shows up to 3 upcoming appointments (confirmed, date >= today) above "Complete your profile" when appointments exist AND profile incomplete
+- Appointment cards: type-specific icon (Stethoscope for doctor, FlaskConical for lab) in blue circle (`#BFDBFE`/`#1E40AF`), title, date + patient name, chevron → links to `/appointments`
+- **Completed steps not clickable**: `<Link>` wrapper only applied to incomplete steps
+- **Transition animation**: `transition-colors duration-300` on step rows for smooth background fade on re-render
+
+### All Steps Completed State
+- Profile section replaced with `CtaBanner` ("Book your first appointment")
+- Book Appointment header button hidden
+- Vaccination banner hidden
+
+### Files Modified
+| File | Changes |
+|------|---------|
+| `app/Http/Controllers/DashboardController.php` | Real DB completion detection, upcoming appointments query, fixed prop names |
+| `resources/js/Pages/Dashboard.tsx` | Skeleton, error state, loading management, Up next section, completion styling, Link gating |
+| `resources/css/app.css` | `checkmark-pop` keyframe animation |
+
+---
+
 **Last Updated**: February 2, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign | Upload Removed | Razorpay Billing Integration | Uniform Blue Icons | Family Members List + Detail Page | Unified Booking Links | Insurance List + Add Policy + Detail Page | Insurance Claim Detail Page | Claim Detail Edge States & Notification Deep-Linking
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign | Upload Removed | Razorpay Billing Integration | Uniform Blue Icons | Family Members List + Detail Page | Unified Booking Links | Insurance List + Add Policy + Detail Page | Insurance Claim Detail Page | Claim Detail Edge States & Notification Deep-Linking | Dashboard States (Loading, New User, Partial Onboarding)
