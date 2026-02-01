@@ -1454,5 +1454,124 @@ All 8 medication/document records expanded:
 
 ---
 
+## Health Records: Remove Upload & Cleanup (February 1, 2026)
+
+Removed upload functionality (placeholder-only, no backend) and header clutter from Health Records page.
+
+### Removed
+- **Upload button** from header
+- **MoreHorizontal dropdown** (Download All / Share Records) from header
+- **Summary stats grid** (5-6 clickable cards below title)
+- **`uploaded_document` category** from `categoryConfig` and `typeGroups`
+- **`is_user_uploaded` field** from HealthRecord type and controller mapping
+- **Delete option** in row dropdown (was only for uploaded docs)
+- **UploadedDocDetail component** and its case in CategoryDetail switch
+- **2 seeder records** (Previous Hospital Discharge Summary, Old Prescription) from HospitalSeeder
+- **Unused imports** (Upload, Trash2)
+
+### Files Modified
+- `resources/js/Pages/HealthRecords/Index.tsx` — All removals above
+- `app/Http/Controllers/HealthRecordController.php` — Removed `is_user_uploaded` mapping
+- `database/seeders/HospitalSeeder.php` — Removed 2 uploaded_document records
+
+---
+
+## Razorpay Integration for Billing (February 1, 2026)
+
+Replaced placeholder payment toasts with real Razorpay integration in both billing pages. Supports mock mode when credentials are not configured.
+
+### Backend: BillingController.php
+Added 2 methods:
+- `createOrder(Request, Appointment)` — Creates Razorpay order (or mock order). Validates amount, checks auth.
+- `verifyPayment(Request, Appointment)` — Verifies Razorpay signature (or auto-verifies mock). Updates `appointment.payment_status = 'paid'`.
+
+Mock mode auto-detects when `RAZORPAY_KEY`/`RAZORPAY_SECRET` are empty or placeholder values.
+
+### Routes
+```php
+Route::post('/billing/{appointment}/payment/create-order', [BillingController::class, 'createOrder']);
+Route::post('/billing/{appointment}/payment/verify', [BillingController::class, 'verifyPayment']);
+```
+
+### Frontend
+- **Billing/Index.tsx** — `handlePayment()` creates order via POST, opens Razorpay checkout (or auto-verifies in mock mode), reloads page on success
+- **Billing/Show.tsx** — `handlePayment(amount)` wired to all 4 Pay buttons (header Pay, header Pay EMI, footer Pay, footer Pay EMI) with loading states
+
+### Files Modified
+- `app/Http/Controllers/BillingController.php` — Added `createOrder()`, `verifyPayment()`
+- `routes/web.php` — Added 2 billing payment routes
+- `resources/js/Pages/Billing/Index.tsx` — Real Razorpay flow
+- `resources/js/Pages/Billing/Show.tsx` — Real Razorpay flow for all Pay buttons
+
+---
+
+## Uniform Blue Icons Across All Tables (February 1, 2026)
+
+Standardized all category/department icons to use uniform blue styling: background `#BFDBFE` and icon color `#1E40AF`.
+
+### Health Records
+- All 21 entries in `categoryConfig` updated from varied colors to uniform `color: '#1E40AF', bg: '#BFDBFE'`
+
+### Billing Pages
+- **Billing/Index.tsx** — 2 icon circles (table row + payment sheet) updated
+- **Billing/Show.tsx** — 1 icon circle (service details) updated
+
+### Appointments Pages
+- **Appointments/Index.tsx** — Added icon circles to table rows (previously had no icons), updated 2 existing icons (detail sheet + reschedule summary)
+- **Appointments/Show.tsx** — 1 icon circle (doctor section) updated
+
+Previously: doctor icons used `bg-blue-50`/`text-blue-600`, lab icons used `bg-purple-50`/`text-purple-600`. Now all use `#BFDBFE`/`#1E40AF`.
+
+---
+
+## Health Records: Spacing Fix (February 1, 2026)
+
+Fixed gap between filters/bulk actions bar and the table in Health Records page. Added `mt-4` margins between Tabs section and the table/bulk actions area.
+
+---
+
+## Family Members Page (February 1, 2026)
+
+Created a dedicated Family Members management page with card-grid layout, Sheet form for add/edit, delete confirmation, and toast notifications.
+
+### Files Created
+- `app/Http/Controllers/FamilyMembersController.php` — CRUD controller (index, create redirect, store, update, destroy)
+- `resources/js/Pages/FamilyMembers/Index.tsx` — Card-grid page
+
+### Files Modified
+- `routes/web.php` — 5 family member routes (GET index, GET create, POST store, PUT update, DELETE destroy)
+- `app/Http/Middleware/HandleInertiaRequests.php` — Added `toast` flash data sharing for server-side toast messages
+
+### Routes
+```php
+Route::get('/family-members', [FamilyMembersController::class, 'index']);
+Route::get('/family-members/create', [FamilyMembersController::class, 'create']);  // Redirects to ?create=1
+Route::post('/family-members', [FamilyMembersController::class, 'store']);
+Route::put('/family-members/{member}', [FamilyMembersController::class, 'update']);
+Route::delete('/family-members/{member}', [FamilyMembersController::class, 'destroy']);
+```
+
+### Controller
+- `index()` — Returns members ordered (self first), max 10 members (`canCreate` prop)
+- `create()` — Redirects to `/family-members?create=1` (for dashboard profile step link)
+- `store()` — Validates name, relation (11 options), age (0-150), gender, blood_group (8 types). Creates FamilyMember.
+- `update()` — Same validation, updates member
+- `destroy()` — Prevents deleting "self" relation. Deletes member.
+
+### Frontend Page
+- **Header**: Title + member count + "Add Member" button
+- **Card Grid**: 2-column responsive grid. Each card: colored avatar circle (by relation), name, relation badge, age/gender/blood group details
+- **Actions**: Hover-reveal Edit (Pencil) + Delete (Trash2) buttons. Delete hidden for "self" member.
+- **Sheet Form**: Name (required), Relation (required, Select), Age (optional), Gender (optional), Blood Group (optional)
+- **Delete Confirmation**: Overlay dialog with warning icon, member name, Cancel/Remove buttons
+- **Empty State**: Users icon + "No family members yet" + "Add your first member" CTA
+- **Auto-open**: `?create=1` URL param opens Sheet on mount (handles dashboard profile step link)
+- **Toast**: Server flash messages via `usePage().props.toast`
+
+### Avatar Colors by Relation
+self=blue, mother=pink, father=indigo, brother=green, sister=purple, spouse=rose, son=teal, daughter=amber, grandmother=orange, grandfather=slate, other=gray
+
+---
+
 **Last Updated**: February 1, 2026
-**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign
+**Status**: Dashboard Complete | AI Booking Flow Complete | Guided Booking Flow Complete | Calendar Integration Complete | Critical Bug Fixes Applied | AI Entity Extraction Refactored | Hospital Database Created | Lab Test AI Chat Flow Added | Lab Flow Redesigned with Smart Search | Address Selection Added | Ollama Local AI Ready | Patient Relation Extraction Fixed | Integration Tests Added (36 tests) | Inline Add Member & Address Forms | Individual Test Booking with Multi-Select | Guided Flow UX Overhaul | 2-Week Booking Window | Smart Search & Symptom Mapping | Expandable Detail Cards | Urgency Removed | Full Collection Flow | Package/Test UX Polish | My Appointments Page | Action Sheets | Payment Status | Real Booking Records | Appointment Detail Page | Global Error Page | Billing Pages | Pay All Flow | Edge Cases & Validation Banners | Billing Notifications | Health Records Page | Visit Detail Redesign | Medication & Document Detail Redesign | Upload Removed | Razorpay Billing Integration | Uniform Blue Icons | Family Members Page
