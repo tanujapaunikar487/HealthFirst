@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AppointmentsController;
+use App\Http\Controllers\BillingController;
 use App\Http\Controllers\BookingConversationController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
@@ -144,6 +145,10 @@ Route::post('/appointments/{appointment}/cancel', [AppointmentsController::class
 Route::post('/appointments/{appointment}/reschedule', [AppointmentsController::class, 'reschedule'])->name('appointments.reschedule');
 Route::get('/appointments/{appointment}/available-slots', [AppointmentsController::class, 'availableSlots'])->name('appointments.available-slots');
 Route::get('/appointments/{appointment}/book-again', [AppointmentsController::class, 'bookAgain'])->name('appointments.book-again');
+
+// Billing
+Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');
+Route::get('/billing/{appointment}', [BillingController::class, 'show'])->name('billing.show');
 
 // Auth routes (commented out for demo)
 // require __DIR__.'/auth.php';

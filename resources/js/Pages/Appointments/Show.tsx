@@ -315,7 +315,7 @@ export default function Show({ user, appointment }: Props) {
             )}
             <LabTestsSection tests={appointment.lab_tests ?? []} />
             {appointment.billing && (
-              <BillingSection billing={appointment.billing} onDownloadInvoice={handleDownloadInvoice} />
+              <BillingSection billing={appointment.billing} appointmentId={appointment.id} onDownloadInvoice={handleDownloadInvoice} />
             )}
             <DocumentsSection documents={appointment.documents ?? []} onPreview={setPreviewDoc} />
             <ActivitySection activity={appointment.activity ?? []} />
@@ -914,7 +914,7 @@ function LabTestsSection({ tests }: { tests: LabTest[] }) {
 
 /* ─── 6. Billing ─── */
 
-function BillingSection({ billing, onDownloadInvoice }: { billing: Billing; onDownloadInvoice: () => void }) {
+function BillingSection({ billing, appointmentId, onDownloadInvoice }: { billing: Billing; appointmentId: number; onDownloadInvoice: () => void }) {
   const statusColor =
     billing.payment_status === 'paid'
       ? 'text-green-600'
@@ -982,10 +982,12 @@ function BillingSection({ billing, onDownloadInvoice }: { billing: Billing; onDo
               <span className="text-xs">{billing.payment_date}</span>
             </div>
           </div>
-          <Button variant="ghost" size="sm" className="w-full mt-4 text-xs gap-1.5" disabled>
-            <ExternalLink className="h-3.5 w-3.5" />
-            Request Reimbursement Letter
-          </Button>
+          <Link href={`/billing/${appointmentId}`}>
+            <Button variant="ghost" size="sm" className="w-full mt-4 text-xs gap-1.5" style={{ color: '#0052FF' }}>
+              <ExternalLink className="h-3.5 w-3.5" />
+              View Full Bill
+            </Button>
+          </Link>
         </div>
       </div>
     </Section>
