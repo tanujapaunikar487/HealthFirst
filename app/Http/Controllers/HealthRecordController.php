@@ -49,10 +49,13 @@ class HealthRecordController extends Controller
                 ];
             });
 
+        // Filter out guests from family member dropdown
         $familyMembers = FamilyMember::where('user_id', $user->id)
+            ->where('is_guest', false)
             ->get(['id', 'name', 'relation', 'age', 'gender', 'blood_group']);
 
         $preSelectedRecordId = $request->query('record') ? (int) $request->query('record') : null;
+        $preSelectedMemberId = $request->query('member_id') ? (int) $request->query('member_id') : null;
 
         return Inertia::render('HealthRecords/Index', [
             'user' => $user,
@@ -60,6 +63,7 @@ class HealthRecordController extends Controller
             'familyMembers' => $familyMembers,
             'abnormalCount' => $abnormalCount,
             'preSelectedRecordId' => $preSelectedRecordId,
+            'preSelectedMemberId' => $preSelectedMemberId,
         ]);
     }
 

@@ -12,6 +12,7 @@ class FamilyMember extends Model
         'user_id',
         'name',
         'relation',
+        'is_guest',
         'age',
         'date_of_birth',
         'gender',
@@ -19,6 +20,7 @@ class FamilyMember extends Model
         'avatar_url',
         'patient_id',
         'phone',
+        'verified_phone',
         'address_line_1',
         'address_line_2',
         'city',
@@ -30,6 +32,7 @@ class FamilyMember extends Model
         'emergency_contact_name',
         'emergency_contact_relation',
         'emergency_contact_phone',
+        'linked_at',
     ];
 
     protected function casts(): array
@@ -39,6 +42,8 @@ class FamilyMember extends Model
             'date_of_birth' => 'date',
             'medical_conditions' => 'array',
             'allergies' => 'array',
+            'is_guest' => 'boolean',
+            'linked_at' => 'datetime',
         ];
     }
 

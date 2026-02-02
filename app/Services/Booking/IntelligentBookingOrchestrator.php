@@ -1965,25 +1965,25 @@ class IntelligentBookingOrchestrator
 
         // Handle "Add family member or guest" trigger from patient selector
         if (!empty($selection['add_family_member'])) {
-            Log::info('🔒 Selection Handler: Add family member form requested');
+            Log::info('🔒 Selection Handler: Add family member or guest flow requested');
 
             $conversation->collected_data = $updated;
             $conversation->save();
 
             $this->addAssistantMessage(
                 $conversation,
-                'Please fill in the details for the new family member or guest.',
-                'family_member_form',
-                [],
+                'Choose whether you\'re adding a family member or a guest.',
+                'family_member_flow',
+                ['step' => 'choice'],
                 []
             );
 
             return [
                 'status' => 'success',
                 'state' => 'patient_selection',
-                'message' => 'Please fill in the details for the new family member or guest.',
-                'component_type' => 'family_member_form',
-                'component_data' => [],
+                'message' => 'Choose whether you\'re adding a family member or a guest.',
+                'component_type' => 'family_member_flow',
+                'component_data' => ['step' => 'choice'],
                 'ready_to_book' => false,
                 'progress' => [
                     'percentage' => 0,
@@ -1991,6 +1991,68 @@ class IntelligentBookingOrchestrator
                     'missing_fields' => ['patient'],
                 ],
             ];
+        }
+
+        // Handle guest completion (from family_member_flow)
+        if (isset($selection['member_type']) && $selection['member_type'] === 'guest' && isset($selection['member_name'])) {
+            $guestName = trim($selection['member_name']);
+
+            Log::info('🔒 Selection Handler: Creating guest member', [
+                'name' => $guestName,
+            ]);
+
+            // Create guest member with minimal info
+            $guestMember = \App\Models\FamilyMember::create([
+                'user_id' => $conversation->user_id,
+                'name' => $guestName,
+                'relation' => 'guest',
+                'is_guest' => true,
+            ]);
+
+            $updated['selectedPatientId'] = $guestMember->id;
+            $updated['selectedPatientName'] = $guestMember->name;
+            $updated['selectedPatientAvatar'] = '';
+            $updated['patientRelation'] = 'guest';
+            if (!in_array('patient', $updated['completedSteps'])) {
+                $updated['completedSteps'][] = 'patient';
+            }
+
+            Log::info('✅ Guest member created and auto-selected', [
+                'member_id' => $guestMember->id,
+                'member_name' => $guestMember->name,
+            ]);
+        }
+
+        // Handle family member link completion (from family_member_flow)
+        if (isset($selection['member_type']) && $selection['member_type'] === 'family' && isset($selection['member_id'])) {
+            $memberId = $selection['member_id'];
+            $memberName = $selection['member_name'] ?? 'Unknown';
+            $memberRelation = $selection['relation'] ?? 'other';
+
+            Log::info('🔒 Selection Handler: Linking existing family member', [
+                'member_id' => $memberId,
+                'member_name' => $memberName,
+                'relation' => $memberRelation,
+            ]);
+
+            $updated['selectedPatientId'] = $memberId;
+            $updated['selectedPatientName'] = $memberName;
+            $updated['selectedPatientAvatar'] = '';
+            $updated['patientRelation'] = $memberRelation;
+            if (!in_array('patient', $updated['completedSteps'])) {
+                $updated['completedSteps'][] = 'patient';
+            }
+
+            Log::info('✅ Family member linked and auto-selected', [
+                'member_id' => $memberId,
+                'member_name' => $memberName,
+            ]);
+        }
+
+        // Handle cancel add member
+        if (isset($selection['cancel_add_member']) && $selection['cancel_add_member']) {
+            Log::info('🔒 Selection Handler: Cancelled add family member flow');
+            // Just continue to next step - don't create anything
         }
 
         // Handle new family member form submission

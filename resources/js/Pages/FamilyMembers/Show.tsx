@@ -33,7 +33,7 @@ import {
   Trash2,
   X,
   Phone,
-} from 'lucide-react';
+} from '@/Lib/icons';
 
 /* ─── Types ─── */
 
@@ -42,6 +42,7 @@ interface Member {
   patient_id: string | null;
   name: string;
   relation: string;
+  is_guest?: boolean;
   age: number | null;
   date_of_birth: string | null;
   date_of_birth_formatted: string | null;
@@ -180,7 +181,6 @@ function TagInput({
           size="sm"
           onClick={addTag}
           disabled={!inputValue.trim()}
-          style={{ borderRadius: '8px' }}
         >
           Add
         </Button>
@@ -193,11 +193,11 @@ function TagInput({
 
 function FamilyMemberShowSkeleton() {
   return (
-    <div style={{ width: '100%', maxWidth: '738px', padding: '40px 0' }}>
+    <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
       {/* Back link */}
       <Pulse className="h-4 w-32 mb-6" />
       {/* Profile header */}
-      <div className="flex items-center gap-5 mb-8">
+      <div className="flex items-center gap-5 mb-6">
         <Pulse className="h-20 w-20 rounded-full flex-shrink-0" />
         <div className="space-y-2 flex-1">
           <Pulse className="h-7 w-44" />
@@ -422,7 +422,7 @@ export default function FamilyMemberShow({
       pageTitle={member.name}
       pageIcon="/assets/icons/family-selected.svg"
     >
-      <div style={{ width: '100%', maxWidth: '738px', padding: '40px 0' }}>
+      <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
         {/* Back Navigation */}
         <button
           onClick={() => router.visit('/family-members')}
@@ -432,27 +432,8 @@ export default function FamilyMemberShow({
           Family Members
         </button>
 
-        {/* Alert Banner */}
-        {hasAlerts && (
-          <div className="mb-6 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-amber-100">
-              <AlertTriangle className="h-4 w-4 text-amber-600" />
-            </div>
-            <p className="flex-1 text-sm font-medium text-amber-800">
-              {alertType} needs attention
-            </p>
-            <button
-              onClick={() => router.visit('/health-records')}
-              className="flex items-center gap-1 text-sm font-medium text-amber-700 hover:text-amber-900"
-            >
-              View records
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-
         {/* Profile Header */}
-        <div className="mb-8 flex items-center gap-4">
+        <div className="mb-6 flex items-center gap-4">
           <div
             className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full text-xl font-semibold"
             style={{ backgroundColor: colors.bg, color: colors.text }}
@@ -482,13 +463,31 @@ export default function FamilyMemberShow({
           <Button
             variant="outline"
             onClick={openEditForm}
-            className="gap-2 flex-shrink-0"
-            style={{ borderRadius: '10px' }}
+            className="flex-shrink-0"
           >
             <Pencil className="h-4 w-4" />
             Edit Profile
           </Button>
         </div>
+
+        {/* Alert Banner */}
+        {hasAlerts && (
+          <div className="mb-6 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-amber-100">
+              <AlertTriangle className="h-4 w-4 text-amber-600" />
+            </div>
+            <p className="flex-1 text-sm font-medium text-amber-800">
+              {alertType} needs attention
+            </p>
+            <button
+              onClick={() => router.visit('/health-records')}
+              className="flex items-center gap-1 text-sm font-medium text-amber-700 hover:text-amber-900"
+            >
+              View records
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        )}
 
         {/* Personal Information Card */}
         <Card className="mb-6">
@@ -509,11 +508,12 @@ export default function FamilyMemberShow({
           </CardContent>
         </Card>
 
-        {/* Medical Conditions Card */}
-        <Card className="mb-6">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Medical Information</CardTitle>
-          </CardHeader>
+        {/* Medical Conditions Card - Hidden for guests */}
+        {!member.is_guest && (
+          <Card className="mb-6">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Medical Information</CardTitle>
+            </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div>
@@ -543,8 +543,10 @@ export default function FamilyMemberShow({
             </div>
           </CardContent>
         </Card>
+        )}
 
-        {/* Emergency Contact Card */}
+        {/* Emergency Contact Card - Hidden for guests */}
+        {!member.is_guest && (
         <Card className="mb-6">
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Emergency Contact</CardTitle>
@@ -580,8 +582,10 @@ export default function FamilyMemberShow({
             )}
           </CardContent>
         </Card>
+        )}
 
-        {/* Health Data Links */}
+        {/* Health Data Links - Hidden for guests */}
+        {!member.is_guest && (
         <div className="mb-8 grid grid-cols-3 gap-4">
           {healthDataLinks.map((link, i) => (
             <div
@@ -600,14 +604,24 @@ export default function FamilyMemberShow({
             </div>
           ))}
         </div>
+        )}
+
+        {/* Guest Information Message */}
+        {member.is_guest && (
+          <Card className="mb-6 border-amber-200 bg-amber-50">
+            <CardContent className="pt-6">
+              <p className="text-sm text-muted-foreground">
+                Guest members have limited profile features. Only appointment booking is available.
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Actions */}
         <div className="flex items-center gap-4 border-t border-gray-100 pt-6">
           <Button
             variant="outline"
             onClick={openEditForm}
-            className="gap-2"
-            style={{ borderRadius: '10px' }}
           >
             <Pencil className="h-4 w-4" />
             Edit Profile
@@ -868,7 +882,6 @@ export default function FamilyMemberShow({
               onClick={handleSubmit}
               disabled={submitting}
               className="w-full"
-              style={{ height: '40px', borderRadius: '10px' }}
             >
               {submitting ? 'Saving...' : 'Save Changes'}
             </Button>
@@ -896,7 +909,6 @@ export default function FamilyMemberShow({
                 variant="outline"
                 className="flex-1"
                 onClick={() => setShowDeleteConfirm(false)}
-                style={{ borderRadius: '10px' }}
               >
                 Cancel
               </Button>
@@ -904,7 +916,6 @@ export default function FamilyMemberShow({
                 variant="destructive"
                 className="flex-1"
                 onClick={handleDelete}
-                style={{ borderRadius: '10px' }}
               >
                 Remove
               </Button>

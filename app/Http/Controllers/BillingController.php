@@ -50,8 +50,9 @@ class BillingController extends Controller
             'outstanding_total' => $outstandingBills->sum('due_amount'),
         ];
 
-        // Family members for filter dropdown
+        // Family members for filter dropdown (exclude guests)
         $familyMembers = FamilyMember::where('user_id', $user->id)
+            ->where('is_guest', false)
             ->select('id', 'name', 'relation')
             ->orderByRaw("CASE WHEN relation = 'self' THEN 0 ELSE 1 END")
             ->orderBy('name')

@@ -2,7 +2,8 @@ import * as React from 'react';
 import { cn } from '@/Lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
-import { Check, Star, Video, User, Search, ChevronDown } from 'lucide-react';
+import { Check, Star, Video, User, Search, ChevronDown } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 import { EmbeddedDoctorList } from './embedded/EmbeddedDoctorList';
 import { EmbeddedLocationSelector } from './embedded/EmbeddedLocationSelector';
 import { EmbeddedPackageList } from './embedded/EmbeddedPackageList';
@@ -18,6 +19,7 @@ import { EmbeddedCenterList } from './embedded/EmbeddedCenterList';
 import { EmbeddedAddressSelector } from './embedded/EmbeddedAddressSelector';
 import { EmbeddedFamilyMemberForm } from './embedded/EmbeddedFamilyMemberForm';
 import { EmbeddedAddressForm } from './embedded/EmbeddedAddressForm';
+import EmbeddedFamilyMemberFlow from './embedded/EmbeddedFamilyMemberFlow';
 
 /**
  * EmbeddedComponent
@@ -773,6 +775,14 @@ export function EmbeddedComponent({
         <EmbeddedFamilyMemberForm
           onSelect={(value) => onSelect(value)}
           disabled={disabled || isSelected}
+        />
+      );
+
+    case 'family_member_flow':
+      return (
+        <EmbeddedFamilyMemberFlow
+          onComplete={(value) => onSelect(value)}
+          onCancel={() => onSelect({ cancel_add_member: true })}
         />
       );
 

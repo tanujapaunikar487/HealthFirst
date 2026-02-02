@@ -95,6 +95,7 @@ class FamilyMembersController extends Controller
                 'patient_id' => $member->patient_id,
                 'name' => $member->name,
                 'relation' => $member->relation, // Direct column
+                'is_guest' => $member->is_guest,
                 'age' => $member->computed_age,
                 'date_of_birth' => $member->date_of_birth?->format('Y-m-d'),
                 'date_of_birth_formatted' => $member->date_of_birth?->format('d/m/Y'),
@@ -210,5 +211,173 @@ class FamilyMembersController extends Controller
         $member->delete();
 
         return redirect()->route('family-members.index')->with('toast', 'Family member removed');
+    }
+
+    /**
+     * Lookup existing member by phone or patient ID
+     */
+    public function lookup(Request $request)
+    {
+        $validated = $request->validate([
+            'search_type' => 'required|in:phone,patient_id',
+            'search_value' => 'required|string',
+        ]);
+
+        $user = auth()->user() ?? \App\User::first();
+
+        // Search for family member based on search type
+        $query = FamilyMember::query();
+
+        if ($validated['search_type'] === 'phone') {
+            $query->where('phone', $validated['search_value']);
+        } else {
+            $query->where('patient_id', $validated['search_value']);
+        }
+
+        $member = $query->first();
+
+        if (!$member) {
+            return response()->json([
+                'found' => false,
+                'member_data' => null,
+                'already_linked' => false,
+            ]);
+        }
+
+        // Check if already linked to current user
+        $alreadyLinked = ($member->user_id === $user->id);
+
+        return response()->json([
+            'found' => true,
+            'member_data' => [
+                'id' => $member->id,
+                'name' => $member->name,
+                'age' => $member->computed_age,
+                'gender' => $member->gender,
+                'patient_id' => $member->patient_id,
+                'phone' => $member->phone,
+                'verified_phone' => $member->verified_phone,
+            ],
+            'already_linked' => $alreadyLinked,
+        ]);
+    }
+
+    /**
+     * Send OTP for verification
+     */
+    public function sendOtp(Request $request)
+    {
+        $validated = $request->validate([
+            'phone' => 'required|string|regex:/^\+?[1-9]\d{1,14}$/',
+            'purpose' => 'required|in:link_member,verify_new',
+        ]);
+
+        $otpService = app(\App\Services\OtpService::class);
+
+        // Generate and send OTP
+        $otp = $otpService->generate($validated['phone']);
+        $otpService->send($validated['phone'], $otp);
+
+        return response()->json([
+            'otp_sent' => true,
+            'expires_at' => now()->addMinutes(5)->toIso8601String(),
+        ]);
+    }
+
+    /**
+     * Verify OTP
+     */
+    public function verifyOtp(Request $request)
+    {
+        $validated = $request->validate([
+            'phone' => 'required|string',
+            'otp' => 'required|string|size:6',
+        ]);
+
+        $otpService = app(\App\Services\OtpService::class);
+
+        // Verify OTP
+        if (!$otpService->verify($validated['phone'], $validated['otp'])) {
+            return response()->json([
+                'verified' => false,
+                'verification_token' => null,
+                'error' => 'Invalid or expired OTP',
+            ], 400);
+        }
+
+        // Generate verification token
+        $token = $otpService->generateVerificationToken($validated['phone']);
+
+        return response()->json([
+            'verified' => true,
+            'verification_token' => $token,
+        ]);
+    }
+
+    /**
+     * Link existing member to current user
+     */
+    public function linkMember(Request $request)
+    {
+        $validated = $request->validate([
+            'family_member_id' => 'required|integer|exists:family_members,id',
+            'relation_to_user' => 'required|string|in:self,mother,father,brother,sister,spouse,son,daughter,grandmother,grandfather,other',
+            'verification_token' => 'required|string',
+        ]);
+
+        $user = auth()->user() ?? \App\User::first();
+        $otpService = app(\App\Services\OtpService::class);
+
+        // Verify token validity
+        $phone = $otpService->verifyToken($validated['verification_token']);
+
+        if (!$phone) {
+            return response()->json([
+                'linked' => false,
+                'member_data' => null,
+                'error' => 'Invalid or expired verification token',
+            ], 400);
+        }
+
+        $member = FamilyMember::findOrFail($validated['family_member_id']);
+
+        // Verify the phone matches
+        if ($member->phone !== $phone) {
+            return response()->json([
+                'linked' => false,
+                'member_data' => null,
+                'error' => 'Phone verification mismatch',
+            ], 400);
+        }
+
+        // Check if already linked
+        if ($member->user_id === $user->id) {
+            return response()->json([
+                'linked' => false,
+                'member_data' => null,
+                'error' => 'Member already linked to your account',
+            ], 400);
+        }
+
+        // Update member - link to current user
+        $member->update([
+            'user_id' => $user->id,
+            'relation' => $validated['relation_to_user'],
+            'verified_phone' => $phone,
+            'linked_at' => now(),
+        ]);
+
+        return response()->json([
+            'linked' => true,
+            'member_data' => [
+                'id' => $member->id,
+                'name' => $member->name,
+                'relation' => $member->relation,
+                'age' => $member->computed_age,
+                'gender' => $member->gender,
+                'patient_id' => $member->patient_id,
+                'avatar_url' => $member->avatar_url,
+            ],
+        ]);
     }
 }
