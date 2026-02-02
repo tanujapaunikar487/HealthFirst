@@ -15,12 +15,15 @@ class FamilyMembersController extends Controller
     {
         $user = auth()->user() ?? \App\User::first();
 
-        $members = FamilyMember::where('user_id', $user->id)
-            ->orderByRaw("CASE WHEN relation = 'self' THEN 0 ELSE 1 END")
+        // Simple hasMany relationship
+        $members = $user->familyMembers()
+            ->orderByRaw("CASE WHEN relation = 'self' THEN 0 ELSE 1 END") // Self first
             ->orderBy('created_at')
             ->get();
 
-        $healthRecords = HealthRecord::where('user_id', $user->id)->get();
+        $healthRecords = HealthRecord::where('user_id', $user->id)
+            ->whereIn('family_member_id', $members->pluck('id'))
+            ->get();
 
         $membersData = $members->map(function (FamilyMember $m) use ($healthRecords) {
             $alertCount = $healthRecords
@@ -38,7 +41,7 @@ class FamilyMembersController extends Controller
             return [
                 'id' => $m->id,
                 'name' => $m->name,
-                'relation' => $m->relation,
+                'relation' => $m->relation, // Direct column
                 'age' => $m->age,
                 'gender' => $m->gender,
                 'blood_group' => $m->blood_group,
@@ -58,8 +61,9 @@ class FamilyMembersController extends Controller
     {
         $user = auth()->user() ?? \App\User::first();
 
+        // Authorization check - belongs to this user
         if ($member->user_id !== $user->id) {
-            abort(403);
+            abort(403, 'Unauthorized access to family member');
         }
 
         $hasAlerts = HealthRecord::where('user_id', $user->id)
@@ -90,7 +94,7 @@ class FamilyMembersController extends Controller
                 'id' => $member->id,
                 'patient_id' => $member->patient_id,
                 'name' => $member->name,
-                'relation' => $member->relation,
+                'relation' => $member->relation, // Direct column
                 'age' => $member->computed_age,
                 'date_of_birth' => $member->date_of_birth?->format('Y-m-d'),
                 'date_of_birth_formatted' => $member->date_of_birth?->format('d/m/Y'),
@@ -138,16 +142,24 @@ class FamilyMembersController extends Controller
             'blood_group' => 'nullable|string|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
         ]);
 
-        FamilyMember::create([
-            'user_id' => $user->id,
-            ...$validated,
-        ]);
+        // Add user_id to the validated data
+        $validated['user_id'] = $user->id;
+
+        // Create family member with user_id and relation
+        $member = FamilyMember::create($validated);
 
         return redirect()->route('family-members.index')->with('toast', 'Family member added successfully');
     }
 
     public function update(Request $request, FamilyMember $member)
     {
+        $user = auth()->user() ?? \App\User::first();
+
+        // Authorization check
+        if ($member->user_id !== $user->id) {
+            abort(403, 'Unauthorized access to family member');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'relation' => 'required|string|in:self,mother,father,brother,sister,spouse,son,daughter,grandmother,grandfather,other',
@@ -175,6 +187,7 @@ class FamilyMembersController extends Controller
             $validated['age'] = Carbon::parse($validated['date_of_birth'])->age;
         }
 
+        // Update the FamilyMember record
         $member->update($validated);
 
         return redirect()->back()->with('toast', 'Profile updated successfully');
@@ -182,13 +195,20 @@ class FamilyMembersController extends Controller
 
     public function destroy(FamilyMember $member)
     {
+        $user = auth()->user() ?? \App\User::first();
+
+        // Authorization check
+        if ($member->user_id !== $user->id) {
+            abort(403, 'Unauthorized access to family member');
+        }
+
         if ($member->relation === 'self') {
             return redirect()->route('family-members.index')->with('toast', 'Cannot delete your own profile');
         }
 
+        // Delete the member
         $member->delete();
 
         return redirect()->route('family-members.index')->with('toast', 'Family member removed');
     }
-
 }
