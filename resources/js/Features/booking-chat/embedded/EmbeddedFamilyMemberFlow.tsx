@@ -518,14 +518,14 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
     const handleAddAsNew = () => {
         // Switch to add new family flow
         // Pre-fill phone if it was a phone search
+        // Single setState prevents blank screen race condition
         setState((prev) => ({
             ...prev,
             flowType: 'add_new_family',
-            newMemberPhone: state.lookupMethod === 'phone' ? state.searchValue : '',
+            newMemberPhone: prev.lookupMethod === 'phone' ? prev.searchValue : '',
+            step: 'relationship',  // Include step change in same update
             error: '',
         }));
-        // Go to relationship selection first, then they'll proceed to member_details
-        setStep('relationship');
     };
 
     // Back navigation

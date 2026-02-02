@@ -1395,6 +1395,43 @@ Matches the Guest form grouping pattern established earlier:
 
 ---
 
+## Bug Fix: Blank Sheet on "Add as New Member" (February 2, 2026)
+
+### Problem
+When users searched for a non-existent patient in the "Link Existing Patient" flow and clicked "Add as New Member", the side sheet would go completely blank instead of showing the relationship selector.
+
+### Root Cause
+The `handleAddAsNew` function made two separate setState calls:
+1. First setState updated flowType and phone
+2. `setStep('relationship')` called setState again internally
+
+This created a React state batching race condition where React might render between the calls or batch them inconsistently, causing the old search content to unmount before the new relationship content mounted — resulting in a blank screen.
+
+### Solution
+Combined both state updates into a single atomic setState call:
+```typescript
+const handleAddAsNew = () => {
+    setState((prev) => ({
+        ...prev,
+        flowType: 'add_new_family',
+        newMemberPhone: prev.lookupMethod === 'phone' ? prev.searchValue : '',
+        step: 'relationship',  // Include step change in same update
+        error: '',
+    }));
+};
+```
+
+### Benefits
+✅ No blank screen — single atomic state update ensures both flowType and step change together
+✅ Smoother transition — React renders once with all changes applied
+✅ More reliable — eliminates race condition between multiple setState calls
+✅ Better practice — using `prev` instead of `state` in setState updater function
+
+### Files Modified
+- `EmbeddedFamilyMemberFlow.tsx` (lines 523-534) — Combined setState calls into single atomic update
+
+---
+
 **Status**: Production-ready healthcare management platform with AI-powered booking, comprehensive health records, billing, and insurance management.
 
 **Last Updated**: February 3, 2026 — Grouped field UX for family member flows
