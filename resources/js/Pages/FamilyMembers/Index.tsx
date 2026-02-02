@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
+import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import {
   Sheet,
@@ -214,10 +215,7 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
                       {member.name}
                     </span>
                     {member.alert_count > 0 && (
-                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 flex-shrink-0">
-                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                        <span className="text-xs font-medium text-amber-700">Needs Attention</span>
-                      </div>
+                      <Badge variant="warning">Needs Attention</Badge>
                     )}
                   </div>
 

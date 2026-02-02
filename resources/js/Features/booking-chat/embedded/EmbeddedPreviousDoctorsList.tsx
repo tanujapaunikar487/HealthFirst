@@ -172,7 +172,7 @@ function PreviousDoctorCard({
             <Badge
               variant={doctor.available_on_date ? 'success' : 'destructive'}
             >
-              {doctor.available_on_date ? '✓' : '✗'} {doctor.availability_message}
+              {doctor.availability_message}
             </Badge>
           ) : (
             <Badge variant="default">

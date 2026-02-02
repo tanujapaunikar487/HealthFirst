@@ -453,6 +453,29 @@ The `HospitalSeeder` provides realistic Indian healthcare data:
     - `EmbeddedFamilyMemberFlow`: Fixed double padding in standalone mode, added SheetHeader to FamilyMembers/Index
     - `AppointmentSheets`: Manual dividers replaced with SheetDivider, action buttons use SheetFooter
     - Removed per-instance header/footer styling overrides from 8 pages
+19. ✅ **Action Audit & Fix (Comprehensive)**:
+    - Removed `window.print()` and all print-related code from Appointments/Show and HealthRecords/Index
+    - Created `Lib/download.ts` (print-to-PDF via hidden iframe) and `Lib/share.ts` (Web Share API + clipboard fallback)
+    - Wired download actions across 6 pages: Rx, invoices, receipts, insurance certificates, claim documents, reimbursement letters
+    - Wired share actions in HealthRecords/Index using Web Share API
+    - Billing dispute flow: `POST /billing/{id}/dispute` with confirmation dialog
+    - Insurance claim actions: enhancement requests, accept partial approval, try different policy, new pre-auth, contact TPA, view interim bill
+    - Appointment stubs: set reminder (ICS file), request refill, rate consultation (star rating with POST)
+    - Insurance/Index: "Use for Admission" navigates to booking with insurance context
+    - Contact support: mailto link with pre-filled subject/body
+    - Removed all `toast('...coming soon')` stubs — every button now performs a real action
+    - Backend: 3 new controller methods, 3 new routes in `web.php`
+20. ✅ **Badge Consistency (Design System)**:
+    - Standardized all Badge variants to light pastel backgrounds with colored text (e.g., `bg-green-50 text-green-700 border-green-200`)
+    - Added `orange` and `purple` variants to Badge component
+    - Cleaned up ~40 inline className overrides across 15+ files to use proper variant props
+    - Fixed BadgeProps type: uses `React.PropsWithChildren` with explicit variant union (resolves CVA 0.7.x type intersection issue)
+21. ✅ **Title-Outside-Card Pattern**:
+    - Ensured all section titles render above/outside their Card containers, not inside
+    - `Billing/Show.tsx`: Refactored `SectionCard` — title above bordered container (8 sections)
+    - `Appointments/Show.tsx`: Refactored `Section` — title+icon row above `<Card>` (8 sections)
+    - `Insurance/Show.tsx`: "Policy Details" and "Covered Members" titles moved outside Cards
+    - `FamilyMembers/Show.tsx`: 3 cards (Personal Info, Medical Info, Emergency Contact) — titles moved outside, removed unused `CardHeader`/`CardTitle` imports
 
 ---
 

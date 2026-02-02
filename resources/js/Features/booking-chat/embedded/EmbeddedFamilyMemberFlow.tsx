@@ -18,8 +18,7 @@ type Step =
     // New family - 2 steps only
     | 'relationship'
     | 'member_details'
-    // Link existing steps (keep as is)
-    | 'lookup_method'
+    // Link existing - 2 steps (search combines lookup_method + search)
     | 'search'
     | 'otp'
     | 'success';
@@ -155,8 +154,9 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         } else if (choice === 'add_new_family') {
             setStep('relationship');
         } else {
-            // link_existing goes to lookup_method
-            setStep('lookup_method');
+            // link_existing goes directly to search (with method selection on same screen)
+            setState((prev) => ({ ...prev, lookupMethod: 'phone' })); // Default to phone
+            setStep('search');
         }
     };
 
@@ -241,7 +241,8 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         if (state.flowType === 'add_new_family') {
             setStep('member_details');
         } else if (state.flowType === 'link_existing') {
-            setStep('lookup_method');
+            setState((prev) => ({ ...prev, lookupMethod: 'phone' })); // Default to phone
+            setStep('search');
         }
     };
 
@@ -325,13 +326,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         }
     };
 
-    // Step 4: Lookup Method Selection
-    const handleLookupMethodChoice = (method: 'phone' | 'patient_id') => {
-        setState((prev) => ({ ...prev, lookupMethod: method }));
-        setStep('search');
-    };
-
-    // Step 5: Search for Member
+    // Search for Member (combines method selection + search)
     const handleSearch = async () => {
         if (!state.searchValue.trim()) {
             setError('Please enter a value to search');
@@ -543,8 +538,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             relationship: 'choice',
             member_details: 'relationship',
             // Link existing flow
-            lookup_method: state.flowType === 'link_existing' ? 'choice' : 'relationship',
-            search: 'lookup_method',
+            search: state.flowType === 'link_existing' ? 'choice' : 'relationship',
             otp: 'search',
             success: 'success',
         };
@@ -566,14 +560,10 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             case 'member_details':
                 return { title: 'New Family Member', description: 'Add a new family member to your account' };
             // Link existing flow
-            case 'lookup_method':
-                return { title: 'Search Method', description: 'How would you like to search for this member?' };
             case 'search':
                 return {
-                    title: state.lookupMethod === 'phone' ? 'Enter Phone Number' : 'Enter Patient ID',
-                    description: state.lookupMethod === 'phone'
-                        ? 'Enter the mobile number of the family member'
-                        : 'Enter the Patient ID (format: PT-XXXXXX)',
+                    title: 'Link Existing Patient',
+                    description: 'Search for an existing patient record to link',
                 };
             case 'otp':
                 return {
@@ -620,49 +610,21 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         </Button>
                     </SheetFooter>
                 );
-            case 'member_name':
+            case 'member_details':
                 return (
                     <SheetFooter>
-                        <Button className="flex-1" onClick={handleMemberNameNext} disabled={!state.newMemberName.trim()}>
-                            Continue
-                        </Button>
-                    </SheetFooter>
-                );
-            case 'member_phone':
-                return (
-                    <SheetFooter>
-                        <Button className="flex-1" onClick={handleMemberPhoneNext} disabled={!state.newMemberPhone.trim() || state.newMemberPhone === '+91'}>
-                            Continue
-                        </Button>
-                    </SheetFooter>
-                );
-            case 'member_dob_age':
-                return (
-                    <SheetFooter>
-                        <Button className="flex-1" onClick={handleMemberDobAgeNext} disabled={!state.newMemberAge && !state.newMemberDOB}>
-                            Continue
-                        </Button>
-                    </SheetFooter>
-                );
-            case 'member_gender':
-                return (
-                    <SheetFooter>
-                        <Button className="flex-1" onClick={handleMemberGenderNext} disabled={!state.newMemberGender}>
-                            Continue
-                        </Button>
-                    </SheetFooter>
-                );
-            case 'member_optional':
-                return (
-                    <SheetFooter>
-                        <Button className="flex-1" onClick={handleNewMemberSubmit} disabled={state.loading}>
+                        <Button
+                            className="flex-1"
+                            onClick={handleMemberDetailsSubmit}
+                            disabled={state.loading || !state.newMemberName.trim() || !state.newMemberPhone.trim() || state.newMemberPhone === '+91'}
+                        >
                             {state.loading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Creating Member...
+                                    Adding Member...
                                 </>
                             ) : (
-                                'Submit'
+                                'Add Member'
                             )}
                         </Button>
                     </SheetFooter>
@@ -754,80 +716,206 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         <RelationshipSelector value={state.relation} onChange={(value) => setState((prev) => ({ ...prev, relation: value }))} />
                     )}
 
-                    {state.step === 'member_name' && (
-                        <div className="space-y-2">
-                            <label htmlFor="new_member_name_s" className="block text-sm font-medium text-gray-700">Name *</label>
-                            <Input id="new_member_name_s" value={state.newMemberName} onChange={(e) => setState((prev) => ({ ...prev, newMemberName: e.target.value }))} placeholder="Enter full name" autoFocus />
-                        </div>
-                    )}
+                    {state.step === 'member_details' && (
+                        <div className="space-y-6">
+                            {/* Essential Information Section */}
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-2">
+                                    <div className="h-px flex-1 bg-border"></div>
+                                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                        Essential Information
+                                    </span>
+                                    <div className="h-px flex-1 bg-border"></div>
+                                </div>
 
-                    {state.step === 'member_phone' && (
-                        <div className="space-y-2">
-                            <label htmlFor="new_member_phone_s" className="block text-sm font-medium text-gray-700">Phone Number *</label>
-                            <PhoneInput id="new_member_phone_s" value={state.newMemberPhone} onChange={(value) => setState((prev) => ({ ...prev, newMemberPhone: value }))} autoFocus />
-                        </div>
-                    )}
+                                <div className="space-y-2">
+                                    <label htmlFor="new_member_name_s" className="block text-sm font-medium text-foreground">
+                                        Full Name <span className="text-destructive">*</span>
+                                    </label>
+                                    <Input
+                                        id="new_member_name_s"
+                                        value={state.newMemberName}
+                                        onChange={(e) => setState((prev) => ({ ...prev, newMemberName: e.target.value }))}
+                                        placeholder="Enter full name"
+                                        autoFocus
+                                        disabled={state.loading}
+                                    />
+                                </div>
 
-                    {state.step === 'member_dob_age' && (
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="space-y-2">
-                                <label htmlFor="new_member_dob_s" className="block text-sm font-medium text-gray-700">Date of Birth <span className="text-xs font-normal">(Recommended)</span></label>
-                                <Input id="new_member_dob_s" type="date" value={state.newMemberDOB} onChange={(e) => setState((prev) => ({ ...prev, newMemberDOB: e.target.value, newMemberAge: '' }))} max={new Date().toISOString().split('T')[0]} autoFocus />
+                                <div className="space-y-2">
+                                    <label htmlFor="new_member_phone_s" className="block text-sm font-medium text-foreground">
+                                        Phone Number <span className="text-destructive">*</span>
+                                    </label>
+                                    <PhoneInput
+                                        id="new_member_phone_s"
+                                        value={state.newMemberPhone}
+                                        onChange={(value) => setState((prev) => ({ ...prev, newMemberPhone: value }))}
+                                        disabled={state.loading}
+                                    />
+                                </div>
                             </div>
-                            <div className="space-y-2">
-                                <label htmlFor="new_member_age_s" className="block text-sm font-medium text-gray-700">Age <span className="text-xs font-normal">(If DOB unknown)</span></label>
-                                <Select value={state.newMemberAge} onValueChange={(value) => setState((prev) => ({ ...prev, newMemberAge: value, newMemberDOB: '' }))} disabled={!!state.newMemberDOB}>
-                                    <SelectTrigger id="new_member_age_s" className={state.newMemberDOB ? 'opacity-50 cursor-not-allowed' : ''}><SelectValue placeholder="Enter age" /></SelectTrigger>
-                                    <SelectContent className="max-h-[200px]">{Array.from({ length: 121 }, (_, i) => i).map((age) => (<SelectItem key={age} value={age.toString()}>{age} {age === 0 ? 'year' : 'years'}</SelectItem>))}</SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-                    )}
 
-                    {state.step === 'member_gender' && (
-                        <div className="space-y-2">
-                            <label htmlFor="new_member_gender_s" className="block text-sm font-medium text-gray-700">Gender *</label>
-                            <Select value={state.newMemberGender} onValueChange={(value) => setState((prev) => ({ ...prev, newMemberGender: value }))}>
-                                <SelectTrigger id="new_member_gender_s"><SelectValue placeholder="Select gender" /></SelectTrigger>
-                                <SelectContent><SelectItem value="male">Male</SelectItem><SelectItem value="female">Female</SelectItem><SelectItem value="other">Other</SelectItem></SelectContent>
-                            </Select>
-                        </div>
-                    )}
+                            {/* Optional Details Section */}
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-2">
+                                    <div className="h-px flex-1 bg-border"></div>
+                                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                        Optional Details (Recommended)
+                                    </span>
+                                    <div className="h-px flex-1 bg-border"></div>
+                                </div>
 
-                    {state.step === 'member_optional' && (
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <label htmlFor="new_member_email_s" className="block text-sm font-medium text-gray-700">Email (Optional)</label>
-                                <Input id="new_member_email_s" type="email" value={state.newMemberEmail} onChange={(e) => setState((prev) => ({ ...prev, newMemberEmail: e.target.value }))} placeholder="email@example.com" autoFocus />
-                            </div>
-                            <div className="space-y-2">
-                                <label htmlFor="new_member_blood_group_s" className="block text-sm font-medium text-gray-700">Blood Group (Optional)</label>
-                                <Select value={state.newMemberBloodGroup} onValueChange={(value) => setState((prev) => ({ ...prev, newMemberBloodGroup: value }))}>
-                                    <SelectTrigger id="new_member_blood_group_s"><SelectValue placeholder="Select blood group" /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="A+">A+</SelectItem><SelectItem value="A-">A-</SelectItem><SelectItem value="B+">B+</SelectItem><SelectItem value="B-">B-</SelectItem>
-                                        <SelectItem value="AB+">AB+</SelectItem><SelectItem value="AB-">AB-</SelectItem><SelectItem value="O+">O+</SelectItem><SelectItem value="O-">O-</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-                    )}
+                                <p className="text-xs text-muted-foreground">Help us serve them better</p>
 
-                    {state.step === 'lookup_method' && (
-                        <div className="grid gap-3">
-                            <button onClick={() => handleLookupMethodChoice('phone')} className="p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
-                                <h4 className="font-semibold mb-1">Phone Number</h4><p className="text-sm text-muted-foreground">Search using their mobile number</p>
-                            </button>
-                            <button onClick={() => handleLookupMethodChoice('patient_id')} className="p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
-                                <h4 className="font-semibold mb-1">Patient ID</h4><p className="text-sm text-muted-foreground">Search using their Patient ID (PT-XXXXXX)</p>
-                            </button>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-2">
+                                        <label htmlFor="new_member_dob_s" className="block text-sm font-medium text-foreground">
+                                            Date of Birth
+                                        </label>
+                                        <Input
+                                            id="new_member_dob_s"
+                                            type="date"
+                                            value={state.newMemberDOB}
+                                            onChange={(e) => setState((prev) => ({
+                                                ...prev,
+                                                newMemberDOB: e.target.value,
+                                                newMemberAge: ''
+                                            }))}
+                                            max={new Date().toISOString().split('T')[0]}
+                                            disabled={state.loading}
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label htmlFor="new_member_age_s" className="block text-sm font-medium text-foreground">
+                                            Age
+                                        </label>
+                                        <Select
+                                            value={state.newMemberAge}
+                                            onValueChange={(value) => setState((prev) => ({
+                                                ...prev,
+                                                newMemberAge: value,
+                                                newMemberDOB: ''
+                                            }))}
+                                            disabled={state.loading || !!state.newMemberDOB}
+                                        >
+                                            <SelectTrigger
+                                                id="new_member_age_s"
+                                                className={state.newMemberDOB ? 'opacity-50 cursor-not-allowed' : ''}
+                                            >
+                                                <SelectValue placeholder="Select age" />
+                                            </SelectTrigger>
+                                            <SelectContent className="max-h-[200px]">
+                                                {Array.from({ length: 121 }, (_, i) => i).map((age) => (
+                                                    <SelectItem key={age} value={age.toString()}>
+                                                        {age} {age === 0 ? 'year' : 'years'}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label htmlFor="new_member_gender_s" className="block text-sm font-medium text-foreground">
+                                        Gender
+                                    </label>
+                                    <Select
+                                        value={state.newMemberGender}
+                                        onValueChange={(value) => setState((prev) => ({ ...prev, newMemberGender: value }))}
+                                        disabled={state.loading}
+                                    >
+                                        <SelectTrigger id="new_member_gender_s">
+                                            <SelectValue placeholder="Select gender (optional)" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="male">Male</SelectItem>
+                                            <SelectItem value="female">Female</SelectItem>
+                                            <SelectItem value="other">Other</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label htmlFor="new_member_email_s" className="block text-sm font-medium text-foreground">
+                                        Email
+                                    </label>
+                                    <Input
+                                        id="new_member_email_s"
+                                        type="email"
+                                        value={state.newMemberEmail}
+                                        onChange={(e) => setState((prev) => ({ ...prev, newMemberEmail: e.target.value }))}
+                                        placeholder="email@example.com (optional)"
+                                        disabled={state.loading}
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label htmlFor="new_member_blood_group_s" className="block text-sm font-medium text-foreground">
+                                        Blood Group
+                                    </label>
+                                    <Select
+                                        value={state.newMemberBloodGroup}
+                                        onValueChange={(value) => setState((prev) => ({ ...prev, newMemberBloodGroup: value }))}
+                                        disabled={state.loading}
+                                    >
+                                        <SelectTrigger id="new_member_blood_group_s">
+                                            <SelectValue placeholder="Select blood group (optional)" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="A+">A+</SelectItem>
+                                            <SelectItem value="A-">A-</SelectItem>
+                                            <SelectItem value="B+">B+</SelectItem>
+                                            <SelectItem value="B-">B-</SelectItem>
+                                            <SelectItem value="AB+">AB+</SelectItem>
+                                            <SelectItem value="AB-">AB-</SelectItem>
+                                            <SelectItem value="O+">O+</SelectItem>
+                                            <SelectItem value="O-">O-</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
                         </div>
                     )}
 
                     {state.step === 'search' && (
-                        <div className="space-y-4">
+                        <div className="space-y-6">
+                            {/* Method Selection */}
+                            <div className="space-y-3">
+                                <label className="block text-sm font-medium text-foreground">Search by</label>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button
+                                        onClick={() => setState((prev) => ({ ...prev, lookupMethod: 'phone', searchValue: '', foundMember: null, error: '' }))}
+                                        className={cn(
+                                            "p-3 rounded-xl border-2 transition-all text-left",
+                                            state.lookupMethod === 'phone'
+                                                ? "border-primary bg-primary/5"
+                                                : "border-border hover:border-primary/50"
+                                        )}
+                                    >
+                                        <h4 className="font-semibold text-sm mb-1">Phone Number</h4>
+                                        <p className="text-xs text-muted-foreground">Mobile number</p>
+                                    </button>
+                                    <button
+                                        onClick={() => setState((prev) => ({ ...prev, lookupMethod: 'patient_id', searchValue: '', foundMember: null, error: '' }))}
+                                        className={cn(
+                                            "p-3 rounded-xl border-2 transition-all text-left",
+                                            state.lookupMethod === 'patient_id'
+                                                ? "border-primary bg-primary/5"
+                                                : "border-border hover:border-primary/50"
+                                        )}
+                                    >
+                                        <h4 className="font-semibold text-sm mb-1">Patient ID</h4>
+                                        <p className="text-xs text-muted-foreground">PT-XXXXXX</p>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Search Input */}
                             <div className="space-y-2">
-                                <label htmlFor="search_value_s" className="block text-sm font-medium text-gray-700">{state.lookupMethod === 'phone' ? 'Phone Number' : 'Patient ID'}</label>
+                                <label htmlFor="search_value_s" className="block text-sm font-medium text-foreground">
+                                    {state.lookupMethod === 'phone' ? 'Phone Number' : 'Patient ID'}
+                                </label>
                                 {state.lookupMethod === 'phone' ? (
                                     <PhoneInput id="search_value_s" value={state.searchValue} onChange={(value) => setState((prev) => ({ ...prev, searchValue: value }))} autoFocus />
                                 ) : (
@@ -1118,237 +1206,226 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                 </div>
             )}
 
-            {/* New Family Member Flow - Progressive Steps */}
-            {state.step === 'member_name' && (
-                <div className="space-y-4">
+            {/* New Family Member Flow - Grouped Form */}
+            {state.step === 'member_details' && (
+                <div className="space-y-6">
                     <h3 className="text-lg font-semibold">New Family Member</h3>
-                    <p className="text-sm text-muted-foreground">Enter the member's name</p>
+                    <p className="text-sm text-muted-foreground">Add a new family member to your account</p>
 
-                    <div className="space-y-2">
-                        <label htmlFor="new_member_name" className="block text-sm font-medium text-gray-700">Name *</label>
-                        <Input
-                            id="new_member_name"
-                            value={state.newMemberName}
-                            onChange={(e) => setState((prev) => ({ ...prev, newMemberName: e.target.value }))}
-                            placeholder="Enter full name"
-                            autoFocus
-                        />
-                    </div>
+                    {/* Essential Information Section */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <div className="h-px flex-1 bg-border"></div>
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                Essential Information
+                            </span>
+                            <div className="h-px flex-1 bg-border"></div>
+                        </div>
 
-                    <Button
-                        onClick={handleMemberNameNext}
-                        className="w-full"
-                        disabled={!state.newMemberName.trim()}
-                    >
-                        Continue
-                    </Button>
-                </div>
-            )}
-
-            {state.step === 'member_phone' && (
-                <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">New Family Member</h3>
-                    <p className="text-sm text-muted-foreground">Enter the member's phone number</p>
-
-                    <div className="space-y-2">
-                        <label htmlFor="new_member_phone" className="block text-sm font-medium text-gray-700">Phone Number *</label>
-                        <PhoneInput
-                            id="new_member_phone"
-                            value={state.newMemberPhone}
-                            onChange={(value) => setState((prev) => ({ ...prev, newMemberPhone: value }))}
-                            autoFocus
-                        />
-                    </div>
-
-                    <Button
-                        onClick={handleMemberPhoneNext}
-                        className="w-full"
-                        disabled={!state.newMemberPhone.trim() || state.newMemberPhone === '+91'}
-                    >
-                        Continue
-                    </Button>
-                </div>
-            )}
-
-            {state.step === 'member_dob_age' && (
-                <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">New Family Member</h3>
-                    <p className="text-sm text-muted-foreground">Enter the member's date of birth or age</p>
-
-                    <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
-                            <label htmlFor="new_member_dob" className="block text-sm font-medium text-gray-700">
-                                Date of Birth <span className="text-xs font-normal">(Recommended)</span>
+                            <label htmlFor="new_member_name" className="block text-sm font-medium text-foreground">
+                                Full Name <span className="text-destructive">*</span>
                             </label>
                             <Input
-                                id="new_member_dob"
-                                type="date"
-                                value={state.newMemberDOB}
-                                onChange={(e) => setState((prev) => ({ ...prev, newMemberDOB: e.target.value, newMemberAge: '' }))}
-                                max={new Date().toISOString().split('T')[0]}
+                                id="new_member_name"
+                                value={state.newMemberName}
+                                onChange={(e) => setState((prev) => ({ ...prev, newMemberName: e.target.value }))}
+                                placeholder="Enter full name"
                                 autoFocus
+                                disabled={state.loading}
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <label htmlFor="new_member_age" className="block text-sm font-medium text-gray-700">
-                                Age <span className="text-xs font-normal">(If DOB unknown)</span>
+                            <label htmlFor="new_member_phone" className="block text-sm font-medium text-foreground">
+                                Phone Number <span className="text-destructive">*</span>
+                            </label>
+                            <PhoneInput
+                                id="new_member_phone"
+                                value={state.newMemberPhone}
+                                onChange={(value) => setState((prev) => ({ ...prev, newMemberPhone: value }))}
+                                disabled={state.loading}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Optional Details Section */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <div className="h-px flex-1 bg-border"></div>
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                Optional Details (Recommended)
+                            </span>
+                            <div className="h-px flex-1 bg-border"></div>
+                        </div>
+
+                        <p className="text-xs text-muted-foreground">Help us serve them better</p>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-2">
+                                <label htmlFor="new_member_dob" className="block text-sm font-medium text-foreground">
+                                    Date of Birth
+                                </label>
+                                <Input
+                                    id="new_member_dob"
+                                    type="date"
+                                    value={state.newMemberDOB}
+                                    onChange={(e) => setState((prev) => ({
+                                        ...prev,
+                                        newMemberDOB: e.target.value,
+                                        newMemberAge: ''
+                                    }))}
+                                    max={new Date().toISOString().split('T')[0]}
+                                    disabled={state.loading}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label htmlFor="new_member_age" className="block text-sm font-medium text-foreground">
+                                    Age
+                                </label>
+                                <Select
+                                    value={state.newMemberAge}
+                                    onValueChange={(value) => setState((prev) => ({
+                                        ...prev,
+                                        newMemberAge: value,
+                                        newMemberDOB: ''
+                                    }))}
+                                    disabled={state.loading || !!state.newMemberDOB}
+                                >
+                                    <SelectTrigger
+                                        id="new_member_age"
+                                        className={state.newMemberDOB ? 'opacity-50 cursor-not-allowed' : ''}
+                                    >
+                                        <SelectValue placeholder="Select age" />
+                                    </SelectTrigger>
+                                    <SelectContent className="max-h-[200px]">
+                                        {Array.from({ length: 121 }, (_, i) => i).map((age) => (
+                                            <SelectItem key={age} value={age.toString()}>
+                                                {age} {age === 0 ? 'year' : 'years'}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label htmlFor="new_member_gender" className="block text-sm font-medium text-foreground">
+                                Gender
                             </label>
                             <Select
-                                value={state.newMemberAge}
-                                onValueChange={(value) => setState((prev) => ({ ...prev, newMemberAge: value, newMemberDOB: '' }))}
-                                disabled={!!state.newMemberDOB}
+                                value={state.newMemberGender}
+                                onValueChange={(value) => setState((prev) => ({ ...prev, newMemberGender: value }))}
+                                disabled={state.loading}
                             >
-                                <SelectTrigger id="new_member_age" className={state.newMemberDOB ? 'opacity-50 cursor-not-allowed' : ''}>
-                                    <SelectValue placeholder="Enter age" />
+                                <SelectTrigger id="new_member_gender">
+                                    <SelectValue placeholder="Select gender (optional)" />
                                 </SelectTrigger>
-                                <SelectContent className="max-h-[200px]">
-                                    {Array.from({ length: 121 }, (_, i) => i).map((age) => (
-                                        <SelectItem key={age} value={age.toString()}>
-                                            {age} {age === 0 ? 'year' : 'years'}
-                                        </SelectItem>
-                                    ))}
+                                <SelectContent>
+                                    <SelectItem value="male">Male</SelectItem>
+                                    <SelectItem value="female">Female</SelectItem>
+                                    <SelectItem value="other">Other</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label htmlFor="new_member_email" className="block text-sm font-medium text-foreground">
+                                Email
+                            </label>
+                            <Input
+                                id="new_member_email"
+                                type="email"
+                                value={state.newMemberEmail}
+                                onChange={(e) => setState((prev) => ({ ...prev, newMemberEmail: e.target.value }))}
+                                placeholder="email@example.com (optional)"
+                                disabled={state.loading}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label htmlFor="new_member_blood_group" className="block text-sm font-medium text-foreground">
+                                Blood Group
+                            </label>
+                            <Select
+                                value={state.newMemberBloodGroup}
+                                onValueChange={(value) => setState((prev) => ({ ...prev, newMemberBloodGroup: value }))}
+                                disabled={state.loading}
+                            >
+                                <SelectTrigger id="new_member_blood_group">
+                                    <SelectValue placeholder="Select blood group (optional)" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="A+">A+</SelectItem>
+                                    <SelectItem value="A-">A-</SelectItem>
+                                    <SelectItem value="B+">B+</SelectItem>
+                                    <SelectItem value="B-">B-</SelectItem>
+                                    <SelectItem value="AB+">AB+</SelectItem>
+                                    <SelectItem value="AB-">AB-</SelectItem>
+                                    <SelectItem value="O+">O+</SelectItem>
+                                    <SelectItem value="O-">O-</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                     </div>
 
                     <Button
-                        onClick={handleMemberDobAgeNext}
+                        onClick={handleMemberDetailsSubmit}
                         className="w-full"
-                        disabled={!state.newMemberAge && !state.newMemberDOB}
-                    >
-                        Continue
-                    </Button>
-                </div>
-            )}
-
-            {state.step === 'member_gender' && (
-                <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">New Family Member</h3>
-                    <p className="text-sm text-muted-foreground">Select the member's gender</p>
-
-                    <div className="space-y-2">
-                        <label htmlFor="new_member_gender" className="block text-sm font-medium text-gray-700">Gender *</label>
-                        <Select value={state.newMemberGender} onValueChange={(value) => setState((prev) => ({ ...prev, newMemberGender: value }))}>
-                            <SelectTrigger id="new_member_gender">
-                                <SelectValue placeholder="Select gender" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="male">Male</SelectItem>
-                                <SelectItem value="female">Female</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <Button
-                        onClick={handleMemberGenderNext}
-                        className="w-full"
-                        disabled={!state.newMemberGender}
-                    >
-                        Continue
-                    </Button>
-                </div>
-            )}
-
-            {state.step === 'member_optional' && (
-                <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">New Family Member</h3>
-                    <p className="text-sm text-muted-foreground">Additional information (optional)</p>
-
-                    <div className="space-y-2">
-                        <label htmlFor="new_member_email" className="block text-sm font-medium text-gray-700">Email (Optional)</label>
-                        <Input
-                            id="new_member_email"
-                            type="email"
-                            value={state.newMemberEmail}
-                            onChange={(e) => setState((prev) => ({ ...prev, newMemberEmail: e.target.value }))}
-                            placeholder="email@example.com"
-                            autoFocus
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <label htmlFor="new_member_blood_group" className="block text-sm font-medium text-gray-700">Blood Group (Optional)</label>
-                        <Select value={state.newMemberBloodGroup} onValueChange={(value) => setState((prev) => ({ ...prev, newMemberBloodGroup: value }))}>
-                            <SelectTrigger id="new_member_blood_group">
-                                <SelectValue placeholder="Select blood group" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="A+">A+</SelectItem>
-                                <SelectItem value="A-">A-</SelectItem>
-                                <SelectItem value="B+">B+</SelectItem>
-                                <SelectItem value="B-">B-</SelectItem>
-                                <SelectItem value="AB+">AB+</SelectItem>
-                                <SelectItem value="AB-">AB-</SelectItem>
-                                <SelectItem value="O+">O+</SelectItem>
-                                <SelectItem value="O-">O-</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <Button
-                        onClick={handleNewMemberSubmit}
-                        className="w-full"
-                        disabled={state.loading}
+                        disabled={state.loading || !state.newMemberName.trim() || !state.newMemberPhone.trim() || state.newMemberPhone === '+91'}
                     >
                         {state.loading ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Creating Member...
+                                Adding Member...
                             </>
                         ) : (
-                            'Submit'
+                            'Add Member'
                         )}
                     </Button>
                 </div>
             )}
 
-            {state.step === 'lookup_method' && (
-                <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Search Method</h3>
-                    <p className="text-sm text-muted-foreground">
-                        How would you like to search for this member?
-                    </p>
-
-                    <div className="grid gap-3">
-                        <button
-                            onClick={() => handleLookupMethodChoice('phone')}
-                            className="p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
-                        >
-                            <h4 className="font-semibold mb-1">Phone Number</h4>
-                            <p className="text-sm text-muted-foreground">
-                                Search using their mobile number
-                            </p>
-                        </button>
-
-                        <button
-                            onClick={() => handleLookupMethodChoice('patient_id')}
-                            className="p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
-                        >
-                            <h4 className="font-semibold mb-1">Patient ID</h4>
-                            <p className="text-sm text-muted-foreground">
-                                Search using their Patient ID (PT-XXXXXX)
-                            </p>
-                        </button>
-                    </div>
-                </div>
-            )}
-
             {state.step === 'search' && (
-                <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">
-                        {state.lookupMethod === 'phone' ? 'Enter Phone Number' : 'Enter Patient ID'}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                        {state.lookupMethod === 'phone'
-                            ? 'Enter the mobile number of the family member'
-                            : 'Enter the Patient ID (format: PT-XXXXXX)'}
-                    </p>
+                <div className="space-y-6">
+                    <h3 className="text-lg font-semibold">Link Existing Patient</h3>
+                    <p className="text-sm text-muted-foreground">Search for an existing patient record to link</p>
 
+                    {/* Method Selection */}
+                    <div className="space-y-3">
+                        <label className="block text-sm font-medium text-foreground">Search by</label>
+                        <div className="grid grid-cols-2 gap-3">
+                            <button
+                                onClick={() => setState((prev) => ({ ...prev, lookupMethod: 'phone', searchValue: '', foundMember: null, error: '' }))}
+                                className={cn(
+                                    "p-3 rounded-xl border-2 transition-all text-left",
+                                    state.lookupMethod === 'phone'
+                                        ? "border-primary bg-primary/5"
+                                        : "border-border hover:border-primary/50"
+                                )}
+                            >
+                                <h4 className="font-semibold text-sm mb-1">Phone Number</h4>
+                                <p className="text-xs text-muted-foreground">Mobile number</p>
+                            </button>
+                            <button
+                                onClick={() => setState((prev) => ({ ...prev, lookupMethod: 'patient_id', searchValue: '', foundMember: null, error: '' }))}
+                                className={cn(
+                                    "p-3 rounded-xl border-2 transition-all text-left",
+                                    state.lookupMethod === 'patient_id'
+                                        ? "border-primary bg-primary/5"
+                                        : "border-border hover:border-primary/50"
+                                )}
+                            >
+                                <h4 className="font-semibold text-sm mb-1">Patient ID</h4>
+                                <p className="text-xs text-muted-foreground">PT-XXXXXX</p>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Search Input */}
                     <div className="space-y-2">
-                        <label htmlFor="search_value" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="search_value" className="block text-sm font-medium text-foreground">
                             {state.lookupMethod === 'phone' ? 'Phone Number' : 'Patient ID'}
                         </label>
                         {state.lookupMethod === 'phone' ? (
