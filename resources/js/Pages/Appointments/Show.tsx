@@ -11,6 +11,12 @@ import {
   SheetTitle,
   SheetDescription,
 } from '@/Components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/Components/ui/dropdown-menu';
 import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
 import {
@@ -45,6 +51,7 @@ import {
   Check,
   FileWarning,
   ShieldCheck,
+  MoreHorizontal,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 
@@ -421,14 +428,24 @@ function DocumentPreview({ doc, onClose }: { doc: AppDocument; onClose: () => vo
       </div>
 
       {/* Actions */}
-      <div className="pt-4 mt-4 border-t flex gap-2">
+      <div className="pt-4 flex gap-2">
         <Button className="flex-1">
           <Download className="h-4 w-4" />
           Download
         </Button>
-        <Button variant="outline" onClick={onClose}>
-          Close
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon" className="h-10 w-10 flex-shrink-0">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[140px]">
+            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={onClose}>
+              <X className="h-4 w-4" />
+              Close
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

@@ -1017,7 +1017,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
               <PaymentWarnings bills={activePayBills} />
 
               {/* Total + CTA */}
-              <div className="border-t pt-4 mt-4">
+              <div className="pt-4">
                 <div className="flex justify-between items-baseline mb-4">
                   <span className="text-sm font-medium">
                     Total ({activePayBills.length} {activePayBills.length === 1 ? 'bill' : 'bills'})

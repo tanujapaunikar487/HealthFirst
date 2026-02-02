@@ -557,7 +557,7 @@ export function CancelSheet({
       </div>
 
       {/* Actions */}
-      <div className="pt-6 mt-6 border-t space-y-2">
+      <div className="pt-4 space-y-2">
         <Button
           className="w-full"
           variant="destructive"
@@ -771,7 +771,7 @@ export function RescheduleSheet({
       </div>
 
       {/* Actions */}
-      <div className="pt-6 mt-6 border-t space-y-2">
+      <div className="pt-4 space-y-2">
         <Button
           className="w-full"
           size="lg"

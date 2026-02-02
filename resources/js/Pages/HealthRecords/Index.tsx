@@ -1106,28 +1106,46 @@ function RecordDetailSheet({ record, memberMap, onDownload, onAction }: { record
         {meta && <CategoryDetail category={record.category} meta={meta} onAction={onAction} record={record} memberMap={memberMap} />}
       </div>
 
-      <div className="pt-6 mt-6 border-t space-y-2">
-        {record.appointment_id && (
-          <Button asChild variant="outline" className="w-full">
+      <div className="pt-4 flex gap-2">
+        {record.file_type ? (
+          <Button className="flex-1" onClick={onDownload}>
+            <Download className="h-4 w-4" />
+            Download
+          </Button>
+        ) : record.appointment_id ? (
+          <Button asChild className="flex-1">
             <Link href={`/appointments/${record.appointment_id}`}>
               <ExternalLink className="h-4 w-4" />
               View Appointment
             </Link>
           </Button>
-        )}
-        {record.category === 'invoice' && record.appointment_id && (
-          <Button asChild variant="outline" className="w-full">
-            <Link href={`/billing/${record.appointment_id}`}>
-              <Receipt className="h-4 w-4" />
-              View Bill
-            </Link>
-          </Button>
-        )}
-        {record.file_type && (
-          <Button variant="outline" className="w-full" onClick={onDownload}>
-            <Download className="h-4 w-4" />
-            Download
-          </Button>
+        ) : null}
+        {((record.file_type && record.appointment_id) || (record.category === 'invoice' && record.appointment_id)) && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon" className="h-10 w-10 flex-shrink-0">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[180px]">
+              {record.file_type && record.appointment_id && (
+                <DropdownMenuItem className="gap-2 cursor-pointer" asChild>
+                  <Link href={`/appointments/${record.appointment_id}`}>
+                    <ExternalLink className="h-4 w-4" />
+                    View Appointment
+                  </Link>
+                </DropdownMenuItem>
+              )}
+              {record.category === 'invoice' && record.appointment_id && (
+                <DropdownMenuItem className="gap-2 cursor-pointer" asChild>
+                  <Link href={`/billing/${record.appointment_id}`}>
+                    <Receipt className="h-4 w-4" />
+                    View Bill
+                  </Link>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
       </div>
     </div>
