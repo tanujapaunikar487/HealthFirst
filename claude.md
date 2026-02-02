@@ -1457,6 +1457,73 @@ const handleAddAsNew = () => {
 
 ---
 
+## Family Member Flows: UX Redesign (February 3, 2026)
+
+Comprehensive UX redesign of all three family member flows (Guest, New Family Member, Link Existing Patient) targeting 40% step reduction and improved user experience.
+
+### Plan Overview
+
+**Full Design Plan**: `/Users/tanujapaunikar/.claude/plans/mighty-honking-giraffe.md`
+
+**Objectives**:
+- Reduce steps by 40% through smart consolidation
+- Prevent data loss with intelligent flow-switching
+- Add mobile responsiveness (grid-cols-1 sm:grid-cols-2)
+- Improve accessibility (ARIA labels, semantic HTML)
+- Update backend validation (make relation required)
+
+### Completed Phases
+
+#### Phase 1: Update Step Types & State ✅
+
+**File**: `EmbeddedFamilyMemberFlow.tsx` (lines 14-23, 78-81, 136-139)
+
+**Changes**:
+- Updated Step enum: removed `'relationship'` from new family flow, added `'relationship_verify'` to link existing flow
+- Added new state fields:
+  - `autoFocusField?: 'relationship' | 'name' | 'phone'` — manages focus on flow transitions
+  - `lockoutUntil?: number | null` — timestamp for OTP lockout (15-minute)
+  - `otpContactMethod?: 'phone' | 'email'` — pre-selected contact method for OTP
+- Updated navigation: `handleInitialChoice` now goes straight to `member_details` (not `relationship`) for new family flow
+
+#### Phase 3: Consolidate New Family Member Form (2→1 Steps) ✅
+
+**Before**: 2 steps — Relationship selection → Member Details
+**After**: 1 step — Combined form with relationship dropdown at top
+
+**Implementation**:
+- Moved relationship dropdown into `member_details` form (lines 728-757 standalone, 1194-1237 embedded)
+- Grouped fields into sections:
+  - **Relationship & Contact**: Relationship (required), Name (required), Phone (required)
+  - **Optional Details (Recommended)**: DOB, Age, Gender, Email, Blood Group
+- Updated validation to require relationship in `handleMemberDetailsSubmit()` (lines 240-243)
+- Auto-focus relationship field when transitioning from failed link search (line 530)
+- Phone pre-fill when switching from "Link Existing" to "Add as New" (line 525)
+
+**Files Modified**:
+- `EmbeddedFamilyMemberFlow.tsx` — ~500 lines changed (step types, handlers, UI sections, validation)
+
+**Impact**:
+- **50% step reduction** in New Family Member flow (2→1)
+- Faster completion with all context visible at once
+- Same validation, no backend changes
+
+### Remaining Phases
+
+- **Phase 2**: Redesign Choice Screen with hierarchical structure
+- **Phase 4**: Enhance Link Existing Search with email upfront
+- **Phase 5**: Add Relationship to OTP Step (rename to relationship_verify)
+- **Phase 6**: Mobile Responsiveness (grid-cols-1 sm:grid-cols-2)
+- **Phase 7**: Accessibility improvements (ARIA labels, semantic HTML)
+- **Phase 8**: Backend Validation (make relation required in FamilyMembersController)
+
+### Build Status
+✅ TypeScript compilation passing
+✅ Vite build successful
+✅ Commit 37891ae created
+
+---
+
 **Status**: Production-ready healthcare management platform with AI-powered booking, comprehensive health records, billing, and insurance management.
 
-**Last Updated**: February 3, 2026 — Billing dropdown actions fix, contact support dialog, health records cleanup
+**Last Updated**: February 3, 2026 — Family member flows UX redesign (Phase 1 & 3 complete)
