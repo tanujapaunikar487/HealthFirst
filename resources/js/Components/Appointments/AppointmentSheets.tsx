@@ -318,9 +318,9 @@ export function DetailsSheet({
       </div>
 
       {/* Footer */}
-      <div className="pt-4">
+      <SheetFooter>
         {tab === 'upcoming' && (
-          <div className="flex items-center gap-2">
+          <>
             {/* Join Video Call Button - only for video appointments */}
             {isVideoAppointment ? (
               appointment.video_meeting_url ? (
@@ -397,11 +397,11 @@ export function DetailsSheet({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
+          </>
         )}
 
         {tab === 'past' && (
-          <div className="flex items-center gap-2">
+          <>
             <Button
               className="flex-1"
               size="lg"
@@ -428,12 +428,12 @@ export function DetailsSheet({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
+          </>
         )}
 
         {tab === 'cancelled' && (
           <Button
-            className="w-full"
+            className="flex-1"
             size="lg"
             onClick={() => {
               window.location.href = `/appointments/${appointment.id}/book-again`;
@@ -443,7 +443,7 @@ export function DetailsSheet({
             Book Again
           </Button>
         )}
-      </div>
+      </SheetFooter>
     </div>
   );
 }
@@ -489,12 +489,11 @@ export function CancelSheet({
   appointment,
   onSuccess,
   onError,
-  onClose,
 }: {
   appointment: Appointment;
   onSuccess: () => void;
   onError: (message: string) => void;
-  onClose: () => void;
+  onClose?: () => void;
 }) {
   const [reason, setReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -568,22 +567,14 @@ export function CancelSheet({
       </div>
 
       {/* Actions */}
-      <SheetFooter className="flex-col space-y-2 sm:flex-col sm:space-x-0">
+      <SheetFooter>
         <Button
-          className="w-full text-destructive"
-          variant="outline"
+          className="flex-1"
+          variant="destructive"
           onClick={handleCancel}
           disabled={submitting}
         >
           {submitting ? 'Cancelling...' : 'Cancel Appointment'}
-        </Button>
-        <Button
-          className="w-full"
-          variant="ghost"
-          onClick={onClose}
-          disabled={submitting}
-        >
-          Keep Appointment
         </Button>
       </SheetFooter>
     </div>
@@ -596,12 +587,11 @@ export function RescheduleSheet({
   appointment,
   onSuccess,
   onError,
-  onClose,
 }: {
   appointment: Appointment;
   onSuccess: () => void;
   onError: (message: string) => void;
-  onClose: () => void;
+  onClose?: () => void;
 }) {
   const [dates, setDates] = useState<DateOption[]>([]);
   const [slots, setSlots] = useState<SlotOption[]>([]);
@@ -704,6 +694,8 @@ export function RescheduleSheet({
           </div>
         </div>
 
+        <SheetDivider />
+
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full" />
@@ -782,22 +774,14 @@ export function RescheduleSheet({
       </div>
 
       {/* Actions */}
-      <SheetFooter className="flex-col space-y-2 sm:flex-col sm:space-x-0">
+      <SheetFooter>
         <Button
-          className="w-full"
+          className="flex-1"
           size="lg"
           onClick={handleReschedule}
           disabled={!selectedDate || !selectedTime || submitting}
         >
           {submitting ? 'Rescheduling...' : 'Confirm Reschedule'}
-        </Button>
-        <Button
-          className="w-full"
-          variant="ghost"
-          onClick={onClose}
-          disabled={submitting}
-        >
-          Cancel
         </Button>
       </SheetFooter>
     </div>

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as SheetPrimitive from '@radix-ui/react-dialog';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { X } from '@/Lib/icons';
+import { X, ArrowLeft } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { cn } from '@/Lib/utils';
 
@@ -87,13 +87,29 @@ SheetContent.displayName = SheetPrimitive.Content.displayName;
 const SheetHeader = ({
   className,
   style,
+  onBack,
+  children,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
+}: React.HTMLAttributes<HTMLDivElement> & { onBack?: () => void }) => (
   <div
     className={cn('flex flex-col space-y-2 text-center sm:text-left -mx-6 px-6 pb-4 border-b mb-4', className)}
     style={style}
     {...props}
-  />
+  >
+    {onBack ? (
+      <div className="flex items-start gap-3">
+        <button
+          onClick={onBack}
+          className="h-8 w-8 rounded-full border border-border bg-background flex items-center justify-center transition-colors hover:bg-muted flex-shrink-0 mt-0.5"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </button>
+        <div className="flex-1 flex flex-col space-y-1">{children}</div>
+      </div>
+    ) : (
+      children
+    )}
+  </div>
 );
 SheetHeader.displayName = 'SheetHeader';
 
@@ -103,7 +119,7 @@ const SheetFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 -mx-6 px-6 pt-4 border-t mt-4',
+      'flex items-center gap-2 -mx-6 px-6 pt-4 border-t mt-auto',
       className
     )}
     {...props}

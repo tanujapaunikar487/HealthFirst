@@ -13,11 +13,8 @@ import { cn } from '@/Lib/utils';
 
 type Step =
     | 'choice'
-    // Guest progressive steps
-    | 'guest_name'
-    | 'guest_phone'
-    | 'guest_dob_age'
-    | 'guest_gender'
+    // Guest - single form
+    | 'guest_form'
     // New family progressive steps
     | 'relationship'
     | 'member_name'
@@ -158,7 +155,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
     const handleInitialChoice = (choice: 'guest' | 'add_new_family' | 'link_existing') => {
         setState((prev) => ({ ...prev, flowType: choice }));
         if (choice === 'guest') {
-            setStep('guest_name');
+            setStep('guest_form');
         } else if (choice === 'add_new_family') {
             setStep('relationship');
         } else {
@@ -167,8 +164,9 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         }
     };
 
-    // Step 2: Guest Information Input
+    // Guest Form Submit
     const handleGuestSubmit = async () => {
+        // Required fields validation
         if (!state.guestName.trim()) {
             setError('Please enter a name');
             return;
@@ -181,14 +179,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             setError('Please enter a valid 10-digit phone number');
             return;
         }
-        if (!state.guestAge && !state.guestDOB) {
-            setError('Please enter date of birth or age');
-            return;
-        }
-        if (!state.guestGender) {
-            setError('Please select gender');
-            return;
-        }
+        // Optional fields - no validation needed
 
         if (mode === 'standalone') {
             // In standalone mode, create the guest via form submission and reload
@@ -256,34 +247,6 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         }
     };
 
-    // Progressive Guest Flow Handlers
-    const handleGuestNameNext = () => {
-        if (!state.guestName.trim()) {
-            setError('Please enter a name');
-            return;
-        }
-        setStep('guest_phone');
-    };
-
-    const handleGuestPhoneNext = () => {
-        if (!state.guestPhone.trim() || state.guestPhone === '+91') {
-            setError('Please enter a phone number');
-            return;
-        }
-        if (!/^\+91[6-9]\d{9}$/.test(state.guestPhone.trim())) {
-            setError('Please enter a valid 10-digit phone number');
-            return;
-        }
-        setStep('guest_dob_age');
-    };
-
-    const handleGuestDobAgeNext = () => {
-        if (!state.guestAge && !state.guestDOB) {
-            setError('Please enter date of birth or age');
-            return;
-        }
-        setStep('guest_gender');
-    };
 
     // Progressive New Member Flow Handlers
     const handleMemberNameNext = () => {
@@ -621,10 +584,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         const backMap: Record<Step, Step> = {
             choice: 'choice',
             // Guest flow
-            guest_name: 'choice',
-            guest_phone: 'guest_name',
-            guest_dob_age: 'guest_phone',
-            guest_gender: 'guest_dob_age',
+            guest_form: 'choice',
             // New family flow
             relationship: 'choice',
             member_name: 'relationship',
@@ -648,14 +608,8 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             case 'choice':
                 return { title: 'Add New Person', description: 'Choose how you\'d like to add this person' };
             // Guest flow
-            case 'guest_name':
-                return { title: 'Guest Information', description: 'Enter the guest\'s name' };
-            case 'guest_phone':
-                return { title: 'Guest Information', description: 'Enter the guest\'s phone number' };
-            case 'guest_dob_age':
-                return { title: 'Guest Information', description: 'Enter the guest\'s date of birth or age' };
-            case 'guest_gender':
-                return { title: 'Guest Information', description: 'Select the guest\'s gender' };
+            case 'guest_form':
+                return { title: 'Guest Information', description: 'Add a guest for this appointment' };
             // New family flow
             case 'relationship':
                 return { title: 'Select Relationship', description: 'What is this person\'s relationship to you?' };
@@ -802,158 +756,121 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                 </div>
             )}
 
-            {/* Guest Flow - Progressive Steps */}
-            {state.step === 'guest_name' && (
-                <div className="space-y-4">
+            {/* Guest Form - Single grouped form */}
+            {state.step === 'guest_form' && (
+                <div className="space-y-6">
                     {mode === 'embedded' && (
                         <>
                             <h3 className="text-lg font-semibold">Guest Information</h3>
-                            <p className="text-sm text-muted-foreground">Enter the guest's name</p>
+                            <p className="text-sm text-muted-foreground">Add a guest for this appointment</p>
                         </>
                     )}
 
-                    <div className="space-y-2">
-                        <label htmlFor="guest_name" className="block text-sm font-medium text-gray-700">Name *</label>
-                        <Input
-                            id="guest_name"
-                            value={state.guestName}
-                            onChange={(e) => setState((prev) => ({ ...prev, guestName: e.target.value }))}
-                            placeholder="Enter guest name"
-                            autoFocus
-                        />
-                    </div>
+                    {/* Required Information */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <div className="h-px flex-1 bg-border"></div>
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Required Information</span>
+                            <div className="h-px flex-1 bg-border"></div>
+                        </div>
 
-                    <Button
-                        onClick={handleGuestNameNext}
-                        className="w-full"
-                        disabled={!state.guestName.trim()}
-                    >
-                        Continue
-                    </Button>
-                </div>
-            )}
-
-            {state.step === 'guest_phone' && (
-                <div className="space-y-4">
-                    {mode === 'embedded' && (
-                        <>
-                            <h3 className="text-lg font-semibold">Guest Information</h3>
-                            <p className="text-sm text-muted-foreground">Enter the guest's phone number</p>
-                        </>
-                    )}
-
-                    <div className="space-y-2">
-                        <label htmlFor="guest_phone" className="block text-sm font-medium text-gray-700">Phone Number *</label>
-                        <PhoneInput
-                            id="guest_phone"
-                            value={state.guestPhone}
-                            onChange={(value) => setState((prev) => ({ ...prev, guestPhone: value }))}
-                            autoFocus
-                        />
-                    </div>
-
-                    <Button
-                        onClick={handleGuestPhoneNext}
-                        className="w-full"
-                        disabled={!state.guestPhone.trim() || state.guestPhone === '+91'}
-                    >
-                        Continue
-                    </Button>
-                </div>
-            )}
-
-            {state.step === 'guest_dob_age' && (
-                <div className="space-y-4">
-                    {mode === 'embedded' && (
-                        <>
-                            <h3 className="text-lg font-semibold">Guest Information</h3>
-                            <p className="text-sm text-muted-foreground">Enter the guest's date of birth or age</p>
-                        </>
-                    )}
-
-                    <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
-                            <label htmlFor="guest_dob" className="block text-sm font-medium text-gray-700">
-                                Date of Birth <span className="text-xs font-normal">(Recommended)</span>
+                            <label htmlFor="guest_name" className="block text-sm font-medium text-foreground">
+                                Name <span className="text-destructive">*</span>
                             </label>
                             <Input
-                                id="guest_dob"
-                                type="date"
-                                value={state.guestDOB}
-                                onChange={(e) => setState((prev) => ({ ...prev, guestDOB: e.target.value, guestAge: '' }))}
-                                max={new Date().toISOString().split('T')[0]}
+                                id="guest_name"
+                                value={state.guestName}
+                                onChange={(e) => setState((prev) => ({ ...prev, guestName: e.target.value }))}
+                                placeholder="Enter guest name"
                                 autoFocus
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <label htmlFor="guest_age" className="block text-sm font-medium text-gray-700">
-                                Age <span className="text-xs font-normal">(If DOB unknown)</span>
+                            <label htmlFor="guest_phone" className="block text-sm font-medium text-foreground">
+                                Phone Number <span className="text-destructive">*</span>
                             </label>
-                            <Select
-                                value={state.guestAge}
-                                onValueChange={(value) => setState((prev) => ({ ...prev, guestAge: value, guestDOB: '' }))}
-                                disabled={!!state.guestDOB}
-                            >
-                                <SelectTrigger id="guest_age" className={state.guestDOB ? 'opacity-50 cursor-not-allowed' : ''}>
-                                    <SelectValue placeholder="Enter age" />
+                            <PhoneInput
+                                id="guest_phone"
+                                value={state.guestPhone}
+                                onChange={(value) => setState((prev) => ({ ...prev, guestPhone: value }))}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Optional Details */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <div className="h-px flex-1 bg-border"></div>
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Optional Details</span>
+                            <div className="h-px flex-1 bg-border"></div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-2">
+                                <label htmlFor="guest_dob" className="block text-sm font-medium text-foreground">
+                                    Date of Birth
+                                </label>
+                                <Input
+                                    id="guest_dob"
+                                    type="date"
+                                    value={state.guestDOB}
+                                    onChange={(e) => setState((prev) => ({ ...prev, guestDOB: e.target.value, guestAge: '' }))}
+                                    max={new Date().toISOString().split('T')[0]}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label htmlFor="guest_age" className="block text-sm font-medium text-foreground">
+                                    Age
+                                </label>
+                                <Select
+                                    value={state.guestAge}
+                                    onValueChange={(value) => setState((prev) => ({ ...prev, guestAge: value, guestDOB: '' }))}
+                                    disabled={!!state.guestDOB}
+                                >
+                                    <SelectTrigger id="guest_age" className={state.guestDOB ? 'opacity-50 cursor-not-allowed' : ''}>
+                                        <SelectValue placeholder="Select age" />
+                                    </SelectTrigger>
+                                    <SelectContent className="max-h-[200px]">
+                                        {Array.from({ length: 121 }, (_, i) => i).map((age) => (
+                                            <SelectItem key={age} value={age.toString()}>
+                                                {age} {age === 0 ? 'year' : 'years'}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label htmlFor="guest_gender" className="block text-sm font-medium text-foreground">Gender</label>
+                            <Select value={state.guestGender} onValueChange={(value) => setState((prev) => ({ ...prev, guestGender: value }))}>
+                                <SelectTrigger id="guest_gender">
+                                    <SelectValue placeholder="Select gender (optional)" />
                                 </SelectTrigger>
-                                <SelectContent className="max-h-[200px]">
-                                    {Array.from({ length: 121 }, (_, i) => i).map((age) => (
-                                        <SelectItem key={age} value={age.toString()}>
-                                            {age} {age === 0 ? 'year' : 'years'}
-                                        </SelectItem>
-                                    ))}
+                                <SelectContent>
+                                    <SelectItem value="male">Male</SelectItem>
+                                    <SelectItem value="female">Female</SelectItem>
+                                    <SelectItem value="other">Other</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                     </div>
 
                     <Button
-                        onClick={handleGuestDobAgeNext}
-                        className="w-full"
-                        disabled={!state.guestAge && !state.guestDOB}
-                    >
-                        Continue
-                    </Button>
-                </div>
-            )}
-
-            {state.step === 'guest_gender' && (
-                <div className="space-y-4">
-                    {mode === 'embedded' && (
-                        <>
-                            <h3 className="text-lg font-semibold">Guest Information</h3>
-                            <p className="text-sm text-muted-foreground">Select the guest's gender</p>
-                        </>
-                    )}
-
-                    <div className="space-y-2">
-                        <label htmlFor="guest_gender" className="block text-sm font-medium text-gray-700">Gender *</label>
-                        <Select value={state.guestGender} onValueChange={(value) => setState((prev) => ({ ...prev, guestGender: value }))}>
-                            <SelectTrigger id="guest_gender">
-                                <SelectValue placeholder="Select gender" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="male">Male</SelectItem>
-                                <SelectItem value="female">Female</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <Button
                         onClick={handleGuestSubmit}
                         className="w-full"
-                        disabled={state.loading || !state.guestGender}
+                        disabled={state.loading || !state.guestName.trim() || !state.guestPhone.trim() || state.guestPhone === '+91'}
                     >
                         {state.loading ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Creating Guest...
+                                Adding Guest...
                             </>
                         ) : (
-                            'Submit'
+                            'Add Guest'
                         )}
                     </Button>
                 </div>

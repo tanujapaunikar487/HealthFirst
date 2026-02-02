@@ -20,6 +20,8 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
+  SheetFooter,
+  SheetDivider,
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
@@ -635,7 +637,7 @@ export default function FamilyMemberShow({
 
       {/* Edit Sheet */}
       <Sheet open={showEditForm} onOpenChange={setShowEditForm}>
-        <SheetContent className="overflow-y-auto">
+        <SheetContent>
           <SheetHeader>
             <SheetTitle>Edit Profile</SheetTitle>
             <SheetDescription>
@@ -643,7 +645,7 @@ export default function FamilyMemberShow({
             </SheetDescription>
           </SheetHeader>
 
-          <div className="space-y-6">
+          <div className="flex-1 overflow-y-auto -mx-6 px-6">
             {/* Basic Info */}
             <div>
               <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Basic Info</p>
@@ -737,6 +739,8 @@ export default function FamilyMemberShow({
               </div>
             </div>
 
+            <SheetDivider className="my-6" />
+
             {/* Contact */}
             <div>
               <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Contact</p>
@@ -759,6 +763,8 @@ export default function FamilyMemberShow({
                 </div>
               </div>
             </div>
+
+            <SheetDivider className="my-6" />
 
             {/* Address */}
             <div>
@@ -809,6 +815,8 @@ export default function FamilyMemberShow({
               </div>
             </div>
 
+            <SheetDivider className="my-6" />
+
             {/* Primary Doctor */}
             <div>
               <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Primary Doctor</p>
@@ -828,6 +836,8 @@ export default function FamilyMemberShow({
                 </SelectContent>
               </Select>
             </div>
+
+            <SheetDivider className="my-6" />
 
             {/* Medical */}
             <div>
@@ -852,6 +862,8 @@ export default function FamilyMemberShow({
                 </div>
               </div>
             </div>
+
+            <SheetDivider className="my-6" />
 
             {/* Emergency Contact */}
             <div>
@@ -883,14 +895,17 @@ export default function FamilyMemberShow({
               </div>
             </div>
 
+          </div>
+
+          <SheetFooter>
             <Button
               onClick={handleSubmit}
               disabled={submitting}
-              className="w-full"
+              className="flex-1"
             >
               {submitting ? 'Saving...' : 'Save Changes'}
             </Button>
-          </div>
+          </SheetFooter>
         </SheetContent>
       </Sheet>
 
