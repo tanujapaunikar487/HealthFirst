@@ -909,6 +909,59 @@ Added comprehensive useEffect (after line 495) to read multiple parameters:
 
 ---
 
+## Family Member Age/DOB UX Improvement (February 2, 2026)
+
+Improved the family member creation flow to prioritize Date of Birth (more accurate for medical records) while providing an age fallback option.
+
+### Changes
+
+**Files Modified**:
+- `resources/js/Features/booking-chat/embedded/EmbeddedFamilyMemberForm.tsx`
+- `resources/js/Features/booking-chat/embedded/EmbeddedFamilyMemberFlow.tsx`
+- `app/Services/Booking/IntelligentBookingOrchestrator.php`
+
+### New UX Pattern
+
+**Primary Field: Date of Birth**
+- Recommended field with date input (max = today)
+- Better for medical records (doesn't need annual updates)
+- Can auto-calculate age
+- Important for pediatric/geriatric care
+
+**Fallback: Age Input**
+- Shown below DOB with "Or enter age" divider
+- Simple number input for when exact DOB unknown
+- Automatically disabled when DOB is provided
+- Sufficient for guests and approximate records
+
+**Validation**:
+- At least one field (DOB or age) must be provided
+- If both provided, DOB takes precedence
+- Frontend and backend both support the dual-field pattern
+
+### Implementation Details
+
+**EmbeddedFamilyMemberForm** (booking chat inline form):
+- Added `dateOfBirth` state variable
+- Updated `handleSubmit` to send `new_member_date_of_birth` field
+- Age input disabled and dimmed when DOB is entered
+
+**EmbeddedFamilyMemberFlow** (standalone sheet form):
+- Reordered fields to show DOB first, age second
+- Updated validation: `(!state.newMemberAge && !state.newMemberDOB)`
+- Both fields clear each other on input to prevent conflicts
+
+**IntelligentBookingOrchestrator**:
+- Collects `new_member_date_of_birth` from selection
+- Passes to `FamilyMember::create()` along with age
+- Backend model prefers DOB and computes age automatically
+
+**Guest Form**:
+- Kept simple age-only input (appropriate for one-time visitors)
+- No DOB field to minimize friction in booking flow
+
+---
+
 **Status**: Production-ready healthcare management platform with AI-powered booking, comprehensive health records, billing, and insurance management.
 
 **Last Updated**: February 2, 2026
