@@ -404,7 +404,7 @@ function SkeletonPage() {
 function DocumentPreview({ doc, onClose }: { doc: AppDocument; onClose: () => void }) {
   return (
     <div className="flex flex-col h-full">
-      <SheetHeader className="pb-4">
+      <SheetHeader>
         <SheetTitle className="text-base">{doc.name}</SheetTitle>
         <SheetDescription>
           {doc.type.toUpperCase()} · {doc.date} · {doc.size}

@@ -149,10 +149,9 @@ export function DetailsSheet({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <SheetHeader className="pb-4">
+      <SheetHeader>
         <SheetTitle className="text-base">Upcoming Appointment</SheetTitle>
       </SheetHeader>
-      <div className="-mx-6 border-b mb-4" />
 
       {/* Status Banner - only for video appointments when doctor is online */}
       {isDoctorOnline && (
@@ -523,7 +522,7 @@ export function CancelSheet({
 
   return (
     <div className="flex flex-col h-full">
-      <SheetHeader className="pb-6">
+      <SheetHeader>
         <SheetTitle>Cancel Appointment</SheetTitle>
         <SheetDescription>This action cannot be undone.</SheetDescription>
       </SheetHeader>
@@ -660,7 +659,7 @@ export function RescheduleSheet({
 
   return (
     <div className="flex flex-col h-full">
-      <SheetHeader className="pb-6">
+      <SheetHeader>
         <SheetTitle>Reschedule Appointment</SheetTitle>
         <SheetDescription>
           Currently: {appointment.date_formatted} at {appointment.time}
