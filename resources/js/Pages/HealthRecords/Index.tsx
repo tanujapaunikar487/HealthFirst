@@ -494,6 +494,53 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
     }
   }, [preSelectedRecordId]);
 
+  // Read filter parameters from URL on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    // Read member filter
+    const memberId = params.get('member');
+    if (memberId) {
+      // Verify member exists (including 'self')
+      const memberExists = memberId === 'self' ||
+                          familyMembers.some(m => String(m.id) === memberId);
+      if (memberExists) {
+        setMemberFilter(memberId);
+      }
+    }
+
+    // Read status filter
+    const status = params.get('status');
+    if (status) {
+      // Validate against known status values
+      const validStatuses = ['all', 'normal', 'needs_attention', 'active', 'completed',
+                            'pending', 'follow_up_required', 'valid', 'expired', 'discontinued'];
+      if (validStatuses.includes(status)) {
+        setStatusFilter(status);
+      }
+    }
+
+    // Read category filter (can be comma-separated)
+    const category = params.get('category');
+    if (category) {
+      // For medications: "medication_active,medication_past"
+      // For single category: just the category name
+      // Note: subCategoryFilter expects a single value, but we can set the first one
+      const firstCategory = category.split(',')[0];
+
+      // Validate against categoryConfig keys
+      const validCategories = Object.keys(categoryConfig);
+      if (validCategories.includes(firstCategory)) {
+        setSubCategoryFilter(firstCategory);
+
+        // If it's a medication category, switch to medications tab
+        if (firstCategory.startsWith('medication_')) {
+          setActiveTab('medications');
+        }
+      }
+    }
+  }, []);
+
   const memberMap = useMemo(() => {
     const map: Record<number, FamilyMember> = {};
     familyMembers.forEach((m) => { map[m.id] = m; });
@@ -1061,7 +1108,7 @@ function RecordDetailSheet({ record, memberMap, onDownload, onAction }: { record
 
   return (
     <div className="flex flex-col h-full">
-      <SheetHeader className="pb-6">
+      <SheetHeader>
         <div className="flex items-center gap-3 mb-1">
           <CategoryIcon category={record.category} />
           <div>

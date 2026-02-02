@@ -176,6 +176,20 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
     }
   }, [appointments]);
 
+  // Read member filter from URL parameter
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const memberId = params.get('member');
+
+    if (memberId) {
+      // Verify the member ID exists in familyMembers
+      const memberExists = familyMembers.some(m => String(m.id) === memberId);
+      if (memberExists) {
+        setMemberFilter(memberId);
+      }
+    }
+  }, []);
+
   const categorized = useMemo(() => {
     const upcoming = appointments.filter((a) => a.is_upcoming);
     const past = appointments.filter((a) => !a.is_upcoming && a.status !== 'cancelled');
