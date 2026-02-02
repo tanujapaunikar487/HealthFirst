@@ -419,6 +419,87 @@ The `HospitalSeeder` provides realistic Indian healthcare data:
 
 ---
 
+## Enhanced Family Member/Guest Management System (February 2, 2026)
+
+Implemented comprehensive guest and family member addition flow with phone/email OTP verification, matching functional specification requirements.
+
+### Phase 1: Guest Required Fields ✅
+**Problem**: Guests only required name (spec requires Phone + Age + Gender)
+
+**Solution**:
+- Updated guest form with 4 required fields: Name, Phone, Age (0-120 dropdown), Gender
+- Added phone validation regex: `^\+91)?[6-9]\d{9}$` (Indian format)
+- Backend validation enforces all fields as required
+- UI shows "basic info required" instead of "name only"
+
+**Files Modified**: 3
+- `EmbeddedFamilyMemberFlow.tsx` - Guest step with phone/age/gender inputs
+- `IntelligentBookingOrchestrator.php` - Extract and save all guest fields
+- `FamilyMembersController.php` - Required validation rules
+
+### Phase 2: Email OTP Fallback ✅
+**Problem**: Phone-only OTP (no fallback for unavailable/failed phone verification)
+
+**Solution**:
+- Email infrastructure: Mailable class + professional HTML template
+- Dual-method OTP system: phone (SMS mock) + email (Laravel Mail)
+- UI: "Try Email Instead →" link in wizard, email input field
+- Backend: Updated all OTP endpoints to accept `contact_type` + `contact_value`
+- Unified token verification supporting both phone and email
+
+**Files Created**: 3
+- `app/Mail/OtpMail.php` - Mailable class
+- `resources/views/emails/otp.blade.php` - Professional HTML template
+- `database/migrations/2026_02_02_162053_add_email_to_family_members.php` - Email columns
+
+**Files Modified**: 4
+- `OtpService.php` - 4 new methods (generateForEmail, sendEmail, verifyEmail, generateVerificationTokenForEmail)
+- `FamilyMembersController.php` - Updated sendOtp, verifyOtp, linkMember endpoints
+- `FamilyMember.php` - Added email, verified_email to fillable
+- `EmbeddedFamilyMemberFlow.tsx` - Email input mode with toggle
+
+**Email Template Features**:
+- Large centered OTP code (32px, blue background)
+- 5-minute expiry warning (amber banner)
+- Responsive design with brand styling
+- Auto-detected in OtpService with try/catch error handling
+
+### Phase 3: Family Members Page Integration ✅
+**Problem**: Family Members page used simple 5-field form (not the new wizard flow)
+
+**Solution**:
+- Added `mode` prop to wizard: `'embedded'` (booking flow) vs `'standalone'` (page)
+- Standalone mode behavior:
+  - Guest creation: Direct `router.post` to `/family-members`
+  - Family member linking: Page reload after OTP verification
+  - Closes sheet on success instead of callback
+- Replaced entire Sheet form content with wizard component
+
+**Files Modified**: 2
+- `EmbeddedFamilyMemberFlow.tsx` - Mode prop, conditional routing logic
+- `FamilyMembers/Index.tsx` - Removed old form, replaced with wizard
+
+**Removed Code**:
+- Form state management (formData, formErrors, submitting, editingMember)
+- Unused constants (relationOptions, genderOptions, bloodGroupOptions)
+- 30+ lines of form validation and submission logic
+
+### Remaining Phases (Pending)
+
+**Phase 4: Guest Upgrade Path**
+- "Upgrade to Family Member" button on guest detail page
+- Wizard to collect missing profile fields (DOB, address, medical conditions)
+- Phone/email OTP verification required
+- Sets `is_guest = false` on success
+
+**Phase 5: Enhanced Features**
+- Per-session OTP attempt tracking (max 3, then 15-min lockout)
+- Enhanced delete confirmation with data loss warning
+- Email field collection for all family members (not just guests)
+- Improved UI labels ("New Dependent" vs "Existing Patient")
+
+---
+
 ## Maintenance (February 2, 2026)
 
 ### Documentation Cleanup
