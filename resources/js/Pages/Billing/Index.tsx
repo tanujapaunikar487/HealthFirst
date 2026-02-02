@@ -419,28 +419,26 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
   const showToast = (msg: string) => setToastMessage(msg);
 
   const handleDownloadInvoice = (bill: Bill) => {
-    const lines = [
-      `INVOICE: ${bill.invoice_number}`,
-      `Date: ${bill.date_formatted}`,
-      `─────────────────────────────`,
-      `Appointment: ${bill.appointment_title}`,
-      `Patient: ${bill.patient_name}`,
-      `─────────────────────────────`,
-      `Amount: ₹${bill.original_amount}`,
-      `Due: ₹${bill.due_amount}`,
-      `Total: ₹${bill.total}`,
-      `─────────────────────────────`,
-      `Payment: ${bill.payment_method}`,
-      `Status: ${STATUS_CONFIG[bill.billing_status]?.label ?? bill.billing_status}`,
-      `Paid on: ${bill.payment_date}`,
-    ];
-    const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${bill.invoice_number}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const statusLabel = STATUS_CONFIG[bill.billing_status]?.label ?? bill.billing_status;
+    downloadAsHtml(`invoice-${bill.invoice_number}.pdf`, `
+      <h1>Invoice</h1>
+      <p class="subtitle">${bill.invoice_number} &middot; ${bill.date_formatted}</p>
+      <div class="section">
+        <h3>From</h3>
+        <p>HealthFirst Hospital<br/>123 Hospital Road, Pune 411001<br/>GSTIN: 27AABCH1234P1ZP</p>
+      </div>
+      <h2>Details</h2>
+      <div class="row"><span class="row-label">Appointment</span><span class="row-value">${bill.appointment_title}</span></div>
+      <div class="row"><span class="row-label">Patient</span><span class="row-value">${bill.patient_name}</span></div>
+      <h2>Charges</h2>
+      <div class="row"><span class="row-label">Amount</span><span class="row-value">₹${bill.original_amount.toLocaleString()}</span></div>
+      ${bill.due_amount !== bill.original_amount ? `<div class="row"><span class="row-label">Due</span><span class="row-value">₹${bill.due_amount.toLocaleString()}</span></div>` : ''}
+      <div class="total-row row"><span class="row-label" style="font-weight:600">Total</span><span class="row-value" style="font-weight:700;font-size:15px">₹${bill.total.toLocaleString()}</span></div>
+      <h2>Payment</h2>
+      <div class="row"><span class="row-label">Method</span><span class="row-value">${bill.payment_method}</span></div>
+      <div class="row"><span class="row-label">Status</span><span class="row-value">${statusLabel}</span></div>
+      ${bill.payment_date ? `<div class="row"><span class="row-label">Date</span><span class="row-value">${bill.payment_date}</span></div>` : ''}
+    `);
   };
 
   const handleTabChange = (value: string) => {

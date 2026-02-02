@@ -236,22 +236,23 @@ export default function Show({ user, appointment }: Props) {
 
   const handleDownloadInvoice = () => {
     const b = appointment.billing;
-    const lines = [
-      `INVOICE — ${b.invoice_number}`,
-      `Date: ${b.payment_date}`,
-      '',
-      ...b.line_items.map((i) => `${i.label}: ₹${Math.abs(i.amount)}`),
-      '',
-      `Total: ₹${b.total}`,
-      `Payment: ${b.payment_method}`,
-      `Status: ${b.payment_status}`,
-    ];
-    const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `${b.invoice_number}.txt`;
-    a.click();
-    URL.revokeObjectURL(a.href);
+    const itemRows = b.line_items.map((i) =>
+      `<div class="row"><span class="row-label">${i.label}</span><span class="row-value">₹${Math.abs(i.amount).toLocaleString()}</span></div>`
+    ).join('');
+    downloadAsHtml(`invoice-${b.invoice_number}.pdf`, `
+      <h1>Invoice</h1>
+      <p class="subtitle">${b.invoice_number} &middot; ${b.payment_date}</p>
+      <div class="section">
+        <h3>From</h3>
+        <p>HealthFirst Hospital<br/>123 Hospital Road, Pune 411001<br/>GSTIN: 27AABCH1234P1ZP</p>
+      </div>
+      <h2>Charges</h2>
+      ${itemRows}
+      <div class="total-row row"><span class="row-label" style="font-weight:600">Total</span><span class="row-value" style="font-weight:700;font-size:15px">₹${b.total.toLocaleString()}</span></div>
+      <h2>Payment</h2>
+      <div class="row"><span class="row-label">Method</span><span class="row-value">${b.payment_method}</span></div>
+      <div class="row"><span class="row-label">Status</span><span class="row-value">${b.payment_status}</span></div>
+    `);
   };
 
   return (

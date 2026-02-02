@@ -307,54 +307,42 @@ export default function Show({ user, bill }: Props) {
   const statusCfg = STATUS_CONFIG[bill.billing_status];
 
   const handleDownloadInvoice = () => {
-    const lines = [
-      'INVOICE',
-      '──────────────────────────────────',
-      `Invoice No:    ${bill.invoice_number}`,
-      `Invoice Date:  ${bill.invoice_date}`,
-      `Reference:     ${bill.reference_number}`,
-      '',
-      'FROM',
-      '  HealthFirst Hospital',
-      '  123 Hospital Road, Pune 411001',
-      '  GSTIN: 27AABCH1234P1ZP',
-      '',
-      'TO',
-      `  ${bill.patient_name}`,
-      '',
-      'SERVICE',
-      `  ${bill.appointment_title}`,
-      `  ${bill.appointment_date} at ${bill.appointment_time}`,
-      `  Mode: ${bill.appointment_mode}`,
-      '',
-      '──────────────────────────────────',
-      'CHARGES',
-      `${'Item'.padEnd(25)} ${'Qty'.padStart(4)} ${'Unit'.padStart(8)} ${'Total'.padStart(8)}`,
-      '──────────────────────────────────',
-      ...bill.line_items.map(
-        (item) => `${item.label.padEnd(25)} ${String(item.qty).padStart(4)} ${('₹' + item.unit_price).padStart(8)} ${('₹' + item.total).padStart(8)}`
-      ),
-      '──────────────────────────────────',
-      `${'Subtotal'.padEnd(39)} ₹${bill.subtotal}`,
-      ...(bill.discount > 0 ? [`${'Discount'.padEnd(39)} -₹${bill.discount}`] : []),
-      ...(bill.tax > 0 ? [`${'Tax'.padEnd(39)} ₹${bill.tax}`] : []),
-      ...(bill.insurance_deduction > 0 ? [`${'Insurance Coverage'.padEnd(39)} -₹${bill.insurance_deduction}`] : []),
-      '──────────────────────────────────',
-      `${'TOTAL'.padEnd(39)} ₹${bill.total}`,
-      '──────────────────────────────────',
-      '',
-      'PAYMENT',
-      `  Status:  ${statusCfg.label}`,
-      `  Method:  ${bill.payment_method}`,
-      `  Date:    ${bill.payment_date}`,
-    ];
-    const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${bill.invoice_number}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const itemRows = bill.line_items.map(i =>
+      `<tr><td>${i.label}</td><td style="text-align:center">${i.qty}</td><td style="text-align:right">₹${i.unit_price.toLocaleString()}</td><td style="text-align:right">₹${i.total.toLocaleString()}</td></tr>`
+    ).join('');
+    const summaryRows = [
+      `<div class="row"><span class="row-label">Subtotal</span><span class="row-value">₹${bill.subtotal.toLocaleString()}</span></div>`,
+      ...(bill.discount > 0 ? [`<div class="row"><span class="row-label">Discount</span><span class="row-value" style="color:#059669">-₹${bill.discount.toLocaleString()}</span></div>`] : []),
+      ...(bill.tax > 0 ? [`<div class="row"><span class="row-label">Tax</span><span class="row-value">₹${bill.tax.toLocaleString()}</span></div>`] : []),
+      ...(bill.insurance_deduction > 0 ? [`<div class="row"><span class="row-label">Insurance Coverage</span><span class="row-value" style="color:#059669">-₹${bill.insurance_deduction.toLocaleString()}</span></div>`] : []),
+    ].join('');
+
+    downloadAsHtml(`invoice-${bill.invoice_number}.pdf`, `
+      <h1>Invoice</h1>
+      <p class="subtitle">${bill.invoice_number} &middot; ${bill.invoice_date}</p>
+      <div class="section">
+        <h3>From</h3>
+        <p>HealthFirst Hospital<br/>123 Hospital Road, Pune 411001<br/>GSTIN: 27AABCH1234P1ZP</p>
+      </div>
+      <div class="section">
+        <h3>To</h3>
+        <p>${bill.patient_name}</p>
+      </div>
+      <h2>Service</h2>
+      <div class="row"><span class="row-label">Description</span><span class="row-value">${bill.appointment_title}</span></div>
+      <div class="row"><span class="row-label">Date</span><span class="row-value">${bill.appointment_date} at ${bill.appointment_time}</span></div>
+      <div class="row"><span class="row-label">Mode</span><span class="row-value">${bill.appointment_mode}</span></div>
+      ${bill.doctor_name ? `<div class="row"><span class="row-label">Doctor</span><span class="row-value">${bill.doctor_name}</span></div>` : ''}
+      <h2>Charges</h2>
+      <table><thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Unit Price</th><th style="text-align:right">Total</th></tr></thead><tbody>${itemRows}</tbody></table>
+      ${summaryRows}
+      <div class="total-row row"><span class="row-label" style="font-weight:600">${isPayable ? 'Amount Due' : 'Total'}</span><span class="row-value" style="font-weight:700;font-size:15px">₹${bill.total.toLocaleString()}</span></div>
+      <h2>Payment</h2>
+      <div class="row"><span class="row-label">Status</span><span class="row-value">${statusCfg.label}</span></div>
+      <div class="row"><span class="row-label">Method</span><span class="row-value">${bill.payment_method}</span></div>
+      <div class="row"><span class="row-label">Date</span><span class="row-value">${bill.payment_date}</span></div>
+      <div class="row"><span class="row-label">Reference</span><span class="row-value">${bill.reference_number}</span></div>
+    `);
   };
 
   const showToast = (msg: string) => {

@@ -70,11 +70,6 @@ export function downloadAsHtml(filename: string, htmlContent: string): void {
   downloadAsPdf(title, htmlContent);
 }
 
-/** Download a plain text string as a .txt file */
-export function downloadAsText(filename: string, textContent: string): void {
-  downloadBlob(filename, textContent, 'text/plain');
-}
-
 function buildStyledHtml(title: string, htmlContent: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -116,15 +111,6 @@ ${htmlContent}
 <div class="footer">Generated on ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })} &middot; HealthCare Platform</div>
 </body>
 </html>`;
-}
-
-function downloadBlob(filename: string, content: string, mimeType: string): void {
-  const blob = new Blob([content], { type: mimeType });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(a.href);
 }
 
 function escapeHtml(text: string): string {
