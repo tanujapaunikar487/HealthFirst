@@ -9,7 +9,8 @@ import {
   Search, X, Loader2, AlertTriangle,
   Stethoscope, FileText, Receipt, FlaskConical,
   Clock, ArrowRight, Calendar, ClipboardList, CreditCard,
-} from 'lucide-react';
+} from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 // --- Types ---
 
@@ -273,7 +274,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
 
         {/* Search Input */}
         <div className="flex items-center gap-3 px-4" style={{ borderBottom: '1px solid #E5E5E5', height: '56px' }}>
-          <Search className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+          <Icon icon={Search} className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
           <input
             ref={inputRef}
             type="text"
@@ -283,10 +284,10 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             autoComplete="off"
           />
-          {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground flex-shrink-0" />}
+          {loading && <Icon icon={Loader2} className="h-4 w-4 animate-spin text-muted-foreground flex-shrink-0" />}
           {query && !loading && (
             <button onClick={() => setQuery('')} className="flex-shrink-0 text-muted-foreground hover:text-foreground">
-              <X className="h-4 w-4" />
+              <Icon icon={X} className="h-4 w-4" />
             </button>
           )}
           <kbd className="hidden sm:inline-flex h-6 items-center rounded border px-1.5 text-[10px] font-medium text-muted-foreground">
@@ -341,7 +342,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                         onClick={() => setQuery(s)}
                         className="flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-sm hover:bg-muted text-left"
                       >
-                        <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                        <Icon icon={Clock} className="h-3.5 w-3.5 text-muted-foreground" />
                         <span>{s}</span>
                       </button>
                     ))}
@@ -362,7 +363,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                       }}
                       className="flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-sm hover:bg-muted text-left"
                     >
-                      <link.icon className="h-3.5 w-3.5 text-muted-foreground" />
+                      <Icon icon={link.icon} className="h-3.5 w-3.5 text-muted-foreground" />
                       <span>{link.label}</span>
                     </button>
                   ))}
@@ -374,7 +375,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
           {/* Error State */}
           {error && !loading && (
             <div className="text-center py-10 px-4">
-              <AlertTriangle className="h-8 w-8 text-amber-500 mx-auto mb-3" />
+              <Icon icon={AlertTriangle} className="h-8 w-8 text-amber-500 mx-auto mb-3" />
               <p className="text-sm font-medium" style={{ color: '#00184D' }}>
                 {error}
               </p>
@@ -391,7 +392,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
           {/* No Results */}
           {noResults && (
             <div className="text-center py-12 px-4">
-              <Search className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+              <Icon icon={Search} className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
               <p className="text-sm font-medium" style={{ color: '#00184D' }}>
                 No results for "{query}"
               </p>
@@ -421,7 +422,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                         onClick={() => navigateToResult('doctor', doctor)}
                       >
                         <ResultIcon color="#1E40AF" bg="#BFDBFE">
-                          <Stethoscope className="h-4 w-4" />
+                          <Icon icon={Stethoscope} className="h-4 w-4" />
                         </ResultIcon>
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium truncate" style={{ color: '#00184D' }}>{doctor.name}</p>
@@ -445,7 +446,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                 >
                   {results.appointments.map((appt) => {
                     const idx = flat.findIndex((f) => f.type === 'appointment' && f.item.id === appt.id);
-                    const Icon = appt.type === 'lab_test' ? FlaskConical : Stethoscope;
+                    const apptIcon = appt.type === 'lab_test' ? FlaskConical : Stethoscope;
                     return (
                       <ResultItem
                         key={`a-${appt.id}`}
@@ -453,7 +454,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                         onClick={() => navigateToResult('appointment', appt)}
                       >
                         <ResultIcon color="#1E40AF" bg="#BFDBFE">
-                          <Icon className="h-4 w-4" />
+                          <Icon icon={apptIcon} className="h-4 w-4" />
                         </ResultIcon>
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium truncate" style={{ color: '#00184D' }}>{appt.title}</p>
@@ -484,7 +485,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                         onClick={() => navigateToResult('health_record', record)}
                       >
                         <ResultIcon color="#1E40AF" bg="#BFDBFE">
-                          <FileText className="h-4 w-4" />
+                          <Icon icon={FileText} className="h-4 w-4" />
                         </ResultIcon>
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium truncate" style={{ color: '#00184D' }}>{record.title}</p>
@@ -515,7 +516,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                         onClick={() => navigateToResult('bill', bill)}
                       >
                         <ResultIcon color="#1E40AF" bg="#BFDBFE">
-                          <Receipt className="h-4 w-4" />
+                          <Icon icon={Receipt} className="h-4 w-4" />
                         </ResultIcon>
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium truncate" style={{ color: '#00184D' }}>
@@ -566,7 +567,7 @@ function ResultSection({
           style={{ color: '#1E40AF' }}
         >
           <span>View all {total} results</span>
-          <ArrowRight className="h-3 w-3" />
+          <Icon icon={ArrowRight} className="h-3 w-3" />
         </button>
       )}
     </div>

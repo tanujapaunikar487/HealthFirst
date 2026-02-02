@@ -1,4 +1,5 @@
-import { Info } from 'lucide-react';
+import { Info } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 import { cn } from '@/Lib/utils';
 
 interface FollowUpBannerProps {

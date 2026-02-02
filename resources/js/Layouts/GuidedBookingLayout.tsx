@@ -1,8 +1,9 @@
 import { PropsWithChildren } from 'react';
-import { Link } from '@inertiajs/react';
-import { Sparkles, BarChart3 } from 'lucide-react';
+import { Link, router } from '@inertiajs/react';
+import { Sparkles, BarChart3, X } from '@/Lib/icons';
 import { Button } from '@/Components/ui/button';
 import { StepIndicator } from '@/Components/Booking/StepIndicator';
+import { Icon } from '@/Components/ui/icon';
 import { cn } from '@/Lib/utils';
 
 interface Step {
@@ -49,7 +50,8 @@ export function GuidedBookingLayout({
             <StepIndicator steps={steps} currentStepId={currentStepId} className="!px-0 !py-0" />
           </div>
 
-          <div className="flex items-center gap-1 border rounded-full p-1 bg-gray-50 flex-shrink-0">
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="flex items-center gap-1 border rounded-full p-1 bg-gray-50">
             <Link
               href="/booking?mode=ai"
               className="p-1.5 rounded-full hover:bg-gray-100 transition-all"
@@ -66,6 +68,16 @@ export function GuidedBookingLayout({
                 alt=""
                 className="w-4 h-4"
               />
+            </div>
+
+            {/* Cancel button */}
+            <button
+              onClick={() => router.visit('/')}
+              className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition-colors"
+              title="Cancel booking"
+            >
+              <Icon icon={X} className="w-4 h-4 text-gray-600" />
+            </button>
             </div>
           </div>
         </div>
@@ -87,7 +99,7 @@ export function GuidedBookingLayout({
           <Button
             variant="outline"
             onClick={onBack}
-            className="rounded-full px-6"
+            className="px-6"
             disabled={isProcessing}
           >
             Back
@@ -96,7 +108,7 @@ export function GuidedBookingLayout({
           <Button
             onClick={onContinue}
             disabled={continueDisabled || isProcessing}
-            className="rounded-full min-w-[120px] text-white"
+            className="min-w-[120px] text-white"
           >
             {isProcessing ? 'Processing...' : priceEstimate ? `Pay ${priceEstimate.replace(/Total:|Est:/g, '').trim()}` : continueLabel}
           </Button>

@@ -1,5 +1,6 @@
 import { cn } from '@/Lib/utils';
-import { Home, MapPin, Plus, Check } from 'lucide-react';
+import { Home, MapPin, Plus, Check } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 interface Address {
   id: number;

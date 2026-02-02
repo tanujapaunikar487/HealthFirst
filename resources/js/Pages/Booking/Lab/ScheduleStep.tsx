@@ -8,7 +8,8 @@ import { EmbeddedAddressForm } from '@/Features/booking-chat/embedded/EmbeddedAd
 import { EmbeddedCenterList } from '@/Features/booking-chat/embedded/EmbeddedCenterList';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
-import { Home, Building2, Check } from 'lucide-react';
+import { Home, Building2, Check } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 const labSteps = [
   { id: 'patient', label: 'Patient' },
@@ -332,9 +333,9 @@ export default function ScheduleStep({
                       )}
                     >
                       {loc.type === 'home' ? (
-                        <Home className={cn('h-5 w-5', isSelected && 'text-primary')} />
+                        <Icon icon={Home} className={cn('h-5 w-5', isSelected && 'text-primary')} />
                       ) : (
-                        <Building2 className={cn('h-5 w-5', isSelected && 'text-primary')} />
+                        <Icon icon={Building2} className={cn('h-5 w-5', isSelected && 'text-primary')} />
                       )}
                     </div>
                     <div className="flex-1">
@@ -347,7 +348,7 @@ export default function ScheduleStep({
                       )}
                     </div>
                     {isSelected && (
-                      <Check className="h-5 w-5 text-primary flex-shrink-0 mt-1" />
+                      <Icon icon={Check} className="h-5 w-5 text-primary flex-shrink-0 mt-1" />
                     )}
                   </button>
                 );

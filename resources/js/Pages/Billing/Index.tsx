@@ -54,7 +54,7 @@ import {
   X,
   Loader2,
   CheckCircle2,
-} from 'lucide-react';
+} from '@/Lib/icons';
 
 declare global {
   interface Window {
@@ -506,8 +506,6 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
             </div>
             <Button
               size="sm"
-              className="rounded-full text-xs gap-1.5"
-              style={{ backgroundColor: '#0052FF' }}
               onClick={() => {
                 const outstandingPayable = bills.filter(
                   (b) => OUTSTANDING_STATUSES.includes(b.billing_status) && PAYABLE_STATUSES.includes(b.billing_status)
@@ -594,8 +592,6 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
             </div>
             <Button
               size="sm"
-              className="rounded-full text-xs gap-1.5"
-              style={{ backgroundColor: '#0052FF' }}
               onClick={() => setPayBills(selectedBills)}
             >
               <CreditCard className="h-3.5 w-3.5" />
@@ -618,10 +614,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
             </p>
             {bills.length === 0 && (
               <Link href="/booking">
-                <Button
-                  className="rounded-full text-sm"
-                  style={{ backgroundColor: '#0052FF' }}
-                >
+                <Button size="lg">
                   Book Appointment
                 </Button>
               </Link>
@@ -629,7 +622,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
           </div>
         ) : (
           <>
-            <div className="rounded-lg border">
+            <div className="border" style={{ borderRadius: '20px' }}>
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
@@ -695,13 +688,13 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                         <TableCell className="align-top">
                           <div className="flex items-center gap-2.5">
                             <div
-                              className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0"
+                              className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0"
                               style={{ backgroundColor: '#BFDBFE' }}
                             >
                               {bill.appointment_type === 'doctor' ? (
-                                <Stethoscope className="h-3.5 w-3.5" style={{ color: '#1E40AF' }} />
+                                <Stethoscope className="h-5 w-5" style={{ color: '#1E40AF' }} />
                               ) : (
-                                <TestTube2 className="h-3.5 w-3.5" style={{ color: '#1E40AF' }} />
+                                <TestTube2 className="h-5 w-5" style={{ color: '#1E40AF' }} />
                               )}
                             </div>
                             <div>
@@ -842,47 +835,49 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                   })}
                 </TableBody>
               </Table>
-            </div>
 
-            {/* Pagination */}
-            {filtered.length > ITEMS_PER_PAGE && (
-              <div className="flex items-center justify-between mt-4">
-                <p className="text-xs text-muted-foreground">
-                  Showing {showingFrom}–{showingTo} of {filtered.length} bills
-                </p>
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8"
-                    disabled={currentPage <= 1}
-                    onClick={() => setPage(currentPage - 1)}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              {/* Pagination */}
+              {filtered.length > 0 && (
+                <div className="flex items-center justify-between px-4 py-4 border-t border-[#E5E5E5]">
+                  <p className="text-xs text-muted-foreground">
+                    Showing {showingFrom}–{showingTo} of {filtered.length} bills
+                  </p>
+                  {filtered.length > ITEMS_PER_PAGE && (
+                    <div className="flex items-center gap-1">
                     <Button
-                      key={p}
-                      variant={p === currentPage ? 'default' : 'outline'}
+                      variant="outline"
                       size="icon"
-                      className={cn('h-8 w-8 text-xs', p === currentPage && 'pointer-events-none')}
-                      onClick={() => setPage(p)}
+                      className="h-8 w-8"
+                      disabled={currentPage <= 1}
+                      onClick={() => setPage(currentPage - 1)}
                     >
-                      {p}
+                      <ChevronLeft className="h-4 w-4" />
                     </Button>
-                  ))}
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8"
-                    disabled={currentPage >= totalPages}
-                    onClick={() => setPage(currentPage + 1)}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                      <Button
+                        key={p}
+                        variant={p === currentPage ? 'default' : 'outline'}
+                        size="icon"
+                        className={cn('h-8 w-8 text-xs', p === currentPage && 'pointer-events-none')}
+                        onClick={() => setPage(p)}
+                      >
+                        {p}
+                      </Button>
+                    ))}
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      disabled={currentPage >= totalPages}
+                      onClick={() => setPage(currentPage + 1)}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  )}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </>
         )}
 
@@ -927,8 +922,8 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                 {activePayBills.length} {activePayBills.length === 1 ? 'bill' : 'bills'} paid — ₹{activePayTotal.toLocaleString()}
               </p>
               <Button
-                className="w-full rounded-full gap-2 mt-8"
-                style={{ backgroundColor: '#0052FF' }}
+                className="w-full mt-8"
+                size="lg"
                 onClick={handlePaymentDone}
               >
                 Done
@@ -973,13 +968,13 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                       {/* Service */}
                       <div className="flex items-center gap-2.5">
                         <div
-                          className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0"
+                          className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0"
                           style={{ backgroundColor: '#BFDBFE' }}
                         >
                           {bill.appointment_type === 'doctor' ? (
-                            <Stethoscope className="h-3.5 w-3.5" style={{ color: '#1E40AF' }} />
+                            <Stethoscope className="h-5 w-5" style={{ color: '#1E40AF' }} />
                           ) : (
-                            <TestTube2 className="h-3.5 w-3.5" style={{ color: '#1E40AF' }} />
+                            <TestTube2 className="h-5 w-5" style={{ color: '#1E40AF' }} />
                           )}
                         </div>
                         <p className="text-sm">{bill.appointment_title}</p>
@@ -1032,8 +1027,8 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                   </span>
                 </div>
                 <Button
-                  className="w-full rounded-full gap-2"
-                  style={{ backgroundColor: '#0052FF' }}
+                  className="w-full"
+                  size="lg"
                   disabled={activePayBills.length === 0 || paymentState === 'processing'}
                   onClick={handlePayment}
                 >

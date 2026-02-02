@@ -1,5 +1,6 @@
 import { cn } from '@/Lib/utils';
-import { Video, User } from 'lucide-react';
+import { Video, User } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 interface Mode {
   type: 'video' | 'in_person';
@@ -29,7 +30,7 @@ export function AppointmentModeSelector({
   return (
     <div className={cn('border rounded-xl overflow-hidden divide-y', className)}>
       {modes.map((mode) => {
-        const Icon = modeIcons[mode.type];
+        const modeIcon = modeIcons[mode.type];
         const isSelected = selectedMode === mode.type;
 
         return (
@@ -49,7 +50,7 @@ export function AppointmentModeSelector({
                 isSelected ? 'bg-primary/10' : 'bg-muted'
               )}
             >
-              <Icon className={cn('h-5 w-5', isSelected ? 'text-primary' : 'text-foreground')} />
+              <Icon icon={modeIcon} className={cn('h-5 w-5', isSelected ? 'text-primary' : 'text-foreground')} />
             </div>
 
             {/* Text */}

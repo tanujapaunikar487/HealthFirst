@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 import { cn } from '@/Lib/utils';
 
 const labSteps = [
@@ -82,7 +83,7 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
 
           <button className="mt-3 inline-flex items-center gap-1 text-sm text-foreground hover:text-primary transition-colors">
             Add family member or guest
-            <ArrowRight className="h-4 w-4" />
+            <Icon icon={ArrowRight} className="h-4 w-4" />
           </button>
 
           {errors.patient && <p className="text-sm text-destructive mt-2">{errors.patient}</p>}

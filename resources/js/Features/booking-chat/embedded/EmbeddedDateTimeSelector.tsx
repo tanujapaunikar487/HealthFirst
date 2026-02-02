@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { cn } from '@/Lib/utils';
-import { Star } from 'lucide-react';
+import { Star } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 interface DateOption {
   date?: string;

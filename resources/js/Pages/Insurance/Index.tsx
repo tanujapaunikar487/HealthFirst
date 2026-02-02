@@ -56,7 +56,7 @@ import {
   LoaderCircle,
   CheckCircle2,
   XCircle,
-} from 'lucide-react';
+} from '@/Lib/icons';
 
 interface Policy {
   id: number;
@@ -581,14 +581,24 @@ export default function InsuranceIndex({
       <div className="mx-auto max-w-[960px] px-6 py-8">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Insurance</h1>
+          <h1
+            className="font-bold"
+            style={{
+              fontSize: '36px',
+              lineHeight: '44px',
+              letterSpacing: '-1px',
+              color: '#171717',
+            }}
+          >
+            Insurance
+          </h1>
           {hasPolicies && (
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm" onClick={openAddPolicy}>
-                <Plus className="mr-1.5 h-4 w-4" />
+              <Button variant="outline" size="lg" onClick={openAddPolicy}>
+                <Plus className="h-4 w-4" />
                 Add Policy
               </Button>
-              <Button size="sm" onClick={() => showToastMessage('Use for Admission coming soon')}>
+              <Button size="lg" onClick={() => showToastMessage('Use for Admission coming soon')}>
                 Use for Admission
               </Button>
             </div>
@@ -608,7 +618,7 @@ export default function InsuranceIndex({
             <p className="mb-6 max-w-sm text-center text-sm text-gray-500">
               Add your insurance policy to use cashless benefits during admission at this hospital.
             </p>
-            <Button onClick={openAddPolicy}>Add your first policy</Button>
+            <Button size="lg" onClick={openAddPolicy}>Add your first policy</Button>
           </div>
         ) : (
           <>
@@ -732,7 +742,7 @@ export default function InsuranceIndex({
                   <p className="text-sm text-gray-500">No claims found</p>
                 </div>
               ) : (
-                <div className="rounded-lg border">
+                <div className="border" style={{ borderRadius: '20px' }}>
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -770,7 +780,7 @@ export default function InsuranceIndex({
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <div
-                                className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-semibold"
+                                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold"
                                 style={{
                                   backgroundColor: getAvatarColor(claim.patient_name).bg,
                                   color: getAvatarColor(claim.patient_name).text,
@@ -833,25 +843,25 @@ export default function InsuranceIndex({
                       ))}
                     </TableBody>
                   </Table>
-                </div>
-              )}
 
-              {/* Table Footer */}
-              {claims.length > 0 && (
-                <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
-                  <span>
-                    Showing {filteredClaims.length} of {claims.length}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    Need help with billing?{' '}
-                    <button
-                      className="inline-flex items-center gap-0.5 font-medium text-blue-600 hover:underline"
-                      onClick={() => showToastMessage('Contact support coming soon')}
-                    >
-                      Contact support
-                      <ArrowRight className="h-3 w-3" />
-                    </button>
-                  </span>
+                  {/* Table Footer */}
+                  {claims.length > 0 && (
+                    <div className="flex items-center justify-between px-4 py-4 border-t border-[#E5E5E5] text-xs text-gray-500">
+                      <span>
+                        Showing {filteredClaims.length} of {claims.length}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        Need help with billing?{' '}
+                        <button
+                          className="inline-flex items-center gap-0.5 font-medium text-blue-600 hover:underline"
+                          onClick={() => showToastMessage('Contact support coming soon')}
+                        >
+                          Contact support
+                          <ArrowRight className="h-3 w-3" />
+                        </button>
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

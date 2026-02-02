@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { User, Users, ChevronLeft, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { User, Users, ChevronLeft, Loader2, CheckCircle2, AlertCircle } from '@/Lib/icons';
 import { router } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
-import { Label } from '@/Components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { RelationshipSelector } from '@/Components/RelationshipSelector';
 import { OtpInput } from '@/Components/OtpInput';
@@ -12,8 +11,9 @@ import { cn } from '@/Lib/utils';
 
 type Step =
     | 'choice'
-    | 'guest_name'
+    | 'guest_form'
     | 'relationship'
+    | 'new_member_form'
     | 'lookup_method'
     | 'search'
     | 'otp'
@@ -31,12 +31,27 @@ interface MemberData {
 
 interface FlowState {
     step: Step;
-    memberType: 'guest' | 'family' | null;
+    flowType: 'guest' | 'add_new_family' | 'link_existing' | null;
+
+    // Guest fields
     guestName: string;
     guestPhone: string;
     guestAge: string;
     guestGender: string;
+
+    // Family member common
     relation: string;
+
+    // New member fields (no existing record)
+    newMemberName: string;
+    newMemberPhone: string;
+    newMemberAge: string;
+    newMemberGender: string;
+    newMemberEmail: string;
+    newMemberDOB: string;
+    newMemberBloodGroup: string;
+
+    // Search/link fields
     lookupMethod: 'phone' | 'patient_id' | null;
     searchValue: string;
     email: string;
@@ -44,8 +59,12 @@ interface FlowState {
     contactType: 'phone' | 'email';
     foundMember: MemberData | null;
     alreadyLinked: boolean;
+
+    // OTP fields
     otpValue: string;
     verificationToken: string;
+
+    // UI state
     error: string;
     loading: boolean;
     attemptsRemaining: number | null;
@@ -69,12 +88,27 @@ interface Props {
 export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete, onCancel }: Props) {
     const [state, setState] = useState<FlowState>({
         step: 'choice',
-        memberType: null,
+        flowType: null,
+
+        // Guest fields
         guestName: '',
         guestPhone: '',
         guestAge: '',
         guestGender: '',
+
+        // Family member common
         relation: '',
+
+        // New member fields
+        newMemberName: '',
+        newMemberPhone: '',
+        newMemberAge: '',
+        newMemberGender: '',
+        newMemberEmail: '',
+        newMemberDOB: '',
+        newMemberBloodGroup: '',
+
+        // Search/link fields
         lookupMethod: null,
         searchValue: '',
         email: '',
@@ -82,8 +116,12 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         contactType: 'phone',
         foundMember: null,
         alreadyLinked: false,
+
+        // OTP fields
         otpValue: '',
         verificationToken: '',
+
+        // UI state
         error: '',
         loading: false,
         attemptsRemaining: null,
@@ -102,10 +140,15 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         setState((prev) => ({ ...prev, loading }));
     };
 
-    // Step 1: Choice between Guest or Family Member
-    const handleChoice = (type: 'guest' | 'family') => {
-        setState((prev) => ({ ...prev, memberType: type }));
-        setStep(type === 'guest' ? 'guest_name' : 'relationship');
+    // Step 1: Initial Choice (3 options)
+    const handleInitialChoice = (choice: 'guest' | 'add_new_family' | 'link_existing') => {
+        setState((prev) => ({ ...prev, flowType: choice }));
+        if (choice === 'guest') {
+            setStep('guest_form');
+        } else {
+            // Both add_new_family and link_existing need relationship selection
+            setStep('relationship');
+        }
     };
 
     // Step 2: Guest Information Input
@@ -170,7 +213,80 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             setError('Please select a relationship');
             return;
         }
-        setStep('lookup_method');
+        // Check flowType to determine next step
+        if (state.flowType === 'add_new_family') {
+            setStep('new_member_form');
+        } else if (state.flowType === 'link_existing') {
+            setStep('lookup_method');
+        }
+    };
+
+    // Step 4: New Member Form Submission
+    const handleNewMemberSubmit = async () => {
+        // Validation
+        if (!state.newMemberName.trim()) {
+            setError('Please enter a name');
+            return;
+        }
+        if (!state.newMemberPhone.trim()) {
+            setError('Please enter a phone number');
+            return;
+        }
+        if (!state.newMemberAge) {
+            setError('Please select age');
+            return;
+        }
+        if (!state.newMemberGender) {
+            setError('Please select gender');
+            return;
+        }
+
+        setLoading(true);
+        setError('');
+
+        try {
+            const response = await fetch('/family-members/create-new', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                },
+                body: JSON.stringify({
+                    name: state.newMemberName,
+                    relation: state.relation,
+                    phone: state.newMemberPhone,
+                    age: parseInt(state.newMemberAge, 10),
+                    gender: state.newMemberGender,
+                    email: state.newMemberEmail || null,
+                    date_of_birth: state.newMemberDOB || null,
+                    blood_group: state.newMemberBloodGroup || null,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                setState((prev) => ({ ...prev, loading: false }));
+
+                if (mode === 'standalone') {
+                    router.reload({ only: ['members'] });
+                    onCancel(); // Close the sheet
+                } else {
+                    onComplete({
+                        member_type: 'family',
+                        member_id: data.member_data.id,
+                        member_name: data.member_data.name,
+                        relation: state.relation,
+                    });
+                }
+            } else {
+                setError(data.error || 'Failed to create family member. Please try again.');
+                setLoading(false);
+            }
+        } catch (error) {
+            setError('Failed to create family member. Please try again.');
+            setLoading(false);
+        }
     };
 
     // Step 4: Lookup Method Selection
@@ -421,23 +537,41 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     </p>
 
                     <div className="grid gap-3">
+                        {/* Guest */}
                         <button
-                            onClick={() => handleChoice('guest')}
+                            onClick={() => handleInitialChoice('guest')}
                             className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
                         >
                             <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
                                 <User className="h-6 w-6" />
                             </div>
                             <div>
-                                <h4 className="font-semibold">New Dependent</h4>
+                                <h4 className="font-semibold">Guest</h4>
                                 <p className="text-sm text-muted-foreground">
                                     Quick booking for someone without medical history
                                 </p>
                             </div>
                         </button>
 
+                        {/* Add New Family Member */}
                         <button
-                            onClick={() => handleChoice('family')}
+                            onClick={() => handleInitialChoice('add_new_family')}
+                            className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
+                        >
+                            <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
+                                <Users className="h-6 w-6" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold">Add New Family Member</h4>
+                                <p className="text-sm text-muted-foreground">
+                                    Create a full family member profile
+                                </p>
+                            </div>
+                        </button>
+
+                        {/* Link Existing Patient */}
+                        <button
+                            onClick={() => handleInitialChoice('link_existing')}
                             className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
                         >
                             <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
@@ -446,7 +580,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             <div>
                                 <h4 className="font-semibold">Link Existing Patient</h4>
                                 <p className="text-sm text-muted-foreground">
-                                    Connect someone with an existing patient record
+                                    Connect to an existing hospital patient record
                                 </p>
                             </div>
                         </button>
@@ -458,7 +592,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                 </div>
             )}
 
-            {state.step === 'guest_name' && (
+            {state.step === 'guest_form' && (
                 <div className="space-y-4">
                     <h3 className="text-lg font-semibold">Guest Information</h3>
                     <p className="text-sm text-muted-foreground">
@@ -466,7 +600,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     </p>
 
                     <div className="space-y-2">
-                        <Label htmlFor="guest_name">Name *</Label>
+                        <label htmlFor="guest_name" className="block text-sm font-medium text-gray-700">Name *</label>
                         <Input
                             id="guest_name"
                             value={state.guestName}
@@ -477,7 +611,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="guest_phone">Phone Number *</Label>
+                        <label htmlFor="guest_phone" className="block text-sm font-medium text-gray-700">Phone Number *</label>
                         <Input
                             id="guest_phone"
                             type="tel"
@@ -489,7 +623,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
-                            <Label htmlFor="guest_age">Age *</Label>
+                            <label htmlFor="guest_age" className="block text-sm font-medium text-gray-700">Age *</label>
                             <Select value={state.guestAge} onValueChange={(value) => setState((prev) => ({ ...prev, guestAge: value }))}>
                                 <SelectTrigger id="guest_age">
                                     <SelectValue placeholder="Select age" />
@@ -505,7 +639,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="guest_gender">Gender *</Label>
+                            <label htmlFor="guest_gender" className="block text-sm font-medium text-gray-700">Gender *</label>
                             <Select value={state.guestGender} onValueChange={(value) => setState((prev) => ({ ...prev, guestGender: value }))}>
                                 <SelectTrigger id="guest_gender">
                                     <SelectValue placeholder="Select gender" />
@@ -544,6 +678,133 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     <Button onClick={handleRelationshipNext} className="w-full" disabled={!state.relation}>
                         Continue
                     </Button>
+                </div>
+            )}
+
+            {state.step === 'new_member_form' && (
+                <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">New Family Member</h3>
+                    <p className="text-sm text-muted-foreground">
+                        Enter the family member's information
+                    </p>
+
+                    <div className="space-y-2">
+                        <label htmlFor="new_member_name" className="block text-sm font-medium text-gray-700">Name *</label>
+                        <Input
+                            id="new_member_name"
+                            value={state.newMemberName}
+                            onChange={(e) => setState((prev) => ({ ...prev, newMemberName: e.target.value }))}
+                            placeholder="Enter full name"
+                            autoFocus
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label htmlFor="new_member_phone" className="block text-sm font-medium text-gray-700">Phone Number *</label>
+                        <Input
+                            id="new_member_phone"
+                            type="tel"
+                            value={state.newMemberPhone}
+                            onChange={(e) => setState((prev) => ({ ...prev, newMemberPhone: e.target.value }))}
+                            placeholder="+91XXXXXXXXXX or 10-digit number"
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                            <label htmlFor="new_member_age" className="block text-sm font-medium text-gray-700">Age *</label>
+                            <Select value={state.newMemberAge} onValueChange={(value) => setState((prev) => ({ ...prev, newMemberAge: value }))}>
+                                <SelectTrigger id="new_member_age">
+                                    <SelectValue placeholder="Select age" />
+                                </SelectTrigger>
+                                <SelectContent className="max-h-[200px]">
+                                    {Array.from({ length: 121 }, (_, i) => i).map((age) => (
+                                        <SelectItem key={age} value={age.toString()}>
+                                            {age} {age === 0 ? 'year' : 'years'}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label htmlFor="new_member_gender" className="block text-sm font-medium text-gray-700">Gender *</label>
+                            <Select value={state.newMemberGender} onValueChange={(value) => setState((prev) => ({ ...prev, newMemberGender: value }))}>
+                                <SelectTrigger id="new_member_gender">
+                                    <SelectValue placeholder="Select gender" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="male">Male</SelectItem>
+                                    <SelectItem value="female">Female</SelectItem>
+                                    <SelectItem value="other">Other</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label htmlFor="new_member_email" className="block text-sm font-medium text-gray-700">Email (Optional)</label>
+                        <Input
+                            id="new_member_email"
+                            type="email"
+                            value={state.newMemberEmail}
+                            onChange={(e) => setState((prev) => ({ ...prev, newMemberEmail: e.target.value }))}
+                            placeholder="email@example.com"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label htmlFor="new_member_dob" className="block text-sm font-medium text-gray-700">Date of Birth (Optional)</label>
+                        <Input
+                            id="new_member_dob"
+                            type="date"
+                            value={state.newMemberDOB}
+                            onChange={(e) => setState((prev) => ({ ...prev, newMemberDOB: e.target.value }))}
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label htmlFor="new_member_blood_group" className="block text-sm font-medium text-gray-700">Blood Group (Optional)</label>
+                        <Select value={state.newMemberBloodGroup} onValueChange={(value) => setState((prev) => ({ ...prev, newMemberBloodGroup: value }))}>
+                            <SelectTrigger id="new_member_blood_group">
+                                <SelectValue placeholder="Select blood group" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="A+">A+</SelectItem>
+                                <SelectItem value="A-">A-</SelectItem>
+                                <SelectItem value="B+">B+</SelectItem>
+                                <SelectItem value="B-">B-</SelectItem>
+                                <SelectItem value="AB+">AB+</SelectItem>
+                                <SelectItem value="AB-">AB-</SelectItem>
+                                <SelectItem value="O+">O+</SelectItem>
+                                <SelectItem value="O-">O-</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="flex gap-2">
+                        <Button
+                            variant="ghost"
+                            onClick={() => setStep('relationship')}
+                            className="flex-1"
+                        >
+                            Back
+                        </Button>
+                        <Button
+                            onClick={handleNewMemberSubmit}
+                            className="flex-1"
+                            disabled={state.loading || !state.newMemberName.trim() || !state.newMemberPhone.trim() || !state.newMemberAge || !state.newMemberGender}
+                        >
+                            {state.loading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Creating...
+                                </>
+                            ) : (
+                                'Create Member'
+                            )}
+                        </Button>
+                    </div>
                 </div>
             )}
 
@@ -590,9 +851,9 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     </p>
 
                     <div className="space-y-2">
-                        <Label htmlFor="search_value">
+                        <label htmlFor="search_value" className="block text-sm font-medium text-gray-700">
                             {state.lookupMethod === 'phone' ? 'Phone Number' : 'Patient ID'}
-                        </Label>
+                        </label>
                         <Input
                             id="search_value"
                             value={state.searchValue}
@@ -651,7 +912,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                     ) : (
                                         <>
                                             <div className="space-y-2">
-                                                <Label htmlFor="email">Email Address</Label>
+                                                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
                                                 <Input
                                                     id="email"
                                                     type="email"

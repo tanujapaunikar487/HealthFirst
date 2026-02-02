@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { cn } from '@/Lib/utils';
 import { Button } from '@/Components/ui/button';
-import { MapPin } from 'lucide-react';
+import { MapPin } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 interface Props {
   onSelect: (value: {

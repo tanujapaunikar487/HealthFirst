@@ -9,7 +9,8 @@ import {
 import { PromptInputContainer } from '@/Components/ui/prompt-input-container';
 import { Button } from '@/Components/ui/button';
 import { PromptSuggestion } from '@/Components/ui/prompt-suggestion';
-import { ArrowUp, Plus, Mic, X, Check } from 'lucide-react';
+import { ArrowUp, Plus, Mic, X, Check } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 import { AudioWaveform } from '@/Components/ui/AudioWaveform';
 import { useAudioRecorder } from '@/Hooks/useAudioRecorder';
 import { cn } from '@/Lib/utils';
@@ -141,7 +142,8 @@ export default function BookingIndex() {
               <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-5 h-5" />
               <span className="font-medium text-sm">Booking an appointment</span>
             </div>
-            <div className="flex items-center gap-1 border rounded-full p-1 bg-gray-50">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1 border rounded-full p-1 bg-gray-50">
               <button
                 className={cn(
                   'p-1.5 rounded-full transition-all',
@@ -167,6 +169,16 @@ export default function BookingIndex() {
                   alt=""
                   className="w-4 h-4"
                 />
+              </button>
+            </div>
+
+              {/* Cancel button */}
+              <button
+                onClick={() => router.visit('/')}
+                className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition-colors"
+                title="Cancel booking"
+              >
+                <Icon icon={X} className="w-4 h-4 text-gray-600" />
               </button>
             </div>
           </div>
@@ -296,7 +308,7 @@ export default function BookingIndex() {
                             e.currentTarget.style.backgroundColor = '#FFFFFF';
                           }}
                         >
-                          <Plus className="w-[18px] h-[18px]" />
+                          <Icon icon={Plus} className="w-[18px] h-[18px]" />
                         </button>
                       </PromptInputAction>
                     )}
@@ -331,7 +343,7 @@ export default function BookingIndex() {
                               e.currentTarget.style.backgroundColor = '#FFFFFF';
                             }}
                           >
-                            <X className="w-[18px] h-[18px] text-red-600" />
+                            <Icon icon={X} className="w-[18px] h-[18px] text-red-600" />
                           </button>
                         </PromptInputAction>
 
@@ -357,7 +369,7 @@ export default function BookingIndex() {
                               e.currentTarget.style.backgroundColor = '#0052FF';
                             }}
                           >
-                            <Check className="w-5 h-5 text-white" />
+                            <Icon icon={Check} className="w-5 h-5 text-white" />
                           </button>
                         </PromptInputAction>
                       </>
@@ -387,7 +399,7 @@ export default function BookingIndex() {
                               e.currentTarget.style.backgroundColor = '#FFFFFF';
                             }}
                           >
-                            <Mic className={cn(
+                            <Icon icon={Mic} className={cn(
                               "w-[18px] h-[18px]",
                               isTranscribing && "animate-pulse text-blue-600"
                             )} />
@@ -421,7 +433,7 @@ export default function BookingIndex() {
                               }
                             }}
                           >
-                            <ArrowUp className="w-5 h-5 text-white" />
+                            <Icon icon={ArrowUp} className="w-5 h-5 text-white" />
                           </button>
                         </PromptInputAction>
                       </>

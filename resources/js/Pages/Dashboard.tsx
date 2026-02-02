@@ -6,12 +6,22 @@ import { Card, CardContent } from '@/Components/ui/card';
 import {
   ChevronRight, AlertCircle, RefreshCw, Check, Stethoscope, FlaskConical,
   Receipt, MoreHorizontal, Calendar, X, FileText, Clock, CreditCard, Loader2,
-} from 'lucide-react';
+  Shield, Pill, RotateCcw, CheckCircle2, Syringe,
+} from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 import { Toast } from '@/Components/ui/toast';
 import { CtaBanner } from '@/Components/ui/cta-banner';
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator,
 } from '@/Components/ui/dropdown-menu';
+import { Sheet, SheetContent } from '@/Components/ui/sheet';
+import {
+  DetailsSheet,
+  CancelSheet,
+  RescheduleSheet,
+  type Appointment,
+  type SheetView,
+} from '@/Components/Appointments/AppointmentSheets';
 
 declare global {
   interface Window {
@@ -84,6 +94,90 @@ interface PreventiveCarePrompt {
   relation: string;
 }
 
+interface PaymentDueSoon {
+  id: number;
+  patient_name: string;
+  patient_initials: string;
+  amount: number;
+  due_date: string;
+  days_until_due: number;
+  title: string;
+}
+
+interface EmiDue {
+  id: number;
+  patient_name: string;
+  patient_initials: string;
+  emi_amount: number;
+  current_installment: number;
+  total_installments: number;
+  due_date: string;
+  title: string;
+}
+
+interface InsuranceClaimUpdate {
+  id: number;
+  claim_id: number;
+  patient_name: string;
+  patient_initials: string;
+  claim_status: 'pending' | 'approved' | 'rejected' | 'action_required';
+  claim_amount: number;
+  treatment: string;
+  title: string;
+}
+
+interface PrescriptionRefillDue {
+  id: number;
+  medication_name: string;
+  patient_name: string;
+  patient_initials: string;
+  days_remaining: number;
+  prescription_date: string;
+  doctor_name: string;
+}
+
+interface FollowUpDue {
+  id: number;
+  original_appointment_id: number;
+  patient_name: string;
+  patient_initials: string;
+  doctor_name: string;
+  department: string;
+  recommended_date: string;
+  days_overdue: number;
+}
+
+interface PreAppointmentReminder {
+  id: number;
+  appointment_id: number;
+  patient_name: string;
+  patient_initials: string;
+  title: string;
+  subtitle: string;
+  time: string;
+  hours_until: number;
+  preparation_notes: string | null;
+}
+
+interface NewResultsReady {
+  id: number;
+  record_id: number;
+  patient_name: string;
+  patient_initials: string;
+  test_name: string;
+  uploaded_date: string;
+  status: string;
+}
+
+interface VaccinationDue {
+  id: number;
+  patient_name: string;
+  patient_initials: string;
+  vaccine_name: string;
+  due_date: string;
+  age_requirement: string;
+}
+
 interface Promotion {
   id: number;
   title: string;
@@ -103,6 +197,14 @@ interface DashboardProps {
   healthAlerts?: HealthAlert[];
   preventiveCare?: PreventiveCarePrompt[];
   promotions?: Promotion[];
+  paymentsDueSoon?: PaymentDueSoon[];
+  emisDue?: EmiDue[];
+  insuranceClaimUpdates?: InsuranceClaimUpdate[];
+  prescriptionRefills?: PrescriptionRefillDue[];
+  followUpsDue?: FollowUpDue[];
+  preAppointmentReminders?: PreAppointmentReminder[];
+  newResultsReady?: NewResultsReady[];
+  vaccinationsDue?: VaccinationDue[];
 }
 
 // --- Skeleton Components ---
@@ -113,7 +215,7 @@ function Pulse({ className, style }: { className?: string; style?: React.CSSProp
 
 function DashboardSkeleton() {
   return (
-    <div style={{ width: '738px', minHeight: '720px', padding: '40px 0', display: 'flex', flexDirection: 'column', gap: '48px' }}>
+    <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ minHeight: '720px', paddingTop: '40px', paddingBottom: '40px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
       <div style={{ display: 'flex', flexDirection: 'row', width: '100%', height: '68px', gap: '12px', alignItems: 'flex-start' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexGrow: 1 }}>
           <Pulse className="h-10 w-48" />
@@ -163,15 +265,15 @@ function DashboardSkeleton() {
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
-    <div style={{ width: '738px', minHeight: '720px', padding: '40px 0' }}>
+    <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ minHeight: '720px', paddingTop: '40px', paddingBottom: '40px' }}>
       <div className="flex flex-col items-center justify-center gap-4 py-32">
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
-          <AlertCircle className="h-7 w-7 text-gray-400" />
+          <Icon icon={AlertCircle} className="h-7 w-7 text-gray-400" />
         </div>
         <p className="text-sm font-medium text-gray-600">Unable to load dashboard</p>
         <p className="text-xs text-gray-400">Please check your connection and try again.</p>
-        <Button variant="outline" className="mt-2 gap-2" onClick={onRetry}>
-          <RefreshCw className="h-4 w-4" />
+        <Button variant="outline" className="mt-2" onClick={onRetry}>
+          <Icon icon={RefreshCw} className="h-4 w-4" />
           Try Again
         </Button>
       </div>
@@ -181,7 +283,11 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
 
 // --- Dashboard Card Component ---
 
-type CardType = 'overdue_bill' | 'health_alert' | 'appointment_today' | 'appointment_upcoming';
+type CardType =
+  | 'overdue_bill' | 'health_alert' | 'appointment_today' | 'appointment_upcoming'
+  | 'payment_due_soon' | 'emi_due' | 'insurance_claim_update'
+  | 'prescription_refill_due' | 'followup_due' | 'pre_appointment_reminder'
+  | 'new_results_ready' | 'vaccination_due';
 
 interface DashboardCardProps {
   type: CardType;
@@ -192,7 +298,7 @@ interface DashboardCardProps {
   badge?: string;
   badgeColor?: string;
   actionLabel: string;
-  actionVariant?: 'accent' | 'outline';
+  actionVariant?: 'accent' | 'outline' | 'secondary';
   onAction: () => void;
   menuItems: { label: string; onClick: () => void; destructive?: boolean }[];
   isLast: boolean;
@@ -200,10 +306,18 @@ interface DashboardCardProps {
 }
 
 const cardConfig: Record<CardType, { icon: typeof Receipt; iconColor: string; iconBg: string }> = {
-  overdue_bill: { icon: Receipt, iconColor: '#DC2626', iconBg: '#FEE2E2' },
-  health_alert: { icon: AlertCircle, iconColor: '#D97706', iconBg: '#FEF3C7' },
+  overdue_bill: { icon: Receipt, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
+  health_alert: { icon: AlertCircle, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
   appointment_today: { icon: Stethoscope, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
   appointment_upcoming: { icon: Calendar, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
+  payment_due_soon: { icon: CreditCard, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
+  emi_due: { icon: CreditCard, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
+  insurance_claim_update: { icon: Shield, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
+  prescription_refill_due: { icon: Pill, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
+  followup_due: { icon: RotateCcw, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
+  pre_appointment_reminder: { icon: Calendar, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
+  new_results_ready: { icon: CheckCircle2, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
+  vaccination_due: { icon: Syringe, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
 };
 
 function DashboardCard({
@@ -211,7 +325,7 @@ function DashboardCard({
   actionLabel, actionVariant = 'accent', onAction, menuItems, isLast, iconOverride,
 }: DashboardCardProps) {
   const config = cardConfig[type];
-  const Icon = iconOverride || config.icon;
+  const CardIcon = iconOverride || config.icon;
 
   return (
     <div
@@ -220,7 +334,7 @@ function DashboardCard({
         borderBottom: isLast ? 'none' : '1px solid #E5E5E5',
         display: 'flex',
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         gap: '14px',
       }}
     >
@@ -229,7 +343,7 @@ function DashboardCard({
         className="flex items-center justify-center flex-shrink-0"
         style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: config.iconBg }}
       >
-        <Icon className="h-5 w-5" style={{ color: config.iconColor }} />
+        <Icon icon={CardIcon} className="h-5 w-5" style={{ color: config.iconColor }} />
       </div>
 
       {/* Content */}
@@ -268,9 +382,8 @@ function DashboardCard({
 
       {/* Action button */}
       <Button
-        size="sm"
         variant={actionVariant}
-        className="flex-shrink-0 rounded-full text-xs h-8 px-4"
+        className="flex-shrink-0"
         onClick={(e) => { e.stopPropagation(); onAction(); }}
       >
         {actionLabel}
@@ -284,7 +397,7 @@ function DashboardCard({
             style={{ width: '32px', height: '32px' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <MoreHorizontal className="h-4 w-4" style={{ color: '#737373' }} />
+            <Icon icon={MoreHorizontal} className="h-4 w-4" style={{ color: '#737373' }} />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
@@ -314,12 +427,22 @@ export default function Dashboard({
   healthAlerts = [],
   preventiveCare = [],
   promotions = [],
+  paymentsDueSoon = [],
+  emisDue = [],
+  insuranceClaimUpdates = [],
+  prescriptionRefills = [],
+  followUpsDue = [],
+  preAppointmentReminders = [],
+  newResultsReady = [],
+  vaccinationsDue = [],
 }: DashboardProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [showToast, setShowToast] = useState(profileJustCompleted);
   const [toastMessage, setToastMessage] = useState('Profile successfully completed!');
   const [payingBillId, setPayingBillId] = useState<number | null>(null);
+  const [upNextExpanded, setUpNextExpanded] = useState(false);
+  const [laterExpanded, setLaterExpanded] = useState(false);
   const mountTime = useRef(Date.now());
 
   // Promotion banner dismissal with 30-day reshow (per promotion ID)
@@ -347,15 +470,80 @@ export default function Dashboard({
 
   const activePromotion = promotions.find((p) => !dismissedPromoIds.has(p.id)) ?? null;
 
-  // Razorpay payment for overdue bills
-  const handleBillPayment = async (bill: OverdueBill) => {
+  // Health alert dismissal with 30-day reshow (per alert ID)
+  const [dismissedAlertIds, setDismissedAlertIds] = useState<Set<number>>(() => {
+    const ids = new Set<number>();
+    const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+    const stored = localStorage.getItem('dismissed_health_alerts');
+    if (stored) {
+      try {
+        const dismissed = JSON.parse(stored);
+        for (const [id, timestamp] of Object.entries(dismissed)) {
+          if (Date.now() - (timestamp as number) > thirtyDays) {
+            delete dismissed[id];
+          } else {
+            ids.add(Number(id));
+          }
+        }
+        // Clean up expired entries
+        localStorage.setItem('dismissed_health_alerts', JSON.stringify(dismissed));
+      } catch {
+        localStorage.removeItem('dismissed_health_alerts');
+      }
+    }
+    return ids;
+  });
+
+  const handleDismissAlert = (id: number) => {
+    const stored = localStorage.getItem('dismissed_health_alerts');
+    const dismissed = stored ? JSON.parse(stored) : {};
+    dismissed[id] = Date.now();
+    localStorage.setItem('dismissed_health_alerts', JSON.stringify(dismissed));
+    setDismissedAlertIds((prev) => new Set([...prev, id]));
+    setToastMessage('Alert dismissed');
+    setShowToast(true);
+  };
+
+  // Filter out dismissed health alerts
+  const visibleHealthAlerts = healthAlerts.filter((alert) => !dismissedAlertIds.has(alert.id));
+
+  // Sheet state management for appointment actions
+  const [sheetView, setSheetView] = useState<SheetView>(null);
+
+  // Convert dashboard appointment to full appointment interface
+  function convertToFullAppointment(dashboardAppt: UpcomingAppointment): Appointment {
+    return {
+      id: dashboardAppt.id,
+      type: dashboardAppt.type === 'doctor' ? 'doctor' : 'lab_test',
+      title: dashboardAppt.title,
+      subtitle: dashboardAppt.subtitle,
+      patient_name: dashboardAppt.patient_name,
+      patient_id: null,
+      doctor_id: null,
+      date: dashboardAppt.date_formatted,
+      date_formatted: dashboardAppt.date_formatted,
+      time: dashboardAppt.time,
+      status: 'confirmed',
+      fee: dashboardAppt.fee,
+      payment_status: 'paid',
+      mode: dashboardAppt.mode,
+      is_upcoming: !dashboardAppt.is_today,
+    };
+  }
+
+  // Razorpay payment for billing cards (overdue bills, payments due, EMIs)
+  const handleBillPayment = async (bill: OverdueBill | PaymentDueSoon | EmiDue) => {
     setPayingBillId(bill.id);
+
+    // Get the amount based on card type
+    const amount = 'emi_amount' in bill ? bill.emi_amount : bill.amount;
+
     try {
       const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content || '';
       const res = await fetch(`/billing/${bill.id}/payment/create-order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-        body: JSON.stringify({ amount: bill.amount }),
+        body: JSON.stringify({ amount }),
       });
 
       if (!res.ok) throw new Error('Failed to create order');
@@ -471,16 +659,416 @@ export default function Dashboard({
   const todayAppointments = upcomingAppointments.filter(a => a.is_today);
   const laterAppointments = upcomingAppointments.filter(a => !a.is_today);
 
-  // Build "Up next" items: overdue bills + health alerts + today's appointments
-  const hasUpNextItems = overdueBills.length > 0 || healthAlerts.length > 0 || todayAppointments.length > 0;
-  const hasLaterItems = laterAppointments.length > 0 || preventiveCare.length > 0;
+  // Filter follow-ups into overdue vs future
+  const overdueFollowUps = followUpsDue.filter(f => f.days_overdue >= 0);
+  const futureFollowUps = followUpsDue.filter(f => f.days_overdue < 0 && f.days_overdue > -7);
+
+  // Build "Up next" items: overdue bills + payment reminders + EMI + insurance claims (non-approved) + health alerts + prescriptions + overdue follow-ups + new results + today's appointments
+  const hasUpNextItems =
+    overdueBills.length > 0 ||
+    paymentsDueSoon.length > 0 ||
+    emisDue.length > 0 ||
+    insuranceClaimUpdates.filter(c => c.claim_status !== 'approved').length > 0 ||
+    visibleHealthAlerts.length > 0 ||
+    prescriptionRefills.length > 0 ||
+    overdueFollowUps.length > 0 ||
+    newResultsReady.length > 0 ||
+    todayAppointments.length > 0;
+
+  // Build "Later this week" items: pre-appointment reminders + later appointments + future follow-ups + vaccinations + preventive care
+  const hasLaterItems =
+    preAppointmentReminders.length > 0 ||
+    laterAppointments.length > 0 ||
+    futureFollowUps.length > 0 ||
+    vaccinationsDue.length > 0 ||
+    preventiveCare.length > 0;
+
   const hasAnyActivity = hasUpNextItems || hasLaterItems;
+
+  // Build flat arrays for each section to handle "View all" expansion
+  const upNextCards = [
+    ...overdueBills.map((bill, i) => ({ type: 'overdue_bill' as const, data: bill, index: i })),
+    ...paymentsDueSoon.map((payment, i) => ({ type: 'payment_due_soon' as const, data: payment, index: i })),
+    ...emisDue.map((emi, i) => ({ type: 'emi_due' as const, data: emi, index: i })),
+    ...insuranceClaimUpdates.filter(c => c.claim_status !== 'approved').map((claim, i) => ({ type: 'insurance_claim_update' as const, data: claim, index: i })),
+    ...visibleHealthAlerts.map((alert, i) => ({ type: 'health_alert' as const, data: alert, index: i })),
+    ...prescriptionRefills.map((refill, i) => ({ type: 'prescription_refill_due' as const, data: refill, index: i })),
+    ...overdueFollowUps.map((followup, i) => ({ type: 'followup_due' as const, data: followup, index: i })),
+    ...newResultsReady.map((result, i) => ({ type: 'new_results_ready' as const, data: result, index: i })),
+    ...todayAppointments.map((appt, i) => ({ type: 'appointment_today' as const, data: appt, index: i })),
+  ];
+
+  const laterCards = [
+    ...preAppointmentReminders.map((reminder, i) => ({ type: 'pre_appointment_reminder' as const, data: reminder, index: i })),
+    ...laterAppointments.map((appt, i) => ({ type: 'appointment_upcoming' as const, data: appt, index: i })),
+    ...futureFollowUps.map((followup, i) => ({ type: 'followup_due_future' as const, data: followup, index: i })),
+    ...vaccinationsDue.map((vaccination, i) => ({ type: 'vaccination_due' as const, data: vaccination, index: i })),
+    ...preventiveCare.map((care, i) => ({ type: 'preventive_care' as const, data: care, index: i })),
+  ];
+
+  const visibleUpNextCards = upNextExpanded ? upNextCards : upNextCards.slice(0, 3);
+  const visibleLaterCards = laterExpanded ? laterCards : laterCards.slice(0, 3);
+
+  // Render function for up next cards
+  const renderUpNextCard = (card: typeof upNextCards[0], cardIndex: number, totalVisible: number) => {
+    const isLast = cardIndex === totalVisible - 1;
+
+    switch (card.type) {
+      case 'overdue_bill': {
+        const bill = card.data as OverdueBill;
+        return (
+          <DashboardCard
+            key={`bill-${bill.id}`}
+            type="overdue_bill"
+            title={bill.title}
+            subtitle={`₹${bill.amount.toLocaleString('en-IN')} overdue`}
+            patientName={bill.patient_name}
+            patientInitials={bill.patient_initials}
+            badge={`${bill.days_overdue}d overdue`}
+            badgeColor="#DC2626"
+            actionLabel={payingBillId === bill.id ? 'Paying...' : 'Pay'}
+            onAction={() => handleBillPayment(bill)}
+            menuItems={[
+              { label: 'View bill', onClick: () => router.visit(`/billing/${bill.id}`) },
+              { label: 'Payment history', onClick: () => router.visit(`/billing`) },
+              { label: 'Dispute', onClick: () => router.visit(`/billing/${bill.id}`) },
+            ]}
+            isLast={isLast}
+          />
+        );
+      }
+      case 'payment_due_soon': {
+        const payment = card.data as PaymentDueSoon;
+        return (
+          <DashboardCard
+            key={`payment-due-${payment.id}`}
+            type="payment_due_soon"
+            title={payment.title}
+            subtitle={`Payment due in ${payment.days_until_due} days · ₹${payment.amount.toLocaleString('en-IN')}`}
+            patientName={payment.patient_name}
+            patientInitials={payment.patient_initials}
+            badge={`Due in ${payment.days_until_due}d`}
+            badgeColor="#1E40AF"
+            actionLabel={payingBillId === payment.id ? 'Paying...' : 'Pay'}
+            onAction={() => handleBillPayment(payment)}
+            menuItems={[
+              { label: 'View bill', onClick: () => router.visit(`/billing/${payment.id}`) },
+              { label: 'Payment history', onClick: () => router.visit('/billing') },
+            ]}
+            isLast={isLast}
+          />
+        );
+      }
+      case 'emi_due': {
+        const emi = card.data as EmiDue;
+        return (
+          <DashboardCard
+            key={`emi-${emi.id}`}
+            type="emi_due"
+            title={emi.title}
+            subtitle={`EMI ${emi.current_installment}/${emi.total_installments} · ₹${emi.emi_amount.toLocaleString('en-IN')}`}
+            patientName={emi.patient_name}
+            patientInitials={emi.patient_initials}
+            badge={`EMI ${emi.current_installment}/${emi.total_installments}`}
+            badgeColor="#1E40AF"
+            actionLabel={payingBillId === emi.id ? 'Paying...' : 'Pay EMI'}
+            onAction={() => handleBillPayment(emi)}
+            menuItems={[
+              { label: 'View schedule', onClick: () => router.visit(`/billing/${emi.id}`) },
+              { label: 'Pay full balance', onClick: () => handleBillPayment(emi) },
+            ]}
+            isLast={isLast}
+          />
+        );
+      }
+      case 'insurance_claim_update': {
+        const claim = card.data as InsuranceClaimUpdate;
+        return (
+          <DashboardCard
+            key={`claim-${claim.id}`}
+            type="insurance_claim_update"
+            title={claim.title}
+            subtitle={`${claim.treatment} · ₹${claim.claim_amount.toLocaleString('en-IN')}`}
+            patientName={claim.patient_name}
+            patientInitials={claim.patient_initials}
+            badge={
+              claim.claim_status === 'rejected' ? 'Rejected' :
+              claim.claim_status === 'action_required' ? 'Action Required' :
+              'Pending'
+            }
+            badgeColor={
+              claim.claim_status === 'rejected' ? '#DC2626' :
+              claim.claim_status === 'action_required' ? '#DC2626' :
+              '#D97706'
+            }
+            actionLabel="Track Claim"
+            actionVariant="accent"
+            onAction={() => router.visit(`/insurance/claims/${claim.claim_id}`)}
+            menuItems={[
+              { label: 'View details', onClick: () => router.visit(`/insurance/claims/${claim.claim_id}`) },
+              { label: 'Contact support', onClick: () => {} },
+            ]}
+            isLast={isLast}
+          />
+        );
+      }
+      case 'health_alert': {
+        const alert = card.data as HealthAlert;
+        return (
+          <DashboardCard
+            key={`alert-${alert.id}`}
+            type="health_alert"
+            title={alert.title}
+            subtitle={`${alert.metric_name}: ${alert.metric_value} (ref: ${alert.metric_reference})`}
+            patientName={alert.patient_name}
+            patientInitials={alert.patient_initials}
+            badge="Needs attention"
+            badgeColor="#D97706"
+            actionLabel="Book"
+            onAction={() => router.visit('/booking')}
+            menuItems={[
+              { label: 'View full report', onClick: () => router.visit(`/health-records?record=${alert.id}`) },
+              { label: 'Dismiss alert', onClick: () => handleDismissAlert(alert.id) },
+            ]}
+            isLast={isLast}
+          />
+        );
+      }
+      case 'prescription_refill_due': {
+        const refill = card.data as PrescriptionRefillDue;
+        return (
+          <DashboardCard
+            key={`refill-${refill.id}`}
+            type="prescription_refill_due"
+            title={refill.medication_name}
+            subtitle={`${refill.days_remaining} days of medication left · Dr. ${refill.doctor_name}`}
+            patientName={refill.patient_name}
+            patientInitials={refill.patient_initials}
+            badge={`${refill.days_remaining}d left`}
+            badgeColor="#D97706"
+            actionLabel="Book"
+            actionVariant="accent"
+            onAction={() => router.visit('/booking')}
+            menuItems={[
+              { label: 'View prescription', onClick: () => router.visit(`/health-records?record=${refill.id}`) },
+            ]}
+            isLast={isLast}
+          />
+        );
+      }
+      case 'followup_due': {
+        const followup = card.data as FollowUpDue;
+        return (
+          <DashboardCard
+            key={`followup-${followup.id}`}
+            type="followup_due"
+            title={`Follow-up with Dr. ${followup.doctor_name}`}
+            subtitle={`${followup.department} · Recommended ${followup.days_overdue} days ago`}
+            patientName={followup.patient_name}
+            patientInitials={followup.patient_initials}
+            badge={followup.days_overdue >= 0 ? 'Overdue' : 'Due soon'}
+            badgeColor={followup.days_overdue >= 0 ? '#DC2626' : '#D97706'}
+            actionLabel="Book Follow-up"
+            actionVariant="accent"
+            onAction={() => router.visit('/booking')}
+            menuItems={[
+              { label: 'View previous visit', onClick: () => router.visit(`/appointments/${followup.original_appointment_id}`) },
+              { label: 'Dismiss', onClick: () => {} },
+            ]}
+            isLast={isLast}
+          />
+        );
+      }
+      case 'new_results_ready': {
+        const result = card.data as NewResultsReady;
+        return (
+          <DashboardCard
+            key={`result-${result.id}`}
+            type="new_results_ready"
+            title={result.test_name}
+            subtitle={`Results uploaded ${result.uploaded_date} · ${result.status}`}
+            patientName={result.patient_name}
+            patientInitials={result.patient_initials}
+            badge="New"
+            badgeColor="#16A34A"
+            actionLabel="View Results"
+            actionVariant="accent"
+            onAction={() => router.visit(`/health-records?record=${result.record_id}`)}
+            menuItems={[
+              { label: 'Share with doctor', onClick: () => {} },
+              { label: 'Download', onClick: () => {} },
+            ]}
+            isLast={isLast}
+          />
+        );
+      }
+      case 'appointment_today': {
+        const appt = card.data as UpcomingAppointment;
+        return (
+          <DashboardCard
+            key={`today-${appt.id}`}
+            type="appointment_today"
+            title={appt.title}
+            subtitle={`Today · ${appt.time ? formatTime(appt.time) : ''} · ${appt.subtitle}`}
+            iconOverride={appt.type === 'lab_test' ? FlaskConical : Stethoscope}
+            patientName={appt.patient_name}
+            patientInitials={appt.patient_initials}
+            badge={appt.mode === 'video' ? 'Video' : appt.type === 'lab_test' ? 'Lab Test' : undefined}
+            badgeColor={appt.mode === 'video' ? '#1E40AF' : appt.type === 'lab_test' ? '#D97706' : undefined}
+            actionLabel="View"
+            actionVariant="accent"
+            onAction={() => setSheetView({ type: 'details', appointment: appt })}
+            menuItems={[
+              { label: 'Reschedule', onClick: () => setSheetView({ type: 'reschedule', appointment: appt }) },
+              { label: 'Cancel appointment', onClick: () => setSheetView({ type: 'cancel', appointment: appt }), destructive: true },
+              { label: 'Add to calendar', onClick: () => { generateICSFile(appt); setToastMessage('Calendar file downloaded'); setShowToast(true); } },
+            ]}
+            isLast={isLast}
+          />
+        );
+      }
+      default:
+        return null;
+    }
+  };
+
+  // Render function for later this week cards
+  const renderLaterCard = (card: typeof laterCards[0], cardIndex: number, totalVisible: number) => {
+    const isLast = cardIndex === totalVisible - 1;
+
+    switch (card.type) {
+      case 'pre_appointment_reminder': {
+        const reminder = card.data as PreAppointmentReminder;
+        return (
+          <DashboardCard
+            key={`pre-appt-${reminder.id}`}
+            type="pre_appointment_reminder"
+            title={reminder.title}
+            subtitle={`${reminder.hours_until < 24 ? 'Tomorrow' : `In ${reminder.hours_until}h`} · ${formatTime(reminder.time)} · ${reminder.subtitle}`}
+            patientName={reminder.patient_name}
+            patientInitials={reminder.patient_initials}
+            badge={reminder.hours_until < 24 ? 'Tomorrow' : `In ${reminder.hours_until}h`}
+            badgeColor="#1E40AF"
+            actionLabel="View Details"
+            actionVariant="secondary"
+            onAction={() => router.visit(`/appointments/${reminder.appointment_id}`)}
+            menuItems={[
+              { label: 'Get directions', onClick: () => {} },
+              { label: 'Reschedule', onClick: () => router.visit(`/appointments/${reminder.appointment_id}`) },
+              { label: 'Cancel', onClick: () => router.visit(`/appointments/${reminder.appointment_id}`), destructive: true },
+            ]}
+            isLast={isLast}
+          />
+        );
+      }
+      case 'appointment_upcoming': {
+        const appt = card.data as UpcomingAppointment;
+        return (
+          <DashboardCard
+            key={`later-${appt.id}`}
+            type="appointment_upcoming"
+            title={appt.title}
+            subtitle={`${appt.date_formatted} · ${appt.time ? formatTime(appt.time) : ''} · ${appt.subtitle}`}
+            iconOverride={appt.type === 'lab_test' ? FlaskConical : Calendar}
+            patientName={appt.patient_name}
+            patientInitials={appt.patient_initials}
+            badge={appt.type === 'lab_test' ? 'Lab Test' : appt.mode === 'video' ? 'Video' : undefined}
+            badgeColor={appt.type === 'lab_test' ? '#D97706' : appt.mode === 'video' ? '#1E40AF' : undefined}
+            actionLabel="Reschedule"
+            actionVariant="secondary"
+            onAction={() => setSheetView({ type: 'reschedule', appointment: appt })}
+            menuItems={[
+              { label: 'View details', onClick: () => setSheetView({ type: 'details', appointment: appt }) },
+              { label: 'Cancel appointment', onClick: () => setSheetView({ type: 'cancel', appointment: appt }), destructive: true },
+              { label: 'Add to calendar', onClick: () => { generateICSFile(appt); setToastMessage('Calendar file downloaded'); setShowToast(true); } },
+            ]}
+            isLast={isLast}
+          />
+        );
+      }
+      case 'followup_due_future': {
+        const followup = card.data as FollowUpDue;
+        return (
+          <DashboardCard
+            key={`future-followup-${followup.id}`}
+            type="followup_due"
+            title={`Follow-up with Dr. ${followup.doctor_name}`}
+            subtitle={`${followup.department} · Recommended for ${followup.recommended_date}`}
+            patientName={followup.patient_name}
+            patientInitials={followup.patient_initials}
+            badge="Due soon"
+            badgeColor="#D97706"
+            actionLabel="Book Follow-up"
+            actionVariant="secondary"
+            onAction={() => router.visit('/booking')}
+            menuItems={[
+              { label: 'View previous visit', onClick: () => router.visit(`/appointments/${followup.original_appointment_id}`) },
+              { label: 'Dismiss', onClick: () => {} },
+            ]}
+            isLast={isLast}
+          />
+        );
+      }
+      case 'vaccination_due': {
+        const vaccination = card.data as VaccinationDue;
+        const dueDate = new Date(vaccination.due_date);
+        const isPast = dueDate < new Date();
+        const daysUntil = Math.ceil((dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+        return (
+          <DashboardCard
+            key={`vaccination-${vaccination.id}`}
+            type="vaccination_due"
+            title={vaccination.vaccine_name}
+            subtitle={`${vaccination.age_requirement} · Due on ${vaccination.due_date}`}
+            patientName={vaccination.patient_name}
+            patientInitials={vaccination.patient_initials}
+            badge={isPast ? 'Overdue' : `Due ${daysUntil}d`}
+            badgeColor={isPast ? '#DC2626' : '#D97706'}
+            actionLabel="Schedule"
+            actionVariant="secondary"
+            onAction={() => router.visit('/booking')}
+            menuItems={[
+              { label: 'View vaccination history', onClick: () => router.visit(`/health-records?member_id=${vaccination.id}`) },
+              { label: 'Dismiss', onClick: () => {} },
+            ]}
+            isLast={isLast}
+          />
+        );
+      }
+      case 'preventive_care': {
+        const care = card.data as PreventiveCarePrompt;
+        return (
+          <DashboardCard
+            key={`care-${care.id}`}
+            type="appointment_upcoming"
+            title="Annual checkup due"
+            subtitle={care.months_since !== null ? `Last checkup ${care.months_since} months ago` : 'No recent checkup'}
+            iconOverride={Clock}
+            patientName={care.patient_name}
+            patientInitials={care.patient_initials}
+            badge={care.months_since !== null && care.months_since > 12 ? 'Overdue' : 'Due soon'}
+            badgeColor={care.months_since !== null && care.months_since > 12 ? '#DC2626' : '#D97706'}
+            actionLabel="Book Now"
+            actionVariant="secondary"
+            onAction={() => router.visit('/booking')}
+            menuItems={[
+              { label: 'View records', onClick: () => router.visit(`/health-records?member_id=${care.member_id}`) },
+              { label: 'Dismiss', onClick: () => {} },
+            ]}
+            isLast={isLast}
+          />
+        );
+      }
+      default:
+        return null;
+    }
+  };
 
   return (
     <AppLayout user={user}>
       <Head title="Dashboard" />
 
-      <div style={{ width: '738px', minHeight: '720px', padding: '40px 0', display: 'flex', flexDirection: 'column', gap: '48px' }}>
+      <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ minHeight: '720px', paddingTop: '40px', paddingBottom: '40px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
         {/* Page Header */}
         <div style={{ display: 'flex', flexDirection: 'row', width: '100%', height: '68px', gap: '12px', alignItems: 'flex-start' }}>
           <div style={{ display: 'flex', flexDirection: 'column', width: '485px', height: '68px', gap: '4px', flexGrow: 1 }}>
@@ -495,8 +1083,9 @@ export default function Dashboard({
           <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
             <Button
               asChild
-              className="h-12 font-semibold text-white rounded-full"
-              style={{ width: '241px', height: '48px', backgroundColor: '#0052FF', fontSize: '16px', fontWeight: 600, lineHeight: '24px', paddingLeft: '32px', paddingRight: '32px', gap: '8px' }}
+              size="lg"
+              className="font-semibold"
+              style={{ width: '241px' }}
             >
               <Link href="/booking">
                 <span className="flex items-center gap-2 text-white">
@@ -513,95 +1102,25 @@ export default function Dashboard({
           <>
             {/* Up next section */}
             {hasUpNextItems && (
-              <div style={{ display: 'flex', flexDirection: 'column', width: '738px' }}>
-                <Card className="overflow-hidden" style={{ width: '738px' }}>
+              <div className="w-full" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: '#171717' }}>
+                  Up next
+                </h2>
+                <Card className="overflow-hidden w-full">
                   <CardContent className="p-0">
-                    <div className="flex items-center justify-between px-5 pt-5 pb-3">
-                      <div className="flex items-center gap-3">
-                        <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: '#171717' }}>
-                          Up next
-                        </h2>
-                        <span
-                          className="text-xs font-medium px-2 py-0.5 rounded-full"
-                          style={{ backgroundColor: '#EEF0F3', color: '#525252' }}
-                        >
-                          {overdueBills.length + healthAlerts.length + todayAppointments.length}
+                    {visibleUpNextCards.map((card, i) => renderUpNextCard(card, i, visibleUpNextCards.length))}
+
+                    {/* View all button inside card */}
+                    {upNextCards.length > 3 && (
+                      <div
+                        className="px-5 py-4 border-t border-[#E5E5E5] flex justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+                        onClick={() => setUpNextExpanded(!upNextExpanded)}
+                      >
+                        <span className="text-sm font-medium text-blue-600">
+                          {upNextExpanded ? 'Show less' : `View all ${upNextCards.length}`}
                         </span>
                       </div>
-                      <Link
-                        href={overdueBills.length > 0 ? '/billing' : healthAlerts.length > 0 ? '/health-records' : '/appointments'}
-                        className="text-sm font-medium"
-                        style={{ color: '#0052FF' }}
-                      >
-                        View all
-                      </Link>
-                    </div>
-                    {/* Overdue bills (highest priority) */}
-                    {overdueBills.map((bill, i) => (
-                      <DashboardCard
-                        key={`bill-${bill.id}`}
-                        type="overdue_bill"
-                        title={bill.title}
-                        subtitle={`₹${bill.amount.toLocaleString('en-IN')} overdue`}
-                        patientName={bill.patient_name}
-                        patientInitials={bill.patient_initials}
-                        badge={`${bill.days_overdue}d overdue`}
-                        badgeColor="#DC2626"
-                        actionLabel={payingBillId === bill.id ? 'Paying...' : 'Pay'}
-                        onAction={() => handleBillPayment(bill)}
-                        menuItems={[
-                          { label: 'View bill', onClick: () => router.visit(`/billing/${bill.id}`) },
-                          { label: 'Payment history', onClick: () => router.visit(`/billing`) },
-                          { label: 'Dispute', onClick: () => router.visit(`/billing/${bill.id}`) },
-                        ]}
-                        isLast={i === overdueBills.length - 1 && healthAlerts.length === 0 && todayAppointments.length === 0}
-                      />
-                    ))}
-
-                    {/* Health alerts (high priority) */}
-                    {healthAlerts.map((alert, i) => (
-                      <DashboardCard
-                        key={`alert-${alert.id}`}
-                        type="health_alert"
-                        title={alert.title}
-                        subtitle={`${alert.metric_name}: ${alert.metric_value} (ref: ${alert.metric_reference})`}
-                        patientName={alert.patient_name}
-                        patientInitials={alert.patient_initials}
-                        badge="Needs attention"
-                        badgeColor="#D97706"
-                        actionLabel="Book"
-                        onAction={() => router.visit('/booking')}
-                        menuItems={[
-                          { label: 'View full report', onClick: () => router.visit(`/health-records`) },
-                          { label: 'Dismiss alert', onClick: () => {} },
-                        ]}
-                        isLast={i === healthAlerts.length - 1 && todayAppointments.length === 0}
-                      />
-                    ))}
-
-                    {/* Today's appointments */}
-                    {todayAppointments.map((appt, i) => (
-                      <DashboardCard
-                        key={`today-${appt.id}`}
-                        type="appointment_today"
-                        title={appt.title}
-                        subtitle={`Today · ${appt.time ? formatTime(appt.time) : ''} · ${appt.subtitle}`}
-                        iconOverride={appt.type === 'lab_test' ? FlaskConical : Stethoscope}
-                        patientName={appt.patient_name}
-                        patientInitials={appt.patient_initials}
-                        badge={appt.type === 'lab_test' ? 'Lab Test' : appt.mode === 'video' ? 'Video' : undefined}
-                        badgeColor={appt.type === 'lab_test' ? '#D97706' : appt.mode === 'video' ? '#1E40AF' : undefined}
-                        actionLabel="Reschedule"
-                        actionVariant="outline"
-                        onAction={() => router.visit('/appointments')}
-                        menuItems={[
-                          { label: 'View details', onClick: () => router.visit(`/appointments/${appt.id}`) },
-                          { label: 'Cancel appointment', onClick: () => router.visit('/appointments'), destructive: true },
-                          { label: 'Add to calendar', onClick: () => {} },
-                        ]}
-                        isLast={i === todayAppointments.length - 1}
-                      />
-                    ))}
+                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -609,59 +1128,25 @@ export default function Dashboard({
 
             {/* Later this week section */}
             {hasLaterItems && (
-              <div style={{ display: 'flex', flexDirection: 'column', width: '738px' }}>
-                <Card className="overflow-hidden" style={{ width: '738px' }}>
+              <div className="w-full" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: '#171717' }}>
+                  Later this week
+                </h2>
+                <Card className="overflow-hidden w-full">
                   <CardContent className="p-0">
-                    <div className="flex items-center justify-between px-5 pt-5 pb-3">
-                      <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: '#171717' }}>
-                        Later this week
-                      </h2>
-                      <Link href="/appointments" className="text-sm font-medium" style={{ color: '#0052FF' }}>
-                        View all
-                      </Link>
-                    </div>
-                    {laterAppointments.map((appt, i) => (
-                      <DashboardCard
-                        key={`later-${appt.id}`}
-                        type="appointment_upcoming"
-                        title={appt.title}
-                        subtitle={`${appt.date_formatted} · ${appt.time ? formatTime(appt.time) : ''} · ${appt.subtitle}`}
-                        iconOverride={appt.type === 'lab_test' ? FlaskConical : Calendar}
-                        patientName={appt.patient_name}
-                        patientInitials={appt.patient_initials}
-                        badge={appt.type === 'lab_test' ? 'Lab Test' : appt.mode === 'video' ? 'Video' : undefined}
-                        badgeColor={appt.type === 'lab_test' ? '#D97706' : appt.mode === 'video' ? '#1E40AF' : undefined}
-                        actionLabel="Reschedule"
-                        actionVariant="outline"
-                        onAction={() => router.visit('/appointments')}
-                        menuItems={[
-                          { label: 'View details', onClick: () => router.visit(`/appointments/${appt.id}`) },
-                          { label: 'Cancel appointment', onClick: () => router.visit('/appointments'), destructive: true },
-                          { label: 'Add to calendar', onClick: () => {} },
-                        ]}
-                        isLast={i === laterAppointments.length - 1 && preventiveCare.length === 0}
-                      />
-                    ))}
+                    {visibleLaterCards.map((card, i) => renderLaterCard(card, i, visibleLaterCards.length))}
 
-                    {/* Preventive care prompts */}
-                    {preventiveCare.map((care, i) => (
-                      <DashboardCard
-                        key={`care-${care.id}`}
-                        type="appointment_upcoming"
-                        title="Annual checkup due"
-                        subtitle={care.months_since !== null ? `Last checkup ${care.months_since} months ago` : 'No recent checkup'}
-                        iconOverride={Clock}
-                        patientName={care.patient_name}
-                        patientInitials={care.patient_initials}
-                        actionLabel="Book"
-                        onAction={() => router.visit('/booking')}
-                        menuItems={[
-                          { label: 'View records', onClick: () => router.visit('/health-records') },
-                          { label: 'Dismiss', onClick: () => {} },
-                        ]}
-                        isLast={i === preventiveCare.length - 1}
-                      />
-                    ))}
+                    {/* View all button inside card */}
+                    {laterCards.length > 3 && (
+                      <div
+                        className="px-5 py-4 border-t border-[#E5E5E5] flex justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+                        onClick={() => setLaterExpanded(!laterExpanded)}
+                      >
+                        <span className="text-sm font-medium text-blue-600">
+                          {laterExpanded ? 'Show less' : `View all ${laterCards.length}`}
+                        </span>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -672,140 +1157,106 @@ export default function Dashboard({
         {/* ─── CTA BANNER FALLBACK (completed profile, no activity) ─── */}
         {allStepsCompleted && !hasAnyActivity && (
           <CtaBanner
-            heading="Book your first appointment"
-            description="Find doctors, book appointments, and manage your family's health — all in one place."
+            title="Your health dashboard is ready"
+            description="Book your first appointment to start tracking your health journey"
             buttonText="Book Appointment"
             buttonHref="/booking"
-            imageSrc="/assets/images/booking.png"
-            imageAlt="Booking illustration"
+            imageSrc="/assets/illustrations/cta-banner.svg"
           />
         )}
 
-        {/* ─── INCOMPLETE PROFILE ─── */}
+        {/* ─── DASHBOARD (partial onboarding) ─── */}
         {!allStepsCompleted && (
           <>
-            {/* Up next appointments (shown when profile incomplete) */}
+            {/* Up next - Upcoming appointments (if any) */}
             {upcomingAppointments.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', width: '738px', gap: '24px' }}>
-                <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: '#171717' }}>
-                  Up next
-                </h2>
-                <Card className="overflow-hidden" style={{ width: '738px' }}>
+              <div className="w-full" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <div className="flex items-center gap-3">
+                  <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: '#171717' }}>
+                    Up next
+                  </h2>
+                </div>
+                <Card className="overflow-hidden w-full">
                   <CardContent className="p-0">
-                    {upcomingAppointments.map((appt, index) => (
-                      <Link key={appt.id} href="/appointments" className="block">
-                        <div
-                          className="transition-colors hover:bg-[#F7F8F9]"
-                          style={{
-                            width: '738px',
-                            height: '96px',
-                            backgroundColor: '#FFFFFF',
-                            padding: '20px',
-                            borderBottom: index === upcomingAppointments.length - 1 ? 'none' : '1px solid #E5E5E5',
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            gap: '16px',
-                          }}
-                        >
-                          <div
-                            className="flex items-center justify-center flex-shrink-0"
-                            style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: '#BFDBFE' }}
-                          >
-                            {appt.type === 'doctor' ? (
-                              <Stethoscope className="h-5 w-5" style={{ color: '#1E40AF' }} />
-                            ) : (
-                              <FlaskConical className="h-5 w-5" style={{ color: '#1E40AF' }} />
-                            )}
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flexGrow: 1 }}>
-                            <h3 className="font-semibold" style={{ fontSize: '18px', fontWeight: 600, lineHeight: '28px', color: '#171717', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {appt.title}
-                            </h3>
-                            <p className="font-medium" style={{ fontSize: '14px', fontWeight: 500, lineHeight: '20px', color: '#737373' }}>
-                              {appt.date_formatted} · {appt.patient_name}
-                            </p>
-                          </div>
-                          <div
-                            className="flex items-center justify-center flex-shrink-0"
-                            style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: '#EEF0F3', border: '1px solid #DEE1E7' }}
-                          >
-                            <ChevronRight className="h-5 w-5" style={{ color: '#00184D', strokeWidth: 1.25 }} />
-                          </div>
-                        </div>
-                      </Link>
+                    {upcomingAppointments.slice(0, 3).map((appt, i, arr) => (
+                      <DashboardCard
+                        key={`onboarding-appt-${appt.id}`}
+                        type="appointment_upcoming"
+                        title={appt.title}
+                        subtitle={`${appt.date_formatted} · ${appt.patient_name}`}
+                        iconOverride={appt.type === 'lab_test' ? FlaskConical : Stethoscope}
+                        patientName={appt.patient_name}
+                        patientInitials={appt.patient_initials}
+                        actionLabel="View"
+                        actionVariant="outline"
+                        onAction={() => router.visit('/appointments')}
+                        menuItems={[]}
+                        isLast={i === arr.length - 1}
+                      />
                     ))}
                   </CardContent>
                 </Card>
               </div>
             )}
 
-            {/* Complete your profile */}
-            <div style={{ display: 'flex', flexDirection: 'column', width: '738px', gap: '24px' }}>
-              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '738px', height: '28px' }}>
+            {/* Profile completion steps */}
+            <div className="w-full" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div className="flex items-center gap-3">
                 <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: '#171717' }}>
                   Complete your profile
                 </h2>
-                <p className="font-medium" style={{ fontSize: '14px', fontWeight: 500, lineHeight: '20px', color: '#737373' }}>
-                  {profileSteps.filter(step => step.completed).length} of {profileSteps.length} done
-                </p>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: '#EEF0F3', color: '#525252' }}>
+                  {profileSteps.filter(s => s.completed).length} of {profileSteps.length} done
+                </span>
               </div>
-
-              <Card className="overflow-hidden" style={{ width: '738px' }}>
+              <Card className="overflow-hidden w-full">
                 <CardContent className="p-0">
-                  {profileSteps.map((step, index) => (
-                    <ProfileStepItem
-                      key={step.id}
-                      step={step}
-                      isLast={index === profileSteps.length - 1}
-                    />
-                  ))}
+                  {profileSteps.map((step, i) => renderProfileStep(step, i === profileSteps.length - 1))}
                 </CardContent>
               </Card>
             </div>
 
-          </>
-        )}
-
-        {/* ─── PROMOTIONAL BANNER (dynamic, dismissible) ─── */}
-        {activePromotion && (
-          <div style={{ width: '738px', height: '216px', borderRadius: '24px', background: activePromotion.bg_gradient, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4px', position: 'relative', overflow: 'hidden' }}>
-            {/* Dismiss button */}
-            <button
-              onClick={() => handleDismissPromotion(activePromotion.id)}
-              className="flex items-center justify-center rounded-full hover:bg-white/20 transition-colors"
-              style={{ position: 'absolute', top: '16px', right: '16px', width: '32px', height: '32px', zIndex: 20, background: 'rgba(255,255,255,0.15)' }}
-            >
-              <X className="h-4 w-4" style={{ color: '#FFFFFF' }} />
-            </button>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '32px', flexGrow: 1, zIndex: 10 }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '450px' }}>
-                <h2 className="font-semibold" style={{ fontSize: '24px', fontWeight: 600, lineHeight: '32px', letterSpacing: '-0.5px', color: '#FFFFFF', margin: 0 }}>
-                  {activePromotion.title}
-                </h2>
-                <p className="font-medium" style={{ fontSize: '14px', fontWeight: 500, lineHeight: '20px', letterSpacing: '0px', color: 'rgba(255, 255, 255, 0.7)', margin: 0 }}>
-                  {activePromotion.description}
-                </p>
-              </div>
-              <Button
-                asChild
-                className="font-semibold rounded-full"
-                style={{ width: 'fit-content', height: '48px', backgroundColor: '#FFFFFF', color: '#00184D', fontSize: '16px', fontWeight: 600, lineHeight: '24px', paddingLeft: '24px', paddingRight: '24px', border: 'none', whiteSpace: 'nowrap' }}
+            {/* Promotional vaccination banner */}
+            {visiblePromotion && (
+              <div
+                className="relative overflow-hidden w-full"
+                style={{
+                  height: '216px',
+                  background: visiblePromotion.bg_gradient,
+                  borderRadius: '24px',
+                }}
               >
-                <Link href={activePromotion.button_href}>{activePromotion.button_text}</Link>
-              </Button>
-            </div>
-            {activePromotion.image_url && (
-              <div style={{ width: '220px', height: '216px', overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
-                <img
-                  src={activePromotion.image_url}
-                  alt={activePromotion.title}
-                  style={{ width: '700px', height: '700px', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', objectFit: 'contain' }}
-                />
+                <button
+                  onClick={() => dismissPromotion(visiblePromotion.id)}
+                  className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 transition-colors z-10"
+                >
+                  <Icon icon={X} className="h-4 w-4 text-white" />
+                </button>
+                <div className="flex items-center justify-between h-full px-10">
+                  <div className="flex flex-col gap-3 max-w-md">
+                    <h3 className="text-white font-bold text-2xl leading-tight">
+                      {visiblePromotion.title}
+                    </h3>
+                    <p className="text-white/90 font-medium text-sm leading-relaxed">
+                      {visiblePromotion.description}
+                    </p>
+                    <Button asChild size="lg" className="bg-white text-[#171717] hover:bg-white/90 w-fit mt-2 font-semibold">
+                      <Link href={visiblePromotion.button_href}>
+                        {visiblePromotion.button_text}
+                      </Link>
+                    </Button>
+                  </div>
+                  {visiblePromotion.image_url && (
+                    <img
+                      src={visiblePromotion.image_url}
+                      alt={visiblePromotion.title}
+                      className="h-full object-contain"
+                    />
+                  )}
+                </div>
               </div>
             )}
-          </div>
+          </>
         )}
       </div>
 
@@ -815,6 +1266,59 @@ export default function Dashboard({
         duration={4000}
         onHide={() => setShowToast(false)}
       />
+
+      {/* Appointment Action Sheets */}
+      <Sheet open={sheetView !== null} onOpenChange={(open) => !open && setSheetView(null)}>
+        <SheetContent className="overflow-y-auto">
+          {sheetView?.type === 'details' && (
+            <DetailsSheet
+              appointment={convertToFullAppointment(sheetView.appointment)}
+              tab="upcoming"
+              onAction={(view) => {
+                if (view?.type === 'reschedule') {
+                  setSheetView({ type: 'reschedule', appointment: sheetView.appointment });
+                } else if (view?.type === 'cancel') {
+                  setSheetView({ type: 'cancel', appointment: sheetView.appointment });
+                } else {
+                  setSheetView(null);
+                }
+              }}
+            />
+          )}
+          {sheetView?.type === 'cancel' && (
+            <CancelSheet
+              appointment={convertToFullAppointment(sheetView.appointment)}
+              onSuccess={() => {
+                setSheetView(null);
+                setToastMessage('Appointment cancelled. Refund initiated.');
+                setShowToast(true);
+                router.reload();
+              }}
+              onError={(msg) => {
+                setToastMessage(msg);
+                setShowToast(true);
+              }}
+              onClose={() => setSheetView(null)}
+            />
+          )}
+          {sheetView?.type === 'reschedule' && (
+            <RescheduleSheet
+              appointment={convertToFullAppointment(sheetView.appointment)}
+              onSuccess={() => {
+                setSheetView(null);
+                setToastMessage('Appointment rescheduled successfully.');
+                setShowToast(true);
+                router.reload();
+              }}
+              onError={(msg) => {
+                setToastMessage(msg);
+                setShowToast(true);
+              }}
+              onClose={() => setSheetView(null)}
+            />
+          )}
+        </SheetContent>
+      </Sheet>
     </AppLayout>
   );
 }
@@ -829,6 +1333,72 @@ function formatTime(time: string): string {
   return `${hour}:${String(m).padStart(2, '0')} ${suffix}`;
 }
 
+function generateICSFile(appt: UpcomingAppointment): void {
+  // Format date and time for ICS (YYYYMMDDTHHMMSS)
+  const formatICSDateTime = (dateStr: string, timeStr: string): string => {
+    const date = new Date(dateStr);
+    const [hours, minutes] = timeStr.split(':');
+    date.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hour = String(date.getHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
+    const second = '00';
+
+    return `${year}${month}${day}T${hour}${minute}${second}`;
+  };
+
+  // Calculate end time (1 hour after start)
+  const calculateEndTime = (dateStr: string, timeStr: string): string => {
+    const date = new Date(dateStr);
+    const [hours, minutes] = timeStr.split(':');
+    date.setHours(parseInt(hours, 10) + 1, parseInt(minutes, 10), 0, 0);
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hour = String(date.getHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
+    const second = '00';
+
+    return `${year}${month}${day}T${hour}${minute}${second}`;
+  };
+
+  const dtStart = formatICSDateTime(appt.date_formatted, appt.time);
+  const dtEnd = calculateEndTime(appt.date_formatted, appt.time);
+  const location = appt.mode === 'Video' ? 'Video Consultation' : appt.subtitle;
+
+  const icsContent = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Healthcare Platform//EN',
+    'BEGIN:VEVENT',
+    `UID:${appt.id}@healthcare-platform.com`,
+    `DTSTAMP:${formatICSDateTime(new Date().toISOString().split('T')[0], new Date().toTimeString().split(' ')[0])}`,
+    `DTSTART:${dtStart}`,
+    `DTEND:${dtEnd}`,
+    `SUMMARY:${appt.title}`,
+    `DESCRIPTION:${appt.subtitle}`,
+    `LOCATION:${location}`,
+    'STATUS:CONFIRMED',
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ].join('\r\n');
+
+  // Create blob and trigger download
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `appointment-${appt.id}.ics`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 // --- Profile Step Item ---
 
 interface ProfileStepItemProps {
@@ -839,9 +1409,8 @@ interface ProfileStepItemProps {
 function ProfileStepItem({ step, isLast }: ProfileStepItemProps) {
   const content = (
     <div
-      className={`transition-colors duration-300 ${step.completed ? '' : 'hover:bg-[#F7F8F9]'}`}
+      className={`transition-colors duration-300 w-full ${step.completed ? '' : 'hover:bg-[#F7F8F9]'}`}
       style={{
-        width: '738px',
         height: '96px',
         backgroundColor: step.completed ? '#F0FDF4' : '#FFFFFF',
         padding: '20px',
@@ -860,7 +1429,7 @@ function ProfileStepItem({ step, isLast }: ProfileStepItemProps) {
             backgroundColor: '#DCFCE7', animation: 'checkmark-pop 0.3s ease-out',
           }}
         >
-          <Check className="h-5 w-5" style={{ color: '#16A34A' }} />
+          <Icon icon={Check} className="h-5 w-5" style={{ color: '#16A34A' }} />
         </div>
       ) : (
         <div
@@ -887,7 +1456,7 @@ function ProfileStepItem({ step, isLast }: ProfileStepItemProps) {
           className="flex items-center justify-center flex-shrink-0"
           style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: '#EEF0F3', border: '1px solid #DEE1E7' }}
         >
-          <ChevronRight className="h-5 w-5" style={{ color: '#00184D', strokeWidth: 1.25 }} />
+          <Icon icon={ChevronRight} className="h-5 w-5" style={{ color: '#00184D' }} strokeWidth={1.25} />
         </div>
       )}
     </div>

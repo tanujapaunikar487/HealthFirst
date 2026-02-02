@@ -14,7 +14,8 @@ import {
 } from '@/Components/ui/prompt-input';
 import { PromptInputContainer } from '@/Components/ui/prompt-input-container';
 import { Loader } from '@/Components/ui/loader';
-import { Plus, ArrowUp, Mic, X, Check } from 'lucide-react';
+import { Plus, ArrowUp, Mic, X, Check } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 import { EmbeddedComponent } from '@/Features/booking-chat/EmbeddedComponent';
 import { ThinkingIndicator } from '@/Components/Booking/ThinkingIndicator';
 import { AudioWaveform } from '@/Components/ui/AudioWaveform';
@@ -326,7 +327,8 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
               <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="font-medium text-xs sm:text-sm">Booking an appointment</span>
             </div>
-            <div className="flex items-center gap-1 border rounded-full p-0.5 sm:p-1 bg-gray-50">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-1 border rounded-full p-0.5 sm:p-1 bg-gray-50">
               <button
                 className={cn(
                   'p-1 sm:p-1.5 rounded-full transition-all',
@@ -352,6 +354,16 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                   alt=""
                   className="w-3.5 h-3.5 sm:w-4 sm:h-4"
                 />
+              </button>
+            </div>
+
+              {/* Cancel button */}
+              <button
+                onClick={() => router.visit('/')}
+                className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full hover:bg-gray-100 transition-colors"
+                title="Cancel booking"
+              >
+                <Icon icon={X} className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600" />
               </button>
             </div>
           </div>
@@ -476,7 +488,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                             e.currentTarget.style.backgroundColor = '#FFFFFF';
                           }}
                         >
-                          <Plus className="w-[18px] h-[18px]" />
+                          <Icon icon={Plus} className="w-[18px] h-[18px]" />
                         </button>
                       </PromptInputAction>
                     )}
@@ -511,7 +523,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                               e.currentTarget.style.backgroundColor = '#FFFFFF';
                             }}
                           >
-                            <X className="w-[18px] h-[18px] text-red-600" />
+                            <Icon icon={X} className="w-[18px] h-[18px] text-red-600" />
                           </button>
                         </PromptInputAction>
 
@@ -537,7 +549,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                               e.currentTarget.style.backgroundColor = '#0052FF';
                             }}
                           >
-                            <Check className="w-5 h-5 text-white" />
+                            <Icon icon={Check} className="w-5 h-5 text-white" />
                           </button>
                         </PromptInputAction>
                       </>
@@ -567,7 +579,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                               e.currentTarget.style.backgroundColor = '#FFFFFF';
                             }}
                           >
-                            <Mic className={cn(
+                            <Icon icon={Mic} className={cn(
                               "w-[18px] h-[18px]",
                               isTranscribing && "animate-pulse text-blue-600"
                             )} />
@@ -601,7 +613,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                               }
                             }}
                           >
-                            <ArrowUp className="w-5 h-5 text-white" />
+                            <Icon icon={ArrowUp} className="w-5 h-5 text-white" />
                           </button>
                         </PromptInputAction>
                       </>

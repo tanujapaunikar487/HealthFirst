@@ -1,4 +1,5 @@
-import { Star } from 'lucide-react';
+import { Star } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 import { cn } from '@/Lib/utils';
 
 interface TimeSlot {
@@ -32,7 +33,7 @@ export function TimeSlotGrid({ slots, selectedTime, onSelect, className }: TimeS
         >
           {slot.time}
           {slot.preferred && selectedTime !== slot.time && (
-            <Star className="absolute -top-1 -right-1 h-3 w-3 fill-black text-black" />
+            <Icon icon={Star} className="absolute -top-1 -right-1 h-3 w-3 fill-black text-black" />
           )}
         </button>
       ))}

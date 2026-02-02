@@ -13,7 +13,8 @@ import {
   SelectValue,
 } from '@/Components/ui/select';
 import { cn } from '@/Lib/utils';
-import { Search, Star } from 'lucide-react';
+import { Search, Star } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 const doctorSteps = [
   { id: 'concerns', label: 'Concerns' },
@@ -280,7 +281,7 @@ export default function DoctorTimeStep({
               </Select>
 
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Icon icon={Search} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search patient, doctor, date"
                   value={searchQuery}
@@ -424,7 +425,7 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: D
           >
             {slot.time}
             {slot.preferred && selectedTime !== slot.time && (
-              <Star className="absolute -top-1 -right-1 h-3 w-3 fill-black text-black" />
+              <Icon icon={Star} className="absolute -top-1 -right-1 h-3 w-3 fill-black text-black" />
             )}
           </button>
         ))}

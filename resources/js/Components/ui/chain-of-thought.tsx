@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { cn } from '@/Lib/utils';
 import * as CollapsiblePrimitive from '@radix-ui/react-collapsible';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 const ChainOfThought = React.forwardRef<
   HTMLDivElement,

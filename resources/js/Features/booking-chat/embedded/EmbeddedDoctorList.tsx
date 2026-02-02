@@ -11,7 +11,8 @@ import {
   SelectValue,
 } from '@/Components/ui/select';
 import { cn } from '@/Lib/utils';
-import { Search, Star } from 'lucide-react';
+import { Search, Star } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 interface TimeSlot {
   time: string;

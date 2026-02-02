@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { cn } from '@/Lib/utils';
 import { useChatContainer } from '@/Components/ui/chat-container';
-import { ArrowDown } from 'lucide-react';
+import { ArrowDown } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 /**
  * ScrollButton Component

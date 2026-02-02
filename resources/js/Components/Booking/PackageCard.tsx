@@ -1,7 +1,8 @@
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
-import { Clock, FlaskConical, User, ChevronRight } from 'lucide-react';
+import { Clock, FlaskConical, User, ChevronRight } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 interface Package {
   id: string;
@@ -82,7 +83,7 @@ export function PackageCard({ package: pkg, isSelected, onSelect, className }: P
           >
             Select
           </Button>
-          <Button size="sm" variant="ghost" className="w-8 h-8 p-0 rounded-full">
+          <Button size="sm" variant="ghost" className="w-8 h-8 p-0">
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>

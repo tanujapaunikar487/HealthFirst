@@ -1,7 +1,8 @@
 import * as React from 'react';
 import * as SheetPrimitive from '@radix-ui/react-dialog';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { X } from 'lucide-react';
+import { X } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 import { cn } from '@/Lib/utils';
 
 const Sheet = SheetPrimitive.Root;
@@ -56,6 +57,21 @@ const SheetContent = React.forwardRef<
     <SheetPrimitive.Content
       ref={ref}
       className={cn(sheetVariants({ side }), className)}
+      style={{
+        width: '500px',
+        borderRadius: '24px',
+        border: '1px solid #E5E5E5',
+        background: '#FFF',
+        boxShadow: '0 32px 32px 0 rgba(23, 23, 23, 0.12), 0 50px 60px 0 rgba(23, 23, 23, 0.12)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'stretch',
+        top: '10px',
+        right: '10px',
+        bottom: '10px',
+        left: 'auto',
+        height: 'auto',
+      }}
       {...props}
     >
       <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">

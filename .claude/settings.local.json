@@ -4,7 +4,8 @@
       "Bash(export PATH=\"/opt/homebrew/bin:$PATH\")",
       "Bash(php artisan serve:*)",
       "Bash(npm run dev:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(/opt/homebrew/bin/brew install:*)"
     ]
   }
 }

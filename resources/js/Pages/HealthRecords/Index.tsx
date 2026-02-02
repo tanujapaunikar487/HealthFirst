@@ -79,7 +79,7 @@ import {
   Activity,
   ShieldCheck,
   FileDown,
-} from 'lucide-react';
+} from '@/Lib/icons';
 
 /* ─── Types ─── */
 
@@ -349,6 +349,7 @@ interface Props {
   familyMembers: FamilyMember[];
   abnormalCount: number;
   preSelectedRecordId?: number | null;
+  preSelectedMemberId?: number | null;
 }
 
 /* ─── Category Config ─── */
@@ -392,8 +393,8 @@ const RECORDS_PER_PAGE = 10;
 function CategoryIcon({ category, size = 'md' }: { category: string; size?: 'sm' | 'md' }) {
   const config = categoryConfig[category] || { icon: FileText, color: '#6B7280', bg: '#F3F4F6' };
   const Icon = config.icon;
-  const dim = size === 'sm' ? 'h-8 w-8' : 'h-10 w-10';
-  const iconDim = size === 'sm' ? 'h-4 w-4' : 'h-[18px] w-[18px]';
+  const dim = size === 'sm' ? 'h-10 w-10' : 'h-10 w-10';
+  const iconDim = size === 'sm' ? 'h-5 w-5' : 'h-[18px] w-[18px]';
   return (
     <div
       className={cn(dim, 'rounded-full flex items-center justify-center flex-shrink-0')}
@@ -470,12 +471,12 @@ function HealthRecordsSkeleton() {
 
 /* ─── Page ─── */
 
-export default function Index({ user, records, familyMembers, abnormalCount, preSelectedRecordId }: Props) {
+export default function Index({ user, records, familyMembers, abnormalCount, preSelectedRecordId, preSelectedMemberId }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(records);
   const [activeTab, setActiveTab] = useState('all');
   const [subCategoryFilter, setSubCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [memberFilter, setMemberFilter] = useState<string>('all');
+  const [memberFilter, setMemberFilter] = useState<string>(preSelectedMemberId ? String(preSelectedMemberId) : 'all');
   const [datePreset, setDatePreset] = useState('any');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
@@ -836,7 +837,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
         {/* Table */}
         {filteredRecords.length > 0 ? (
           <div className={selectedIds.size === 0 ? 'mt-4' : ''}>
-            <div className="rounded-lg border">
+            <div className="border" style={{ borderRadius: '20px' }}>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -968,46 +969,46 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                   })}
                 </TableBody>
               </Table>
-            </div>
 
-            {/* Pagination Footer */}
-            <div className="flex items-center justify-between mt-4">
-              <p className="text-sm text-muted-foreground">
-                Showing {startIdx + 1}–{Math.min(startIdx + RECORDS_PER_PAGE, filteredRecords.length)} of {filteredRecords.length} records
-              </p>
-              {totalPages > 1 && (
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-8 w-8 p-0"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage((p) => p - 1)}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              {/* Pagination Footer */}
+              <div className="flex items-center justify-between px-4 py-4 border-t border-[#E5E5E5]">
+                <p className="text-sm text-muted-foreground">
+                  Showing {startIdx + 1}–{Math.min(startIdx + RECORDS_PER_PAGE, filteredRecords.length)} of {filteredRecords.length} records
+                </p>
+                {totalPages > 1 && (
+                  <div className="flex items-center gap-1">
                     <Button
-                      key={page}
-                      variant={page === currentPage ? 'default' : 'outline'}
+                      variant="outline"
                       size="sm"
                       className="h-8 w-8 p-0"
-                      onClick={() => setCurrentPage(page)}
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage((p) => p - 1)}
                     >
-                      {page}
+                      <ChevronLeft className="h-4 w-4" />
                     </Button>
-                  ))}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-8 w-8 p-0"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage((p) => p + 1)}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <Button
+                        key={page}
+                        variant={page === currentPage ? 'default' : 'outline'}
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => setCurrentPage(page)}
+                      >
+                        {page}
+                      </Button>
+                    ))}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage((p) => p + 1)}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
 
             <p className="text-xs text-muted-foreground mt-4">
@@ -1025,7 +1026,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
             </div>
             <h3 className="text-lg font-semibold mb-1">No records yet</h3>
             <p className="text-sm text-muted-foreground mb-4">Book an appointment to get started.</p>
-            <Button asChild>
+            <Button asChild size="lg">
               <Link href="/booking">Book Appointment</Link>
             </Button>
           </div>
@@ -1107,7 +1108,7 @@ function RecordDetailSheet({ record, memberMap, onDownload, onAction }: { record
 
       <div className="pt-6 mt-6 border-t space-y-2">
         {record.appointment_id && (
-          <Button asChild variant="outline" className="w-full rounded-full gap-2">
+          <Button asChild variant="outline" className="w-full">
             <Link href={`/appointments/${record.appointment_id}`}>
               <ExternalLink className="h-4 w-4" />
               View Appointment
@@ -1115,7 +1116,7 @@ function RecordDetailSheet({ record, memberMap, onDownload, onAction }: { record
           </Button>
         )}
         {record.category === 'invoice' && record.appointment_id && (
-          <Button asChild variant="outline" className="w-full rounded-full gap-2">
+          <Button asChild variant="outline" className="w-full">
             <Link href={`/billing/${record.appointment_id}`}>
               <Receipt className="h-4 w-4" />
               View Bill
@@ -1123,7 +1124,7 @@ function RecordDetailSheet({ record, memberMap, onDownload, onAction }: { record
           </Button>
         )}
         {record.file_type && (
-          <Button variant="outline" className="w-full rounded-full gap-2" onClick={onDownload}>
+          <Button variant="outline" className="w-full" onClick={onDownload}>
             <Download className="h-4 w-4" />
             Download
           </Button>
@@ -1394,7 +1395,7 @@ function ConsultationDetail({ meta, onAction }: { meta: RecordMetadata; onAction
             {meta.follow_up_date && (
               <p className="text-xs text-muted-foreground">Recommended: {fmtDate(meta.follow_up_date)}</p>
             )}
-            <Button size="sm" variant="outline" className="w-full gap-2" onClick={() => onAction('Follow-up booking coming soon')}>
+            <Button size="sm" variant="outline" className="w-full" onClick={() => onAction('Follow-up booking coming soon')}>
               <Calendar className="h-3.5 w-3.5" />
               Book Follow-up Appointment
             </Button>

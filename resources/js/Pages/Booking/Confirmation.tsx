@@ -2,7 +2,8 @@ import { Link } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
 import { Card } from '@/Components/ui/card';
 import { AddToCalendarButton } from '@/Components/AddToCalendarButton';
-import { Check, Info, Plus } from 'lucide-react';
+import { Check, Info, Plus } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 interface Booking {
   id: string;
@@ -56,7 +57,7 @@ export default function Confirmation({ booking }: Props) {
         {/* Success icon */}
         <div className="flex justify-center">
           <div className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center">
-            <Check className="w-8 h-8 text-white" strokeWidth={3} />
+            <Icon icon={Check} className="w-8 h-8 text-white" strokeWidth={3} />
           </div>
         </div>
 
@@ -93,7 +94,7 @@ export default function Confirmation({ booking }: Props) {
         <div className="bg-blue-50 rounded-xl p-4">
           <div className="flex items-start gap-3">
             <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
-              <Info className="w-3.5 h-3.5 text-white" />
+              <Icon icon={Info} className="w-3.5 h-3.5 text-white" />
             </div>
             <div className="flex-1">
               <p className="font-semibold text-sm mb-2">What's next?</p>
@@ -119,7 +120,7 @@ export default function Confirmation({ booking }: Props) {
             variant="outline"
             asChild
             size="lg"
-            className="w-full rounded-full"
+            className="w-full"
           >
             <Link href="/appointments">View My Appointments</Link>
           </Button>
@@ -127,10 +128,10 @@ export default function Confirmation({ booking }: Props) {
             variant="ghost"
             asChild
             size="lg"
-            className="w-full rounded-full"
+            className="w-full"
           >
             <Link href="/booking" className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
+              <Icon icon={Plus} className="h-4 w-4" />
               Book Another Appointment
             </Link>
           </Button>

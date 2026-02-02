@@ -26,7 +26,7 @@ import {
   Phone,
   ChevronRight,
   Receipt,
-} from 'lucide-react';
+} from '@/Lib/icons';
 
 /* ─── Types ─── */
 
@@ -281,7 +281,7 @@ function StatusAlertBanner({ bill }: { bill: Bill }) {
 
 function BillingShowSkeleton() {
   return (
-    <div style={{ width: '100%', maxWidth: '960px', padding: '40px 0' }}>
+    <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
       {/* Breadcrumb */}
       <Pulse className="h-4 w-32 mb-6" />
       {/* Status banner */}
@@ -499,7 +499,7 @@ export default function Show({ user, bill }: Props) {
 
   return (
     <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing-selected.svg">
-      <div style={{ width: '100%', maxWidth: '720px', padding: '40px 0' }}>
+      <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
 
         {/* ─── Breadcrumb ─── */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
@@ -520,7 +520,7 @@ export default function Show({ user, bill }: Props) {
             {isPayable && (
               <Button
                 size="sm"
-                className="text-xs rounded-full gap-1.5"
+                className="text-xs"
                 disabled={paymentLoading}
                 onClick={() => handlePayment(bill.due_amount)}
               >
@@ -531,7 +531,7 @@ export default function Show({ user, bill }: Props) {
             {isEmi && bill.emi_details && (
               <Button
                 size="sm"
-                className="text-xs rounded-full gap-1.5"
+                className="text-xs"
                 disabled={paymentLoading}
                 onClick={() => handlePayment(bill.emi_details!.monthly_amount)}
               >
@@ -542,7 +542,7 @@ export default function Show({ user, bill }: Props) {
             <Button
               variant="outline"
               size="sm"
-              className="text-xs rounded-full gap-1.5"
+              className="text-xs"
               onClick={handleDownloadInvoice}
             >
               <Download className="h-3.5 w-3.5" />
@@ -552,7 +552,7 @@ export default function Show({ user, bill }: Props) {
               <Button
                 variant="outline"
                 size="sm"
-                className="text-xs rounded-full gap-1.5"
+                className="text-xs"
                 onClick={() => showToast('Receipt downloaded')}
               >
                 <Receipt className="h-3.5 w-3.5" />

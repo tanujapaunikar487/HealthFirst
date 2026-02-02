@@ -1,5 +1,6 @@
 import React from 'react';
-import { AlertTriangle, Phone, Ambulance, Shield, Flame } from 'lucide-react';
+import { AlertTriangle, Phone, Ambulance, Shield, Flame } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 interface EmergencyAlertProps {
     emergencyNumber: string;
@@ -20,7 +21,7 @@ export function EmergencyAlert({
         <div className="bg-red-50 border-2 border-red-500 rounded-xl p-6 my-4 shadow-lg">
             {/* Header */}
             <div className="flex items-center gap-3 text-red-700 font-bold text-xl mb-4">
-                <AlertTriangle className="w-8 h-8 animate-pulse" />
+                <Icon icon={AlertTriangle} className="w-8 h-8 animate-pulse" />
                 <span>Medical Emergency Detected</span>
             </div>
 
@@ -31,7 +32,7 @@ export function EmergencyAlert({
                     href={`tel:${emergencyNumber}`}
                     className="flex items-center justify-center gap-3 bg-red-600 hover:bg-red-700 text-white py-4 px-6 rounded-lg font-bold text-lg shadow-md transition-colors"
                 >
-                    <Phone className="w-6 h-6" />
+                    <Icon icon={Phone} className="w-6 h-6" />
                     <span>Call {emergencyNumber} (Emergency Services)</span>
                 </a>
 
@@ -40,7 +41,7 @@ export function EmergencyAlert({
                     href={`tel:${ambulanceNumber}`}
                     className="flex items-center justify-center gap-3 bg-orange-500 hover:bg-orange-600 text-white py-4 px-6 rounded-lg font-bold text-lg shadow-md transition-colors"
                 >
-                    <Ambulance className="w-6 h-6" />
+                    <Icon icon={Ambulance} className="w-6 h-6" />
                     <span>Call {ambulanceNumber} (Ambulance)</span>
                 </a>
 
@@ -51,7 +52,7 @@ export function EmergencyAlert({
                             href={`tel:${policeNumber}`}
                             className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold text-sm shadow-sm transition-colors"
                         >
-                            <Shield className="w-4 h-4" />
+                            <Icon icon={Shield} className="w-4 h-4" />
                             <span>Police {policeNumber}</span>
                         </a>
                     )}
@@ -60,7 +61,7 @@ export function EmergencyAlert({
                             href={`tel:${fireNumber}`}
                             className="flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white py-3 px-4 rounded-lg font-semibold text-sm shadow-sm transition-colors"
                         >
-                            <Flame className="w-4 h-4" />
+                            <Icon icon={Flame} className="w-4 h-4" />
                             <span>Fire {fireNumber}</span>
                         </a>
                     )}

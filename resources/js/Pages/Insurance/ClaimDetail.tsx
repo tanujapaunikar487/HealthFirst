@@ -32,7 +32,7 @@ import {
   Baby,
   Microscope,
   Siren,
-} from 'lucide-react';
+} from '@/Lib/icons';
 
 // --- Interfaces ---
 
@@ -544,7 +544,7 @@ function TimelineEventRow({
 
 function ClaimDetailSkeleton() {
   return (
-    <div className="mx-auto max-w-[960px] px-6 py-8">
+    <div className="mx-auto max-w-[800px] px-4 sm:px-6 py-8">
       <Pulse className="h-4 w-24 mb-6" />
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -712,7 +712,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         </div>
       </div>
 
-      <div className="mx-auto max-w-[960px] px-6 py-8">
+      <div className="mx-auto max-w-[800px] px-4 sm:px-6 py-8">
         {/* Breadcrumb */}
         <div className="mb-6 flex items-center gap-1.5 text-sm text-gray-500">
           <button

@@ -2938,54 +2938,6 @@ class HospitalSeeder extends Seeder
             'file_type' => 'pdf',
         ];
 
-        // === HEALTH ALERT CARD - Lab report with ABNORMAL results ===
-        $records[] = [
-            'appointment_id' => null,
-            'family_member_id' => $fatherMember?->id,
-            'category' => 'lab_report',
-            'title' => 'Blood Sugar (Fasting)',
-            'description' => 'Fasting blood glucose test showing elevated levels — needs attention.',
-            'doctor_name' => 'Dr. Sarah Johnson',
-            'department_name' => 'General Medicine',
-            'record_date' => Carbon::today()->subDays(5)->format('Y-m-d'),
-            'metadata' => [
-                'test_name' => 'Fasting Blood Sugar',
-                'test_category' => 'Biochemistry',
-                'lab_name' => 'Pune Diagnostics Lab',
-                'results' => [
-                    ['parameter' => 'Fasting Glucose', 'value' => '142', 'unit' => 'mg/dL', 'reference_range' => '70-100', 'status' => 'high'],
-                    ['parameter' => 'HbA1c', 'value' => '6.8', 'unit' => '%', 'reference_range' => '<5.7', 'status' => 'abnormal'],
-                ],
-            ],
-            'file_type' => 'pdf',
-        ];
-
-        // === FUTURE FOLLOW-UP CARD - Completed appointment with follow-up in 3 days ===
-        // First, we need to get the existing completed appointment (appointment 5 - cough/cold, 14 days ago)
-        $completedAppt = $appointments->get(4); // The appointment from 14 days ago (Dr. Priya Sharma, Cough/Cold)
-
-        if ($completedAppt) {
-            $records[] = [
-                'appointment_id' => $completedAppt->id,
-                'family_member_id' => $selfMember?->id,
-                'category' => 'consultation_notes',
-                'title' => 'Consultation Notes — Dr. Priya Sharma (Respiratory)',
-                'description' => 'Patient presented with persistent cough and cold. Prescribed antibiotics and advised follow-up.',
-                'doctor_name' => 'Dr. Priya Sharma',
-                'department_name' => 'General Medicine',
-                'record_date' => Carbon::today()->subDays(14)->format('Y-m-d'),
-                'metadata' => [
-                    'diagnosis' => 'Upper Respiratory Tract Infection',
-                    'icd_code' => 'J06.9',
-                    'symptoms' => ['Cough', 'Cold', 'Congestion'],
-                    'examination_findings' => 'Throat congested, mild wheezing on auscultation. Temperature normal.',
-                    'treatment_plan' => 'Azithromycin 500mg OD for 5 days. Steam inhalation. Plenty of fluids. Follow-up in 3 days.',
-                    'follow_up_date' => Carbon::today()->addDays(3)->format('Y-m-d'),
-                    'follow_up_recommendation' => 'Follow-up in 3 days to assess response to antibiotics. If cough persists, chest X-ray may be needed.',
-                ],
-            ];
-        }
-
         foreach ($records as $record) {
             // Update created_at for the new results ready record
             $recordData = array_merge($record, ['user_id' => $user->id]);

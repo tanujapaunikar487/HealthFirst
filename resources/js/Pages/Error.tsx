@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
-import { AlertTriangle, FileQuestion, ShieldX, ServerCrash, ArrowLeft, RefreshCw } from 'lucide-react';
+import { AlertTriangle, FileQuestion, ShieldX, ServerCrash, ArrowLeft, RefreshCw } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 import { Button } from '@/Components/ui/button';
 
 interface Props {
@@ -35,7 +36,7 @@ export default function Error({ status, message }: Props) {
     icon: AlertTriangle,
     action: 'back' as const,
   };
-  const Icon = error.icon;
+  const ErrorIcon = error.icon;
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-6">
@@ -47,7 +48,7 @@ export default function Error({ status, message }: Props) {
 
         {/* Icon */}
         <div className="mx-auto h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-6">
-          <Icon className="h-8 w-8 text-muted-foreground" />
+          <Icon icon={ErrorIcon} className="h-8 w-8 text-muted-foreground" />
         </div>
 
         {/* Title */}
@@ -66,15 +67,13 @@ export default function Error({ status, message }: Props) {
             <>
               <Button
                 onClick={() => window.location.reload()}
-                style={{ backgroundColor: '#0052FF' }}
-                className="text-white rounded-full gap-2"
               >
-                <RefreshCw className="h-4 w-4" />
+                <Icon icon={RefreshCw} className="h-4 w-4" />
                 Try Again
               </Button>
               <Link href="/dashboard">
-                <Button variant="outline" className="rounded-full gap-2">
-                  <ArrowLeft className="h-4 w-4" />
+                <Button variant="outline">
+                  <Icon icon={ArrowLeft} className="h-4 w-4" />
                   Go Home
                 </Button>
               </Link>
@@ -83,14 +82,12 @@ export default function Error({ status, message }: Props) {
             <>
               <Button
                 onClick={() => window.history.back()}
-                style={{ backgroundColor: '#0052FF' }}
-                className="text-white rounded-full gap-2"
               >
-                <ArrowLeft className="h-4 w-4" />
+                <Icon icon={ArrowLeft} className="h-4 w-4" />
                 Go Back
               </Button>
               <Link href="/dashboard">
-                <Button variant="outline" className="rounded-full gap-2">
+                <Button variant="outline">
                   Go Home
                 </Button>
               </Link>

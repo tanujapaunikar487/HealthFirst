@@ -543,6 +543,58 @@ Implemented comprehensive guest and family member addition flow with phone/email
 - FamilyMember model: Restored `belongsTo` relationship to User
 - **Tests**: 66/67 passing (98.5% success rate) vs 30/67 before revert
 
+## Family Member Flow: 3-Option Upfront Choice (February 2, 2026)
+
+Restructured the family member/guest addition flow from a 2-level hierarchy to 3 upfront choices.
+
+### What Changed
+
+**OLD Flow**:
+```
+Choice (Guest vs Family) → [If Family] → Relationship → Add or Search → [Form or Search]
+```
+
+**NEW Flow**:
+```
+Choice (3 options upfront):
+  • Guest → 4 fields → Done
+  • Add New Family Member → Relationship → 7 fields → Done
+  • Link Existing Patient → Relationship → Search → OTP → Done
+```
+
+### Implementation
+
+**File**: [EmbeddedFamilyMemberFlow.tsx](resources/js/Features/booking-chat/embedded/EmbeddedFamilyMemberFlow.tsx)
+- Updated `Step` type: removed `add_or_search`, renamed `guest_name` → `guest_form`
+- Updated `FlowState` interface: replaced `memberType` + `addOrSearch` with single `flowType` field
+- Replaced `handleChoice` with `handleInitialChoice` (handles 3 options)
+- Updated `handleRelationshipNext` to check `flowType` and route accordingly
+- Removed `handleAddOrSearchChoice` handler (no longer needed)
+- Updated initial choice UI with 3 buttons: Guest, Add New Family Member, Link Existing Patient
+- Removed entire `add_or_search` step UI block
+- Fixed back button in `new_member_form` to go to `relationship` instead of deleted `add_or_search` step
+
+**File**: [GuidedBookingLayout.tsx](resources/js/Layouts/GuidedBookingLayout.tsx)
+- Fixed unrelated JSX syntax error (missing closing `</div>` tag)
+- Resolved build error that was blocking compilation
+
+### Key Design Decisions
+
+**Three Distinct Paths:**
+1. **Guest** (fastest): 4 required fields, no medical history access, booking-only
+2. **Add New Family Member** (most common): Full profile, NO OTP needed, full access to all features
+3. **Link Existing Patient** (rare): For members with existing hospital records, requires OTP to prove ownership
+
+**Why 3 Options Upfront:**
+- Clearer user intent from the start
+- Eliminates unnecessary intermediate step
+- Faster flow completion
+- Better aligns with user mental model
+
+### Build Status
+✅ All TypeScript compilation passing
+✅ Vite build successful (339.03 kB gzipped)
+
 ---
 
 **Status**: Production-ready healthcare management platform with AI-powered booking, comprehensive health records, billing, and insurance management.

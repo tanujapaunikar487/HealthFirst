@@ -1,5 +1,6 @@
 import { cn } from '@/Lib/utils';
-import { Building2, MapPin, Star } from 'lucide-react';
+import { Building2, MapPin, Star } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 interface Center {
   id: number;

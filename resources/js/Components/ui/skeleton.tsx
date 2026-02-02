@@ -2,7 +2,8 @@ import * as React from 'react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { router } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { AlertCircle, RefreshCw } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 /* ─── Pulse ─── */
 
@@ -20,7 +21,7 @@ export function ErrorState({ onRetry, label = 'Unable to load page' }: { onRetry
       </div>
       <p className="text-sm font-medium text-gray-600">{label}</p>
       <p className="text-xs text-gray-400">Please check your connection and try again.</p>
-      <Button variant="outline" className="mt-2 gap-2" onClick={onRetry}>
+      <Button variant="outline" className="mt-2" onClick={onRetry}>
         <RefreshCw className="h-4 w-4" />
         Try Again
       </Button>

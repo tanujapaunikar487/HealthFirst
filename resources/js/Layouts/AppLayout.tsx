@@ -17,7 +17,8 @@ import {
   Receipt, Clock, CheckCircle2, XCircle,
   ShieldCheck, ShieldAlert, MessageSquare, CreditCard,
   AlertTriangle,
-} from 'lucide-react';
+} from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 // --- Types ---
 
@@ -89,13 +90,12 @@ function timeAgo(dateStr: string): string {
 
 function NotificationIcon({ type }: { type: string }) {
   const config = notificationIconMap[type] || { icon: Bell, color: '#6B7280', bg: '#F3F4F6' };
-  const Icon = config.icon;
   return (
     <div
       className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0"
       style={{ backgroundColor: config.bg }}
     >
-      <Icon className="h-[18px] w-[18px]" style={{ color: config.color }} />
+      <Icon icon={config.icon} className="h-[18px] w-[18px]" style={{ color: config.color }} />
     </div>
   );
 }
@@ -227,22 +227,22 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-12 w-12 rounded-full hover:bg-gray-100"
+                className="h-12 w-12 hover:bg-gray-100"
                 style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5' }}
                 onClick={() => setSearchOpen(true)}
               >
-                <Search className="h-5 w-5" style={{ color: '#171717', strokeWidth: 2 }} />
+                <Icon icon={Search} className="h-5 w-5" style={{ color: '#171717' }} />
               </Button>
 
               {/* Notifications Bell → Opens Sheet */}
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-12 w-12 rounded-full hover:bg-gray-100 relative"
+                className="h-12 w-12 hover:bg-gray-100 relative"
                 style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5' }}
                 onClick={() => setNotifOpen(true)}
               >
-                <Bell className="h-5 w-5" style={{ color: '#171717', strokeWidth: 2 }} />
+                <Icon icon={Bell} className="h-5 w-5" style={{ color: '#171717' }} />
                 {unreadCount > 0 && (
                   <span className="absolute top-2.5 right-2.5 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" />
                 )}
@@ -261,7 +261,7 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
               className="flex h-6 w-6 items-center justify-center rounded-full flex-shrink-0"
               style={{ backgroundColor: '#FFE082' }}
             >
-              <AlertTriangle className="h-3.5 w-3.5" style={{ color: '#F57F17' }} />
+              <Icon icon={AlertTriangle} className="h-3.5 w-3.5" style={{ color: '#F57F17' }} />
             </div>
             <p className="text-sm font-medium" style={{ color: '#5D4037' }}>
               Your profile is incomplete. Add{' '}
@@ -316,7 +316,7 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
                   className="flex items-center gap-1 text-xs font-medium hover:underline"
                   style={{ color: '#0052FF' }}
                 >
-                  <CheckCheck className="h-3.5 w-3.5" />
+                  <Icon icon={CheckCheck} className="h-3.5 w-3.5" />
                   Mark all read
                 </button>
               )}
@@ -346,7 +346,7 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
                   className="h-14 w-14 rounded-full flex items-center justify-center mx-auto mb-3"
                   style={{ backgroundColor: '#F3F4F6' }}
                 >
-                  <Bell className="h-6 w-6 text-gray-400" />
+                  <Icon icon={Bell} className="h-6 w-6 text-gray-400" />
                 </div>
                 <p className="text-sm font-medium" style={{ color: '#00184D' }}>
                   {notifFilter === 'unread' ? 'No unread notifications' : 'No notifications yet'}

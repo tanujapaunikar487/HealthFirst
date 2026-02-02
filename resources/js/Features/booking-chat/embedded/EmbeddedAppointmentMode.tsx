@@ -1,6 +1,7 @@
 import { cn } from '@/Lib/utils';
 import { Card, CardContent } from '@/Components/ui/card';
-import { Monitor, Users } from 'lucide-react';
+import { Monitor, Users } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 interface Mode {
   type: 'video' | 'in_person';

@@ -1,4 +1,5 @@
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 import { cn } from '@/Lib/utils';
 
 interface FastingAlertProps {
@@ -15,7 +16,7 @@ export function FastingAlert({ hours, className }: FastingAlertProps) {
       )}
     >
       <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
-        <AlertCircle className="w-4 h-4 text-white" />
+        <Icon icon={AlertCircle} className="w-4 h-4 text-white" />
       </div>
       <div>
         <p className="font-semibold text-amber-900">Fasting required</p>

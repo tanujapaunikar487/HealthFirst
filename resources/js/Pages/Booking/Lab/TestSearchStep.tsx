@@ -4,7 +4,8 @@ import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { Card } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
 import { EmbeddedPackageList } from '@/Features/booking-chat/embedded/EmbeddedPackageList';
-import { Search, Loader2, Info } from 'lucide-react';
+import { Search, Loader2, Info } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 const labSteps = [
   { id: 'patient', label: 'Patient' },
@@ -207,7 +208,7 @@ export default function TestSearchStep({ savedData }: Props) {
           {/* Search input */}
           <div className="flex gap-2 mb-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Icon icon={Search} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="e.g., CBC, thyroid, diabetes, fatigue, headache..."
@@ -222,7 +223,7 @@ export default function TestSearchStep({ savedData }: Props) {
               disabled={isSearching || searchQuery.trim().length < 2}
               className="rounded-xl"
             >
-              {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Search'}
+              {isSearching ? <Icon icon={Loader2} className="h-4 w-4 animate-spin" /> : 'Search'}
             </Button>
           </div>
 
@@ -247,7 +248,7 @@ export default function TestSearchStep({ savedData }: Props) {
               {/* Symptom query banner */}
               {searchResults.isSymptomQuery && (
                 <div className="flex items-start gap-3 p-3 mb-3 rounded-xl bg-blue-50 border border-blue-200">
-                  <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <Icon icon={Info} className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
                   <p className="text-sm text-blue-800">
                     Based on your symptoms, here are relevant tests. Select the ones your doctor has advised, or pick a health package for a comprehensive check.
                   </p>
@@ -292,7 +293,7 @@ export default function TestSearchStep({ savedData }: Props) {
           {/* Loading state */}
           {isSearching && (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <Icon icon={Loader2} className="h-6 w-6 animate-spin text-muted-foreground" />
               <span className="ml-2 text-sm text-muted-foreground">Searching...</span>
             </div>
           )}

@@ -45,7 +45,8 @@ import {
   Check,
   FileWarning,
   ShieldCheck,
-} from 'lucide-react';
+} from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 /* ─── Types ─── */
 
@@ -291,14 +292,14 @@ export default function Show({ user, appointment }: Props) {
           </div>
           <div className="flex items-center gap-2 flex-shrink-0 print:hidden" data-print-hide>
             <Link href={`/appointments/${appointment.id}/book-again`}>
-              <Button style={{ backgroundColor: '#0052FF' }} className="text-white rounded-full">
+              <Button>
                 Book Follow-up
               </Button>
             </Link>
-            <Button variant="outline" size="icon" className="rounded-full" onClick={() => window.print()}>
+            <Button variant="outline" size="icon" onClick={() => window.print()}>
               <Printer className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="icon" className="rounded-full" onClick={handleShareLink}>
+            <Button variant="outline" size="icon" onClick={handleShareLink}>
               <Share2 className="h-4 w-4" />
             </Button>
           </div>
@@ -421,11 +422,11 @@ function DocumentPreview({ doc, onClose }: { doc: AppDocument; onClose: () => vo
 
       {/* Actions */}
       <div className="pt-4 mt-4 border-t flex gap-2">
-        <Button className="flex-1 rounded-full text-white" style={{ backgroundColor: '#0052FF' }}>
-          <Download className="h-4 w-4 mr-2" />
+        <Button className="flex-1">
+          <Download className="h-4 w-4" />
           Download
         </Button>
-        <Button variant="outline" className="rounded-full" onClick={onClose}>
+        <Button variant="outline" onClick={onClose}>
           Close
         </Button>
       </div>
@@ -467,21 +468,23 @@ function SideNav() {
   return (
     <div className="w-48 flex-shrink-0 print:hidden" data-print-hide>
       <div className="sticky top-6 space-y-1">
-        {SECTIONS.map(({ id, label, icon: Icon }) => (
-          <button
-            key={id}
-            onClick={() => scrollTo(id)}
-            className={cn(
-              'w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all text-left',
-              activeSection === id
-                ? 'bg-foreground text-background font-medium'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-            )}
-          >
-            <Icon className="h-4 w-4 flex-shrink-0" />
-            <span className="truncate">{label}</span>
-          </button>
-        ))}
+        {SECTIONS.map(({ id, label, icon: SectionIcon }) => {
+          const isActive = activeSection === id;
+          return (
+            <button
+              key={id}
+              onClick={() => scrollTo(id)}
+              className={cn(
+                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full',
+                isActive ? '' : 'text-[#0A0B0D] hover:bg-muted'
+              )}
+              style={isActive ? { backgroundColor: '#F5F8FF', color: '#0052FF' } : {}}
+            >
+              <Icon icon={SectionIcon} className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">{label}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -492,7 +495,7 @@ function SideNav() {
 function Section({
   id,
   title,
-  icon: Icon,
+  icon: SectionIcon,
   children,
   action,
 }: {
@@ -506,7 +509,7 @@ function Section({
     <Card id={id} className="p-6 scroll-mt-24">
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2.5">
-          <Icon className="h-5 w-5 text-muted-foreground" />
+          <Icon icon={SectionIcon} className="h-5 w-5 text-muted-foreground" />
           <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
             {title}
           </h2>
@@ -520,10 +523,10 @@ function Section({
 
 /* ─── Empty State ─── */
 
-function EmptyState({ icon: Icon, message }: { icon: React.ElementType; message: string }) {
+function EmptyState({ icon: EmptyIcon, message }: { icon: React.ElementType; message: string }) {
   return (
     <div className="text-center py-8 px-4 rounded-lg border border-dashed">
-      <Icon className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
+      <Icon icon={EmptyIcon} className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
       <p className="text-sm text-muted-foreground">{message}</p>
     </div>
   );
@@ -780,7 +783,7 @@ function PrescriptionsSection({ prescriptions }: { prescriptions: Prescription[]
         <Button
           variant="outline"
           size="sm"
-          className="text-xs rounded-full gap-1.5"
+          className="text-xs"
           onClick={() => window.print()}
         >
           <Download className="h-3.5 w-3.5" />
@@ -858,7 +861,7 @@ function LabTestsSection({ tests }: { tests: LabTest[] }) {
       action={
         tests.some((t) => t.status === 'pending') ? (
           <Link href="/booking/lab/patient">
-            <Button variant="outline" size="sm" className="text-xs rounded-full gap-1.5">
+            <Button variant="outline" size="sm" className="text-xs">
               Book Pending Tests
             </Button>
           </Link>
@@ -932,7 +935,7 @@ function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadIn
         <Button
           variant="outline"
           size="sm"
-          className="text-xs rounded-full gap-1.5"
+          className="text-xs"
           onClick={onDownloadInvoice}
         >
           <Download className="h-3.5 w-3.5" />
@@ -984,14 +987,14 @@ function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadIn
             </div>
           </div>
           <Link href={`/billing/${appointmentId}`}>
-            <Button variant="ghost" size="sm" className="w-full mt-4 text-xs gap-1.5" style={{ color: '#0052FF' }}>
+            <Button variant="ghost" size="sm" className="w-full mt-4 text-xs">
               <ExternalLink className="h-3.5 w-3.5" />
               View Full Bill
             </Button>
           </Link>
           {insuranceClaimId && (
             <Link href={`/insurance/claims/${insuranceClaimId}`}>
-              <Button variant="ghost" size="sm" className="w-full text-xs gap-1.5" style={{ color: '#0052FF' }}>
+              <Button variant="ghost" size="sm" className="w-full text-xs">
                 <ShieldCheck className="h-3.5 w-3.5" />
                 View Insurance Claim
               </Button>
@@ -1020,7 +1023,7 @@ function DocumentsSection({ documents, onPreview }: { documents: AppDocument[]; 
       title="Documents"
       icon={FolderOpen}
       action={
-        <Button variant="outline" size="sm" className="text-xs rounded-full gap-1.5">
+        <Button variant="outline" size="sm" className="text-xs">
           <Download className="h-3.5 w-3.5" />
           Download All
         </Button>
@@ -1108,7 +1111,7 @@ function FooterActions({ appointment }: { appointment: DetailedAppointment }) {
               </p>
             </div>
             <Link href={`/appointments/${appointment.id}/book-again`}>
-              <Button size="sm" variant="outline" className="rounded-full text-xs print:hidden" data-print-hide>
+              <Button size="sm" variant="outline" className="text-xs print:hidden" data-print-hide>
                 Schedule
               </Button>
             </Link>

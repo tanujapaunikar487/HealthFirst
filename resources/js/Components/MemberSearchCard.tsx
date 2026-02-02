@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, ShieldCheck } from 'lucide-react';
+import { User, ShieldCheck } from '@/Lib/icons';
 import { cn } from '@/Lib/utils';
 import { Badge } from '@/Components/ui/badge';
 

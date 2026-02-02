@@ -5,7 +5,8 @@ import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/Components/ui/radio-group';
 import { cn } from '@/Lib/utils';
-import { MapPin, Plus, Home } from 'lucide-react';
+import { MapPin, Plus, Home } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 interface Address {
   id: string;
@@ -79,7 +80,7 @@ export function AddressModal({
                         <RadioGroupItem value={address.id} className="mt-1" />
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <Home className="h-4 w-4 text-muted-foreground" />
+                            <Icon icon={Home} className="h-4 w-4 text-muted-foreground" />
                             <p className="font-medium text-sm">{address.label}</p>
                           </div>
                           <p className="text-xs text-muted-foreground mt-1">{address.addressLine}</p>
@@ -99,7 +100,7 @@ export function AddressModal({
                 className="w-full"
                 onClick={() => setShowAddForm(true)}
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Icon icon={Plus} className="h-4 w-4 mr-2" />
                 Add New Address
               </Button>
 

@@ -7,7 +7,8 @@ import { Card } from '@/Components/ui/card';
 import { Textarea } from '@/Components/ui/textarea';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
-import { User } from 'lucide-react';
+import { User } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 const doctorSteps = [
   { id: 'patient', label: 'Patient' },

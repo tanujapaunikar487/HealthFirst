@@ -118,6 +118,7 @@ Route::put('/settings/video', [\App\Http\Controllers\SettingsController::class, 
 // Family Members
 Route::get('/family-members', [FamilyMembersController::class, 'index'])->name('family-members.index');
 Route::get('/family-members/create', [FamilyMembersController::class, 'create'])->name('family-members.create');
+Route::post('/family-members/create-new', [FamilyMembersController::class, 'createNew'])->name('family-members.create-new');
 Route::post('/family-members/lookup', [FamilyMembersController::class, 'lookup'])->name('family-members.lookup');
 Route::post('/family-members/send-otp', [FamilyMembersController::class, 'sendOtp'])->middleware('throttle:3,1')->name('family-members.send-otp');
 Route::post('/family-members/verify-otp', [FamilyMembersController::class, 'verifyOtp'])->middleware('throttle:3,1')->name('family-members.verify-otp');

@@ -1,5 +1,6 @@
 import { cn } from '@/Lib/utils';
-import { Home, Building2, MapPin } from 'lucide-react';
+import { Home, Building2, MapPin } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 interface Location {
   id: string;

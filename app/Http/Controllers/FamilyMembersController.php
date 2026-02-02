@@ -153,6 +153,52 @@ class FamilyMembersController extends Controller
         return redirect()->route('family-members.index')->with('toast', 'Family member added successfully');
     }
 
+    /**
+     * Create a new family member (AJAX endpoint, returns JSON)
+     * Used by the booking chat flow for adding new family members without OTP verification
+     */
+    public function createNew(Request $request)
+    {
+        $user = auth()->user() ?? \App\User::first();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'relation' => 'required|string|in:mother,father,brother,sister,spouse,son,daughter,grandmother,grandfather,other',
+            'phone' => 'required|string|regex:/^(?:\+91)?[6-9]\d{9}$/',
+            'age' => 'required|integer|min:0|max:150',
+            'gender' => 'required|string|in:male,female,other',
+            'email' => 'nullable|email|max:255',
+            'date_of_birth' => 'nullable|date|before:today',
+            'blood_group' => 'nullable|string|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
+        ]);
+
+        // Add user_id to the validated data
+        $validated['user_id'] = $user->id;
+
+        try {
+            // Create family member with user_id and relation
+            $member = FamilyMember::create($validated);
+
+            return response()->json([
+                'success' => true,
+                'member_data' => [
+                    'id' => $member->id,
+                    'name' => $member->name,
+                    'relation' => $member->relation,
+                    'age' => $member->computed_age,
+                    'gender' => $member->gender,
+                    'patient_id' => $member->patient_id,
+                    'avatar_url' => $member->avatar_url,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to create family member. Please try again.',
+            ], 500);
+        }
+    }
+
     public function update(Request $request, FamilyMember $member)
     {
         $user = auth()->user() ?? \App\User::first();

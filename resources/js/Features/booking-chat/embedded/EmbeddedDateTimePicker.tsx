@@ -1,5 +1,6 @@
 import { cn } from '@/Lib/utils';
-import { Star } from 'lucide-react';
+import { Star } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 import { format, addDays, startOfDay } from 'date-fns';
 
 interface TimeSlot {

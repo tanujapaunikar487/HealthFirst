@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { cn } from '@/Lib/utils';
 import { Button } from '@/Components/ui/button';
-import { UserPlus } from 'lucide-react';
+import { UserPlus } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 const RELATION_OPTIONS = [
   'mother', 'father', 'brother', 'sister',

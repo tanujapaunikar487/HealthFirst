@@ -7,7 +7,8 @@ import { Textarea } from '@/Components/ui/textarea';
 import { Button } from '@/Components/ui/button';
 import { FollowUpBanner } from '@/Components/Booking/FollowUpBanner';
 import { cn } from '@/Lib/utils';
-import { ArrowRight, Star, Calendar, MessageSquare, AlertCircle, UserPlus, X } from 'lucide-react';
+import { ArrowRight, Star, Calendar, MessageSquare, AlertCircle, UserPlus, X } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 const RELATION_OPTIONS = [
   'mother', 'father', 'brother', 'sister',
@@ -385,11 +386,11 @@ export default function PatientStep({
   const getReasonIcon = (value: string) => {
     switch (value) {
       case 'scheduled':
-        return <Calendar className="h-5 w-5 text-blue-500" />;
+        return <Icon icon={Calendar} className="h-5 w-5 text-blue-500" />;
       case 'new_concern':
-        return <AlertCircle className="h-5 w-5 text-amber-500" />;
+        return <Icon icon={AlertCircle} className="h-5 w-5 text-amber-500" />;
       case 'ongoing_issue':
-        return <MessageSquare className="h-5 w-5 text-red-400" />;
+        return <Icon icon={MessageSquare} className="h-5 w-5 text-red-400" />;
       default:
         return null;
     }
@@ -444,12 +445,12 @@ export default function PatientStep({
             {showAddMemberForm ? (
               <>
                 Cancel
-                <X className="h-4 w-4" />
+                <Icon icon={X} className="h-4 w-4" />
               </>
             ) : (
               <>
                 Add family member or guest
-                <ArrowRight className="h-4 w-4" />
+                <Icon icon={ArrowRight} className="h-4 w-4" />
               </>
             )}
           </button>
@@ -458,7 +459,7 @@ export default function PatientStep({
             <div className="mt-4 border rounded-xl p-4 space-y-4 max-w-md">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <UserPlus className="h-4 w-4 text-primary" />
+                  <Icon icon={UserPlus} className="h-4 w-4 text-primary" />
                 </div>
                 <h4 className="font-semibold text-sm text-foreground">Add family member or guest</h4>
               </div>
@@ -812,7 +813,7 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: D
           >
             {slot.time}
             {slot.preferred && selectedTime !== slot.time && (
-              <Star className="absolute -top-1 -right-1 h-3 w-3 fill-black text-black" />
+              <Icon icon={Star} className="absolute -top-1 -right-1 h-3 w-3 fill-black text-black" />
             )}
           </button>
         ))}

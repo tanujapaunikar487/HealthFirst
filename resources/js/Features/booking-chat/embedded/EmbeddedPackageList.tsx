@@ -3,7 +3,8 @@ import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
 import { cn } from '@/Lib/utils';
-import { Clock, FlaskConical, ChevronRight, ChevronDown, TestTube, Check, Square, CheckSquare, Sparkles, ClipboardList } from 'lucide-react';
+import { Clock, FlaskConical, ChevronRight, ChevronDown, TestTube, Check, Square, CheckSquare, Sparkles, ClipboardList } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 interface Package {
   id: string;

@@ -1,5 +1,6 @@
 import { cn } from '@/Lib/utils';
-import { Home, Building2, MapPin } from 'lucide-react';
+import { Home, Building2, MapPin } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 interface LocationOption {
   type: 'home' | 'center';
@@ -36,7 +37,7 @@ export function LocationSelector({
     <div className="space-y-3">
       <div className={cn('border rounded-xl overflow-hidden divide-y', className)}>
         {locations.map((location) => {
-          const Icon = locationIcons[location.type];
+          const locIcon = locationIcons[location.type];
           const isSelected = selectedLocation === location.type;
 
           return (
@@ -55,7 +56,7 @@ export function LocationSelector({
                     isSelected ? 'bg-primary/10' : 'bg-muted'
                   )}
                 >
-                  <Icon className={cn('h-5 w-5', isSelected ? 'text-primary' : 'text-foreground')} />
+                  <Icon icon={locIcon} className={cn('h-5 w-5', isSelected ? 'text-primary' : 'text-foreground')} />
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -78,7 +79,7 @@ export function LocationSelector({
                         }}
                         className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
                       >
-                        <MapPin className="h-3 w-3" />
+                        <Icon icon={MapPin} className="h-3 w-3" />
                         Change address
                       </button>
                     ) : location.type === 'center' && onChangeBranch ? (
@@ -89,7 +90,7 @@ export function LocationSelector({
                         }}
                         className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
                       >
-                        <MapPin className="h-3 w-3" />
+                        <Icon icon={MapPin} className="h-3 w-3" />
                         Change branch
                       </button>
                     ) : null}

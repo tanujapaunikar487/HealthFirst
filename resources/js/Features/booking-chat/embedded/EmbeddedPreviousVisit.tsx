@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
-import { Clock } from 'lucide-react';
+import { Clock } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 import { format, parseISO } from 'date-fns';
 
 interface PreviousVisitData {

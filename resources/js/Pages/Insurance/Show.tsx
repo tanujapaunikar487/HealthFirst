@@ -11,7 +11,7 @@ import {
   AlertTriangle,
   ChevronRight,
   Trash2,
-} from 'lucide-react';
+} from '@/Lib/icons';
 
 interface PolicyDetail {
   id: number;
@@ -134,7 +134,7 @@ function getStatusBadge(status: string) {
 
 function InsuranceShowSkeleton() {
   return (
-    <div className="mx-auto max-w-[960px] px-6 py-8">
+    <div className="mx-auto max-w-[800px] px-4 sm:px-6 py-8">
       <Pulse className="h-4 w-24 mb-6" />
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
@@ -226,7 +226,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
 
   return (
     <AppLayout pageTitle="Insurance" pageIcon="insurance">
-      <div className="mx-auto max-w-[960px] px-6 py-8">
+      <div className="mx-auto max-w-[800px] px-4 sm:px-6 py-8">
         {/* Back link */}
         <button
           onClick={() => router.visit('/insurance')}
