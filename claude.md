@@ -492,6 +492,15 @@ The `HospitalSeeder` provides realistic Indian healthcare data:
     - `Appointments/Show.tsx`: Billing section invoice download converted from TXT to PDF
     - Removed unused `downloadAsText()` and `downloadBlob()` from `Lib/download.ts`
     - All 13 downloadable document types now use `downloadAsHtml()` → print-to-PDF via hidden iframe
+24. ✅ **Billing Dropdown Actions Fix** (`Billing/Show.tsx`):
+    - Fixed missing `ChevronRight` import (runtime crash on insurance "View Claim Details" link)
+    - Raise Dispute: Replaced bare `confirm()` with proper dialog — amber warning, textarea for reason (1000 char limit), loading state, posts to backend
+    - Reimbursement Letter: Now only shows when `bill.insurance_details` exists (was showing for all paid bills)
+    - Download Receipt/Reimbursement: Fixed filenames from `.html` to `.pdf`
+    - Contact Support: Replaced broken `mailto:` link with dialog showing email + phone + copy buttons + reference info
+    - Status Alert Banner moved from inside Invoice Header card to directly below page title for better visibility
+25. ✅ **Health Records Subtitle Removal**:
+    - Removed "X records across Y family members" subtitle from Health Records page header
 
 ---
 
@@ -1450,4 +1459,4 @@ const handleAddAsNew = () => {
 
 **Status**: Production-ready healthcare management platform with AI-powered booking, comprehensive health records, billing, and insurance management.
 
-**Last Updated**: February 3, 2026 — Grouped field UX for family member flows
+**Last Updated**: February 3, 2026 — Billing dropdown actions fix, contact support dialog, health records cleanup
