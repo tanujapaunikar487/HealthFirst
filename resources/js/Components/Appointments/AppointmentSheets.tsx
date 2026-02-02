@@ -162,7 +162,7 @@ export function DetailsSheet({
       )}
 
       {/* People Rows */}
-      <div className="space-y-3 pb-4 border-b">
+      <div className="space-y-3 pb-4">
         {/* Patient Row */}
         <PeopleRow label="Patient" name={appointment.patient_name} />
 
@@ -172,8 +172,11 @@ export function DetailsSheet({
         )}
       </div>
 
+      {/* Edge-to-edge divider */}
+      <div className="-mx-6 border-b" />
+
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto py-4 space-y-0 divide-y">
+      <div className="flex-1 overflow-y-auto pt-4">
         {/* Details Section */}
         <Collapsible open={detailsOpen} onOpenChange={setDetailsOpen}>
           <CollapsibleTrigger className="flex items-center justify-between w-full py-3 hover:bg-muted/50 transition-colors">
@@ -201,6 +204,9 @@ export function DetailsSheet({
             />
           </CollapsibleContent>
         </Collapsible>
+
+        {/* Edge-to-edge divider */}
+        <div className="-mx-6 border-b" />
 
         {/* Notes Section */}
         <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
@@ -271,6 +277,9 @@ export function DetailsSheet({
             )}
           </CollapsibleContent>
         </Collapsible>
+
+        {/* Edge-to-edge divider */}
+        <div className="-mx-6 border-b" />
 
         {/* Preparation Section */}
         <Collapsible open={preparationOpen} onOpenChange={setPreparationOpen}>
