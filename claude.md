@@ -301,7 +301,7 @@ RAZORPAY_SECRET=your_secret
 - **Cards**: 24px border-radius (`rounded-3xl`)
 - **Buttons**: 7 variants (default, destructive, outline, secondary, ghost, link, accent)
 - **Badges**: Status-aware colors
-- **Sheets**: Right-side drawers for quick actions (not modals)
+- **Sheets**: Right-side drawers for quick actions (not modals). Footer: 1 primary button + 3-dot menu, no divider
 - **Tables**: shadcn Table with consistent styling
 - **Skeleton**: 300ms minimum, 10s timeout, pulse animation
 
@@ -416,6 +416,10 @@ The `HospitalSeeder` provides realistic Indian healthcare data:
     - Backend: OtpService, 4 new controller methods, 3 new DB columns
     - Frontend: 4 new components (wizard, relationship selector, OTP input, member card)
     - Security: Phone verification, token expiry, rate limiting, audit logging
+15. ✅ **Side Sheet Footer Standardization**:
+    - Unified footer: 1 primary button + 3-dot kebab menu for secondary actions
+    - Removed `border-t` dividers above footer buttons across all sheets
+    - Applied to AppointmentSheets, DocumentPreview, Billing, HealthRecords
 
 ---
 
@@ -594,6 +598,39 @@ Choice (3 options upfront):
 ### Build Status
 ✅ All TypeScript compilation passing
 ✅ Vite build successful (339.03 kB gzipped)
+
+## Side Sheet Footer Standardization (February 2, 2026)
+
+Unified footer pattern across all platform side sheets for consistent UX.
+
+### Design Pattern
+- **1 primary button** always visible (full-width with `flex-1`)
+- **Secondary actions** collapse into a 3-dot kebab menu (`MoreHorizontal` icon)
+- **No divider** (`border-t` removed) above footer buttons
+- Uses shadcn `DropdownMenu` + `DropdownMenuItem` for the menu
+
+### Sheets Modified
+
+| Sheet | File | Primary Action | 3-Dot Menu Items |
+|-------|------|---------------|-----------------|
+| CancelSheet | `AppointmentSheets.tsx` | Cancel Appointment | *(divider removed only)* |
+| RescheduleSheet | `AppointmentSheets.tsx` | Confirm Reschedule | *(divider removed only)* |
+| DocumentPreview | `Appointments/Show.tsx` | Download | Close |
+| Payment Summary | `Billing/Index.tsx` | Pay ₹X | *(divider removed only, single action)* |
+| Record Detail | `HealthRecords/Index.tsx` | Download / View Appointment | View Appointment, View Bill |
+
+### Sheets Already Compliant (No Changes)
+- **DetailsSheet** (`AppointmentSheets.tsx`) - Already had 1 primary + 3-dot pattern
+- **FamilyMembers/Show.tsx** - Single Save button, no divider
+- **Insurance/Index.tsx** - Single Save Policy button, no divider
+- **FamilyMembers/Index.tsx** - Uses wizard flow (internal navigation)
+- **Dashboard.tsx** - Reuses AppointmentSheets components
+- **AppLayout.tsx** - Notifications panel (no footer buttons)
+
+### Health Records Priority Logic
+- If `file_type` exists → **Download** is primary
+- Else if `appointment_id` exists → **View Appointment** is primary
+- 3-dot menu shown when secondary actions available (View Appointment, View Bill)
 
 ---
 
