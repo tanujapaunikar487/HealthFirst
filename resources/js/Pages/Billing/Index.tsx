@@ -900,7 +900,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
         }}
       >
         <SheetContent side="right" className="w-full sm:max-w-md flex flex-col">
-          <SheetHeader className="pb-4">
+          <SheetHeader>
             <SheetTitle>Payment Summary</SheetTitle>
             <SheetDescription>
               {paymentState === 'success'

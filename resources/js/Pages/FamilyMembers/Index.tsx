@@ -248,6 +248,10 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
       {/* Add Sheet */}
       <Sheet open={showForm} onOpenChange={setShowForm}>
         <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Add New Person</SheetTitle>
+            <SheetDescription>Choose how you'd like to add this person</SheetDescription>
+          </SheetHeader>
           <EmbeddedFamilyMemberFlow
             mode="standalone"
             onComplete={handleWizardComplete}

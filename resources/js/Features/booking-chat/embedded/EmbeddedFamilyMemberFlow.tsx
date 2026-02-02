@@ -539,7 +539,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
     const canGoBack = !['choice', 'success'].includes(state.step) && !state.loading;
 
     return (
-        <div className="p-6 space-y-6">
+        <div className={cn('space-y-6', mode === 'embedded' && 'p-6')}>
             {/* Header with Back Button */}
             {canGoBack && (
                 <button
@@ -562,10 +562,14 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             {/* Step Content */}
             {state.step === 'choice' && (
                 <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Add New Person</h3>
-                    <p className="text-sm text-muted-foreground">
-                        Choose how you'd like to add this person
-                    </p>
+                    {mode === 'embedded' && (
+                        <>
+                            <h3 className="text-lg font-semibold">Add New Person</h3>
+                            <p className="text-sm text-muted-foreground">
+                                Choose how you'd like to add this person
+                            </p>
+                        </>
+                    )}
 
                     <div className="grid gap-3">
                         {/* Guest */}

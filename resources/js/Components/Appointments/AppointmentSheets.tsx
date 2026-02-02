@@ -5,6 +5,8 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
+  SheetFooter,
+  SheetDivider,
 } from '@/Components/ui/sheet';
 import {
   DropdownMenu,
@@ -173,7 +175,7 @@ export function DetailsSheet({
       </div>
 
       {/* Edge-to-edge divider */}
-      <div className="-mx-6 border-b" />
+      <SheetDivider />
 
       {/* Scrollable Content - extended to sheet edges so dividers can be edge-to-edge */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden pt-4 -mx-6 px-6">
@@ -206,7 +208,7 @@ export function DetailsSheet({
         </Collapsible>
 
         {/* Edge-to-edge divider */}
-        <div className="-mx-6 border-b" />
+        <SheetDivider />
 
         {/* Notes Section */}
         <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
@@ -279,7 +281,7 @@ export function DetailsSheet({
         </Collapsible>
 
         {/* Edge-to-edge divider */}
-        <div className="-mx-6 border-b" />
+        <SheetDivider />
 
         {/* Preparation Section */}
         <Collapsible open={preparationOpen} onOpenChange={setPreparationOpen}>
@@ -566,7 +568,7 @@ export function CancelSheet({
       </div>
 
       {/* Actions */}
-      <div className="pt-4 space-y-2">
+      <SheetFooter className="flex-col space-y-2 sm:flex-col sm:space-x-0">
         <Button
           className="w-full text-destructive"
           variant="outline"
@@ -583,7 +585,7 @@ export function CancelSheet({
         >
           Keep Appointment
         </Button>
-      </div>
+      </SheetFooter>
     </div>
   );
 }
@@ -780,7 +782,7 @@ export function RescheduleSheet({
       </div>
 
       {/* Actions */}
-      <div className="pt-4 space-y-2">
+      <SheetFooter className="flex-col space-y-2 sm:flex-col sm:space-x-0">
         <Button
           className="w-full"
           size="lg"
@@ -797,7 +799,7 @@ export function RescheduleSheet({
         >
           Cancel
         </Button>
-      </div>
+      </SheetFooter>
     </div>
   );
 }

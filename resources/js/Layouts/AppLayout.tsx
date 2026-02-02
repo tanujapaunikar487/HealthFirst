@@ -298,7 +298,7 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
       {/* Notifications Side Sheet */}
       <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
         <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col">
-          <SheetHeader className="px-5 pt-5 pb-4" style={{ borderBottom: '1px solid #E5E5E5' }}>
+          <SheetHeader className="mx-0 px-5 pt-5 mb-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <SheetTitle className="text-lg font-bold" style={{ color: '#00184D' }}>

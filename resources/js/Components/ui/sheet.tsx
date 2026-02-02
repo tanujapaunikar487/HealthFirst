@@ -103,13 +103,24 @@ const SheetFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2',
+      'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 -mx-6 px-6 pt-4 border-t mt-4',
       className
     )}
     {...props}
   />
 );
 SheetFooter.displayName = 'SheetFooter';
+
+const SheetDivider = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn('-mx-6 border-b', className)}
+    {...props}
+  />
+);
+SheetDivider.displayName = 'SheetDivider';
 
 const SheetTitle = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Title>,
@@ -144,6 +155,7 @@ export {
   SheetContent,
   SheetHeader,
   SheetFooter,
+  SheetDivider,
   SheetTitle,
   SheetDescription,
 };

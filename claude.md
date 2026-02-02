@@ -437,6 +437,17 @@ The `HospitalSeeder` provides realistic Indian healthcare data:
     - Backend validation updated to require +91 format consistently
     - Improved UX: numeric keyboard on mobile, cleaner visual design
 
+### Latest Updates (February 3, 2026)
+18. ✅ **Side Sheet Component-Level Consistency**:
+    - `SheetHeader`: Edge-to-edge bottom border baked into component (`-mx-6 px-6 pb-4 border-b mb-4`)
+    - `SheetFooter`: Edge-to-edge top border added (`-mx-6 px-6 pt-4 border-t mt-4`)
+    - `SheetDivider`: New component for edge-to-edge section dividers (`-mx-6 border-b`)
+    - Close button: Circular with border, no focus ring
+    - Applied consistently across all 10 side sheets platform-wide
+    - `EmbeddedFamilyMemberFlow`: Fixed double padding in standalone mode, added SheetHeader to FamilyMembers/Index
+    - `AppointmentSheets`: Manual dividers replaced with SheetDivider, action buttons use SheetFooter
+    - Removed per-instance header/footer styling overrides from 8 pages
+
 ---
 
 ## Enhanced Family Member/Guest Management System (February 2, 2026)

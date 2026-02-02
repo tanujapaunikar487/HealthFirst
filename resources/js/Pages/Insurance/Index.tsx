@@ -882,7 +882,7 @@ export default function InsuranceIndex({
             </SheetDescription>
           </SheetHeader>
 
-          <div className="mt-6">
+          <div>
             {/* Step 1: Upload */}
             {addStep === 'upload' && (
               <div className="space-y-6">
