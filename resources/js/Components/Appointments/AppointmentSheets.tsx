@@ -152,6 +152,7 @@ export function DetailsSheet({
       <SheetHeader className="pb-4">
         <SheetTitle className="text-base">Upcoming Appointment</SheetTitle>
       </SheetHeader>
+      <div className="-mx-6 border-b mb-4" />
 
       {/* Status Banner - only for video appointments when doctor is online */}
       {isDoctorOnline && (
@@ -175,8 +176,8 @@ export function DetailsSheet({
       {/* Edge-to-edge divider */}
       <div className="-mx-6 border-b" />
 
-      {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto pt-4">
+      {/* Scrollable Content - extended to sheet edges so dividers can be edge-to-edge */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pt-4 -mx-6 px-6">
         {/* Details Section */}
         <Collapsible open={detailsOpen} onOpenChange={setDetailsOpen}>
           <CollapsibleTrigger className="flex items-center justify-between w-full py-3 hover:bg-muted/50 transition-colors">
@@ -568,8 +569,8 @@ export function CancelSheet({
       {/* Actions */}
       <div className="pt-4 space-y-2">
         <Button
-          className="w-full"
-          variant="destructive"
+          className="w-full text-destructive"
+          variant="outline"
           onClick={handleCancel}
           disabled={submitting}
         >
