@@ -50,7 +50,11 @@ class FamilyMembersController extends Controller
                 'avatar_url' => $m->avatar_url,
                 'alert_count' => $alertCount,
             ];
-        });
+        })
+        // Sort members with alerts first (alert_count > 0 at top)
+        // Maintains original ordering within each group (self first, then by created_at)
+        ->sortByDesc('alert_count')
+        ->values(); // Re-index the array
 
         return Inertia::render('FamilyMembers/Index', [
             'members' => $membersData,

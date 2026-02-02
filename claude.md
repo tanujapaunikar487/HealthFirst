@@ -1247,6 +1247,37 @@ Enhanced the family member detail page with improved navigation consistency and 
 
 ---
 
+## Family Members: Alert-Based Sorting (February 3, 2026)
+
+Implemented priority sorting to show family members with health alerts at the top of the list.
+
+### Sorting Logic
+
+**File**: [FamilyMembersController.php:54-57](app/Http/Controllers/FamilyMembersController.php#L54-L57)
+
+Members are now sorted by alert count (descending):
+1. **Members with alerts** (alert_count > 0) appear first, sorted by alert count
+2. **Members without alerts** appear below, maintaining original order
+3. **Within each group**: Original ordering preserved (self first, then by created_at)
+
+### Implementation
+
+```php
+$membersData = $members->map(function (FamilyMember $m) use ($healthRecords) {
+    // ... alert calculation ...
+})
+->sortByDesc('alert_count')  // Sort by alerts (descending)
+->values();                   // Re-index array
+```
+
+### Benefits
+- **Critical alerts visible immediately**: Members needing attention are prioritized
+- **Stable sort**: Preserves original ordering within alert count groups
+- **No breaking changes**: Frontend requires no modifications
+- **Performance**: Single sort operation on in-memory collection
+
+---
+
 **Status**: Production-ready healthcare management platform with AI-powered booking, comprehensive health records, billing, and insurance management.
 
-**Last Updated**: February 3, 2026 — Family member detail page improvements and SQL compatibility fix
+**Last Updated**: February 3, 2026 — Alert-based sorting for family members list
