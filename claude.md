@@ -801,6 +801,114 @@ All phone numbers now consistently validated in +91XXXXXXXXXX format.
 
 ---
 
+## Family Member Page Enhancements (February 2, 2026)
+
+Enhanced the family member listing and detail pages with improved visual indicators, cleaner navigation, and streamlined UI.
+
+### Listing Page Improvements
+
+**File**: `resources/js/Pages/FamilyMembers/Index.tsx`
+
+Replaced the small amber dot with a visible "Needs Attention" badge:
+- Badge includes pulsing amber dot + "Needs Attention" text
+- Inline with member name for high visibility
+- Amber color scheme (`bg-amber-50`, `border-amber-200`, `text-amber-700`)
+- Only shown when `alert_count > 0`
+
+### Detail Page Improvements
+
+**File**: `resources/js/Pages/FamilyMembers/Show.tsx`
+
+**1. Health Data Card Links** - Added query parameters for filtered navigation:
+- Appointments card → `/appointments?member={id}`
+- Health Records card → `/health-records?member={id}`
+- Medications card → `/health-records?member={id}&category=medication_active,medication_past`
+
+**2. Alert Banner Action** - Updated to link to filtered records:
+- Now: `/health-records?member={id}&status=needs_attention`
+- Directs users to specific records needing attention
+
+**3. Emergency Contact Cleanup** - Removed non-functional phone icon:
+- Deleted blue circle phone icon wrapper
+- Text-only display for cleaner appearance
+- Phone number already visible in contact details
+
+**4. Footer Actions Removed** - Eliminated redundant buttons:
+- Deleted entire footer section with duplicate "Edit Profile" and "Remove Member" buttons
+- Kept header button only
+- Removed unused `canDelete` prop and variable
+
+### Benefits
+- **Better visibility**: Alert badge is now immediately noticeable
+- **Contextual navigation**: Links auto-filter to relevant family member data
+- **Cleaner UI**: Removed redundant elements and non-functional icons
+- **Improved UX**: Direct navigation to specific filtered views
+
+---
+
+## URL Parameter Filtering for Family Member Navigation (February 2, 2026)
+
+Implemented automatic filter application when navigating to Appointments and Health Records pages from family member profiles using query parameters.
+
+### Appointments Page
+
+**File**: `resources/js/Pages/Appointments/Index.tsx`
+
+Added useEffect (after line 177) to read `?member=` URL parameter:
+- Parses URL on mount using `URLSearchParams`
+- Validates member ID exists in `familyMembers` array
+- Auto-selects member in dropdown filter
+- Gracefully falls back to "All Members" for invalid IDs
+
+**Example**: `/appointments?member=3`
+- Result: Appointments page loads with that family member auto-selected
+- Shows only that member's appointments
+
+### Health Records Page
+
+**File**: `resources/js/Pages/HealthRecords/Index.tsx`
+
+Added comprehensive useEffect (after line 495) to read multiple parameters:
+
+**1. Member Filter** - `?member={id}`
+- Validates against `familyMembers` array + 'self'
+- Auto-applies member filter on page load
+
+**2. Status Filter** - `?status={status}`
+- Validates against known status values (normal, needs_attention, active, etc.)
+- Auto-applies status filter
+
+**3. Category Filter** - `?category={categories}`
+- Handles comma-separated values (e.g., `medication_active,medication_past`)
+- Takes first category for single-select filter
+- Auto-switches to appropriate tab (e.g., "Medications" for medication categories)
+- Validates against `categoryConfig` keys
+
+### URL Parameter Formats
+
+| Navigation Source | URL Format | Auto-Applied Filters |
+|-------------------|------------|---------------------|
+| Appointments card | `/appointments?member=3` | Member filter |
+| Health Records card | `/health-records?member=3` | Member filter |
+| Medications card | `/health-records?member=3&category=medication_active,medication_past` | Member filter + Medications tab + Category |
+| Alert banner | `/health-records?member=3&status=needs_attention` | Member filter + Status filter |
+
+### Benefits
+- **Seamless navigation**: Filters automatically apply when clicking from profile
+- **Contextual filtering**: Users see exactly what they need without manual filtering
+- **URL persistence**: Filters maintained on page refresh via URL
+- **Graceful degradation**: Invalid parameters fallback to showing all records
+- **No backend changes**: Pure client-side implementation using existing filter infrastructure
+
+### Implementation Details
+- Uses `URLSearchParams` API for parsing query strings
+- Validates all parameter values before applying
+- Empty dependency arrays (`[]`) ensure effects run only once on mount
+- Leverages existing filter state variables and logic
+- Works with all existing manual filter controls
+
+---
+
 **Status**: Production-ready healthcare management platform with AI-powered booking, comprehensive health records, billing, and insurance management.
 
 **Last Updated**: February 2, 2026
