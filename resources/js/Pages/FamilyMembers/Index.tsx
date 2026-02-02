@@ -3,14 +3,6 @@ import { router, usePage } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { Button } from '@/Components/ui/button';
-import { Input } from '@/Components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/Components/ui/select';
 import {
   Sheet,
   SheetContent,
@@ -19,8 +11,8 @@ import {
   SheetDescription,
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
-import { cn } from '@/Lib/utils';
-import { Plus, Users, AlertTriangle, ChevronRight } from 'lucide-react';
+import EmbeddedFamilyMemberFlow from '@/Features/booking-chat/embedded/EmbeddedFamilyMemberFlow';
+import { Plus, Users, AlertTriangle, ChevronRight } from '@/Lib/icons';
 
 /* ─── Types ─── */
 
@@ -43,14 +35,6 @@ interface Props {
 
 /* ─── Constants ─── */
 
-const relationOptions = [
-  'self', 'mother', 'father', 'brother', 'sister',
-  'spouse', 'son', 'daughter', 'grandmother', 'grandfather', 'other',
-] as const;
-
-const genderOptions = ['male', 'female', 'other'] as const;
-
-const bloodGroupOptions = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as const;
 
 const relationColors: Record<string, { bg: string; text: string }> = {
   self:        { bg: '#DBEAFE', text: '#1E40AF' },
@@ -75,23 +59,12 @@ function getInitials(name: string): string {
     .slice(0, 2);
 }
 
-function capitalize(s: string): string {
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-const emptyForm = {
-  name: '',
-  relation: '',
-  age: '',
-  gender: '',
-  blood_group: '',
-};
 
 /* ─── Skeleton ─── */
 
 function FamilyMembersSkeleton() {
   return (
-    <div style={{ width: '100%', maxWidth: '738px', padding: '40px 0' }}>
+    <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
       <div className="flex items-center justify-between mb-8">
         <div className="space-y-2">
           <Pulse className="h-9 w-48" />
@@ -123,10 +96,6 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
   const user = (usePage().props as any).auth?.user;
 
   const [showForm, setShowForm] = useState(false);
-  const [editingMember, setEditingMember] = useState<FamilyMember | null>(null);
-  const [formData, setFormData] = useState(emptyForm);
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [submitting, setSubmitting] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
   // Auto-open form when ?create=1 is in URL
@@ -162,44 +131,12 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
   }
 
   function openAddForm() {
-    setEditingMember(null);
-    setFormData(emptyForm);
-    setFormErrors({});
     setShowForm(true);
   }
 
-  function handleSubmit() {
-    const errors: Record<string, string> = {};
-    if (!formData.name.trim()) errors.name = 'Name is required';
-    if (!formData.relation) errors.relation = 'Relation is required';
-    if (formData.age && (isNaN(Number(formData.age)) || Number(formData.age) < 0 || Number(formData.age) > 150)) {
-      errors.age = 'Age must be 0-150';
-    }
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
-
-    setSubmitting(true);
-
-    const payload = {
-      name: formData.name.trim(),
-      relation: formData.relation,
-      age: formData.age ? Number(formData.age) : null,
-      gender: formData.gender || null,
-      blood_group: formData.blood_group || null,
-    };
-
-    router.post('/family-members', payload, {
-      onSuccess: () => {
-        setShowForm(false);
-        setSubmitting(false);
-      },
-      onError: (errors) => {
-        setFormErrors(errors as Record<string, string>);
-        setSubmitting(false);
-      },
-    });
+  function handleWizardComplete() {
+    // Wizard handles reload internally in standalone mode
+    setShowForm(false);
   }
 
   return (
@@ -208,7 +145,7 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
       pageTitle="Family Members"
       pageIcon="/assets/icons/family-selected.svg"
     >
-      <div style={{ width: '100%', maxWidth: '738px', padding: '40px 0' }}>
+      <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <h1
@@ -225,8 +162,7 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
           {canCreate && (
             <Button
               onClick={openAddForm}
-              className="gap-2"
-              style={{ height: '36px', borderRadius: '10px' }}
+              size="lg"
             >
               <Plus className="h-4 w-4" />
               Add Member
@@ -259,7 +195,7 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
             <p className="mb-6 text-center text-sm text-gray-500 px-8">
               Add family members to book appointments and manage health records for them
             </p>
-            <Button onClick={openAddForm} className="gap-2">
+            <Button size="lg" onClick={openAddForm}>
               <Plus className="h-4 w-4" />
               Add Member
             </Button>
@@ -309,115 +245,11 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
       {/* Add Sheet */}
       <Sheet open={showForm} onOpenChange={setShowForm}>
         <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Add Family Member</SheetTitle>
-            <SheetDescription>
-              Add a new family member to manage their appointments and health records.
-            </SheetDescription>
-          </SheetHeader>
-
-          <div className="mt-6 space-y-5">
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                Name <span className="text-red-500">*</span>
-              </label>
-              <Input
-                value={formData.name}
-                onChange={e => {
-                  setFormData({ ...formData, name: e.target.value });
-                  if (formErrors.name) setFormErrors({ ...formErrors, name: '' });
-                }}
-                placeholder="Full name"
-                className={cn(formErrors.name && 'border-red-300 focus-visible:ring-red-400')}
-              />
-              {formErrors.name && (
-                <p className="mt-1 text-xs text-red-500">{formErrors.name}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                Relation <span className="text-red-500">*</span>
-              </label>
-              <Select
-                value={formData.relation}
-                onValueChange={val => {
-                  setFormData({ ...formData, relation: val });
-                  if (formErrors.relation) setFormErrors({ ...formErrors, relation: '' });
-                }}
-              >
-                <SelectTrigger className={cn(formErrors.relation && 'border-red-300')}>
-                  <SelectValue placeholder="Select relation" />
-                </SelectTrigger>
-                <SelectContent>
-                  {relationOptions.map(r => (
-                    <SelectItem key={r} value={r}>{capitalize(r)}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {formErrors.relation && (
-                <p className="mt-1 text-xs text-red-500">{formErrors.relation}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700">Age</label>
-              <Input
-                type="number"
-                value={formData.age}
-                onChange={e => setFormData({ ...formData, age: e.target.value })}
-                placeholder="Age"
-                min={0}
-                max={150}
-              />
-              {formErrors.age && (
-                <p className="mt-1 text-xs text-red-500">{formErrors.age}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700">Gender</label>
-              <Select
-                value={formData.gender}
-                onValueChange={val => setFormData({ ...formData, gender: val })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select gender" />
-                </SelectTrigger>
-                <SelectContent>
-                  {genderOptions.map(g => (
-                    <SelectItem key={g} value={g}>{capitalize(g)}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700">Blood Group</label>
-              <Select
-                value={formData.blood_group}
-                onValueChange={val => setFormData({ ...formData, blood_group: val })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select blood group" />
-                </SelectTrigger>
-                <SelectContent>
-                  {bloodGroupOptions.map(bg => (
-                    <SelectItem key={bg} value={bg}>{bg}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Button
-              onClick={handleSubmit}
-              disabled={submitting}
-              className="w-full"
-              style={{ height: '40px', borderRadius: '10px' }}
-            >
-              {submitting ? 'Saving...' : 'Add Member'}
-            </Button>
-          </div>
+          <EmbeddedFamilyMemberFlow
+            mode="standalone"
+            onComplete={handleWizardComplete}
+            onCancel={() => setShowForm(false)}
+          />
         </SheetContent>
       </Sheet>
 

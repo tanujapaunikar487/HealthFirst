@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { User, Users, ChevronLeft, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { router } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { RelationshipSelector } from '@/Components/RelationshipSelector';
 import { OtpInput } from '@/Components/OtpInput';
 import { MemberSearchCard } from '@/Components/MemberSearchCard';
@@ -31,9 +33,15 @@ interface FlowState {
     step: Step;
     memberType: 'guest' | 'family' | null;
     guestName: string;
+    guestPhone: string;
+    guestAge: string;
+    guestGender: string;
     relation: string;
     lookupMethod: 'phone' | 'patient_id' | null;
     searchValue: string;
+    email: string;
+    emailInputMode: boolean;
+    contactType: 'phone' | 'email';
     foundMember: MemberData | null;
     alreadyLinked: boolean;
     otpValue: string;
@@ -43,23 +51,33 @@ interface FlowState {
 }
 
 interface Props {
+    mode?: 'embedded' | 'standalone';
     onComplete: (data: {
         member_type: 'guest' | 'family';
         member_id?: number;
         member_name: string;
+        member_phone?: string;
+        member_age?: number;
+        member_gender?: string;
         relation?: string;
     }) => void;
     onCancel: () => void;
 }
 
-export default function EmbeddedFamilyMemberFlow({ onComplete, onCancel }: Props) {
+export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete, onCancel }: Props) {
     const [state, setState] = useState<FlowState>({
         step: 'choice',
         memberType: null,
         guestName: '',
+        guestPhone: '',
+        guestAge: '',
+        guestGender: '',
         relation: '',
         lookupMethod: null,
         searchValue: '',
+        email: '',
+        emailInputMode: false,
+        contactType: 'phone',
         foundMember: null,
         alreadyLinked: false,
         otpValue: '',
@@ -86,17 +104,60 @@ export default function EmbeddedFamilyMemberFlow({ onComplete, onCancel }: Props
         setStep(type === 'guest' ? 'guest_name' : 'relationship');
     };
 
-    // Step 2: Guest Name Input
-    const handleGuestSubmit = () => {
+    // Step 2: Guest Information Input
+    const handleGuestSubmit = async () => {
         if (!state.guestName.trim()) {
             setError('Please enter a name');
             return;
         }
+        if (!state.guestPhone.trim()) {
+            setError('Please enter a phone number');
+            return;
+        }
+        if (!state.guestAge) {
+            setError('Please select age');
+            return;
+        }
+        if (!state.guestGender) {
+            setError('Please select gender');
+            return;
+        }
 
-        onComplete({
-            member_type: 'guest',
-            member_name: state.guestName,
-        });
+        if (mode === 'standalone') {
+            // In standalone mode, create the guest via form submission and reload
+            setLoading(true);
+            try {
+                router.post('/family-members', {
+                    name: state.guestName,
+                    relation: 'guest',
+                    phone: state.guestPhone,
+                    age: parseInt(state.guestAge, 10),
+                    gender: state.guestGender,
+                }, {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        router.reload({ only: ['members'] });
+                        onCancel(); // Close the sheet
+                    },
+                    onError: () => {
+                        setError('Failed to add guest. Please try again.');
+                        setLoading(false);
+                    },
+                });
+            } catch (error) {
+                setError('Failed to add guest. Please try again.');
+                setLoading(false);
+            }
+        } else {
+            // In embedded mode, call the callback
+            onComplete({
+                member_type: 'guest',
+                member_name: state.guestName,
+                member_phone: state.guestPhone,
+                member_age: parseInt(state.guestAge, 10),
+                member_gender: state.guestGender,
+            });
+        }
     };
 
     // Step 3: Relationship Selection
@@ -160,10 +221,13 @@ export default function EmbeddedFamilyMemberFlow({ onComplete, onCancel }: Props
         }
     };
 
-    // Send OTP
+    // Send OTP (phone or email)
     const handleSendOtp = async () => {
-        if (!state.foundMember?.phone) {
-            setError('Phone number not available');
+        const contactValue = state.emailInputMode ? state.email : state.foundMember?.phone;
+        const contactType = state.emailInputMode ? 'email' : 'phone';
+
+        if (!contactValue) {
+            setError((contactType === 'email' ? 'Email' : 'Phone number') + ' not available');
             return;
         }
 
@@ -178,16 +242,19 @@ export default function EmbeddedFamilyMemberFlow({ onComplete, onCancel }: Props
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                 },
                 body: JSON.stringify({
-                    phone: state.foundMember.phone,
+                    contact_type: contactType,
+                    contact_value: contactValue,
                     purpose: 'link_member',
                 }),
             });
 
+            const data = await response.json();
+
             if (response.ok) {
+                setState((prev) => ({ ...prev, contactType, loading: false }));
                 setStep('otp');
-                setLoading(false);
             } else {
-                setError('Failed to send OTP. Please try again.');
+                setError(data.error || 'Failed to send OTP. Please try again.');
                 setLoading(false);
             }
         } catch (error) {
@@ -196,9 +263,11 @@ export default function EmbeddedFamilyMemberFlow({ onComplete, onCancel }: Props
         }
     };
 
-    // Verify OTP
+    // Verify OTP (phone or email)
     const handleVerifyOtp = async (otp: string) => {
-        if (!state.foundMember?.phone) return;
+        const contactValue = state.emailInputMode ? state.email : state.foundMember?.phone;
+
+        if (!contactValue) return;
 
         setLoading(true);
         setError('');
@@ -211,7 +280,8 @@ export default function EmbeddedFamilyMemberFlow({ onComplete, onCancel }: Props
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                 },
                 body: JSON.stringify({
-                    phone: state.foundMember.phone,
+                    contact_type: state.contactType,
+                    contact_value: contactValue,
                     otp: otp,
                 }),
             });
@@ -257,12 +327,17 @@ export default function EmbeddedFamilyMemberFlow({ onComplete, onCancel }: Props
 
                 // Complete after showing success message
                 setTimeout(() => {
-                    onComplete({
-                        member_type: 'family',
-                        member_id: data.member_data.id,
-                        member_name: data.member_data.name,
-                        relation: data.member_data.relation,
-                    });
+                    if (mode === 'standalone') {
+                        router.reload({ only: ['members'] });
+                        onCancel(); // Close the sheet
+                    } else {
+                        onComplete({
+                            member_type: 'family',
+                            member_id: data.member_data.id,
+                            member_name: data.member_data.name,
+                            relation: data.member_data.relation,
+                        });
+                    }
                 }, 1500);
             } else {
                 setError(data.error || 'Failed to link member. Please try again.');
@@ -338,7 +413,7 @@ export default function EmbeddedFamilyMemberFlow({ onComplete, onCancel }: Props
                             <div>
                                 <h4 className="font-semibold">Guest</h4>
                                 <p className="text-sm text-muted-foreground">
-                                    Quick booking for someone else (name only)
+                                    Quick booking for someone else (basic info required)
                                 </p>
                             </div>
                         </button>
@@ -367,13 +442,13 @@ export default function EmbeddedFamilyMemberFlow({ onComplete, onCancel }: Props
 
             {state.step === 'guest_name' && (
                 <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Guest Name</h3>
+                    <h3 className="text-lg font-semibold">Guest Information</h3>
                     <p className="text-sm text-muted-foreground">
-                        Enter the guest's name to continue
+                        Enter the guest's basic information to continue
                     </p>
 
                     <div className="space-y-2">
-                        <Label htmlFor="guest_name">Name</Label>
+                        <Label htmlFor="guest_name">Name *</Label>
                         <Input
                             id="guest_name"
                             value={state.guestName}
@@ -383,7 +458,54 @@ export default function EmbeddedFamilyMemberFlow({ onComplete, onCancel }: Props
                         />
                     </div>
 
-                    <Button onClick={handleGuestSubmit} className="w-full" disabled={!state.guestName.trim()}>
+                    <div className="space-y-2">
+                        <Label htmlFor="guest_phone">Phone Number *</Label>
+                        <Input
+                            id="guest_phone"
+                            type="tel"
+                            value={state.guestPhone}
+                            onChange={(e) => setState((prev) => ({ ...prev, guestPhone: e.target.value }))}
+                            placeholder="+91XXXXXXXXXX or 10-digit number"
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                            <Label htmlFor="guest_age">Age *</Label>
+                            <Select value={state.guestAge} onValueChange={(value) => setState((prev) => ({ ...prev, guestAge: value }))}>
+                                <SelectTrigger id="guest_age">
+                                    <SelectValue placeholder="Select age" />
+                                </SelectTrigger>
+                                <SelectContent className="max-h-[200px]">
+                                    {Array.from({ length: 121 }, (_, i) => i).map((age) => (
+                                        <SelectItem key={age} value={age.toString()}>
+                                            {age} {age === 0 ? 'year' : 'years'}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="guest_gender">Gender *</Label>
+                            <Select value={state.guestGender} onValueChange={(value) => setState((prev) => ({ ...prev, guestGender: value }))}>
+                                <SelectTrigger id="guest_gender">
+                                    <SelectValue placeholder="Select gender" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="male">Male</SelectItem>
+                                    <SelectItem value="female">Female</SelectItem>
+                                    <SelectItem value="other">Other</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+
+                    <Button
+                        onClick={handleGuestSubmit}
+                        className="w-full"
+                        disabled={!state.guestName.trim() || !state.guestPhone.trim() || !state.guestAge || !state.guestGender}
+                    >
                         Continue
                     </Button>
                 </div>
@@ -467,17 +589,56 @@ export default function EmbeddedFamilyMemberFlow({ onComplete, onCancel }: Props
                             <p className="text-sm font-medium text-green-600">Member Found!</p>
                             <MemberSearchCard member={state.foundMember} alreadyLinked={state.alreadyLinked} />
 
-                            {!state.alreadyLinked && (
-                                <Button onClick={handleSendOtp} className="w-full" disabled={state.loading}>
-                                    {state.loading ? (
-                                        <>
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Sending OTP...
-                                        </>
-                                    ) : (
-                                        'Send OTP to Verify'
-                                    )}
-                                </Button>
+                            {!state.alreadyLinked && !state.emailInputMode && (
+                                <div className="space-y-2">
+                                    <Button onClick={handleSendOtp} className="w-full" disabled={state.loading}>
+                                        {state.loading ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Sending OTP...
+                                            </>
+                                        ) : (
+                                            'Send OTP to Phone'
+                                        )}
+                                    </Button>
+                                    <button
+                                        onClick={() => setState((prev) => ({ ...prev, emailInputMode: true, error: '' }))}
+                                        className="w-full text-sm text-primary hover:underline"
+                                    >
+                                        Try Email Instead →
+                                    </button>
+                                </div>
+                            )}
+
+                            {!state.alreadyLinked && state.emailInputMode && (
+                                <div className="space-y-3">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="email">Email Address</Label>
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            value={state.email}
+                                            onChange={(e) => setState((prev) => ({ ...prev, email: e.target.value }))}
+                                            placeholder="Enter email address"
+                                        />
+                                    </div>
+                                    <Button onClick={handleSendOtp} className="w-full" disabled={state.loading || !state.email.trim()}>
+                                        {state.loading ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Sending OTP...
+                                            </>
+                                        ) : (
+                                            'Send OTP to Email'
+                                        )}
+                                    </Button>
+                                    <button
+                                        onClick={() => setState((prev) => ({ ...prev, emailInputMode: false, email: '', error: '' }))}
+                                        className="w-full text-sm text-muted-foreground hover:text-foreground"
+                                    >
+                                        ← Back to Phone
+                                    </button>
+                                </div>
                             )}
                         </div>
                     )}
@@ -507,9 +668,11 @@ export default function EmbeddedFamilyMemberFlow({ onComplete, onCancel }: Props
 
             {state.step === 'otp' && (
                 <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Verify Phone Number</h3>
+                    <h3 className="text-lg font-semibold">
+                        Verify {state.contactType === 'email' ? 'Email' : 'Phone Number'}
+                    </h3>
                     <p className="text-sm text-muted-foreground">
-                        Enter the 6-digit OTP sent to {state.foundMember?.phone}
+                        Enter the 6-digit OTP sent to {state.contactType === 'email' ? state.email : state.foundMember?.phone}
                     </p>
 
                     <OtpInput

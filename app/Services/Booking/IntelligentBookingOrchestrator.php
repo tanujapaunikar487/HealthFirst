@@ -1996,15 +1996,24 @@ class IntelligentBookingOrchestrator
         // Handle guest completion (from family_member_flow)
         if (isset($selection['member_type']) && $selection['member_type'] === 'guest' && isset($selection['member_name'])) {
             $guestName = trim($selection['member_name']);
+            $guestPhone = isset($selection['member_phone']) ? trim($selection['member_phone']) : null;
+            $guestAge = isset($selection['member_age']) ? (int)$selection['member_age'] : null;
+            $guestGender = isset($selection['member_gender']) ? trim($selection['member_gender']) : null;
 
             Log::info('🔒 Selection Handler: Creating guest member', [
                 'name' => $guestName,
+                'phone' => $guestPhone,
+                'age' => $guestAge,
+                'gender' => $guestGender,
             ]);
 
-            // Create guest member with minimal info
+            // Create guest member with required info
             $guestMember = \App\Models\FamilyMember::create([
                 'user_id' => $conversation->user_id,
                 'name' => $guestName,
+                'phone' => $guestPhone,
+                'age' => $guestAge,
+                'gender' => $guestGender,
                 'relation' => 'guest',
                 'is_guest' => true,
             ]);
@@ -2020,6 +2029,9 @@ class IntelligentBookingOrchestrator
             Log::info('✅ Guest member created and auto-selected', [
                 'member_id' => $guestMember->id,
                 'member_name' => $guestMember->name,
+                'phone' => $guestPhone,
+                'age' => $guestAge,
+                'gender' => $guestGender,
             ]);
         }
 

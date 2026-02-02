@@ -137,9 +137,10 @@ class FamilyMembersController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'relation' => 'required|string|in:self,mother,father,brother,sister,spouse,son,daughter,grandmother,grandfather,other',
-            'age' => 'nullable|integer|min:0|max:150',
-            'gender' => 'nullable|string|in:male,female,other',
+            'relation' => 'required|string|in:self,mother,father,brother,sister,spouse,son,daughter,grandmother,grandfather,other,guest',
+            'phone' => 'required|string|regex:/^(?:\+91)?[6-9]\d{9}$/',
+            'age' => 'required|integer|min:0|max:150',
+            'gender' => 'required|string|in:male,female,other',
             'blood_group' => 'nullable|string|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
         ]);
 
@@ -263,41 +264,82 @@ class FamilyMembersController extends Controller
     }
 
     /**
-     * Send OTP for verification
+     * Send OTP for verification (phone or email)
      */
     public function sendOtp(Request $request)
     {
         $validated = $request->validate([
-            'phone' => 'required|string|regex:/^\+?[1-9]\d{1,14}$/',
+            'contact_type' => 'required|in:phone,email',
+            'contact_value' => 'required|string',
             'purpose' => 'required|in:link_member,verify_new',
         ]);
 
         $otpService = app(\App\Services\OtpService::class);
+        $contactType = $validated['contact_type'];
+        $contactValue = $validated['contact_value'];
 
-        // Generate and send OTP
-        $otp = $otpService->generate($validated['phone']);
-        $otpService->send($validated['phone'], $otp);
+        // Generate and send OTP based on contact type
+        if ($contactType === 'email') {
+            // Validate email format
+            if (!filter_var($contactValue, FILTER_VALIDATE_EMAIL)) {
+                return response()->json([
+                    'otp_sent' => false,
+                    'error' => 'Invalid email format',
+                ], 400);
+            }
+
+            $otp = $otpService->generateForEmail($contactValue);
+            $sent = $otpService->sendEmail($contactValue, $otp);
+        } else {
+            // Validate phone format
+            if (!preg_match('/^\+?[1-9]\d{1,14}$/', $contactValue)) {
+                return response()->json([
+                    'otp_sent' => false,
+                    'error' => 'Invalid phone format',
+                ], 400);
+            }
+
+            $otp = $otpService->generate($contactValue);
+            $sent = $otpService->send($contactValue, $otp);
+        }
+
+        if (!$sent) {
+            return response()->json([
+                'otp_sent' => false,
+                'error' => 'Failed to send OTP. Please try again.',
+                'method_used' => $contactType,
+            ], 500);
+        }
 
         return response()->json([
             'otp_sent' => true,
             'expires_at' => now()->addMinutes(5)->toIso8601String(),
+            'method_used' => $contactType,
         ]);
     }
 
     /**
-     * Verify OTP
+     * Verify OTP (phone or email)
      */
     public function verifyOtp(Request $request)
     {
         $validated = $request->validate([
-            'phone' => 'required|string',
+            'contact_type' => 'required|in:phone,email',
+            'contact_value' => 'required|string',
             'otp' => 'required|string|size:6',
         ]);
 
         $otpService = app(\App\Services\OtpService::class);
+        $contactType = $validated['contact_type'];
+        $contactValue = $validated['contact_value'];
+        $otp = $validated['otp'];
 
-        // Verify OTP
-        if (!$otpService->verify($validated['phone'], $validated['otp'])) {
+        // Verify OTP based on contact type
+        $verified = $contactType === 'email'
+            ? $otpService->verifyEmail($contactValue, $otp)
+            : $otpService->verify($contactValue, $otp);
+
+        if (!$verified) {
             return response()->json([
                 'verified' => false,
                 'verification_token' => null,
@@ -306,11 +348,14 @@ class FamilyMembersController extends Controller
         }
 
         // Generate verification token
-        $token = $otpService->generateVerificationToken($validated['phone']);
+        $token = $contactType === 'email'
+            ? $otpService->generateVerificationTokenForEmail($contactValue)
+            : $otpService->generateVerificationToken($contactValue);
 
         return response()->json([
             'verified' => true,
             'verification_token' => $token,
+            'contact_type' => $contactType,
         ]);
     }
 
@@ -329,9 +374,9 @@ class FamilyMembersController extends Controller
         $otpService = app(\App\Services\OtpService::class);
 
         // Verify token validity
-        $phone = $otpService->verifyToken($validated['verification_token']);
+        $verificationData = $otpService->verifyToken($validated['verification_token']);
 
-        if (!$phone) {
+        if (!$verificationData) {
             return response()->json([
                 'linked' => false,
                 'member_data' => null,
@@ -341,12 +386,23 @@ class FamilyMembersController extends Controller
 
         $member = FamilyMember::findOrFail($validated['family_member_id']);
 
-        // Verify the phone matches
-        if ($member->phone !== $phone) {
+        // Verify the contact info matches
+        $contactType = $verificationData['type'];
+        $contactValue = $verificationData['value'];
+
+        if ($contactType === 'phone' && $member->phone !== $contactValue) {
             return response()->json([
                 'linked' => false,
                 'member_data' => null,
                 'error' => 'Phone verification mismatch',
+            ], 400);
+        }
+
+        if ($contactType === 'email' && $member->email !== $contactValue) {
+            return response()->json([
+                'linked' => false,
+                'member_data' => null,
+                'error' => 'Email verification mismatch',
             ], 400);
         }
 
@@ -360,12 +416,20 @@ class FamilyMembersController extends Controller
         }
 
         // Update member - link to current user
-        $member->update([
+        $updateData = [
             'user_id' => $user->id,
             'relation' => $validated['relation_to_user'],
-            'verified_phone' => $phone,
             'linked_at' => now(),
-        ]);
+        ];
+
+        // Set verified contact info
+        if ($contactType === 'phone') {
+            $updateData['verified_phone'] = $contactValue;
+        } else {
+            $updateData['verified_email'] = $contactValue;
+        }
+
+        $member->update($updateData);
 
         return response()->json([
             'linked' => true,
