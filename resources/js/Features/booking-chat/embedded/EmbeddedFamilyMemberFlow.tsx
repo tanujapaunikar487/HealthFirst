@@ -13,14 +13,13 @@ import { cn } from '@/Lib/utils';
 
 type Step =
     | 'choice'
-    // Guest - single form
+    // Guest - single form (unchanged)
     | 'guest_form'
-    // New family - 2 steps only
-    | 'relationship'
+    // New family - 1 step (CHANGED: removed 'relationship')
     | 'member_details'
-    // Link existing - 2 steps (search combines lookup_method + search)
+    // Link existing - 2-3 steps (CHANGED: added 'relationship_verify')
     | 'search'
-    | 'otp'
+    | 'relationship_verify'  // NEW: relationship + OTP combined
     | 'success';
 
 interface MemberData {
@@ -74,6 +73,11 @@ interface FlowState {
     loading: boolean;
     attemptsRemaining: number | null;
     lockedOut: boolean;
+
+    // NEW: UX improvements
+    autoFocusField?: 'relationship' | 'name' | 'phone';
+    lockoutUntil?: number | null;  // Timestamp for OTP lockout
+    otpContactMethod?: 'phone' | 'email';  // Pre-selected contact method
 }
 
 interface Props {
@@ -132,6 +136,11 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         loading: false,
         attemptsRemaining: null,
         lockedOut: false,
+
+        // NEW: UX improvements
+        autoFocusField: undefined,
+        lockoutUntil: null,
+        otpContactMethod: 'phone',
     });
 
     const setStep = (step: Step) => {
@@ -152,10 +161,11 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         if (choice === 'guest') {
             setStep('guest_form');
         } else if (choice === 'add_new_family') {
-            setStep('relationship');
+            // CHANGED: Go straight to member_details (no relationship step)
+            setStep('member_details');
         } else {
             // link_existing goes directly to search (with method selection on same screen)
-            setState((prev) => ({ ...prev, lookupMethod: 'phone' })); // Default to phone
+            setState((prev) => ({ ...prev, lookupMethod: 'phone', otpContactMethod: 'phone' })); // Default to phone
             setStep('search');
         }
     };
@@ -230,26 +240,18 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         }
     };
 
-    // Step 2: Relationship Selection
-    const handleRelationshipNext = () => {
-        if (!state.relation) {
-            setError('Please select a relationship');
-            return;
-        }
-        setError('');
-        // Check flowType to determine next step
-        if (state.flowType === 'add_new_family') {
-            setStep('member_details');
-        } else if (state.flowType === 'link_existing') {
-            setState((prev) => ({ ...prev, lookupMethod: 'phone' })); // Default to phone
-            setStep('search');
-        }
-    };
+    // REMOVED: Relationship step no longer needed as standalone step
+    // Relationship is now part of member_details form for add_new_family
+    // For link_existing, relationship is combined with OTP verification
 
 
     // Step 3: Member Details Form Submission
     const handleMemberDetailsSubmit = async () => {
-        // Validate required fields only (name + phone)
+        // Validate required fields (NOW INCLUDES RELATIONSHIP)
+        if (!state.relation) {
+            setError('Please select a relationship');
+            return;
+        }
         if (!state.newMemberName.trim()) {
             setError('Please enter a name');
             return;
@@ -522,8 +524,10 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         setState((prev) => ({
             ...prev,
             flowType: 'add_new_family',
-            newMemberPhone: prev.lookupMethod === 'phone' ? prev.searchValue : '',
-            step: 'relationship',  // Include step change in same update
+            newMemberPhone: prev.searchValue, // ALWAYS pre-fill, not conditional
+            newMemberName: '', // Clear name (not from search)
+            step: 'member_details',  // CHANGED: Go straight to form (no relationship step)
+            autoFocusField: 'relationship',  // Auto-focus on relationship dropdown
             error: '',
         }));
     };
@@ -534,12 +538,11 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             choice: 'choice',
             // Guest flow
             guest_form: 'choice',
-            // New family flow
-            relationship: 'choice',
-            member_details: 'relationship',
+            // New family flow (CHANGED: member_details goes straight back to choice)
+            member_details: 'choice',
             // Link existing flow
-            search: state.flowType === 'link_existing' ? 'choice' : 'relationship',
-            otp: 'search',
+            search: 'choice',
+            relationship_verify: 'search',
             success: 'success',
         };
         setStep(backMap[state.step]);
@@ -555,20 +558,18 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             case 'guest_form':
                 return { title: 'Guest Information', description: 'Add a guest for this appointment' };
             // New family flow
-            case 'relationship':
-                return { title: 'Select Relationship', description: 'What is this person\'s relationship to you?' };
             case 'member_details':
-                return { title: 'New Family Member', description: 'Add a new family member to your account' };
+                return { title: 'Add Family Member', description: 'Add a new family member to your account' };
             // Link existing flow
             case 'search':
                 return {
                     title: 'Link Existing Patient',
-                    description: 'Search for an existing patient record to link',
+                    description: 'Connect to their existing hospital record',
                 };
-            case 'otp':
+            case 'relationship_verify':
                 return {
-                    title: `Verify ${state.contactType === 'email' ? 'Email' : 'Phone Number'}`,
-                    description: `Enter the 6-digit OTP sent to ${state.contactType === 'email' ? state.email : state.foundMember?.phone}`,
+                    title: 'Verify & Link',
+                    description: `We found: ${state.foundMember?.name} (${state.foundMember?.patient_id})`,
                 };
             case 'success':
                 return { title: 'Successfully Linked!', description: `${state.foundMember?.name} has been added to your family members` };
@@ -602,21 +603,13 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         </Button>
                     </SheetFooter>
                 );
-            case 'relationship':
-                return (
-                    <SheetFooter>
-                        <Button className="flex-1" onClick={handleRelationshipNext} disabled={!state.relation}>
-                            Continue
-                        </Button>
-                    </SheetFooter>
-                );
             case 'member_details':
                 return (
                     <SheetFooter>
                         <Button
                             className="flex-1"
                             onClick={handleMemberDetailsSubmit}
-                            disabled={state.loading || !state.newMemberName.trim() || !state.newMemberPhone.trim() || state.newMemberPhone === '+91'}
+                            disabled={state.loading || !state.relation || !state.newMemberName.trim() || !state.newMemberPhone.trim() || state.newMemberPhone === '+91'}
                         >
                             {state.loading ? (
                                 <>
@@ -712,10 +705,6 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         </div>
                     )}
 
-                    {state.step === 'relationship' && (
-                        <RelationshipSelector value={state.relation} onChange={(value) => setState((prev) => ({ ...prev, relation: value }))} />
-                    )}
-
                     {state.step === 'member_details' && (
                         <div className="space-y-6">
                             {/* Essential Information Section */}
@@ -723,9 +712,41 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 <div className="flex items-center gap-2">
                                     <div className="h-px flex-1 bg-border"></div>
                                     <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                                        Essential Information
+                                        Relationship & Contact
                                     </span>
                                     <div className="h-px flex-1 bg-border"></div>
+                                </div>
+
+                                {/* Relationship dropdown - MOVED HERE */}
+                                <div className="space-y-2">
+                                    <label htmlFor="relationship_s" className="block text-sm font-medium text-foreground">
+                                        Relationship <span className="text-destructive">*</span>
+                                    </label>
+                                    <Select
+                                        value={state.relation}
+                                        onValueChange={(value) => setState(prev => ({ ...prev, relation: value }))}
+                                        disabled={state.loading}
+                                    >
+                                        <SelectTrigger
+                                            id="relationship_s"
+                                            className={!state.relation ? 'text-muted-foreground' : ''}
+                                        >
+                                            <SelectValue placeholder="Select relationship" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="mother">Mother</SelectItem>
+                                            <SelectItem value="father">Father</SelectItem>
+                                            <SelectItem value="brother">Brother</SelectItem>
+                                            <SelectItem value="sister">Sister</SelectItem>
+                                            <SelectItem value="son">Son</SelectItem>
+                                            <SelectItem value="daughter">Daughter</SelectItem>
+                                            <SelectItem value="spouse">Spouse</SelectItem>
+                                            <SelectItem value="grandmother">Grandmother</SelectItem>
+                                            <SelectItem value="grandfather">Grandfather</SelectItem>
+                                            <SelectItem value="friend">Friend</SelectItem>
+                                            <SelectItem value="other">Other</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
 
                                 <div className="space-y-2">
@@ -1188,38 +1209,53 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                 </div>
             )}
 
-            {state.step === 'relationship' && (
-                <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Select Relationship</h3>
-                    <p className="text-sm text-muted-foreground">
-                        What is this person's relationship to you?
-                    </p>
-
-                    <RelationshipSelector
-                        value={state.relation}
-                        onChange={(value) => setState((prev) => ({ ...prev, relation: value }))}
-                    />
-
-                    <Button onClick={handleRelationshipNext} className="w-full" disabled={!state.relation}>
-                        Continue
-                    </Button>
-                </div>
-            )}
-
             {/* New Family Member Flow - Grouped Form */}
             {state.step === 'member_details' && (
                 <div className="space-y-6">
-                    <h3 className="text-lg font-semibold">New Family Member</h3>
+                    <h3 className="text-lg font-semibold">Add Family Member</h3>
                     <p className="text-sm text-muted-foreground">Add a new family member to your account</p>
 
-                    {/* Essential Information Section */}
+                    {/* SECTION 1: Relationship & Contact */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-2">
                             <div className="h-px flex-1 bg-border"></div>
                             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                                Essential Information
+                                Relationship & Contact
                             </span>
                             <div className="h-px flex-1 bg-border"></div>
+                        </div>
+
+                        {/* Relationship dropdown - MOVED HERE */}
+                        <div className="space-y-2">
+                            <label htmlFor="relationship" className="block text-sm font-medium text-foreground">
+                                Relationship <span className="text-destructive">*</span>
+                            </label>
+                            <Select
+                                value={state.relation}
+                                onValueChange={(value) => setState(prev => ({ ...prev, relation: value }))}
+                                disabled={state.loading}
+                            >
+                                <SelectTrigger
+                                    id="relationship"
+                                    className={!state.relation ? 'text-muted-foreground' : ''}
+                                    autoFocus={state.autoFocusField === 'relationship'}
+                                >
+                                    <SelectValue placeholder="Select relationship" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="mother">Mother</SelectItem>
+                                    <SelectItem value="father">Father</SelectItem>
+                                    <SelectItem value="brother">Brother</SelectItem>
+                                    <SelectItem value="sister">Sister</SelectItem>
+                                    <SelectItem value="son">Son</SelectItem>
+                                    <SelectItem value="daughter">Daughter</SelectItem>
+                                    <SelectItem value="spouse">Spouse</SelectItem>
+                                    <SelectItem value="grandmother">Grandmother</SelectItem>
+                                    <SelectItem value="grandfather">Grandfather</SelectItem>
+                                    <SelectItem value="friend">Friend</SelectItem>
+                                    <SelectItem value="other">Other</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
 
                         <div className="space-y-2">
@@ -1373,7 +1409,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     <Button
                         onClick={handleMemberDetailsSubmit}
                         className="w-full"
-                        disabled={state.loading || !state.newMemberName.trim() || !state.newMemberPhone.trim() || state.newMemberPhone === '+91'}
+                        disabled={state.loading || !state.relation || !state.newMemberName.trim() || !state.newMemberPhone.trim() || state.newMemberPhone === '+91'}
                     >
                         {state.loading ? (
                             <>

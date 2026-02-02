@@ -29,8 +29,10 @@ import {
   Receipt,
   Mail,
   MessageSquare,
+  ChevronRight,
 } from '@/Lib/icons';
 import { downloadAsHtml } from '@/Lib/download';
+import { Textarea } from '@/Components/ui/textarea';
 
 /* ─── Types ─── */
 
@@ -215,7 +217,7 @@ function StatusAlertBanner({ bill }: { bill: Bill }) {
   if (!config) return null;
 
   return (
-    <div className="rounded-lg px-3.5 py-3 flex items-start gap-2.5 mt-4" style={{ backgroundColor: config.bg, border: `1px solid ${config.border}` }}>
+    <div className="rounded-lg px-3.5 py-3 flex items-start gap-2.5 mb-4" style={{ backgroundColor: config.bg, border: `1px solid ${config.border}` }}>
       <div className={cn('mt-0.5 flex-shrink-0', config.titleColor)}>{config.icon}</div>
       <div>
         <p className={cn('text-sm font-semibold', config.titleColor)}>{config.title}</p>
@@ -300,6 +302,10 @@ export default function Show({ user, bill }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(bill);
   const [toastMessage, setToastMessage] = useState('');
   const [paymentLoading, setPaymentLoading] = useState(false);
+  const [showDisputeDialog, setShowDisputeDialog] = useState(false);
+  const [disputeReason, setDisputeReason] = useState('');
+  const [disputeLoading, setDisputeLoading] = useState(false);
+  const [showContactDialog, setShowContactDialog] = useState(false);
   const isDoctor = bill.appointment_type === 'doctor';
   const isPayable = PAYABLE_STATUSES.includes(bill.billing_status);
   const isEmi = bill.billing_status === 'emi';
@@ -510,7 +516,7 @@ export default function Show({ user, bill }: Props) {
                 {isPaid && (
                   <DropdownMenuItem onClick={() => {
                     const itemRows = bill.line_items.map(i => `<div class="row"><span class="row-label">${i.label}</span><span class="row-value">₹${i.total.toLocaleString()}</span></div>`).join('');
-                    downloadAsHtml(`receipt-${bill.invoice_number}.html`, `
+                    downloadAsHtml(`receipt-${bill.invoice_number}.pdf`, `
                       <h1>Payment Receipt</h1>
                       <p class="subtitle">${bill.invoice_number} &middot; ${bill.invoice_date}</p>
                       <h2>Patient</h2>
@@ -531,9 +537,9 @@ export default function Show({ user, bill }: Props) {
                     Download Receipt
                   </DropdownMenuItem>
                 )}
-                {isPaid && (
+                {isPaid && bill.insurance_details && (
                   <DropdownMenuItem onClick={() => {
-                    downloadAsHtml(`reimbursement-letter-${bill.invoice_number}.html`, `
+                    downloadAsHtml(`reimbursement-letter-${bill.invoice_number}.pdf`, `
                       <h1>Reimbursement Request Letter</h1>
                       <p class="subtitle">Reference: ${bill.invoice_number}</p>
                       <div class="section">
@@ -562,14 +568,7 @@ export default function Show({ user, bill }: Props) {
                   </DropdownMenuItem>
                 )}
                 {isPaid && !bill.dispute_details && (
-                  <DropdownMenuItem onClick={() => {
-                    if (confirm('Are you sure you want to raise a dispute for this bill?')) {
-                      router.post(`/billing/${bill.id}/dispute`, { reason: 'Dispute raised by patient' }, {
-                        onSuccess: () => showToast('Dispute submitted. You will hear from us within 3–5 business days.'),
-                        onError: () => showToast('Failed to submit dispute. Please try again.'),
-                      });
-                    }
-                  }}>
+                  <DropdownMenuItem onClick={() => setShowDisputeDialog(true)}>
                     <MessageSquare className="mr-2 h-4 w-4" />
                     Raise Dispute
                   </DropdownMenuItem>
@@ -578,9 +577,7 @@ export default function Show({ user, bill }: Props) {
                   <ExternalLink className="mr-2 h-4 w-4" />
                   View Appointment
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => {
-                  window.location.href = `mailto:billing@healthfirst.in?subject=Billing Support - ${bill.invoice_number}&body=Hi, I need help with my bill ${bill.invoice_number} (₹${bill.total.toLocaleString()}).`;
-                }}>
+                <DropdownMenuItem onClick={() => setShowContactDialog(true)}>
                   <Mail className="mr-2 h-4 w-4" />
                   Contact Support
                 </DropdownMenuItem>
@@ -588,6 +585,9 @@ export default function Show({ user, bill }: Props) {
             </DropdownMenu>
           </div>
         </div>
+
+        {/* ─── Status Alert ─── */}
+        <StatusAlertBanner bill={bill} />
 
         {/* ─── Invoice Header Card ─── */}
         <div className="border rounded-xl overflow-hidden mb-4">
@@ -656,8 +656,6 @@ export default function Show({ user, bill }: Props) {
               </div>
             </div>
 
-            {/* Status Banner */}
-            <StatusAlertBanner bill={bill} />
           </div>
         </div>
 
@@ -867,6 +865,142 @@ export default function Show({ user, bill }: Props) {
         )}
 
       </div>
+
+      {/* Contact Support Dialog */}
+      {showContactDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setShowContactDialog(false)} />
+          <div className="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+              <Mail className="h-6 w-6 text-blue-600" />
+            </div>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">Contact Billing Support</h3>
+            <p className="mb-4 text-sm text-gray-500">
+              Reach out to our billing team for help with invoice <span className="font-medium text-gray-700">{bill.invoice_number}</span>.
+            </p>
+
+            <div className="space-y-3 mb-5">
+              <div className="flex items-center justify-between rounded-lg border px-4 py-3">
+                <div>
+                  <p className="text-xs font-medium text-gray-500">Email</p>
+                  <p className="text-sm font-semibold text-gray-900">billing@healthfirst.in</p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText('billing@healthfirst.in');
+                    showToast('Email copied to clipboard');
+                  }}
+                >
+                  Copy
+                </Button>
+              </div>
+              <div className="flex items-center justify-between rounded-lg border px-4 py-3">
+                <div>
+                  <p className="text-xs font-medium text-gray-500">Phone</p>
+                  <p className="text-sm font-semibold text-gray-900">+91 20 2345 6789</p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText('+912023456789');
+                    showToast('Phone number copied to clipboard');
+                  }}
+                >
+                  Copy
+                </Button>
+              </div>
+            </div>
+
+            <div className="rounded-lg bg-gray-50 border px-4 py-3 mb-5">
+              <p className="text-xs font-medium text-gray-500 mb-1">Reference for your email</p>
+              <p className="text-xs text-gray-600">
+                Subject: Billing Support - {bill.invoice_number}<br />
+                Invoice: {bill.invoice_number} &middot; ₹{bill.total.toLocaleString()}
+              </p>
+            </div>
+
+            <Button variant="outline" className="w-full" onClick={() => setShowContactDialog(false)}>
+              Close
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Dispute Dialog */}
+      {showDisputeDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => {
+              if (!disputeLoading) {
+                setShowDisputeDialog(false);
+                setDisputeReason('');
+              }
+            }}
+          />
+          <div className="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
+              <AlertTriangle className="h-6 w-6 text-amber-600" />
+            </div>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">Raise a Dispute?</h3>
+            <p className="mb-4 text-sm text-gray-500">
+              Our team will review your dispute within 3–5 business days. Payment will be paused during review.
+            </p>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Reason for dispute
+              </label>
+              <Textarea
+                value={disputeReason}
+                onChange={(e) => setDisputeReason(e.target.value)}
+                placeholder="Describe the issue with this bill..."
+                maxLength={1000}
+                rows={4}
+                className="w-full"
+              />
+              <p className="mt-1 text-xs text-gray-400 text-right">{disputeReason.length}/1000</p>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1"
+                disabled={disputeLoading}
+                onClick={() => {
+                  setShowDisputeDialog(false);
+                  setDisputeReason('');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                className="flex-1"
+                disabled={!disputeReason.trim() || disputeLoading}
+                onClick={() => {
+                  setDisputeLoading(true);
+                  router.post(`/billing/${bill.id}/dispute`, { reason: disputeReason.trim() }, {
+                    onSuccess: () => {
+                      setShowDisputeDialog(false);
+                      setDisputeReason('');
+                      setDisputeLoading(false);
+                      showToast('Dispute submitted. You will hear from us within 3–5 business days.');
+                    },
+                    onError: () => {
+                      setDisputeLoading(false);
+                      showToast('Failed to submit dispute. Please try again.');
+                    },
+                  });
+                }}
+              >
+                {disputeLoading ? 'Submitting...' : 'Submit Dispute'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Toast */}
       {toastMessage && (

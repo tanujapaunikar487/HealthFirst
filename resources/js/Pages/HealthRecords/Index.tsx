@@ -741,9 +741,6 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
             >
               Health Records
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {records.length} records across {familyMembers.length + 1} family members
-            </p>
           </div>
         </div>
 

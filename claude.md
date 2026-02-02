@@ -476,6 +476,22 @@ The `HospitalSeeder` provides realistic Indian healthcare data:
     - `Appointments/Show.tsx`: Refactored `Section` — title+icon row above `<Card>` (8 sections)
     - `Insurance/Show.tsx`: "Policy Details" and "Covered Members" titles moved outside Cards
     - `FamilyMembers/Show.tsx`: 3 cards (Personal Info, Medical Info, Emergency Contact) — titles moved outside, removed unused `CardHeader`/`CardTitle` imports
+22. ✅ **Invoice Detail Page Redesign** (`Billing/Show.tsx`):
+    - Collapsed 12 sections into 5 clean zones: Page Header, Invoice Card, Charges, Payment & Insurance, EMI/Dispute
+    - Page header matches other detail pages: back link (`← Billing`), h1 title + status badge, primary CTA button + 3-dot DropdownMenu
+    - Primary button is contextual: "Pay ₹X" (payable), "Pay EMI ₹X" (EMI), "Download Invoice" (other)
+    - 3-dot menu: Download Invoice, Download Receipt, Reimbursement Letter, Raise Dispute, View Appointment, Contact Support
+    - Invoice Header card: hospital letterhead (name, address, GSTIN), invoice metadata, patient & service info, embedded status banner
+    - Removed: Activity Log section, Overview SectionCard, Service Details SectionCard, 6 full-width footer action buttons
+    - Merged: Payment Info + Insurance Details → single "Payment Details" section
+    - All business logic preserved (Razorpay, downloads, dispute, navigation)
+23. ✅ **PDF Downloads Platform-Wide**:
+    - Converted all TXT invoice downloads to PDF (via print-to-PDF dialog)
+    - `Billing/Show.tsx`: Invoice download now generates styled HTML with table, summary, payment details
+    - `Billing/Index.tsx`: Row dropdown invoice download converted from TXT to PDF
+    - `Appointments/Show.tsx`: Billing section invoice download converted from TXT to PDF
+    - Removed unused `downloadAsText()` and `downloadBlob()` from `Lib/download.ts`
+    - All 13 downloadable document types now use `downloadAsHtml()` → print-to-PDF via hidden iframe
 
 ---
 
