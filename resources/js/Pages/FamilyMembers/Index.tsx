@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
+import { EmptyState } from '@/Components/ui/empty-state';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import {
@@ -170,22 +171,17 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
 
         {/* Member List or Empty State */}
         {members.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50 py-16">
-            <div
-              className="mb-4 flex h-14 w-14 items-center justify-center rounded-full"
-              style={{ backgroundColor: '#DBEAFE' }}
-            >
-              <Users className="h-7 w-7" style={{ color: '#1E40AF' }} />
-            </div>
-            <p className="mb-1 text-base font-semibold text-gray-900">No family members yet</p>
-            <p className="mb-6 text-center text-sm text-gray-500 px-8">
-              Add family members to book appointments and manage health records for them
-            </p>
-            <Button size="lg" onClick={openAddForm}>
-              <AddTeam className="h-4 w-4" />
-              Add Member
-            </Button>
-          </div>
+          <EmptyState
+            icon={Users}
+            message="No family members yet"
+            description="Add family members to book appointments and manage health records for them"
+            action={
+              <Button size="lg" onClick={openAddForm}>
+                <AddTeam className="h-4 w-4" />
+                Add Member
+              </Button>
+            }
+          />
         ) : (
           <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white overflow-hidden">
             {members.map(member => {

@@ -6,6 +6,7 @@ import { Card } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Toast } from '@/Components/ui/toast';
+import { EmptyState } from '@/Components/ui/empty-state';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -1309,15 +1310,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           </button>
           <div className={collapsedSections.has('documents') ? 'hidden md:block' : ''}>
             {claim.documents.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
-                  <FileText className="h-5 w-5 text-gray-400" />
-                </div>
-                <p className="mb-1 text-sm font-medium text-gray-600">No documents yet</p>
-                <p className="max-w-xs text-center text-xs text-gray-400">
-                  Documents will appear here as your treatment progresses.
-                </p>
-              </div>
+              <EmptyState icon={FileText} message="No documents uploaded" description="Upload supporting documents for this claim" />
             ) : (
               <div className="divide-y">
                 {claim.documents.map((doc, idx) => (
@@ -1373,15 +1366,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           </button>
           <div className={collapsedSections.has('timeline') ? 'hidden md:block' : ''}>
             {claim.timeline.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
-                  <Clock className="h-5 w-5 text-gray-400" />
-                </div>
-                <p className="mb-1 text-sm font-medium text-gray-600">No activity yet</p>
-                <p className="max-w-xs text-center text-xs text-gray-400">
-                  Updates will appear here as your claim progresses.
-                </p>
-              </div>
+              <EmptyState icon={Clock} message="No timeline events" />
             ) : (
               <div className="px-5 py-4">
                 {/* Last updated on mobile */}

@@ -153,7 +153,7 @@ class DashboardController extends Controller
         $paymentsDueSoon = [];
         $emisDue = [];
         $insuranceClaimUpdates = [];
-        $prescriptionRefills = [];
+
         $followUpsDue = [];
         $preAppointmentReminders = [];
         $newResultsReady = [];
@@ -163,7 +163,7 @@ class DashboardController extends Controller
             $paymentsDueSoon = $this->getPaymentsDueSoon($user);
             $emisDue = $this->getEmisDue($user);
             $insuranceClaimUpdates = $this->getInsuranceClaimUpdates($user);
-            $prescriptionRefills = $this->getPrescriptionRefills($user);
+
             $followUpsDue = $this->getFollowUpsDue($user);
             $preAppointmentReminders = $this->getPreAppointmentReminders($user);
             $newResultsReady = $this->getNewResultsReady($user);
@@ -182,7 +182,7 @@ class DashboardController extends Controller
             'paymentsDueSoon' => $paymentsDueSoon,
             'emisDue' => $emisDue,
             'insuranceClaimUpdates' => $insuranceClaimUpdates,
-            'prescriptionRefills' => $prescriptionRefills,
+
             'followUpsDue' => $followUpsDue,
             'preAppointmentReminders' => $preAppointmentReminders,
             'newResultsReady' => $newResultsReady,
@@ -271,37 +271,6 @@ class DashboardController extends Controller
                     'title' => 'Insurance Claim Update',
                 ];
             })
-            ->toArray();
-    }
-
-    private function getPrescriptionRefills($user): array
-    {
-        // Query health_records where category='prescription' or 'medication_active'
-        // AND valid_until is within 14 days
-        return HealthRecord::where('user_id', $user->id)
-            ->whereIn('category', ['prescription', 'medication_active'])
-            ->with('familyMember')
-            ->get()
-            ->filter(function ($r) {
-                $validUntil = $r->metadata['valid_until'] ?? null;
-                if (!$validUntil) return false;
-                $daysRemaining = (int) now()->diffInDays(Carbon::parse($validUntil), false);
-                return $daysRemaining >= 0 && $daysRemaining <= 14;
-            })
-            ->take(2)
-            ->map(function ($r) {
-                $validUntil = Carbon::parse($r->metadata['valid_until']);
-                return [
-                    'id' => $r->id,
-                    'medication_name' => $r->metadata['medication'] ?? $r->title,
-                    'patient_name' => $r->familyMember?->name ?? 'Self',
-                    'patient_initials' => $this->getInitials($r->familyMember?->name ?? 'Self'),
-                    'days_remaining' => (int) now()->diffInDays($validUntil, false),
-                    'prescription_date' => $r->record_date->toDateString(),
-                    'doctor_name' => $r->doctor_name ?? 'Doctor',
-                ];
-            })
-            ->values()
             ->toArray();
     }
 

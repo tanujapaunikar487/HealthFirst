@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RelationshipSelector } from '@/Components/RelationshipSelector';
 import { OtpInput } from '@/Components/OtpInput';
 import { MemberSearchCard } from '@/Components/MemberSearchCard';
+import { DetectionCard } from './DetectionCard';
 import { SheetHeader, SheetTitle, SheetDescription, SheetFooter } from '@/Components/ui/sheet';
 import { cn } from '@/Lib/utils';
 
@@ -17,9 +18,9 @@ type Step =
     | 'guest_form'
     // New family - 1 step (CHANGED: removed 'relationship')
     | 'member_details'
-    // Link existing - 2-3 steps (CHANGED: added 'relationship_verify')
+    // Link existing - 2-3 steps
     | 'search'
-    | 'relationship_verify'  // NEW: relationship + OTP combined
+    | 'otp'  // OTP verification
     | 'success';
 
 interface MemberData {
@@ -78,6 +79,12 @@ interface FlowState {
     autoFocusField?: 'relationship' | 'name' | 'phone';
     lockoutUntil?: number | null;  // Timestamp for OTP lockout
     otpContactMethod?: 'phone' | 'email';  // Pre-selected contact method
+
+    // NEW: Auto-detection fields
+    showDetectionCard: boolean;
+    submitMode: 'create' | 'link';
+    loadingField: string | null;
+    fieldErrors: Record<string, string>;
 }
 
 interface Props {
@@ -141,6 +148,12 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         autoFocusField: undefined,
         lockoutUntil: null,
         otpContactMethod: 'phone',
+
+        // NEW: Auto-detection fields
+        showDetectionCard: false,
+        submitMode: 'create',
+        loadingField: null,
+        fieldErrors: {},
     });
 
     const setStep = (step: Step) => {
@@ -155,6 +168,14 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         setState((prev) => ({ ...prev, loading }));
     };
 
+    const clearFieldError = (field: string) => {
+        setState(prev => {
+            const newErrors = { ...prev.fieldErrors };
+            delete newErrors[field];
+            return { ...prev, fieldErrors: newErrors };
+        });
+    };
+
     // Step 1: Initial Choice (3 options)
     const handleInitialChoice = (choice: 'guest' | 'add_new_family' | 'link_existing') => {
         setState((prev) => ({ ...prev, flowType: choice }));
@@ -164,10 +185,100 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             // CHANGED: Go straight to member_details (no relationship step)
             setStep('member_details');
         } else {
-            // link_existing goes directly to search (with method selection on same screen)
-            setState((prev) => ({ ...prev, lookupMethod: 'phone', otpContactMethod: 'phone' })); // Default to phone
+            // Link existing: go to search with phone method pre-selected
+            setState((prev) => ({ ...prev, lookupMethod: 'phone', otpContactMethod: 'phone' }));
             setStep('search');
         }
+    };
+
+    // Phone Auto-Detection Handler
+    const handlePhoneBlur = async (phone: string) => {
+        // Step 1: Client validation
+        if (!phone || phone === '+91') {
+            setState(prev => ({ ...prev, fieldErrors: { ...prev.fieldErrors, memberPhone: 'Please enter a phone number' } }));
+            return;
+        }
+        if (!/^\+91[6-9]\d{9}$/.test(phone)) {
+            setState(prev => ({ ...prev, fieldErrors: { ...prev.fieldErrors, memberPhone: 'Please enter a valid 10-digit phone number' } }));
+            return;
+        }
+
+        // Step 2: Clear error, show loading
+        setState(prev => ({ ...prev, fieldErrors: { ...prev.fieldErrors, memberPhone: '' }, loadingField: 'phone' }));
+
+        // Step 3: API call to lookup() - SAFE, no OTP yet
+        try {
+            const response = await fetch('/family-members/lookup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                },
+                body: JSON.stringify({ search_type: 'phone', search_value: phone }),
+            });
+            const data = await response.json();
+
+            if (data.found && !data.already_linked) {
+                // CASE 1: Existing patient - show detection card
+                setState(prev => ({
+                    ...prev,
+                    foundMember: data.member_data,
+                    showDetectionCard: true,
+                    submitMode: 'link', // Button becomes "Verify & Link"
+                    loadingField: null,
+                }));
+            } else if (data.already_linked) {
+                // CASE 2: Already linked - error
+                setState(prev => ({
+                    ...prev,
+                    fieldErrors: { ...prev.fieldErrors, memberPhone: 'This phone number is already registered to one of your family members.' },
+                    showDetectionCard: false,
+                    submitMode: 'create',
+                    loadingField: null,
+                }));
+            } else {
+                // CASE 3: Not found - normal create
+                setState(prev => ({ ...prev, showDetectionCard: false, submitMode: 'create', loadingField: null }));
+            }
+        } catch (error) {
+            // CASE 4: API failure - allow continuing (don't block user)
+            setState(prev => ({ ...prev, showDetectionCard: false, submitMode: 'create', loadingField: null }));
+        }
+    };
+
+    // Accept Detected Member - triggers OTP flow
+    const handleAcceptDetectedMember = () => {
+        if (!state.foundMember) return;
+
+        // Auto-suggest relationship based on age/gender if not already selected
+        const suggestRelationship = () => {
+            if (state.relation) return state.relation; // Keep existing selection
+
+            const age = state.foundMember?.age;
+            const gender = state.foundMember?.gender;
+
+            if (age && age >= 50) {
+                return gender === 'female' ? 'mother' : gender === 'male' ? 'father' : '';
+            } else if (age && age >= 20 && age < 50) {
+                return gender === 'female' ? 'sister' : gender === 'male' ? 'brother' : '';
+            }
+            return '';
+        };
+
+        const suggestedRelation = suggestRelationship();
+
+        // Transition to OTP verification step
+        setState(prev => ({
+            ...prev,
+            flowType: 'link_existing',
+            lookupMethod: 'phone',
+            searchValue: state.newMemberPhone,
+            relation: suggestedRelation,
+            step: 'otp',
+        }));
+
+        // Send OTP automatically
+        handleSendOtp();
     };
 
     // Guest Form Submit
@@ -650,17 +761,13 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     {state.step === 'choice' && (
                         <div className="space-y-4">
                             <div className="grid gap-3">
-                                <button onClick={() => handleInitialChoice('guest')} className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
-                                    <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center"><User className="h-6 w-6" /></div>
-                                    <div><h4 className="font-semibold">Guest</h4><p className="text-sm text-muted-foreground">Quick booking for someone without medical history</p></div>
-                                </button>
                                 <button onClick={() => handleInitialChoice('add_new_family')} className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
                                     <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center"><Users className="h-6 w-6" /></div>
-                                    <div><h4 className="font-semibold">Add New Family Member</h4><p className="text-sm text-muted-foreground">Create a full family member profile</p></div>
+                                    <div><h4 className="font-semibold">Family Member</h4><p className="text-sm text-muted-foreground">Someone you'll book for again</p></div>
                                 </button>
-                                <button onClick={() => handleInitialChoice('link_existing')} className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
-                                    <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center"><Users className="h-6 w-6" /></div>
-                                    <div><h4 className="font-semibold">Link Existing Patient</h4><p className="text-sm text-muted-foreground">Connect to an existing hospital patient record</p></div>
+                                <button onClick={() => handleInitialChoice('guest')} className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
+                                    <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center"><User className="h-6 w-6" /></div>
+                                    <div><h4 className="font-semibold">Guest</h4><p className="text-sm text-muted-foreground">One-time booking</p></div>
                                 </button>
                             </div>
                         </div>
@@ -681,7 +788,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             </div>
                             <div className="space-y-4">
                                 <div className="flex items-center gap-2"><div className="h-px flex-1 bg-border"></div><span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Optional Details</span><div className="h-px flex-1 bg-border"></div></div>
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div className="space-y-2">
                                         <label htmlFor="guest_dob_s" className="block text-sm font-medium text-foreground">Date of Birth</label>
                                         <Input id="guest_dob_s" type="date" value={state.guestDOB} onChange={(e) => setState((prev) => ({ ...prev, guestDOB: e.target.value, guestAge: '' }))} max={new Date().toISOString().split('T')[0]} />
@@ -788,7 +895,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                                 <p className="text-xs text-muted-foreground">Help us serve them better</p>
 
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div className="space-y-2">
                                         <label htmlFor="new_member_dob_s" className="block text-sm font-medium text-foreground">
                                             Date of Birth
@@ -904,7 +1011,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             {/* Method Selection */}
                             <div className="space-y-3">
                                 <label className="block text-sm font-medium text-foreground">Search by</label>
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <button
                                         onClick={() => setState((prev) => ({ ...prev, lookupMethod: 'phone', searchValue: '', foundMember: null, error: '' }))}
                                         className={cn(
@@ -1032,14 +1139,16 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             {/* Step Content */}
             {state.step === 'choice' && (
                 <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Add New Person</h3>
+                    <h3 id="choice-heading" className="text-lg font-semibold">Add New Person</h3>
                     <p className="text-sm text-muted-foreground">
                         Choose how you'd like to add this person
                     </p>
 
-                    <div className="grid gap-3">
+                    <div role="radiogroup" aria-labelledby="choice-heading" className="grid gap-3">
                         {/* Guest */}
                         <button
+                            role="radio"
+                            aria-checked={state.flowType === 'guest'}
                             onClick={() => handleInitialChoice('guest')}
                             className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
                         >
@@ -1056,6 +1165,8 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                         {/* Add New Family Member */}
                         <button
+                            role="radio"
+                            aria-checked={state.flowType === 'add_new_family'}
                             onClick={() => handleInitialChoice('add_new_family')}
                             className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
                         >
@@ -1140,7 +1251,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             <div className="h-px flex-1 bg-border"></div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div className="space-y-2">
                                 <label htmlFor="guest_dob" className="block text-sm font-medium text-foreground">
                                     Date of Birth
@@ -1274,15 +1385,47 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                         <div className="space-y-2">
                             <label htmlFor="new_member_phone" className="block text-sm font-medium text-foreground">
-                                Phone Number <span className="text-destructive">*</span>
+                                Phone Number <span className="text-destructive" aria-label="required">*</span>
                             </label>
-                            <PhoneInput
-                                id="new_member_phone"
-                                value={state.newMemberPhone}
-                                onChange={(value) => setState((prev) => ({ ...prev, newMemberPhone: value }))}
+                            <div className="relative">
+                                <PhoneInput
+                                    id="new_member_phone"
+                                    aria-label="Phone number"
+                                    aria-required="true"
+                                    aria-invalid={!!state.fieldErrors.memberPhone}
+                                    aria-describedby={state.fieldErrors.memberPhone ? "phone-error" : "phone-help"}
+                                    aria-busy={state.loadingField === 'phone'}
+                                    value={state.newMemberPhone}
+                                    onChange={(value) => {
+                                        setState((prev) => ({ ...prev, newMemberPhone: value }));
+                                        clearFieldError('memberPhone');
+                                    }}
+                                    onBlur={() => handlePhoneBlur(state.newMemberPhone)}
+                                    disabled={state.loading || state.loadingField === 'phone'}
+                                />
+                                {state.loadingField === 'phone' && (
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                        <svg className="animate-spin h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    </div>
+                                )}
+                            </div>
+                            {state.fieldErrors.memberPhone && (
+                                <p id="phone-error" role="alert" className="text-xs text-destructive">{state.fieldErrors.memberPhone}</p>
+                            )}
+                            <p id="phone-help" className="text-xs text-muted-foreground">We'll check if this person has a patient record</p>
+                        </div>
+
+                        {/* Detection Card */}
+                        {state.showDetectionCard && state.foundMember && (
+                            <DetectionCard
+                                member={state.foundMember}
+                                onAccept={handleAcceptDetectedMember}
                                 disabled={state.loading}
                             />
-                        </div>
+                        )}
                     </div>
 
                     {/* Optional Details Section */}
@@ -1297,7 +1440,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                         <p className="text-xs text-muted-foreground">Help us serve them better</p>
 
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div className="space-y-2">
                                 <label htmlFor="new_member_dob" className="block text-sm font-medium text-foreground">
                                     Date of Birth
@@ -1407,17 +1550,17 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     </div>
 
                     <Button
-                        onClick={handleMemberDetailsSubmit}
+                        onClick={state.submitMode === 'link' ? handleAcceptDetectedMember : handleMemberDetailsSubmit}
                         className="w-full"
                         disabled={state.loading || !state.relation || !state.newMemberName.trim() || !state.newMemberPhone.trim() || state.newMemberPhone === '+91'}
                     >
                         {state.loading ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Adding Member...
+                                {state.submitMode === 'link' ? 'Verifying...' : 'Adding Member...'}
                             </>
                         ) : (
-                            'Add Member'
+                            state.submitMode === 'link' ? 'Verify & Link' : 'Add Member'
                         )}
                     </Button>
                 </div>
@@ -1431,7 +1574,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     {/* Method Selection */}
                     <div className="space-y-3">
                         <label className="block text-sm font-medium text-foreground">Search by</label>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <button
                                 onClick={() => setState((prev) => ({ ...prev, lookupMethod: 'phone', searchValue: '', foundMember: null, error: '' }))}
                                 className={cn(

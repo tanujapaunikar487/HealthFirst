@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
+import { EmptyState } from '@/Components/ui/empty-state';
 import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
 import { Card, CardContent } from '@/Components/ui/card';
@@ -543,7 +544,7 @@ export default function FamilyMemberShow({
     },
     {
       title: 'Medications',
-      subtitle: 'Prescriptions and refills',
+      subtitle: 'Active and past medications',
       icon: Pill,
       href: `/health-records?member=${member.id}&category=medication_active,medication_past`,
     },
@@ -656,7 +657,7 @@ export default function FamilyMemberShow({
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-400">No conditions recorded</p>
+                  <EmptyState icon={Stethoscope} message="No conditions recorded" />
                 )}
               </div>
               <div>
@@ -668,7 +669,7 @@ export default function FamilyMemberShow({
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-400">No allergies recorded</p>
+                  <EmptyState icon={AlertTriangle} message="No known allergies" />
                 )}
               </div>
             </div>

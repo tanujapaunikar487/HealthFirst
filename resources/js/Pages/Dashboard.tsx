@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/Components/ui/card';
 import {
   ChevronRight, AlertCircle, RefreshCw, Check, Stethoscope, FlaskConical,
   Receipt, MoreHorizontal, Calendar, X, FileText, Clock, CreditCard, Loader2,
-  Shield, Pill, RotateCcw, CheckCircle2, Syringe,
+  Shield, RotateCcw, CheckCircle2, Syringe,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { Toast } from '@/Components/ui/toast';
@@ -15,6 +15,7 @@ import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator,
 } from '@/Components/ui/dropdown-menu';
 import { Sheet, SheetContent } from '@/Components/ui/sheet';
+import { SheetSkeleton } from '@/Components/ui/skeleton';
 import {
   DetailsSheet,
   CancelSheet,
@@ -126,15 +127,6 @@ interface InsuranceClaimUpdate {
   title: string;
 }
 
-interface PrescriptionRefillDue {
-  id: number;
-  medication_name: string;
-  patient_name: string;
-  patient_initials: string;
-  days_remaining: number;
-  prescription_date: string;
-  doctor_name: string;
-}
 
 interface FollowUpDue {
   id: number;
@@ -200,7 +192,7 @@ interface DashboardProps {
   paymentsDueSoon?: PaymentDueSoon[];
   emisDue?: EmiDue[];
   insuranceClaimUpdates?: InsuranceClaimUpdate[];
-  prescriptionRefills?: PrescriptionRefillDue[];
+
   followUpsDue?: FollowUpDue[];
   preAppointmentReminders?: PreAppointmentReminder[];
   newResultsReady?: NewResultsReady[];
@@ -286,7 +278,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
 type CardType =
   | 'overdue_bill' | 'health_alert' | 'appointment_today' | 'appointment_upcoming'
   | 'payment_due_soon' | 'emi_due' | 'insurance_claim_update'
-  | 'prescription_refill_due' | 'followup_due' | 'pre_appointment_reminder'
+  | 'followup_due' | 'pre_appointment_reminder'
   | 'new_results_ready' | 'vaccination_due';
 
 interface DashboardCardProps {
@@ -313,7 +305,7 @@ const cardConfig: Record<CardType, { icon: typeof Receipt; iconColor: string; ic
   payment_due_soon: { icon: CreditCard, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
   emi_due: { icon: CreditCard, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
   insurance_claim_update: { icon: Shield, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
-  prescription_refill_due: { icon: Pill, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
+
   followup_due: { icon: RotateCcw, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
   pre_appointment_reminder: { icon: Calendar, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
   new_results_ready: { icon: CheckCircle2, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
@@ -430,7 +422,7 @@ export default function Dashboard({
   paymentsDueSoon = [],
   emisDue = [],
   insuranceClaimUpdates = [],
-  prescriptionRefills = [],
+
   followUpsDue = [],
   preAppointmentReminders = [],
   newResultsReady = [],
@@ -670,7 +662,7 @@ export default function Dashboard({
     emisDue.length > 0 ||
     insuranceClaimUpdates.filter(c => c.claim_status !== 'approved').length > 0 ||
     visibleHealthAlerts.length > 0 ||
-    prescriptionRefills.length > 0 ||
+
     overdueFollowUps.length > 0 ||
     newResultsReady.length > 0 ||
     todayAppointments.length > 0;
@@ -692,7 +684,7 @@ export default function Dashboard({
     ...emisDue.map((emi, i) => ({ type: 'emi_due' as const, data: emi, index: i })),
     ...insuranceClaimUpdates.filter(c => c.claim_status !== 'approved').map((claim, i) => ({ type: 'insurance_claim_update' as const, data: claim, index: i })),
     ...visibleHealthAlerts.map((alert, i) => ({ type: 'health_alert' as const, data: alert, index: i })),
-    ...prescriptionRefills.map((refill, i) => ({ type: 'prescription_refill_due' as const, data: refill, index: i })),
+
     ...overdueFollowUps.map((followup, i) => ({ type: 'followup_due' as const, data: followup, index: i })),
     ...newResultsReady.map((result, i) => ({ type: 'new_results_ready' as const, data: result, index: i })),
     ...todayAppointments.map((appt, i) => ({ type: 'appointment_today' as const, data: appt, index: i })),
@@ -801,7 +793,7 @@ export default function Dashboard({
               claim.claim_status === 'action_required' ? '#DC2626' :
               '#D97706'
             }
-            actionLabel="Track Claim"
+            actionLabel="View Claim"
             actionVariant="accent"
             onAction={() => router.visit(`/insurance/claims/${claim.claim_id}`)}
             menuItems={[
@@ -829,28 +821,6 @@ export default function Dashboard({
             menuItems={[
               { label: 'View full report', onClick: () => router.visit(`/health-records?record=${alert.id}`) },
               { label: 'Dismiss alert', onClick: () => handleDismissAlert(alert.id) },
-            ]}
-            isLast={isLast}
-          />
-        );
-      }
-      case 'prescription_refill_due': {
-        const refill = card.data as PrescriptionRefillDue;
-        return (
-          <DashboardCard
-            key={`refill-${refill.id}`}
-            type="prescription_refill_due"
-            title={refill.medication_name}
-            subtitle={`${refill.days_remaining} days of medication left · Dr. ${refill.doctor_name}`}
-            patientName={refill.patient_name}
-            patientInitials={refill.patient_initials}
-            badge={`${refill.days_remaining}d left`}
-            badgeColor="#D97706"
-            actionLabel="Book"
-            actionVariant="accent"
-            onAction={() => router.visit('/booking')}
-            menuItems={[
-              { label: 'View prescription', onClick: () => router.visit(`/health-records?record=${refill.id}`) },
             ]}
             isLast={isLast}
           />
@@ -1317,6 +1287,7 @@ export default function Dashboard({
               onClose={() => setSheetView(null)}
             />
           )}
+          {!sheetView && <SheetSkeleton />}
         </SheetContent>
       </Sheet>
     </AppLayout>

@@ -31,6 +31,7 @@ class InsuranceController extends Controller
                 'end_date_formatted' => $p->end_date->format('d M Y'),
                 'is_expiring_soon' => $p->end_date->isFuture() && $p->end_date->diffInDays(now()) <= 60,
                 'days_until_expiry' => $p->end_date->isFuture() ? (int) now()->diffInDays($p->end_date) : 0,
+                'members' => $p->members ?? [],
                 'member_count' => count($p->members ?? []),
                 'claims_count' => $p->claims()->count(),
             ]);
@@ -254,6 +255,57 @@ class InsuranceController extends Controller
         ]);
 
         return back()->with('success', 'Dispute raised successfully.');
+    }
+
+    public function preAuth(Request $request)
+    {
+        $user = auth()->user() ?? \App\User::first();
+
+        $validated = $request->validate([
+            'policy_id' => 'required|exists:insurance_policies,id',
+            'family_member_id' => 'required|exists:family_members,id',
+            'treatment_name' => 'required|string|max:255',
+            'admission_date' => 'required|date|after_or_equal:today',
+            'discharge_date' => 'nullable|date|after:admission_date',
+            'room_type' => 'required|string|in:general,semi_private,private,icu',
+            'estimated_cost' => 'nullable|integer|min:0',
+            'doctor_name' => 'nullable|string|max:255',
+            'notes' => 'nullable|string|max:1000',
+        ]);
+
+        $policy = InsurancePolicy::findOrFail($validated['policy_id']);
+
+        $claim = InsuranceClaim::create([
+            'user_id' => $user->id,
+            'insurance_provider_id' => $policy->insurance_provider_id,
+            'insurance_policy_id' => $policy->id,
+            'family_member_id' => $validated['family_member_id'],
+            'policy_number' => $policy->policy_number,
+            'treatment_name' => $validated['treatment_name'],
+            'procedure_type' => 'hospitalization',
+            'claim_amount' => $validated['estimated_cost'] ?? 0,
+            'status' => 'pending',
+            'claim_date' => now(),
+            'stay_details' => [
+                'admission_date' => $validated['admission_date'],
+                'discharge_date' => $validated['discharge_date'] ?? null,
+                'room_type' => $validated['room_type'],
+            ],
+            'financial' => [
+                'preauth_requested' => $validated['estimated_cost'] ?? 0,
+            ],
+            'timeline' => [[
+                'event' => 'Pre-authorization requested',
+                'date' => now()->format('d M Y'),
+                'status' => 'pending',
+                'details' => 'Pre-auth request submitted for ' . $validated['treatment_name'],
+            ]],
+            'documents' => [],
+            'description' => $validated['notes'] ?? null,
+        ]);
+
+        return redirect("/insurance/claims/{$claim->id}")
+            ->with('toast', 'Pre-authorization request submitted');
     }
 
     public function destroy(InsurancePolicy $policy)

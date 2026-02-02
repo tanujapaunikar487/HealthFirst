@@ -2579,7 +2579,7 @@ class HospitalSeeder extends Seeder
                 'condition' => 'Vitamin D Deficiency',
                 'how_it_works' => 'Calcium strengthens bones and teeth while Vitamin D3 helps your body absorb calcium efficiently. Together they prevent bone loss and maintain healthy bone density.',
                 'original_quantity' => 90,
-                'refills_remaining' => 2,
+
                 'side_effects' => ['Mild constipation', 'Bloating', 'Nausea (rare)'],
                 'side_effects_warning' => 'Contact your doctor if you experience persistent stomach pain or kidney stones symptoms.',
                 'adherence_this_week' => ['taken', 'taken', 'taken', 'taken', 'taken', 'missed', 'upcoming'],
@@ -2612,7 +2612,7 @@ class HospitalSeeder extends Seeder
                 'condition' => 'Type 2 Diabetes Mellitus',
                 'how_it_works' => 'Metformin helps control blood sugar levels by reducing glucose production in the liver and improving insulin sensitivity in muscle cells.',
                 'original_quantity' => 180,
-                'refills_remaining' => 3,
+
                 'side_effects' => ['Nausea', 'Diarrhea', 'Stomach cramps', 'Metallic taste'],
                 'side_effects_warning' => 'Seek immediate medical attention if you experience muscle pain, weakness, or difficulty breathing (signs of lactic acidosis).',
                 'adherence_this_week' => ['taken', 'taken', 'taken', 'missed', 'taken', 'taken', 'upcoming'],

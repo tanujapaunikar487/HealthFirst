@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
-import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
+import { Pulse, ErrorState, useSkeletonLoading, SheetSkeleton } from '@/Components/ui/skeleton';
+import { EmptyState } from '@/Components/ui/empty-state';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import {
@@ -602,24 +603,16 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
 
         {/* Table or Empty State */}
         {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <FileText className="h-12 w-12 text-muted-foreground/20 mb-4" />
-            <p className="text-base font-medium mb-1" style={{ color: '#171717' }}>
-              No records yet
-            </p>
-            <p className="text-sm text-muted-foreground mb-6">
-              {bills.length === 0
-                ? 'Book an appointment to get started.'
-                : 'No bills match your filters.'}
-            </p>
-            {bills.length === 0 && (
+          <EmptyState
+            icon={FileText}
+            message="No records yet"
+            description={bills.length === 0 ? 'Book an appointment to get started.' : 'No bills match your filters.'}
+            action={bills.length === 0 ? (
               <Link href="/booking">
-                <Button size="lg">
-                  Book Appointment
-                </Button>
+                <Button size="lg">Book Appointment</Button>
               </Link>
-            )}
-          </div>
+            ) : undefined}
+          />
         ) : (
           <>
             <div className="border" style={{ borderRadius: '20px' }}>
@@ -1073,6 +1066,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
               </SheetFooter>
             </>
           )}
+          {payBills.length === 0 && <SheetSkeleton />}
         </SheetContent>
       </Sheet>
 

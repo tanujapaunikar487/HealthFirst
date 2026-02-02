@@ -136,7 +136,7 @@ export function EmbeddedAddressForm({ onSelect, disabled }: Props) {
       </div>
 
       {/* State + City row */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="space-y-1.5">
           <label className="text-xs font-medium text-muted-foreground">
             State <span className="text-destructive">*</span>

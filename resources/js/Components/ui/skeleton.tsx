@@ -7,8 +7,8 @@ import { Icon } from '@/Components/ui/icon';
 
 /* ─── Pulse ─── */
 
-export function Pulse({ className, style }: { className?: string; style?: React.CSSProperties }) {
-  return <div className={`bg-muted animate-pulse rounded ${className ?? ''}`} style={style} />;
+export function Pulse({ className, style, ...rest }: React.HTMLAttributes<HTMLDivElement>) {
+  return <div className={`bg-muted animate-pulse rounded ${className ?? ''}`} style={style} {...rest} />;
 }
 
 /* ─── ErrorState ─── */
@@ -95,6 +95,25 @@ export function TableSkeleton({ rows = 5, cols = 5 }: { rows?: number; cols?: nu
           ))}
         </div>
       ))}
+    </div>
+  );
+}
+
+export function SheetSkeleton({ lines = 6 }: { lines?: number }) {
+  return (
+    <div className="space-y-6 p-1">
+      <div className="space-y-2">
+        <Pulse className="h-6 w-48" />
+        <Pulse className="h-4 w-32" />
+      </div>
+      <div className="space-y-4">
+        {Array.from({ length: lines }).map((_, i) => (
+          <div key={i} className="flex justify-between">
+            <Pulse className="h-4 w-28" />
+            <Pulse className="h-4 w-36" />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

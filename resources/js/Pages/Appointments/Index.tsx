@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
-import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
+import { Pulse, ErrorState, useSkeletonLoading, SheetSkeleton } from '@/Components/ui/skeleton';
+import { EmptyState } from '@/Components/ui/empty-state';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
@@ -429,6 +430,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
               onClose={() => setSheetView(null)}
             />
           )}
+          {!sheetView && <SheetSkeleton />}
         </SheetContent>
       </Sheet>
 
@@ -454,19 +456,19 @@ function AppointmentsTable({
   onAction: (view: SheetView) => void;
 }) {
   if (appointments.length === 0) {
+    const message = tab === 'upcoming' ? 'No upcoming appointments'
+      : tab === 'past' ? 'No past appointments'
+      : 'No cancelled appointments';
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <p className="text-muted-foreground text-sm mb-4">
-          {tab === 'upcoming' && 'No upcoming appointments'}
-          {tab === 'past' && 'No past appointments'}
-          {tab === 'cancelled' && 'No cancelled appointments'}
-        </p>
-        {tab === 'upcoming' && (
+      <EmptyState
+        icon={Calendar}
+        message={message}
+        action={tab === 'upcoming' ? (
           <Button asChild variant="outline" size="sm">
             <Link href="/booking">Book an appointment</Link>
           </Button>
-        )}
-      </div>
+        ) : undefined}
+      />
     );
   }
 

@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
-import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
+import { Pulse, ErrorState, useSkeletonLoading, SheetSkeleton } from '@/Components/ui/skeleton';
+import { EmptyState } from '@/Components/ui/empty-state';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
@@ -268,7 +269,7 @@ interface RecordMetadata {
   end_date?: string;
   prescribing_doctor?: string;
   condition?: string;
-  refills_remaining?: number;
+
   reason_stopped?: string;
   timing?: string;
   with_food?: boolean;
@@ -1093,24 +1094,23 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
             </p>
           </div>
         ) : (
-          /* Empty State */
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
-              <FolderOpen className="h-7 w-7 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold mb-1">No records yet</h3>
-            <p className="text-sm text-muted-foreground mb-4">Book an appointment to get started.</p>
-            <Button asChild size="lg">
-              <Link href="/booking">Book Appointment</Link>
-            </Button>
-          </div>
+          <EmptyState
+            icon={FolderOpen}
+            message="No records yet"
+            description="Book an appointment to get started."
+            action={
+              <Button asChild size="lg">
+                <Link href="/booking">Book Appointment</Link>
+              </Button>
+            }
+          />
         )}
       </div>
 
       {/* Detail Sheet */}
       <Sheet open={selectedRecord !== null} onOpenChange={(open) => !open && setSelectedRecord(null)}>
         <SheetContent className="sm:max-w-lg">
-          {selectedRecord && (
+          {selectedRecord ? (
             <RecordDetailSheet
               record={selectedRecord}
               memberMap={memberMap}
@@ -1122,7 +1122,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
               }}
               onAction={toast}
             />
-          )}
+          ) : <SheetSkeleton />}
         </SheetContent>
       </Sheet>
 
@@ -2140,14 +2140,13 @@ function MedicationActiveDetail({ meta, onAction }: { meta: RecordMetadata; onAc
       )}
 
       {/* Prescription Details */}
-      {(meta.prescribing_doctor || meta.start_date || meta.original_quantity != null || meta.refills_remaining != null) && (
+      {(meta.prescribing_doctor || meta.start_date || meta.original_quantity != null) && (
         <div>
           <SectionTitle>Prescription Details</SectionTitle>
           <div className="space-y-0">
             {meta.prescribing_doctor && <DetailRow label="Prescribed By">{meta.prescribing_doctor}</DetailRow>}
             {meta.start_date && <DetailRow label="Started">{fmtDate(meta.start_date)}</DetailRow>}
             {meta.original_quantity != null && <DetailRow label="Qty Dispensed">{meta.original_quantity} tablets</DetailRow>}
-            {meta.refills_remaining != null && <DetailRow label="Refills Remaining">{meta.refills_remaining}</DetailRow>}
           </div>
         </div>
       )}

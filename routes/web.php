@@ -111,7 +111,7 @@ Route::get('/appointments/{appointment}/book-again', [AppointmentsController::cl
 Route::put('/appointments/{appointment}/notes', [AppointmentsController::class, 'updateNotes'])->name('appointments.update-notes');
 Route::post('/appointments/{appointment}/generate-video-link', [AppointmentsController::class, 'generateVideoLink'])->name('appointments.generate-video-link');
 Route::post('/appointments/{appointment}/rate', [AppointmentsController::class, 'rate'])->name('appointments.rate');
-Route::post('/appointments/{appointment}/refill-request', [AppointmentsController::class, 'refillRequest'])->name('appointments.refill-request');
+
 
 // Settings
 Route::get('/settings', [\App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
@@ -134,6 +134,7 @@ Route::put('/family-members/{member}/upgrade', [FamilyMembersController::class, 
 // Insurance
 Route::get('/insurance', [InsuranceController::class, 'index'])->name('insurance.index');
 Route::post('/insurance', [InsuranceController::class, 'store'])->name('insurance.store');
+Route::post('/insurance/pre-auth', [InsuranceController::class, 'preAuth'])->name('insurance.preauth');
 Route::get('/insurance/claims/{claim}', [InsuranceController::class, 'showClaim'])->name('insurance.claim.show');
 Route::get('/insurance/{policy}', [InsuranceController::class, 'show'])->name('insurance.show');
 Route::delete('/insurance/{policy}', [InsuranceController::class, 'destroy'])->name('insurance.destroy');

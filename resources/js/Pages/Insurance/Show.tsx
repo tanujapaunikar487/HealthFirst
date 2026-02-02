@@ -5,12 +5,33 @@ import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton'
 import { Card } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
+import { Input } from '@/Components/ui/input';
+import { Textarea } from '@/Components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/Components/ui/select';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
+import { EmptyState } from '@/Components/ui/empty-state';
 import {
   ArrowLeft,
   AlertTriangle,
   ChevronRight,
+  FileText,
   Trash2,
+  Users,
+  Check,
 } from '@/Lib/icons';
 
 interface PolicyDetail {
@@ -97,6 +118,37 @@ function getAvatarColor(name: string) {
   return avatarColors[Math.abs(hash) % avatarColors.length];
 }
 
+const ROOM_TYPES = [
+  { value: 'general', label: 'General Ward' },
+  { value: 'semi_private', label: 'Semi-Private Room' },
+  { value: 'private', label: 'Private Room' },
+  { value: 'icu', label: 'ICU' },
+];
+
+type PreAuthStep = 'patient' | 'details' | 'review';
+
+interface PreAuthForm {
+  family_member_id: number | null;
+  treatment_name: string;
+  admission_date: string;
+  discharge_date: string;
+  room_type: string;
+  estimated_cost: string;
+  doctor_name: string;
+  notes: string;
+}
+
+const EMPTY_PREAUTH_FORM: PreAuthForm = {
+  family_member_id: null,
+  treatment_name: '',
+  admission_date: '',
+  discharge_date: '',
+  room_type: '',
+  estimated_cost: '',
+  doctor_name: '',
+  notes: '',
+};
+
 type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'success' | 'warning' | 'info' | 'outline' | 'orange' | 'purple';
 
 function getStatusBadge(status: string) {
@@ -177,11 +229,58 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
   const { isLoading, hasError, retry } = useSkeletonLoading(policy);
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
+  const [showPreAuth, setShowPreAuth] = useState(false);
+  const [preAuthStep, setPreAuthStep] = useState<PreAuthStep>('patient');
+  const [preAuthForm, setPreAuthForm] = useState<PreAuthForm>(EMPTY_PREAUTH_FORM);
+  const [preAuthSubmitting, setPreAuthSubmitting] = useState(false);
 
   const toast = (msg: string) => {
     setToastMessage(msg);
     setShowToast(true);
   };
+
+  function openPreAuth() {
+    setPreAuthForm(EMPTY_PREAUTH_FORM);
+    setPreAuthStep('patient');
+    setShowPreAuth(true);
+  }
+
+  function handlePreAuthPatientSelect(memberId: number) {
+    setPreAuthForm(f => ({ ...f, family_member_id: memberId }));
+    setPreAuthStep('details');
+  }
+
+  function handlePreAuthDetailsNext() {
+    setPreAuthStep('review');
+  }
+
+  function handlePreAuthSubmit() {
+    setPreAuthSubmitting(true);
+    router.post('/insurance/pre-auth', {
+      policy_id: policy.id,
+      family_member_id: preAuthForm.family_member_id,
+      treatment_name: preAuthForm.treatment_name,
+      admission_date: preAuthForm.admission_date,
+      discharge_date: preAuthForm.discharge_date || undefined,
+      room_type: preAuthForm.room_type,
+      estimated_cost: preAuthForm.estimated_cost ? parseInt(preAuthForm.estimated_cost) : undefined,
+      doctor_name: preAuthForm.doctor_name || undefined,
+      notes: preAuthForm.notes || undefined,
+    }, {
+      onSuccess: () => {
+        setShowPreAuth(false);
+        setPreAuthSubmitting(false);
+      },
+      onError: () => {
+        setPreAuthSubmitting(false);
+        toast('Failed to submit request. Please try again.');
+      },
+    });
+  }
+
+  const isDetailsValid = preAuthForm.treatment_name.trim() && preAuthForm.admission_date && preAuthForm.room_type;
+  const selectedPatient = coveredMembers.find(m => m.id === preAuthForm.family_member_id);
+  const selectedRoomLabel = ROOM_TYPES.find(r => r.value === preAuthForm.room_type)?.label;
 
   function handleDelete() {
     if (!window.confirm('Remove this policy? It can be re-added later.')) return;
@@ -235,7 +334,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <Button onClick={() => router.visit('/booking')}>
+            <Button onClick={openPreAuth}>
               Use for Admission
             </Button>
             <Button
@@ -322,9 +421,9 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
         </Card>
 
         {/* Covered Members */}
-        {coveredMembers.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-sm font-semibold text-gray-900 mb-3">Covered Members</h2>
+        <div className="mb-6">
+          <h2 className="text-sm font-semibold text-gray-900 mb-3">Covered Members</h2>
+          {coveredMembers.length > 0 ? (
             <Card className="p-0">
               <div className="px-5 py-4">
               <div className="flex flex-wrap gap-3">
@@ -348,19 +447,16 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
               </div>
             </div>
           </Card>
-          </div>
-        )}
+          ) : (
+            <EmptyState icon={Users} message="No covered members" description="Add family members to this policy" />
+          )}
+        </div>
 
         {/* Claims at This Hospital */}
         <div>
           <h2 className="mb-4 text-sm font-semibold text-gray-500">Claims at This Hospital</h2>
           {claims.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 py-12">
-              <p className="mb-1 text-sm font-medium text-gray-600">No claims yet</p>
-              <p className="max-w-xs text-center text-xs text-gray-400">
-                Claims appear here when you use this policy for hospital admissions.
-              </p>
-            </div>
+            <EmptyState icon={FileText} message="No claims yet" description="Claims filed at this hospital will appear here" />
           ) : (
             <Card className="divide-y p-0">
               {claims.map((claim) => (
@@ -389,6 +485,250 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
           )}
         </div>
       </div>
+
+      {/* Pre-Auth Sheet */}
+      <Sheet open={showPreAuth} onOpenChange={setShowPreAuth}>
+        <SheetContent className="sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle>
+              {preAuthStep === 'patient' && 'Select Patient'}
+              {preAuthStep === 'details' && 'Admission Details'}
+              {preAuthStep === 'review' && 'Review & Submit'}
+            </SheetTitle>
+            <SheetDescription>
+              {preAuthStep === 'patient' && 'Who is this admission for?'}
+              {preAuthStep === 'details' && 'Provide details about the planned admission.'}
+              {preAuthStep === 'review' && 'Confirm the details before submitting.'}
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="flex-1 overflow-y-auto -mx-6 px-6">
+            {/* Step 1: Patient Selection */}
+            {preAuthStep === 'patient' && (
+              <div className="space-y-3">
+                {coveredMembers.length === 0 ? (
+                  <EmptyState
+                    icon={Users}
+                    message="No covered members"
+                    description="Add family members to this policy before requesting pre-authorization."
+                  />
+                ) : (
+                  coveredMembers.map(member => {
+                    const color = getAvatarColor(member.name);
+                    return (
+                      <button
+                        key={member.id}
+                        className="flex w-full items-center gap-3 rounded-xl border px-4 py-3.5 text-left transition-colors hover:bg-gray-50"
+                        onClick={() => handlePreAuthPatientSelect(member.id)}
+                      >
+                        <div
+                          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+                          style={{ backgroundColor: color.bg, color: color.text }}
+                        >
+                          {getMemberInitials(member.name)}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-gray-900">{member.name}</p>
+                          <p className="text-xs text-gray-500 capitalize">{member.relation}</p>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-gray-400" />
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            )}
+
+            {/* Step 2: Admission Details */}
+            {preAuthStep === 'details' && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Treatment / Reason <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    value={preAuthForm.treatment_name}
+                    onChange={e => setPreAuthForm(f => ({ ...f, treatment_name: e.target.value }))}
+                    placeholder="e.g. Knee replacement surgery"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Expected Admission Date <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    type="date"
+                    value={preAuthForm.admission_date}
+                    onChange={e => setPreAuthForm(f => ({ ...f, admission_date: e.target.value }))}
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Expected Discharge Date
+                  </label>
+                  <Input
+                    type="date"
+                    value={preAuthForm.discharge_date}
+                    onChange={e => setPreAuthForm(f => ({ ...f, discharge_date: e.target.value }))}
+                    min={preAuthForm.admission_date || new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Room Type <span className="text-red-500">*</span>
+                  </label>
+                  <Select
+                    value={preAuthForm.room_type}
+                    onValueChange={v => setPreAuthForm(f => ({ ...f, room_type: v }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select room type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ROOM_TYPES.map(r => (
+                        <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Estimated Cost
+                  </label>
+                  <Input
+                    type="number"
+                    value={preAuthForm.estimated_cost}
+                    onChange={e => setPreAuthForm(f => ({ ...f, estimated_cost: e.target.value }))}
+                    placeholder="e.g. 200000"
+                    min={0}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Doctor / Specialist Name
+                  </label>
+                  <Input
+                    value={preAuthForm.doctor_name}
+                    onChange={e => setPreAuthForm(f => ({ ...f, doctor_name: e.target.value }))}
+                    placeholder="e.g. Dr. Sharma"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Additional Notes
+                  </label>
+                  <Textarea
+                    value={preAuthForm.notes}
+                    onChange={e => setPreAuthForm(f => ({ ...f, notes: e.target.value }))}
+                    placeholder="Any relevant medical details..."
+                    maxLength={1000}
+                    rows={3}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Review */}
+            {preAuthStep === 'review' && (
+              <div className="space-y-4">
+                {/* Policy summary */}
+                <div className="rounded-xl border px-4 py-3.5">
+                  <p className="text-xs font-medium text-gray-500 mb-1">Policy</p>
+                  <p className="text-sm font-semibold text-gray-900">{policy.plan_name}</p>
+                  <p className="text-xs text-gray-500">{policy.provider_name} &middot; {policy.policy_number}</p>
+                </div>
+
+                {/* Patient */}
+                {selectedPatient && (
+                  <div className="rounded-xl border px-4 py-3.5">
+                    <p className="text-xs font-medium text-gray-500 mb-1">Patient</p>
+                    <p className="text-sm font-semibold text-gray-900">{selectedPatient.name}</p>
+                    <p className="text-xs text-gray-500 capitalize">{selectedPatient.relation}</p>
+                  </div>
+                )}
+
+                {/* Admission details */}
+                <div className="rounded-xl border px-4 py-3.5 space-y-2.5">
+                  <p className="text-xs font-medium text-gray-500">Admission Details</p>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-xs text-gray-500">Treatment</span>
+                      <span className="text-sm font-medium text-gray-900">{preAuthForm.treatment_name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-gray-500">Admission Date</span>
+                      <span className="text-sm font-medium text-gray-900">{preAuthForm.admission_date}</span>
+                    </div>
+                    {preAuthForm.discharge_date && (
+                      <div className="flex justify-between">
+                        <span className="text-xs text-gray-500">Discharge Date</span>
+                        <span className="text-sm font-medium text-gray-900">{preAuthForm.discharge_date}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span className="text-xs text-gray-500">Room Type</span>
+                      <span className="text-sm font-medium text-gray-900">{selectedRoomLabel}</span>
+                    </div>
+                    {preAuthForm.estimated_cost && (
+                      <div className="flex justify-between">
+                        <span className="text-xs text-gray-500">Estimated Cost</span>
+                        <span className="text-sm font-medium text-gray-900">{formatCurrency(parseInt(preAuthForm.estimated_cost))}</span>
+                      </div>
+                    )}
+                    {preAuthForm.doctor_name && (
+                      <div className="flex justify-between">
+                        <span className="text-xs text-gray-500">Doctor</span>
+                        <span className="text-sm font-medium text-gray-900">{preAuthForm.doctor_name}</span>
+                      </div>
+                    )}
+                    {preAuthForm.notes && (
+                      <div>
+                        <span className="text-xs text-gray-500">Notes</span>
+                        <p className="text-sm text-gray-700 mt-0.5">{preAuthForm.notes}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Info banner */}
+                <div className="rounded-lg bg-blue-50 border border-blue-100 px-3.5 py-3 flex items-start gap-2.5">
+                  <Check className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-blue-700">
+                    Your pre-authorization request will be sent to {policy.provider_name} for review. You'll be notified once it's processed.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          {preAuthStep === 'details' && (
+            <SheetFooter>
+              <div className="flex gap-3 w-full">
+                <Button variant="outline" className="flex-1" onClick={() => setPreAuthStep('patient')}>
+                  Back
+                </Button>
+                <Button className="flex-1" disabled={!isDetailsValid} onClick={handlePreAuthDetailsNext}>
+                  Review
+                </Button>
+              </div>
+            </SheetFooter>
+          )}
+          {preAuthStep === 'review' && (
+            <SheetFooter>
+              <div className="flex gap-3 w-full">
+                <Button variant="outline" className="flex-1" disabled={preAuthSubmitting} onClick={() => setPreAuthStep('details')}>
+                  Back
+                </Button>
+                <Button className="flex-1" disabled={preAuthSubmitting} onClick={handlePreAuthSubmit}>
+                  {preAuthSubmitting ? 'Submitting...' : 'Submit Pre-Auth Request'}
+                </Button>
+              </div>
+            </SheetFooter>
+          )}
+        </SheetContent>
+      </Sheet>
 
       <Toast message={toastMessage} show={showToast} onHide={() => setShowToast(false)} />
     </AppLayout>

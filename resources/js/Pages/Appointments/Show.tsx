@@ -36,8 +36,7 @@ import {
   Heart,
   ChevronDown,
   ChevronUp,
-  Bell,
-  RefreshCw,
+
   Phone,
   CheckCircle2,
   ExternalLink,
@@ -47,6 +46,8 @@ import {
   ShieldCheck,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { EmptyState } from '@/Components/ui/empty-state';
+import { Pulse, SheetSkeleton } from '@/Components/ui/skeleton';
 
 /* ─── Types ─── */
 
@@ -316,11 +317,18 @@ export default function Show({ user, appointment }: Props) {
           <SideNav />
           <div className="flex-1 min-w-0 space-y-8 pb-12">
             <OverviewSection appointment={appointment} />
-            {(appointment.vitals?.length ?? 0) > 0 && <VitalsSection vitals={appointment.vitals} />}
-            {appointment.clinical_summary && <ClinicalSummarySection summary={appointment.clinical_summary} />}
-            {(appointment.prescriptions?.length ?? 0) > 0 && (
-              <PrescriptionsSection prescriptions={appointment.prescriptions} appointmentId={appointment.appointment_id} appointmentTitle={appointment.title} appointmentDate={appointment.date_formatted} appointmentTime={appointment.time} />
-            )}
+            {(appointment.vitals?.length ?? 0) > 0
+              ? <VitalsSection vitals={appointment.vitals} />
+              : <Section id="vitals" title="Vitals" icon={Heart}><EmptyState icon={Heart} message="No vitals recorded for this appointment" /></Section>
+            }
+            {appointment.clinical_summary
+              ? <ClinicalSummarySection summary={appointment.clinical_summary} />
+              : <Section id="clinical" title="Clinical Summary" icon={FileText}><EmptyState icon={FileText} message="No clinical summary available" /></Section>
+            }
+            {(appointment.prescriptions?.length ?? 0) > 0
+              ? <PrescriptionsSection prescriptions={appointment.prescriptions} appointmentId={appointment.appointment_id} appointmentTitle={appointment.title} appointmentDate={appointment.date_formatted} appointmentTime={appointment.time} />
+              : <Section id="prescriptions" title="Prescriptions" icon={Pill}><EmptyState icon={Pill} message="No prescriptions for this appointment" /></Section>
+            }
             <LabTestsSection tests={appointment.lab_tests ?? []} />
             {appointment.billing && (
               <BillingSection billing={appointment.billing} appointmentId={appointment.id} insuranceClaimId={appointment.insurance_claim_id} onDownloadInvoice={handleDownloadInvoice} />
@@ -335,7 +343,7 @@ export default function Show({ user, appointment }: Props) {
       {/* PDF Preview Sheet */}
       <Sheet open={!!previewDoc} onOpenChange={(o) => !o && setPreviewDoc(null)}>
         <SheetContent side="right" className="sm:max-w-lg">
-          {previewDoc && <DocumentPreview doc={previewDoc} />}
+          {previewDoc ? <DocumentPreview doc={previewDoc} /> : <SheetSkeleton />}
         </SheetContent>
       </Sheet>
 
@@ -351,9 +359,6 @@ export default function Show({ user, appointment }: Props) {
 /* ─── Skeleton Loading State ─── */
 
 function SkeletonPage() {
-  const Pulse = ({ className }: { className?: string }) => (
-    <div className={cn('bg-muted animate-pulse rounded', className)} />
-  );
   return (
     <div className="space-y-8">
       {/* Header skeleton */}
@@ -515,17 +520,6 @@ function Section({
       <Card className="p-6">
         {children}
       </Card>
-    </div>
-  );
-}
-
-/* ─── Empty State ─── */
-
-function EmptyState({ icon: EmptyIcon, message }: { icon: React.ElementType; message: string }) {
-  return (
-    <div className="text-center py-8 px-4 rounded-lg border border-dashed">
-      <Icon icon={EmptyIcon} className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
-      <p className="text-sm text-muted-foreground">{message}</p>
     </div>
   );
 }
@@ -825,42 +819,6 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">{rx.purpose}</p>
-              </div>
-              <div className="flex gap-1">
-                <Button variant="ghost" size="icon" className="h-7 w-7" title="Set reminder" onClick={() => {
-                  const icsContent = [
-                    'BEGIN:VCALENDAR',
-                    'VERSION:2.0',
-                    'BEGIN:VEVENT',
-                    `SUMMARY:Refill: ${rx.drug} ${rx.strength}`,
-                    `DESCRIPTION:Reminder to refill ${rx.drug} ${rx.strength} (${rx.dosage}, ${rx.frequency})`,
-                    `DTSTART:${new Date(Date.now() + parseInt(rx.duration) * 24 * 60 * 60 * 1000 || Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
-                    'DURATION:PT1H',
-                    'BEGIN:VALARM',
-                    'TRIGGER:-P1D',
-                    'ACTION:DISPLAY',
-                    `DESCRIPTION:Time to refill ${rx.drug}`,
-                    'END:VALARM',
-                    'END:VEVENT',
-                    'END:VCALENDAR',
-                  ].join('\r\n');
-                  const blob = new Blob([icsContent], { type: 'text/calendar' });
-                  const a = document.createElement('a');
-                  a.href = URL.createObjectURL(blob);
-                  a.download = `refill-reminder-${rx.drug.replace(/\s+/g, '-').toLowerCase()}.ics`;
-                  a.click();
-                  URL.revokeObjectURL(a.href);
-                }}>
-                  <Bell className="h-3.5 w-3.5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7" title="Request refill" onClick={() => {
-                  router.post(`/appointments/${appointmentId}/refill-request`, { medication: `${rx.drug} ${rx.strength}` }, {
-                    onSuccess: () => {},
-                    onError: () => {},
-                  });
-                }}>
-                  <RefreshCw className="h-3.5 w-3.5" />
-                </Button>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-4 mt-3 pt-3 border-t">
