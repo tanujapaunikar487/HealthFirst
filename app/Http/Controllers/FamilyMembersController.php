@@ -169,6 +169,7 @@ class FamilyMembersController extends Controller
             'gender' => 'nullable|string|in:male,female,other',
             'blood_group' => 'nullable|string|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
             'phone' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
             'address_line_1' => 'nullable|string|max:255',
             'address_line_2' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:100',
@@ -303,6 +304,16 @@ class FamilyMembersController extends Controller
         $contactType = $validated['contact_type'];
         $contactValue = $validated['contact_value'];
 
+        // Check if attempts are within limit
+        if (!$otpService->checkAttempts($contactType, $contactValue)) {
+            return response()->json([
+                'otp_sent' => false,
+                'error' => 'Too many attempts. Please try again after 15 minutes.',
+                'locked_out' => true,
+                'attempts_remaining' => 0,
+            ], 429);
+        }
+
         // Generate and send OTP based on contact type
         if ($contactType === 'email') {
             // Validate email format
@@ -336,10 +347,14 @@ class FamilyMembersController extends Controller
             ], 500);
         }
 
+        // Record the attempt
+        $otpService->recordAttempt($contactType, $contactValue);
+
         return response()->json([
             'otp_sent' => true,
             'expires_at' => now()->addMinutes(5)->toIso8601String(),
             'method_used' => $contactType,
+            'attempts_remaining' => $otpService->getAttemptsRemaining($contactType, $contactValue),
         ]);
     }
 
@@ -371,6 +386,9 @@ class FamilyMembersController extends Controller
                 'error' => 'Invalid or expired OTP',
             ], 400);
         }
+
+        // Clear attempts on successful verification
+        $otpService->clearAttempts($contactType, $contactValue);
 
         // Generate verification token
         $token = $contactType === 'email'

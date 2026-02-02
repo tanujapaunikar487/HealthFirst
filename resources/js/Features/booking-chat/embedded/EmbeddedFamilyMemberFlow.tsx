@@ -48,6 +48,8 @@ interface FlowState {
     verificationToken: string;
     error: string;
     loading: boolean;
+    attemptsRemaining: number | null;
+    lockedOut: boolean;
 }
 
 interface Props {
@@ -84,6 +86,8 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         verificationToken: '',
         error: '',
         loading: false,
+        attemptsRemaining: null,
+        lockedOut: false,
     });
 
     const setStep = (step: Step) => {
@@ -251,9 +255,23 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             const data = await response.json();
 
             if (response.ok) {
-                setState((prev) => ({ ...prev, contactType, loading: false }));
+                setState((prev) => ({
+                    ...prev,
+                    contactType,
+                    loading: false,
+                    attemptsRemaining: data.attempts_remaining,
+                    lockedOut: false,
+                }));
                 setStep('otp');
             } else {
+                if (data.locked_out) {
+                    setState((prev) => ({
+                        ...prev,
+                        lockedOut: true,
+                        attemptsRemaining: 0,
+                        loading: false,
+                    }));
+                }
                 setError(data.error || 'Failed to send OTP. Please try again.');
                 setLoading(false);
             }
@@ -397,9 +415,9 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             {/* Step Content */}
             {state.step === 'choice' && (
                 <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Add Family Member or Guest</h3>
+                    <h3 className="text-lg font-semibold">Add New Person</h3>
                     <p className="text-sm text-muted-foreground">
-                        Choose whether you're adding a family member or a guest
+                        Choose how you'd like to add this person
                     </p>
 
                     <div className="grid gap-3">
@@ -411,9 +429,9 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 <User className="h-6 w-6" />
                             </div>
                             <div>
-                                <h4 className="font-semibold">Guest</h4>
+                                <h4 className="font-semibold">New Dependent</h4>
                                 <p className="text-sm text-muted-foreground">
-                                    Quick booking for someone else (basic info required)
+                                    Quick booking for someone without medical history
                                 </p>
                             </div>
                         </button>
@@ -426,9 +444,9 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 <Users className="h-6 w-6" />
                             </div>
                             <div>
-                                <h4 className="font-semibold">Family Member</h4>
+                                <h4 className="font-semibold">Link Existing Patient</h4>
                                 <p className="text-sm text-muted-foreground">
-                                    Add a family member with full profile
+                                    Connect someone with an existing patient record
                                 </p>
                             </div>
                         </button>
@@ -591,49 +609,71 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                             {!state.alreadyLinked && !state.emailInputMode && (
                                 <div className="space-y-2">
-                                    <Button onClick={handleSendOtp} className="w-full" disabled={state.loading}>
-                                        {state.loading ? (
-                                            <>
-                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                Sending OTP...
-                                            </>
-                                        ) : (
-                                            'Send OTP to Phone'
-                                        )}
-                                    </Button>
-                                    <button
-                                        onClick={() => setState((prev) => ({ ...prev, emailInputMode: true, error: '' }))}
-                                        className="w-full text-sm text-primary hover:underline"
-                                    >
-                                        Try Email Instead →
-                                    </button>
+                                    {state.lockedOut ? (
+                                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                                            <p className="text-sm text-amber-800">
+                                                <AlertCircle className="inline h-4 w-4 mr-1" />
+                                                Too many OTP attempts. Please try again after 15 minutes.
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <Button onClick={handleSendOtp} className="w-full" disabled={state.loading}>
+                                                {state.loading ? (
+                                                    <>
+                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                        Sending OTP...
+                                                    </>
+                                                ) : (
+                                                    'Send OTP to Phone'
+                                                )}
+                                            </Button>
+                                            <button
+                                                onClick={() => setState((prev) => ({ ...prev, emailInputMode: true, error: '' }))}
+                                                className="w-full text-sm text-primary hover:underline"
+                                            >
+                                                Try Email Instead →
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
                             )}
 
                             {!state.alreadyLinked && state.emailInputMode && (
                                 <div className="space-y-3">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="email">Email Address</Label>
-                                        <Input
-                                            id="email"
-                                            type="email"
-                                            value={state.email}
-                                            onChange={(e) => setState((prev) => ({ ...prev, email: e.target.value }))}
-                                            placeholder="Enter email address"
-                                        />
-                                    </div>
-                                    <Button onClick={handleSendOtp} className="w-full" disabled={state.loading || !state.email.trim()}>
-                                        {state.loading ? (
-                                            <>
-                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                Sending OTP...
-                                            </>
-                                        ) : (
-                                            'Send OTP to Email'
-                                        )}
-                                    </Button>
+                                    {state.lockedOut ? (
+                                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                                            <p className="text-sm text-amber-800">
+                                                <AlertCircle className="inline h-4 w-4 mr-1" />
+                                                Too many OTP attempts. Please try again after 15 minutes.
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="email">Email Address</Label>
+                                                <Input
+                                                    id="email"
+                                                    type="email"
+                                                    value={state.email}
+                                                    onChange={(e) => setState((prev) => ({ ...prev, email: e.target.value }))}
+                                                    placeholder="Enter email address"
+                                                />
+                                            </div>
+                                            <Button onClick={handleSendOtp} className="w-full" disabled={state.loading || !state.email.trim()}>
+                                                {state.loading ? (
+                                                    <>
+                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                        Sending OTP...
+                                                    </>
+                                                ) : (
+                                                    'Send OTP to Email'
+                                                )}
+                                            </Button>
+                                        </>
+                                    )}
                                     <button
-                                        onClick={() => setState((prev) => ({ ...prev, emailInputMode: false, email: '', error: '' }))}
+                                        onClick={() => setState((prev) => ({ ...prev, emailInputMode: false, email: '', error: '', lockedOut: false }))}
                                         className="w-full text-sm text-muted-foreground hover:text-foreground"
                                     >
                                         ← Back to Phone

@@ -267,6 +267,7 @@ export default function FamilyMemberShow({
 
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmName, setDeleteConfirmName] = useState('');
   const [showUpgradeConfirm, setShowUpgradeConfirm] = useState(false);
   const [upgrading, setUpgrading] = useState(false);
   const [formData, setFormData] = useState({
@@ -276,6 +277,7 @@ export default function FamilyMemberShow({
     gender: member?.gender ?? '',
     blood_group: member?.blood_group ?? '',
     phone: member?.phone ?? '',
+    email: (member as any)?.email ?? '',
     address_line_1: member?.address_line_1 ?? '',
     address_line_2: member?.address_line_2 ?? '',
     city: member?.city ?? '',
@@ -356,6 +358,7 @@ export default function FamilyMemberShow({
       gender: formData.gender || null,
       blood_group: formData.blood_group || null,
       phone: formData.phone || null,
+      email: formData.email || null,
       address_line_1: formData.address_line_1 || null,
       address_line_2: formData.address_line_2 || null,
       city: formData.city || null,
@@ -383,7 +386,10 @@ export default function FamilyMemberShow({
 
   function handleDelete() {
     router.delete(`/family-members/${member.id}`, {
-      onSuccess: () => setShowDeleteConfirm(false),
+      onSuccess: () => {
+        setShowDeleteConfirm(false);
+        setDeleteConfirmName('');
+      },
     });
   }
 
@@ -772,13 +778,24 @@ export default function FamilyMemberShow({
             {/* Contact */}
             <div>
               <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Contact</p>
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-700">Phone</label>
-                <Input
-                  value={formData.phone}
-                  onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="+91 XXXXX XXXXX"
-                />
+              <div className="space-y-4">
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Phone</label>
+                  <Input
+                    value={formData.phone}
+                    onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="+91 XXXXX XXXXX"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Email</label>
+                  <Input
+                    type="email"
+                    value={formData.email}
+                    onChange={e => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="email@example.com"
+                  />
+                </div>
               </div>
             </div>
 
@@ -956,24 +973,53 @@ export default function FamilyMemberShow({
 
       {/* Delete Confirmation Overlay */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
             className="absolute inset-0 bg-black/40"
-            onClick={() => setShowDeleteConfirm(false)}
+            onClick={() => {
+              setShowDeleteConfirm(false);
+              setDeleteConfirmName('');
+            }}
           />
-          <div className="relative z-10 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+          <div className="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-              <Trash2 className="h-5 w-5 text-red-600" />
+              <AlertTriangle className="h-6 w-6 text-red-600" />
             </div>
-            <h3 className="mb-1 text-lg font-semibold text-gray-900">Remove {member.name}?</h3>
-            <p className="mb-6 text-sm text-gray-500">
-              This will permanently remove this family member and unlink their appointments and health records.
-            </p>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">Remove {member.name}?</h3>
+            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3">
+              <p className="text-sm text-red-800 font-medium mb-2">
+                ⚠️ This action cannot be undone
+              </p>
+              <p className="text-sm text-red-700">
+                This will permanently delete:
+              </p>
+              <ul className="mt-2 text-sm text-red-700 space-y-1 ml-4 list-disc">
+                <li>All health records and medical history</li>
+                <li>Past appointments and consultation notes</li>
+                <li>Billing and insurance claim records</li>
+                <li>Prescriptions and lab reports</li>
+              </ul>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Type <span className="font-semibold">{member.name}</span> to confirm
+              </label>
+              <Input
+                type="text"
+                value={deleteConfirmName}
+                onChange={(e) => setDeleteConfirmName(e.target.value)}
+                placeholder={`Type "${member.name}" to confirm`}
+                className="w-full"
+              />
+            </div>
             <div className="flex gap-3">
               <Button
                 variant="outline"
                 className="flex-1"
-                onClick={() => setShowDeleteConfirm(false)}
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setDeleteConfirmName('');
+                }}
               >
                 Cancel
               </Button>
@@ -981,6 +1027,7 @@ export default function FamilyMemberShow({
                 variant="destructive"
                 className="flex-1"
                 onClick={handleDelete}
+                disabled={deleteConfirmName !== member.name}
               >
                 Remove
               </Button>

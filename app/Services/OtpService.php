@@ -236,4 +236,62 @@ class OtpService
 
         return $token;
     }
+
+    /**
+     * Check if OTP attempts are within limit
+     *
+     * @param string $contactType 'phone' or 'email'
+     * @param string $contactValue The phone number or email address
+     * @return bool True if attempts are within limit, false if locked out
+     */
+    public function checkAttempts(string $contactType, string $contactValue): bool
+    {
+        $attempts = Cache::get("otp_attempts:{$contactType}:{$contactValue}", 0);
+        return $attempts < 3;
+    }
+
+    /**
+     * Record an OTP attempt
+     *
+     * @param string $contactType 'phone' or 'email'
+     * @param string $contactValue The phone number or email address
+     * @return void
+     */
+    public function recordAttempt(string $contactType, string $contactValue): void
+    {
+        $key = "otp_attempts:{$contactType}:{$contactValue}";
+        $attempts = Cache::get($key, 0);
+        Cache::put($key, $attempts + 1, now()->addMinutes(15));
+
+        Log::info('OTP attempt recorded', [
+            'contact_type' => $contactType,
+            'contact_value' => $contactValue,
+            'attempt_count' => $attempts + 1,
+        ]);
+    }
+
+    /**
+     * Clear OTP attempts
+     *
+     * @param string $contactType 'phone' or 'email'
+     * @param string $contactValue The phone number or email address
+     * @return void
+     */
+    public function clearAttempts(string $contactType, string $contactValue): void
+    {
+        Cache::forget("otp_attempts:{$contactType}:{$contactValue}");
+    }
+
+    /**
+     * Get remaining OTP attempts
+     *
+     * @param string $contactType 'phone' or 'email'
+     * @param string $contactValue The phone number or email address
+     * @return int Remaining attempts (0-3)
+     */
+    public function getAttemptsRemaining(string $contactType, string $contactValue): int
+    {
+        $attempts = Cache::get("otp_attempts:{$contactType}:{$contactValue}", 0);
+        return max(0, 3 - $attempts);
+    }
 }
