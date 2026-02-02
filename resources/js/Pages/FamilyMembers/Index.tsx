@@ -6,9 +6,6 @@ import { Button } from '@/Components/ui/button';
 import {
   Sheet,
   SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
 import EmbeddedFamilyMemberFlow from '@/Features/booking-chat/embedded/EmbeddedFamilyMemberFlow';
@@ -248,10 +245,6 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
       {/* Add Sheet */}
       <Sheet open={showForm} onOpenChange={setShowForm}>
         <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Add New Person</SheetTitle>
-            <SheetDescription>Choose how you'd like to add this person</SheetDescription>
-          </SheetHeader>
           <EmbeddedFamilyMemberFlow
             mode="standalone"
             onComplete={handleWizardComplete}

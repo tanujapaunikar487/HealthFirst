@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RelationshipSelector } from '@/Components/RelationshipSelector';
 import { OtpInput } from '@/Components/OtpInput';
 import { MemberSearchCard } from '@/Components/MemberSearchCard';
+import { SheetHeader, SheetTitle, SheetDescription } from '@/Components/ui/sheet';
 import { cn } from '@/Lib/utils';
 
 type Step =
@@ -538,10 +539,63 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
     const canGoBack = !['choice', 'success'].includes(state.step) && !state.loading;
 
+    const getStepInfo = (): { title: string; description: string } => {
+        switch (state.step) {
+            case 'choice':
+                return { title: 'Add New Person', description: 'Choose how you\'d like to add this person' };
+            case 'guest_form':
+                return { title: 'Guest Information', description: 'Enter the guest\'s basic information to continue' };
+            case 'relationship':
+                return { title: 'Select Relationship', description: 'What is this person\'s relationship to you?' };
+            case 'new_member_form':
+                return { title: 'New Family Member', description: 'Enter the family member\'s information' };
+            case 'lookup_method':
+                return { title: 'Search Method', description: 'How would you like to search for this member?' };
+            case 'search':
+                return {
+                    title: state.lookupMethod === 'phone' ? 'Enter Phone Number' : 'Enter Patient ID',
+                    description: state.lookupMethod === 'phone'
+                        ? 'Enter the mobile number of the family member'
+                        : 'Enter the Patient ID (format: PT-XXXXXX)',
+                };
+            case 'otp':
+                return {
+                    title: `Verify ${state.contactType === 'email' ? 'Email' : 'Phone Number'}`,
+                    description: `Enter the 6-digit OTP sent to ${state.contactType === 'email' ? state.email : state.foundMember?.phone}`,
+                };
+            case 'success':
+                return { title: 'Successfully Linked!', description: `${state.foundMember?.name} has been added to your family members` };
+            default:
+                return { title: '', description: '' };
+        }
+    };
+
+    const stepInfo = getStepInfo();
+
     return (
         <div className={cn('space-y-6', mode === 'embedded' && 'p-6')}>
-            {/* Header with Back Button */}
-            {canGoBack && (
+            {/* Standalone: Dynamic SheetHeader with inline back button */}
+            {mode === 'standalone' && state.step !== 'success' && (
+                <SheetHeader>
+                    <SheetTitle>
+                        <span className="flex items-center gap-2">
+                            {canGoBack && (
+                                <button
+                                    onClick={handleBack}
+                                    className="h-6 w-6 flex items-center justify-center rounded-md hover:bg-muted transition-colors"
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                </button>
+                            )}
+                            {stepInfo.title}
+                        </span>
+                    </SheetTitle>
+                    <SheetDescription>{stepInfo.description}</SheetDescription>
+                </SheetHeader>
+            )}
+
+            {/* Embedded: Separate back button */}
+            {mode === 'embedded' && canGoBack && (
                 <button
                     onClick={handleBack}
                     className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -629,10 +683,14 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
             {state.step === 'guest_form' && (
                 <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Guest Information</h3>
-                    <p className="text-sm text-muted-foreground">
-                        Enter the guest's basic information to continue
-                    </p>
+                    {mode === 'embedded' && (
+                        <>
+                            <h3 className="text-lg font-semibold">Guest Information</h3>
+                            <p className="text-sm text-muted-foreground">
+                                Enter the guest's basic information to continue
+                            </p>
+                        </>
+                    )}
 
                     <div className="space-y-2">
                         <label htmlFor="guest_name" className="block text-sm font-medium text-gray-700">Name *</label>
@@ -705,10 +763,14 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
             {state.step === 'relationship' && (
                 <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Select Relationship</h3>
-                    <p className="text-sm text-muted-foreground">
-                        What is this person's relationship to you?
-                    </p>
+                    {mode === 'embedded' && (
+                        <>
+                            <h3 className="text-lg font-semibold">Select Relationship</h3>
+                            <p className="text-sm text-muted-foreground">
+                                What is this person's relationship to you?
+                            </p>
+                        </>
+                    )}
 
                     <RelationshipSelector
                         value={state.relation}
@@ -723,10 +785,14 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
             {state.step === 'new_member_form' && (
                 <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">New Family Member</h3>
-                    <p className="text-sm text-muted-foreground">
-                        Enter the family member's information
-                    </p>
+                    {mode === 'embedded' && (
+                        <>
+                            <h3 className="text-lg font-semibold">New Family Member</h3>
+                            <p className="text-sm text-muted-foreground">
+                                Enter the family member's information
+                            </p>
+                        </>
+                    )}
 
                     <div className="space-y-2">
                         <label htmlFor="new_member_name" className="block text-sm font-medium text-gray-700">Name *</label>
@@ -848,10 +914,14 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
             {state.step === 'lookup_method' && (
                 <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Search Method</h3>
-                    <p className="text-sm text-muted-foreground">
-                        How would you like to search for this member?
-                    </p>
+                    {mode === 'embedded' && (
+                        <>
+                            <h3 className="text-lg font-semibold">Search Method</h3>
+                            <p className="text-sm text-muted-foreground">
+                                How would you like to search for this member?
+                            </p>
+                        </>
+                    )}
 
                     <div className="grid gap-3">
                         <button
@@ -879,14 +949,18 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
             {state.step === 'search' && (
                 <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">
-                        {state.lookupMethod === 'phone' ? 'Enter Phone Number' : 'Enter Patient ID'}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                        {state.lookupMethod === 'phone'
-                            ? 'Enter the mobile number of the family member'
-                            : 'Enter the Patient ID (format: PT-XXXXXX)'}
-                    </p>
+                    {mode === 'embedded' && (
+                        <>
+                            <h3 className="text-lg font-semibold">
+                                {state.lookupMethod === 'phone' ? 'Enter Phone Number' : 'Enter Patient ID'}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                                {state.lookupMethod === 'phone'
+                                    ? 'Enter the mobile number of the family member'
+                                    : 'Enter the Patient ID (format: PT-XXXXXX)'}
+                            </p>
+                        </>
+                    )}
 
                     <div className="space-y-2">
                         <label htmlFor="search_value" className="block text-sm font-medium text-gray-700">
@@ -1016,12 +1090,16 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
             {state.step === 'otp' && (
                 <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">
-                        Verify {state.contactType === 'email' ? 'Email' : 'Phone Number'}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                        Enter the 6-digit OTP sent to {state.contactType === 'email' ? state.email : state.foundMember?.phone}
-                    </p>
+                    {mode === 'embedded' && (
+                        <>
+                            <h3 className="text-lg font-semibold">
+                                Verify {state.contactType === 'email' ? 'Email' : 'Phone Number'}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                                Enter the 6-digit OTP sent to {state.contactType === 'email' ? state.email : state.foundMember?.phone}
+                            </p>
+                        </>
+                    )}
 
                     <OtpInput
                         value={state.otpValue}
