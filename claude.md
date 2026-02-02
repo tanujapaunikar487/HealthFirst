@@ -430,6 +430,12 @@ The `HospitalSeeder` provides realistic Indian healthcare data:
     - "Add as New" fallback: Implemented proper transition with optional phone pre-fill
     - Phone validation: Added HTML5 pattern + backend regex at all entry points
     - Test coverage: Created FamilyMemberCreationTest.php with 6 test cases
+17. ✅ **Standardized Phone Input with Fixed Country Code**:
+    - Created reusable PhoneInput component with fixed +91 badge
+    - Replaced 6 phone inputs across booking chat and family members pages
+    - Auto-formats to always include +91 prefix (users only type 10 digits)
+    - Backend validation updated to require +91 format consistently
+    - Improved UX: numeric keyboard on mobile, cleaner visual design
 
 ---
 
@@ -712,6 +718,75 @@ Created `tests/Feature/FamilyMemberCreationTest.php` with 6 test cases:
 ✅ TypeScript compilation passing
 ✅ Build successful
 ✅ Test suite passing (6 new tests)
+
+---
+
+## Standardized Phone Input with Fixed Country Code (February 2, 2026)
+
+Implemented a reusable PhoneInput component with a fixed +91 country code prefix and replaced all phone number inputs across the project for consistency and improved UX.
+
+### New Component
+
+**File**: `resources/js/Components/ui/phone-input.tsx`
+
+A reusable phone input component that:
+- Displays a fixed **+91** badge (non-editable, styled with muted background and border)
+- Provides a text input for 10-digit numbers (starting with 6-9)
+- Auto-formats values to always include +91 prefix
+- Validates format: `^+91[6-9]\d{9}$`
+- Supports error state styling (applies to both badge and input)
+- Sets `inputMode="numeric"` for mobile numeric keyboards
+- Matches shadcn/ui design system
+
+### Implementation Coverage
+
+Replaced **6 phone input fields** across the application:
+
+| Location | File | Fields Replaced |
+|----------|------|-----------------|
+| Booking Chat - Inline Form | `EmbeddedFamilyMemberForm.tsx` | 1 (member phone) |
+| Booking Chat - Wizard | `EmbeddedFamilyMemberFlow.tsx` | 3 (guest phone, new member phone, phone lookup search) |
+| Family Members Page | `FamilyMembers/Show.tsx` | 2 (member phone, emergency contact phone) |
+
+### Backend Validation Update
+
+**File**: `app/Http/Controllers/FamilyMembersController.php`
+
+Updated phone validation regex in both `store()` and `createNew()` methods:
+- **Before**: `^(?:\+91)?[6-9]\d{9}$` (optional +91 prefix)
+- **After**: `^\+91[6-9]\d{9}$` (required +91 prefix)
+
+All phone numbers now consistently validated in +91XXXXXXXXXX format.
+
+### User Experience Improvements
+
+**Visual Design**:
+```
+┌─────┬────────────────────────┐
+│ +91 │ XXXXX XXXXX           │
+└─────┴────────────────────────┘
+ Badge   Input field (10 digits)
+```
+
+**Input Behavior**:
+- User only types 10 digits (no need to type +91)
+- Auto-strips non-digit characters
+- Limits input to exactly 10 digits
+- Always returns value with +91 prefix to parent component
+- Mobile keyboards show numeric keypad
+
+**Validation**:
+- Empty check: rejects both empty string and "+91" alone
+- Format check: validates 10 digits starting with 6-9
+- Client-side and server-side validation aligned
+
+### Benefits
+
+1. **Consistency**: All phone numbers stored and validated in identical format
+2. **UX**: Users no longer need to remember to include country code
+3. **Mobile-friendly**: Numeric keyboard automatically shown on mobile devices
+4. **Visual clarity**: Country code badge clearly separated from input field
+5. **Error prevention**: Automatic formatting reduces validation errors
 
 ---
 
