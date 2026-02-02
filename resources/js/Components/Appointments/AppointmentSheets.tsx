@@ -307,7 +307,7 @@ export function DetailsSheet({
       </div>
 
       {/* Footer */}
-      <div className="pt-4 border-t">
+      <div className="pt-4">
         {tab === 'upcoming' && (
           <div className="flex items-center gap-2">
             {/* Join Video Call Button - only for video appointments */}
