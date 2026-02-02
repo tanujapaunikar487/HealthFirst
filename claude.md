@@ -1150,29 +1150,41 @@ Unified all side sheets across the platform with a consistent three-part pattern
 
 ---
 
-## Enhanced Family Member Alert System (February 3, 2026)
+## Family Member Alert Deep-Linking (February 3, 2026)
 
-Replaced simple boolean alert detection with a rich multi-type alert system on the family member detail page.
+Replaced simple boolean alert detection with a rich multi-type alert system that deep-links directly to specific detail pages.
 
-### Alert Types
-| Type | Source | Color | Example |
-|------|--------|-------|---------|
-| `health_record` | Abnormal lab results | Amber | "Lab results needs attention — Cholesterol, Triglycerides - High" |
-| `billing` | Overdue payments | Red | "Overdue payment of ₹X" |
-| `insurance` | Expiring policies | Orange | "Insurance policy expiring in X days" |
+### Alert Types & Deep-Link URLs
+| Type | Detection Logic | Color | Deep-Link URL |
+|------|----------------|-------|---------------|
+| `health_record` | Lab reports with abnormal/high/borderline results | Amber | `/health-records?record={id}` (auto-opens detail sheet) |
+| `billing` | Appointments with `payment_status='pending'` >7 days overdue | Red | `/billing/{appointment_id}` (bill detail page) |
+| `insurance` | Claims with actionable statuses (enhancement_required, partially_approved, disputed, enhancement_rejected) | Orange | `/insurance/claims/{id}` (claim detail page) |
 
-### Backend Changes (`FamilyMembersController.php`)
-- New `detectAlerts()` private method — scans health records, appointments, and insurance policies
-- Returns structured alert array with type, message, details, and deep-link URL
-- `Props` interface updated: `hasAlerts: boolean` + `alertType: string` → `alerts: Alert[]` + `canDelete: boolean`
+### Backend Changes
+**`FamilyMembersController.php`**:
+- New `detectAlerts()` private method — queries all 3 alert types with structured data
+- Returns array of alert objects with type, id, title, message, date, details, and deep-link URL
+- Alerts sorted by date (most recent first)
+- Props updated: `hasAlerts: boolean` + `alertType: string` → `alerts: Alert[]`
 
-### Frontend Changes (`FamilyMembers/Show.tsx`)
-- New `AlertBanner` component with type-specific colors and icons
-- Each alert links to relevant filtered page (health records, billing, insurance)
-- `Alert` interface with 9 fields: type, category, id, title, message, date, details, url
+**`FamilyMember.php`**:
+- Added `insuranceClaims(): HasMany` relationship
+
+### Frontend Changes
+**`FamilyMembers/Show.tsx`**:
+- New `AlertBanner` component with type-specific icons (AlertTriangle/Receipt/ShieldAlert) and color schemes
+- Multiple alerts stack vertically with 12px gap (`space-y-3`)
+- Each banner shows message + optional details + "View details" button
+- `Alert` interface: `type`, `category`, `id`, `title`, `message`, `date`, `details`, `url`
+
+### User Experience
+- Click "View details" on health alert → navigates to Health Records page, auto-opens specific record's detail sheet
+- Click "View details" on billing alert → navigates to full bill detail page showing payment breakdown
+- Click "View details" on insurance alert → navigates to full claim detail page with timeline and documents
 
 ---
 
 **Status**: Production-ready healthcare management platform with AI-powered booking, comprehensive health records, billing, and insurance management.
 
-**Last Updated**: February 3, 2026 — Side sheet consistency redesign and enhanced alert system
+**Last Updated**: February 3, 2026 — Alert deep-linking system with precise navigation to specific records
