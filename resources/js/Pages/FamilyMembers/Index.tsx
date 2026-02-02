@@ -140,7 +140,7 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
     <AppLayout
       user={user}
       pageTitle="Family Members"
-      pageIcon="/assets/icons/family-selected.svg"
+      pageIcon={Users}
     >
       <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
         {/* Header */}
@@ -166,18 +166,6 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
             </Button>
           )}
         </div>
-
-        {/* Alert Banner */}
-        {alertMemberCount > 0 && (
-          <div className="mb-6 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-amber-100">
-              <AlertTriangle className="h-4 w-4 text-amber-600" />
-            </div>
-            <p className="flex-1 text-sm font-medium text-amber-800">
-              {alertMemberCount} {alertMemberCount === 1 ? 'member needs' : 'members need'} attention
-            </p>
-          </div>
-        )}
 
         {/* Member List or Empty State */}
         {members.length === 0 ? (
