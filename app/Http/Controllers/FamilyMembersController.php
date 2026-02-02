@@ -138,7 +138,7 @@ class FamilyMembersController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'relation' => 'required|string|in:self,mother,father,brother,sister,spouse,son,daughter,grandmother,grandfather,other,guest',
-            'phone' => 'required|string|regex:/^(?:\+91)?[6-9]\d{9}$/',
+            'phone' => 'required|string|regex:/^\+91[6-9]\d{9}$/',
             'age' => 'required|integer|min:0|max:150',
             'gender' => 'required|string|in:male,female,other',
             'blood_group' => 'nullable|string|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
@@ -164,7 +164,7 @@ class FamilyMembersController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'relation' => 'required|string|in:mother,father,brother,sister,spouse,son,daughter,grandmother,grandfather,other',
-            'phone' => 'required|string|regex:/^(?:\+91)?[6-9]\d{9}$/',
+            'phone' => 'required|string|regex:/^\+91[6-9]\d{9}$/',
             'age' => 'nullable|integer|min:0|max:150',
             'gender' => 'nullable|string|in:male,female,other',
             'email' => 'nullable|email|max:255',

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { cn } from '@/Lib/utils';
 import { Button } from '@/Components/ui/button';
+import { PhoneInput } from '@/Components/ui/phone-input';
 import { UserPlus } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 
@@ -36,10 +37,10 @@ export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
   const handleSubmit = () => {
     const newErrors: Record<string, string> = {};
     if (!name.trim()) newErrors.name = 'Name is required';
-    if (!phone.trim()) {
+    if (!phone.trim() || phone === '+91') {
       newErrors.phone = 'Phone number is required';
-    } else if (!/^(\+91)?[6-9]\d{9}$/.test(phone.trim())) {
-      newErrors.phone = 'Enter a valid 10-digit Indian phone number';
+    } else if (!/^\+91[6-9]\d{9}$/.test(phone.trim())) {
+      newErrors.phone = 'Enter a valid 10-digit phone number';
     }
     if (!relation) newErrors.relation = 'Please select a relation';
 
@@ -100,13 +101,11 @@ export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
         <label className="text-xs font-medium text-muted-foreground">
           Phone Number <span className="text-destructive">*</span>
         </label>
-        <input
-          type="tel"
+        <PhoneInput
           value={phone}
-          onChange={(e) => { setPhone(e.target.value); setErrors((prev) => ({ ...prev, phone: '' })); }}
-          placeholder="+91-XXXXXXXXXX"
+          onChange={(value) => { setPhone(value); setErrors((prev) => ({ ...prev, phone: '' })); }}
           disabled={disabled}
-          className={cn(inputClasses, errors.phone && 'border-destructive focus:ring-destructive/20')}
+          error={!!errors.phone}
         />
         {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
       </div>

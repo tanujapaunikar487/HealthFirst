@@ -3,6 +3,7 @@ import { User, Users, ChevronLeft, Loader2, CheckCircle2, AlertCircle } from '@/
 import { router } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
+import { PhoneInput } from '@/Components/ui/phone-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { RelationshipSelector } from '@/Components/RelationshipSelector';
 import { OtpInput } from '@/Components/OtpInput';
@@ -157,8 +158,12 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             setError('Please enter a name');
             return;
         }
-        if (!state.guestPhone.trim()) {
+        if (!state.guestPhone.trim() || state.guestPhone === '+91') {
             setError('Please enter a phone number');
+            return;
+        }
+        if (!/^\+91[6-9]\d{9}$/.test(state.guestPhone.trim())) {
+            setError('Please enter a valid 10-digit phone number');
             return;
         }
         if (!state.guestAge) {
@@ -229,8 +234,12 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             setError('Please enter a name');
             return;
         }
-        if (!state.newMemberPhone.trim()) {
+        if (!state.newMemberPhone.trim() || state.newMemberPhone === '+91') {
             setError('Please enter a phone number');
+            return;
+        }
+        if (!/^\+91[6-9]\d{9}$/.test(state.newMemberPhone.trim())) {
+            setError('Please enter a valid 10-digit phone number');
             return;
         }
         if (!state.newMemberAge) {
@@ -634,14 +643,10 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     <div className="space-y-2">
                         <label htmlFor="guest_phone" className="block text-sm font-medium text-gray-700">Phone Number *</label>
-                        <Input
+                        <PhoneInput
                             id="guest_phone"
-                            type="tel"
                             value={state.guestPhone}
-                            onChange={(e) => setState((prev) => ({ ...prev, guestPhone: e.target.value }))}
-                            placeholder="+91-XXXXXXXXXX"
-                            pattern="^(\+91)?[6-9]\d{9}$"
-                            title="Enter a valid Indian phone number (10 digits starting with 6-9)"
+                            onChange={(value) => setState((prev) => ({ ...prev, guestPhone: value }))}
                         />
                     </div>
 
@@ -732,14 +737,10 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     <div className="space-y-2">
                         <label htmlFor="new_member_phone" className="block text-sm font-medium text-gray-700">Phone Number *</label>
-                        <Input
+                        <PhoneInput
                             id="new_member_phone"
-                            type="tel"
                             value={state.newMemberPhone}
-                            onChange={(e) => setState((prev) => ({ ...prev, newMemberPhone: e.target.value }))}
-                            placeholder="+91-XXXXXXXXXX"
-                            pattern="^(\+91)?[6-9]\d{9}$"
-                            title="Enter a valid Indian phone number (10 digits starting with 6-9)"
+                            onChange={(value) => setState((prev) => ({ ...prev, newMemberPhone: value }))}
                         />
                     </div>
 
@@ -887,13 +888,22 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         <label htmlFor="search_value" className="block text-sm font-medium text-gray-700">
                             {state.lookupMethod === 'phone' ? 'Phone Number' : 'Patient ID'}
                         </label>
-                        <Input
-                            id="search_value"
-                            value={state.searchValue}
-                            onChange={(e) => setState((prev) => ({ ...prev, searchValue: e.target.value }))}
-                            placeholder={state.lookupMethod === 'phone' ? '+91XXXXXXXXXX' : 'PT-000001'}
-                            autoFocus
-                        />
+                        {state.lookupMethod === 'phone' ? (
+                            <PhoneInput
+                                id="search_value"
+                                value={state.searchValue}
+                                onChange={(value) => setState((prev) => ({ ...prev, searchValue: value }))}
+                                autoFocus
+                            />
+                        ) : (
+                            <Input
+                                id="search_value"
+                                value={state.searchValue}
+                                onChange={(e) => setState((prev) => ({ ...prev, searchValue: e.target.value }))}
+                                placeholder="PT-000001"
+                                autoFocus
+                            />
+                        )}
                     </div>
 
                     {state.foundMember && (

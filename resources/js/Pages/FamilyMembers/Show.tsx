@@ -6,6 +6,7 @@ import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Input } from '@/Components/ui/input';
+import { PhoneInput } from '@/Components/ui/phone-input';
 import {
   Select,
   SelectContent,
@@ -781,10 +782,9 @@ export default function FamilyMemberShow({
               <div className="space-y-4">
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700">Phone</label>
-                  <Input
-                    value={formData.phone}
-                    onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="+91 XXXXX XXXXX"
+                  <PhoneInput
+                    value={formData.phone || ''}
+                    onChange={value => setFormData({ ...formData, phone: value })}
                   />
                 </div>
                 <div>
@@ -914,10 +914,9 @@ export default function FamilyMemberShow({
                 </div>
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700">Contact Phone</label>
-                  <Input
-                    value={formData.emergency_contact_phone}
-                    onChange={e => setFormData({ ...formData, emergency_contact_phone: e.target.value })}
-                    placeholder="+91 XXXXX XXXXX"
+                  <PhoneInput
+                    value={formData.emergency_contact_phone || ''}
+                    onChange={value => setFormData({ ...formData, emergency_contact_phone: value })}
                   />
                 </div>
               </div>
