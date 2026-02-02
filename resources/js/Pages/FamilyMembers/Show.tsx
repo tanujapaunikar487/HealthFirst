@@ -33,6 +33,7 @@ import {
   Trash2,
   X,
   Phone,
+  UserPlus,
 } from '@/Lib/icons';
 
 /* ─── Types ─── */
@@ -266,6 +267,8 @@ export default function FamilyMemberShow({
 
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showUpgradeConfirm, setShowUpgradeConfirm] = useState(false);
+  const [upgrading, setUpgrading] = useState(false);
   const [formData, setFormData] = useState({
     name: member?.name ?? '',
     relation: member?.relation ?? '',
@@ -381,6 +384,22 @@ export default function FamilyMemberShow({
   function handleDelete() {
     router.delete(`/family-members/${member.id}`, {
       onSuccess: () => setShowDeleteConfirm(false),
+    });
+  }
+
+  function handleUpgrade() {
+    setUpgrading(true);
+    router.put(`/family-members/${member.id}/upgrade`, {}, {
+      preserveScroll: true,
+      onSuccess: () => {
+        setShowUpgradeConfirm(false);
+        setUpgrading(false);
+        setToastMessage('Successfully upgraded to family member!');
+      },
+      onError: () => {
+        setUpgrading(false);
+        setToastMessage('Failed to upgrade. Please try again.');
+      },
     });
   }
 
@@ -619,6 +638,15 @@ export default function FamilyMemberShow({
 
         {/* Actions */}
         <div className="flex items-center gap-4 border-t border-gray-100 pt-6">
+          {member.is_guest && (
+            <Button
+              variant="default"
+              onClick={() => setShowUpgradeConfirm(true)}
+            >
+              <UserPlus className="h-4 w-4" />
+              Upgrade to Family Member
+            </Button>
+          )}
           <Button
             variant="outline"
             onClick={openEditForm}
@@ -888,6 +916,43 @@ export default function FamilyMemberShow({
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Upgrade Confirmation Overlay */}
+      {showUpgradeConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => !upgrading && setShowUpgradeConfirm(false)}
+          />
+          <div className="relative z-10 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+              <UserPlus className="h-5 w-5 text-blue-600" />
+            </div>
+            <h3 className="mb-1 text-lg font-semibold text-gray-900">Upgrade {member.name}?</h3>
+            <p className="mb-6 text-sm text-gray-500">
+              This will convert this guest to a full family member with access to health records, billing, and all other features.
+            </p>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowUpgradeConfirm(false)}
+                disabled={upgrading}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="default"
+                className="flex-1"
+                onClick={handleUpgrade}
+                disabled={upgrading}
+              >
+                {upgrading ? 'Upgrading...' : 'Upgrade'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Overlay */}
       {showDeleteConfirm && (

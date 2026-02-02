@@ -215,6 +215,31 @@ class FamilyMembersController extends Controller
     }
 
     /**
+     * Upgrade guest to full family member
+     */
+    public function upgrade(FamilyMember $member)
+    {
+        $user = auth()->user() ?? \App\User::first();
+
+        // Authorization check
+        if ($member->user_id !== $user->id) {
+            abort(403, 'Unauthorized access to family member');
+        }
+
+        // Only guests can be upgraded
+        if (!$member->is_guest) {
+            return redirect()->back()->with('toast', 'This member is already a full family member');
+        }
+
+        // Upgrade the guest to family member
+        $member->update([
+            'is_guest' => false,
+        ]);
+
+        return redirect()->back()->with('toast', 'Successfully upgraded to family member');
+    }
+
+    /**
      * Lookup existing member by phone or patient ID
      */
     public function lookup(Request $request)

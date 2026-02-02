@@ -126,6 +126,7 @@ Route::get('/family-members/{member}', [FamilyMembersController::class, 'show'])
 Route::post('/family-members', [FamilyMembersController::class, 'store'])->name('family-members.store');
 Route::put('/family-members/{member}', [FamilyMembersController::class, 'update'])->name('family-members.update');
 Route::delete('/family-members/{member}', [FamilyMembersController::class, 'destroy'])->name('family-members.destroy');
+Route::put('/family-members/{member}/upgrade', [FamilyMembersController::class, 'upgrade'])->name('family-members.upgrade');
 
 // Insurance
 Route::get('/insurance', [InsuranceController::class, 'index'])->name('insurance.index');
