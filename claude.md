@@ -137,6 +137,12 @@ User message → BookingPromptBuilder.build() → AIService.classifyIntent()
 - **Patient IDs**: Auto-generated PT-XXXXXX format
 - **Health Navigation**: Quick links to appointments, records, medications
 - **List & Detail Pages**: Simple list with comprehensive detail view
+- **Smart Alert Banners**: Deep-link to specific detail pages for all alert types
+  - Health records: Abnormal lab results → `/health-records?record={id}` (auto-opens detail sheet)
+  - Billing: Overdue bills → `/billing/{id}` (bill detail page)
+  - Insurance: Actionable claims → `/insurance/claims/{id}` (claim detail page)
+  - Multiple alerts stack vertically with type-specific colors (amber/red/orange)
+  - Sorted by date (most recent first)
 
 ### 8. Settings
 - **Video Conferencing Preferences**: Choose between Google Meet (default) or Zoom
@@ -1111,6 +1117,62 @@ onComplete({
 
 ---
 
+## Side Sheet Consistency: Component-Level Redesign (February 3, 2026)
+
+Unified all side sheets across the platform with a consistent three-part pattern: Header (back + title + close, bottom border) → Content (sectioned with edge-to-edge dividers) → Footer (primary button + optional 3-dot menu, top border).
+
+### Foundation Changes (`sheet.tsx`)
+- **SheetHeader**: Added `onBack` prop — renders circular back button (matches close button style)
+- **SheetFooter**: New layout with `border-t`, `mt-auto`, `-mx-6 px-6` for edge-to-edge pinned footer
+- **SheetDivider**: Edge-to-edge divider component (`-mx-6 border-b`)
+- Content areas use `flex-1 overflow-y-auto -mx-6 px-6` for independent scrolling with fixed footer
+
+### Sheets Modified (9 files)
+
+| Sheet | File | Key Changes |
+|-------|------|-------------|
+| DetailsSheet | `AppointmentSheets.tsx` | SheetFooter, removed ghost buttons |
+| CancelSheet | `AppointmentSheets.tsx` | SheetFooter with destructive variant |
+| RescheduleSheet | `AppointmentSheets.tsx` | SheetFooter, SheetDivider between summary and date picker |
+| Edit Profile | `FamilyMembers/Show.tsx` | Dividers between 6 sections, fixed SheetFooter |
+| Add Policy | `Insurance/Index.tsx` | Dividers between 5 review sections, SheetFooter |
+| Payment Summary | `Billing/Index.tsx` | Pay button extracted to fixed SheetFooter |
+| DocumentPreview | `Appointments/Show.tsx` | SheetFooter, removed redundant 3-dot close menu |
+| Record Detail | `HealthRecords/Index.tsx` | SheetDividers, SheetFooter with 3-dot menu |
+| Notifications | `AppLayout.tsx` | SheetDivider after header/tabs |
+| Family Member Flow | `EmbeddedFamilyMemberFlow.tsx` | Split standalone/embedded branches, SheetHeader onBack, extracted footer |
+
+### EmbeddedFamilyMemberFlow Restructure
+- **Standalone mode**: Uses `SheetHeader onBack` + flex-col layout + scrollable content + extracted `SheetFooter`
+- **Embedded mode**: Keeps original inline buttons and back navigation (unchanged)
+- Per-step footer buttons via `renderStandaloneFooter()` function
+- Steps without fixed footer (choice, search, otp, success) keep inline/component-handled buttons
+
+---
+
+## Enhanced Family Member Alert System (February 3, 2026)
+
+Replaced simple boolean alert detection with a rich multi-type alert system on the family member detail page.
+
+### Alert Types
+| Type | Source | Color | Example |
+|------|--------|-------|---------|
+| `health_record` | Abnormal lab results | Amber | "Lab results needs attention — Cholesterol, Triglycerides - High" |
+| `billing` | Overdue payments | Red | "Overdue payment of ₹X" |
+| `insurance` | Expiring policies | Orange | "Insurance policy expiring in X days" |
+
+### Backend Changes (`FamilyMembersController.php`)
+- New `detectAlerts()` private method — scans health records, appointments, and insurance policies
+- Returns structured alert array with type, message, details, and deep-link URL
+- `Props` interface updated: `hasAlerts: boolean` + `alertType: string` → `alerts: Alert[]` + `canDelete: boolean`
+
+### Frontend Changes (`FamilyMembers/Show.tsx`)
+- New `AlertBanner` component with type-specific colors and icons
+- Each alert links to relevant filtered page (health records, billing, insurance)
+- `Alert` interface with 9 fields: type, category, id, title, message, date, details, url
+
+---
+
 **Status**: Production-ready healthcare management platform with AI-powered booking, comprehensive health records, billing, and insurance management.
 
-**Last Updated**: February 2, 2026 — Fixed guest creation validation bug
+**Last Updated**: February 3, 2026 — Side sheet consistency redesign and enhanced alert system
