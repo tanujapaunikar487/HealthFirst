@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
+import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
 import {
@@ -27,6 +28,7 @@ import {
   ChevronRight,
   Receipt,
 } from '@/Lib/icons';
+import { downloadAsHtml } from '@/Lib/download';
 
 /* ─── Types ─── */
 
@@ -154,17 +156,17 @@ declare global {
 
 /* ─── Status Config ─── */
 
-const STATUS_CONFIG: Record<BillingStatus, { label: string; color: string; bg: string }> = {
-  due: { label: 'Due', color: 'text-red-600', bg: 'bg-red-50' },
-  paid: { label: 'Paid', color: 'text-green-600', bg: 'bg-green-50' },
-  refunded: { label: 'Refunded', color: 'text-gray-600', bg: 'bg-gray-100' },
-  awaiting_approval: { label: 'Awaiting Approval', color: 'text-amber-600', bg: 'bg-amber-50' },
-  claim_pending: { label: 'Claim Pending', color: 'text-amber-600', bg: 'bg-amber-50' },
-  copay_due: { label: 'Co-pay Due', color: 'text-red-600', bg: 'bg-red-50' },
-  emi: { label: 'EMI', color: 'text-blue-600', bg: 'bg-blue-50' },
-  disputed: { label: 'Disputed', color: 'text-red-600', bg: 'bg-red-50' },
-  covered: { label: 'Covered', color: 'text-green-600', bg: 'bg-green-50' },
-  reimbursed: { label: 'Reimbursed', color: 'text-green-600', bg: 'bg-green-50' },
+const STATUS_CONFIG: Record<BillingStatus, { label: string; variant: string }> = {
+  due: { label: 'Due', variant: 'destructive' },
+  paid: { label: 'Paid', variant: 'success' },
+  refunded: { label: 'Refunded', variant: 'secondary' },
+  awaiting_approval: { label: 'Awaiting Approval', variant: 'warning' },
+  claim_pending: { label: 'Claim Pending', variant: 'warning' },
+  copay_due: { label: 'Co-pay Due', variant: 'destructive' },
+  emi: { label: 'EMI', variant: 'default' },
+  disputed: { label: 'Disputed', variant: 'destructive' },
+  covered: { label: 'Covered', variant: 'success' },
+  reimbursed: { label: 'Reimbursed', variant: 'success' },
 };
 
 const PAYABLE_STATUSES: BillingStatus[] = ['due', 'copay_due'];
@@ -173,20 +175,16 @@ const PAYABLE_STATUSES: BillingStatus[] = ['due', 'copay_due'];
 
 function StatusBadge({ status }: { status: BillingStatus }) {
   const cfg = STATUS_CONFIG[status];
-  return (
-    <span className={cn('inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold', cfg.color, cfg.bg)}>
-      {cfg.label}
-    </span>
-  );
+  return <Badge variant={cfg.variant as any}>{cfg.label}</Badge>;
 }
 
 function SectionCard({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn('border rounded-xl overflow-hidden', className)}>
-      <div className="px-5 py-3.5 border-b" style={{ backgroundColor: '#FAFAFA' }}>
-        <h3 className="text-sm font-semibold" style={{ color: '#171717' }}>{title}</h3>
+    <div className={className}>
+      <h3 className="text-sm font-semibold mb-3" style={{ color: '#171717' }}>{title}</h3>
+      <div className="border rounded-xl overflow-hidden">
+        <div className="px-5 py-4">{children}</div>
       </div>
-      <div className="px-5 py-4">{children}</div>
     </div>
   );
 }
@@ -553,7 +551,25 @@ export default function Show({ user, bill }: Props) {
                 variant="outline"
                 size="sm"
                 className="text-xs"
-                onClick={() => showToast('Receipt downloaded')}
+                onClick={() => {
+                  const itemRows = bill.line_items.map(i => `<div class="row"><span class="row-label">${i.label}</span><span class="row-value">${i.amount < 0 ? '-' : ''}₹${Math.abs(i.amount).toLocaleString()}</span></div>`).join('');
+                  downloadAsHtml(`receipt-${bill.invoice_number}.html`, `
+                    <h1>Payment Receipt</h1>
+                    <p class="subtitle">${bill.invoice_number} &middot; ${bill.invoice_date}</p>
+                    <h2>Patient</h2>
+                    <p>${bill.patient_name}</p>
+                    <h2>Service</h2>
+                    <p>${bill.appointment_title}</p>
+                    <p style="font-size:12px;color:#6b7280">${bill.appointment_date} at ${bill.appointment_time} &middot; ${bill.appointment_mode}</p>
+                    <h2>Charges</h2>
+                    ${itemRows}
+                    <div class="row total-row"><span class="row-label">Total</span><span class="row-value">₹${bill.total.toLocaleString()}</span></div>
+                    <h2>Payment</h2>
+                    <div class="row"><span class="row-label">Method</span><span class="row-value">${bill.payment_method}</span></div>
+                    <div class="row"><span class="row-label">Status</span><span class="row-value">Paid</span></div>
+                    <div class="row"><span class="row-label">Date</span><span class="row-value">${bill.payment_date}</span></div>
+                  `);
+                }}
               >
                 <Receipt className="h-3.5 w-3.5" />
                 Receipt
@@ -868,7 +884,14 @@ export default function Show({ user, bill }: Props) {
           {isPaid && !bill.dispute_details && (
             <button
               className="w-full flex items-center justify-center gap-2 text-sm font-medium rounded-xl border border-dashed py-3 hover:bg-muted/50 transition-colors text-muted-foreground"
-              onClick={() => showToast('Dispute form submitted. You will hear from us within 3–5 business days.')}
+              onClick={() => {
+                if (confirm('Are you sure you want to raise a dispute for this bill? This action will be reviewed by our team.')) {
+                  router.post(`/billing/${bill.id}/dispute`, { reason: 'Dispute raised by patient' }, {
+                    onSuccess: () => showToast('Dispute submitted successfully. You will hear from us within 3–5 business days.'),
+                    onError: () => showToast('Failed to submit dispute. Please try again.'),
+                  });
+                }
+              }}
             >
               <MessageSquare className="h-4 w-4" />
               Raise Dispute
@@ -878,7 +901,31 @@ export default function Show({ user, bill }: Props) {
           {isPaid && (
             <button
               className="w-full flex items-center justify-center gap-2 text-sm font-medium rounded-xl border border-dashed py-3 hover:bg-muted/50 transition-colors text-muted-foreground"
-              onClick={() => showToast('Reimbursement letter sent to your email.')}
+              onClick={() => {
+                downloadAsHtml(`reimbursement-letter-${bill.invoice_number}.html`, `
+                  <h1>Reimbursement Request Letter</h1>
+                  <p class="subtitle">Reference: ${bill.invoice_number}</p>
+                  <div class="section">
+                    <p>To,<br/>The Claims Department<br/>${bill.insurance_details?.provider_name ?? 'Insurance Provider'}</p>
+                  </div>
+                  <div class="section">
+                    <p>Subject: Request for Reimbursement of Medical Expenses</p>
+                    <p>Dear Sir/Madam,</p>
+                    <p>I am writing to request reimbursement for medical expenses incurred for the following treatment:</p>
+                  </div>
+                  <h2>Treatment Details</h2>
+                  <div class="row"><span class="row-label">Patient</span><span class="row-value">${bill.patient_name}</span></div>
+                  <div class="row"><span class="row-label">Treatment</span><span class="row-value">${bill.appointment_title}</span></div>
+                  <div class="row"><span class="row-label">Date</span><span class="row-value">${bill.appointment_date}</span></div>
+                  <div class="row"><span class="row-label">Amount</span><span class="row-value">₹${bill.total.toLocaleString()}</span></div>
+                  <div class="row"><span class="row-label">Invoice</span><span class="row-value">${bill.invoice_number}</span></div>
+                  <div class="section" style="margin-top:24px">
+                    <p>I have enclosed the original bills and receipts for your reference. Kindly process the reimbursement at the earliest.</p>
+                    <p>Thanking you,<br/>${bill.patient_name}</p>
+                  </div>
+                `);
+                showToast('Reimbursement letter downloaded');
+              }}
             >
               <Mail className="h-4 w-4" />
               Request Reimbursement Letter
@@ -887,7 +934,9 @@ export default function Show({ user, bill }: Props) {
 
           <button
             className="w-full flex items-center justify-center gap-2 text-sm font-medium rounded-xl border border-dashed py-3 hover:bg-muted/50 transition-colors text-muted-foreground"
-            onClick={() => showToast('Our support team will contact you shortly.')}
+            onClick={() => {
+              window.location.href = `mailto:billing@healthfirst.in?subject=Billing Support - ${bill.invoice_number}&body=Hi, I need help with my bill ${bill.invoice_number} (₹${bill.total.toLocaleString()}).`;
+            }}
           >
             <Phone className="h-4 w-4" />
             Contact Support

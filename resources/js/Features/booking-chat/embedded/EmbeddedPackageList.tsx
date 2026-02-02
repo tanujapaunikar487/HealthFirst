@@ -205,7 +205,7 @@ export function EmbeddedPackageList({
                                   {test.name}
                                 </span>
                                 {test.requires_fasting && (
-                                  <Badge variant="secondary" className="bg-orange-100 text-orange-700 hover:bg-orange-100 text-[10px] px-1.5 py-0">
+                                  <Badge variant="orange" className="text-[10px] px-1.5 py-0">
                                     Fasting {test.fasting_hours}h
                                   </Badge>
                                 )}
@@ -351,7 +351,7 @@ export function EmbeddedPackageList({
                                 {pkg.name}
                               </span>
                               {pkg.is_recommended && (
-                                <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-100">
+                                <Badge variant="warning">
                                   Recommended
                                 </Badge>
                               )}

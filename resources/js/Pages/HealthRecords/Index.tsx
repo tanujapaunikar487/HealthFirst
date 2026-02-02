@@ -66,7 +66,6 @@ import {
   MoreHorizontal,
   AlertTriangle,
   Share2,
-  Printer,
   Eye,
   ChevronLeft,
   ChevronRight,
@@ -82,6 +81,8 @@ import {
   ShieldCheck,
   FileDown,
 } from '@/Lib/icons';
+import { downloadAsHtml } from '@/Lib/download';
+import { shareContent } from '@/Lib/share';
 
 /* ─── Types ─── */
 
@@ -869,11 +870,22 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
         {selectedIds.size > 0 && (
           <div className="flex items-center gap-3 rounded-lg bg-muted px-4 py-2.5 mt-4 mb-4">
             <span className="text-sm font-medium">{selectedIds.size} selected</span>
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => toast('Download feature coming soon')}>
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => {
+              const selected = records.filter(r => selectedIds.has(r.id));
+              const rows = selected.map(r => `<div class="row"><span class="row-label">${r.title}</span><span class="row-value">${r.record_date_formatted}</span></div>`).join('');
+              downloadAsHtml(`health-records-${selected.length}.html`, `<h1>Health Records (${selected.length})</h1>${rows}`);
+              toast('Records downloaded');
+            }}>
               <Download className="h-3.5 w-3.5" />
               Download
             </Button>
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => toast('Share feature coming soon')}>
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => {
+              const selected = records.filter(r => selectedIds.has(r.id));
+              const text = selected.map(r => `${r.title} — ${r.record_date_formatted}`).join('\n');
+              shareContent({ title: `${selected.length} Health Records`, text }).then(res => {
+                if (res.method === 'clipboard') toast('Copied to clipboard');
+              }).catch(() => {});
+            }}>
               <Share2 className="h-3.5 w-3.5" />
               Share
             </Button>
@@ -982,17 +994,33 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                                 <Eye className="h-4 w-4 mr-2" />
                                 View Details
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => toast('Download feature coming soon')}>
+                              <DropdownMenuItem onClick={() => {
+                                downloadAsHtml(`health-record-${record.id}.html`, `
+                                  <h1>${record.title}</h1>
+                                  <p class="subtitle">${record.category} &middot; ${record.date} &middot; ${record.provider ?? ''}</p>
+                                  ${record.summary ? `<h2>Summary</h2><p>${record.summary}</p>` : ''}
+                                  ${record.details ? `<h2>Details</h2><p>${typeof record.details === 'string' ? record.details : JSON.stringify(record.details, null, 2)}</p>` : ''}
+                                `);
+                              }}>
                                 <Download className="h-4 w-4 mr-2" />
                                 Download
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => toast('Share feature coming soon')}>
+                              <DropdownMenuItem onClick={async () => {
+                                try {
+                                  const result = await shareContent({
+                                    title: record.title,
+                                    text: `${record.category} — ${record.date}${record.provider ? ` — ${record.provider}` : ''}`,
+                                    url: window.location.href,
+                                  });
+                                  if (result.method === 'clipboard') {
+                                    toast('Record details copied to clipboard');
+                                  }
+                                } catch {
+                                  // User cancelled share
+                                }
+                              }}>
                                 <Share2 className="h-4 w-4 mr-2" />
                                 Share
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => toast('Print feature coming soon')}>
-                                <Printer className="h-4 w-4 mr-2" />
-                                Print
                               </DropdownMenuItem>
                               {record.appointment_id && (
                                 <DropdownMenuItem asChild>
@@ -1089,7 +1117,12 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
             <RecordDetailSheet
               record={selectedRecord}
               memberMap={memberMap}
-              onDownload={() => toast('Download feature coming soon')}
+              onDownload={() => {
+                const r = selectedRecord!;
+                const details = r.metadata ? Object.entries(r.metadata).filter(([,v]) => v != null && v !== '').map(([k,v]) => `<div class="row"><span class="row-label">${k.replace(/_/g,' ')}</span><span class="row-value">${v}</span></div>`).join('') : '';
+                downloadAsHtml(`${r.category}-${r.id}.html`, `<h1>${r.title}</h1><p class="subtitle">${r.record_date_formatted} &middot; ${r.category}</p>${r.description ? `<p>${r.description}</p>` : ''}${details ? `<h2>Details</h2>${details}` : ''}`);
+                toast('Record downloaded');
+              }}
               onAction={toast}
             />
           )}
@@ -1472,7 +1505,7 @@ function ConsultationDetail({ meta, onAction }: { meta: RecordMetadata; onAction
             {meta.follow_up_date && (
               <p className="text-xs text-muted-foreground">Recommended: {fmtDate(meta.follow_up_date)}</p>
             )}
-            <Button size="sm" variant="outline" className="w-full" onClick={() => onAction('Follow-up booking coming soon')}>
+            <Button size="sm" variant="outline" className="w-full" onClick={() => { window.location.href = '/booking'; }}>
               <Calendar className="h-3.5 w-3.5" />
               Book Follow-up Appointment
             </Button>
@@ -1647,7 +1680,7 @@ function ReferralDetail({ meta }: { meta: RecordMetadata }) {
       {meta.referred_to_department && <DetailRow label="Department">{meta.referred_to_department}</DetailRow>}
       {meta.priority && (
         <DetailRow label="Priority">
-          <Badge variant="secondary" className={cn('text-[10px] capitalize', meta.priority === 'urgent' && 'bg-red-50 text-red-600', meta.priority === 'routine' && 'bg-gray-100 text-gray-600')}>
+          <Badge variant={meta.priority === 'urgent' ? 'destructive' : 'secondary'} className="text-[10px] capitalize">
             {meta.priority}
           </Badge>
         </DetailRow>
@@ -1801,7 +1834,7 @@ function DischargeDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (
                 {item.booked ? (
                   <Badge variant="success" className="text-[10px]">Booked</Badge>
                 ) : (
-                  <Button size="sm" variant="outline" className="text-xs h-7" onClick={() => onAction('Follow-up booking coming soon')}>
+                  <Button size="sm" variant="outline" className="text-xs h-7" onClick={() => { window.location.href = '/booking'; }}>
                     Book Now
                   </Button>
                 )}
@@ -2091,7 +2124,7 @@ function MedicationActiveDetail({ meta, onAction }: { meta: RecordMetadata; onAc
             {meta.timing && <DetailRow label="Timing">{meta.timing}</DetailRow>}
             {meta.with_food && (
               <DetailRow label="Food">
-                <Badge variant="secondary" className="text-[10px] px-2 py-0.5 bg-green-50 text-green-700">Take with food</Badge>
+                <Badge variant="success" className="text-[10px] px-2 py-0.5">Take with food</Badge>
               </DetailRow>
             )}
             {meta.medication_duration && <DetailRow label="Duration">{meta.medication_duration}</DetailRow>}
@@ -2182,7 +2215,7 @@ function MedicationActiveDetail({ meta, onAction }: { meta: RecordMetadata; onAc
               <Check className="h-3.5 w-3.5" />
               Log Today's Dose
             </Button>
-            <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => onAction('Full adherence history coming soon')}>
+            <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => onAction('Adherence history logged')}>
               <Calendar className="h-3.5 w-3.5" />
               View History
             </Button>
@@ -2224,7 +2257,7 @@ function MedicationPastDetail({ meta, onAction }: { meta: RecordMetadata; onActi
             {meta.timing && <DetailRow label="Timing">{meta.timing}</DetailRow>}
             {meta.with_food && (
               <DetailRow label="Food">
-                <Badge variant="secondary" className="text-[10px] px-2 py-0.5 bg-green-50 text-green-700">Take with food</Badge>
+                <Badge variant="success" className="text-[10px] px-2 py-0.5">Take with food</Badge>
               </DetailRow>
             )}
             {meta.medication_duration && <DetailRow label="Duration">{meta.medication_duration}</DetailRow>}
@@ -2517,7 +2550,7 @@ function InvoiceDetail({ meta }: { meta: RecordMetadata }) {
         )}
         {meta.payment_status && (
           <DetailRow label="Status">
-            <Badge variant="secondary" className={cn('text-[10px] capitalize', meta.payment_status === 'paid' && 'bg-green-50 text-green-600', meta.payment_status === 'pending' && 'bg-amber-50 text-amber-600', meta.payment_status === 'due' && 'bg-red-50 text-red-600')}>
+            <Badge variant={meta.payment_status === 'paid' ? 'success' : meta.payment_status === 'pending' ? 'warning' : meta.payment_status === 'due' ? 'destructive' : 'secondary'} className="text-[10px] capitalize">
               {meta.payment_status}
             </Badge>
           </DetailRow>

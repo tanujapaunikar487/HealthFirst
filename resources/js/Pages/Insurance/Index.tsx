@@ -131,40 +131,21 @@ const defaultPolicyForm: PolicyFormData = {
   members: [],
 };
 
+type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'success' | 'warning' | 'info' | 'outline' | 'orange' | 'purple';
+
 function getStatusBadge(status: string) {
-  const map: Record<string, { label: string; className: string }> = {
-    current: {
-      label: 'Current',
-      className: 'bg-orange-100 text-orange-700 border-orange-200',
-    },
-    processing: {
-      label: 'Current',
-      className: 'bg-orange-100 text-orange-700 border-orange-200',
-    },
-    settled: {
-      label: 'Settled',
-      className: 'bg-green-100 text-green-700 border-green-200',
-    },
-    approved: {
-      label: 'Settled',
-      className: 'bg-green-100 text-green-700 border-green-200',
-    },
-    rejected: {
-      label: 'Rejected',
-      className: 'bg-red-100 text-red-700 border-red-200',
-    },
-    disputed: {
-      label: 'Disputed',
-      className: 'bg-orange-100 text-orange-700 border-orange-200',
-    },
-    pending: {
-      label: 'Pending',
-      className: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-    },
+  const map: Record<string, { label: string; variant: BadgeVariant }> = {
+    current: { label: 'Current', variant: 'orange' },
+    processing: { label: 'Current', variant: 'orange' },
+    settled: { label: 'Settled', variant: 'success' },
+    approved: { label: 'Settled', variant: 'success' },
+    rejected: { label: 'Rejected', variant: 'destructive' },
+    disputed: { label: 'Disputed', variant: 'orange' },
+    pending: { label: 'Pending', variant: 'warning' },
   };
   const entry = map[status] ?? map.pending;
   return (
-    <Badge variant="outline" className={entry.className}>
+    <Badge variant={entry.variant}>
       {entry.label}
     </Badge>
   );
@@ -600,7 +581,7 @@ export default function InsuranceIndex({
                 <Plus className="h-4 w-4" />
                 Add Policy
               </Button>
-              <Button size="lg" onClick={() => showToastMessage('Use for Admission coming soon')}>
+              <Button size="lg" onClick={() => router.visit('/booking')}>
                 Use for Admission
               </Button>
             </div>
@@ -825,17 +806,20 @@ export default function InsuranceIndex({
                                     View Claim
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
-                                    onClick={() => showToastMessage('View Policy coming soon')}
+                                    onClick={() => {
+                                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                                      showToastMessage('Scroll up to view the linked policy');
+                                    }}
                                   >
                                     <FileText className="mr-2 h-4 w-4" />
                                     View Policy
                                   </DropdownMenuItem>
                                   <DropdownMenuSeparator />
                                   <DropdownMenuItem
-                                    onClick={() => showToastMessage('Download coming soon')}
+                                    onClick={() => router.visit(`/insurance/claims/${claim.id}`)}
                                   >
                                     <Download className="mr-2 h-4 w-4" />
-                                    Download Documents
+                                    View Documents
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
@@ -856,7 +840,7 @@ export default function InsuranceIndex({
                         Need help with billing?{' '}
                         <button
                           className="inline-flex items-center gap-0.5 font-medium text-blue-600 hover:underline"
-                          onClick={() => showToastMessage('Contact support coming soon')}
+                          onClick={() => window.location.href = 'mailto:support@healthfirst.in?subject=Insurance Support'}
                         >
                           Contact support
                           <ArrowRight className="h-3 w-3" />

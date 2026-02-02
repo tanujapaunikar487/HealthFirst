@@ -10,17 +10,19 @@ import { cn } from '@/Lib/utils';
  */
 
 const badgeVariants = cva(
-  'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+  'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
   {
     variants: {
       variant: {
-        default: 'border-transparent bg-primary text-primary-foreground hover:bg-primary/80',
-        secondary: 'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        destructive: 'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80',
-        success: 'border-transparent bg-success text-success-foreground hover:bg-success/80',
-        warning: 'border-transparent bg-warning text-warning-foreground hover:bg-warning/80',
-        info: 'border-transparent bg-info text-info-foreground hover:bg-info/80',
+        default: 'bg-blue-50 text-blue-700 border-blue-200',
+        secondary: 'bg-gray-50 text-gray-600 border-gray-200',
+        destructive: 'bg-red-50 text-red-700 border-red-200',
+        success: 'bg-green-50 text-green-700 border-green-200',
+        warning: 'bg-amber-50 text-amber-700 border-amber-200',
+        info: 'bg-blue-50 text-blue-700 border-blue-200',
         outline: 'text-foreground',
+        orange: 'bg-orange-50 text-orange-700 border-orange-200',
+        purple: 'bg-purple-50 text-purple-700 border-purple-200',
       },
     },
     defaultVariants: {
@@ -29,9 +31,9 @@ const badgeVariants = cva(
   }
 );
 
-export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
+export interface BadgeProps extends React.PropsWithChildren<React.HTMLAttributes<HTMLDivElement>> {
+  variant?: 'default' | 'secondary' | 'destructive' | 'success' | 'warning' | 'info' | 'outline' | 'orange' | 'purple' | null;
+}
 
 function Badge({ className, variant, ...props }: BadgeProps) {
   return <div className={cn(badgeVariants({ variant }), className)} {...props} />;

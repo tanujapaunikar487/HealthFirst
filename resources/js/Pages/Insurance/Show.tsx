@@ -97,36 +97,20 @@ function getAvatarColor(name: string) {
   return avatarColors[Math.abs(hash) % avatarColors.length];
 }
 
+type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'success' | 'warning' | 'info' | 'outline' | 'orange' | 'purple';
+
 function getStatusBadge(status: string) {
-  const map: Record<string, { label: string; className: string }> = {
-    current: {
-      label: 'In Treatment',
-      className: 'bg-orange-100 text-orange-700 border-orange-200',
-    },
-    processing: {
-      label: 'In Treatment',
-      className: 'bg-orange-100 text-orange-700 border-orange-200',
-    },
-    settled: {
-      label: 'Settled',
-      className: 'bg-green-100 text-green-700 border-green-200',
-    },
-    approved: {
-      label: 'Settled',
-      className: 'bg-green-100 text-green-700 border-green-200',
-    },
-    rejected: {
-      label: 'Rejected',
-      className: 'bg-red-100 text-red-700 border-red-200',
-    },
-    pending: {
-      label: 'Pending',
-      className: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-    },
+  const map: Record<string, { label: string; variant: BadgeVariant }> = {
+    current: { label: 'In Treatment', variant: 'orange' },
+    processing: { label: 'In Treatment', variant: 'orange' },
+    settled: { label: 'Settled', variant: 'success' },
+    approved: { label: 'Settled', variant: 'success' },
+    rejected: { label: 'Rejected', variant: 'destructive' },
+    pending: { label: 'Pending', variant: 'warning' },
   };
   const entry = map[status] ?? map.pending;
   return (
-    <Badge variant="outline" className={entry.className}>
+    <Badge variant={entry.variant}>
       {entry.label}
     </Badge>
   );
@@ -251,7 +235,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <Button onClick={() => toast('Use for Admission coming soon')}>
+            <Button onClick={() => router.visit('/booking')}>
               Use for Admission
             </Button>
             <Button
@@ -281,10 +265,8 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
         )}
 
         {/* Policy Details */}
+        <h2 className="text-sm font-semibold text-gray-900 mb-3">Policy Details</h2>
         <Card className="mb-6 p-0">
-          <div className="border-b px-5 py-3.5" style={{ backgroundColor: '#FAFAFA' }}>
-            <h2 className="text-sm font-semibold text-gray-900">Policy Details</h2>
-          </div>
           <div className="px-5 py-4">
             <div className="grid grid-cols-2 gap-x-8 gap-y-4">
               <div>
@@ -341,11 +323,10 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
 
         {/* Covered Members */}
         {coveredMembers.length > 0 && (
-          <Card className="mb-6 p-0">
-            <div className="border-b px-5 py-3.5" style={{ backgroundColor: '#FAFAFA' }}>
-              <h2 className="text-sm font-semibold text-gray-900">Covered Members</h2>
-            </div>
-            <div className="px-5 py-4">
+          <div className="mb-6">
+            <h2 className="text-sm font-semibold text-gray-900 mb-3">Covered Members</h2>
+            <Card className="p-0">
+              <div className="px-5 py-4">
               <div className="flex flex-wrap gap-3">
                 {coveredMembers.map((member) => {
                   const color = getAvatarColor(member.name);
@@ -367,6 +348,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
               </div>
             </div>
           </Card>
+          </div>
         )}
 
         {/* Claims at This Hospital */}

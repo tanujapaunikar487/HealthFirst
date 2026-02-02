@@ -72,7 +72,7 @@ import { PencilEdit01Icon } from '@hugeicons/core-free-icons';
 import { Call02Icon } from '@hugeicons/core-free-icons';
 import { PillIcon } from '@hugeicons/core-free-icons';
 import { Add01Icon } from '@hugeicons/core-free-icons';
-import { PrinterIcon } from '@hugeicons/core-free-icons';
+import { AddTeamIcon } from '@hugeicons/core-free-icons';
 import { Radio01Icon } from '@hugeicons/core-free-icons';
 import { ReceiptDollarIcon } from '@hugeicons/core-free-icons';
 import { Refresh01Icon } from '@hugeicons/core-free-icons';
@@ -123,6 +123,7 @@ export { HugeiconsIcon } from '@hugeicons/react';
 
 // A
 export const Activity = createIcon(Activity01Icon, 'Activity');
+export const AddTeam = createIcon(AddTeamIcon, 'AddTeam');
 export const AlertCircle = createIcon(AlertCircleIcon, 'AlertCircle');
 export const AlertTriangle = createIcon(Alert02Icon, 'AlertTriangle');
 export const Ambulance = createIcon(AmbulanceIcon, 'Ambulance');
@@ -206,8 +207,6 @@ export const Pencil = createIcon(PencilEdit01Icon, 'Pencil');
 export const Phone = createIcon(Call02Icon, 'Phone');
 export const Pill = createIcon(PillIcon, 'Pill');
 export const Plus = createIcon(Add01Icon, 'Plus');
-export const Printer = createIcon(PrinterIcon, 'Printer');
-
 // R
 export const Radio = createIcon(Radio01Icon, 'Radio');
 export const Receipt = createIcon(ReceiptDollarIcon, 'Receipt');

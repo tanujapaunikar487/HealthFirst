@@ -213,6 +213,49 @@ class InsuranceController extends Controller
         ]);
     }
 
+    public function acceptClaim(InsuranceClaim $claim)
+    {
+        $claim->update(['status' => 'settled']);
+
+        return back()->with('success', 'Claim accepted and settled.');
+    }
+
+    public function requestEnhancement(InsuranceClaim $claim)
+    {
+        $metadata = $claim->metadata ?? [];
+        $metadata['enhancement_requested_at'] = now()->toISOString();
+        $claim->update([
+            'status' => 'enhancement_required',
+            'metadata' => $metadata,
+        ]);
+
+        return back()->with('success', 'Enhancement request submitted.');
+    }
+
+    public function requestPreAuth(InsuranceClaim $claim)
+    {
+        $metadata = $claim->metadata ?? [];
+        $metadata['preauth_requested_at'] = now()->toISOString();
+        $claim->update([
+            'status' => 'pre_auth',
+            'metadata' => $metadata,
+        ]);
+
+        return back()->with('success', 'New pre-authorization request submitted.');
+    }
+
+    public function disputeClaim(InsuranceClaim $claim)
+    {
+        $metadata = $claim->metadata ?? [];
+        $metadata['dispute_raised_at'] = now()->toISOString();
+        $claim->update([
+            'status' => 'disputed',
+            'metadata' => $metadata,
+        ]);
+
+        return back()->with('success', 'Dispute raised successfully.');
+    }
+
     public function destroy(InsurancePolicy $policy)
     {
         $policy->update(['is_active' => false]);

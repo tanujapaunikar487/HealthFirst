@@ -170,17 +170,12 @@ function PreviousDoctorCard({
           {/* Show availability message if available */}
           {doctor.availability_message ? (
             <Badge
-              variant="outline"
-              className={cn(
-                doctor.available_on_date
-                  ? "border-green-500 text-green-700 bg-green-50"
-                  : "border-red-500 text-red-700 bg-red-50"
-              )}
+              variant={doctor.available_on_date ? 'success' : 'destructive'}
             >
               {doctor.available_on_date ? '✓' : '✗'} {doctor.availability_message}
             </Badge>
           ) : (
-            <Badge variant="outline" className="border-primary text-primary">
+            <Badge variant="default">
               Last: {formatLastVisit(doctor.last_visit || doctor.lastVisitDate)}
             </Badge>
           )}
@@ -189,12 +184,12 @@ function PreviousDoctorCard({
           {doctor.consultation_modes && doctor.consultation_modes.length > 0 && (
             <div className="flex gap-1">
               {doctor.consultation_modes.includes('video') && (
-                <Badge variant="outline" className="border-blue-500 text-blue-700 text-xs">
+                <Badge variant="default" className="text-xs">
                   Video
                 </Badge>
               )}
               {doctor.consultation_modes.includes('in_person') && (
-                <Badge variant="outline" className="border-purple-500 text-purple-700 text-xs">
+                <Badge variant="purple" className="text-xs">
                   In-person
                 </Badge>
               )}

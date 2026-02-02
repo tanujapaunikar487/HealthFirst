@@ -523,6 +523,32 @@ class BillingController extends Controller
         ];
     }
 
+    public function createDispute(Request $request, Appointment $appointment)
+    {
+        $user = Auth::user() ?? \App\User::first();
+
+        if ($appointment->user_id !== $user->id) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'reason' => 'nullable|string|max:1000',
+        ]);
+
+        $metadata = $appointment->metadata ?? [];
+        $metadata['dispute'] = [
+            'reason' => $validated['reason'] ?? 'Billing dispute raised by patient',
+            'raised_at' => now()->toISOString(),
+            'status' => 'open',
+        ];
+        $appointment->update([
+            'payment_status' => 'disputed',
+            'metadata' => $metadata,
+        ]);
+
+        return back()->with('success', 'Dispute raised successfully. Our team will review it.');
+    }
+
     private function buildActivityLog(Appointment $appt, string $billingStatus): array
     {
         $log = [];

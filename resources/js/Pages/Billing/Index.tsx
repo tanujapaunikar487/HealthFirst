@@ -56,6 +56,7 @@ import {
   Loader2,
   CheckCircle2,
 } from '@/Lib/icons';
+import { downloadAsHtml } from '@/Lib/download';
 
 declare global {
   interface Window {
@@ -782,7 +783,14 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                                   <DropdownMenuSeparator />
                                   <DropdownMenuItem
                                     className="gap-2 cursor-pointer"
-                                    onClick={() => showToast('Dispute request submitted.')}
+                                    onClick={() => {
+                                      if (confirm('Are you sure you want to raise a dispute for this bill?')) {
+                                        router.post(`/billing/${bill.id}/dispute`, { reason: 'Dispute raised by patient' }, {
+                                          onSuccess: () => showToast('Dispute submitted successfully'),
+                                          onError: () => showToast('Failed to submit dispute'),
+                                        });
+                                      }
+                                    }}
                                   >
                                     <AlertCircle className="h-4 w-4" />
                                     Raise Dispute
@@ -794,7 +802,18 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                               {bill.billing_status === 'paid' && (
                                 <DropdownMenuItem
                                   className="gap-2 cursor-pointer"
-                                  onClick={() => showToast('Reimbursement letter sent to your email.')}
+                                  onClick={() => {
+                                    downloadAsHtml(`reimbursement-letter-${bill.invoice_number}.html`, `
+                                      <h1>Reimbursement Request Letter</h1>
+                                      <p class="subtitle">Reference: ${bill.invoice_number}</p>
+                                      <h2>Treatment Details</h2>
+                                      <div class="row"><span class="row-label">Patient</span><span class="row-value">${bill.patient_name}</span></div>
+                                      <div class="row"><span class="row-label">Treatment</span><span class="row-value">${bill.appointment_title}</span></div>
+                                      <div class="row"><span class="row-label">Date</span><span class="row-value">${bill.appointment_date}</span></div>
+                                      <div class="row"><span class="row-label">Amount</span><span class="row-value">₹${bill.total.toLocaleString()}</span></div>
+                                    `);
+                                    showToast('Reimbursement letter downloaded');
+                                  }}
                                 >
                                   <FileText className="h-4 w-4" />
                                   Request Reimbursement Letter

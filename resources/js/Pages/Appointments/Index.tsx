@@ -232,6 +232,33 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
     setToastMessage(message);
   };
 
+  const handleShare = async (appointment: Appointment) => {
+    const url = `${window.location.origin}/appointments/${appointment.id}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: appointment.title,
+          text: `${appointment.title} — ${appointment.date} at ${appointment.time}`,
+          url,
+        });
+      } else {
+        await navigator.clipboard.writeText(url);
+        setToastMessage('Link copied to clipboard');
+      }
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
+      setToastMessage('Could not share link');
+    }
+  };
+
+  const handleAction = (view: SheetView) => {
+    if (view?.type === 'share') {
+      handleShare(view.appointment);
+      return;
+    }
+    setSheetView(view);
+  };
+
   if (hasError) {
     return (
       <AppLayout user={user} pageTitle="Appointments" pageIcon="/assets/icons/appointment-selected.svg">
@@ -356,21 +383,21 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
             <AppointmentsTable
               appointments={applyFilters(categorized.upcoming)}
               tab="upcoming"
-              onAction={setSheetView}
+              onAction={handleAction}
             />
           </TabsContent>
           <TabsContent value="past">
             <AppointmentsTable
               appointments={applyFilters(categorized.past)}
               tab="past"
-              onAction={setSheetView}
+              onAction={handleAction}
             />
           </TabsContent>
           <TabsContent value="cancelled">
             <AppointmentsTable
               appointments={applyFilters(categorized.cancelled)}
               tab="cancelled"
-              onAction={setSheetView}
+              onAction={handleAction}
             />
           </TabsContent>
         </Tabs>
@@ -383,7 +410,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
             <DetailsSheet
               appointment={sheetView.appointment}
               tab={getTab(sheetView.appointment)}
-              onAction={setSheetView}
+              onAction={handleAction}
             />
           )}
           {sheetView?.type === 'cancel' && (
@@ -401,9 +428,6 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
               onError={(msg) => handleSheetError(msg)}
               onClose={() => setSheetView(null)}
             />
-          )}
-          {sheetView?.type === 'share' && (
-            <ShareSheet appointment={sheetView.appointment} />
           )}
         </SheetContent>
       </Sheet>

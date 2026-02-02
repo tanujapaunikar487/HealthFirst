@@ -340,6 +340,48 @@ class AppointmentsController extends Controller
         ]);
     }
 
+    public function rate(Request $request, Appointment $appointment)
+    {
+        $user = Auth::user() ?? \App\User::first();
+
+        if ($appointment->user_id !== $user->id) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+        ]);
+
+        $metadata = $appointment->metadata ?? [];
+        $metadata['rating'] = $validated['rating'];
+        $appointment->update(['metadata' => $metadata]);
+
+        return back()->with('success', 'Thank you for rating this consultation.');
+    }
+
+    public function refillRequest(Request $request, Appointment $appointment)
+    {
+        $user = Auth::user() ?? \App\User::first();
+
+        if ($appointment->user_id !== $user->id) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'medication' => 'required|string|max:255',
+        ]);
+
+        $metadata = $appointment->metadata ?? [];
+        $metadata['refill_requests'] = $metadata['refill_requests'] ?? [];
+        $metadata['refill_requests'][] = [
+            'medication' => $validated['medication'],
+            'requested_at' => now()->toISOString(),
+        ];
+        $appointment->update(['metadata' => $metadata]);
+
+        return back()->with('success', 'Refill request sent to your doctor.');
+    }
+
     private function formatDetailedAppointment(Appointment $appt): array
     {
         $base = $this->formatAppointment($appt);

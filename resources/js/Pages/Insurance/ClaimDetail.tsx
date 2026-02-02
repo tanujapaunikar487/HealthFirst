@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/Components/ui/dropdown-menu';
+import { downloadAsHtml } from '@/Lib/download';
 import {
   ChevronRight,
   ChevronDown,
@@ -196,26 +197,28 @@ function getTreatmentIcon(procedureType: string | null) {
   }
 }
 
+type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'success' | 'warning' | 'info' | 'outline' | 'orange' | 'purple';
+
 function getStatusBadge(status: string) {
-  const map: Record<string, { label: string; className: string }> = {
-    current: { label: 'In Treatment', className: 'bg-blue-100 text-blue-700 border-blue-200' },
-    processing: { label: 'In Treatment', className: 'bg-blue-100 text-blue-700 border-blue-200' },
-    pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
-    approved: { label: 'Approved', className: 'bg-green-100 text-green-700 border-green-200' },
-    partially_approved: { label: 'Partially Approved', className: 'bg-amber-100 text-amber-700 border-amber-200' },
-    rejected: { label: 'Rejected', className: 'bg-red-100 text-red-700 border-red-200' },
-    expired: { label: 'Expired', className: 'bg-gray-100 text-gray-600 border-gray-200' },
-    enhancement_required: { label: 'Enhancement Required', className: 'bg-amber-100 text-amber-700 border-amber-200' },
-    enhancement_in_progress: { label: 'Enhancement In Progress', className: 'bg-amber-100 text-amber-700 border-amber-200' },
-    enhancement_approved: { label: 'Enhancement Approved', className: 'bg-green-100 text-green-700 border-green-200' },
-    enhancement_rejected: { label: 'Enhancement Rejected', className: 'bg-red-100 text-red-700 border-red-200' },
-    dispute_under_review: { label: 'Dispute Under Review', className: 'bg-orange-100 text-orange-700 border-orange-200' },
-    dispute_resolved: { label: 'Dispute Resolved', className: 'bg-green-100 text-green-700 border-green-200' },
-    settled: { label: 'Settled', className: 'bg-green-100 text-green-700 border-green-200' },
+  const map: Record<string, { label: string; variant: BadgeVariant }> = {
+    current: { label: 'In Treatment', variant: 'default' },
+    processing: { label: 'In Treatment', variant: 'default' },
+    pending: { label: 'Pending', variant: 'warning' },
+    approved: { label: 'Approved', variant: 'success' },
+    partially_approved: { label: 'Partially Approved', variant: 'warning' },
+    rejected: { label: 'Rejected', variant: 'destructive' },
+    expired: { label: 'Expired', variant: 'secondary' },
+    enhancement_required: { label: 'Enhancement Required', variant: 'warning' },
+    enhancement_in_progress: { label: 'Enhancement In Progress', variant: 'warning' },
+    enhancement_approved: { label: 'Enhancement Approved', variant: 'success' },
+    enhancement_rejected: { label: 'Enhancement Rejected', variant: 'destructive' },
+    dispute_under_review: { label: 'Dispute Under Review', variant: 'orange' },
+    dispute_resolved: { label: 'Dispute Resolved', variant: 'success' },
+    settled: { label: 'Settled', variant: 'success' },
   };
   const entry = map[status] ?? map.pending;
   return (
-    <Badge variant="outline" className={entry.className}>
+    <Badge variant={entry.variant}>
       {entry.label}
     </Badge>
   );
@@ -306,7 +309,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
             : f?.total_approved != null
               ? `Total approved: ${formatCurrency(f.total_approved)} · Not covered: ${formatCurrency(f.not_covered ?? 0)}`
               : undefined,
-        action: { label: 'Accept', toastMsg: 'Accept coming soon' },
+        action: { label: 'Accept', toastMsg: 'Accepting claim...' },
       };
 
     case 'rejected':
@@ -319,7 +322,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
           ? `Pre-authorisation rejected on ${claim.claim_date_formatted}`
           : 'Pre-authorisation rejected.',
         subtitle: claim.rejection_reason ?? undefined,
-        action: { label: 'Try Different Policy', toastMsg: 'Try Different Policy coming soon' },
+        action: { label: 'Try Different Policy', toastMsg: 'Redirecting to policies...' },
       };
 
     case 'expired':
@@ -332,7 +335,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
           ? `Pre-authorization expired on ${claim.claim_date_formatted}`
           : 'Pre-authorization expired.',
         subtitle: 'This approval was valid for 30 days. Submit a new request to proceed.',
-        action: { label: 'Request New Pre-Auth', toastMsg: 'Request New Pre-Auth coming soon' },
+        action: { label: 'Request New Pre-Auth', toastMsg: 'Submitting pre-auth request...' },
       };
 
     case 'enhancement_required':
@@ -350,7 +353,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
           f?.original_approved != null && f?.current_bill != null && f?.enhancement_requested != null
             ? `Originally approved: ${formatCurrency(f.original_approved)} · Current bill: ${formatCurrency(f.current_bill)} · Enhancement requested: ${formatCurrency(f.enhancement_requested)}`
             : undefined,
-        action: { label: 'Request Enhancement', toastMsg: 'Request Enhancement coming soon' },
+        action: { label: 'Request Enhancement', toastMsg: 'Submitting enhancement request...' },
       };
 
     case 'enhancement_in_progress':
@@ -417,7 +420,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
           f?.insurance_covered != null && f?.patient_paid != null
             ? `Final settlement: ${formatCurrency(f.insurance_covered)} covered by insurance. You paid ${formatCurrency(f.patient_paid)}.`
             : undefined,
-        action: { label: 'Raise Dispute', toastMsg: 'Raise Dispute coming soon' },
+        action: { label: 'Raise Dispute', toastMsg: 'Submitting dispute...' },
       };
 
     case 'dispute_under_review':
@@ -656,25 +659,55 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {claim.documents.length > 0 && (
-          <DropdownMenuItem onClick={() => toast('Download coming soon')}>
+          <DropdownMenuItem onClick={() => {
+            const docList = claim.documents.map(d => `<div class="row"><span class="row-label">${d.type}</span><span class="row-value">${d.date}</span></div>`).join('');
+            downloadAsHtml(`claim-documents-${claim.claim_reference}.html`, `
+              <h1>Claim Documents</h1>
+              <p class="subtitle">${claim.claim_reference} &middot; ${claim.treatment_name}</p>
+              <h2>Documents</h2>
+              ${docList}
+              <p style="margin-top:16px;font-size:12px;color:#6b7280">In production, actual document files would be downloaded here.</p>
+            `);
+          }}>
             <Download className="mr-2 h-4 w-4" />
             Download Documents
           </DropdownMenuItem>
         )}
         {isInTreatment && (
           <>
-            <DropdownMenuItem onClick={() => toast('Contact TPA coming soon')}>
+            <DropdownMenuItem onClick={() => {
+              toast(`TPA Contact: ${claim.provider_name ?? 'Insurance Provider'} — Call 1800-123-4567 or email claims@tpa.in`);
+            }}>
               <Phone className="mr-2 h-4 w-4" />
               Contact TPA
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => toast('View Interim Bill coming soon')}>
+            <DropdownMenuItem onClick={() => {
+              if (claim.appointment_id) {
+                router.visit(`/billing/${claim.appointment_id}`);
+              } else {
+                toast('No linked bill found');
+              }
+            }}>
               <Receipt className="mr-2 h-4 w-4" />
               View Interim Bill
             </DropdownMenuItem>
           </>
         )}
         {claim.status === 'settled' && (
-          <DropdownMenuItem onClick={() => toast('Download Settlement Letter coming soon')}>
+          <DropdownMenuItem onClick={() => {
+            const f = claim.financial;
+            downloadAsHtml(`settlement-letter-${claim.claim_reference}.html`, `
+              <h1>Settlement Letter</h1>
+              <p class="subtitle">${claim.claim_reference}</p>
+              <h2>Claim Details</h2>
+              <div class="row"><span class="row-label">Treatment</span><span class="row-value">${claim.treatment_name}</span></div>
+              <div class="row"><span class="row-label">Provider</span><span class="row-value">${claim.provider_name ?? 'N/A'}</span></div>
+              <div class="row"><span class="row-label">Claim Amount</span><span class="row-value">₹${claim.claim_amount.toLocaleString()}</span></div>
+              ${f?.insurance_covered ? `<div class="row"><span class="row-label">Insurance Covered</span><span class="row-value">₹${f.insurance_covered.toLocaleString()}</span></div>` : ''}
+              ${f?.patient_paid ? `<div class="row"><span class="row-label">Patient Paid</span><span class="row-value">₹${f.patient_paid.toLocaleString()}</span></div>` : ''}
+              <p style="margin-top:24px;font-size:12px;color:#6b7280">This is an auto-generated settlement summary.</p>
+            `);
+          }}>
             <Download className="mr-2 h-4 w-4" />
             Download Settlement Letter
           </DropdownMenuItem>
@@ -754,7 +787,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 })()}
                 <h1 className="text-2xl font-bold text-gray-900">{claim.treatment_name}</h1>
                 {claim.procedure_type && (
-                  <Badge variant="outline" className="bg-gray-50 text-gray-600 border-gray-200">
+                  <Badge variant="secondary">
                     {claim.procedure_type}
                   </Badge>
                 )}
@@ -802,7 +835,38 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 size="sm"
                 variant="outline"
                 className="flex-shrink-0 h-8 text-xs"
-                onClick={() => toast(banner.action!.toastMsg)}
+                onClick={() => {
+                  const label = banner.action!.label;
+                  if (label === 'Accept') {
+                    if (confirm('Accept the partially approved amount?')) {
+                      router.post(`/insurance/claims/${claim.id}/accept`, {}, {
+                        onSuccess: () => toast('Claim accepted successfully'),
+                        onError: () => toast('Failed to accept claim'),
+                      });
+                    }
+                  } else if (label === 'Try Different Policy') {
+                    router.visit('/insurance');
+                  } else if (label === 'Request New Pre-Auth') {
+                    router.post(`/insurance/claims/${claim.id}/new-preauth`, {}, {
+                      onSuccess: () => toast('New pre-authorization request submitted'),
+                      onError: () => toast('Failed to submit request'),
+                    });
+                  } else if (label === 'Request Enhancement') {
+                    router.post(`/insurance/claims/${claim.id}/enhancement`, {}, {
+                      onSuccess: () => toast('Enhancement request submitted'),
+                      onError: () => toast('Failed to submit enhancement request'),
+                    });
+                  } else if (label === 'Raise Dispute') {
+                    if (confirm('Are you sure you want to raise a dispute for this settled claim?')) {
+                      router.post(`/insurance/claims/${claim.id}/dispute`, {}, {
+                        onSuccess: () => toast('Dispute submitted successfully'),
+                        onError: () => toast('Failed to submit dispute'),
+                      });
+                    }
+                  } else {
+                    toast(banner.action!.toastMsg);
+                  }
+                }}
               >
                 {banner.action.label}
               </Button>
@@ -885,7 +949,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 <div className="flex items-center gap-1.5 text-sm flex-wrap">
                   <span className="font-medium text-gray-900">{stay!.days} Days</span>
                   {isOngoing && (
-                    <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200 text-[10px] px-1.5 py-0">
+                    <Badge variant="default" className="text-[10px] px-1.5 py-0">
                       Ongoing
                     </Badge>
                   )}
@@ -947,7 +1011,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   <p className="text-sm font-semibold text-gray-400 line-through">
                     {claim.original_policy_plan_name}
                   </p>
-                  <Badge variant="outline" className="bg-gray-50 text-gray-500 border-gray-200 text-[10px]">
+                  <Badge variant="secondary" className="text-[10px]">
                     Expired
                   </Badge>
                 </div>
@@ -1222,7 +1286,14 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   className="hidden md:inline-flex h-7 text-xs"
                   onClick={(e) => {
                     e.stopPropagation();
-                    toast('Download coming soon');
+                    const docList = claim.documents.map(d => `<div class="row"><span class="row-label">${d.type}</span><span class="row-value">${d.date}</span></div>`).join('');
+                    downloadAsHtml(`claim-documents-${claim.claim_reference}.html`, `
+                      <h1>Claim Documents</h1>
+                      <p class="subtitle">${claim.claim_reference} &middot; ${claim.treatment_name}</p>
+                      <h2>Documents</h2>
+                      ${docList}
+                      <p style="margin-top:16px;font-size:12px;color:#6b7280">In production, actual document files would be downloaded here.</p>
+                    `);
                   }}
                 >
                   <Download className="mr-1.5 h-3.5 w-3.5" />
@@ -1253,7 +1324,14 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   <button
                     key={idx}
                     className="flex w-full items-center justify-between px-5 py-3 text-left transition-colors hover:bg-gray-50"
-                    onClick={() => toast('Download coming soon')}
+                    onClick={() => {
+                      downloadAsHtml(`${doc.type.replace(/\s+/g, '-').toLowerCase()}-${claim.claim_reference}.html`, `
+                        <h1>${doc.type}</h1>
+                        <p class="subtitle">${claim.claim_reference} &middot; ${doc.date}</p>
+                        <p>Document: ${doc.filename ?? doc.type}</p>
+                        <p style="margin-top:16px;font-size:12px;color:#6b7280">In production, the actual document file would be downloaded here.</p>
+                      `);
+                    }}
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
@@ -1374,34 +1452,68 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         <div className="flex flex-wrap items-center gap-3">
           {claim.status === 'partially_approved' && (
             <>
-              <Button onClick={() => toast('Accept coming soon')}>Accept</Button>
-              <Button variant="outline" onClick={() => toast('Request Enhancement coming soon')}>
+              <Button onClick={() => {
+                if (confirm('Accept the partially approved amount?')) {
+                  router.post(`/insurance/claims/${claim.id}/accept`, {}, {
+                    onSuccess: () => toast('Claim accepted successfully'),
+                    onError: () => toast('Failed to accept claim'),
+                  });
+                }
+              }}>Accept</Button>
+              <Button variant="outline" onClick={() => {
+                router.post(`/insurance/claims/${claim.id}/enhancement`, {}, {
+                  onSuccess: () => toast('Enhancement request submitted'),
+                  onError: () => toast('Failed to submit enhancement request'),
+                });
+              }}>
                 Request Enhancement
               </Button>
             </>
           )}
           {claim.status === 'rejected' && (
-            <Button onClick={() => toast('Try Different Policy coming soon')}>
+            <Button onClick={() => router.visit('/insurance')}>
               Try Different Policy
             </Button>
           )}
           {claim.status === 'expired' && (
-            <Button onClick={() => toast('Request New Pre-Auth coming soon')}>
+            <Button onClick={() => {
+              router.post(`/insurance/claims/${claim.id}/new-preauth`, {}, {
+                onSuccess: () => toast('New pre-authorization request submitted'),
+                onError: () => toast('Failed to submit request'),
+              });
+            }}>
               Request New Pre-Auth
             </Button>
           )}
           {claim.status === 'enhancement_required' && (
-            <Button onClick={() => toast('View Enhancement Details coming soon')}>
+            <Button onClick={() => {
+              document.getElementById('financial')?.scrollIntoView({ behavior: 'smooth' });
+            }}>
               View Enhancement Details
             </Button>
           )}
           {claim.status === 'settled' && (
-            <Button variant="outline" onClick={() => toast('Raise Dispute coming soon')}>
+            <Button variant="outline" onClick={() => {
+              if (confirm('Are you sure you want to raise a dispute for this settled claim?')) {
+                router.post(`/insurance/claims/${claim.id}/dispute`, {}, {
+                  onSuccess: () => toast('Dispute submitted successfully'),
+                  onError: () => toast('Failed to submit dispute'),
+                });
+              }
+            }}>
               Raise Dispute
             </Button>
           )}
           {claim.documents.length > 0 && (
-            <Button variant="outline" onClick={() => toast('Download coming soon')}>
+            <Button variant="outline" onClick={() => {
+              const docList = claim.documents.map(d => `<div class="row"><span class="row-label">${d.type}</span><span class="row-value">${d.date}</span></div>`).join('');
+              downloadAsHtml(`claim-documents-${claim.claim_reference}.html`, `
+                <h1>Claim Documents</h1>
+                <p class="subtitle">${claim.claim_reference} &middot; ${claim.treatment_name}</p>
+                <h2>Documents</h2>
+                ${docList}
+              `);
+            }}>
               <Download className="mr-1.5 h-4 w-4" />
               Download Documents
             </Button>

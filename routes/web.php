@@ -110,6 +110,8 @@ Route::get('/appointments/{appointment}/available-slots', [AppointmentsControlle
 Route::get('/appointments/{appointment}/book-again', [AppointmentsController::class, 'bookAgain'])->name('appointments.book-again');
 Route::put('/appointments/{appointment}/notes', [AppointmentsController::class, 'updateNotes'])->name('appointments.update-notes');
 Route::post('/appointments/{appointment}/generate-video-link', [AppointmentsController::class, 'generateVideoLink'])->name('appointments.generate-video-link');
+Route::post('/appointments/{appointment}/rate', [AppointmentsController::class, 'rate'])->name('appointments.rate');
+Route::post('/appointments/{appointment}/refill-request', [AppointmentsController::class, 'refillRequest'])->name('appointments.refill-request');
 
 // Settings
 Route::get('/settings', [\App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
@@ -135,6 +137,10 @@ Route::post('/insurance', [InsuranceController::class, 'store'])->name('insuranc
 Route::get('/insurance/claims/{claim}', [InsuranceController::class, 'showClaim'])->name('insurance.claim.show');
 Route::get('/insurance/{policy}', [InsuranceController::class, 'show'])->name('insurance.show');
 Route::delete('/insurance/{policy}', [InsuranceController::class, 'destroy'])->name('insurance.destroy');
+Route::post('/insurance/claims/{claim}/accept', [InsuranceController::class, 'acceptClaim'])->name('insurance.claim.accept');
+Route::post('/insurance/claims/{claim}/enhancement', [InsuranceController::class, 'requestEnhancement'])->name('insurance.claim.enhancement');
+Route::post('/insurance/claims/{claim}/new-preauth', [InsuranceController::class, 'requestPreAuth'])->name('insurance.claim.new-preauth');
+Route::post('/insurance/claims/{claim}/dispute', [InsuranceController::class, 'disputeClaim'])->name('insurance.claim.dispute');
 
 // Health Records
 Route::get('/health-records', [HealthRecordController::class, 'index'])->name('health-records.index');
@@ -144,6 +150,7 @@ Route::get('/billing', [BillingController::class, 'index'])->name('billing.index
 Route::get('/billing/{appointment}', [BillingController::class, 'show'])->name('billing.show');
 Route::post('/billing/{appointment}/payment/create-order', [BillingController::class, 'createOrder'])->name('billing.payment.create-order');
 Route::post('/billing/{appointment}/payment/verify', [BillingController::class, 'verifyPayment'])->name('billing.payment.verify');
+Route::post('/billing/{appointment}/dispute', [BillingController::class, 'createDispute'])->name('billing.dispute');
 
 // Search
 Route::get('/search', [SearchController::class, 'search'])->name('search');

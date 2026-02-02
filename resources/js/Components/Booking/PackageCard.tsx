@@ -37,7 +37,7 @@ export function PackageCard({ package: pkg, isSelected, onSelect, className }: P
         <div className="flex items-center gap-2">
           <span className="font-medium">{pkg.name}</span>
           {pkg.is_recommended && (
-            <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 text-xs">
+            <Badge variant="orange" className="text-xs">
               Recommended
             </Badge>
           )}

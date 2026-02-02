@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
@@ -14,10 +14,10 @@ import {
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
+import { downloadAsHtml } from '@/Lib/download';
 import {
   ChevronRight,
   Download,
-  Printer,
   Share2,
   Stethoscope,
   TestTube2,
@@ -217,12 +217,20 @@ export default function Show({ user, appointment }: Props) {
   const allergies = appointment.clinical_summary?.allergies ?? [];
 
   const handleShareLink = async () => {
-    const url = window.location.href;
     try {
-      await navigator.clipboard.writeText(url);
-      setToastMessage('Link copied to clipboard');
-    } catch {
-      setToastMessage('Could not copy link');
+      if (navigator.share) {
+        await navigator.share({
+          title: appointment.title,
+          text: `${appointment.title} — ${appointment.date_formatted} at ${appointment.time}`,
+          url: window.location.href,
+        });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        setToastMessage('Link copied to clipboard');
+      }
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
+      setToastMessage('Could not share link');
     }
   };
 
@@ -250,7 +258,7 @@ export default function Show({ user, appointment }: Props) {
     <AppLayout user={user} pageTitle="Appointment Details" pageIcon="/assets/icons/appointment-selected.svg">
       <div className="w-full max-w-[1100px] mx-auto px-6 py-8">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-4 print:hidden" data-print-hide>
+        <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-4">
           <Link href="/appointments" className="hover:text-foreground transition-colors">
             Appointments
           </Link>
@@ -290,15 +298,12 @@ export default function Show({ user, appointment }: Props) {
               </div>
             )}
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0 print:hidden" data-print-hide>
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Link href={`/appointments/${appointment.id}/book-again`}>
               <Button>
                 Book Follow-up
               </Button>
             </Link>
-            <Button variant="outline" size="icon" onClick={() => window.print()}>
-              <Printer className="h-4 w-4" />
-            </Button>
             <Button variant="outline" size="icon" onClick={handleShareLink}>
               <Share2 className="h-4 w-4" />
             </Button>
@@ -313,7 +318,7 @@ export default function Show({ user, appointment }: Props) {
             {(appointment.vitals?.length ?? 0) > 0 && <VitalsSection vitals={appointment.vitals} />}
             {appointment.clinical_summary && <ClinicalSummarySection summary={appointment.clinical_summary} />}
             {(appointment.prescriptions?.length ?? 0) > 0 && (
-              <PrescriptionsSection prescriptions={appointment.prescriptions} />
+              <PrescriptionsSection prescriptions={appointment.prescriptions} appointmentId={appointment.appointment_id} appointmentTitle={appointment.title} appointmentDate={appointment.date_formatted} appointmentTime={appointment.time} />
             )}
             <LabTestsSection tests={appointment.lab_tests ?? []} />
             {appointment.billing && (
@@ -338,13 +343,6 @@ export default function Show({ user, appointment }: Props) {
         <Toast message={toastMessage} show={!!toastMessage} onHide={() => setToastMessage('')} duration={2500} />
       )}
 
-      {/* Print styles */}
-      <style>{`
-        @media print {
-          [data-print-hide] { display: none !important; }
-          .print-expand [data-collapsible-content] { display: block !important; }
-        }
-      `}</style>
     </AppLayout>
   );
 }
@@ -463,7 +461,7 @@ function SideNav() {
   };
 
   return (
-    <div className="w-48 flex-shrink-0 print:hidden" data-print-hide>
+    <div className="w-48 flex-shrink-0">
       <div className="sticky top-6 space-y-1">
         {SECTIONS.map(({ id, label, icon: SectionIcon }) => {
           const isActive = activeSection === id;
@@ -503,8 +501,8 @@ function Section({
   action?: React.ReactNode;
 }) {
   return (
-    <Card id={id} className="p-6 scroll-mt-24">
-      <div className="flex items-center justify-between mb-5">
+    <div id={id} className="scroll-mt-24">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
           <Icon icon={SectionIcon} className="h-5 w-5 text-muted-foreground" />
           <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
@@ -513,8 +511,10 @@ function Section({
         </div>
         {action}
       </div>
-      {children}
-    </Card>
+      <Card className="p-6">
+        {children}
+      </Card>
+    </div>
   );
 }
 
@@ -606,13 +606,8 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</p>
           <div className="space-y-2">
             <Badge
-              className={cn(
-                'text-xs',
-                appointment.status === 'completed' && 'bg-green-50 text-green-700 border-green-200',
-                appointment.status === 'confirmed' && 'bg-blue-50 text-blue-700 border-blue-200',
-                appointment.status === 'cancelled' && 'bg-red-50 text-red-700 border-red-200'
-              )}
-              variant="outline"
+              className="text-xs"
+              variant={appointment.status === 'completed' ? 'success' : appointment.status === 'confirmed' ? 'default' : appointment.status === 'cancelled' ? 'destructive' : 'secondary'}
             >
               {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
             </Badge>
@@ -638,7 +633,9 @@ function VitalsSection({ vitals }: { vitals: Vital[] }) {
       title="Vitals"
       icon={Heart}
       action={
-        <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" disabled>
+        <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={() => {
+          router.visit('/health-records?category=lab');
+        }}>
           View Trends
         </Button>
       }
@@ -720,7 +717,7 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
       )}
 
       {/* Collapsible subsections */}
-      <div className="space-y-0 divide-y print-expand">
+      <div className="space-y-0 divide-y">
         <CollapsibleRow label="Chief Complaint" content={summary.chief_complaint} defaultOpen />
         <CollapsibleRow label="History of Present Illness" content={summary.history_of_present_illness} defaultOpen />
         <CollapsibleRow label="Past Medical History" content={summary.past_medical_history} />
@@ -756,12 +753,12 @@ function CollapsibleRow({
       >
         <span className="text-sm font-medium text-foreground">{label}</span>
         {open ? (
-          <ChevronUp className="h-4 w-4 text-muted-foreground print:hidden" />
+          <ChevronUp className="h-4 w-4 text-muted-foreground" />
         ) : (
-          <ChevronDown className="h-4 w-4 text-muted-foreground print:hidden" />
+          <ChevronDown className="h-4 w-4 text-muted-foreground" />
         )}
       </button>
-      <div className={open ? 'block' : 'hidden print:block'} data-collapsible-content>
+      <div className={open ? 'block' : 'hidden'}>
         <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{content}</p>
       </div>
     </div>
@@ -770,7 +767,7 @@ function CollapsibleRow({
 
 /* ─── 4. Prescriptions ─── */
 
-function PrescriptionsSection({ prescriptions }: { prescriptions: Prescription[] }) {
+function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, appointmentDate, appointmentTime }: { prescriptions: Prescription[]; appointmentId: string; appointmentTitle: string; appointmentDate: string; appointmentTime: string }) {
   return (
     <Section
       id="prescriptions"
@@ -781,7 +778,26 @@ function PrescriptionsSection({ prescriptions }: { prescriptions: Prescription[]
           variant="outline"
           size="sm"
           className="text-xs"
-          onClick={() => window.print()}
+          onClick={() => {
+            const rows = prescriptions.map((rx) =>
+              `<tr>
+                <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;font-weight:500">${rx.drug} ${rx.strength}</td>
+                <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px">${rx.dosage}</td>
+                <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px">${rx.frequency}</td>
+                <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px">${rx.duration}</td>
+                <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px">${rx.purpose}</td>
+              </tr>`
+            ).join('');
+            downloadAsHtml(`prescription-${appointmentId}.html`, `
+              <h1>Prescription</h1>
+              <p class="subtitle">${appointmentTitle} &middot; ${appointmentDate} &middot; ${appointmentTime}</p>
+              <h2>Medications</h2>
+              <table>
+                <thead><tr><th>Medication</th><th>Dosage</th><th>Frequency</th><th>Duration</th><th>Purpose</th></tr></thead>
+                <tbody>${rows}</tbody>
+              </table>
+            `);
+          }}
         >
           <Download className="h-3.5 w-3.5" />
           Download Rx
@@ -809,11 +825,39 @@ function PrescriptionsSection({ prescriptions }: { prescriptions: Prescription[]
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">{rx.purpose}</p>
               </div>
-              <div className="flex gap-1 print:hidden" data-print-hide>
-                <Button variant="ghost" size="icon" className="h-7 w-7" title="Set reminder">
+              <div className="flex gap-1">
+                <Button variant="ghost" size="icon" className="h-7 w-7" title="Set reminder" onClick={() => {
+                  const icsContent = [
+                    'BEGIN:VCALENDAR',
+                    'VERSION:2.0',
+                    'BEGIN:VEVENT',
+                    `SUMMARY:Refill: ${rx.drug} ${rx.strength}`,
+                    `DESCRIPTION:Reminder to refill ${rx.drug} ${rx.strength} (${rx.dosage}, ${rx.frequency})`,
+                    `DTSTART:${new Date(Date.now() + parseInt(rx.duration) * 24 * 60 * 60 * 1000 || Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
+                    'DURATION:PT1H',
+                    'BEGIN:VALARM',
+                    'TRIGGER:-P1D',
+                    'ACTION:DISPLAY',
+                    `DESCRIPTION:Time to refill ${rx.drug}`,
+                    'END:VALARM',
+                    'END:VEVENT',
+                    'END:VCALENDAR',
+                  ].join('\r\n');
+                  const blob = new Blob([icsContent], { type: 'text/calendar' });
+                  const a = document.createElement('a');
+                  a.href = URL.createObjectURL(blob);
+                  a.download = `refill-reminder-${rx.drug.replace(/\s+/g, '-').toLowerCase()}.ics`;
+                  a.click();
+                  URL.revokeObjectURL(a.href);
+                }}>
                   <Bell className="h-3.5 w-3.5" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7" title="Request refill">
+                <Button variant="ghost" size="icon" className="h-7 w-7" title="Request refill" onClick={() => {
+                  router.post(`/appointments/${appointmentId}/refill-request`, { medication: `${rx.drug} ${rx.strength}` }, {
+                    onSuccess: () => {},
+                    onError: () => {},
+                  });
+                }}>
                   <RefreshCw className="h-3.5 w-3.5" />
                 </Button>
               </div>
@@ -1020,7 +1064,15 @@ function DocumentsSection({ documents, onPreview }: { documents: AppDocument[]; 
       title="Documents"
       icon={FolderOpen}
       action={
-        <Button variant="outline" size="sm" className="text-xs">
+        <Button variant="outline" size="sm" className="text-xs" onClick={() => {
+          documents.forEach((doc) => {
+            downloadAsHtml(`${doc.name.replace(/\s+/g, '-').toLowerCase()}.html`, `
+              <h1>${doc.name}</h1>
+              <p class="subtitle">${doc.type.toUpperCase()} &middot; ${doc.date} &middot; ${doc.size}</p>
+              <p style="margin-top:16px;font-size:12px;color:#6b7280">In production, the actual document file would be downloaded here.</p>
+            `);
+          });
+        }}>
           <Download className="h-3.5 w-3.5" />
           Download All
         </Button>
@@ -1091,6 +1143,18 @@ function ActivitySection({ activity }: { activity: ActivityItem[] }) {
 /* ─── 9. Footer Actions ─── */
 
 function FooterActions({ appointment }: { appointment: DetailedAppointment }) {
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [ratingSubmitted, setRatingSubmitted] = useState(false);
+
+  const handleRate = (n: number) => {
+    setRating(n);
+    router.post(`/appointments/${appointment.id}/rate`, { rating: n }, {
+      preserveState: true,
+      onSuccess: () => setRatingSubmitted(true),
+    });
+  };
+
   return (
     <div className="space-y-4">
       {/* Follow-up card */}
@@ -1108,7 +1172,7 @@ function FooterActions({ appointment }: { appointment: DetailedAppointment }) {
               </p>
             </div>
             <Link href={`/appointments/${appointment.id}/book-again`}>
-              <Button size="sm" variant="outline" className="text-xs print:hidden" data-print-hide>
+              <Button size="sm" variant="outline" className="text-xs">
                 Schedule
               </Button>
             </Link>
@@ -1130,15 +1194,31 @@ function FooterActions({ appointment }: { appointment: DetailedAppointment }) {
       </Card>
 
       {/* Rate */}
-      <div className="flex items-center justify-between rounded-lg border p-4 print:hidden" data-print-hide>
+      <div className="flex items-center justify-between rounded-lg border p-4">
         <div>
-          <p className="text-sm font-medium">Rate this consultation</p>
-          <p className="text-xs text-muted-foreground">Your feedback helps us improve</p>
+          <p className="text-sm font-medium">
+            {ratingSubmitted ? 'Thank you for your feedback!' : 'Rate this consultation'}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {ratingSubmitted ? `You rated ${rating} out of 5 stars` : 'Your feedback helps us improve'}
+          </p>
         </div>
         <div className="flex gap-1">
           {[1, 2, 3, 4, 5].map((n) => (
-            <button key={n} className="p-1 hover:scale-110 transition-transform">
-              <Star className="h-5 w-5 text-muted-foreground/30 hover:text-amber-400 hover:fill-amber-400 transition-colors" />
+            <button
+              key={n}
+              className="p-1 hover:scale-110 transition-transform"
+              onClick={() => !ratingSubmitted && handleRate(n)}
+              onMouseEnter={() => !ratingSubmitted && setHoverRating(n)}
+              onMouseLeave={() => !ratingSubmitted && setHoverRating(0)}
+              disabled={ratingSubmitted}
+            >
+              <Star className={cn(
+                'h-5 w-5 transition-colors',
+                n <= (hoverRating || rating)
+                  ? 'text-amber-400 fill-amber-400'
+                  : 'text-muted-foreground/30'
+              )} />
             </button>
           ))}
         </div>

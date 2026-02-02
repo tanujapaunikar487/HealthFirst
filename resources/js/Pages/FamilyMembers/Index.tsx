@@ -9,7 +9,7 @@ import {
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
 import EmbeddedFamilyMemberFlow from '@/Features/booking-chat/embedded/EmbeddedFamilyMemberFlow';
-import { Plus, Users, AlertTriangle, ChevronRight } from '@/Lib/icons';
+import { AddTeam, Users, AlertTriangle, ChevronRight } from '@/Lib/icons';
 
 /* ─── Types ─── */
 
@@ -140,7 +140,7 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
     <AppLayout
       user={user}
       pageTitle="Family Members"
-      pageIcon={Users}
+      pageIcon={AddTeam}
     >
       <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
         {/* Header */}
@@ -161,7 +161,7 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
               onClick={openAddForm}
               size="lg"
             >
-              <Plus className="h-4 w-4" />
+              <AddTeam className="h-4 w-4" />
               Add Member
             </Button>
           )}
@@ -181,7 +181,7 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
               Add family members to book appointments and manage health records for them
             </p>
             <Button size="lg" onClick={openAddForm}>
-              <Plus className="h-4 w-4" />
+              <AddTeam className="h-4 w-4" />
               Add Member
             </Button>
           </div>

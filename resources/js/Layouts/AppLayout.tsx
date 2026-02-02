@@ -46,7 +46,7 @@ interface AppLayoutProps {
   children: React.ReactNode;
   user: User;
   pageTitle?: string;
-  pageIcon?: string;
+  pageIcon?: string | typeof Icon | any;
 }
 
 // --- Notification Helpers ---
@@ -144,7 +144,6 @@ function NotificationCard({
                 key={ch}
                 variant="secondary"
                 className="text-[9px] px-1.5 py-0 h-[16px] font-medium rounded"
-                style={{ backgroundColor: '#F3F4F6', color: '#6B7280' }}
               >
                 {channelLabels[ch] || ch}
               </Badge>
@@ -218,7 +217,13 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
           <div className="h-full flex items-center justify-between px-6">
             {/* Page Title */}
             <div className="flex items-center gap-3">
-              <img src={pageIcon || '/assets/icons/home-3.svg'} alt={pageTitle || 'Home'} className="h-6 w-6" />
+              {typeof pageIcon === 'string' ? (
+                <img src={pageIcon} alt={pageTitle || 'Home'} className="h-6 w-6" />
+              ) : pageIcon ? (
+                <Icon icon={pageIcon} className="h-6 w-6" style={{ color: '#00184D' }} />
+              ) : (
+                <img src="/assets/icons/home-3.svg" alt={pageTitle || 'Home'} className="h-6 w-6" />
+              )}
               <h2 className="text-base font-semibold" style={{ color: '#00184D' }}>{pageTitle || 'Home'}</h2>
             </div>
 

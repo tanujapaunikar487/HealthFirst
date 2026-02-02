@@ -15,13 +15,9 @@ type Step =
     | 'choice'
     // Guest - single form
     | 'guest_form'
-    // New family progressive steps
+    // New family - 2 steps only
     | 'relationship'
-    | 'member_name'
-    | 'member_phone'
-    | 'member_dob_age'
-    | 'member_gender'
-    | 'member_optional'
+    | 'member_details'
     // Link existing steps (keep as is)
     | 'lookup_method'
     | 'search'
@@ -234,61 +230,25 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         }
     };
 
-    // Step 3: Relationship Selection
+    // Step 2: Relationship Selection
     const handleRelationshipNext = () => {
         if (!state.relation) {
             setError('Please select a relationship');
             return;
         }
+        setError('');
         // Check flowType to determine next step
         if (state.flowType === 'add_new_family') {
-            setStep('member_name');
+            setStep('member_details');
         } else if (state.flowType === 'link_existing') {
             setStep('lookup_method');
         }
     };
 
 
-    // Progressive New Member Flow Handlers
-    const handleMemberNameNext = () => {
-        if (!state.newMemberName.trim()) {
-            setError('Please enter a name');
-            return;
-        }
-        setStep('member_phone');
-    };
-
-    const handleMemberPhoneNext = () => {
-        if (!state.newMemberPhone.trim() || state.newMemberPhone === '+91') {
-            setError('Please enter a phone number');
-            return;
-        }
-        if (!/^\+91[6-9]\d{9}$/.test(state.newMemberPhone.trim())) {
-            setError('Please enter a valid 10-digit phone number');
-            return;
-        }
-        setStep('member_dob_age');
-    };
-
-    const handleMemberDobAgeNext = () => {
-        if (!state.newMemberAge && !state.newMemberDOB) {
-            setError('Please enter date of birth or age');
-            return;
-        }
-        setStep('member_gender');
-    };
-
-    const handleMemberGenderNext = () => {
-        if (!state.newMemberGender) {
-            setError('Please select gender');
-            return;
-        }
-        setStep('member_optional');
-    };
-
-    // Step 4: New Member Form Submission
-    const handleNewMemberSubmit = async () => {
-        // Validation
+    // Step 3: Member Details Form Submission
+    const handleMemberDetailsSubmit = async () => {
+        // Validate required fields only (name + phone)
         if (!state.newMemberName.trim()) {
             setError('Please enter a name');
             return;
@@ -301,15 +261,8 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             setError('Please enter a valid 10-digit phone number');
             return;
         }
-        if (!state.newMemberAge) {
-            setError('Please select age');
-            return;
-        }
-        if (!state.newMemberGender) {
-            setError('Please select gender');
-            return;
-        }
 
+        // Optional fields - no validation needed
         setLoading(true);
         setError('');
 
@@ -324,11 +277,11 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     name: state.newMemberName,
                     relation: state.relation,
                     phone: state.newMemberPhone,
-                    age: parseInt(state.newMemberAge, 10),
-                    gender: state.newMemberGender,
-                    email: state.newMemberEmail || null,
-                    date_of_birth: state.newMemberDOB || null,
-                    blood_group: state.newMemberBloodGroup || null,
+                    ...(state.newMemberAge && { age: parseInt(state.newMemberAge, 10) }),
+                    ...(state.newMemberGender && { gender: state.newMemberGender }),
+                    ...(state.newMemberEmail && { email: state.newMemberEmail }),
+                    ...(state.newMemberDOB && { date_of_birth: state.newMemberDOB }),
+                    ...(state.newMemberBloodGroup && { blood_group: state.newMemberBloodGroup }),
                 }),
             });
 
@@ -588,13 +541,9 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             guest_form: 'choice',
             // New family flow
             relationship: 'choice',
-            member_name: 'relationship',
-            member_phone: 'member_name',
-            member_dob_age: 'member_phone',
-            member_gender: 'member_dob_age',
-            member_optional: 'member_gender',
+            member_details: 'relationship',
             // Link existing flow
-            lookup_method: 'relationship',
+            lookup_method: state.flowType === 'link_existing' ? 'choice' : 'relationship',
             search: 'lookup_method',
             otp: 'search',
             success: 'success',
@@ -614,16 +563,8 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             // New family flow
             case 'relationship':
                 return { title: 'Select Relationship', description: 'What is this person\'s relationship to you?' };
-            case 'member_name':
-                return { title: 'New Family Member', description: 'Enter the member\'s name' };
-            case 'member_phone':
-                return { title: 'New Family Member', description: 'Enter the member\'s phone number' };
-            case 'member_dob_age':
-                return { title: 'New Family Member', description: 'Enter the member\'s date of birth or age' };
-            case 'member_gender':
-                return { title: 'New Family Member', description: 'Select the member\'s gender' };
-            case 'member_optional':
-                return { title: 'New Family Member', description: 'Additional information (optional)' };
+            case 'member_details':
+                return { title: 'New Family Member', description: 'Add a new family member to your account' };
             // Link existing flow
             case 'lookup_method':
                 return { title: 'Search Method', description: 'How would you like to search for this member?' };

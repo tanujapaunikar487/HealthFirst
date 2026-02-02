@@ -4,7 +4,7 @@ import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
+import { Card, CardContent } from '@/Components/ui/card';
 import { Input } from '@/Components/ui/input';
 import { PhoneInput } from '@/Components/ui/phone-input';
 import {
@@ -624,11 +624,9 @@ export default function FamilyMemberShow({
         )}
 
         {/* Personal Information Card */}
+        <h3 className="text-base font-semibold text-gray-900 mb-3">Personal Information</h3>
         <Card className="mb-6">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Personal Information</CardTitle>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <div className="grid grid-cols-2 gap-x-8 gap-y-4">
               {personalInfoFields.map((field, i) => (
                 <div key={i} className={field.label === 'Address' ? 'col-span-2' : ''}>
@@ -644,11 +642,10 @@ export default function FamilyMemberShow({
 
         {/* Medical Conditions Card - Hidden for guests */}
         {!member.is_guest && (
-          <Card className="mb-6">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Medical Information</CardTitle>
-            </CardHeader>
-          <CardContent>
+          <div className="mb-6">
+          <h3 className="text-base font-semibold text-gray-900 mb-3">Medical Information</h3>
+          <Card>
+          <CardContent className="pt-6">
             <div className="space-y-4">
               <div>
                 <p className="mb-2 text-xs font-medium text-gray-500">Conditions</p>
@@ -676,16 +673,16 @@ export default function FamilyMemberShow({
               </div>
             </div>
           </CardContent>
-        </Card>
+          </Card>
+          </div>
         )}
 
         {/* Emergency Contact Card - Hidden for guests */}
         {!member.is_guest && (
-        <Card className="mb-6">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Emergency Contact</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <div className="mb-6">
+          <h3 className="text-base font-semibold text-gray-900 mb-3">Emergency Contact</h3>
+          <Card>
+            <CardContent className="pt-6">
             {member.emergency_contact_name ? (
               <div className="flex items-center gap-3">
                 <div
@@ -706,8 +703,9 @@ export default function FamilyMemberShow({
                 <p className="text-sm text-gray-400">No emergency contact added</p>
               </div>
             )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
         )}
 
         {/* Health Data Links - Hidden for guests */}
