@@ -1185,6 +1185,38 @@ Replaced simple boolean alert detection with a rich multi-type alert system that
 
 ---
 
+## City and State Dropdowns (February 3, 2026)
+
+Replaced all city and state text input fields with searchable dropdown menus for better data consistency.
+
+### Implementation
+- **Created `resources/js/Lib/locations.ts`** — Comprehensive data file with:
+  - All 36 Indian states and union territories
+  - 500+ major cities organized by state
+  - `getCitiesForState(state)` helper function
+  - `getAllCities()` for flat city list
+
+### Features
+- **Cascading dropdowns**: City list dynamically filtered based on selected state
+- **Auto-clear**: City selection cleared when state changes (prevents invalid state-city combinations)
+- **Disabled state**: City dropdown disabled until state is selected
+- **Search functionality**: Built-in search in Select component for quick filtering
+- **Data consistency**: Prevents typos and invalid city/state combinations
+
+### Files Updated
+| File | Changes |
+|------|---------|
+| `EmbeddedAddressForm.tsx` | State dropdown → City dropdown (filtered), state change clears city |
+| `FamilyMembers/Show.tsx` | Edit form with state/city dropdowns, useMemo for performance |
+
+### UX Improvements
+- Users can no longer enter misspelled city names (e.g., "Mumbia", "Bangaluru")
+- Consistent data format across all address records
+- Better address validation on backend (can now strictly validate against known values)
+- Improved search and filtering capabilities (exact matches only)
+
+---
+
 **Status**: Production-ready healthcare management platform with AI-powered booking, comprehensive health records, billing, and insurance management.
 
-**Last Updated**: February 3, 2026 — Alert deep-linking system with precise navigation to specific records
+**Last Updated**: February 3, 2026 — City and state dropdowns for improved data consistency
