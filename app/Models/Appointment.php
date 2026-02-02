@@ -24,6 +24,7 @@ class Appointment extends Model
         'status',
         'symptoms',
         'notes',
+        'video_meeting_url',
         'fee',
         'payment_status',
         'cancellation_reason',

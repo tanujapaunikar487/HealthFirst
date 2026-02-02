@@ -12,9 +12,14 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use App\Services\VideoMeeting\VideoMeetingService;
 
 class AppointmentsController extends Controller
 {
+    public function __construct(
+        private VideoMeetingService $videoMeetingService
+    ) {}
+
     public function index()
     {
         $user = Auth::user() ?? \App\User::first();
@@ -111,6 +116,49 @@ class AppointmentsController extends Controller
         ]);
 
         return back()->with('success', 'Appointment rescheduled successfully.');
+    }
+
+    public function updateNotes(Request $request, Appointment $appointment)
+    {
+        $user = Auth::user() ?? \App\User::first();
+
+        if ($appointment->user_id !== $user->id) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'notes' => 'nullable|string|max:5000',
+        ]);
+
+        $appointment->update(['notes' => $validated['notes']]);
+
+        return back()->with('success', 'Notes updated successfully.');
+    }
+
+    public function generateVideoLink(Appointment $appointment)
+    {
+        $user = Auth::user() ?? \App\User::first();
+
+        if ($appointment->user_id !== $user->id) {
+            abort(403);
+        }
+
+        if ($appointment->consultation_mode !== 'video') {
+            return back()->with('error', 'This appointment is not a video appointment.');
+        }
+
+        if ($appointment->video_meeting_url) {
+            return back()->with('info', 'Video link already exists.');
+        }
+
+        $videoUrl = $this->videoMeetingService->generateMeetingLink($appointment);
+
+        if ($videoUrl) {
+            $appointment->update(['video_meeting_url' => $videoUrl]);
+            return back()->with('success', 'Video link generated successfully.');
+        }
+
+        return back()->with('error', 'Failed to generate video link.');
     }
 
     public function availableSlots(Appointment $appointment, Request $request)
@@ -452,6 +500,7 @@ class AppointmentsController extends Controller
             'department' => $appt->department?->name,
             'duration' => '30 min',
             'notes' => $appt->notes,
+            'video_meeting_url' => $appt->video_meeting_url,
             'symptoms' => $symptoms,
             'vitals' => $vitals,
             'clinical_summary' => $clinicalSummary,

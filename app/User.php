@@ -45,4 +45,23 @@ class User extends Authenticatable
     {
         return $this->hasMany(\App\Models\FamilyMember::class);
     }
+
+    public function settings(): HasMany
+    {
+        return $this->hasMany(\App\Models\UserSetting::class);
+    }
+
+    public function getSetting(string $category, $default = null)
+    {
+        $setting = $this->settings()->where('category', $category)->first();
+        return $setting ? $setting->settings : $default;
+    }
+
+    public function setSetting(string $category, array $data): void
+    {
+        $this->settings()->updateOrCreate(
+            ['category' => $category],
+            ['settings' => $data]
+        );
+    }
 }

@@ -108,10 +108,20 @@ Route::post('/appointments/{appointment}/cancel', [AppointmentsController::class
 Route::post('/appointments/{appointment}/reschedule', [AppointmentsController::class, 'reschedule'])->name('appointments.reschedule');
 Route::get('/appointments/{appointment}/available-slots', [AppointmentsController::class, 'availableSlots'])->name('appointments.available-slots');
 Route::get('/appointments/{appointment}/book-again', [AppointmentsController::class, 'bookAgain'])->name('appointments.book-again');
+Route::put('/appointments/{appointment}/notes', [AppointmentsController::class, 'updateNotes'])->name('appointments.update-notes');
+Route::post('/appointments/{appointment}/generate-video-link', [AppointmentsController::class, 'generateVideoLink'])->name('appointments.generate-video-link');
+
+// Settings
+Route::get('/settings', [\App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
+Route::put('/settings/video', [\App\Http\Controllers\SettingsController::class, 'updateVideoSettings'])->name('settings.video.update');
 
 // Family Members
 Route::get('/family-members', [FamilyMembersController::class, 'index'])->name('family-members.index');
 Route::get('/family-members/create', [FamilyMembersController::class, 'create'])->name('family-members.create');
+Route::post('/family-members/lookup', [FamilyMembersController::class, 'lookup'])->name('family-members.lookup');
+Route::post('/family-members/send-otp', [FamilyMembersController::class, 'sendOtp'])->middleware('throttle:3,1')->name('family-members.send-otp');
+Route::post('/family-members/verify-otp', [FamilyMembersController::class, 'verifyOtp'])->middleware('throttle:3,1')->name('family-members.verify-otp');
+Route::post('/family-members/link', [FamilyMembersController::class, 'linkMember'])->name('family-members.link');
 Route::get('/family-members/{member}', [FamilyMembersController::class, 'show'])->name('family-members.show');
 Route::post('/family-members', [FamilyMembersController::class, 'store'])->name('family-members.store');
 Route::put('/family-members/{member}', [FamilyMembersController::class, 'update'])->name('family-members.update');

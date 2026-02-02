@@ -41,4 +41,13 @@ return [
         'base_url' => 'https://api.groq.com/openai/v1/chat/completions',
     ],
 
+    'google' => [
+        'calendar_token' => env('GOOGLE_CALENDAR_TOKEN'),
+    ],
+
+    'zoom' => [
+        'client_id' => env('ZOOM_CLIENT_ID'),
+        'client_secret' => env('ZOOM_CLIENT_SECRET'),
+    ],
+
 ];
