@@ -35,6 +35,8 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
+  SheetFooter,
+  SheetDivider,
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
@@ -871,7 +873,7 @@ export default function InsuranceIndex({
 
       {/* Add Policy Sheet */}
       <Sheet open={showAddPolicy} onOpenChange={handleSheetClose}>
-        <SheetContent className="overflow-y-auto sm:max-w-md">
+        <SheetContent className="sm:max-w-md">
           <SheetHeader>
             <SheetTitle>Add Policy</SheetTitle>
             <SheetDescription>
@@ -882,7 +884,7 @@ export default function InsuranceIndex({
             </SheetDescription>
           </SheetHeader>
 
-          <div>
+          <div className="flex-1 overflow-y-auto -mx-6 px-6">
             {/* Step 1: Upload */}
             {addStep === 'upload' && (
               <div className="space-y-6">
@@ -1060,6 +1062,8 @@ export default function InsuranceIndex({
                   </div>
                 </div>
 
+                <SheetDivider className="my-6" />
+
                 {/* Policy Details */}
                 <div>
                   <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
@@ -1129,6 +1133,8 @@ export default function InsuranceIndex({
                   </div>
                 </div>
 
+                <SheetDivider className="my-6" />
+
                 {/* Coverage */}
                 <div>
                   <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
@@ -1167,6 +1173,8 @@ export default function InsuranceIndex({
                     </div>
                   </div>
                 </div>
+
+                <SheetDivider className="my-6" />
 
                 {/* Validity */}
                 <div>
@@ -1213,6 +1221,8 @@ export default function InsuranceIndex({
                   </div>
                 </div>
 
+                <SheetDivider className="my-6" />
+
                 {/* Covered Members */}
                 {familyMembers.length > 0 && (
                   <div>
@@ -1237,17 +1247,21 @@ export default function InsuranceIndex({
                   </div>
                 )}
 
-                {/* Submit */}
-                <Button
-                  className="w-full"
-                  onClick={handleSubmitPolicy}
-                  disabled={submitting}
-                >
-                  {submitting ? 'Saving...' : 'Save Policy'}
-                </Button>
               </div>
             )}
           </div>
+
+          {addStep === 'review' && (
+            <SheetFooter>
+              <Button
+                className="flex-1"
+                onClick={handleSubmitPolicy}
+                disabled={submitting}
+              >
+                {submitting ? 'Saving...' : 'Save Policy'}
+              </Button>
+            </SheetFooter>
+          )}
         </SheetContent>
       </Sheet>
 

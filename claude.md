@@ -962,6 +962,84 @@ Improved the family member creation flow to prioritize Date of Birth (more accur
 
 ---
 
+## Guest Form Refactor: Single Grouped Form (February 2, 2026)
+
+Replaced the 4-step progressive disclosure guest flow with a single, smartly grouped form to reduce friction for temporary guest bookings.
+
+### Before: Progressive Disclosure (4 Steps)
+```
+guest_name → guest_phone → guest_dob_age → guest_gender
+```
+- Each field on a separate screen with Continue button
+- Required navigating through 4 screens for minimal guest info
+- Felt irritating and slow for temporary bookings
+
+### After: Single Grouped Form
+**File**: `resources/js/Features/booking-chat/embedded/EmbeddedFamilyMemberFlow.tsx`
+
+**Structure**:
+```
+┌─────────────────────────────────────┐
+│  Required Information (divider)    │
+│  • Name *                           │
+│  • Phone Number *                   │
+├─────────────────────────────────────┤
+│  Optional Details (divider)         │
+│  • Date of Birth                    │
+│  • Age                              │
+│  • Gender                           │
+└─────────────────────────────────────┘
+```
+
+### Why This is Better
+- **Faster**: All fields visible at once, no navigation between screens
+- **Clearer intent**: Visual dividers show what's required vs optional
+- **Less irritating**: Users control what info to provide
+- **Appropriate for use case**: Guests are temporary, so minimal required info makes sense
+- **Better mobile UX**: Can see and complete entire form without multiple taps
+
+### Implementation Changes
+
+**Step Type Updates**:
+```typescript
+// Removed 4 progressive guest steps
+- 'guest_name'
+- 'guest_phone'
+- 'guest_dob_age'
+- 'guest_gender'
+
+// Replaced with single step
++ 'guest_form'
+```
+
+**Handler Changes**:
+- Removed: `handleGuestNameNext()`, `handleGuestPhoneNext()`, `handleGuestDobAgeNext()`
+- Updated: `handleGuestSubmit()` — only validates required fields (name, phone)
+- Optional fields (DOB, age, gender) have no validation
+
+**UI Features**:
+- Visual section dividers with uppercase labels: "REQUIRED INFORMATION" / "OPTIONAL DETAILS"
+- Submit button disabled only for required fields
+- DOB and age mutually exclusive (selecting one clears the other)
+- Button text: "Add Guest" (was "Submit")
+
+**Navigation**:
+- Back button goes directly from `guest_form` → `choice`
+- No intermediate steps
+
+### New Family Member Flow: Unchanged
+Progressive disclosure **kept** for new family member flow (5 steps) because creating a full profile with all details benefits from step-by-step guidance:
+```
+relationship → member_name → member_phone → member_dob_age → member_gender → member_optional
+```
+
+### Files Modified
+| File | Changes |
+|------|---------|
+| `EmbeddedFamilyMemberFlow.tsx` | Removed 4 guest steps, added single guest_form, removed 3 handler functions, updated validation |
+
+---
+
 **Status**: Production-ready healthcare management platform with AI-powered booking, comprehensive health records, billing, and insurance management.
 
-**Last Updated**: February 2, 2026
+**Last Updated**: February 2, 2026 — Guest form refactored to single grouped layout
