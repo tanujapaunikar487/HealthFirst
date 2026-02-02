@@ -1301,6 +1301,100 @@ $membersData = $members->map(function (FamilyMember $m) use ($healthRecords) {
 
 ---
 
+## Family Member Flows: Grouped Field UX (February 3, 2026)
+
+Redesigned both "Add New Family Member" and "Link Existing Patient" flows to reduce navigation steps and show related fields together on a single screen.
+
+### Add New Family Member Flow
+
+**Before**: 7 steps with 6 clicks
+- Step 1: Relationship selection
+- Step 2: Name (single field + Continue)
+- Step 3: Phone (single field + Continue)
+- Step 4: DOB/Age (single field + Continue)
+- Step 5: Gender (single field + Continue)
+- Step 6: Email + Blood Group (2 fields + Continue)
+- Step 7: Submit
+
+**After**: 2 steps with 1 click
+- Step 1: Relationship selection
+- Step 2: All fields grouped in sections
+  - **Essential Information**: Name (required), Phone (required)
+  - **Optional Details (Recommended)**: DOB, Age, Gender, Email, Blood Group
+  - Single "Add Member" button at bottom
+
+### Link Existing Patient Flow
+
+**Before**: 5 steps with 4 clicks
+- Step 1: Relationship selection (if from family flow)
+- Step 2: Lookup method choice (Phone or Patient ID)
+- Step 3: Search input + search
+- Step 4: OTP verification
+- Step 5: Success
+
+**After**: 3 steps with 2 clicks
+- Step 1: Relationship selection (if from family flow)
+- Step 2: Search with inline method selector
+  - Method toggle buttons (Phone/Patient ID) at top
+  - Search input appears below based on selection
+  - Single screen with all search controls visible
+- Step 3: OTP verification
+- Step 4: Success
+
+### Design Pattern
+
+Matches the Guest form grouping pattern established earlier:
+- **Section dividers** with uppercase labels ("ESSENTIAL INFORMATION", "OPTIONAL DETAILS (RECOMMENDED)")
+- **All fields visible at once** — no Continue buttons between sections
+- **Progressive disclosure** through visual grouping, not step-by-step navigation
+- **Responsive grid layout** for DOB/Age side-by-side
+- **Validation** only on submit, not between sections
+
+### Implementation
+
+**File**: [EmbeddedFamilyMemberFlow.tsx](resources/js/Features/booking-chat/embedded/EmbeddedFamilyMemberFlow.tsx)
+
+**Step type changes**:
+```typescript
+// Removed: 'member_name', 'member_phone', 'member_dob_age', 'member_gender', 'member_optional'
+// Added: 'member_details' (consolidated)
+
+// Removed: 'lookup_method'
+// Combined with: 'search'
+```
+
+**Navigation updates**:
+- `handleRelationshipNext()` → goes directly to `member_details` (not `member_name`)
+- `handleInitialChoice('link_existing')` → goes directly to `search` (not `lookup_method`)
+- Removed 5 navigation handlers: `handleMemberNameNext`, `handleMemberPhoneNext`, `handleMemberDobAgeNext`, `handleMemberGenderNext`, `handleLookupMethodChoice`
+- `handleMemberDetailsSubmit()` validates only required fields (name, phone), all others optional
+
+**UI changes**:
+- Both standalone (Sheet) and embedded (chat) modes updated
+- Method selection shown as toggle buttons with `border-primary bg-primary/5` for active state
+- Search input dynamically changes (PhoneInput vs text Input) based on method selection
+- Clearing search value when method changes prevents mixed input errors
+
+### Benefits
+
+- **66% fewer steps** in Add New Family Member (7→2)
+- **40% fewer steps** in Link Existing Patient (5→3)
+- **Better context** — users see all related fields at once
+- **Reduced cognitive load** — no need to remember previous inputs across multiple screens
+- **Faster completion** — fewer clicks and screen transitions
+- **Same validation** — no backend changes required
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `EmbeddedFamilyMemberFlow.tsx` | Step type reduced, navigation updated, UI rewritten for both modes (~200 lines changed) |
+| `FamilyMembers/Index.tsx` | AddTeam icon from hugeicons library |
+| `AppLayout.tsx` | Support for React component icons (not just string paths) |
+| `icons.tsx` | Added AddTeam icon export |
+
+---
+
 **Status**: Production-ready healthcare management platform with AI-powered booking, comprehensive health records, billing, and insurance management.
 
-**Last Updated**: February 3, 2026 — Alert-based sorting for family members list
+**Last Updated**: February 3, 2026 — Grouped field UX for family member flows
