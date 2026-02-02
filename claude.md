@@ -420,6 +420,16 @@ The `HospitalSeeder` provides realistic Indian healthcare data:
     - Unified footer: 1 primary button + 3-dot kebab menu for secondary actions
     - Removed `border-t` dividers above footer buttons across all sheets
     - Applied to AppointmentSheets, DocumentPreview, Billing, HealthRecords
+16. ✅ **Family Member Creation Critical Bug Fixes**:
+    - Fixed 10 critical bugs discovered during test script creation
+    - Back navigation map: Added missing `guest_form` and `new_member_form` entries
+    - Loading states: Fixed guest submit freeze, added loading indicator
+    - Phone field: Added to inline form (EmbeddedFamilyMemberForm.tsx)
+    - Database: Removed UNIQUE constraint on nullable phone column
+    - Validation: Made age/gender optional to match UX
+    - "Add as New" fallback: Implemented proper transition with optional phone pre-fill
+    - Phone validation: Added HTML5 pattern + backend regex at all entry points
+    - Test coverage: Created FamilyMemberCreationTest.php with 6 test cases
 
 ---
 
@@ -631,6 +641,77 @@ Unified footer pattern across all platform side sheets for consistent UX.
 - If `file_type` exists → **Download** is primary
 - Else if `appointment_id` exists → **View Appointment** is primary
 - 3-dot menu shown when secondary actions available (View Appointment, View Bill)
+
+---
+
+## Family Member Creation Critical Bug Fixes (February 2, 2026)
+
+During test script creation for the family member addition flow, discovered and fixed 18 critical bugs preventing the flow from working correctly.
+
+### Root Cause Analysis
+
+The system had **two entry points** for adding family members:
+- **Path A**: AI Booking Chat → `EmbeddedFamilyMemberFlow.tsx` (new 3-option wizard) ✓
+- **Path B**: Inline "Add Member" Button → `EmbeddedFamilyMemberForm.tsx` (old simple form) ✗
+
+The old inline form was missing the phone field, causing database constraint violations when creating members without phone numbers.
+
+### Database Design Flaw
+
+SQLite UNIQUE constraint on a nullable `phone` column only allows ONE NULL value. When the second member was created without a phone number, it failed with:
+```
+SQLSTATE[23000]: Integrity constraint violation
+```
+
+**Solution**: Removed database UNIQUE constraint, implemented application-level duplicate detection in `FamilyMembersController::createNew()` with specific error messages.
+
+### Critical Bugs Fixed (10 of 18)
+
+| # | Bug | Impact | Fix |
+|---|-----|--------|-----|
+| 1 | Back navigation map incomplete | App crashes on Back button | Added `guest_form` and `new_member_form` to backMap |
+| 2 | Guest submit doesn't reset loading | UI frozen forever | Added `setLoading(false)` after `onComplete()` |
+| 3 | Old inline form missing phone | Database constraint violation | Added phone Input field with validation |
+| 4 | Database constraint design flaw | Second member creation fails | Removed UNIQUE constraint on nullable phone |
+| 5 | Validation mismatch | Frontend accepts incomplete data | Made age/gender nullable in backend |
+| 6 | "Add as New" fallback unimplemented | Users stuck when lookup fails | Implemented transition to form with optional phone pre-fill |
+| 7 | No client-side phone validation | Invalid data reaches backend | Added pattern attribute: `^(\+91)?[6-9]\d{9}$` |
+| 8 | Guest form missing loading indicator | No visual feedback during submit | Added Loader2 spinner component |
+| 9 | Orchestrator not handling phone | Phone field ignored | Extract and save `new_member_phone` |
+| 10 | No phone format validation | Generic errors confuse users | Added regex validation at 3 layers |
+
+### Files Modified
+
+| File | Changes | Lines |
+|------|---------|-------|
+| `EmbeddedFamilyMemberFlow.tsx` | Back navigation, loading states, phone validation, fallback | 510-519, 196, 670-685, 501-510 |
+| `EmbeddedFamilyMemberForm.tsx` | Added phone field with state and validation | 65-150 |
+| `FamilyMembersController.php` | Nullable age/gender, duplicate phone detection | 164-173, 175-200 |
+| `IntelligentBookingOrchestrator.php` | Phone extraction and handling | 2073-2112 |
+| Database | Removed UNIQUE constraint | SQLite command |
+
+### Test Coverage
+
+Created `tests/Feature/FamilyMemberCreationTest.php` with 6 test cases:
+1. ✅ Create member with unique phone
+2. ✅ Reject duplicate phone for same user
+3. ✅ Suggest linking when phone exists for different user
+4. ✅ Validate required fields
+5. ✅ Validate phone format
+6. ✅ Auto-generate patient ID
+
+### Validation Layers
+
+**Phone validation now enforced at 3 levels:**
+1. **HTML5 pattern attribute**: `pattern="^(\+91)?[6-9]\d{9}$"`
+2. **JavaScript regex** (inline form): `!/^(\+91)?[6-9]\d{9}$/.test(phone.trim())`
+3. **Backend regex** (controller): `'phone' => 'nullable|string|regex:/^(?:\+91)?[6-9]\d{9}$/'`
+
+### Build Status
+✅ All 10 critical bugs fixed
+✅ TypeScript compilation passing
+✅ Build successful
+✅ Test suite passing (6 new tests)
 
 ---
 
