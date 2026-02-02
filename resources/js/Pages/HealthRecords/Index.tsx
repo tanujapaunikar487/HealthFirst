@@ -1084,7 +1084,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
 
       {/* Detail Sheet */}
       <Sheet open={selectedRecord !== null} onOpenChange={(open) => !open && setSelectedRecord(null)}>
-        <SheetContent className="overflow-y-auto sm:max-w-lg">
+        <SheetContent className="sm:max-w-lg">
           {selectedRecord && (
             <RecordDetailSheet
               record={selectedRecord}
@@ -1123,7 +1123,7 @@ function RecordDetailSheet({ record, memberMap, onDownload, onAction }: { record
         </div>
       </SheetHeader>
 
-      <div className="flex-1 space-y-5 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto -mx-6 px-6">
         <div className="space-y-2">
           {record.department_name && <DetailRow label="Department">{record.department_name}</DetailRow>}
           {member && <DetailRow label="Patient">{member.name} ({member.relation})</DetailRow>}
@@ -1145,58 +1145,68 @@ function RecordDetailSheet({ record, memberMap, onDownload, onAction }: { record
         </div>
 
         {record.description && (
-          <div>
-            <p className="text-xs font-medium text-muted-foreground mb-1.5">Summary</p>
-            <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{record.description}</p>
-          </div>
+          <>
+            <SheetDivider className="my-5" />
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-1.5">Summary</p>
+              <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{record.description}</p>
+            </div>
+          </>
         )}
 
         {/* Category-specific content */}
-        {meta && <CategoryDetail category={record.category} meta={meta} onAction={onAction} record={record} memberMap={memberMap} />}
-      </div>
-
-      <div className="pt-4 flex gap-2">
-        {record.file_type ? (
-          <Button className="flex-1" onClick={onDownload}>
-            <Download className="h-4 w-4" />
-            Download
-          </Button>
-        ) : record.appointment_id ? (
-          <Button asChild className="flex-1">
-            <Link href={`/appointments/${record.appointment_id}`}>
-              <ExternalLink className="h-4 w-4" />
-              View Appointment
-            </Link>
-          </Button>
-        ) : null}
-        {((record.file_type && record.appointment_id) || (record.category === 'invoice' && record.appointment_id)) && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="h-10 w-10 flex-shrink-0">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[180px]">
-              {record.file_type && record.appointment_id && (
-                <DropdownMenuItem className="gap-2 cursor-pointer" asChild>
-                  <Link href={`/appointments/${record.appointment_id}`}>
-                    <ExternalLink className="h-4 w-4" />
-                    View Appointment
-                  </Link>
-                </DropdownMenuItem>
-              )}
-              {record.category === 'invoice' && record.appointment_id && (
-                <DropdownMenuItem className="gap-2 cursor-pointer" asChild>
-                  <Link href={`/billing/${record.appointment_id}`}>
-                    <Receipt className="h-4 w-4" />
-                    View Bill
-                  </Link>
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+        {meta && (
+          <>
+            <SheetDivider className="my-5" />
+            <CategoryDetail category={record.category} meta={meta} onAction={onAction} record={record} memberMap={memberMap} />
+          </>
         )}
       </div>
+
+      {(record.file_type || record.appointment_id) && (
+        <SheetFooter>
+          {record.file_type ? (
+            <Button className="flex-1" onClick={onDownload}>
+              <Download className="h-4 w-4" />
+              Download
+            </Button>
+          ) : record.appointment_id ? (
+            <Button asChild className="flex-1">
+              <Link href={`/appointments/${record.appointment_id}`}>
+                <ExternalLink className="h-4 w-4" />
+                View Appointment
+              </Link>
+            </Button>
+          ) : null}
+          {((record.file_type && record.appointment_id) || (record.category === 'invoice' && record.appointment_id)) && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="h-10 w-10 flex-shrink-0">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[180px]">
+                {record.file_type && record.appointment_id && (
+                  <DropdownMenuItem className="gap-2 cursor-pointer" asChild>
+                    <Link href={`/appointments/${record.appointment_id}`}>
+                      <ExternalLink className="h-4 w-4" />
+                      View Appointment
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                {record.category === 'invoice' && record.appointment_id && (
+                  <DropdownMenuItem className="gap-2 cursor-pointer" asChild>
+                    <Link href={`/billing/${record.appointment_id}`}>
+                      <Receipt className="h-4 w-4" />
+                      View Bill
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </SheetFooter>
+      )}
     </div>
   );
 }

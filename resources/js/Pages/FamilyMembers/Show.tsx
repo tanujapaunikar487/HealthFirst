@@ -36,6 +36,8 @@ import {
   Trash2,
   X,
   UserPlus,
+  Receipt,
+  ShieldAlert,
 } from '@/Lib/icons';
 
 /* ─── Types ─── */
@@ -74,11 +76,22 @@ interface DoctorOption {
   specialization: string;
 }
 
+interface Alert {
+  type: 'health_record' | 'billing' | 'insurance';
+  category?: string;
+  id: number;
+  title: string;
+  message: string;
+  date: string;
+  details?: string;
+  url: string;
+}
+
 interface Props {
   member: Member;
   doctors: DoctorOption[];
-  hasAlerts: boolean;
-  alertType: string;
+  alerts: Alert[];
+  canDelete: boolean;
 }
 
 /* ─── Constants ─── */
@@ -117,6 +130,89 @@ function getInitials(name: string): string {
 
 function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+/* ─── Alert Banner Component ─── */
+
+// Alert banner icon mapping
+function getAlertIcon(type: Alert['type']) {
+  switch (type) {
+    case 'health_record':
+      return <AlertTriangle className="h-4 w-4 text-amber-600" />;
+    case 'billing':
+      return <Receipt className="h-4 w-4 text-red-600" />;
+    case 'insurance':
+      return <ShieldAlert className="h-4 w-4 text-orange-600" />;
+  }
+}
+
+// Alert banner color mapping
+function getAlertColors(type: Alert['type']) {
+  switch (type) {
+    case 'health_record':
+      return {
+        border: 'border-amber-200',
+        bg: 'bg-amber-50',
+        iconBg: 'bg-amber-100',
+        text: 'text-amber-800',
+        button: 'text-amber-700 hover:text-amber-900',
+      };
+    case 'billing':
+      return {
+        border: 'border-red-200',
+        bg: 'bg-red-50',
+        iconBg: 'bg-red-100',
+        text: 'text-red-800',
+        button: 'text-red-700 hover:text-red-900',
+      };
+    case 'insurance':
+      return {
+        border: 'border-orange-200',
+        bg: 'bg-orange-50',
+        iconBg: 'bg-orange-100',
+        text: 'text-orange-800',
+        button: 'text-orange-700 hover:text-orange-900',
+      };
+  }
+}
+
+function AlertBanner({ alert }: { alert: Alert }) {
+  const colors = getAlertColors(alert.type);
+
+  return (
+    <div className={cn(
+      'flex items-center gap-3 rounded-xl border px-4 py-3',
+      colors.border,
+      colors.bg
+    )}>
+      <div className={cn(
+        'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full',
+        colors.iconBg
+      )}>
+        {getAlertIcon(alert.type)}
+      </div>
+      <div className="flex-1">
+        <p className={cn('text-sm font-medium', colors.text)}>
+          {alert.message}
+        </p>
+        {alert.details && (
+          <p className={cn('text-xs mt-0.5', colors.text, 'opacity-80')}>
+            {alert.details}
+          </p>
+        )}
+      </div>
+      <button
+        onClick={() => router.visit(alert.url)}
+        className={cn(
+          'flex items-center gap-1 text-sm font-medium',
+          colors.button
+        )}
+      >
+        View details
+        <ChevronRight className="h-4 w-4" />
+      </button>
+    </div>
+  );
 }
 
 /* ─── Tag Input ─── */
@@ -258,8 +354,8 @@ function FamilyMemberShowSkeleton() {
 export default function FamilyMemberShow({
   member,
   doctors,
-  hasAlerts,
-  alertType,
+  alerts,
+  canDelete,
 }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(member);
   const { props } = usePage<{ toast?: string }>();
@@ -495,22 +591,12 @@ export default function FamilyMemberShow({
           </Button>
         </div>
 
-        {/* Alert Banner */}
-        {hasAlerts && (
-          <div className="mb-6 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-amber-100">
-              <AlertTriangle className="h-4 w-4 text-amber-600" />
-            </div>
-            <p className="flex-1 text-sm font-medium text-amber-800">
-              {alertType} needs attention
-            </p>
-            <button
-              onClick={() => router.visit(`/health-records?member=${member.id}&status=needs_attention`)}
-              className="flex items-center gap-1 text-sm font-medium text-amber-700 hover:text-amber-900"
-            >
-              View records
-              <ChevronRight className="h-4 w-4" />
-            </button>
+        {/* Alert Banners */}
+        {alerts && alerts.length > 0 && (
+          <div className="mb-6 space-y-3">
+            {alerts.map((alert) => (
+              <AlertBanner key={`${alert.type}-${alert.id}`} alert={alert} />
+            ))}
           </div>
         )}
 

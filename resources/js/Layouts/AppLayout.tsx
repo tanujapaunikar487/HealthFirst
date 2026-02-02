@@ -10,6 +10,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
+  SheetDivider,
 } from '@/Components/ui/sheet';
 import { Tabs, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import {
@@ -337,6 +338,8 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
               </TabsList>
             </Tabs>
           </SheetHeader>
+
+          <SheetDivider />
 
           {/* Scrollable Notification List */}
           <div className="flex-1 overflow-y-auto px-4 py-4">

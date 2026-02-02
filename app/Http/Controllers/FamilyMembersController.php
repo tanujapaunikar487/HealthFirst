@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\FamilyMember;
 use App\Models\HealthRecord;
+use App\Models\InsuranceClaim;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -57,6 +59,112 @@ class FamilyMembersController extends Controller
         ]);
     }
 
+    /**
+     * Detect all alerts for a family member across health records, billing, and insurance
+     */
+    private function detectAlerts($user, FamilyMember $member): array
+    {
+        $alerts = [];
+
+        // 1. Check for abnormal health records (lab reports)
+        $abnormalRecords = HealthRecord::where('user_id', $user->id)
+            ->where('family_member_id', $member->id)
+            ->where('category', 'lab_report')
+            ->get()
+            ->filter(function ($record) {
+                foreach ($record->metadata['results'] ?? [] as $result) {
+                    if (in_array(strtolower($result['status'] ?? ''), ['abnormal', 'high', 'borderline'])) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+
+        foreach ($abnormalRecords as $record) {
+            $abnormalParams = [];
+            $lastStatus = '';
+            foreach ($record->metadata['results'] ?? [] as $result) {
+                $status = strtolower($result['status'] ?? 'normal');
+                if (in_array($status, ['abnormal', 'high', 'borderline'])) {
+                    $abnormalParams[] = $result['parameter'];
+                    $lastStatus = ucfirst($status);
+                }
+            }
+
+            $alerts[] = [
+                'type' => 'health_record',
+                'category' => 'lab_report',
+                'id' => $record->id,
+                'title' => $record->title,
+                'message' => 'Lab results needs attention',
+                'date' => $record->record_date->format('Y-m-d'),
+                'details' => implode(', ', $abnormalParams) . ' - ' . $lastStatus,
+                'url' => "/health-records?record={$record->id}",
+            ];
+        }
+
+        // 2. Check for overdue bills
+        $overdueBills = Appointment::where('user_id', $user->id)
+            ->where('family_member_id', $member->id)
+            ->where('payment_status', 'pending')
+            ->whereRaw('DATE_ADD(appointment_date, INTERVAL 7 DAY) < CURDATE()')
+            ->get();
+
+        foreach ($overdueBills as $bill) {
+            $daysOverdue = now()->diffInDays($bill->appointment_date->addDays(7));
+
+            $alerts[] = [
+                'type' => 'billing',
+                'id' => $bill->id,
+                'title' => $bill->title ?? 'Medical Bill',
+                'message' => "Bill overdue by {$daysOverdue} days",
+                'date' => $bill->appointment_date->format('Y-m-d'),
+                'details' => 'Amount due: ₹' . number_format($bill->fee, 0),
+                'url' => "/billing/{$bill->id}",
+            ];
+        }
+
+        // 3. Check for insurance claims needing action
+        $actionableClaimsStatuses = [
+            'enhancement_required',
+            'partially_approved',
+            'disputed',
+            'enhancement_rejected'
+        ];
+
+        $actionableClaims = InsuranceClaim::where('user_id', $user->id)
+            ->where('family_member_id', $member->id)
+            ->whereIn('claim_status', $actionableClaimsStatuses)
+            ->get();
+
+        foreach ($actionableClaims as $claim) {
+            $messageMap = [
+                'enhancement_required' => 'Enhancement request needed',
+                'partially_approved' => 'Claim partially approved - action needed',
+                'disputed' => 'Claim dispute under review',
+                'enhancement_rejected' => 'Enhancement request rejected',
+            ];
+
+            $alerts[] = [
+                'type' => 'insurance',
+                'category' => 'claim',
+                'id' => $claim->id,
+                'title' => $claim->treatment_name ?? 'Insurance Claim',
+                'message' => $messageMap[$claim->claim_status] ?? 'Claim requires action',
+                'date' => $claim->claim_date->format('Y-m-d'),
+                'details' => 'Claim amount: ₹' . number_format($claim->claim_amount, 0),
+                'url' => "/insurance/claims/{$claim->id}",
+            ];
+        }
+
+        // Sort by date (most recent first)
+        usort($alerts, function ($a, $b) {
+            return strtotime($b['date']) - strtotime($a['date']);
+        });
+
+        return $alerts;
+    }
+
     public function show(FamilyMember $member)
     {
         $user = auth()->user() ?? \App\User::first();
@@ -66,18 +174,8 @@ class FamilyMembersController extends Controller
             abort(403, 'Unauthorized access to family member');
         }
 
-        $hasAlerts = HealthRecord::where('user_id', $user->id)
-            ->where('family_member_id', $member->id)
-            ->where('category', 'lab_report')
-            ->get()
-            ->contains(function ($r) {
-                foreach ($r->metadata['results'] ?? [] as $result) {
-                    if (in_array(strtolower($result['status'] ?? ''), ['abnormal', 'high'])) {
-                        return true;
-                    }
-                }
-                return false;
-            });
+        // Detect all alerts (health records, billing, insurance)
+        $alerts = $this->detectAlerts($user, $member);
 
         $doctors = Doctor::where('is_active', true)
             ->select('id', 'name', 'specialization')
@@ -120,8 +218,7 @@ class FamilyMembersController extends Controller
                 'avatar_url' => $member->avatar_url,
             ],
             'doctors' => $doctors,
-            'hasAlerts' => $hasAlerts,
-            'alertType' => 'Lab results',
+            'alerts' => $alerts,
             'canDelete' => $member->relation !== 'self',
         ]);
     }

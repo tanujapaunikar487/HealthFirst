@@ -102,4 +102,9 @@ class FamilyMember extends Model
     {
         return $this->hasMany(Appointment::class);
     }
+
+    public function insuranceClaims(): HasMany
+    {
+        return $this->hasMany(InsuranceClaim::class);
+    }
 }
