@@ -1,8 +1,10 @@
 import * as React from 'react';
 import { cn } from '@/Lib/utils';
 import { Button } from '@/Components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { MapPin } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { INDIAN_STATES, getCitiesForState } from '@/Lib/locations';
 
 interface Props {
   onSelect: (value: {
@@ -55,6 +57,19 @@ export function EmbeddedAddressForm({ onSelect, disabled }: Props) {
 
   const clearError = (field: string) => {
     setErrors((prev) => ({ ...prev, [field]: '' }));
+  };
+
+  // Get available cities based on selected state
+  const availableCities = React.useMemo(() => {
+    return state ? getCitiesForState(state) : [];
+  }, [state]);
+
+  // Handle state change - clear city when state changes
+  const handleStateChange = (newState: string) => {
+    setState(newState);
+    setCity(''); // Reset city when state changes
+    clearError('state');
+    clearError('city');
   };
 
   const inputClasses = cn(
@@ -120,35 +135,43 @@ export function EmbeddedAddressForm({ onSelect, disabled }: Props) {
         />
       </div>
 
-      {/* City + State row */}
+      {/* State + City row */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground">
-            City <span className="text-destructive">*</span>
-          </label>
-          <input
-            type="text"
-            value={city}
-            onChange={(e) => { setCity(e.target.value); clearError('city'); }}
-            placeholder="City"
-            disabled={disabled}
-            className={cn(inputClasses, errors.city && errorClass)}
-          />
-          {errors.city && <p className="text-xs text-destructive">{errors.city}</p>}
-        </div>
         <div className="space-y-1.5">
           <label className="text-xs font-medium text-muted-foreground">
             State <span className="text-destructive">*</span>
           </label>
-          <input
-            type="text"
-            value={state}
-            onChange={(e) => { setState(e.target.value); clearError('state'); }}
-            placeholder="State"
-            disabled={disabled}
-            className={cn(inputClasses, errors.state && errorClass)}
-          />
+          <Select value={state} onValueChange={handleStateChange} disabled={disabled}>
+            <SelectTrigger className={cn(inputClasses, errors.state && errorClass, !state && 'text-muted-foreground')}>
+              <SelectValue placeholder="Select state" />
+            </SelectTrigger>
+            <SelectContent className="max-h-[300px]">
+              {INDIAN_STATES.map((s) => (
+                <SelectItem key={s} value={s}>{s}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           {errors.state && <p className="text-xs text-destructive">{errors.state}</p>}
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-muted-foreground">
+            City <span className="text-destructive">*</span>
+          </label>
+          <Select
+            value={city}
+            onValueChange={(value) => { setCity(value); clearError('city'); }}
+            disabled={disabled || !state}
+          >
+            <SelectTrigger className={cn(inputClasses, errors.city && errorClass, !city && 'text-muted-foreground', !state && 'opacity-50 cursor-not-allowed')}>
+              <SelectValue placeholder={state ? "Select city" : "Select state first"} />
+            </SelectTrigger>
+            <SelectContent className="max-h-[300px]">
+              {availableCities.map((c) => (
+                <SelectItem key={c} value={c}>{c}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.city && <p className="text-xs text-destructive">{errors.city}</p>}
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
@@ -25,6 +25,7 @@ import {
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
+import { INDIAN_STATES, getCitiesForState } from '@/Lib/locations';
 import {
   ArrowLeft,
   Pencil,
@@ -389,6 +390,17 @@ export default function FamilyMemberShow({
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+
+  // Get available cities based on selected state in form
+  const availableCities = useMemo(() => {
+    return formData.state ? getCitiesForState(formData.state) : [];
+  }, [formData.state]);
+
+  // Handle state change - clear city when state changes
+  const handleStateChange = (newState: string) => {
+    setFormData({ ...formData, state: newState, city: '' });
+    setFormErrors({ ...formErrors, state: '', city: '' });
+  };
 
   useEffect(() => {
     if (props.toast) {
@@ -874,20 +886,34 @@ export default function FamilyMemberShow({
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="mb-1.5 block text-sm font-medium text-gray-700">City</label>
-                    <Input
-                      value={formData.city}
-                      onChange={e => setFormData({ ...formData, city: e.target.value })}
-                      placeholder="City"
-                    />
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700">State</label>
+                    <Select value={formData.state} onValueChange={handleStateChange}>
+                      <SelectTrigger className={!formData.state ? 'text-muted-foreground' : ''}>
+                        <SelectValue placeholder="Select state" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[300px]">
+                        {INDIAN_STATES.map((s) => (
+                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-sm font-medium text-gray-700">State</label>
-                    <Input
-                      value={formData.state}
-                      onChange={e => setFormData({ ...formData, state: e.target.value })}
-                      placeholder="State"
-                    />
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700">City</label>
+                    <Select
+                      value={formData.city}
+                      onValueChange={(value: string) => setFormData({ ...formData, city: value })}
+                      disabled={!formData.state}
+                    >
+                      <SelectTrigger className={cn(!formData.city && 'text-muted-foreground', !formData.state && 'opacity-50 cursor-not-allowed')}>
+                        <SelectValue placeholder={formData.state ? "Select city" : "Select state first"} />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[300px]">
+                        {availableCities.map((c: string) => (
+                          <SelectItem key={c} value={c}>{c}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <label className="mb-1.5 block text-sm font-medium text-gray-700">Pincode</label>
