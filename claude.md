@@ -1217,6 +1217,36 @@ Replaced all city and state text input fields with searchable dropdown menus for
 
 ---
 
+## Family Member Detail Page UX Improvements (February 3, 2026)
+
+Enhanced the family member detail page with improved navigation consistency and delete functionality.
+
+### Changes Made
+
+**1. Delete Icon Button**
+- Added trash icon button beside "Edit Profile" button ([Show.tsx:596-608](resources/js/Pages/FamilyMembers/Show.tsx#L596-L608))
+- Only visible when `canDelete` is true (hidden for "self" relation)
+- Red text with hover state for destructive action indication
+- Opens existing delete confirmation dialog with name verification
+
+**2. Page Title Consistency**
+- Changed page title from dynamic member name (e.g., "Latika") to static "Family Members" ([Show.tsx:555-556](resources/js/Pages/FamilyMembers/Show.tsx#L555-L556))
+- Updated icon from `family-selected.svg` (filled) to `family.svg` (outlined) for consistency with other navigation pages
+- Member name still prominently displayed in the profile header section
+
+**3. Bug Fix #22: SQL Compatibility in Alert Detection**
+- Fixed 500 error when accessing family member detail pages ([FamilyMembersController.php:108-112](app/Http/Controllers/FamilyMembersController.php#L108-L112))
+- Replaced MySQL-specific `whereRaw('DATE_ADD(appointment_date, INTERVAL 7 DAY) < CURDATE()')` with database-agnostic `where('appointment_date', '<', now()->subDays(7))`
+- Fixed date mutation bug: changed `$bill->appointment_date->addDays(7)` to `$bill->appointment_date->copy()->addDays(7)`
+- Resolves SQLite compatibility issues for overdue bill detection
+
+### User Experience
+- Faster member deletion: single click from detail page instead of navigating to list
+- Consistent navigation labels across all pages (no more dynamic titles)
+- Alert banners now work correctly for all members without SQL errors
+
+---
+
 **Status**: Production-ready healthcare management platform with AI-powered booking, comprehensive health records, billing, and insurance management.
 
-**Last Updated**: February 3, 2026 — City and state dropdowns for improved data consistency
+**Last Updated**: February 3, 2026 — Family member detail page improvements and SQL compatibility fix
