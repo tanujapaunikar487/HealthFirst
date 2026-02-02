@@ -2070,33 +2070,35 @@ class IntelligentBookingOrchestrator
         // Handle new family member form submission
         if (isset($selection['new_member_name']) && isset($selection['new_member_relation'])) {
             $memberName = trim($selection['new_member_name']);
+            $memberPhone = isset($selection['new_member_phone']) ? trim($selection['new_member_phone']) : null;
             $memberRelation = strtolower(trim($selection['new_member_relation']));
             $memberAge = isset($selection['new_member_age']) ? (int) $selection['new_member_age'] : null;
             $memberGender = isset($selection['new_member_gender']) ? strtolower(trim($selection['new_member_gender'])) : null;
 
             Log::info('🔒 Selection Handler: Creating new family member', [
                 'name' => $memberName,
+                'phone' => $memberPhone,
                 'relation' => $memberRelation,
             ]);
 
-            if (empty($memberName) || empty($memberRelation)) {
+            if (empty($memberName) || empty($memberRelation) || empty($memberPhone)) {
                 $conversation->collected_data = $updated;
                 $conversation->save();
 
                 $this->addAssistantMessage(
                     $conversation,
-                    'Name and relation are required. Please try again.',
+                    'Name, phone number, and relation are required. Please try again.',
                     'family_member_form',
-                    ['error' => 'Name and relation are required.'],
+                    ['error' => 'Name, phone number, and relation are required.'],
                     []
                 );
 
                 return [
                     'status' => 'success',
                     'state' => 'patient_selection',
-                    'message' => 'Name and relation are required. Please try again.',
+                    'message' => 'Name, phone number, and relation are required. Please try again.',
                     'component_type' => 'family_member_form',
-                    'component_data' => ['error' => 'Name and relation are required.'],
+                    'component_data' => ['error' => 'Name, phone number, and relation are required.'],
                     'ready_to_book' => false,
                     'progress' => [
                         'percentage' => 0,
@@ -2109,6 +2111,7 @@ class IntelligentBookingOrchestrator
             $newMember = \App\Models\FamilyMember::create([
                 'user_id' => $conversation->user_id,
                 'name' => $memberName,
+                'phone' => $memberPhone,
                 'relation' => $memberRelation,
                 'age' => $memberAge,
                 'gender' => $memberGender,

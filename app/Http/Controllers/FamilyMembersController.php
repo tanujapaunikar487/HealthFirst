@@ -165,12 +165,39 @@ class FamilyMembersController extends Controller
             'name' => 'required|string|max:255',
             'relation' => 'required|string|in:mother,father,brother,sister,spouse,son,daughter,grandmother,grandfather,other',
             'phone' => 'required|string|regex:/^(?:\+91)?[6-9]\d{9}$/',
-            'age' => 'required|integer|min:0|max:150',
-            'gender' => 'required|string|in:male,female,other',
+            'age' => 'nullable|integer|min:0|max:150',
+            'gender' => 'nullable|string|in:male,female,other',
             'email' => 'nullable|email|max:255',
             'date_of_birth' => 'nullable|date|before:today',
             'blood_group' => 'nullable|string|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
         ]);
+
+        // Check if phone number already exists
+        $existingMember = FamilyMember::where('phone', $validated['phone'])->first();
+
+        if ($existingMember) {
+            // Check if already linked to this user
+            if ($existingMember->user_id === $user->id) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'This phone number is already registered to one of your family members.',
+                    'already_linked' => true,
+                ], 422);
+            }
+
+            // Member exists but linked to different user - suggest linking instead
+            return response()->json([
+                'success' => false,
+                'error' => 'A patient record with this phone number already exists. Please use "Link Existing Patient" to connect it to your account.',
+                'should_link' => true,
+                'existing_member' => [
+                    'name' => $existingMember->name,
+                    'age' => $existingMember->computed_age,
+                    'gender' => $existingMember->gender,
+                    'patient_id' => $existingMember->patient_id,
+                ],
+            ], 422);
+        }
 
         // Add user_id to the validated data
         $validated['user_id'] = $user->id;
@@ -192,9 +219,16 @@ class FamilyMembersController extends Controller
                 ],
             ]);
         } catch (\Exception $e) {
+            \Log::error('Failed to create family member', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'validated_data' => $validated,
+            ]);
+
             return response()->json([
                 'success' => false,
                 'error' => 'Failed to create family member. Please try again.',
+                'debug' => app()->environment('local') ? $e->getMessage() : null,
             ], 500);
         }
     }

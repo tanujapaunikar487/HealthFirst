@@ -17,6 +17,7 @@ interface Props {
   onSelect: (value: {
     new_member_name: string;
     new_member_relation: string;
+    new_member_phone: string;
     new_member_age?: number;
     new_member_gender?: string;
     display_message: string;
@@ -26,6 +27,7 @@ interface Props {
 
 export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
   const [name, setName] = React.useState('');
+  const [phone, setPhone] = React.useState('');
   const [relation, setRelation] = React.useState('');
   const [age, setAge] = React.useState('');
   const [gender, setGender] = React.useState('');
@@ -34,6 +36,11 @@ export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
   const handleSubmit = () => {
     const newErrors: Record<string, string> = {};
     if (!name.trim()) newErrors.name = 'Name is required';
+    if (!phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!/^(\+91)?[6-9]\d{9}$/.test(phone.trim())) {
+      newErrors.phone = 'Enter a valid 10-digit Indian phone number';
+    }
     if (!relation) newErrors.relation = 'Please select a relation';
 
     if (Object.keys(newErrors).length > 0) {
@@ -43,6 +50,7 @@ export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
 
     onSelect({
       new_member_name: name.trim(),
+      new_member_phone: phone.trim(),
       new_member_relation: relation,
       ...(age ? { new_member_age: parseInt(age, 10) } : {}),
       ...(gender ? { new_member_gender: gender } : {}),
@@ -85,6 +93,22 @@ export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
           className={cn(inputClasses, errors.name && 'border-destructive focus:ring-destructive/20')}
         />
         {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+      </div>
+
+      {/* Phone */}
+      <div className="space-y-1.5">
+        <label className="text-xs font-medium text-muted-foreground">
+          Phone Number <span className="text-destructive">*</span>
+        </label>
+        <input
+          type="tel"
+          value={phone}
+          onChange={(e) => { setPhone(e.target.value); setErrors((prev) => ({ ...prev, phone: '' })); }}
+          placeholder="+91-XXXXXXXXXX"
+          disabled={disabled}
+          className={cn(inputClasses, errors.phone && 'border-destructive focus:ring-destructive/20')}
+        />
+        {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
       </div>
 
       {/* Relation */}

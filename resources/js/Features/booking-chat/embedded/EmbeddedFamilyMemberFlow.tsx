@@ -204,6 +204,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                 member_age: parseInt(state.guestAge, 10),
                 member_gender: state.guestGender,
             });
+            setLoading(false);
         }
     };
 
@@ -280,10 +281,24 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     });
                 }
             } else {
-                setError(data.error || 'Failed to create family member. Please try again.');
+                // Handle specific error cases
+                if (data.should_link) {
+                    // Phone exists - suggest linking instead
+                    setError(
+                        data.error ||
+                        'This phone number is already registered. Please use "Link Existing Patient" option instead.'
+                    );
+                } else if (data.already_linked) {
+                    // Already linked to this user
+                    setError(data.error || 'This phone number is already registered to one of your family members.');
+                } else {
+                    // Generic error
+                    setError(data.error || 'Failed to create family member. Please try again.');
+                }
                 setLoading(false);
             }
         } catch (error) {
+            console.error('Error creating family member:', error);
             setError('Failed to create family member. Please try again.');
             setLoading(false);
         }
@@ -485,18 +500,25 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
     // Add as new member (not found in search)
     const handleAddAsNew = () => {
-        // Create new member with minimal info
-        // In the real flow, this would need name, age, gender fields
-        // For now, just simulate completion
-        setError('Add as new member flow not yet implemented');
+        // Transition to new member form
+        // Pre-fill phone if it was a phone search
+        if (state.lookupMethod === 'phone') {
+            setState((prev) => ({
+                ...prev,
+                newMemberPhone: state.searchValue,
+            }));
+        }
+        setStep('new_member_form');
+        setError('');
     };
 
     // Back navigation
     const handleBack = () => {
         const backMap: Record<Step, Step> = {
             choice: 'choice',
-            guest_name: 'choice',
+            guest_form: 'choice',
             relationship: 'choice',
+            new_member_form: 'relationship',
             lookup_method: 'relationship',
             search: 'lookup_method',
             otp: 'search',
@@ -617,7 +639,9 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             type="tel"
                             value={state.guestPhone}
                             onChange={(e) => setState((prev) => ({ ...prev, guestPhone: e.target.value }))}
-                            placeholder="+91XXXXXXXXXX or 10-digit number"
+                            placeholder="+91-XXXXXXXXXX"
+                            pattern="^(\+91)?[6-9]\d{9}$"
+                            title="Enter a valid Indian phone number (10 digits starting with 6-9)"
                         />
                     </div>
 
@@ -656,9 +680,16 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     <Button
                         onClick={handleGuestSubmit}
                         className="w-full"
-                        disabled={!state.guestName.trim() || !state.guestPhone.trim() || !state.guestAge || !state.guestGender}
+                        disabled={state.loading || !state.guestName.trim() || !state.guestPhone.trim() || !state.guestAge || !state.guestGender}
                     >
-                        Continue
+                        {state.loading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Creating...
+                            </>
+                        ) : (
+                            'Continue'
+                        )}
                     </Button>
                 </div>
             )}
@@ -706,7 +737,9 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             type="tel"
                             value={state.newMemberPhone}
                             onChange={(e) => setState((prev) => ({ ...prev, newMemberPhone: e.target.value }))}
-                            placeholder="+91XXXXXXXXXX or 10-digit number"
+                            placeholder="+91-XXXXXXXXXX"
+                            pattern="^(\+91)?[6-9]\d{9}$"
+                            title="Enter a valid Indian phone number (10 digits starting with 6-9)"
                         />
                     </div>
 
