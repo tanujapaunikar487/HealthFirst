@@ -312,21 +312,31 @@ export function DetailsSheet({
           <div className="flex items-center gap-2">
             {/* Join Video Call Button - only for video appointments */}
             {isVideoAppointment ? (
-              <Button
-                className="flex-1"
-                size="lg"
-                style={{ backgroundColor: '#0052FF' }}
-                onClick={() => {
-                  if (appointment.video_meeting_url) {
-                    window.open(appointment.video_meeting_url, '_blank');
-                  } else {
-                    router.post(`/appointments/${appointment.id}/generate-video-link`);
-                  }
-                }}
-              >
-                <Icon icon={Video} className="h-4 w-4 mr-2" />
-                {appointment.video_meeting_url ? 'Join Video Call' : 'Generate Link'}
-              </Button>
+              appointment.video_meeting_url ? (
+                <Button
+                  className="flex-1"
+                  size="lg"
+                  style={{ backgroundColor: '#0052FF' }}
+                  onClick={() => {
+                    if (appointment.video_meeting_url) {
+                      window.open(appointment.video_meeting_url, '_blank');
+                    }
+                  }}
+                >
+                  <Icon icon={Video} className="h-4 w-4 mr-2" />
+                  Join Video Call
+                </Button>
+              ) : (
+                <Button
+                  className="flex-1"
+                  size="lg"
+                  variant="outline"
+                  disabled
+                >
+                  <Icon icon={Video} className="h-4 w-4 mr-2" />
+                  Video link will be shared
+                </Button>
+              )
             ) : (
               <Button
                 className="flex-1"
