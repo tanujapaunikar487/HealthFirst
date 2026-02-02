@@ -38,6 +38,7 @@ interface FlowState {
     // Guest fields
     guestName: string;
     guestPhone: string;
+    guestDOB: string;
     guestAge: string;
     guestGender: string;
 
@@ -95,6 +96,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         // Guest fields
         guestName: '',
         guestPhone: '',
+        guestDOB: '',
         guestAge: '',
         guestGender: '',
 
@@ -167,8 +169,8 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             setError('Please enter a valid 10-digit phone number');
             return;
         }
-        if (!state.guestAge) {
-            setError('Please select age');
+        if (!state.guestAge && !state.guestDOB) {
+            setError('Please enter date of birth or age');
             return;
         }
         if (!state.guestGender) {
@@ -184,7 +186,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     name: state.guestName,
                     relation: 'guest',
                     phone: state.guestPhone,
-                    age: parseInt(state.guestAge, 10),
+                    ...(state.guestDOB ? { date_of_birth: state.guestDOB } : { age: parseInt(state.guestAge, 10) }),
                     gender: state.guestGender,
                 }, {
                     preserveScroll: true,
@@ -203,11 +205,25 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             }
         } else {
             // In embedded mode, call the callback
+            // Calculate age from DOB if provided, otherwise use age
+            let age: number;
+            if (state.guestDOB) {
+                const birthDate = new Date(state.guestDOB);
+                const today = new Date();
+                age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+            } else {
+                age = parseInt(state.guestAge, 10);
+            }
+
             onComplete({
                 member_type: 'guest',
                 member_name: state.guestName,
                 member_phone: state.guestPhone,
-                member_age: parseInt(state.guestAge, 10),
+                member_age: age,
                 member_gender: state.guestGender,
             });
             setLoading(false);
@@ -714,10 +730,29 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
-                            <label htmlFor="guest_age" className="block text-sm font-medium text-gray-700">Age *</label>
-                            <Select value={state.guestAge} onValueChange={(value) => setState((prev) => ({ ...prev, guestAge: value }))}>
-                                <SelectTrigger id="guest_age">
-                                    <SelectValue placeholder="Select age" />
+                            <label htmlFor="guest_dob" className="block text-sm font-medium text-gray-700">
+                                Date of Birth <span className="text-xs font-normal">(Recommended)</span>
+                            </label>
+                            <Input
+                                id="guest_dob"
+                                type="date"
+                                value={state.guestDOB}
+                                onChange={(e) => setState((prev) => ({ ...prev, guestDOB: e.target.value, guestAge: '' }))}
+                                max={new Date().toISOString().split('T')[0]}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label htmlFor="guest_age" className="block text-sm font-medium text-gray-700">
+                                Age <span className="text-xs font-normal">(If DOB unknown)</span>
+                            </label>
+                            <Select
+                                value={state.guestAge}
+                                onValueChange={(value) => setState((prev) => ({ ...prev, guestAge: value, guestDOB: '' }))}
+                                disabled={!!state.guestDOB}
+                            >
+                                <SelectTrigger id="guest_age" className={state.guestDOB ? 'opacity-50 cursor-not-allowed' : ''}>
+                                    <SelectValue placeholder="Enter age" />
                                 </SelectTrigger>
                                 <SelectContent className="max-h-[200px]">
                                     {Array.from({ length: 121 }, (_, i) => i).map((age) => (
@@ -728,26 +763,26 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 </SelectContent>
                             </Select>
                         </div>
+                    </div>
 
-                        <div className="space-y-2">
-                            <label htmlFor="guest_gender" className="block text-sm font-medium text-gray-700">Gender *</label>
-                            <Select value={state.guestGender} onValueChange={(value) => setState((prev) => ({ ...prev, guestGender: value }))}>
-                                <SelectTrigger id="guest_gender">
-                                    <SelectValue placeholder="Select gender" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="male">Male</SelectItem>
-                                    <SelectItem value="female">Female</SelectItem>
-                                    <SelectItem value="other">Other</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
+                    <div className="space-y-2">
+                        <label htmlFor="guest_gender" className="block text-sm font-medium text-gray-700">Gender *</label>
+                        <Select value={state.guestGender} onValueChange={(value) => setState((prev) => ({ ...prev, guestGender: value }))}>
+                            <SelectTrigger id="guest_gender">
+                                <SelectValue placeholder="Select gender" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="male">Male</SelectItem>
+                                <SelectItem value="female">Female</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <Button
                         onClick={handleGuestSubmit}
                         className="w-full"
-                        disabled={state.loading || !state.guestName.trim() || !state.guestPhone.trim() || !state.guestAge || !state.guestGender}
+                        disabled={state.loading || !state.guestName.trim() || !state.guestPhone.trim() || (!state.guestAge && !state.guestDOB) || !state.guestGender}
                     >
                         {state.loading ? (
                             <>
@@ -814,38 +849,41 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <label htmlFor="new_member_dob" className="block text-sm font-medium text-gray-700">
-                            Date of Birth <span className="text-muted-foreground text-xs font-normal">(Recommended)</span>
-                        </label>
-                        <Input
-                            id="new_member_dob"
-                            type="date"
-                            value={state.newMemberDOB}
-                            onChange={(e) => setState((prev) => ({ ...prev, newMemberDOB: e.target.value, newMemberAge: '' }))}
-                            max={new Date().toISOString().split('T')[0]}
-                        />
-                        <div className="flex items-center gap-2">
-                            <div className="flex-1 border-t border-muted"></div>
-                            <span className="text-xs text-muted-foreground">Or enter age</span>
-                            <div className="flex-1 border-t border-muted"></div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                            <label htmlFor="new_member_dob" className="block text-sm font-medium text-gray-700">
+                                Date of Birth <span className="text-xs font-normal">(Recommended)</span>
+                            </label>
+                            <Input
+                                id="new_member_dob"
+                                type="date"
+                                value={state.newMemberDOB}
+                                onChange={(e) => setState((prev) => ({ ...prev, newMemberDOB: e.target.value, newMemberAge: '' }))}
+                                max={new Date().toISOString().split('T')[0]}
+                            />
                         </div>
-                        <Select
-                            value={state.newMemberAge}
-                            onValueChange={(value) => setState((prev) => ({ ...prev, newMemberAge: value, newMemberDOB: '' }))}
-                            disabled={!!state.newMemberDOB}
-                        >
-                            <SelectTrigger id="new_member_age" className={state.newMemberDOB ? 'opacity-50' : ''}>
-                                <SelectValue placeholder="Select age" />
-                            </SelectTrigger>
-                            <SelectContent className="max-h-[200px]">
-                                {Array.from({ length: 121 }, (_, i) => i).map((age) => (
-                                    <SelectItem key={age} value={age.toString()}>
-                                        {age} {age === 0 ? 'year' : 'years'}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+
+                        <div className="space-y-2">
+                            <label htmlFor="new_member_age" className="block text-sm font-medium text-gray-700">
+                                Age <span className="text-xs font-normal">(If DOB unknown)</span>
+                            </label>
+                            <Select
+                                value={state.newMemberAge}
+                                onValueChange={(value) => setState((prev) => ({ ...prev, newMemberAge: value, newMemberDOB: '' }))}
+                                disabled={!!state.newMemberDOB}
+                            >
+                                <SelectTrigger id="new_member_age" className={state.newMemberDOB ? 'opacity-50 cursor-not-allowed' : ''}>
+                                    <SelectValue placeholder="Enter age" />
+                                </SelectTrigger>
+                                <SelectContent className="max-h-[200px]">
+                                    {Array.from({ length: 121 }, (_, i) => i).map((age) => (
+                                        <SelectItem key={age} value={age.toString()}>
+                                            {age} {age === 0 ? 'year' : 'years'}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
 
                     <div className="space-y-2">

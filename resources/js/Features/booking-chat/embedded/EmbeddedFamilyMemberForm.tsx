@@ -131,34 +131,36 @@ export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
         {errors.relation && <p className="text-xs text-destructive">{errors.relation}</p>}
       </div>
 
-      {/* Date of Birth + Age fallback */}
-      <div className="space-y-1.5">
-        <label className="text-xs font-medium text-muted-foreground">
-          Date of Birth <span className="text-muted-foreground text-xs font-normal">(Recommended)</span>
-        </label>
-        <input
-          type="date"
-          value={dateOfBirth}
-          onChange={(e) => { setDateOfBirth(e.target.value); setErrors((prev) => ({ ...prev, age: '' })); }}
-          max={new Date().toISOString().split('T')[0]}
-          disabled={disabled}
-          className={inputClasses}
-        />
-        <div className="flex items-center gap-2">
-          <div className="flex-1 border-t border-muted"></div>
-          <span className="text-xs text-muted-foreground">Or enter age</span>
-          <div className="flex-1 border-t border-muted"></div>
+      {/* Date of Birth + Age */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-muted-foreground">
+            Date of Birth <span className="text-xs font-normal">(Recommended)</span>
+          </label>
+          <input
+            type="date"
+            value={dateOfBirth}
+            onChange={(e) => { setDateOfBirth(e.target.value); setAge(''); setErrors((prev) => ({ ...prev, age: '' })); }}
+            max={new Date().toISOString().split('T')[0]}
+            disabled={disabled}
+            className={inputClasses}
+          />
         </div>
-        <input
-          type="number"
-          value={age}
-          onChange={(e) => { setAge(e.target.value); setErrors((prev) => ({ ...prev, age: '' })); }}
-          placeholder="Enter age in years"
-          min="0"
-          max="120"
-          disabled={disabled || !!dateOfBirth}
-          className={cn(inputClasses, dateOfBirth && 'opacity-50')}
-        />
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-muted-foreground">
+            Age <span className="text-xs font-normal">(If DOB unknown)</span>
+          </label>
+          <input
+            type="number"
+            value={age}
+            onChange={(e) => { setAge(e.target.value); setDateOfBirth(''); setErrors((prev) => ({ ...prev, age: '' })); }}
+            placeholder="Enter age"
+            min="0"
+            max="120"
+            disabled={disabled || !!dateOfBirth}
+            className={cn(inputClasses, dateOfBirth && 'opacity-50 cursor-not-allowed')}
+          />
+        </div>
       </div>
 
       {/* Gender */}
