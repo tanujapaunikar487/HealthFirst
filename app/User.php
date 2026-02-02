@@ -40,4 +40,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(\App\Models\HealthRecord::class);
     }
+
+    public function familyMembers(): HasMany
+    {
+        return $this->hasMany(\App\Models\FamilyMember::class);
+    }
 }
