@@ -552,8 +552,8 @@ export default function FamilyMemberShow({
   return (
     <AppLayout
       user={user}
-      pageTitle={member.name}
-      pageIcon="/assets/icons/family-selected.svg"
+      pageTitle="Family Members"
+      pageIcon="/assets/icons/family.svg"
     >
       <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
         {/* Back Navigation */}
@@ -593,14 +593,25 @@ export default function FamilyMemberShow({
               <p className="mt-0.5 text-sm text-gray-500">{member.patient_id}</p>
             )}
           </div>
-          <Button
-            variant="outline"
-            onClick={openEditForm}
-            className="flex-shrink-0"
-          >
-            <Pencil className="h-4 w-4" />
-            Edit Profile
-          </Button>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Button
+              variant="outline"
+              onClick={openEditForm}
+            >
+              <Pencil className="h-4 w-4" />
+              Edit Profile
+            </Button>
+            {canDelete && (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="h-10 w-10 text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Alert Banners */}

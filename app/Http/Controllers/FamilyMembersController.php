@@ -107,11 +107,11 @@ class FamilyMembersController extends Controller
         $overdueBills = Appointment::where('user_id', $user->id)
             ->where('family_member_id', $member->id)
             ->where('payment_status', 'pending')
-            ->whereRaw('DATE_ADD(appointment_date, INTERVAL 7 DAY) < CURDATE()')
+            ->where('appointment_date', '<', now()->subDays(7))
             ->get();
 
         foreach ($overdueBills as $bill) {
-            $daysOverdue = now()->diffInDays($bill->appointment_date->addDays(7));
+            $daysOverdue = now()->diffInDays($bill->appointment_date->copy()->addDays(7));
 
             $alerts[] = [
                 'type' => 'billing',
