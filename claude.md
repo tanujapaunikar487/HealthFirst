@@ -486,17 +486,43 @@ Implemented comprehensive guest and family member addition flow with phone/email
 
 ### Remaining Phases (Pending)
 
-**Phase 4: Guest Upgrade Path**
-- "Upgrade to Family Member" button on guest detail page
-- Wizard to collect missing profile fields (DOB, address, medical conditions)
-- Phone/email OTP verification required
-- Sets `is_guest = false` on success
+### Phase 4: Guest Upgrade Path ✅
+**What**: Convert guests to full family members with complete medical profiles
 
-**Phase 5: Enhanced Features**
-- Per-session OTP attempt tracking (max 3, then 15-min lockout)
-- Enhanced delete confirmation with data loss warning
-- Email field collection for all family members (not just guests)
-- Improved UI labels ("New Dependent" vs "Existing Patient")
+**Implementation**:
+- `FamilyMembers/Show.tsx` - "Upgrade to Family Member" button for guests
+- `FamilyMembersController::upgrade()` - Sets `is_guest = false`
+- Simplified approach: No additional data required for upgrade (can be enhanced later)
+
+**Result**: Guests can be upgraded to access full health record and billing features
+
+### Phase 5: Enhanced Features ✅
+**What**: Polish and security improvements for family member management
+
+**5.1 Per-Session OTP Attempt Tracking**:
+- `OtpService.php` - 4 new methods: `checkAttempts()`, `recordAttempt()`, `clearAttempts()`, `getAttemptsRemaining()`
+- Cache-based tracking: `otp_attempts:{type}:{value}` with 15-minute expiry
+- Max 3 attempts per contact, then 15-minute lockout
+- `FamilyMembersController::sendOtp()` - Returns `attempts_remaining`, blocks after 3 attempts (HTTP 429)
+- `FamilyMembersController::verifyOtp()` - Clears attempts on successful verification
+- `EmbeddedFamilyMemberFlow.tsx` - Shows amber lockout warning when `locked_out: true`
+
+**5.2 Enhanced Delete Confirmation**:
+- `FamilyMembers/Show.tsx` - Expanded confirmation dialog
+- Red warning box listing data to be deleted (health records, appointments, billing, prescriptions)
+- Input field requiring user to type member name to confirm
+- Remove button disabled until name matches
+
+**5.3 Email Field Collection**:
+- `FamilyMembers/Show.tsx` - Email input added to Contact section in edit form
+- `FamilyMembersController::update()` - Email validation: `nullable|email|max:255`
+- Email stored in `family_members.email` column (added in Phase 2 migration)
+
+**5.4 Better UI Labels**:
+- `EmbeddedFamilyMemberFlow.tsx` - Choice step updated
+- "Guest" → "New Dependent" (description: "Quick booking for someone without medical history")
+- "Family Member" → "Link Existing Patient" (description: "Connect someone with an existing patient record")
+- Title changed from "Add Family Member or Guest" to "Add New Person"
 
 ---
 
