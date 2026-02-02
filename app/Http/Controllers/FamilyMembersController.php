@@ -141,7 +141,7 @@ class FamilyMembersController extends Controller
             'phone' => 'required|string|regex:/^\+91[6-9]\d{9}$/',
             'date_of_birth' => 'nullable|date|before:today',
             'age' => 'nullable|integer|min:0|max:150',
-            'gender' => 'required|string|in:male,female,other',
+            'gender' => 'nullable|string|in:male,female,other',
             'blood_group' => 'nullable|string|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
         ]);
 

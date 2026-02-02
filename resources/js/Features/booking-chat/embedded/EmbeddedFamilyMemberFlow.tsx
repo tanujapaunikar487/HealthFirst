@@ -189,8 +189,9 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     name: state.guestName,
                     relation: 'guest',
                     phone: state.guestPhone,
-                    ...(state.guestDOB ? { date_of_birth: state.guestDOB } : { age: parseInt(state.guestAge, 10) }),
-                    gender: state.guestGender,
+                    ...(state.guestDOB && { date_of_birth: state.guestDOB }),
+                    ...(state.guestAge && !state.guestDOB && { age: parseInt(state.guestAge, 10) }),
+                    ...(state.guestGender && { gender: state.guestGender }),
                 }, {
                     preserveScroll: true,
                     onSuccess: () => {
@@ -209,7 +210,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         } else {
             // In embedded mode, call the callback
             // Calculate age from DOB if provided, otherwise use age
-            let age: number;
+            let age: number | undefined;
             if (state.guestDOB) {
                 const birthDate = new Date(state.guestDOB);
                 const today = new Date();
@@ -218,7 +219,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                 if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
                     age--;
                 }
-            } else {
+            } else if (state.guestAge) {
                 age = parseInt(state.guestAge, 10);
             }
 
@@ -226,8 +227,8 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                 member_type: 'guest',
                 member_name: state.guestName,
                 member_phone: state.guestPhone,
-                member_age: age,
-                member_gender: state.guestGender,
+                ...(age !== undefined && { member_age: age }),
+                ...(state.guestGender && { member_gender: state.guestGender }),
             });
             setLoading(false);
         }

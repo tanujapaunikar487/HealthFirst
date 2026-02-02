@@ -33,6 +33,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
+  SheetFooter,
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
@@ -913,22 +914,26 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
           </SheetHeader>
 
           {payBills.length > 0 && paymentState === 'success' && (
-            <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
-              <div className="h-16 w-16 rounded-full bg-green-50 flex items-center justify-center mb-4">
-                <CheckCircle2 className="h-8 w-8 text-green-600" />
+            <>
+              <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
+                <div className="h-16 w-16 rounded-full bg-green-50 flex items-center justify-center mb-4">
+                  <CheckCircle2 className="h-8 w-8 text-green-600" />
+                </div>
+                <h3 className="text-lg font-semibold mb-1" style={{ color: '#171717' }}>Payment Successful</h3>
+                <p className="text-sm text-muted-foreground">
+                  {activePayBills.length} {activePayBills.length === 1 ? 'bill' : 'bills'} paid — ₹{activePayTotal.toLocaleString()}
+                </p>
               </div>
-              <h3 className="text-lg font-semibold mb-1" style={{ color: '#171717' }}>Payment Successful</h3>
-              <p className="text-sm text-muted-foreground">
-                {activePayBills.length} {activePayBills.length === 1 ? 'bill' : 'bills'} paid — ₹{activePayTotal.toLocaleString()}
-              </p>
-              <Button
-                className="w-full mt-8"
-                size="lg"
-                onClick={handlePaymentDone}
-              >
-                Done
-              </Button>
-            </div>
+              <SheetFooter>
+                <Button
+                  className="flex-1"
+                  size="lg"
+                  onClick={handlePaymentDone}
+                >
+                  Done
+                </Button>
+              </SheetFooter>
+            </>
           )}
 
           {payBills.length > 0 && paymentState !== 'success' && (
@@ -1016,9 +1021,9 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
               {/* Warnings */}
               <PaymentWarnings bills={activePayBills} />
 
-              {/* Total + CTA */}
-              <div className="pt-4">
-                <div className="flex justify-between items-baseline mb-4">
+              {/* Total */}
+              <div className="px-1 pt-2">
+                <div className="flex justify-between items-baseline">
                   <span className="text-sm font-medium">
                     Total ({activePayBills.length} {activePayBills.length === 1 ? 'bill' : 'bills'})
                   </span>
@@ -1026,8 +1031,12 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                     ₹{activePayTotal.toLocaleString()}
                   </span>
                 </div>
+              </div>
+
+              {/* CTA */}
+              <SheetFooter>
                 <Button
-                  className="w-full"
+                  className="flex-1"
                   size="lg"
                   disabled={activePayBills.length === 0 || paymentState === 'processing'}
                   onClick={handlePayment}
@@ -1044,7 +1053,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                     </>
                   )}
                 </Button>
-              </div>
+              </SheetFooter>
             </>
           )}
         </SheetContent>
