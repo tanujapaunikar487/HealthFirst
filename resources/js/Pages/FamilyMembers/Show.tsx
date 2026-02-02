@@ -33,7 +33,6 @@ import {
   ChevronRight,
   Trash2,
   X,
-  Phone,
   UserPlus,
 } from '@/Lib/icons';
 
@@ -78,7 +77,6 @@ interface Props {
   doctors: DoctorOption[];
   hasAlerts: boolean;
   alertType: string;
-  canDelete: boolean;
 }
 
 /* ─── Constants ─── */
@@ -260,7 +258,6 @@ export default function FamilyMemberShow({
   doctors,
   hasAlerts,
   alertType,
-  canDelete,
 }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(member);
   const { props } = usePage<{ toast?: string }>();
@@ -426,19 +423,19 @@ export default function FamilyMemberShow({
       title: 'Appointments',
       subtitle: 'View and book appointments',
       icon: Stethoscope,
-      href: '/appointments',
+      href: `/appointments?member=${member.id}`,
     },
     {
       title: 'Health Records',
       subtitle: 'Lab reports, diagnostics and more',
       icon: FileText,
-      href: '/health-records',
+      href: `/health-records?member=${member.id}`,
     },
     {
       title: 'Medications',
       subtitle: 'Prescriptions and refills',
       icon: Pill,
-      href: '#',
+      href: `/health-records?member=${member.id}&category=medication_active,medication_past`,
     },
   ];
 
@@ -506,7 +503,7 @@ export default function FamilyMemberShow({
               {alertType} needs attention
             </p>
             <button
-              onClick={() => router.visit('/health-records')}
+              onClick={() => router.visit(`/health-records?member=${member.id}&status=needs_attention`)}
               className="flex items-center gap-1 text-sm font-medium text-amber-700 hover:text-amber-900"
             >
               View records
@@ -592,14 +589,6 @@ export default function FamilyMemberShow({
                     {member.emergency_contact_phone ? ` · ${member.emergency_contact_phone}` : ''}
                   </p>
                 </div>
-                {member.emergency_contact_phone && (
-                  <div
-                    className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full"
-                    style={{ backgroundColor: '#BFDBFE' }}
-                  >
-                    <Phone className="h-4 w-4" style={{ color: '#1E40AF' }} />
-                  </div>
-                )}
               </div>
             ) : (
               <div className="flex items-center justify-center rounded-lg border border-dashed border-gray-200 py-6">
@@ -642,34 +631,6 @@ export default function FamilyMemberShow({
             </CardContent>
           </Card>
         )}
-
-        {/* Actions */}
-        <div className="flex items-center gap-4 border-t border-gray-100 pt-6">
-          {member.is_guest && (
-            <Button
-              variant="default"
-              onClick={() => setShowUpgradeConfirm(true)}
-            >
-              <UserPlus className="h-4 w-4" />
-              Upgrade to Family Member
-            </Button>
-          )}
-          <Button
-            variant="outline"
-            onClick={openEditForm}
-          >
-            <Pencil className="h-4 w-4" />
-            Edit Profile
-          </Button>
-          {canDelete && (
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="text-sm font-medium text-red-600 transition-colors hover:text-red-700"
-            >
-              Remove Member
-            </button>
-          )}
-        </div>
       </div>
 
       {/* Edit Sheet */}
@@ -682,7 +643,7 @@ export default function FamilyMemberShow({
             </SheetDescription>
           </SheetHeader>
 
-          <div className="mt-6 space-y-6">
+          <div className="space-y-6">
             {/* Basic Info */}
             <div>
               <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Basic Info</p>

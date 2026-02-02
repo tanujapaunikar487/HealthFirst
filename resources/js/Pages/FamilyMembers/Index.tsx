@@ -223,15 +223,18 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
                     )}
                   </div>
 
-                  {/* Name */}
-                  <span className="flex-1 truncate text-sm font-medium text-gray-900">
-                    {member.name}
-                  </span>
-
-                  {/* Attention dot */}
-                  {member.alert_count > 0 && (
-                    <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full bg-amber-500" />
-                  )}
+                  {/* Name + Badge */}
+                  <div className="flex flex-1 items-center gap-2">
+                    <span className="truncate text-sm font-medium text-gray-900">
+                      {member.name}
+                    </span>
+                    {member.alert_count > 0 && (
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 flex-shrink-0">
+                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                        <span className="text-xs font-medium text-amber-700">Needs Attention</span>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Chevron */}
                   <ChevronRight className="h-4 w-4 flex-shrink-0 text-gray-400" />
