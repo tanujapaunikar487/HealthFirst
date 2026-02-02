@@ -30,6 +30,7 @@ export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
   const [name, setName] = React.useState('');
   const [phone, setPhone] = React.useState('');
   const [relation, setRelation] = React.useState('');
+  const [dateOfBirth, setDateOfBirth] = React.useState('');
   const [age, setAge] = React.useState('');
   const [gender, setGender] = React.useState('');
   const [errors, setErrors] = React.useState<Record<string, string>>({});
@@ -53,7 +54,8 @@ export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
       new_member_name: name.trim(),
       new_member_phone: phone.trim(),
       new_member_relation: relation,
-      ...(age ? { new_member_age: parseInt(age, 10) } : {}),
+      ...(dateOfBirth ? { new_member_date_of_birth: dateOfBirth } : {}),
+      ...(age && !dateOfBirth ? { new_member_age: parseInt(age, 10) } : {}),
       ...(gender ? { new_member_gender: gender } : {}),
       display_message: `Added ${name.trim()} (${relation})`,
     });
@@ -129,35 +131,50 @@ export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
         {errors.relation && <p className="text-xs text-destructive">{errors.relation}</p>}
       </div>
 
-      {/* Age + Gender row */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground">Age</label>
-          <input
-            type="number"
-            value={age}
-            onChange={(e) => setAge(e.target.value)}
-            placeholder="Optional"
-            min="0"
-            max="120"
-            disabled={disabled}
-            className={inputClasses}
-          />
+      {/* Date of Birth + Age fallback */}
+      <div className="space-y-1.5">
+        <label className="text-xs font-medium text-muted-foreground">
+          Date of Birth <span className="text-muted-foreground text-xs font-normal">(Recommended)</span>
+        </label>
+        <input
+          type="date"
+          value={dateOfBirth}
+          onChange={(e) => { setDateOfBirth(e.target.value); setErrors((prev) => ({ ...prev, age: '' })); }}
+          max={new Date().toISOString().split('T')[0]}
+          disabled={disabled}
+          className={inputClasses}
+        />
+        <div className="flex items-center gap-2">
+          <div className="flex-1 border-t border-muted"></div>
+          <span className="text-xs text-muted-foreground">Or enter age</span>
+          <div className="flex-1 border-t border-muted"></div>
         </div>
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground">Gender</label>
-          <select
-            value={gender}
-            onChange={(e) => setGender(e.target.value)}
-            disabled={disabled}
-            className={cn(selectClasses, !gender && 'text-muted-foreground')}
-          >
-            <option value="">Optional</option>
-            {GENDER_OPTIONS.map((g) => (
-              <option key={g} value={g}>{g.charAt(0).toUpperCase() + g.slice(1)}</option>
-            ))}
-          </select>
-        </div>
+        <input
+          type="number"
+          value={age}
+          onChange={(e) => { setAge(e.target.value); setErrors((prev) => ({ ...prev, age: '' })); }}
+          placeholder="Enter age in years"
+          min="0"
+          max="120"
+          disabled={disabled || !!dateOfBirth}
+          className={cn(inputClasses, dateOfBirth && 'opacity-50')}
+        />
+      </div>
+
+      {/* Gender */}
+      <div className="space-y-1.5">
+        <label className="text-xs font-medium text-muted-foreground">Gender</label>
+        <select
+          value={gender}
+          onChange={(e) => setGender(e.target.value)}
+          disabled={disabled}
+          className={cn(selectClasses, !gender && 'text-muted-foreground')}
+        >
+          <option value="">Optional</option>
+          {GENDER_OPTIONS.map((g) => (
+            <option key={g} value={g}>{g.charAt(0).toUpperCase() + g.slice(1)}</option>
+          ))}
+        </select>
       </div>
 
       {/* Submit */}

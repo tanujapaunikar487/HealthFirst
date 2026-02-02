@@ -814,36 +814,52 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-2">
-                            <label htmlFor="new_member_age" className="block text-sm font-medium text-gray-700">Age *</label>
-                            <Select value={state.newMemberAge} onValueChange={(value) => setState((prev) => ({ ...prev, newMemberAge: value }))}>
-                                <SelectTrigger id="new_member_age">
-                                    <SelectValue placeholder="Select age" />
-                                </SelectTrigger>
-                                <SelectContent className="max-h-[200px]">
-                                    {Array.from({ length: 121 }, (_, i) => i).map((age) => (
-                                        <SelectItem key={age} value={age.toString()}>
-                                            {age} {age === 0 ? 'year' : 'years'}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                    <div className="space-y-2">
+                        <label htmlFor="new_member_dob" className="block text-sm font-medium text-gray-700">
+                            Date of Birth <span className="text-muted-foreground text-xs font-normal">(Recommended)</span>
+                        </label>
+                        <Input
+                            id="new_member_dob"
+                            type="date"
+                            value={state.newMemberDOB}
+                            onChange={(e) => setState((prev) => ({ ...prev, newMemberDOB: e.target.value, newMemberAge: '' }))}
+                            max={new Date().toISOString().split('T')[0]}
+                        />
+                        <div className="flex items-center gap-2">
+                            <div className="flex-1 border-t border-muted"></div>
+                            <span className="text-xs text-muted-foreground">Or enter age</span>
+                            <div className="flex-1 border-t border-muted"></div>
                         </div>
+                        <Select
+                            value={state.newMemberAge}
+                            onValueChange={(value) => setState((prev) => ({ ...prev, newMemberAge: value, newMemberDOB: '' }))}
+                            disabled={!!state.newMemberDOB}
+                        >
+                            <SelectTrigger id="new_member_age" className={state.newMemberDOB ? 'opacity-50' : ''}>
+                                <SelectValue placeholder="Select age" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-[200px]">
+                                {Array.from({ length: 121 }, (_, i) => i).map((age) => (
+                                    <SelectItem key={age} value={age.toString()}>
+                                        {age} {age === 0 ? 'year' : 'years'}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
 
-                        <div className="space-y-2">
-                            <label htmlFor="new_member_gender" className="block text-sm font-medium text-gray-700">Gender *</label>
-                            <Select value={state.newMemberGender} onValueChange={(value) => setState((prev) => ({ ...prev, newMemberGender: value }))}>
-                                <SelectTrigger id="new_member_gender">
-                                    <SelectValue placeholder="Select gender" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="male">Male</SelectItem>
-                                    <SelectItem value="female">Female</SelectItem>
-                                    <SelectItem value="other">Other</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
+                    <div className="space-y-2">
+                        <label htmlFor="new_member_gender" className="block text-sm font-medium text-gray-700">Gender *</label>
+                        <Select value={state.newMemberGender} onValueChange={(value) => setState((prev) => ({ ...prev, newMemberGender: value }))}>
+                            <SelectTrigger id="new_member_gender">
+                                <SelectValue placeholder="Select gender" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="male">Male</SelectItem>
+                                <SelectItem value="female">Female</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <div className="space-y-2">
@@ -854,16 +870,6 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             value={state.newMemberEmail}
                             onChange={(e) => setState((prev) => ({ ...prev, newMemberEmail: e.target.value }))}
                             placeholder="email@example.com"
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <label htmlFor="new_member_dob" className="block text-sm font-medium text-gray-700">Date of Birth (Optional)</label>
-                        <Input
-                            id="new_member_dob"
-                            type="date"
-                            value={state.newMemberDOB}
-                            onChange={(e) => setState((prev) => ({ ...prev, newMemberDOB: e.target.value }))}
                         />
                     </div>
 
@@ -897,7 +903,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         <Button
                             onClick={handleNewMemberSubmit}
                             className="flex-1"
-                            disabled={state.loading || !state.newMemberName.trim() || !state.newMemberPhone.trim() || !state.newMemberAge || !state.newMemberGender}
+                            disabled={state.loading || !state.newMemberName.trim() || !state.newMemberPhone.trim() || (!state.newMemberAge && !state.newMemberDOB) || !state.newMemberGender}
                         >
                             {state.loading ? (
                                 <>

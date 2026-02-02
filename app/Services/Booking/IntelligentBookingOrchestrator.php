@@ -2072,6 +2072,7 @@ class IntelligentBookingOrchestrator
             $memberName = trim($selection['new_member_name']);
             $memberPhone = isset($selection['new_member_phone']) ? trim($selection['new_member_phone']) : null;
             $memberRelation = strtolower(trim($selection['new_member_relation']));
+            $memberDateOfBirth = isset($selection['new_member_date_of_birth']) ? $selection['new_member_date_of_birth'] : null;
             $memberAge = isset($selection['new_member_age']) ? (int) $selection['new_member_age'] : null;
             $memberGender = isset($selection['new_member_gender']) ? strtolower(trim($selection['new_member_gender'])) : null;
 
@@ -2113,6 +2114,7 @@ class IntelligentBookingOrchestrator
                 'name' => $memberName,
                 'phone' => $memberPhone,
                 'relation' => $memberRelation,
+                'date_of_birth' => $memberDateOfBirth,
                 'age' => $memberAge,
                 'gender' => $memberGender,
             ]);
