@@ -36,6 +36,7 @@ app/
     Booking/           IntelligentBookingOrchestrator, BookingStateMachine
                        DoctorService, LabService, BookingPromptBuilder, EntityNormalizer
     Calendar/          CalendarService (Google Calendar, ICS generation)
+    VideoMeeting/      VideoMeetingService, GoogleMeetProvider, ZoomProvider
 
 resources/js/
   Pages/               Inertia pages (Dashboard, Booking/*, Appointments/*, etc.)
@@ -100,7 +101,12 @@ User message → BookingPromptBuilder.build() → AIService.classifyIntent()
 ### 3. Appointments
 - **List Page**: 3 tabs (Upcoming/Past/Cancelled), filters, search
 - **Detail Page**: 10 sections with sticky nav (vitals, prescriptions, clinical summary, lab tests, billing, documents, timeline)
-- **Actions**: Reschedule, cancel, book again, share
+- **Side Sheet Enhancements**:
+  - **Notes Editing**: Inline editing with Save/Cancel, 5000 char limit, auto-save
+  - **Video Conferencing**: Generate/join video calls (Google Meet or Zoom)
+  - **Collapsible Sections**: Details, Notes, Preparation with edge-to-edge dividers
+  - **Status Banners**: Real-time doctor online status for video appointments
+- **Actions**: Reschedule, cancel, book again, share, add notes, join video call
 - **Payment Status**: 4 states (paid, pending, partially_refunded, fully_refunded)
 
 ### 4. Billing
@@ -132,7 +138,13 @@ User message → BookingPromptBuilder.build() → AIService.classifyIntent()
 - **Health Navigation**: Quick links to appointments, records, medications
 - **List & Detail Pages**: Simple list with comprehensive detail view
 
-### 8. Global Features
+### 8. Settings
+- **Video Conferencing Preferences**: Choose between Google Meet (default) or Zoom
+- **Provider Management**: User-specific video provider selection
+- **Mock Mode**: Generates valid-looking URLs without API credentials
+- **Real Integration Ready**: Supports Google Calendar API and Zoom API when configured
+
+### 9. Global Features
 - **Search**: Cmd+K/Ctrl+K shortcut, searches across doctors, appointments, health records, bills
 - **Notifications**: 15 notification types (billing, appointments, insurance) with bell icon
 - **Skeleton Loading**: All pages with 300ms minimum, 10s timeout
@@ -143,9 +155,9 @@ User message → BookingPromptBuilder.build() → AIService.classifyIntent()
 
 ## Database Schema
 
-**28 Tables** with proper Eloquent relationships:
+**29 Tables** with proper Eloquent relationships:
 
-**Core**: users (UUID), family_members (18 fields), appointments, booking_conversations, conversation_messages
+**Core**: users (UUID), family_members (18 fields), appointments, booking_conversations, conversation_messages, user_settings (video preferences)
 
 **Hospital Data**: departments, doctors, doctor_consultation_modes, doctor_availabilities, doctor_aliases, time_slots, symptoms, emergency_keywords
 
@@ -379,6 +391,31 @@ The `HospitalSeeder` provides realistic Indian healthcare data:
 - Persistent profile warning banner
 - Dynamic promotional banners with priority
 - Razorpay payment on dashboard overdue bills
+
+### Latest Updates (February 2, 2026 - Evening)
+11. ✅ **Appointment Side Sheet Enhancements**:
+    - Edge-to-edge dividers for collapsible sections
+    - Inline notes editing with 5000 char limit and auto-save
+    - Video conferencing integration (Google Meet + Zoom)
+    - Real-time doctor online status for video appointments
+12. ✅ **Video Meeting System**:
+    - User settings page for provider preference (Google Meet default, Zoom alternative)
+    - VideoMeetingService with pluggable provider architecture
+    - Mock mode URLs without API credentials
+    - Generate/join video call buttons in appointment sheets
+13. ✅ **User Settings Infrastructure**:
+    - New user_settings table with JSON column for flexible preferences
+    - User model helper methods (getSetting, setSetting)
+    - Category-based settings (video_conferencing, expandable to notifications, etc.)
+14. ✅ **Enhanced Family Member/Guest Addition Flow**:
+    - Two-path flow: Guest (name-only) vs Family Member (with OTP verification)
+    - Phone/Patient ID lookup with duplicate detection (unique constraint)
+    - OTP verification system (5-min expiry, rate-limited 3 req/min)
+    - Multi-step wizard: Choice → Relationship → Lookup → OTP → Success
+    - Guest limitations: No health records, billing, or medical profile access
+    - Backend: OtpService, 4 new controller methods, 3 new DB columns
+    - Frontend: 4 new components (wizard, relationship selector, OTP input, member card)
+    - Security: Phone verification, token expiry, rate limiting, audit logging
 
 ---
 
