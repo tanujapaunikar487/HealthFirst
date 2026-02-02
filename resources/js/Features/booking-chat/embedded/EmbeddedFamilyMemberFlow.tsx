@@ -13,9 +13,19 @@ import { cn } from '@/Lib/utils';
 
 type Step =
     | 'choice'
-    | 'guest_form'
+    // Guest progressive steps
+    | 'guest_name'
+    | 'guest_phone'
+    | 'guest_dob_age'
+    | 'guest_gender'
+    // New family progressive steps
     | 'relationship'
-    | 'new_member_form'
+    | 'member_name'
+    | 'member_phone'
+    | 'member_dob_age'
+    | 'member_gender'
+    | 'member_optional'
+    // Link existing steps (keep as is)
     | 'lookup_method'
     | 'search'
     | 'otp'
@@ -148,10 +158,12 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
     const handleInitialChoice = (choice: 'guest' | 'add_new_family' | 'link_existing') => {
         setState((prev) => ({ ...prev, flowType: choice }));
         if (choice === 'guest') {
-            setStep('guest_form');
-        } else {
-            // Both add_new_family and link_existing need relationship selection
+            setStep('guest_name');
+        } else if (choice === 'add_new_family') {
             setStep('relationship');
+        } else {
+            // link_existing goes to lookup_method
+            setStep('lookup_method');
         }
     };
 
@@ -238,10 +250,76 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         }
         // Check flowType to determine next step
         if (state.flowType === 'add_new_family') {
-            setStep('new_member_form');
+            setStep('member_name');
         } else if (state.flowType === 'link_existing') {
             setStep('lookup_method');
         }
+    };
+
+    // Progressive Guest Flow Handlers
+    const handleGuestNameNext = () => {
+        if (!state.guestName.trim()) {
+            setError('Please enter a name');
+            return;
+        }
+        setStep('guest_phone');
+    };
+
+    const handleGuestPhoneNext = () => {
+        if (!state.guestPhone.trim() || state.guestPhone === '+91') {
+            setError('Please enter a phone number');
+            return;
+        }
+        if (!/^\+91[6-9]\d{9}$/.test(state.guestPhone.trim())) {
+            setError('Please enter a valid 10-digit phone number');
+            return;
+        }
+        setStep('guest_dob_age');
+    };
+
+    const handleGuestDobAgeNext = () => {
+        if (!state.guestAge && !state.guestDOB) {
+            setError('Please enter date of birth or age');
+            return;
+        }
+        setStep('guest_gender');
+    };
+
+    // Progressive New Member Flow Handlers
+    const handleMemberNameNext = () => {
+        if (!state.newMemberName.trim()) {
+            setError('Please enter a name');
+            return;
+        }
+        setStep('member_phone');
+    };
+
+    const handleMemberPhoneNext = () => {
+        if (!state.newMemberPhone.trim() || state.newMemberPhone === '+91') {
+            setError('Please enter a phone number');
+            return;
+        }
+        if (!/^\+91[6-9]\d{9}$/.test(state.newMemberPhone.trim())) {
+            setError('Please enter a valid 10-digit phone number');
+            return;
+        }
+        setStep('member_dob_age');
+    };
+
+    const handleMemberDobAgeNext = () => {
+        if (!state.newMemberAge && !state.newMemberDOB) {
+            setError('Please enter date of birth or age');
+            return;
+        }
+        setStep('member_gender');
+    };
+
+    const handleMemberGenderNext = () => {
+        if (!state.newMemberGender) {
+            setError('Please select gender');
+            return;
+        }
+        setStep('member_optional');
     };
 
     // Step 4: New Member Form Submission
@@ -542,9 +620,19 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
     const handleBack = () => {
         const backMap: Record<Step, Step> = {
             choice: 'choice',
-            guest_form: 'choice',
+            // Guest flow
+            guest_name: 'choice',
+            guest_phone: 'guest_name',
+            guest_dob_age: 'guest_phone',
+            guest_gender: 'guest_dob_age',
+            // New family flow
             relationship: 'choice',
-            new_member_form: 'relationship',
+            member_name: 'relationship',
+            member_phone: 'member_name',
+            member_dob_age: 'member_phone',
+            member_gender: 'member_dob_age',
+            member_optional: 'member_gender',
+            // Link existing flow
             lookup_method: 'relationship',
             search: 'lookup_method',
             otp: 'search',
@@ -559,12 +647,29 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         switch (state.step) {
             case 'choice':
                 return { title: 'Add New Person', description: 'Choose how you\'d like to add this person' };
-            case 'guest_form':
-                return { title: 'Guest Information', description: 'Enter the guest\'s basic information to continue' };
+            // Guest flow
+            case 'guest_name':
+                return { title: 'Guest Information', description: 'Enter the guest\'s name' };
+            case 'guest_phone':
+                return { title: 'Guest Information', description: 'Enter the guest\'s phone number' };
+            case 'guest_dob_age':
+                return { title: 'Guest Information', description: 'Enter the guest\'s date of birth or age' };
+            case 'guest_gender':
+                return { title: 'Guest Information', description: 'Select the guest\'s gender' };
+            // New family flow
             case 'relationship':
                 return { title: 'Select Relationship', description: 'What is this person\'s relationship to you?' };
-            case 'new_member_form':
-                return { title: 'New Family Member', description: 'Enter the family member\'s information' };
+            case 'member_name':
+                return { title: 'New Family Member', description: 'Enter the member\'s name' };
+            case 'member_phone':
+                return { title: 'New Family Member', description: 'Enter the member\'s phone number' };
+            case 'member_dob_age':
+                return { title: 'New Family Member', description: 'Enter the member\'s date of birth or age' };
+            case 'member_gender':
+                return { title: 'New Family Member', description: 'Select the member\'s gender' };
+            case 'member_optional':
+                return { title: 'New Family Member', description: 'Additional information (optional)' };
+            // Link existing flow
             case 'lookup_method':
                 return { title: 'Search Method', description: 'How would you like to search for this member?' };
             case 'search':
@@ -697,14 +802,13 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                 </div>
             )}
 
-            {state.step === 'guest_form' && (
+            {/* Guest Flow - Progressive Steps */}
+            {state.step === 'guest_name' && (
                 <div className="space-y-4">
                     {mode === 'embedded' && (
                         <>
                             <h3 className="text-lg font-semibold">Guest Information</h3>
-                            <p className="text-sm text-muted-foreground">
-                                Enter the guest's basic information to continue
-                            </p>
+                            <p className="text-sm text-muted-foreground">Enter the guest's name</p>
                         </>
                     )}
 
@@ -719,14 +823,53 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         />
                     </div>
 
+                    <Button
+                        onClick={handleGuestNameNext}
+                        className="w-full"
+                        disabled={!state.guestName.trim()}
+                    >
+                        Continue
+                    </Button>
+                </div>
+            )}
+
+            {state.step === 'guest_phone' && (
+                <div className="space-y-4">
+                    {mode === 'embedded' && (
+                        <>
+                            <h3 className="text-lg font-semibold">Guest Information</h3>
+                            <p className="text-sm text-muted-foreground">Enter the guest's phone number</p>
+                        </>
+                    )}
+
                     <div className="space-y-2">
                         <label htmlFor="guest_phone" className="block text-sm font-medium text-gray-700">Phone Number *</label>
                         <PhoneInput
                             id="guest_phone"
                             value={state.guestPhone}
                             onChange={(value) => setState((prev) => ({ ...prev, guestPhone: value }))}
+                            autoFocus
                         />
                     </div>
+
+                    <Button
+                        onClick={handleGuestPhoneNext}
+                        className="w-full"
+                        disabled={!state.guestPhone.trim() || state.guestPhone === '+91'}
+                    >
+                        Continue
+                    </Button>
+                </div>
+            )}
+
+            {state.step === 'guest_dob_age' && (
+                <div className="space-y-4">
+                    {mode === 'embedded' && (
+                        <>
+                            <h3 className="text-lg font-semibold">Guest Information</h3>
+                            <p className="text-sm text-muted-foreground">Enter the guest's date of birth or age</p>
+                        </>
+                    )}
 
                     <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
@@ -739,6 +882,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 value={state.guestDOB}
                                 onChange={(e) => setState((prev) => ({ ...prev, guestDOB: e.target.value, guestAge: '' }))}
                                 max={new Date().toISOString().split('T')[0]}
+                                autoFocus
                             />
                         </div>
 
@@ -765,6 +909,25 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         </div>
                     </div>
 
+                    <Button
+                        onClick={handleGuestDobAgeNext}
+                        className="w-full"
+                        disabled={!state.guestAge && !state.guestDOB}
+                    >
+                        Continue
+                    </Button>
+                </div>
+            )}
+
+            {state.step === 'guest_gender' && (
+                <div className="space-y-4">
+                    {mode === 'embedded' && (
+                        <>
+                            <h3 className="text-lg font-semibold">Guest Information</h3>
+                            <p className="text-sm text-muted-foreground">Select the guest's gender</p>
+                        </>
+                    )}
+
                     <div className="space-y-2">
                         <label htmlFor="guest_gender" className="block text-sm font-medium text-gray-700">Gender *</label>
                         <Select value={state.guestGender} onValueChange={(value) => setState((prev) => ({ ...prev, guestGender: value }))}>
@@ -782,15 +945,15 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     <Button
                         onClick={handleGuestSubmit}
                         className="w-full"
-                        disabled={state.loading || !state.guestName.trim() || !state.guestPhone.trim() || (!state.guestAge && !state.guestDOB) || !state.guestGender}
+                        disabled={state.loading || !state.guestGender}
                     >
                         {state.loading ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Creating...
+                                Creating Guest...
                             </>
                         ) : (
-                            'Continue'
+                            'Submit'
                         )}
                     </Button>
                 </div>
@@ -818,14 +981,13 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                 </div>
             )}
 
-            {state.step === 'new_member_form' && (
+            {/* New Family Member Flow - Progressive Steps */}
+            {state.step === 'member_name' && (
                 <div className="space-y-4">
                     {mode === 'embedded' && (
                         <>
                             <h3 className="text-lg font-semibold">New Family Member</h3>
-                            <p className="text-sm text-muted-foreground">
-                                Enter the family member's information
-                            </p>
+                            <p className="text-sm text-muted-foreground">Enter the member's name</p>
                         </>
                     )}
 
@@ -840,14 +1002,53 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         />
                     </div>
 
+                    <Button
+                        onClick={handleMemberNameNext}
+                        className="w-full"
+                        disabled={!state.newMemberName.trim()}
+                    >
+                        Continue
+                    </Button>
+                </div>
+            )}
+
+            {state.step === 'member_phone' && (
+                <div className="space-y-4">
+                    {mode === 'embedded' && (
+                        <>
+                            <h3 className="text-lg font-semibold">New Family Member</h3>
+                            <p className="text-sm text-muted-foreground">Enter the member's phone number</p>
+                        </>
+                    )}
+
                     <div className="space-y-2">
                         <label htmlFor="new_member_phone" className="block text-sm font-medium text-gray-700">Phone Number *</label>
                         <PhoneInput
                             id="new_member_phone"
                             value={state.newMemberPhone}
                             onChange={(value) => setState((prev) => ({ ...prev, newMemberPhone: value }))}
+                            autoFocus
                         />
                     </div>
+
+                    <Button
+                        onClick={handleMemberPhoneNext}
+                        className="w-full"
+                        disabled={!state.newMemberPhone.trim() || state.newMemberPhone === '+91'}
+                    >
+                        Continue
+                    </Button>
+                </div>
+            )}
+
+            {state.step === 'member_dob_age' && (
+                <div className="space-y-4">
+                    {mode === 'embedded' && (
+                        <>
+                            <h3 className="text-lg font-semibold">New Family Member</h3>
+                            <p className="text-sm text-muted-foreground">Enter the member's date of birth or age</p>
+                        </>
+                    )}
 
                     <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
@@ -860,6 +1061,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 value={state.newMemberDOB}
                                 onChange={(e) => setState((prev) => ({ ...prev, newMemberDOB: e.target.value, newMemberAge: '' }))}
                                 max={new Date().toISOString().split('T')[0]}
+                                autoFocus
                             />
                         </div>
 
@@ -886,6 +1088,25 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         </div>
                     </div>
 
+                    <Button
+                        onClick={handleMemberDobAgeNext}
+                        className="w-full"
+                        disabled={!state.newMemberAge && !state.newMemberDOB}
+                    >
+                        Continue
+                    </Button>
+                </div>
+            )}
+
+            {state.step === 'member_gender' && (
+                <div className="space-y-4">
+                    {mode === 'embedded' && (
+                        <>
+                            <h3 className="text-lg font-semibold">New Family Member</h3>
+                            <p className="text-sm text-muted-foreground">Select the member's gender</p>
+                        </>
+                    )}
+
                     <div className="space-y-2">
                         <label htmlFor="new_member_gender" className="block text-sm font-medium text-gray-700">Gender *</label>
                         <Select value={state.newMemberGender} onValueChange={(value) => setState((prev) => ({ ...prev, newMemberGender: value }))}>
@@ -900,6 +1121,25 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         </Select>
                     </div>
 
+                    <Button
+                        onClick={handleMemberGenderNext}
+                        className="w-full"
+                        disabled={!state.newMemberGender}
+                    >
+                        Continue
+                    </Button>
+                </div>
+            )}
+
+            {state.step === 'member_optional' && (
+                <div className="space-y-4">
+                    {mode === 'embedded' && (
+                        <>
+                            <h3 className="text-lg font-semibold">New Family Member</h3>
+                            <p className="text-sm text-muted-foreground">Additional information (optional)</p>
+                        </>
+                    )}
+
                     <div className="space-y-2">
                         <label htmlFor="new_member_email" className="block text-sm font-medium text-gray-700">Email (Optional)</label>
                         <Input
@@ -908,6 +1148,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             value={state.newMemberEmail}
                             onChange={(e) => setState((prev) => ({ ...prev, newMemberEmail: e.target.value }))}
                             placeholder="email@example.com"
+                            autoFocus
                         />
                     </div>
 
@@ -930,29 +1171,20 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         </Select>
                     </div>
 
-                    <div className="flex gap-2">
-                        <Button
-                            variant="ghost"
-                            onClick={() => setStep('relationship')}
-                            className="flex-1"
-                        >
-                            Back
-                        </Button>
-                        <Button
-                            onClick={handleNewMemberSubmit}
-                            className="flex-1"
-                            disabled={state.loading || !state.newMemberName.trim() || !state.newMemberPhone.trim() || (!state.newMemberAge && !state.newMemberDOB) || !state.newMemberGender}
-                        >
-                            {state.loading ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Creating...
-                                </>
-                            ) : (
-                                'Create Member'
-                            )}
-                        </Button>
-                    </div>
+                    <Button
+                        onClick={handleNewMemberSubmit}
+                        className="w-full"
+                        disabled={state.loading}
+                    >
+                        {state.loading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Creating Member...
+                            </>
+                        ) : (
+                            'Submit'
+                        )}
+                    </Button>
                 </div>
             )}
 
