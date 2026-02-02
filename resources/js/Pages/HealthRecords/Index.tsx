@@ -19,6 +19,8 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
+  SheetFooter,
+  SheetDivider,
 } from '@/Components/ui/sheet';
 import {
   Table,

@@ -1040,6 +1040,77 @@ relationship → member_name → member_phone → member_dob_age → member_gend
 
 ---
 
+## Bug Fix: Guest/Member Creation Validation (February 2, 2026)
+
+Fixed "Failed to add guest" error that occurred when optional fields were left empty.
+
+### Root Cause
+1. **Backend**: Gender was marked as `required` in `FamilyMembersController::store()`, but all forms showed it as optional
+2. **Frontend**: Sending empty values for optional fields (e.g., `age: NaN`, `gender: ''`) that failed backend validation
+
+### Fix Applied
+
+**Backend** (`FamilyMembersController.php`):
+```php
+// Before
+'gender' => 'required|string|in:male,female,other',
+
+// After
+'gender' => 'nullable|string|in:male,female,other',
+```
+
+**Frontend** (`EmbeddedFamilyMemberFlow.tsx`):
+
+**Standalone mode** (Family Members page):
+```typescript
+// Before - always sending all fields
+router.post('/family-members', {
+    name: state.guestName,
+    relation: 'guest',
+    phone: state.guestPhone,
+    ...(state.guestDOB ? { date_of_birth: state.guestDOB } : { age: parseInt(state.guestAge, 10) }),
+    gender: state.guestGender,  // ← Sends '' if empty
+})
+
+// After - only send filled optional fields
+router.post('/family-members', {
+    name: state.guestName,
+    relation: 'guest',
+    phone: state.guestPhone,
+    ...(state.guestDOB && { date_of_birth: state.guestDOB }),
+    ...(state.guestAge && !state.guestDOB && { age: parseInt(state.guestAge, 10) }),
+    ...(state.guestGender && { gender: state.guestGender }),  // ← Only sent if filled
+})
+```
+
+**Embedded mode** (AI chat):
+```typescript
+// Before - always sending age and gender
+onComplete({
+    member_type: 'guest',
+    member_name: state.guestName,
+    member_phone: state.guestPhone,
+    member_age: age,  // ← Sends NaN if empty
+    member_gender: state.guestGender,  // ← Sends '' if empty
+});
+
+// After - conditional sending
+onComplete({
+    member_type: 'guest',
+    member_name: state.guestName,
+    member_phone: state.guestPhone,
+    ...(age !== undefined && { member_age: age }),  // ← Only sent if calculated
+    ...(state.guestGender && { member_gender: state.guestGender }),  // ← Only sent if filled
+});
+```
+
+### Impact
+- Guest creation now works when only required fields (name, phone) are filled
+- Consistent validation between UI expectations and backend requirements
+- No breaking changes to existing functionality
+
+---
+
 **Status**: Production-ready healthcare management platform with AI-powered booking, comprehensive health records, billing, and insurance management.
 
-**Last Updated**: February 2, 2026 — Guest form refactored to single grouped layout
+**Last Updated**: February 2, 2026 — Fixed guest creation validation bug

@@ -329,7 +329,7 @@ export default function Show({ user, appointment }: Props) {
       {/* PDF Preview Sheet */}
       <Sheet open={!!previewDoc} onOpenChange={(o) => !o && setPreviewDoc(null)}>
         <SheetContent side="right" className="sm:max-w-lg">
-          {previewDoc && <DocumentPreview doc={previewDoc} onClose={() => setPreviewDoc(null)} />}
+          {previewDoc && <DocumentPreview doc={previewDoc} />}
         </SheetContent>
       </Sheet>
 
@@ -394,7 +394,7 @@ function SkeletonPage() {
 
 /* ─── Document Preview Sheet ─── */
 
-function DocumentPreview({ doc, onClose }: { doc: AppDocument; onClose: () => void }) {
+function DocumentPreview({ doc }: { doc: AppDocument }) {
   return (
     <div className="flex flex-col h-full">
       <SheetHeader>
