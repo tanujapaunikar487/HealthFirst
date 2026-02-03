@@ -169,6 +169,33 @@ class FamilyMembersController extends Controller
         return $alerts;
     }
 
+    /**
+     * Mask phone number for display (e.g., +919876543210 → +91****3210)
+     */
+    private function maskPhone(?string $phone): ?string
+    {
+        if (!$phone || strlen($phone) < 8) {
+            return null;
+        }
+        // Keep first 3 chars and last 4 chars, mask the middle
+        return substr($phone, 0, 3) . '****' . substr($phone, -4);
+    }
+
+    /**
+     * Mask email for display (e.g., ramesh.kumar@example.com → r***@example.com)
+     */
+    private function maskEmail(?string $email): ?string
+    {
+        if (!$email || !str_contains($email, '@')) {
+            return null;
+        }
+        $parts = explode('@', $email);
+        $localPart = $parts[0];
+        $domain = $parts[1];
+        // Keep first character of local part, mask the rest
+        return substr($localPart, 0, 1) . '***@' . $domain;
+    }
+
     public function show(FamilyMember $member)
     {
         $user = auth()->user() ?? \App\User::first();
@@ -423,12 +450,12 @@ class FamilyMembersController extends Controller
     }
 
     /**
-     * Lookup existing member by phone or patient ID
+     * Lookup existing member by phone, email, or patient ID
      */
     public function lookup(Request $request)
     {
         $validated = $request->validate([
-            'search_type' => 'required|in:phone,patient_id',
+            'search_type' => 'required|in:phone,patient_id,email',
             'search_value' => 'required|string',
         ]);
 
@@ -439,6 +466,8 @@ class FamilyMembersController extends Controller
 
         if ($validated['search_type'] === 'phone') {
             $query->where('phone', $validated['search_value']);
+        } elseif ($validated['search_type'] === 'email') {
+            $query->where('email', $validated['search_value']);
         } else {
             $query->where('patient_id', $validated['search_value']);
         }
@@ -464,8 +493,12 @@ class FamilyMembersController extends Controller
                 'age' => $member->computed_age,
                 'gender' => $member->gender,
                 'patient_id' => $member->patient_id,
-                'phone' => $member->phone,
-                'verified_phone' => $member->verified_phone,
+                // Masked contact info for secure display
+                'masked_phone' => $this->maskPhone($member->phone),
+                'masked_email' => $this->maskEmail($member->email),
+                // Flags for available contact methods
+                'has_phone' => !empty($member->phone),
+                'has_email' => !empty($member->email),
             ],
             'already_linked' => $alreadyLinked,
         ]);
@@ -473,21 +506,34 @@ class FamilyMembersController extends Controller
 
     /**
      * Send OTP for verification (phone or email)
+     * SECURITY: OTP is sent ONLY to the member's registered contact info from database
+     * User cannot specify a different contact - this prevents linking someone else's record
      */
     public function sendOtp(Request $request)
     {
         $validated = $request->validate([
-            'contact_type' => 'required|in:phone,email',
-            'contact_value' => 'required|string',
-            'purpose' => 'required|in:link_member,verify_new',
+            'member_id' => 'required|integer|exists:family_members,id',
+            'contact_method' => 'required|in:phone,email',
         ]);
 
         $otpService = app(\App\Services\OtpService::class);
-        $contactType = $validated['contact_type'];
-        $contactValue = $validated['contact_value'];
+        $member = FamilyMember::findOrFail($validated['member_id']);
+        $contactMethod = $validated['contact_method'];
+
+        // Get the contact value from MEMBER'S record (not user input)
+        $contactValue = $contactMethod === 'phone' ? $member->phone : $member->email;
+
+        if (!$contactValue) {
+            return response()->json([
+                'otp_sent' => false,
+                'error' => $contactMethod === 'phone'
+                    ? 'No phone number on record for this patient'
+                    : 'No email address on record for this patient',
+            ], 400);
+        }
 
         // Check if attempts are within limit
-        if (!$otpService->checkAttempts($contactType, $contactValue)) {
+        if (!$otpService->checkAttempts($contactMethod, $contactValue)) {
             return response()->json([
                 'otp_sent' => false,
                 'error' => 'Too many attempts. Please try again after 15 minutes.',
@@ -496,27 +542,11 @@ class FamilyMembersController extends Controller
             ], 429);
         }
 
-        // Generate and send OTP based on contact type
-        if ($contactType === 'email') {
-            // Validate email format
-            if (!filter_var($contactValue, FILTER_VALIDATE_EMAIL)) {
-                return response()->json([
-                    'otp_sent' => false,
-                    'error' => 'Invalid email format',
-                ], 400);
-            }
-
+        // Generate and send OTP based on contact method
+        if ($contactMethod === 'email') {
             $otp = $otpService->generateForEmail($contactValue);
             $sent = $otpService->sendEmail($contactValue, $otp);
         } else {
-            // Validate phone format
-            if (!preg_match('/^\+?[1-9]\d{1,14}$/', $contactValue)) {
-                return response()->json([
-                    'otp_sent' => false,
-                    'error' => 'Invalid phone format',
-                ], 400);
-            }
-
             $otp = $otpService->generate($contactValue);
             $sent = $otpService->send($contactValue, $otp);
         }
@@ -525,39 +555,57 @@ class FamilyMembersController extends Controller
             return response()->json([
                 'otp_sent' => false,
                 'error' => 'Failed to send OTP. Please try again.',
-                'method_used' => $contactType,
+                'method_used' => $contactMethod,
             ], 500);
         }
 
         // Record the attempt
-        $otpService->recordAttempt($contactType, $contactValue);
+        $otpService->recordAttempt($contactMethod, $contactValue);
+
+        // Return masked contact info to show where OTP was sent
+        $maskedContact = $contactMethod === 'phone'
+            ? $this->maskPhone($contactValue)
+            : $this->maskEmail($contactValue);
 
         return response()->json([
             'otp_sent' => true,
+            'sent_to' => $maskedContact,  // Show masked contact where OTP was sent
+            'method_used' => $contactMethod,
             'expires_at' => now()->addMinutes(5)->toIso8601String(),
-            'method_used' => $contactType,
-            'attempts_remaining' => $otpService->getAttemptsRemaining($contactType, $contactValue),
+            'attempts_remaining' => $otpService->getAttemptsRemaining($contactMethod, $contactValue),
         ]);
     }
 
     /**
      * Verify OTP (phone or email)
+     * SECURITY: Uses member_id to look up the contact info from database
      */
     public function verifyOtp(Request $request)
     {
         $validated = $request->validate([
-            'contact_type' => 'required|in:phone,email',
-            'contact_value' => 'required|string',
+            'member_id' => 'required|integer|exists:family_members,id',
+            'contact_method' => 'required|in:phone,email',
             'otp' => 'required|string|size:6',
         ]);
 
         $otpService = app(\App\Services\OtpService::class);
-        $contactType = $validated['contact_type'];
-        $contactValue = $validated['contact_value'];
+        $member = FamilyMember::findOrFail($validated['member_id']);
+        $contactMethod = $validated['contact_method'];
         $otp = $validated['otp'];
 
+        // Get contact value from MEMBER'S record (not user input)
+        $contactValue = $contactMethod === 'phone' ? $member->phone : $member->email;
+
+        if (!$contactValue) {
+            return response()->json([
+                'verified' => false,
+                'verification_token' => null,
+                'error' => 'No contact information on record',
+            ], 400);
+        }
+
         // Verify OTP based on contact type
-        $verified = $contactType === 'email'
+        $verified = $contactMethod === 'email'
             ? $otpService->verifyEmail($contactValue, $otp)
             : $otpService->verify($contactValue, $otp);
 
@@ -565,22 +613,22 @@ class FamilyMembersController extends Controller
             return response()->json([
                 'verified' => false,
                 'verification_token' => null,
-                'error' => 'Invalid or expired OTP',
+                'error' => 'Invalid or expired OTP. Please try again.',
             ], 400);
         }
 
         // Clear attempts on successful verification
-        $otpService->clearAttempts($contactType, $contactValue);
+        $otpService->clearAttempts($contactMethod, $contactValue);
 
         // Generate verification token
-        $token = $contactType === 'email'
+        $token = $contactMethod === 'email'
             ? $otpService->generateVerificationTokenForEmail($contactValue)
             : $otpService->generateVerificationToken($contactValue);
 
         return response()->json([
             'verified' => true,
             'verification_token' => $token,
-            'contact_type' => $contactType,
+            'contact_method' => $contactMethod,
         ]);
     }
 

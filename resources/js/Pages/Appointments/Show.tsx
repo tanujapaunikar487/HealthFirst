@@ -295,7 +295,8 @@ export default function Show({ user, appointment }: Props) {
             )}
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            {appointment.type === 'doctor' && (
+            {/* Only show header button if NO follow-up recommendation */}
+            {appointment.type === 'doctor' && !appointment.follow_up && (
               <Button onClick={() => setShowFollowUpSheet(true)}>
                 Book Follow-up
               </Button>

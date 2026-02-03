@@ -18,8 +18,9 @@ type Step =
     | 'guest_form'
     // New family - 1 step (CHANGED: removed 'relationship')
     | 'member_details'
-    // Link existing - 2-3 steps
+    // Link existing - 3-4 steps
     | 'search'
+    | 'contact_selection'  // NEW: Select phone or email for OTP
     | 'otp'  // OTP verification
     | 'success';
 
@@ -29,8 +30,12 @@ interface MemberData {
     age?: number;
     gender?: string;
     patient_id?: string;
-    phone?: string;
-    verified_phone?: string;
+    // Masked contact info (for secure display)
+    masked_phone?: string | null;
+    masked_email?: string | null;
+    // Flags for available contact methods
+    has_phone?: boolean;
+    has_email?: boolean;
 }
 
 interface FlowState {
@@ -79,6 +84,11 @@ interface FlowState {
     autoFocusField?: 'relationship' | 'name' | 'phone';
     lockoutUntil?: number | null;  // Timestamp for OTP lockout
     otpContactMethod?: 'phone' | 'email';  // Pre-selected contact method
+
+    // NEW: Secure OTP flow fields
+    selectedContactMethod: 'phone' | 'email';  // Which method user chose for OTP
+    otpSentTo?: string;  // Masked contact where OTP was sent (e.g., "+91****5001")
+    showContactUpdateModal: boolean;  // Show "Request Contact Update" modal
 
     // NEW: Auto-detection fields
     showDetectionCard: boolean;
@@ -149,6 +159,11 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         lockoutUntil: null,
         otpContactMethod: 'phone',
 
+        // NEW: Secure OTP flow fields
+        selectedContactMethod: 'phone',
+        otpSentTo: undefined,
+        showContactUpdateModal: false,
+
         // NEW: Auto-detection fields
         showDetectionCard: false,
         submitMode: 'create',
@@ -174,6 +189,35 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             delete newErrors[field];
             return { ...prev, fieldErrors: newErrors };
         });
+    };
+
+    // Smart search type detection based on input value
+    const detectSearchType = (value: string): 'phone' | 'email' | 'patient_id' => {
+        const trimmed = value.trim();
+        // Patient ID: starts with "PT-" (case insensitive)
+        if (/^PT-/i.test(trimmed)) {
+            return 'patient_id';
+        }
+        // Email: contains @
+        if (trimmed.includes('@')) {
+            return 'email';
+        }
+        // Default: Phone number
+        return 'phone';
+    };
+
+    // Format phone number for search (add +91 if needed)
+    const formatPhoneForSearch = (value: string): string => {
+        const digits = value.replace(/\D/g, '');
+        // If it's 10 digits starting with 6-9, add +91
+        if (/^[6-9]\d{9}$/.test(digits)) {
+            return `+91${digits}`;
+        }
+        // If already has country code
+        if (/^91[6-9]\d{9}$/.test(digits)) {
+            return `+${digits}`;
+        }
+        return value;
     };
 
     // Step 1: Initial Choice (3 options)
@@ -439,7 +483,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         }
     };
 
-    // Search for Member (combines method selection + search)
+    // Search for Member (smart detection of search type)
     const handleSearch = async () => {
         if (!state.searchValue.trim()) {
             setError('Please enter a value to search');
@@ -449,49 +493,88 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         setLoading(true);
         setError('');
 
+        // Auto-detect search type and format value
+        const searchType = detectSearchType(state.searchValue);
+        let searchValue = state.searchValue.trim();
+
+        // Format phone number if detected as phone
+        if (searchType === 'phone') {
+            searchValue = formatPhoneForSearch(searchValue);
+        }
+
         try {
             const response = await fetch('/family-members/lookup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                 },
                 body: JSON.stringify({
-                    search_type: state.lookupMethod,
-                    search_value: state.searchValue,
+                    search_type: searchType,
+                    search_value: searchValue,
                 }),
             });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                console.error('Lookup failed:', response.status, errorData);
+                setError(errorData.message || `Search failed (${response.status}). Please refresh and try again.`);
+                setLoading(false);
+                return;
+            }
 
             const data = await response.json();
 
             if (data.found) {
-                setState((prev) => ({
-                    ...prev,
-                    foundMember: data.member_data,
-                    alreadyLinked: data.already_linked,
-                    loading: false,
-                }));
-
                 if (data.already_linked) {
+                    setState((prev) => ({
+                        ...prev,
+                        foundMember: data.member_data,
+                        alreadyLinked: true,
+                        loading: false,
+                    }));
                     setError('This member is already linked to your account');
+                } else {
+                    // Found member - go to contact selection step
+                    setState((prev) => ({
+                        ...prev,
+                        foundMember: data.member_data,
+                        alreadyLinked: false,
+                        // Default to phone if available, otherwise email
+                        selectedContactMethod: data.member_data.has_phone ? 'phone' : 'email',
+                        step: 'contact_selection',  // NEW: Go to contact selection
+                        loading: false,
+                        error: '',
+                    }));
                 }
             } else {
                 setState((prev) => ({ ...prev, foundMember: null, loading: false }));
-                setError('No member found with this ' + (state.lookupMethod === 'phone' ? 'phone number' : 'Patient ID'));
+                const typeLabel = searchType === 'phone' ? 'phone number' : searchType === 'email' ? 'email' : 'Patient ID';
+                setError(`No member found with this ${typeLabel}`);
             }
         } catch (error) {
+            console.error('Search error:', error);
             setError('Failed to search. Please try again.');
             setLoading(false);
         }
     };
 
     // Send OTP (phone or email)
+    // SECURITY: OTP is sent to member's registered contact from database (not user input)
     const handleSendOtp = async () => {
-        const contactValue = state.emailInputMode ? state.email : state.foundMember?.phone;
-        const contactType = state.emailInputMode ? 'email' : 'phone';
+        if (!state.foundMember?.id) {
+            setError('No patient selected');
+            return;
+        }
 
-        if (!contactValue) {
-            setError((contactType === 'email' ? 'Email' : 'Phone number') + ' not available');
+        // Check if selected method is available
+        const hasMethod = state.selectedContactMethod === 'phone'
+            ? state.foundMember.has_phone
+            : state.foundMember.has_email;
+
+        if (!hasMethod) {
+            setError(`No ${state.selectedContactMethod === 'phone' ? 'phone number' : 'email'} on record for this patient`);
             return;
         }
 
@@ -503,26 +586,28 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                 },
                 body: JSON.stringify({
-                    contact_type: contactType,
-                    contact_value: contactValue,
-                    purpose: 'link_member',
+                    member_id: state.foundMember.id,  // Use member_id (not contact_value)
+                    contact_method: state.selectedContactMethod,  // Just the method choice
                 }),
             });
 
             const data = await response.json();
 
-            if (response.ok) {
+            if (response.ok && data.otp_sent) {
                 setState((prev) => ({
                     ...prev,
-                    contactType,
+                    otpSentTo: data.sent_to,  // Store masked contact where OTP was sent
+                    contactType: data.method_used,
                     loading: false,
                     attemptsRemaining: data.attempts_remaining,
                     lockedOut: false,
+                    otpValue: '',  // Clear any previous OTP
+                    step: 'otp',  // Move to OTP step
                 }));
-                setStep('otp');
             } else {
                 if (data.locked_out) {
                     setState((prev) => ({
@@ -536,46 +621,66 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                 setLoading(false);
             }
         } catch (error) {
+            console.error('Send OTP error:', error);
             setError('Failed to send OTP. Please try again.');
             setLoading(false);
         }
     };
 
     // Verify OTP (phone or email)
+    // SECURITY: Uses member_id to verify OTP against registered contact
     const handleVerifyOtp = async (otp: string) => {
-        const contactValue = state.emailInputMode ? state.email : state.foundMember?.phone;
+        if (!state.foundMember?.id) {
+            setError('No patient selected');
+            return;
+        }
 
-        if (!contactValue) return;
+        if (!otp || otp.length !== 6) {
+            setError('Please enter a 6-digit OTP');
+            return;
+        }
 
         setLoading(true);
-        setError('');
+        setState(prev => ({ ...prev, error: '' }));  // Clear previous error
 
         try {
             const response = await fetch('/family-members/verify-otp', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                 },
                 body: JSON.stringify({
-                    contact_type: state.contactType,
-                    contact_value: contactValue,
+                    member_id: state.foundMember.id,  // Use member_id (not contact_value)
+                    contact_method: state.selectedContactMethod,
                     otp: otp,
                 }),
             });
 
             const data = await response.json();
 
-            if (data.verified) {
+            if (response.ok && data.verified) {
                 // Now link the member
                 await handleLinkMember(data.verification_token);
             } else {
-                setError(data.error || 'Invalid OTP. Please try again.');
-                setLoading(false);
+                // FIX: Show error but STAY on OTP step (don't go blank)
+                setState(prev => ({
+                    ...prev,
+                    error: data.error || 'Invalid OTP. Please try again.',
+                    otpValue: '',  // Clear OTP input for retry
+                    loading: false,
+                }));
             }
         } catch (error) {
-            setError('Failed to verify OTP. Please try again.');
-            setLoading(false);
+            console.error('Verify OTP error:', error);
+            // FIX: Show error but STAY on OTP step
+            setState(prev => ({
+                ...prev,
+                error: 'Verification failed. Please try again.',
+                otpValue: '',
+                loading: false,
+            }));
         }
     };
 
@@ -649,11 +754,12 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             choice: 'choice',
             // Guest flow
             guest_form: 'choice',
-            // New family flow (CHANGED: member_details goes straight back to choice)
+            // New family flow (member_details goes straight back to choice)
             member_details: 'choice',
             // Link existing flow
             search: 'choice',
-            relationship_verify: 'search',
+            contact_selection: 'search',  // NEW: Go back to search
+            otp: 'contact_selection',     // Go back to contact selection
             success: 'success',
         };
         setStep(backMap[state.step]);
@@ -677,10 +783,17 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     title: 'Link Existing Patient',
                     description: 'Connect to their existing hospital record',
                 };
-            case 'relationship_verify':
+            case 'contact_selection':
                 return {
-                    title: 'Verify & Link',
-                    description: `We found: ${state.foundMember?.name} (${state.foundMember?.patient_id})`,
+                    title: 'Verify Ownership',
+                    description: `Send OTP to verify you own ${state.foundMember?.name}'s record`,
+                };
+            case 'otp':
+                return {
+                    title: 'Enter OTP',
+                    description: state.otpSentTo
+                        ? `OTP sent to ${state.otpSentTo}`
+                        : 'Enter the verification code',
                 };
             case 'success':
                 return { title: 'Successfully Linked!', description: `${state.foundMember?.name} has been added to your family members` };
@@ -760,14 +873,20 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     {/* Step Content - standalone renders buttons in footer */}
                     {state.step === 'choice' && (
                         <div className="space-y-4">
+                            <h3 className="text-lg font-semibold">Add New Person</h3>
+                            <p className="text-sm text-muted-foreground">Choose how you'd like to add this person</p>
                             <div className="grid gap-3">
                                 <button onClick={() => handleInitialChoice('add_new_family')} className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
                                     <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center"><Users className="h-6 w-6" /></div>
-                                    <div><h4 className="font-semibold">Family Member</h4><p className="text-sm text-muted-foreground">Someone you'll book for again</p></div>
+                                    <div><h4 className="font-semibold">Add New Family Member</h4><p className="text-sm text-muted-foreground">Create a full family member profile</p></div>
+                                </button>
+                                <button onClick={() => handleInitialChoice('link_existing')} className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
+                                    <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center"><Users className="h-6 w-6" /></div>
+                                    <div><h4 className="font-semibold">Link Existing Patient</h4><p className="text-sm text-muted-foreground">Connect to an existing hospital patient record</p></div>
                                 </button>
                                 <button onClick={() => handleInitialChoice('guest')} className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
                                     <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center"><User className="h-6 w-6" /></div>
-                                    <div><h4 className="font-semibold">Guest</h4><p className="text-sm text-muted-foreground">One-time booking</p></div>
+                                    <div><h4 className="font-semibold">Guest</h4><p className="text-sm text-muted-foreground">One-time booking only</p></div>
                                 </button>
                             </div>
                         </div>
@@ -1008,95 +1127,236 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     {state.step === 'search' && (
                         <div className="space-y-6">
-                            {/* Method Selection */}
-                            <div className="space-y-3">
-                                <label className="block text-sm font-medium text-foreground">Search by</label>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    <button
-                                        onClick={() => setState((prev) => ({ ...prev, lookupMethod: 'phone', searchValue: '', foundMember: null, error: '' }))}
-                                        className={cn(
-                                            "p-3 rounded-xl border-2 transition-all text-left",
-                                            state.lookupMethod === 'phone'
-                                                ? "border-primary bg-primary/5"
-                                                : "border-border hover:border-primary/50"
+                            {/* Smart Single Input */}
+                            <div className="space-y-2">
+                                <label htmlFor="search_value_s" className="block text-sm font-medium text-foreground">
+                                    Search by phone, email, or patient ID
+                                </label>
+                                <Input
+                                    id="search_value_s"
+                                    value={state.searchValue}
+                                    onChange={(e) => setState((prev) => ({ ...prev, searchValue: e.target.value, foundMember: null, error: '' }))}
+                                    placeholder="e.g., 9876543210, email@example.com, or PT-000001"
+                                    autoFocus
+                                />
+                                {state.searchValue.trim() && (
+                                    <p className="text-xs text-muted-foreground">
+                                        Detected: {detectSearchType(state.searchValue) === 'phone' ? 'Phone Number' : detectSearchType(state.searchValue) === 'email' ? 'Email' : 'Patient ID'}
+                                    </p>
+                                )}
+                            </div>
+                            {/* Already linked error (stay on search step) */}
+                            {state.foundMember && state.alreadyLinked && (
+                                <div className="space-y-3">
+                                    <MemberSearchCard member={state.foundMember} alreadyLinked={true} />
+                                </div>
+                            )}
+                            {/* Search button */}
+                            <div className="space-y-2">
+                                <Button onClick={handleSearch} className="w-full" disabled={state.loading || !state.searchValue.trim()}>
+                                    {state.loading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Searching...</>) : 'Search'}
+                                </Button>
+                                {state.error.includes('No member found') && (
+                                    <Button variant="outline" onClick={handleAddAsNew} className="w-full">Add as New Member</Button>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* NEW: Contact Selection Step */}
+                    {state.step === 'contact_selection' && state.foundMember && (
+                        <div className="space-y-6">
+                            {/* Patient Card */}
+                            <div className="rounded-xl border border-border bg-muted/30 p-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                                        <User className="h-6 w-6 text-primary" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold">{state.foundMember.name}</h4>
+                                        {state.foundMember.patient_id && (
+                                            <p className="text-sm text-muted-foreground">Patient ID: {state.foundMember.patient_id}</p>
                                         )}
-                                    >
-                                        <h4 className="font-semibold text-sm mb-1">Phone Number</h4>
-                                        <p className="text-xs text-muted-foreground">Mobile number</p>
-                                    </button>
-                                    <button
-                                        onClick={() => setState((prev) => ({ ...prev, lookupMethod: 'patient_id', searchValue: '', foundMember: null, error: '' }))}
-                                        className={cn(
-                                            "p-3 rounded-xl border-2 transition-all text-left",
-                                            state.lookupMethod === 'patient_id'
-                                                ? "border-primary bg-primary/5"
-                                                : "border-border hover:border-primary/50"
-                                        )}
-                                    >
-                                        <h4 className="font-semibold text-sm mb-1">Patient ID</h4>
-                                        <p className="text-xs text-muted-foreground">PT-XXXXXX</p>
-                                    </button>
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* Search Input */}
+                            {/* Relationship Selection */}
                             <div className="space-y-2">
-                                <label htmlFor="search_value_s" className="block text-sm font-medium text-foreground">
-                                    {state.lookupMethod === 'phone' ? 'Phone Number' : 'Patient ID'}
+                                <label htmlFor="link_relation_s" className="block text-sm font-medium text-foreground">
+                                    Relationship to you <span className="text-destructive">*</span>
                                 </label>
-                                {state.lookupMethod === 'phone' ? (
-                                    <PhoneInput id="search_value_s" value={state.searchValue} onChange={(value) => setState((prev) => ({ ...prev, searchValue: value }))} autoFocus />
-                                ) : (
-                                    <Input id="search_value_s" value={state.searchValue} onChange={(e) => setState((prev) => ({ ...prev, searchValue: e.target.value }))} placeholder="PT-000001" autoFocus />
-                                )}
+                                <Select
+                                    value={state.relation}
+                                    onValueChange={(value) => setState(prev => ({ ...prev, relation: value }))}
+                                >
+                                    <SelectTrigger id="link_relation_s">
+                                        <SelectValue placeholder="Select relationship" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="mother">Mother</SelectItem>
+                                        <SelectItem value="father">Father</SelectItem>
+                                        <SelectItem value="brother">Brother</SelectItem>
+                                        <SelectItem value="sister">Sister</SelectItem>
+                                        <SelectItem value="son">Son</SelectItem>
+                                        <SelectItem value="daughter">Daughter</SelectItem>
+                                        <SelectItem value="spouse">Spouse</SelectItem>
+                                        <SelectItem value="grandmother">Grandmother</SelectItem>
+                                        <SelectItem value="grandfather">Grandfather</SelectItem>
+                                        <SelectItem value="other">Other</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
-                            {state.foundMember && (
-                                <div className="space-y-3">
-                                    <p className="text-sm font-medium text-green-600">Member Found!</p>
-                                    <MemberSearchCard member={state.foundMember} alreadyLinked={state.alreadyLinked} />
-                                    {!state.alreadyLinked && !state.emailInputMode && (
-                                        <div className="space-y-2">
-                                            {state.lockedOut ? (
-                                                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg"><p className="text-sm text-amber-800"><AlertCircle className="inline h-4 w-4 mr-1" />Too many OTP attempts. Please try again after 15 minutes.</p></div>
-                                            ) : (
-                                                <>
-                                                    <Button onClick={handleSendOtp} className="w-full" disabled={state.loading}>{state.loading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Sending OTP...</>) : 'Send OTP to Phone'}</Button>
-                                                    <button onClick={() => setState((prev) => ({ ...prev, emailInputMode: true, error: '' }))} className="w-full text-sm text-primary hover:underline">Try Email Instead →</button>
-                                                </>
-                                            )}
-                                        </div>
-                                    )}
-                                    {!state.alreadyLinked && state.emailInputMode && (
-                                        <div className="space-y-3">
-                                            {state.lockedOut ? (
-                                                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg"><p className="text-sm text-amber-800"><AlertCircle className="inline h-4 w-4 mr-1" />Too many OTP attempts. Please try again after 15 minutes.</p></div>
-                                            ) : (
-                                                <>
-                                                    <div className="space-y-2">
-                                                        <label htmlFor="email_s" className="block text-sm font-medium text-gray-700">Email Address</label>
-                                                        <Input id="email_s" type="email" value={state.email} onChange={(e) => setState((prev) => ({ ...prev, email: e.target.value }))} placeholder="Enter email address" />
-                                                    </div>
-                                                    <Button onClick={handleSendOtp} className="w-full" disabled={state.loading || !state.email.trim()}>{state.loading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Sending OTP...</>) : 'Send OTP to Email'}</Button>
-                                                </>
-                                            )}
-                                            <button onClick={() => setState((prev) => ({ ...prev, emailInputMode: false, email: '', error: '', lockedOut: false }))} className="w-full text-sm text-muted-foreground hover:text-foreground">← Back to Phone</button>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                            {!state.foundMember && (
+
+                            {/* Contact Method Selection */}
+                            <div className="space-y-3">
+                                <p className="text-sm font-medium">Verify ownership by receiving OTP at:</p>
                                 <div className="space-y-2">
-                                    <Button onClick={handleSearch} className="w-full" disabled={state.loading || !state.searchValue.trim()}>{state.loading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Searching...</>) : 'Search'}</Button>
-                                    {state.error.includes('No member found') && (<Button variant="outline" onClick={handleAddAsNew} className="w-full">Add as New Member</Button>)}
+                                    {/* Phone option */}
+                                    <label className={cn(
+                                        "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
+                                        !state.foundMember.has_phone && "opacity-50 cursor-not-allowed",
+                                        state.selectedContactMethod === 'phone' && state.foundMember.has_phone
+                                            ? "border-primary bg-primary/5"
+                                            : "border-border hover:border-muted-foreground"
+                                    )}>
+                                        <input
+                                            type="radio"
+                                            name="contact_method"
+                                            value="phone"
+                                            checked={state.selectedContactMethod === 'phone'}
+                                            onChange={() => setState(prev => ({ ...prev, selectedContactMethod: 'phone' }))}
+                                            disabled={!state.foundMember.has_phone}
+                                            className="h-4 w-4"
+                                        />
+                                        <span className="flex-1">
+                                            Phone: {state.foundMember.masked_phone || 'Not available'}
+                                        </span>
+                                    </label>
+
+                                    {/* Email option */}
+                                    <label className={cn(
+                                        "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
+                                        !state.foundMember.has_email && "opacity-50 cursor-not-allowed",
+                                        state.selectedContactMethod === 'email' && state.foundMember.has_email
+                                            ? "border-primary bg-primary/5"
+                                            : "border-border hover:border-muted-foreground"
+                                    )}>
+                                        <input
+                                            type="radio"
+                                            name="contact_method"
+                                            value="email"
+                                            checked={state.selectedContactMethod === 'email'}
+                                            onChange={() => setState(prev => ({ ...prev, selectedContactMethod: 'email' }))}
+                                            disabled={!state.foundMember.has_email}
+                                            className="h-4 w-4"
+                                        />
+                                        <span className="flex-1">
+                                            Email: {state.foundMember.masked_email || 'Not available'}
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            {/* Lockout Warning */}
+                            {state.lockedOut && (
+                                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                                    <p className="text-sm text-amber-800">
+                                        <AlertCircle className="inline h-4 w-4 mr-1" />
+                                        Too many OTP attempts. Please try again after 15 minutes.
+                                    </p>
                                 </div>
                             )}
+
+                            {/* Send OTP Button */}
+                            <Button
+                                onClick={handleSendOtp}
+                                className="w-full"
+                                disabled={state.loading || state.lockedOut || !state.relation}
+                            >
+                                {state.loading ? (
+                                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Sending OTP...</>
+                                ) : (
+                                    'Send OTP'
+                                )}
+                            </Button>
+
+                            {/* Request Contact Update */}
+                            <div className="pt-2 border-t">
+                                <button
+                                    onClick={() => setState(prev => ({ ...prev, showContactUpdateModal: true }))}
+                                    className="w-full text-sm text-muted-foreground hover:text-foreground"
+                                >
+                                    Contact info not correct? Request update
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Contact Update Modal */}
+                    {state.showContactUpdateModal && (
+                        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                            <div className="bg-white rounded-xl p-6 max-w-sm w-full space-y-4">
+                                <h3 className="text-lg font-semibold">Request Contact Update</h3>
+                                <p className="text-sm text-muted-foreground">
+                                    For security, contact information can only be updated by visiting the hospital or calling our helpline.
+                                </p>
+                                <div className="space-y-2 text-sm">
+                                    <p><strong>📞 Helpline:</strong> 1800-XXX-XXXX</p>
+                                    <p><strong>🏥 Visit:</strong> Registration desk with valid ID</p>
+                                </div>
+                                <Button
+                                    onClick={() => setState(prev => ({ ...prev, showContactUpdateModal: false }))}
+                                    className="w-full"
+                                >
+                                    Close
+                                </Button>
+                            </div>
                         </div>
                     )}
 
                     {state.step === 'otp' && (
                         <div className="space-y-4">
-                            <OtpInput value={state.otpValue} onChange={(value) => setState((prev) => ({ ...prev, otpValue: value }))} onComplete={handleVerifyOtp} onResend={handleSendOtp} error={state.error} />
-                            {state.loading && (<div className="flex items-center justify-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Verifying...</div>)}
+                            {/* Show where OTP was sent */}
+                            {state.otpSentTo && (
+                                <div className="text-center p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                                    <p className="text-sm text-blue-800">
+                                        OTP sent to <strong>{state.otpSentTo}</strong>
+                                    </p>
+                                </div>
+                            )}
+                            <OtpInput
+                                value={state.otpValue}
+                                onChange={(value) => setState((prev) => ({ ...prev, otpValue: value, error: '' }))}
+                                onComplete={handleVerifyOtp}
+                                onResend={handleSendOtp}
+                                error={state.error}
+                            />
+                            {state.loading && (
+                                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                                    <Loader2 className="h-4 w-4 animate-spin" />Verifying...
+                                </div>
+                            )}
+                            {/* Option to try different method */}
+                            {state.foundMember?.has_phone && state.foundMember?.has_email && (
+                                <button
+                                    onClick={() => {
+                                        const newMethod = state.selectedContactMethod === 'phone' ? 'email' : 'phone';
+                                        setState(prev => ({
+                                            ...prev,
+                                            selectedContactMethod: newMethod,
+                                            otpValue: '',
+                                            error: '',
+                                        }));
+                                        // Auto-send to new method
+                                        setTimeout(() => handleSendOtp(), 100);
+                                    }}
+                                    className="w-full text-sm text-primary hover:underline"
+                                    disabled={state.loading}
+                                >
+                                    Try {state.selectedContactMethod === 'phone' ? 'Email' : 'Phone'} Instead →
+                                </button>
+                            )}
                         </div>
                     )}
 
@@ -1571,176 +1831,227 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     <h3 className="text-lg font-semibold">Link Existing Patient</h3>
                     <p className="text-sm text-muted-foreground">Search for an existing patient record to link</p>
 
-                    {/* Method Selection */}
-                    <div className="space-y-3">
-                        <label className="block text-sm font-medium text-foreground">Search by</label>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <button
-                                onClick={() => setState((prev) => ({ ...prev, lookupMethod: 'phone', searchValue: '', foundMember: null, error: '' }))}
-                                className={cn(
-                                    "p-3 rounded-xl border-2 transition-all text-left",
-                                    state.lookupMethod === 'phone'
-                                        ? "border-primary bg-primary/5"
-                                        : "border-border hover:border-primary/50"
-                                )}
-                            >
-                                <h4 className="font-semibold text-sm mb-1">Phone Number</h4>
-                                <p className="text-xs text-muted-foreground">Mobile number</p>
-                            </button>
-                            <button
-                                onClick={() => setState((prev) => ({ ...prev, lookupMethod: 'patient_id', searchValue: '', foundMember: null, error: '' }))}
-                                className={cn(
-                                    "p-3 rounded-xl border-2 transition-all text-left",
-                                    state.lookupMethod === 'patient_id'
-                                        ? "border-primary bg-primary/5"
-                                        : "border-border hover:border-primary/50"
-                                )}
-                            >
-                                <h4 className="font-semibold text-sm mb-1">Patient ID</h4>
-                                <p className="text-xs text-muted-foreground">PT-XXXXXX</p>
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Search Input */}
+                    {/* Smart Single Input */}
                     <div className="space-y-2">
                         <label htmlFor="search_value" className="block text-sm font-medium text-foreground">
-                            {state.lookupMethod === 'phone' ? 'Phone Number' : 'Patient ID'}
+                            Search by phone, email, or patient ID
                         </label>
-                        {state.lookupMethod === 'phone' ? (
-                            <PhoneInput
-                                id="search_value"
-                                value={state.searchValue}
-                                onChange={(value) => setState((prev) => ({ ...prev, searchValue: value }))}
-                                autoFocus
-                            />
-                        ) : (
-                            <Input
-                                id="search_value"
-                                value={state.searchValue}
-                                onChange={(e) => setState((prev) => ({ ...prev, searchValue: e.target.value }))}
-                                placeholder="PT-000001"
-                                autoFocus
-                            />
+                        <Input
+                            id="search_value"
+                            value={state.searchValue}
+                            onChange={(e) => setState((prev) => ({ ...prev, searchValue: e.target.value, foundMember: null, error: '' }))}
+                            placeholder="e.g., 9876543210, email@example.com, or PT-000001"
+                            autoFocus
+                        />
+                        {state.searchValue.trim() && (
+                            <p className="text-xs text-muted-foreground">
+                                Detected: {detectSearchType(state.searchValue) === 'phone' ? 'Phone Number' : detectSearchType(state.searchValue) === 'email' ? 'Email' : 'Patient ID'}
+                            </p>
                         )}
                     </div>
 
-                    {state.foundMember && (
+                    {/* Already linked error (stay on search step) */}
+                    {state.foundMember && state.alreadyLinked && (
                         <div className="space-y-3">
-                            <p className="text-sm font-medium text-green-600">Member Found!</p>
-                            <MemberSearchCard member={state.foundMember} alreadyLinked={state.alreadyLinked} />
-
-                            {!state.alreadyLinked && !state.emailInputMode && (
-                                <div className="space-y-2">
-                                    {state.lockedOut ? (
-                                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                                            <p className="text-sm text-amber-800">
-                                                <AlertCircle className="inline h-4 w-4 mr-1" />
-                                                Too many OTP attempts. Please try again after 15 minutes.
-                                            </p>
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <Button onClick={handleSendOtp} className="w-full" disabled={state.loading}>
-                                                {state.loading ? (
-                                                    <>
-                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                        Sending OTP...
-                                                    </>
-                                                ) : (
-                                                    'Send OTP to Phone'
-                                                )}
-                                            </Button>
-                                            <button
-                                                onClick={() => setState((prev) => ({ ...prev, emailInputMode: true, error: '' }))}
-                                                className="w-full text-sm text-primary hover:underline"
-                                            >
-                                                Try Email Instead →
-                                            </button>
-                                        </>
-                                    )}
-                                </div>
-                            )}
-
-                            {!state.alreadyLinked && state.emailInputMode && (
-                                <div className="space-y-3">
-                                    {state.lockedOut ? (
-                                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                                            <p className="text-sm text-amber-800">
-                                                <AlertCircle className="inline h-4 w-4 mr-1" />
-                                                Too many OTP attempts. Please try again after 15 minutes.
-                                            </p>
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <div className="space-y-2">
-                                                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
-                                                <Input
-                                                    id="email"
-                                                    type="email"
-                                                    value={state.email}
-                                                    onChange={(e) => setState((prev) => ({ ...prev, email: e.target.value }))}
-                                                    placeholder="Enter email address"
-                                                />
-                                            </div>
-                                            <Button onClick={handleSendOtp} className="w-full" disabled={state.loading || !state.email.trim()}>
-                                                {state.loading ? (
-                                                    <>
-                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                        Sending OTP...
-                                                    </>
-                                                ) : (
-                                                    'Send OTP to Email'
-                                                )}
-                                            </Button>
-                                        </>
-                                    )}
-                                    <button
-                                        onClick={() => setState((prev) => ({ ...prev, emailInputMode: false, email: '', error: '', lockedOut: false }))}
-                                        className="w-full text-sm text-muted-foreground hover:text-foreground"
-                                    >
-                                        ← Back to Phone
-                                    </button>
-                                </div>
-                            )}
+                            <MemberSearchCard member={state.foundMember} alreadyLinked={true} />
                         </div>
                     )}
 
-                    {!state.foundMember && (
-                        <div className="space-y-2">
-                            <Button onClick={handleSearch} className="w-full" disabled={state.loading || !state.searchValue.trim()}>
-                                {state.loading ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Searching...
-                                    </>
-                                ) : (
-                                    'Search'
-                                )}
+                    {/* Search button */}
+                    <div className="space-y-2">
+                        <Button onClick={handleSearch} className="w-full" disabled={state.loading || !state.searchValue.trim()}>
+                            {state.loading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Searching...
+                                </>
+                            ) : (
+                                'Search'
+                            )}
+                        </Button>
+
+                        {state.error.includes('No member found') && (
+                            <Button variant="outline" onClick={handleAddAsNew} className="w-full">
+                                Add as New Member
                             </Button>
+                        )}
+                    </div>
+                </div>
+            )}
 
-                            {state.error.includes('No member found') && (
-                                <Button variant="outline" onClick={handleAddAsNew} className="w-full">
-                                    Add as New Member
-                                </Button>
-                            )}
+            {/* NEW: Contact Selection Step */}
+            {state.step === 'contact_selection' && state.foundMember && (
+                <div className="space-y-6">
+                    <h3 className="text-lg font-semibold">Verify Ownership</h3>
+                    <p className="text-sm text-muted-foreground">
+                        Send OTP to verify you own {state.foundMember.name}'s record
+                    </p>
+
+                    {/* Patient Card */}
+                    <div className="rounded-xl border border-border bg-muted/30 p-4">
+                        <div className="flex items-center gap-3">
+                            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                                <User className="h-6 w-6 text-primary" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold">{state.foundMember.name}</h4>
+                                {state.foundMember.patient_id && (
+                                    <p className="text-sm text-muted-foreground">Patient ID: {state.foundMember.patient_id}</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Relationship Selection */}
+                    <div className="space-y-2">
+                        <label htmlFor="link_relation" className="block text-sm font-medium text-foreground">
+                            Relationship to you <span className="text-destructive">*</span>
+                        </label>
+                        <Select
+                            value={state.relation}
+                            onValueChange={(value) => setState(prev => ({ ...prev, relation: value }))}
+                        >
+                            <SelectTrigger id="link_relation">
+                                <SelectValue placeholder="Select relationship" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="mother">Mother</SelectItem>
+                                <SelectItem value="father">Father</SelectItem>
+                                <SelectItem value="brother">Brother</SelectItem>
+                                <SelectItem value="sister">Sister</SelectItem>
+                                <SelectItem value="son">Son</SelectItem>
+                                <SelectItem value="daughter">Daughter</SelectItem>
+                                <SelectItem value="spouse">Spouse</SelectItem>
+                                <SelectItem value="grandmother">Grandmother</SelectItem>
+                                <SelectItem value="grandfather">Grandfather</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    {/* Contact Method Selection */}
+                    <div className="space-y-3">
+                        <p className="text-sm font-medium">Verify ownership by receiving OTP at:</p>
+                        <div className="space-y-2">
+                            {/* Phone option */}
+                            <label className={cn(
+                                "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
+                                !state.foundMember.has_phone && "opacity-50 cursor-not-allowed",
+                                state.selectedContactMethod === 'phone' && state.foundMember.has_phone
+                                    ? "border-primary bg-primary/5"
+                                    : "border-border hover:border-muted-foreground"
+                            )}>
+                                <input
+                                    type="radio"
+                                    name="contact_method_e"
+                                    value="phone"
+                                    checked={state.selectedContactMethod === 'phone'}
+                                    onChange={() => setState(prev => ({ ...prev, selectedContactMethod: 'phone' }))}
+                                    disabled={!state.foundMember.has_phone}
+                                    className="h-4 w-4"
+                                />
+                                <span className="flex-1">
+                                    Phone: {state.foundMember.masked_phone || 'Not available'}
+                                </span>
+                            </label>
+
+                            {/* Email option */}
+                            <label className={cn(
+                                "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
+                                !state.foundMember.has_email && "opacity-50 cursor-not-allowed",
+                                state.selectedContactMethod === 'email' && state.foundMember.has_email
+                                    ? "border-primary bg-primary/5"
+                                    : "border-border hover:border-muted-foreground"
+                            )}>
+                                <input
+                                    type="radio"
+                                    name="contact_method_e"
+                                    value="email"
+                                    checked={state.selectedContactMethod === 'email'}
+                                    onChange={() => setState(prev => ({ ...prev, selectedContactMethod: 'email' }))}
+                                    disabled={!state.foundMember.has_email}
+                                    className="h-4 w-4"
+                                />
+                                <span className="flex-1">
+                                    Email: {state.foundMember.masked_email || 'Not available'}
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* Lockout Warning */}
+                    {state.lockedOut && (
+                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                            <p className="text-sm text-amber-800">
+                                <AlertCircle className="inline h-4 w-4 mr-1" />
+                                Too many OTP attempts. Please try again after 15 minutes.
+                            </p>
                         </div>
                     )}
+
+                    {/* Send OTP Button */}
+                    <Button
+                        onClick={handleSendOtp}
+                        className="w-full"
+                        disabled={state.loading || state.lockedOut || !state.relation}
+                    >
+                        {state.loading ? (
+                            <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Sending OTP...</>
+                        ) : (
+                            'Send OTP'
+                        )}
+                    </Button>
+
+                    {/* Request Contact Update */}
+                    <div className="pt-2 border-t">
+                        <button
+                            onClick={() => setState(prev => ({ ...prev, showContactUpdateModal: true }))}
+                            className="w-full text-sm text-muted-foreground hover:text-foreground"
+                        >
+                            Contact info not correct? Request update
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Contact Update Modal */}
+            {state.showContactUpdateModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl p-6 max-w-sm w-full space-y-4">
+                        <h3 className="text-lg font-semibold">Request Contact Update</h3>
+                        <p className="text-sm text-muted-foreground">
+                            For security, contact information can only be updated by visiting the hospital or calling our helpline.
+                        </p>
+                        <div className="space-y-2 text-sm">
+                            <p><strong>📞 Helpline:</strong> 1800-XXX-XXXX</p>
+                            <p><strong>🏥 Visit:</strong> Registration desk with valid ID</p>
+                        </div>
+                        <Button
+                            onClick={() => setState(prev => ({ ...prev, showContactUpdateModal: false }))}
+                            className="w-full"
+                        >
+                            Close
+                        </Button>
+                    </div>
                 </div>
             )}
 
             {state.step === 'otp' && (
                 <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">
-                        Verify {state.contactType === 'email' ? 'Email' : 'Phone Number'}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                        Enter the 6-digit OTP sent to {state.contactType === 'email' ? state.email : state.foundMember?.phone}
-                    </p>
+                    <h3 className="text-lg font-semibold">Enter OTP</h3>
+
+                    {/* Show where OTP was sent */}
+                    {state.otpSentTo && (
+                        <div className="text-center p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                            <p className="text-sm text-blue-800">
+                                OTP sent to <strong>{state.otpSentTo}</strong>
+                            </p>
+                        </div>
+                    )}
 
                     <OtpInput
                         value={state.otpValue}
-                        onChange={(value) => setState((prev) => ({ ...prev, otpValue: value }))}
+                        onChange={(value) => setState((prev) => ({ ...prev, otpValue: value, error: '' }))}
                         onComplete={handleVerifyOtp}
                         onResend={handleSendOtp}
                         error={state.error}
@@ -1751,6 +2062,27 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             <Loader2 className="h-4 w-4 animate-spin" />
                             Verifying...
                         </div>
+                    )}
+
+                    {/* Option to try different method */}
+                    {state.foundMember?.has_phone && state.foundMember?.has_email && (
+                        <button
+                            onClick={() => {
+                                const newMethod = state.selectedContactMethod === 'phone' ? 'email' : 'phone';
+                                setState(prev => ({
+                                    ...prev,
+                                    selectedContactMethod: newMethod,
+                                    otpValue: '',
+                                    error: '',
+                                }));
+                                // Auto-send to new method
+                                setTimeout(() => handleSendOtp(), 100);
+                            }}
+                            className="w-full text-sm text-primary hover:underline"
+                            disabled={state.loading}
+                        >
+                            Try {state.selectedContactMethod === 'phone' ? 'Email' : 'Phone'} Instead →
+                        </button>
                     )}
                 </div>
             )}

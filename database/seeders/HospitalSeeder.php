@@ -758,6 +758,48 @@ class HospitalSeeder extends Seeder
         foreach ($members as $member) {
             FamilyMember::create(array_merge($member, ['user_id' => $user->id]));
         }
+
+        // Patients linked to a different user for testing "Link Existing Patient" flow
+        // Create a secondary test user to own these patients
+        $secondaryUser = User::create([
+            'name' => 'Test User 2',
+            'email' => 'test2@example.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        // These patients belong to a different user, so the main test user can "link" them
+        $otherUserPatients = [
+            [
+                'user_id' => $secondaryUser->id,
+                'name' => 'Ramesh Kumar',
+                'relation' => 'self',
+                'phone' => '+919876500001',
+                'email' => 'ramesh.kumar@example.com',
+                'patient_id' => 'PT-999001',
+                'age' => 45,
+                'gender' => 'male',
+                'is_guest' => false,
+                'city' => 'Pune',
+                'state' => 'Maharashtra',
+            ],
+            [
+                'user_id' => $secondaryUser->id,
+                'name' => 'Sunita Devi',
+                'relation' => 'self',
+                'phone' => '+919876500002',
+                'email' => 'sunita.devi@example.com',
+                'patient_id' => 'PT-999002',
+                'age' => 62,
+                'gender' => 'female',
+                'is_guest' => false,
+                'city' => 'Mumbai',
+                'state' => 'Maharashtra',
+            ],
+        ];
+
+        foreach ($otherUserPatients as $patient) {
+            FamilyMember::create($patient);
+        }
     }
 
     private function seedUserAddresses(User $user): void
