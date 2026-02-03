@@ -728,6 +728,15 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
   const [expandedTimeline, setExpandedTimeline] = useState<number[]>([]);
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
   const [showAllTimeline, setShowAllTimeline] = useState(false);
+  const [fromPolicy, setFromPolicy] = useState(false);
+
+  // Read navigation context from URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('from') === 'policy') {
+      setFromPolicy(true);
+    }
+  }, []);
 
   const toast = (msg: string) => {
     setToastMessage(msg);
@@ -873,7 +882,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
             Insurance
           </button>
           <ChevronRight className="h-3.5 w-3.5" />
-          {claim.policy_id && claim.policy_plan_name ? (
+          {fromPolicy && claim.policy_id && claim.policy_plan_name ? (
             <>
               <button
                 onClick={() => router.visit(`/insurance/${claim.policy_id}`)}
