@@ -163,6 +163,11 @@ OLLAMA_MODEL=qwen2.5:7b
 
 | Date | Feature |
 |------|---------|
+| Feb 3 | Health Records table: Category badges replaced with plain text (Lab Report • Dr. Name) |
+| Feb 3 | Backend routes: Set Primary, Edit, Appeal (Insurance), Cancel Dispute (Billing) |
+| Feb 3 | QA_ACTION_CONSISTENCY.md - Full test script for action audit |
+| Feb 3 | Persistent support CTA at bottom of all table pages and detail views (mailto link with border-t separator) |
+| Feb 3 | Removed Contact Support from all 3-dot menus (now only via footer CTA) |
 | Feb 3 | Button consistency: 1 Primary + 3-dot menu across all detail views |
 | Feb 3 | Appointments: Check-in button (within 24-48h), Add to Calendar, Get Directions |
 | Feb 3 | Health Records: Add to Apple/Google Health (platform-based), Request Amendment |

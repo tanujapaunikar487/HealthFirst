@@ -908,18 +908,9 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                             <CategoryIcon category={record.category} size="sm" />
                             <div className="min-w-0">
                               <p className="text-sm font-medium truncate">{record.title}</p>
-                              <div className="flex items-center gap-2 mt-0.5">
-                                <Badge
-                                  variant="secondary"
-                                  className="text-[10px] px-1.5 py-0 h-[18px] font-medium rounded flex-shrink-0"
-                                  style={{ backgroundColor: config.bg, color: config.color }}
-                                >
-                                  {config.label}
-                                </Badge>
-                                {record.doctor_name && (
-                                  <span className="text-xs text-muted-foreground truncate">{record.doctor_name}</span>
-                                )}
-                              </div>
+                              <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                                {config.label}{record.doctor_name && ` • ${record.doctor_name}`}
+                              </p>
                             </div>
                           </div>
                         </TableCell>
@@ -929,22 +920,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                           </span>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2">
-                            {record.status && <StatusBadge status={record.status} />}
-                            {record.status?.label === 'Needs Attention' && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="h-6 text-[11px] px-2"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  router.visit(`/health-records/${record.id}`);
-                                }}
-                              >
-                                Review
-                              </Button>
-                            )}
-                          </div>
+                          {record.status && <StatusBadge status={record.status} />}
                         </TableCell>
                         <TableCell>
                           <ChevronRight className="h-4 w-4 text-muted-foreground" />
