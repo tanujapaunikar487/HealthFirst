@@ -878,19 +878,9 @@ export default function InsuranceIndex({
 
                   {/* Table Footer */}
                   {claims.length > 0 && (
-                    <div className="flex items-center justify-between px-4 py-4 border-t border-[#E5E5E5] text-xs text-gray-500">
+                    <div className="flex items-center justify-center px-4 py-4 border-t border-[#E5E5E5] text-xs text-gray-500">
                       <span>
                         Showing {filteredClaims.length} of {claims.length}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        Need help with billing?{' '}
-                        <button
-                          className="inline-flex items-center gap-0.5 font-medium text-blue-600 hover:underline"
-                          onClick={() => window.location.href = 'mailto:support@healthfirst.in?subject=Insurance Support'}
-                        >
-                          Contact support
-                          <ArrowRight className="h-3 w-3" />
-                        </button>
                       </span>
                     </div>
                   )}
@@ -899,6 +889,16 @@ export default function InsuranceIndex({
             </div>
           </>
         )}
+
+        {/* Support CTA */}
+        <div className="mt-8 py-6 border-t border-gray-200 text-center">
+          <p className="text-sm text-gray-600">
+            Need help with Insurance?{' '}
+            <a href="mailto:support@healthfirst.in?subject=Insurance Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
+              Contact support →
+            </a>
+          </p>
+        </div>
       </div>
 
       {/* Add Policy Sheet */}

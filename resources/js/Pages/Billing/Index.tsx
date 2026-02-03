@@ -745,12 +745,12 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
           </>
         )}
 
-        {/* Footer */}
-        <div className="mt-10 pt-6 border-t text-center">
-          <p className="text-xs text-muted-foreground">
-            Need help with billing?{' '}
-            <a href="#" className="font-medium hover:underline" style={{ color: '#0052FF' }}>
-              Contact support &rarr;
+        {/* Support CTA */}
+        <div className="mt-8 py-6 border-t border-gray-200 text-center">
+          <p className="text-sm text-gray-600">
+            Need help with Billing?{' '}
+            <a href="mailto:support@healthfirst.in?subject=Billing Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
+              Contact support →
             </a>
           </p>
         </div>
@@ -872,7 +872,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                         <div className="flex items-start gap-2 rounded-lg px-3 py-2" style={{ backgroundColor: '#FEF2F2' }}>
                           <AlertCircle className="h-3.5 w-3.5 text-red-500 mt-0.5 flex-shrink-0" />
                           <p className="text-xs text-red-600">
-                            Overdue by {bill.days_overdue} days. Please pay immediately or contact support.
+                            Overdue by {bill.days_overdue} days. Please pay immediately.
                           </p>
                         </div>
                       )}

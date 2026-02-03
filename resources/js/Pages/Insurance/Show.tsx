@@ -660,6 +660,16 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
 
           </div>{/* End flex-1 */}
         </div>{/* End flex container */}
+
+        {/* Support CTA */}
+        <div className="mt-8 py-6 border-t border-gray-200 text-center">
+          <p className="text-sm text-gray-600">
+            Need help with Insurance?{' '}
+            <a href="mailto:support@healthfirst.in?subject=Insurance Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
+              Contact support →
+            </a>
+          </p>
+        </div>
       </div>
 
       {/* Pre-Auth Sheet */}

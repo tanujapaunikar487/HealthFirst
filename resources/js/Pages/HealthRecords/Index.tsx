@@ -996,12 +996,15 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
               </div>
             </div>
 
-            <p className="text-xs text-muted-foreground mt-4">
-              Need help?{' '}
-              <a href="#" className="underline hover:text-foreground">
-                Contact support →
-              </a>
-            </p>
+            {/* Support CTA */}
+            <div className="mt-8 py-6 border-t border-gray-200 text-center">
+              <p className="text-sm text-gray-600">
+                Need help with Health Records?{' '}
+                <a href="mailto:support@healthfirst.in?subject=Health Records Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
+                  Contact support →
+                </a>
+              </p>
+            </div>
           </div>
         ) : (
           <EmptyState

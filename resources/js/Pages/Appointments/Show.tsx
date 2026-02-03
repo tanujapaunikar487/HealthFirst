@@ -373,6 +373,16 @@ export default function Show({ user, appointment }: Props) {
             <FooterActions appointment={appointment} />
           </div>
         </div>
+
+        {/* Support CTA */}
+        <div className="mt-8 py-6 border-t border-gray-200 text-center">
+          <p className="text-sm text-gray-600">
+            Need help with this appointment?{' '}
+            <a href="mailto:support@healthfirst.in?subject=Appointment Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
+              Contact support →
+            </a>
+          </p>
+        </div>
       </div>
 
       {/* PDF Preview Sheet */}

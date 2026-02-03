@@ -389,6 +389,16 @@ export function DetailsSheet({
         </Collapsible>
       </div>
 
+      {/* Support CTA */}
+      <div className="py-4 border-t border-gray-200 text-center">
+        <p className="text-xs text-gray-600">
+          Need help with this appointment?{' '}
+          <a href="mailto:support@healthfirst.in?subject=Appointment Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
+            Contact support →
+          </a>
+        </p>
+      </div>
+
       {/* Footer */}
       <SheetFooter>
         {tab === 'upcoming' && (
@@ -603,6 +613,16 @@ export function CancelledDetailsSheet({
             />
           </div>
         </div>
+      </div>
+
+      {/* Support CTA */}
+      <div className="py-4 border-t border-gray-200 text-center">
+        <p className="text-xs text-gray-600">
+          Need help with this appointment?{' '}
+          <a href="mailto:support@healthfirst.in?subject=Appointment Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
+            Contact support →
+          </a>
+        </p>
       </div>
 
       {/* Footer */}
