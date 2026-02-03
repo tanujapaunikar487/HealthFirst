@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
-import { EmptyState } from '@/Components/ui/empty-state';
+import { CtaBanner } from '@/Components/ui/cta-banner';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import {
@@ -166,7 +166,7 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
               </p>
             )}
           </div>
-          {canCreate && (
+          {canCreate && members.length > 0 && (
             <Button
               onClick={openAddForm}
               size="lg"
@@ -179,16 +179,13 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
 
         {/* Member List or Empty State */}
         {members.length === 0 ? (
-          <EmptyState
-            icon={Users}
-            message="No family members yet"
-            description="Add family members to book appointments and manage health records for them"
-            action={
-              <Button size="lg" onClick={openAddForm}>
-                <AddTeam className="h-4 w-4" />
-                Add Member
-              </Button>
-            }
+          <CtaBanner
+            heading="Add your first family member"
+            description="Add family members to book appointments and manage health records for them."
+            buttonText="Add Member"
+            onButtonClick={openAddForm}
+            imageSrc="/assets/illustrations/cta-banner.svg"
+            imageAlt="Family members illustration"
           />
         ) : (
           <div className="divide-y divide-gray-100 rounded-[20px] border border-gray-200 bg-white overflow-hidden">

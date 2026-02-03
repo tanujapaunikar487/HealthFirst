@@ -24,9 +24,13 @@ export interface CtaBannerProps extends React.HTMLAttributes<HTMLDivElement> {
    */
   buttonText: string;
   /**
-   * Button link href
+   * Button link href (optional if onClick provided)
    */
-  buttonHref: string;
+  buttonHref?: string;
+  /**
+   * Button click handler (alternative to buttonHref)
+   */
+  onButtonClick?: () => void;
   /**
    * Illustration image source
    */
@@ -56,6 +60,7 @@ const CtaBanner = React.forwardRef<HTMLDivElement, CtaBannerProps>(
       description,
       buttonText,
       buttonHref,
+      onButtonClick,
       imageSrc,
       imageAlt,
       gradient = 'radial-gradient(circle at center, #003EC1 0%, #00184D 100%)',
@@ -132,9 +137,15 @@ const CtaBanner = React.forwardRef<HTMLDivElement, CtaBannerProps>(
             </p>
           </div>
 
-          <Button asChild variant="cta" size="cta">
-            <Link href={buttonHref}>{buttonText}</Link>
-          </Button>
+          {buttonHref ? (
+            <Button asChild variant="cta" size="cta">
+              <Link href={buttonHref}>{buttonText}</Link>
+            </Button>
+          ) : (
+            <Button variant="cta" size="cta" onClick={onButtonClick}>
+              {buttonText}
+            </Button>
+          )}
         </div>
 
         {/* Right Illustration Container */}

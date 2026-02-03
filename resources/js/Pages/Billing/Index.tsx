@@ -3,6 +3,7 @@ import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading, SheetSkeleton } from '@/Components/ui/skeleton';
 import { EmptyState } from '@/Components/ui/empty-state';
+import { CtaBanner } from '@/Components/ui/cta-banner';
 import { Button } from '@/Components/ui/button';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { Input } from '@/Components/ui/input';
@@ -569,16 +570,22 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
 
         {/* Table or Empty State */}
         {filtered.length === 0 ? (
-          <EmptyState
-            icon={FileText}
-            message="No records yet"
-            description={bills.length === 0 ? 'Book an appointment to get started.' : 'No bills match your filters.'}
-            action={bills.length === 0 ? (
-              <Link href="/booking">
-                <Button size="lg">Book Appointment</Button>
-              </Link>
-            ) : undefined}
-          />
+          bills.length === 0 ? (
+            <CtaBanner
+              heading="No bills yet"
+              description="Book an appointment to get started with your health journey."
+              buttonText="Book Appointment"
+              buttonHref="/booking"
+              imageSrc="/assets/illustrations/cta-banner.svg"
+              imageAlt="Billing illustration"
+            />
+          ) : (
+            <EmptyState
+              icon={FileText}
+              message="No bills match your filters"
+              description="Try adjusting your filters to find what you're looking for."
+            />
+          )
         ) : (
           <>
             <div className="border" style={{ borderRadius: '20px' }}>

@@ -456,7 +456,7 @@ class DashboardController extends Controller
                 'title' => 'Complete your health profile',
                 'subtitle' => 'Add DOB, blood group, allergies, medical history',
                 'completed' => $healthProfileComplete,
-                'href' => '/family-members/' . ($selfMember?->id ?? ''),
+                'href' => '/settings',
             ],
             [
                 'id' => 2,

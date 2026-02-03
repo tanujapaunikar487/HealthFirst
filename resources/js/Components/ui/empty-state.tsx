@@ -16,7 +16,7 @@ export function EmptyState({ image, icon: EmptyIcon, message, description, actio
       style={{
         backgroundColor: '#F5F5F5',
         padding: '60px',
-        height: '500px',
+        height: '400px',
         borderRadius: '20px',
       }}
     >

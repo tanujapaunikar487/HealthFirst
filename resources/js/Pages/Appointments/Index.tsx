@@ -3,6 +3,7 @@ import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading, SheetSkeleton } from '@/Components/ui/skeleton';
 import { EmptyState } from '@/Components/ui/empty-state';
+import { CtaBanner } from '@/Components/ui/cta-banner';
 import { Badge } from '@/Components/ui/badge';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { Button } from '@/Components/ui/button';
@@ -275,19 +276,31 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
           >
             Appointments
           </h1>
-          <Button
-            asChild
-            size="lg"
-            className="font-semibold"
-          >
-            <Link href="/booking" className="flex items-center gap-2">
-              <Icon icon={CalendarPlus} className="h-5 w-5" />
-              Book Appointment
-            </Link>
-          </Button>
+          {appointments.length > 0 && (
+            <Button
+              asChild
+              size="lg"
+              className="font-semibold"
+            >
+              <Link href="/booking" className="flex items-center gap-2">
+                <Icon icon={CalendarPlus} className="h-5 w-5" />
+                Book Appointment
+              </Link>
+            </Button>
+          )}
         </div>
 
-        {/* Tabs */}
+        {appointments.length === 0 ? (
+          <CtaBanner
+            heading="Book your first appointment"
+            description="Find doctors, book consultations, and manage your family's health — all in one place."
+            buttonText="Book Appointment"
+            buttonHref="/booking"
+            imageSrc="/assets/illustrations/cta-banner.svg"
+            imageAlt="Appointments illustration"
+          />
+        ) : (
+        /* Tabs */
         <Tabs defaultValue="upcoming" className="space-y-4">
           <TabsList className="bg-muted/60">
             <TabsTrigger value="upcoming" className="gap-1.5">
@@ -381,6 +394,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
             />
           </TabsContent>
         </Tabs>
+        )}
 
         {/* Support CTA - always at bottom */}
         <div className="mt-auto pt-8 py-6 text-center">

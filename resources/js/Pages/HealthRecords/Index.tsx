@@ -1,8 +1,9 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Link, router } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { EmptyState } from '@/Components/ui/empty-state';
+import { CtaBanner } from '@/Components/ui/cta-banner';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
@@ -987,16 +988,24 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
             </div>
           </div>
         ) : (
-          <EmptyState
-            icon={FolderOpen}
-            message="No records yet"
-            description="Book an appointment to get started."
-            action={
-              <Button asChild size="lg">
-                <Link href="/booking">Book Appointment</Link>
-              </Button>
-            }
-          />
+          <div className="mt-6">
+            {records.length === 0 ? (
+              <CtaBanner
+                heading="No health records yet"
+                description="Book an appointment to get started with your health journey."
+                buttonText="Book Appointment"
+                buttonHref="/booking"
+                imageSrc="/assets/illustrations/cta-banner.svg"
+                imageAlt="Health records illustration"
+              />
+            ) : (
+              <EmptyState
+                icon={FolderOpen}
+                message="No records match your filters"
+                description="Try adjusting your filters to find what you're looking for."
+              />
+            )}
+          </div>
         )}
       </div>
 

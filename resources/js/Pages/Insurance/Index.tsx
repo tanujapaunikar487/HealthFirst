@@ -3,6 +3,7 @@ import { router, usePage } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { EmptyState } from '@/Components/ui/empty-state';
+import { CtaBanner } from '@/Components/ui/cta-banner';
 import { Card } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
@@ -681,11 +682,13 @@ export default function InsuranceIndex({
         </div>
 
         {!hasPolicies ? (
-          <EmptyState
-            icon={ShieldCheck}
-            message="Add your insurance policy"
+          <CtaBanner
+            heading="Add your insurance policy"
             description="Add your insurance policy to use cashless benefits during admission at this hospital."
-            action={<Button size="lg" onClick={openAddPolicy}>Add your first policy</Button>}
+            buttonText="Add Policy"
+            onButtonClick={openAddPolicy}
+            imageSrc="/assets/illustrations/cta-banner.svg"
+            imageAlt="Insurance illustration"
           />
         ) : (
           <>
