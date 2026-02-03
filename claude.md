@@ -175,6 +175,7 @@ OLLAMA_MODEL=qwen2.5:7b
 8. **Phone Format**: +91XXXXXXXXXX required
 9. **Table Row Click**: Row click opens details (sheet or page); 3-dot menu for actions only
 10. **Status-Based Actions**: Primary button on detail pages varies by status (e.g., rejected→File Appeal, approved→Download EOB, pending→Track Status)
+11. **Context-Aware Breadcrumbs**: Breadcrumbs reflect actual navigation path, not just data hierarchy (use `?from=` query params)
 
 ---
 
@@ -182,6 +183,7 @@ OLLAMA_MODEL=qwen2.5:7b
 
 | Date | Feature |
 |------|---------|
+| Feb 4 | Context-aware breadcrumbs: ClaimDetail shows policy in breadcrumb only when navigated from policy page (uses `?from=policy` query param) |
 | Feb 4 | Status-based primary actions: Billing/Claims detail pages show contextual buttons (File Appeal, Download EOB, Track Claim, etc.) instead of generic "Check Status" |
 | Feb 4 | Table consistency: Unified column order (Date→Details→Member→Amount→Status→Actions), date format helpers |
 | Feb 4 | Insurance Policies converted from cards to table layout |
