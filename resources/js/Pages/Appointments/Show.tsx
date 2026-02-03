@@ -15,8 +15,14 @@ import {
 import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
 import { downloadAsHtml } from '@/Lib/download';
-import { FollowUpSheet, Appointment as AppointmentBase } from '@/Components/Appointments/AppointmentSheets';
+import { FollowUpSheet, BookAgainSheet, Appointment as AppointmentBase } from '@/Components/Appointments/AppointmentSheets';
 import { ShareSheet } from '@/Components/ui/share-sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/Components/ui/dropdown-menu';
 import {
   ChevronRight,
   Download,
@@ -38,7 +44,6 @@ import {
   Heart,
   ChevronDown,
   ChevronUp,
-
   Phone,
   CheckCircle2,
   ExternalLink,
@@ -46,6 +51,8 @@ import {
   Check,
   FileWarning,
   ShieldCheck,
+  RotateCcw,
+  MoreVertical,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { EmptyState } from '@/Components/ui/empty-state';
@@ -209,7 +216,10 @@ export default function Show({ user, appointment }: Props) {
   const [previewDoc, setPreviewDoc] = useState<AppDocument | null>(null);
   const [showFollowUpSheet, setShowFollowUpSheet] = useState(false);
   const [showShareSheet, setShowShareSheet] = useState(false);
+  const [showBookAgainSheet, setShowBookAgainSheet] = useState(false);
   const [selectedLabTest, setSelectedLabTest] = useState<LabTest | null>(null);
+
+  const isPastAppointment = !appointment.is_upcoming && appointment.status === 'completed';
 
   // Guard: if appointment data is missing, show skeleton
   if (!appointment?.id) {
@@ -279,15 +289,40 @@ export default function Show({ user, appointment }: Props) {
             )}
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            {/* Only show header button if NO follow-up recommendation */}
-            {appointment.type === 'doctor' && !appointment.follow_up && (
-              <Button onClick={() => setShowFollowUpSheet(true)}>
-                Book Follow-up
-              </Button>
+            {/* Past appointments: Book Again + menu with Share */}
+            {isPastAppointment ? (
+              <>
+                <Button onClick={() => setShowBookAgainSheet(true)}>
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  Book Again
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-[140px]">
+                    <DropdownMenuItem onClick={() => setShowShareSheet(true)}>
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Share
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              <>
+                {/* Upcoming: Only show header button if NO follow-up recommendation */}
+                {appointment.type === 'doctor' && !appointment.follow_up && (
+                  <Button onClick={() => setShowFollowUpSheet(true)}>
+                    Book Follow-up
+                  </Button>
+                )}
+                <Button variant="outline" size="icon" onClick={() => setShowShareSheet(true)}>
+                  <Share2 className="h-4 w-4" />
+                </Button>
+              </>
             )}
-            <Button variant="outline" size="icon" onClick={() => setShowShareSheet(true)}>
-              <Share2 className="h-4 w-4" />
-            </Button>
           </div>
         </div>
 
