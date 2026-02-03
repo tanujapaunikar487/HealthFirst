@@ -204,6 +204,12 @@ class GuidedDoctorController extends Controller
             return redirect()->route('booking.doctor.patient');
         }
 
+        // Ensure appointmentType is set (for bookAgain flow that skips patient step)
+        if (!isset($savedData['appointmentType'])) {
+            $savedData['appointmentType'] = 'new';
+            session(['guided_doctor_booking' => $savedData]);
+        }
+
         $selectedDate = $request->get('date', now()->toDateString());
 
         // Available dates (next 14 days) with doctor counts

@@ -64,6 +64,7 @@ import {
   type Appointment,
   type SheetView,
 } from '@/Components/Appointments/AppointmentSheets';
+import { ShareSheet } from '@/Components/ui/share-sheet';
 
 /* ─── Types ─── */
 
@@ -147,6 +148,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
   const [doctorFilter, setDoctorFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sheetView, setSheetView] = useState<SheetView>(null);
+  const [shareAppointment, setShareAppointment] = useState<Appointment | null>(null);
   const [toastMessage, setToastMessage] = useState('');
 
   // Handle query params to auto-open sheets (for deep-linking from dashboard)
@@ -234,23 +236,8 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
     setToastMessage(message);
   };
 
-  const handleShare = async (appointment: Appointment) => {
-    const url = `${window.location.origin}/appointments/${appointment.id}`;
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: appointment.title,
-          text: `${appointment.title} — ${appointment.date} at ${appointment.time}`,
-          url,
-        });
-      } else {
-        await navigator.clipboard.writeText(url);
-        setToastMessage('Link copied to clipboard');
-      }
-    } catch (err) {
-      if (err instanceof DOMException && err.name === 'AbortError') return;
-      setToastMessage('Could not share link');
-    }
+  const handleShare = (appointment: Appointment) => {
+    setShareAppointment(appointment);
   };
 
   const handleAction = (view: SheetView) => {
@@ -440,6 +427,17 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
           {!sheetView && <SheetSkeleton />}
         </SheetContent>
       </Sheet>
+
+      {/* Share Sheet */}
+      {shareAppointment && (
+        <ShareSheet
+          open={!!shareAppointment}
+          onOpenChange={(open) => !open && setShareAppointment(null)}
+          title={shareAppointment.title}
+          description={`${shareAppointment.date_formatted} at ${shareAppointment.time}`}
+          url={`${typeof window !== 'undefined' ? window.location.origin : ''}/appointments/${shareAppointment.id}`}
+        />
+      )}
 
       {/* Toast */}
       <Toast

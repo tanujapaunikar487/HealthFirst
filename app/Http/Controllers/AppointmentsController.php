@@ -237,9 +237,13 @@ class AppointmentsController extends Controller
                 'guided_doctor_booking' => [
                     'patientId' => $appointment->family_member_id,
                     'selectedSymptoms' => $appointment->symptoms ?? [],
+                    'appointmentType' => 'new',  // Always "new" for book again
+                    'selectedDoctorId' => 'd' . $appointment->doctor_id,  // Pre-select same doctor
+                    'appointmentMode' => $appointment->consultation_mode,  // Pre-select same mode
                 ],
             ]);
-            return redirect()->route('booking.doctor.patient');
+            // Skip patient step, go directly to doctor-time selection
+            return redirect()->route('booking.doctor.doctor-time');
         }
 
         session([

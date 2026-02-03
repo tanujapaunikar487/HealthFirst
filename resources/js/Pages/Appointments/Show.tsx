@@ -16,6 +16,7 @@ import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
 import { downloadAsHtml } from '@/Lib/download';
 import { FollowUpSheet, Appointment as AppointmentBase } from '@/Components/Appointments/AppointmentSheets';
+import { ShareSheet } from '@/Components/ui/share-sheet';
 import {
   ChevronRight,
   Download,
@@ -207,6 +208,7 @@ export default function Show({ user, appointment }: Props) {
   const [toastMessage, setToastMessage] = useState('');
   const [previewDoc, setPreviewDoc] = useState<AppDocument | null>(null);
   const [showFollowUpSheet, setShowFollowUpSheet] = useState(false);
+  const [showShareSheet, setShowShareSheet] = useState(false);
   const [selectedLabTest, setSelectedLabTest] = useState<LabTest | null>(null);
 
   // Guard: if appointment data is missing, show skeleton
@@ -221,24 +223,6 @@ export default function Show({ user, appointment }: Props) {
   }
 
   const isDoctor = appointment.type === 'doctor';
-
-  const handleShareLink = async () => {
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: appointment.title,
-          text: `${appointment.title} — ${appointment.date_formatted} at ${appointment.time}`,
-          url: window.location.href,
-        });
-      } else {
-        await navigator.clipboard.writeText(window.location.href);
-        setToastMessage('Link copied to clipboard');
-      }
-    } catch (err) {
-      if (err instanceof DOMException && err.name === 'AbortError') return;
-      setToastMessage('Could not share link');
-    }
-  };
 
   const handleDownloadInvoice = () => {
     const b = appointment.billing;
@@ -301,7 +285,7 @@ export default function Show({ user, appointment }: Props) {
                 Book Follow-up
               </Button>
             )}
-            <Button variant="outline" size="icon" onClick={handleShareLink}>
+            <Button variant="outline" size="icon" onClick={() => setShowShareSheet(true)}>
               <Share2 className="h-4 w-4" />
             </Button>
           </div>
@@ -400,6 +384,15 @@ export default function Show({ user, appointment }: Props) {
           {selectedLabTest && <LabTestDetailSheet test={selectedLabTest} />}
         </SheetContent>
       </Sheet>
+
+      {/* Share Sheet */}
+      <ShareSheet
+        open={showShareSheet}
+        onOpenChange={setShowShareSheet}
+        title={appointment.title}
+        description={`${appointment.date_formatted} at ${appointment.time}`}
+        url={typeof window !== 'undefined' ? window.location.href : ''}
+      />
 
       {/* Toast */}
       {toastMessage && (
