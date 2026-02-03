@@ -40,7 +40,12 @@ import {
   UserPlus,
   Receipt,
   ShieldAlert,
+  User,
+  Heart,
+  Phone,
+  Activity,
 } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 /* ─── Types ─── */
 
@@ -120,6 +125,104 @@ const relationColors: Record<string, { bg: string; text: string }> = {
   grandfather: { bg: '#E2E8F0', text: '#334155' },
   other:       { bg: '#F3F4F6', text: '#374151' },
 };
+
+/* ─── Sections Config ─── */
+
+const SECTIONS = [
+  { id: 'personal', label: 'Personal', icon: User },
+  { id: 'medical', label: 'Medical', icon: Heart },
+  { id: 'emergency', label: 'Emergency', icon: Phone },
+  { id: 'health', label: 'Health Data', icon: Activity },
+] as const;
+
+/* ─── SideNav Component ─── */
+
+function SideNav({ isGuest }: { isGuest: boolean }) {
+  const [activeSection, setActiveSection] = useState(SECTIONS[0].id);
+
+  // Filter sections for guests (only show personal)
+  const visibleSections = isGuest
+    ? SECTIONS.filter((s) => s.id === 'personal')
+    : SECTIONS;
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length > 0) {
+          const topmost = visible.reduce((prev, curr) =>
+            prev.boundingClientRect.top < curr.boundingClientRect.top ? prev : curr
+          );
+          setActiveSection(topmost.target.id);
+        }
+      },
+      { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
+    );
+
+    visibleSections.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [visibleSections]);
+
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  return (
+    <div className="w-48 flex-shrink-0">
+      <div className="sticky top-6 space-y-1">
+        {visibleSections.map(({ id, label, icon: SectionIcon }) => {
+          const isActive = activeSection === id;
+          return (
+            <button
+              key={id}
+              onClick={() => scrollTo(id)}
+              className={cn(
+                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full',
+                isActive ? '' : 'text-[#0A0B0D] hover:bg-muted'
+              )}
+              style={isActive ? { backgroundColor: '#F5F8FF', color: '#0052FF' } : {}}
+            >
+              <Icon icon={SectionIcon} className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">{label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Section Component ─── */
+
+function Section({
+  id,
+  title,
+  icon: SectionIcon,
+  children,
+  noPadding,
+}: {
+  id: string;
+  title: string;
+  icon: React.ElementType;
+  children: React.ReactNode;
+  noPadding?: boolean;
+}) {
+  return (
+    <div id={id} className="scroll-mt-24">
+      <div className="flex items-center gap-2.5 mb-4">
+        <Icon icon={SectionIcon} className="h-5 w-5 text-muted-foreground" />
+        <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+          {title}
+        </h2>
+      </div>
+      <Card className={noPadding ? '' : 'p-6'}>{children}</Card>
+    </div>
+  );
+}
 
 function getInitials(name: string): string {
   return name
@@ -624,113 +727,6 @@ export default function FamilyMemberShow({
           </div>
         )}
 
-        {/* Personal Information Card */}
-        <h3 className="text-base font-semibold text-gray-900 mb-3">Personal Information</h3>
-        <Card className="mb-6">
-          <CardContent className="pt-6">
-            <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-              {personalInfoFields.map((field, i) => (
-                <div key={i} className={field.label === 'Address' ? 'col-span-2' : ''}>
-                  <p className="text-xs font-medium text-gray-500">{field.label}</p>
-                  <p className="mt-1 text-sm font-semibold text-gray-900">
-                    {field.value ?? '--'}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Medical Conditions Card - Hidden for guests */}
-        {!member.is_guest && (
-          <div className="mb-6">
-          <h3 className="text-base font-semibold text-gray-900 mb-3">Medical Information</h3>
-          <Card>
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              <div>
-                <p className="mb-2 text-xs font-medium text-gray-500">Conditions</p>
-                {member.medical_conditions.length > 0 ? (
-                  <div className="flex flex-wrap gap-1.5">
-                    {member.medical_conditions.map((c, i) => (
-                      <Badge key={i} variant="secondary">{c}</Badge>
-                    ))}
-                  </div>
-                ) : (
-                  <EmptyState icon={Stethoscope} message="No conditions recorded" />
-                )}
-              </div>
-              <div>
-                <p className="mb-2 text-xs font-medium text-gray-500">Allergies</p>
-                {member.allergies.length > 0 ? (
-                  <div className="flex flex-wrap gap-1.5">
-                    {member.allergies.map((a, i) => (
-                      <Badge key={i} variant="destructive">{a}</Badge>
-                    ))}
-                  </div>
-                ) : (
-                  <EmptyState icon={AlertTriangle} message="No known allergies" />
-                )}
-              </div>
-            </div>
-          </CardContent>
-          </Card>
-          </div>
-        )}
-
-        {/* Emergency Contact Card - Hidden for guests */}
-        {!member.is_guest && (
-        <div className="mb-6">
-          <h3 className="text-base font-semibold text-gray-900 mb-3">Emergency Contact</h3>
-          <Card>
-            <CardContent className="pt-6">
-            {member.emergency_contact_name ? (
-              <div className="flex items-center gap-3">
-                <div
-                  className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold text-gray-600"
-                >
-                  {getInitials(member.emergency_contact_name)}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-900">{member.emergency_contact_name}</p>
-                  <p className="text-xs text-gray-500">
-                    {member.emergency_contact_relation}
-                    {member.emergency_contact_phone ? ` · ${member.emergency_contact_phone}` : ''}
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center rounded-lg border border-dashed border-gray-200 py-6">
-                <p className="text-sm text-gray-400">No emergency contact added</p>
-              </div>
-            )}
-            </CardContent>
-          </Card>
-        </div>
-        )}
-
-        {/* Health Data Links - Hidden for guests */}
-        {!member.is_guest && (
-        <div className="mb-8 grid grid-cols-3 gap-4">
-          {healthDataLinks.map((link, i) => (
-            <div
-              key={i}
-              onClick={() => router.visit(link.href)}
-              className="cursor-pointer rounded-xl border border-gray-200 bg-white p-4 transition-colors hover:bg-gray-50"
-            >
-              <div
-                className="mb-3 flex h-10 w-10 items-center justify-center rounded-full"
-                style={{ backgroundColor: '#BFDBFE' }}
-              >
-                <link.icon className="h-5 w-5" style={{ color: '#1E40AF' }} />
-              </div>
-              <p className="text-sm font-semibold text-gray-900">{link.title}</p>
-              <p className="mt-0.5 text-xs text-gray-500">{link.subtitle}</p>
-            </div>
-          ))}
-        </div>
-        )}
-
         {/* Guest Information Message */}
         {member.is_guest && (
           <Card className="mb-6 border-amber-200 bg-amber-50">
@@ -741,6 +737,111 @@ export default function FamilyMemberShow({
             </CardContent>
           </Card>
         )}
+
+        {/* Main Content with Side Nav */}
+        <div className="flex gap-8">
+          <SideNav isGuest={!!member.is_guest} />
+          <div className="flex-1 min-w-0 space-y-8 pb-12">
+            {/* Personal Information Section */}
+            <Section id="personal" title="Personal Information" icon={User}>
+              <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+                {personalInfoFields.map((field, i) => (
+                  <div key={i} className={field.label === 'Address' ? 'col-span-2' : ''}>
+                    <p className="text-xs font-medium text-gray-500">{field.label}</p>
+                    <p className="mt-1 text-sm font-semibold text-gray-900">
+                      {field.value ?? '--'}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </Section>
+
+            {/* Medical Information Section - Hidden for guests */}
+            {!member.is_guest && (
+              <Section id="medical" title="Medical Information" icon={Heart}>
+                <div className="space-y-4">
+                  <div>
+                    <p className="mb-2 text-xs font-medium text-gray-500">Conditions</p>
+                    {member.medical_conditions.length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5">
+                        {member.medical_conditions.map((c, i) => (
+                          <Badge key={i} variant="secondary">{c}</Badge>
+                        ))}
+                      </div>
+                    ) : (
+                      <EmptyState icon={Stethoscope} message="No conditions recorded" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="mb-2 text-xs font-medium text-gray-500">Allergies</p>
+                    {member.allergies.length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5">
+                        {member.allergies.map((a, i) => (
+                          <Badge key={i} variant="destructive">{a}</Badge>
+                        ))}
+                      </div>
+                    ) : (
+                      <EmptyState icon={AlertTriangle} message="No known allergies" />
+                    )}
+                  </div>
+                </div>
+              </Section>
+            )}
+
+            {/* Emergency Contact Section - Hidden for guests */}
+            {!member.is_guest && (
+              <Section id="emergency" title="Emergency Contact" icon={Phone}>
+                {member.emergency_contact_name ? (
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold text-gray-600"
+                    >
+                      {getInitials(member.emergency_contact_name)}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-gray-900">{member.emergency_contact_name}</p>
+                      <p className="text-xs text-gray-500">
+                        {member.emergency_contact_relation}
+                        {member.emergency_contact_phone ? ` · ${member.emergency_contact_phone}` : ''}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center rounded-lg border border-dashed border-gray-200 py-6">
+                    <p className="text-sm text-gray-400">No emergency contact added</p>
+                  </div>
+                )}
+              </Section>
+            )}
+
+            {/* Health Data Links Section - Hidden for guests */}
+            {!member.is_guest && (
+              <Section id="health" title="Health Data" icon={Activity} noPadding>
+                <div className="divide-y">
+                  {healthDataLinks.map((link, i) => (
+                    <button
+                      key={i}
+                      onClick={() => router.visit(link.href)}
+                      className="w-full flex items-center gap-4 px-5 py-4 text-left hover:bg-muted/30 transition-colors"
+                    >
+                      <div
+                        className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full"
+                        style={{ backgroundColor: '#BFDBFE' }}
+                      >
+                        <link.icon className="h-5 w-5" style={{ color: '#1E40AF' }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900">{link.title}</p>
+                        <p className="text-xs text-gray-500">{link.subtitle}</p>
+                      </div>
+                      <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                    </button>
+                  ))}
+                </div>
+              </Section>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Edit Sheet */}

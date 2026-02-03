@@ -4,9 +4,10 @@ import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
 import { Toast } from '@/Components/ui/toast';
+import { Icon } from '@/Components/ui/icon';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { cn } from '@/Lib/utils';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,6 +48,9 @@ import {
   ShieldCheck,
   FileDown,
   Link2,
+  User,
+  Settings2,
+  ClipboardList,
 } from '@/Lib/icons';
 import { downloadAsHtml } from '@/Lib/download';
 import { shareContent } from '@/Lib/share';
@@ -341,6 +345,16 @@ const categoryConfig: Record<string, { label: string; icon: React.ComponentType<
   invoice:            { label: 'Invoice',      icon: Receipt,        color: '#1E40AF', bg: '#BFDBFE' },
 };
 
+/* ─── Section Config ─── */
+
+const SECTIONS = [
+  { id: 'summary', label: 'Summary', icon: FileText },
+  { id: 'details', label: 'Details', icon: ClipboardList },
+  { id: 'patient', label: 'Patient', icon: User },
+  { id: 'provider', label: 'Provider', icon: Stethoscope },
+  { id: 'actions', label: 'Actions', icon: Settings2 },
+] as const;
+
 /* ─── Helpers ─── */
 
 function CategoryIcon({ category, size = 'md' }: { category: string; size?: 'sm' | 'md' | 'lg' }) {
@@ -404,6 +418,95 @@ function StatusDot({ status }: { status: string }) {
 }
 
 const fmtDate = (d?: string) => d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+
+/* ─── Side Navigation ─── */
+
+function SideNav({ hasProvider }: { hasProvider: boolean }) {
+  const [activeSection, setActiveSection] = useState('summary');
+
+  // Filter out provider section if no provider info
+  const visibleSections = hasProvider
+    ? SECTIONS
+    : SECTIONS.filter((s) => s.id !== 'provider');
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length > 0) {
+          const topmost = visible.reduce((prev, curr) =>
+            prev.boundingClientRect.top < curr.boundingClientRect.top ? prev : curr
+          );
+          setActiveSection(topmost.target.id);
+        }
+      },
+      { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
+    );
+
+    visibleSections.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [visibleSections]);
+
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  return (
+    <div className="w-48 flex-shrink-0">
+      <div className="sticky top-6 space-y-1">
+        {visibleSections.map(({ id, label, icon: SectionIcon }) => {
+          const isActive = activeSection === id;
+          return (
+            <button
+              key={id}
+              onClick={() => scrollTo(id)}
+              className={cn(
+                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full',
+                isActive ? '' : 'text-[#0A0B0D] hover:bg-muted'
+              )}
+              style={isActive ? { backgroundColor: '#F5F8FF', color: '#0052FF' } : {}}
+            >
+              <Icon icon={SectionIcon} className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">{label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Section Wrapper ─── */
+
+function Section({
+  id,
+  title,
+  icon: SectionIcon,
+  children,
+}: {
+  id: string;
+  title: string;
+  icon: React.ElementType;
+  children: React.ReactNode;
+}) {
+  return (
+    <div id={id} className="scroll-mt-24">
+      <div className="flex items-center gap-2.5 mb-4">
+        <Icon icon={SectionIcon} className="h-5 w-5 text-muted-foreground" />
+        <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+          {title}
+        </h2>
+      </div>
+      <Card className="p-6">
+        {children}
+      </Card>
+    </div>
+  );
+}
 
 function VitalsGrid({ vitals, statuses, painScore }: { vitals: Record<string, string>; statuses?: Record<string, string>; painScore?: string }) {
   const allItems = [
@@ -531,11 +634,13 @@ export default function Show({ user, record, familyMember }: Props) {
     }
   };
 
+  const hasProvider = !!(record.doctor_name || record.department_name);
+
   return (
     <AppLayout user={user} pageTitle="Health Records" pageIcon="/assets/icons/records.svg">
-      <div style={{ width: '100%', maxWidth: '960px', padding: '40px 0' }}>
+      <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-8">
           <Link
             href="/health-records"
             className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4"
@@ -622,41 +727,18 @@ export default function Show({ user, record, familyMember }: Props) {
           </div>
         </div>
 
-        {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Summary */}
-            {record.description && (
-              <Card>
-                <CardContent className="pt-6">
-                  <SectionTitle>Summary</SectionTitle>
-                  <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>{record.description}</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Category-specific content */}
-            {record.metadata && (
-              <Card>
-                <CardContent className="pt-6">
-                  <CategoryDetail
-                    category={record.category}
-                    meta={record.metadata}
-                    onAction={toast}
-                    record={record}
-                    familyMember={familyMember}
-                  />
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Record Info */}
-            <Card>
-              <CardContent className="pt-6">
+        {/* Main Content with Side Nav */}
+        <div className="flex gap-8">
+          <SideNav hasProvider={hasProvider} />
+          <div className="flex-1 min-w-0 space-y-8 pb-12">
+            {/* Summary Section */}
+            <Section id="summary" title="Summary" icon={FileText}>
+              {record.description ? (
+                <p className="text-sm leading-relaxed mb-6" style={{ color: '#374151' }}>{record.description}</p>
+              ) : (
+                <p className="text-sm text-muted-foreground mb-6">No description available.</p>
+              )}
+              <div className="border-t pt-4">
                 <SectionTitle>Record Information</SectionTitle>
                 <div className="space-y-0">
                   <DetailRow label="Record ID">#{record.id}</DetailRow>
@@ -677,44 +759,52 @@ export default function Show({ user, record, familyMember }: Props) {
                     </DetailRow>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </Section>
 
-            {/* Patient Info */}
-            <Card>
-              <CardContent className="pt-6">
-                <SectionTitle>Patient</SectionTitle>
+            {/* Details Section (Category-specific content) */}
+            <Section id="details" title="Details" icon={ClipboardList}>
+              {record.metadata ? (
+                <CategoryDetail
+                  category={record.category}
+                  meta={record.metadata}
+                  onAction={toast}
+                  record={record}
+                  familyMember={familyMember}
+                />
+              ) : (
+                <p className="text-sm text-muted-foreground">No additional details available.</p>
+              )}
+            </Section>
+
+            {/* Patient Section */}
+            <Section id="patient" title="Patient" icon={User}>
+              <div className="space-y-0">
+                <DetailRow label="Name">{familyMember ? familyMember.name : user.name}</DetailRow>
+                {familyMember && (
+                  <>
+                    <DetailRow label="Relation">{familyMember.relation}</DetailRow>
+                    {familyMember.age && <DetailRow label="Age">{familyMember.age} years</DetailRow>}
+                    {familyMember.gender && <DetailRow label="Gender"><span className="capitalize">{familyMember.gender}</span></DetailRow>}
+                    {familyMember.blood_group && <DetailRow label="Blood Group">{familyMember.blood_group}</DetailRow>}
+                  </>
+                )}
+              </div>
+            </Section>
+
+            {/* Provider Section (only if provider info exists) */}
+            {hasProvider && (
+              <Section id="provider" title="Provider" icon={Stethoscope}>
                 <div className="space-y-0">
-                  <DetailRow label="Name">{familyMember ? familyMember.name : user.name}</DetailRow>
-                  {familyMember && (
-                    <>
-                      <DetailRow label="Relation">{familyMember.relation}</DetailRow>
-                      {familyMember.age && <DetailRow label="Age">{familyMember.age} years</DetailRow>}
-                      {familyMember.gender && <DetailRow label="Gender"><span className="capitalize">{familyMember.gender}</span></DetailRow>}
-                      {familyMember.blood_group && <DetailRow label="Blood Group">{familyMember.blood_group}</DetailRow>}
-                    </>
-                  )}
+                  {record.doctor_name && <DetailRow label="Doctor">{record.doctor_name}</DetailRow>}
+                  {record.department_name && <DetailRow label="Department">{record.department_name}</DetailRow>}
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Provider Info */}
-            {(record.doctor_name || record.department_name) && (
-              <Card>
-                <CardContent className="pt-6">
-                  <SectionTitle>Provider</SectionTitle>
-                  <div className="space-y-0">
-                    {record.doctor_name && <DetailRow label="Doctor">{record.doctor_name}</DetailRow>}
-                    {record.department_name && <DetailRow label="Department">{record.department_name}</DetailRow>}
-                  </div>
-                </CardContent>
-              </Card>
+              </Section>
             )}
 
-            {/* Quick Actions */}
-            <Card>
-              <CardContent className="pt-6 space-y-2">
-                <SectionTitle>Quick Actions</SectionTitle>
+            {/* Actions Section */}
+            <Section id="actions" title="Actions" icon={Settings2}>
+              <div className="space-y-2">
                 <Button variant="outline" className="w-full justify-start gap-2" onClick={handleDownload}>
                   <Download className="h-4 w-4" />
                   Download Record
@@ -731,8 +821,24 @@ export default function Show({ user, record, familyMember }: Props) {
                     </Link>
                   </Button>
                 )}
-              </CardContent>
-            </Card>
+                {record.insurance_claim_id && (
+                  <Button variant="outline" className="w-full justify-start gap-2" asChild>
+                    <Link href={`/insurance/claims/${record.insurance_claim_id}`}>
+                      <ShieldCheck className="h-4 w-4" />
+                      View Insurance Claim
+                    </Link>
+                  </Button>
+                )}
+                {record.category === 'invoice' && record.appointment_id && (
+                  <Button variant="outline" className="w-full justify-start gap-2" asChild>
+                    <Link href={`/billing/${record.appointment_id}`}>
+                      <Receipt className="h-4 w-4" />
+                      View Bill
+                    </Link>
+                  </Button>
+                )}
+              </div>
+            </Section>
           </div>
         </div>
       </div>

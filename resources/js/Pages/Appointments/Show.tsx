@@ -635,12 +635,14 @@ function Section({
   icon: SectionIcon,
   children,
   action,
+  noPadding,
 }: {
   id: string;
   title: string;
   icon: React.ElementType;
   children: React.ReactNode;
   action?: React.ReactNode;
+  noPadding?: boolean;
 }) {
   return (
     <div id={id} className="scroll-mt-24">
@@ -653,7 +655,7 @@ function Section({
         </div>
         {action}
       </div>
-      <Card className="p-6">
+      <Card className={noPadding ? '' : 'p-6'}>
         {children}
       </Card>
     </div>
@@ -936,10 +938,12 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
           Download Rx
         </Button>
       }
+
+      noPadding
     >
-      <div className="space-y-3">
+      <div className="divide-y">
         {prescriptions.map((rx, i) => (
-          <div key={i} className="border rounded-lg p-4">
+          <div key={i} className="px-5 py-4">
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2">
@@ -984,7 +988,7 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
                 <Download className="h-4 w-4" />
               </Button>
             </div>
-            <div className="grid grid-cols-3 gap-4 mt-3 pt-3 border-t">
+            <div className="grid grid-cols-3 gap-4 mt-3 pt-3 border-t border-dashed">
               <div>
                 <p className="text-[10px] text-muted-foreground uppercase">Dosage</p>
                 <p className="text-xs font-medium mt-0.5">{rx.dosage}</p>
@@ -1210,13 +1214,15 @@ function DocumentsSection({ documents, onPreview }: { documents: AppDocument[]; 
           Download All
         </Button>
       }
+
+      noPadding
     >
-      <div className="space-y-2">
+      <div className="divide-y">
         {documents.map((doc, i) => (
           <button
             key={i}
             onClick={() => onPreview(doc)}
-            className="w-full flex items-center justify-between border rounded-lg px-4 py-3 hover:bg-muted/30 transition-colors text-left"
+            className="w-full flex items-center justify-between px-5 py-4 hover:bg-muted/30 transition-colors text-left"
           >
             <div className="flex items-center gap-3">
               <div className="h-9 w-9 rounded-lg bg-red-50 flex items-center justify-center">

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
+import { Card } from '@/Components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,7 +31,9 @@ import {
   Mail,
   MessageSquare,
   ChevronRight,
+  FileText,
 } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 import { downloadAsHtml } from '@/Lib/download';
 import { Textarea } from '@/Components/ui/textarea';
 
@@ -169,6 +172,108 @@ const STATUS_CONFIG: Record<BillingStatus, { label: string; variant: string }> =
 };
 
 const PAYABLE_STATUSES: BillingStatus[] = ['due', 'copay_due'];
+
+/* ─── Sections Config ─── */
+
+const SECTIONS = [
+  { id: 'invoice', label: 'Invoice', icon: FileText },
+  { id: 'charges', label: 'Charges', icon: Receipt },
+  { id: 'payment', label: 'Payment', icon: CreditCard },
+  { id: 'emi', label: 'EMI', icon: IndianRupee },
+  { id: 'dispute', label: 'Dispute', icon: AlertTriangle },
+] as const;
+
+/* ─── SideNav Component ─── */
+
+function SideNav({ hasEmi, hasDispute, hasPayment }: { hasEmi: boolean; hasDispute: boolean; hasPayment: boolean }) {
+  const [activeSection, setActiveSection] = useState(SECTIONS[0].id);
+
+  // Filter sections based on what's visible
+  const visibleSections = SECTIONS.filter((s) => {
+    if (s.id === 'emi' && !hasEmi) return false;
+    if (s.id === 'dispute' && !hasDispute) return false;
+    if (s.id === 'payment' && !hasPayment) return false;
+    return true;
+  });
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length > 0) {
+          const topmost = visible.reduce((prev, curr) =>
+            prev.boundingClientRect.top < curr.boundingClientRect.top ? prev : curr
+          );
+          setActiveSection(topmost.target.id);
+        }
+      },
+      { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
+    );
+
+    visibleSections.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [visibleSections]);
+
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  return (
+    <div className="w-48 flex-shrink-0">
+      <div className="sticky top-6 space-y-1">
+        {visibleSections.map(({ id, label, icon: SectionIcon }) => {
+          const isActive = activeSection === id;
+          return (
+            <button
+              key={id}
+              onClick={() => scrollTo(id)}
+              className={cn(
+                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full',
+                isActive ? '' : 'text-[#0A0B0D] hover:bg-muted'
+              )}
+              style={isActive ? { backgroundColor: '#F5F8FF', color: '#0052FF' } : {}}
+            >
+              <Icon icon={SectionIcon} className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">{label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Section Component ─── */
+
+function Section({
+  id,
+  title,
+  icon: SectionIcon,
+  children,
+  noPadding,
+}: {
+  id: string;
+  title: string;
+  icon: React.ElementType;
+  children: React.ReactNode;
+  noPadding?: boolean;
+}) {
+  return (
+    <div id={id} className="scroll-mt-24">
+      <div className="flex items-center gap-2.5 mb-4">
+        <Icon icon={SectionIcon} className="h-5 w-5 text-muted-foreground" />
+        <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+          {title}
+        </h2>
+      </div>
+      <Card className={noPadding ? '' : 'p-5'}>{children}</Card>
+    </div>
+  );
+}
 
 /* ─── Helpers ─── */
 
@@ -589,220 +694,217 @@ export default function Show({ user, bill }: Props) {
         {/* ─── Status Alert ─── */}
         <StatusAlertBanner bill={bill} />
 
-        {/* ─── Invoice Header Card ─── */}
-        <div className="border rounded-xl overflow-hidden mb-4">
-          <div className="px-5 py-5">
-            {/* Hospital Identity */}
-            <div className="mb-4 pb-4 border-b border-dashed">
-              <p className="text-base font-bold" style={{ color: '#171717' }}>HealthFirst Hospital</p>
-              <p className="text-xs text-muted-foreground mt-0.5">123 Hospital Road, Pune 411001 &middot; GSTIN: 27AABCH1234P1ZP</p>
-            </div>
+        {/* ─── Main Content with Side Nav ─── */}
+        <div className="flex gap-8">
+          <SideNav
+            hasEmi={!!bill.emi_details}
+            hasDispute={!!bill.dispute_details}
+            hasPayment={!!(bill.payment_info || bill.insurance_details)}
+          />
+          <div className="flex-1 min-w-0 space-y-8 pb-12">
 
-            {/* Invoice Metadata */}
-            <div className="grid grid-cols-2 gap-x-8 gap-y-3 mb-4 pb-4 border-b">
-              <div>
-                <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Date</p>
-                <p className="mt-1 text-sm font-semibold" style={{ color: '#171717' }}>{bill.generated_date}</p>
+            {/* ─── Invoice Section ─── */}
+            <Section id="invoice" title="Invoice" icon={FileText}>
+              {/* Hospital Identity */}
+              <div className="mb-4 pb-4 border-b border-dashed">
+                <p className="text-base font-bold" style={{ color: '#171717' }}>HealthFirst Hospital</p>
+                <p className="text-xs text-muted-foreground mt-0.5">123 Hospital Road, Pune 411001 &middot; GSTIN: 27AABCH1234P1ZP</p>
               </div>
-              <div>
-                <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Reference</p>
-                <p className="mt-1 text-sm font-semibold" style={{ color: '#171717' }}>{bill.reference_number}</p>
-              </div>
-              {bill.due_date && (
+
+              {/* Invoice Metadata */}
+              <div className="grid grid-cols-2 gap-x-8 gap-y-3 mb-4 pb-4 border-b">
                 <div>
-                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Due Date</p>
-                  <p className={cn('mt-1 text-sm font-semibold', bill.is_overdue ? 'text-red-600' : '')} style={bill.is_overdue ? {} : { color: '#171717' }}>
-                    {bill.due_date}
-                    {bill.is_overdue && (
-                      <span className="ml-2 text-[10px] font-semibold text-red-600 bg-red-50 px-1.5 py-0.5 rounded-full">
-                        {bill.days_overdue}d overdue
-                      </span>
-                    )}
-                  </p>
+                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Date</p>
+                  <p className="mt-1 text-sm font-semibold" style={{ color: '#171717' }}>{bill.generated_date}</p>
                 </div>
-              )}
-            </div>
-
-            {/* Patient & Service */}
-            <div className="grid grid-cols-2 gap-x-8 gap-y-3">
-              <div>
-                <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Patient</p>
-                <p className="mt-1 text-sm font-semibold" style={{ color: '#171717' }}>{bill.patient_name}</p>
-              </div>
-              <div>
-                <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Service</p>
-                <div className="mt-1 flex items-center gap-2">
-                  <div className="h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#BFDBFE' }}>
-                    {isDoctor ? <Stethoscope className="h-2.5 w-2.5" style={{ color: '#1E40AF' }} /> : <TestTube2 className="h-2.5 w-2.5" style={{ color: '#1E40AF' }} />}
-                  </div>
-                  <p className="text-sm font-semibold" style={{ color: '#171717' }}>{bill.appointment_title}</p>
-                </div>
-              </div>
-              {bill.doctor_name && (
                 <div>
-                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Doctor</p>
-                  <p className="mt-1 text-sm font-semibold" style={{ color: '#171717' }}>
-                    {bill.doctor_name}
-                    {bill.doctor_specialization && <span className="text-muted-foreground font-normal"> &middot; {bill.doctor_specialization}</span>}
-                  </p>
+                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Reference</p>
+                  <p className="mt-1 text-sm font-semibold" style={{ color: '#171717' }}>{bill.reference_number}</p>
                 </div>
-              )}
-              <div>
-                <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Date of Service</p>
-                <p className="mt-1 text-sm font-semibold" style={{ color: '#171717' }}>
-                  {bill.service_date}
-                  <span className="text-muted-foreground font-normal"> &middot; {bill.appointment_mode}</span>
-                </p>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        {/* ─── Zone 3: Charges ─── */}
-        <div className="mb-4">
-          <h3 className="text-sm font-semibold mb-3" style={{ color: '#171717' }}>Charges</h3>
-          <div className="border rounded-xl overflow-hidden">
-            <div className="px-5 py-4">
-              {/* Table */}
-              <div className="overflow-x-auto -mx-5">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b" style={{ backgroundColor: '#FAFAFA' }}>
-                      <th className="text-left font-medium text-muted-foreground px-5 py-2">Item</th>
-                      <th className="text-center font-medium text-muted-foreground px-3 py-2 w-16">Qty</th>
-                      <th className="text-right font-medium text-muted-foreground px-3 py-2 w-24">Unit Price</th>
-                      <th className="text-right font-medium text-muted-foreground px-5 py-2 w-24">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bill.line_items.map((item, i) => (
-                      <tr key={i} className="border-b last:border-b-0">
-                        <td className="px-5 py-2.5">{item.label}</td>
-                        <td className="text-center px-3 py-2.5 text-muted-foreground">{item.qty}</td>
-                        <td className="text-right px-3 py-2.5 text-muted-foreground">₹{item.unit_price.toLocaleString()}</td>
-                        <td className="text-right px-5 py-2.5">₹{item.total.toLocaleString()}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Summary rows */}
-              <div className="border-t mt-2 pt-3 space-y-1.5">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span>₹{bill.subtotal.toLocaleString()}</span>
-                </div>
-                {bill.discount > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Discount</span>
-                    <span className="text-green-600">-₹{bill.discount.toLocaleString()}</span>
-                  </div>
-                )}
-                {bill.tax > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Tax</span>
-                    <span>₹{bill.tax.toLocaleString()}</span>
-                  </div>
-                )}
-                {bill.insurance_deduction > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Insurance Coverage</span>
-                    <span className="text-green-600">-₹{bill.insurance_deduction.toLocaleString()}</span>
-                  </div>
-                )}
-                <div className="flex justify-between pt-2 border-t">
-                  <span className="text-sm font-semibold">
-                    {isPayable ? 'Amount Due' : 'Amount Paid'}
-                  </span>
-                  <span className="text-lg font-bold" style={{ color: '#171717' }}>
-                    ₹{bill.total.toLocaleString()}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ─── Zone 4: Payment & Insurance ─── */}
-        {(bill.payment_info || bill.insurance_details) && (
-          <div className="mb-4">
-            <h3 className="text-sm font-semibold mb-3" style={{ color: '#171717' }}>Payment Details</h3>
-            <div className="border rounded-xl overflow-hidden">
-              <div className="px-5 py-4 space-y-4">
-                {/* Payment info */}
-                {bill.payment_info && (
+                {bill.due_date && (
                   <div>
-                    <p className="text-sm" style={{ color: '#171717' }}>
-                      Paid via <span className="font-medium">{bill.payment_info.method}</span> on {bill.payment_info.paid_at}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Transaction: <span className="font-mono">{bill.payment_info.transaction_id}</span>
-                      <span className="mx-2">&middot;</span>
-                      Receipt: <span className="font-mono">{bill.payment_info.receipt_number}</span>
-                    </p>
-                  </div>
-                )}
-
-                {/* Insurance info */}
-                {bill.insurance_details && (
-                  <div className={bill.payment_info ? 'pt-4 border-t' : ''}>
-                    <div className="flex items-center gap-1.5 mb-2">
-                      <Shield className="h-3.5 w-3.5 text-blue-600" />
-                      <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Insurance</p>
-                    </div>
-                    <p className="text-sm font-medium" style={{ color: '#171717' }}>
-                      {bill.insurance_details.provider_name}
-                      <span className="text-muted-foreground font-normal"> &middot; {bill.insurance_details.policy_number}</span>
-                    </p>
-                    <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm">
-                      <span>
-                        <span className="text-muted-foreground">Claim:</span>{' '}
-                        <span className="font-mono text-xs">{bill.insurance_details.claim_id}</span>
-                        <span className="ml-1.5">
-                          {bill.insurance_details.claim_status === 'Approved' || bill.insurance_details.claim_status === 'Reimbursed'
-                            ? <span className="text-green-600 text-xs font-medium">{bill.insurance_details.claim_status}</span>
-                            : <span className="text-amber-600 text-xs font-medium">{bill.insurance_details.claim_status}</span>
-                          }
-                        </span>
-                      </span>
-                    </div>
-                    <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm">
-                      <span>
-                        <span className="text-muted-foreground">Covered:</span>{' '}
-                        <span className="text-green-600 font-medium">₹{bill.insurance_details.covered_amount.toLocaleString()}</span>
-                      </span>
-                      {bill.insurance_details.copay_amount > 0 && (
-                        <span>
-                          <span className="text-muted-foreground">Co-pay:</span>{' '}
-                          <span className="text-red-600 font-medium">₹{bill.insurance_details.copay_amount.toLocaleString()}</span>
+                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Due Date</p>
+                    <p className={cn('mt-1 text-sm font-semibold', bill.is_overdue ? 'text-red-600' : '')} style={bill.is_overdue ? {} : { color: '#171717' }}>
+                      {bill.due_date}
+                      {bill.is_overdue && (
+                        <span className="ml-2 text-[10px] font-semibold text-red-600 bg-red-50 px-1.5 py-0.5 rounded-full">
+                          {bill.days_overdue}d overdue
                         </span>
                       )}
-                    </div>
-                    {bill.insurance_details.insurance_claim_id && (
-                      <button
-                        className="mt-3 text-xs font-medium hover:underline flex items-center gap-1"
-                        style={{ color: '#0052FF' }}
-                        onClick={() => router.visit(`/insurance/claims/${bill.insurance_details!.insurance_claim_id}`)}
-                      >
-                        View Claim Details
-                        <ChevronRight className="h-3 w-3" />
-                      </button>
-                    )}
+                    </p>
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-        )}
 
-        {/* ─── Zone 5: EMI or Dispute ─── */}
-        {bill.emi_details && (
-          <div className="mb-4">
-            <h3 className="text-sm font-semibold mb-3" style={{ color: '#171717' }}>EMI Plan</h3>
-            <div className="border rounded-xl overflow-hidden">
+              {/* Patient & Service */}
+              <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+                <div>
+                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Patient</p>
+                  <p className="mt-1 text-sm font-semibold" style={{ color: '#171717' }}>{bill.patient_name}</p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Service</p>
+                  <div className="mt-1 flex items-center gap-2">
+                    <div className="h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#BFDBFE' }}>
+                      {isDoctor ? <Stethoscope className="h-2.5 w-2.5" style={{ color: '#1E40AF' }} /> : <TestTube2 className="h-2.5 w-2.5" style={{ color: '#1E40AF' }} />}
+                    </div>
+                    <p className="text-sm font-semibold" style={{ color: '#171717' }}>{bill.appointment_title}</p>
+                  </div>
+                </div>
+                {bill.doctor_name && (
+                  <div>
+                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Doctor</p>
+                    <p className="mt-1 text-sm font-semibold" style={{ color: '#171717' }}>
+                      {bill.doctor_name}
+                      {bill.doctor_specialization && <span className="text-muted-foreground font-normal"> &middot; {bill.doctor_specialization}</span>}
+                    </p>
+                  </div>
+                )}
+                <div>
+                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Date of Service</p>
+                  <p className="mt-1 text-sm font-semibold" style={{ color: '#171717' }}>
+                    {bill.service_date}
+                    <span className="text-muted-foreground font-normal"> &middot; {bill.appointment_mode}</span>
+                  </p>
+                </div>
+              </div>
+            </Section>
+
+            {/* ─── Charges Section ─── */}
+            <Section id="charges" title="Charges" icon={Receipt} noPadding>
               <div className="px-5 py-4">
+                {/* Table */}
+                <div className="overflow-x-auto -mx-5">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b" style={{ backgroundColor: '#FAFAFA' }}>
+                        <th className="text-left font-medium text-muted-foreground px-5 py-2">Item</th>
+                        <th className="text-center font-medium text-muted-foreground px-3 py-2 w-16">Qty</th>
+                        <th className="text-right font-medium text-muted-foreground px-3 py-2 w-24">Unit Price</th>
+                        <th className="text-right font-medium text-muted-foreground px-5 py-2 w-24">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bill.line_items.map((item, i) => (
+                        <tr key={i} className="border-b last:border-b-0">
+                          <td className="px-5 py-2.5">{item.label}</td>
+                          <td className="text-center px-3 py-2.5 text-muted-foreground">{item.qty}</td>
+                          <td className="text-right px-3 py-2.5 text-muted-foreground">₹{item.unit_price.toLocaleString()}</td>
+                          <td className="text-right px-5 py-2.5">₹{item.total.toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Summary rows */}
+                <div className="border-t mt-2 pt-3 space-y-1.5">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span>₹{bill.subtotal.toLocaleString()}</span>
+                  </div>
+                  {bill.discount > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Discount</span>
+                      <span className="text-green-600">-₹{bill.discount.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {bill.tax > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Tax</span>
+                      <span>₹{bill.tax.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {bill.insurance_deduction > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Insurance Coverage</span>
+                      <span className="text-green-600">-₹{bill.insurance_deduction.toLocaleString()}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between pt-2 border-t">
+                    <span className="text-sm font-semibold">
+                      {isPayable ? 'Amount Due' : 'Amount Paid'}
+                    </span>
+                    <span className="text-lg font-bold" style={{ color: '#171717' }}>
+                      ₹{bill.total.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </Section>
+
+            {/* ─── Payment & Insurance Section ─── */}
+            {(bill.payment_info || bill.insurance_details) && (
+              <Section id="payment" title="Payment Details" icon={CreditCard}>
+                <div className="space-y-4">
+                  {/* Payment info */}
+                  {bill.payment_info && (
+                    <div>
+                      <p className="text-sm" style={{ color: '#171717' }}>
+                        Paid via <span className="font-medium">{bill.payment_info.method}</span> on {bill.payment_info.paid_at}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Transaction: <span className="font-mono">{bill.payment_info.transaction_id}</span>
+                        <span className="mx-2">&middot;</span>
+                        Receipt: <span className="font-mono">{bill.payment_info.receipt_number}</span>
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Insurance info */}
+                  {bill.insurance_details && (
+                    <div className={bill.payment_info ? 'pt-4 border-t' : ''}>
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <Shield className="h-3.5 w-3.5 text-blue-600" />
+                        <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Insurance</p>
+                      </div>
+                      <p className="text-sm font-medium" style={{ color: '#171717' }}>
+                        {bill.insurance_details.provider_name}
+                        <span className="text-muted-foreground font-normal"> &middot; {bill.insurance_details.policy_number}</span>
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+                        <span>
+                          <span className="text-muted-foreground">Claim:</span>{' '}
+                          <span className="font-mono text-xs">{bill.insurance_details.claim_id}</span>
+                          <span className="ml-1.5">
+                            {bill.insurance_details.claim_status === 'Approved' || bill.insurance_details.claim_status === 'Reimbursed'
+                              ? <span className="text-green-600 text-xs font-medium">{bill.insurance_details.claim_status}</span>
+                              : <span className="text-amber-600 text-xs font-medium">{bill.insurance_details.claim_status}</span>
+                            }
+                          </span>
+                        </span>
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+                        <span>
+                          <span className="text-muted-foreground">Covered:</span>{' '}
+                          <span className="text-green-600 font-medium">₹{bill.insurance_details.covered_amount.toLocaleString()}</span>
+                        </span>
+                        {bill.insurance_details.copay_amount > 0 && (
+                          <span>
+                            <span className="text-muted-foreground">Co-pay:</span>{' '}
+                            <span className="text-red-600 font-medium">₹{bill.insurance_details.copay_amount.toLocaleString()}</span>
+                          </span>
+                        )}
+                      </div>
+                      {bill.insurance_details.insurance_claim_id && (
+                        <button
+                          className="mt-3 text-xs font-medium hover:underline flex items-center gap-1"
+                          style={{ color: '#0052FF' }}
+                          onClick={() => router.visit(`/insurance/claims/${bill.insurance_details!.insurance_claim_id}`)}
+                        >
+                          View Claim Details
+                          <ChevronRight className="h-3 w-3" />
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </Section>
+            )}
+
+            {/* ─── EMI Section ─── */}
+            {bill.emi_details && (
+              <Section id="emi" title="EMI Plan" icon={IndianRupee}>
                 <p className="text-sm font-medium" style={{ color: '#171717' }}>
                   ₹{bill.emi_details.monthly_amount.toLocaleString()}/month for {bill.emi_details.plan_months} months
                 </p>
@@ -831,38 +933,43 @@ export default function Show({ user, bill }: Props) {
                     <span className="text-red-600 font-medium">₹{bill.emi_details.remaining_balance.toLocaleString()}</span>
                   </span>
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
+              </Section>
+            )}
 
-        {bill.dispute_details && (
-          <div className="mb-4">
-            <h3 className="text-sm font-semibold mb-3" style={{ color: '#171717' }}>Dispute</h3>
-            <div className="border rounded-xl overflow-hidden" style={{ backgroundColor: '#FEF2F2', borderColor: '#FECACA' }}>
-              <div className="px-5 py-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <AlertTriangle className="h-4 w-4 text-red-600" />
-                  <p className="text-sm font-semibold text-red-800">
-                    {bill.dispute_details.dispute_id} &middot; Raised {bill.dispute_details.raised_on}
-                  </p>
+            {/* ─── Dispute Section ─── */}
+            {bill.dispute_details && (
+              <div id="dispute" className="scroll-mt-24">
+                <div className="flex items-center gap-2.5 mb-4">
+                  <Icon icon={AlertTriangle} className="h-5 w-5 text-muted-foreground" />
+                  <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+                    Dispute
+                  </h2>
                 </div>
-                <p className="text-sm text-red-700">
-                  <span className="text-muted-foreground">Reason:</span> {bill.dispute_details.reason}
-                </p>
-                <p className="text-sm text-red-700 mt-1">
-                  <span className="text-muted-foreground">Status:</span>{' '}
-                  <span className="font-medium">{bill.dispute_details.status}</span>
-                </p>
-                {bill.dispute_details.resolution_notes && (
-                  <p className="text-sm text-red-700 mt-1">
-                    <span className="text-muted-foreground">Resolution:</span> {bill.dispute_details.resolution_notes}
+                <Card className="p-5" style={{ backgroundColor: '#FEF2F2', borderColor: '#FECACA' }}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <AlertTriangle className="h-4 w-4 text-red-600" />
+                    <p className="text-sm font-semibold text-red-800">
+                      {bill.dispute_details.dispute_id} &middot; Raised {bill.dispute_details.raised_on}
+                    </p>
+                  </div>
+                  <p className="text-sm text-red-700">
+                    <span className="text-muted-foreground">Reason:</span> {bill.dispute_details.reason}
                   </p>
-                )}
+                  <p className="text-sm text-red-700 mt-1">
+                    <span className="text-muted-foreground">Status:</span>{' '}
+                    <span className="font-medium">{bill.dispute_details.status}</span>
+                  </p>
+                  {bill.dispute_details.resolution_notes && (
+                    <p className="text-sm text-red-700 mt-1">
+                      <span className="text-muted-foreground">Resolution:</span> {bill.dispute_details.resolution_notes}
+                    </p>
+                  )}
+                </Card>
               </div>
-            </div>
+            )}
+
           </div>
-        )}
+        </div>
 
       </div>
 
