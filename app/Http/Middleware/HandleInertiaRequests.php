@@ -29,12 +29,13 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        $user = $request->user() ?? \App\User::first();
+        $user = $request->user();
 
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $user,  // Use fallback user for dev mode
+                'user' => $user,
+                'check' => (bool) $user,
             ],
             'notificationUnreadCount' => $user
                 ? \App\Models\BillingNotification::where('user_id', $user->id)->whereNull('read_at')->count()

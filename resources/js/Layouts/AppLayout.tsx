@@ -17,7 +17,7 @@ import {
   Bell, Search, CheckCheck,
   Receipt, Clock, CheckCircle2, XCircle,
   ShieldCheck, ShieldAlert, MessageSquare, CreditCard,
-  AlertTriangle,
+  AlertTriangle, LogOut,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 
@@ -443,7 +443,7 @@ function Sidebar({ user }: { user: User | null }) {
     <aside className="w-80 bg-background flex flex-col" style={{ borderRight: '1px solid #E5E5E5' }}>
       {/* Logo */}
       <div className="px-6 py-8">
-        <Link href="/dashboard" className="flex items-center gap-3">
+        <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-3">
           <img
             src="/assets/logos/logo.svg"
             alt="Hospital Logo"
@@ -452,32 +452,37 @@ function Sidebar({ user }: { user: User | null }) {
         </Link>
       </div>
 
-      {/* Navigation Links */}
-      <nav className="flex-1 px-6 py-4 space-y-3">
-        <NavLink href="/dashboard" iconName="home" label="Home" active={isActive('/dashboard')} />
-        <NavLink
-          href="/appointments"
-          iconName="appointment"
-          label="Appointments"
-          active={isActive('/appointments')}
-        />
-        <NavLink
-          href="/health-records"
-          iconName="records"
-          label="Health Records"
-          active={isActive('/health-records')}
-        />
-        <NavLink href="/insurance" iconName="insurance" label="Insurance" active={isActive('/insurance')} />
-        <NavLink href="/billing" iconName="billing" label="Billing" active={isActive('/billing')} />
-        <NavLink
-          href="/family-members"
-          iconName="family"
-          label="Family Members"
-          active={isActive('/family-members')}
-        />
-      </nav>
+      {/* Navigation Links - only when authenticated */}
+      {user && (
+        <nav className="flex-1 px-6 py-4 space-y-3">
+          <NavLink href="/dashboard" iconName="home" label="Home" active={isActive('/dashboard')} />
+          <NavLink
+            href="/appointments"
+            iconName="appointment"
+            label="Appointments"
+            active={isActive('/appointments')}
+          />
+          <NavLink
+            href="/health-records"
+            iconName="records"
+            label="Health Records"
+            active={isActive('/health-records')}
+          />
+          <NavLink href="/insurance" iconName="insurance" label="Insurance" active={isActive('/insurance')} />
+          <NavLink href="/billing" iconName="billing" label="Billing" active={isActive('/billing')} />
+          <NavLink
+            href="/family-members"
+            iconName="family"
+            label="Family Members"
+            active={isActive('/family-members')}
+          />
+        </nav>
+      )}
 
-      {/* User Profile Section */}
+      {/* Spacer for guest mode */}
+      {!user && <div className="flex-1" />}
+
+      {/* User Profile Section - authenticated */}
       {user && (
         <div className="px-6 py-4 border-t" style={{ borderColor: '#E5E5E5' }}>
           <Link
@@ -495,6 +500,29 @@ function Sidebar({ user }: { user: User | null }) {
               <p className="text-xs text-muted-foreground truncate">{user.email}</p>
             </div>
           </Link>
+
+          {/* Logout button */}
+          <Link
+            href={route('logout')}
+            method="post"
+            as="button"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors mt-2 text-left"
+          >
+            <Icon icon={LogOut} className="h-5 w-5 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Sign Out</span>
+          </Link>
+        </div>
+      )}
+
+      {/* Guest actions - not authenticated */}
+      {!user && (
+        <div className="px-6 py-4 border-t space-y-2" style={{ borderColor: '#E5E5E5' }}>
+          <Button asChild className="w-full">
+            <Link href={route('login')}>Sign In</Link>
+          </Button>
+          <Button asChild variant="outline" className="w-full">
+            <Link href={route('register')}>Create Account</Link>
+          </Button>
         </div>
       )}
     </aside>
