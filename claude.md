@@ -1797,6 +1797,93 @@ Added secondary test user in `HospitalSeeder.php`:
 
 ---
 
+---
+
+## Custom Share Sheet & Book Again Streamlining (February 3, 2026)
+
+### Custom ShareSheet Component
+Replaced OS-based `navigator.share` with a custom platform-agnostic share sheet.
+
+**New Component**: `resources/js/Components/ui/share-sheet.tsx`
+- Preview card showing title, description, and URL
+- **Copy Link**: Clipboard copy with visual feedback (green checkmark + "Copied!")
+- **WhatsApp**: Opens `wa.me` link in new tab
+- **Email**: Opens email client with pre-filled content
+- Consistent UX across all platforms (no OS dialogs)
+
+**Integration Points**:
+- `Appointments/Show.tsx` — Share icon in header opens ShareSheet
+- `Appointments/Index.tsx` — Row dropdown share action opens ShareSheet
+- `AppointmentSheets.tsx` — Delegates to parent (no changes needed)
+
+### Book Again Flow Streamlining
+Reduced "Book Again" from 5 steps to 3 by pre-filling doctor and skipping patient selection.
+
+**Backend Changes**:
+- `AppointmentsController::bookAgain()` — Pre-fills `selectedDoctorId`, `appointmentMode`, `appointmentType`
+- Redirects directly to `booking.doctor.doctor-time` (skips patient step)
+- `GuidedDoctorController::doctorTime()` — Auto-sets `appointmentType = 'new'` if missing
+
+**New Flow**:
+| Before | After |
+|--------|-------|
+| Book Again → Patient → Doctor-Time → Confirm | Book Again → Doctor-Time (pre-selected) → Confirm |
+
+User now only picks date/time and confirms — doctor and patient are pre-filled from original appointment.
+
+---
+
+## Test OTP Mode for Development (February 3, 2026)
+
+Added development-friendly OTP testing features to streamline local testing of the Link Existing Patient flow.
+
+### Test OTP "000000"
+In local environment (`APP_ENV=local`), OTP verification accepts "000000" as a universal test code:
+
+**File**: `app/Services/OtpService.php`
+
+```php
+// Phone OTP verification (line 40-44)
+if (app()->environment('local') && $otp === '000000') {
+    Log::info('OTP verified (TEST MODE)', ['phone' => $phone]);
+    return true;
+}
+
+// Email OTP verification (line 218-222)
+if (app()->environment('local') && $otp === '000000') {
+    Log::info('Email OTP verified (TEST MODE)', ['email' => $email]);
+    return true;
+}
+```
+
+### Dev Mode Email Bypass
+Email OTP sending now logs instead of actually sending in local environment:
+
+```php
+// sendEmail() method (line 179-187)
+if (app()->environment('local')) {
+    Log::info("📧 OTP for email (DEV MODE - not sent)", [
+        'email' => $email,
+        'otp' => $otp,
+        'expires_at' => now()->addMinutes(5)->toIso8601String(),
+    ]);
+    return true;  // Always succeed in dev
+}
+```
+
+### Testing Instructions
+1. Search for test patient (e.g., `9876500001` or `ramesh.kumar@example.com`)
+2. Click "Send OTP" (phone or email)
+3. Enter `000000` as OTP
+4. Verification succeeds immediately
+
+### Security Note
+- Test OTP only works when `APP_ENV=local`
+- Production environments require real OTP verification
+- All test OTP usage is logged for audit purposes
+
+---
+
 **Status**: Production-ready healthcare management platform with AI-powered booking, comprehensive health records, billing, and insurance management.
 
-**Last Updated**: February 3, 2026 — Secure OTP flow for Link Existing Patient feature
+**Last Updated**: February 3, 2026 — Test OTP mode for development, dev mode email bypass

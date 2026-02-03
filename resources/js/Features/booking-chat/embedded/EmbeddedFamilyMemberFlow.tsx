@@ -562,19 +562,23 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
     // Send OTP (phone or email)
     // SECURITY: OTP is sent to member's registered contact from database (not user input)
-    const handleSendOtp = async () => {
+    // methodOverride: allows passing the method directly when switching methods (avoids stale state)
+    const handleSendOtp = async (methodOverride?: 'phone' | 'email') => {
         if (!state.foundMember?.id) {
             setError('No patient selected');
             return;
         }
 
+        // Use override if provided, otherwise use state
+        const contactMethod = methodOverride || state.selectedContactMethod;
+
         // Check if selected method is available
-        const hasMethod = state.selectedContactMethod === 'phone'
+        const hasMethod = contactMethod === 'phone'
             ? state.foundMember.has_phone
             : state.foundMember.has_email;
 
         if (!hasMethod) {
-            setError(`No ${state.selectedContactMethod === 'phone' ? 'phone number' : 'email'} on record for this patient`);
+            setError(`No ${contactMethod === 'phone' ? 'phone number' : 'email'} on record for this patient`);
             return;
         }
 
@@ -591,7 +595,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                 },
                 body: JSON.stringify({
                     member_id: state.foundMember.id,  // Use member_id (not contact_value)
-                    contact_method: state.selectedContactMethod,  // Just the method choice
+                    contact_method: contactMethod,  // Use the resolved method
                 }),
             });
 
@@ -602,6 +606,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     ...prev,
                     otpSentTo: data.sent_to,  // Store masked contact where OTP was sent
                     contactType: data.method_used,
+                    selectedContactMethod: contactMethod,  // Update state to match what was sent
                     loading: false,
                     attemptsRemaining: data.attempts_remaining,
                     lockedOut: false,
@@ -1341,15 +1346,14 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             {state.foundMember?.has_phone && state.foundMember?.has_email && (
                                 <button
                                     onClick={() => {
-                                        const newMethod = state.selectedContactMethod === 'phone' ? 'email' : 'phone';
+                                        const newMethod: 'phone' | 'email' = state.selectedContactMethod === 'phone' ? 'email' : 'phone';
                                         setState(prev => ({
                                             ...prev,
-                                            selectedContactMethod: newMethod,
                                             otpValue: '',
                                             error: '',
                                         }));
-                                        // Auto-send to new method
-                                        setTimeout(() => handleSendOtp(), 100);
+                                        // Pass method directly to avoid stale state
+                                        handleSendOtp(newMethod);
                                     }}
                                     className="w-full text-sm text-primary hover:underline"
                                     disabled={state.loading}
@@ -2068,15 +2072,14 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     {state.foundMember?.has_phone && state.foundMember?.has_email && (
                         <button
                             onClick={() => {
-                                const newMethod = state.selectedContactMethod === 'phone' ? 'email' : 'phone';
+                                const newMethod: 'phone' | 'email' = state.selectedContactMethod === 'phone' ? 'email' : 'phone';
                                 setState(prev => ({
                                     ...prev,
-                                    selectedContactMethod: newMethod,
                                     otpValue: '',
                                     error: '',
                                 }));
-                                // Auto-send to new method
-                                setTimeout(() => handleSendOtp(), 100);
+                                // Pass method directly to avoid stale state
+                                handleSendOtp(newMethod);
                             }}
                             className="w-full text-sm text-primary hover:underline"
                             disabled={state.loading}

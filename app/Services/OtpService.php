@@ -37,6 +37,12 @@ class OtpService
      */
     public function verify(string $phone, string $otp): bool
     {
+        // DEV: Accept 000000 as test OTP
+        if (app()->environment('local') && $otp === '000000') {
+            Log::info('OTP verified (TEST MODE)', ['phone' => $phone]);
+            return true;
+        }
+
         $cachedOtp = Cache::get("otp:$phone");
 
         if ($cachedOtp === $otp) {
@@ -170,6 +176,16 @@ class OtpService
      */
     public function sendEmail(string $email, string $otp): bool
     {
+        // Mock mode in local environment: Log OTP instead of sending
+        if (app()->environment('local')) {
+            Log::info("📧 OTP for email (DEV MODE - not sent)", [
+                'email' => $email,
+                'otp' => $otp,
+                'expires_at' => now()->addMinutes(5)->toIso8601String(),
+            ]);
+            return true;  // Always succeed in dev
+        }
+
         try {
             Mail::to($email)->send(new OtpMail($otp));
 
@@ -199,6 +215,12 @@ class OtpService
      */
     public function verifyEmail(string $email, string $otp): bool
     {
+        // DEV: Accept 000000 as test OTP
+        if (app()->environment('local') && $otp === '000000') {
+            Log::info('Email OTP verified (TEST MODE)', ['email' => $email]);
+            return true;
+        }
+
         $cachedOtp = Cache::get("otp:email:$email");
 
         if ($cachedOtp === $otp) {
