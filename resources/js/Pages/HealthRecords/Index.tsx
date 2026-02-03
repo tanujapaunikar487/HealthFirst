@@ -63,9 +63,20 @@ import {
   Link2,
   X,
   ShieldCheck,
+  ExternalLink,
 } from '@/Lib/icons';
 import { downloadAsHtml } from '@/Lib/download';
 import { shareContent } from '@/Lib/share';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+  SheetDivider,
+} from '@/Components/ui/sheet';
+import { SheetSkeleton } from '@/Components/ui/skeleton';
 
 /* ─── Types ─── */
 
