@@ -107,7 +107,7 @@ resources/js/
 
 ### Key Components
 - `EmbeddedFamilyMemberFlow.tsx` - 3-mode add member wizard (embedded/standalone/guided)
-- `AppointmentSheets.tsx` - Detail, cancel, reschedule, follow-up, book-again sheets
+- `AppointmentSheets.tsx` - Detail, cancel, reschedule, follow-up, book-again, check-in sheets
 - `ShareSheet.tsx` - Consistent share UI (Copy Link, WhatsApp, Email) used app-wide
 - `PhoneInput.tsx` - +91 fixed prefix input
 
@@ -163,6 +163,10 @@ OLLAMA_MODEL=qwen2.5:7b
 
 | Date | Feature |
 |------|---------|
+| Feb 3 | Button consistency: 1 Primary + 3-dot menu across all detail views |
+| Feb 3 | Appointments: Check-in button (within 24-48h), Add to Calendar, Get Directions |
+| Feb 3 | Health Records: Add to Apple/Google Health (platform-based), Request Amendment |
+| Feb 3 | Past appointments: Book Again primary + Share menu on detail page |
 | Feb 3 | AI-generated summaries on health records (plain language explanations with next steps) |
 | Feb 3 | Table row click opens details; 3-dot menu for actions only (Appointments, Billing, Insurance) |
 | Feb 3 | Consistent ShareSheet across app (Billing, Insurance, Health Records, Appointments) |
