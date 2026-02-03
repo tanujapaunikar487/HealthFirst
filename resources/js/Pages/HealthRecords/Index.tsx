@@ -65,7 +65,7 @@ import {
   ShieldCheck,
 } from '@/Lib/icons';
 import { downloadAsHtml } from '@/Lib/download';
-import { shareContent } from '@/Lib/share';
+import { ShareSheet } from '@/Components/ui/share-sheet';
 
 /* ─── Types ─── */
 
@@ -471,6 +471,8 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const [toastMessage, setToastMessage] = useState('');
+  const [shareRecord, setShareRecord] = useState<HealthRecord | null>(null);
+  const [bulkShareOpen, setBulkShareOpen] = useState(false);
 
   // Navigate to detail page when deep-linked from search
   useEffect(() => {
@@ -858,13 +860,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
               <Download className="h-3.5 w-3.5" />
               Download
             </Button>
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => {
-              const selected = records.filter(r => selectedIds.has(r.id));
-              const text = selected.map(r => `${r.title} — ${r.record_date_formatted}`).join('\n');
-              shareContent({ title: `${selected.length} Health Records`, text }).then(res => {
-                if (res.method === 'clipboard') toast('Copied to clipboard');
-              }).catch(() => {});
-            }}>
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setBulkShareOpen(true)}>
               <Share2 className="h-3.5 w-3.5" />
               Share
             </Button>
@@ -984,20 +980,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                                 <Download className="h-4 w-4 mr-2" />
                                 Download
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={async () => {
-                                try {
-                                  const result = await shareContent({
-                                    title: record.title,
-                                    text: `${record.category} — ${record.date}${record.provider ? ` — ${record.provider}` : ''}`,
-                                    url: window.location.href,
-                                  });
-                                  if (result.method === 'clipboard') {
-                                    toast('Record details copied to clipboard');
-                                  }
-                                } catch {
-                                  // User cancelled share
-                                }
-                              }}>
+                              <DropdownMenuItem onClick={() => setShareRecord(record)}>
                                 <Share2 className="h-4 w-4 mr-2" />
                                 Share
                               </DropdownMenuItem>
@@ -1089,6 +1072,26 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
       </div>
 
       <Toast show={!!toastMessage} message={toastMessage} onHide={() => setToastMessage('')} />
+
+      {/* Individual Record Share Sheet */}
+      {shareRecord && (
+        <ShareSheet
+          open={!!shareRecord}
+          onOpenChange={(open) => !open && setShareRecord(null)}
+          title={shareRecord.title}
+          description={`${categoryConfig[shareRecord.category]?.label || shareRecord.category} — ${shareRecord.record_date_formatted}${shareRecord.doctor_name ? ` — ${shareRecord.doctor_name}` : ''}`}
+          url={`${window.location.origin}/health-records/${shareRecord.id}`}
+        />
+      )}
+
+      {/* Bulk Share Sheet */}
+      <ShareSheet
+        open={bulkShareOpen}
+        onOpenChange={setBulkShareOpen}
+        title={`${selectedIds.size} Health Records`}
+        description={records.filter(r => selectedIds.has(r.id)).slice(0, 3).map(r => r.title).join(', ') + (selectedIds.size > 3 ? '...' : '')}
+        url={window.location.href}
+      />
     </AppLayout>
   );
 }

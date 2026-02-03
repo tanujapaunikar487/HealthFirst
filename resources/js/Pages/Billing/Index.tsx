@@ -57,8 +57,10 @@ import {
   X,
   Loader2,
   CheckCircle2,
+  Share2,
 } from '@/Lib/icons';
 import { downloadAsHtml } from '@/Lib/download';
+import { ShareSheet } from '@/Components/ui/share-sheet';
 
 declare global {
   interface Window {
@@ -231,6 +233,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
   const [payBills, setPayBills] = useState<Bill[]>([]);
   const [excludedPayBillIds, setExcludedPayBillIds] = useState<Set<number>>(new Set());
   const [paymentState, setPaymentState] = useState<'idle' | 'processing' | 'success'>('idle');
+  const [shareBill, setShareBill] = useState<Bill | null>(null);
 
   // Reset sheet state when payBills changes
   useEffect(() => {
@@ -755,6 +758,13 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                                 <Download className="h-4 w-4" />
                                 Download Invoice
                               </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="gap-2 cursor-pointer"
+                                onClick={() => setShareBill(bill)}
+                              >
+                                <Share2 className="h-4 w-4" />
+                                Share
+                              </DropdownMenuItem>
 
                               {/* Pay Now — only for due / copay_due */}
                               {PAYABLE_STATUSES.includes(bill.billing_status) && (
@@ -1078,6 +1088,17 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
         message={toastMessage}
         onHide={() => setToastMessage('')}
       />
+
+      {/* Share Sheet */}
+      {shareBill && (
+        <ShareSheet
+          open={!!shareBill}
+          onOpenChange={(open) => !open && setShareBill(null)}
+          title={`Invoice ${shareBill.invoice_number}`}
+          description={`${shareBill.appointment_title} · ${shareBill.patient_name} · ₹${shareBill.total.toLocaleString()}`}
+          url={`${window.location.origin}/billing/${shareBill.id}`}
+        />
+      )}
     </AppLayout>
   );
 }
