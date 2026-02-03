@@ -34,7 +34,7 @@ import {
   SheetDivider,
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
-import { cn } from '@/Lib/utils';
+import { cn, formatTableDate } from '@/Lib/utils';
 import {
   ShieldCheck,
   Plus,
@@ -692,56 +692,82 @@ export default function InsuranceIndex({
             {/* Policies on file */}
             <div className="mb-10">
               <h2 className="mb-4 text-sm font-semibold text-gray-500">Policies on file</h2>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {policies.map((policy) => (
-                  <Card
-                    key={policy.id}
-                    className="cursor-pointer p-5 transition-shadow hover:shadow-md"
-                    onClick={() => router.visit('/insurance/' + policy.id)}
-                  >
-                    <div className="mb-3 flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg text-sm font-bold"
-                          style={{ backgroundColor: '#BFDBFE', color: '#1E40AF' }}
-                        >
-                          {getProviderInitials(policy.provider_name)}
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">
-                            {policy.plan_name}
+              <div className="border" style={{ borderRadius: '20px' }}>
+                <Table>
+                  <TableHeader>
+                    <TableRow className="hover:bg-transparent">
+                      <TableHead className="w-[140px]">Date</TableHead>
+                      <TableHead>Details</TableHead>
+                      <TableHead className="w-[100px]">Members</TableHead>
+                      <TableHead className="w-[140px] text-right">Amount</TableHead>
+                      <TableHead className="w-[140px]">Status</TableHead>
+                      <TableHead className="w-[50px]" />
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {policies.map((policy) => (
+                      <TableRow
+                        key={policy.id}
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => router.visit('/insurance/' + policy.id)}
+                      >
+                        <TableCell className="align-top">
+                          <p className="text-sm text-gray-600 whitespace-nowrap">
+                            {policy.end_date_formatted ? `Valid until ${policy.end_date_formatted}` : '—'}
                           </p>
-                          <p className="text-xs text-gray-500">{policy.policy_number}</p>
-                        </div>
-                      </div>
-                      {policy.is_expiring_soon ? (
-                        <Badge
-                          variant="outline"
-                          className="border-amber-200 bg-amber-50 text-amber-700"
-                        >
-                          <AlertTriangle className="mr-1 h-3 w-3" />
-                          Expires in {policy.days_until_expiry}d
-                        </Badge>
-                      ) : null}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
-                        <span>{policy.provider_name}</span>
-                        <span className="flex items-center gap-1">
-                          <Users className="h-3 w-3" />
-                          {policy.member_count}{' '}
-                          {policy.member_count === 1 ? 'member' : 'members'}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <ClipboardList className="h-3 w-3" />
-                          {policy.claims_count}{' '}
-                          {policy.claims_count === 1 ? 'Claim' : 'Claims'}
-                        </span>
-                      </div>
-                      <ChevronRight className="h-4 w-4 text-gray-400" />
-                    </div>
-                  </Card>
-                ))}
+                        </TableCell>
+                        <TableCell className="align-top">
+                          <div className="flex items-center gap-2.5">
+                            <div
+                              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                              style={{ backgroundColor: '#BFDBFE', color: '#1E40AF' }}
+                            >
+                              {getProviderInitials(policy.provider_name)}
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">{policy.plan_name}</p>
+                              <p className="text-xs text-muted-foreground">{policy.policy_number}</p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="align-top">
+                          <span className="text-sm flex items-center gap-1">
+                            <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                            {policy.member_count}
+                          </span>
+                        </TableCell>
+                        <TableCell className="align-top text-right">
+                          <p className="text-sm font-medium">₹{policy.sum_insured.toLocaleString()}</p>
+                        </TableCell>
+                        <TableCell className="align-top">
+                          {policy.is_expiring_soon ? (
+                            <Badge
+                              variant="outline"
+                              className="border-amber-200 bg-amber-50 text-amber-700 text-[11px]"
+                            >
+                              <AlertTriangle className="mr-1 h-3 w-3" />
+                              Expires in {policy.days_until_expiry}d
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-green-100 text-green-700 text-[11px]">
+                              Active
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="align-top">
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+
+                {/* Table Footer */}
+                {policies.length > 0 && (
+                  <div className="flex items-center justify-center px-4 py-4 border-t border-[#E5E5E5] text-xs text-gray-500">
+                    <span>Showing {policies.length} {policies.length === 1 ? 'policy' : 'policies'}</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -812,11 +838,12 @@ export default function InsuranceIndex({
                 <div className="border" style={{ borderRadius: '20px' }}>
                   <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Appointment</TableHead>
-                        <TableHead>Patient</TableHead>
-                        <TableHead className="text-right">Amount</TableHead>
+                      <TableRow className="hover:bg-transparent">
+                        <TableHead className="w-[120px]">Date</TableHead>
+                        <TableHead>Details</TableHead>
+                        <TableHead className="w-[150px]">Member</TableHead>
+                        <TableHead className="w-[120px] text-right">Amount</TableHead>
+                        <TableHead className="w-[120px]">Status</TableHead>
                         <TableHead className="w-[50px]" />
                       </TableRow>
                     </TableHeader>
@@ -827,48 +854,41 @@ export default function InsuranceIndex({
                           className="cursor-pointer hover:bg-muted/50"
                           onClick={() => router.visit(`/insurance/claims/${claim.id}`)}
                         >
-                          <TableCell className="text-sm text-gray-600">
-                            {claim.claim_date_formatted ?? '--'}
+                          <TableCell className="align-top">
+                            <p className="text-sm text-gray-600 whitespace-nowrap">
+                              {claim.claim_date_formatted ?? '—'}
+                            </p>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="align-top">
                             <div className="flex items-center gap-2.5">
                               <div
-                                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg"
+                                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full"
                                 style={{ backgroundColor: '#BFDBFE' }}
                               >
-                                <Building2 className="h-4 w-4" style={{ color: '#1E40AF' }} />
+                                <Building2 className="h-5 w-5" style={{ color: '#1E40AF' }} />
                               </div>
                               <div>
                                 <p className="text-sm font-medium text-gray-900">
                                   {claim.treatment_name}
                                 </p>
                                 {claim.plan_name && (
-                                  <p className="text-xs text-gray-500">{claim.plan_name}</p>
+                                  <p className="text-xs text-muted-foreground">{claim.plan_name}</p>
                                 )}
                               </div>
                             </div>
                           </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <div
-                                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold"
-                                style={{
-                                  backgroundColor: getAvatarColor(claim.patient_name).bg,
-                                  color: getAvatarColor(claim.patient_name).text,
-                                }}
-                              >
-                                {getPatientInitials(claim.patient_name)}
-                              </div>
-                              <span className="text-sm text-gray-600">{claim.patient_name}</span>
-                            </div>
+                          <TableCell className="align-top">
+                            <span className="text-sm text-gray-600">{claim.patient_name}</span>
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="align-top text-right">
                             <p className="text-sm font-medium text-gray-900">
                               {formatCurrency(claim.claim_amount)}
                             </p>
-                            <div className="mt-0.5">{getStatusBadge(claim.status)}</div>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="align-top">
+                            {getStatusBadge(claim.status)}
+                          </TableCell>
+                          <TableCell className="align-top">
                             <ChevronRight className="h-4 w-4 text-muted-foreground" />
                           </TableCell>
                         </TableRow>
@@ -891,7 +911,7 @@ export default function InsuranceIndex({
         )}
 
         {/* Support CTA */}
-        <div className="mt-8 py-6 border-t border-gray-200 text-center">
+        <div className="mt-8 py-6 text-center">
           <p className="text-sm text-gray-600">
             Need help with Insurance?{' '}
             <a href="mailto:support@healthfirst.in?subject=Insurance Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">

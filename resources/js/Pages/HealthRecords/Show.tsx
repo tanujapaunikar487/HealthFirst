@@ -50,7 +50,6 @@ import {
   Link2,
   User,
   Settings2,
-  ClipboardList,
   Sparkles,
   Loader2,
   Pencil,
@@ -998,7 +997,7 @@ export default function Show({ user, record, familyMember }: Props) {
         </div>
 
         {/* Support CTA */}
-        <div className="mt-8 py-6 border-t border-gray-200 text-center">
+        <div className="mt-8 py-6 text-center">
           <p className="text-sm text-gray-600">
             Need help with this record?{' '}
             <a href="mailto:support@healthfirst.in?subject=Health Records Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">

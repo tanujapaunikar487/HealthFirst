@@ -31,7 +31,7 @@ import {
   SheetFooter,
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
-import { cn } from '@/Lib/utils';
+import { cn, formatTableDate, formatTableTime } from '@/Lib/utils';
 import {
   MoreHorizontal,
   Search,
@@ -595,10 +595,10 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                         />
                       )}
                     </TableHead>
-                    <TableHead className="w-[110px]">Date</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead className="w-[120px]">Patient</TableHead>
-                    <TableHead className="w-[130px]">Amount</TableHead>
+                    <TableHead className="w-[150px]">Date</TableHead>
+                    <TableHead>Details</TableHead>
+                    <TableHead className="w-[120px]">Member</TableHead>
+                    <TableHead className="w-[130px] text-right">Amount</TableHead>
                     <TableHead className="w-[140px]">Status</TableHead>
                     <TableHead className="w-[50px]" />
                   </TableRow>
@@ -631,13 +631,13 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                           />
                         </TableCell>
 
-                        {/* Date & Time */}
+                        {/* Date */}
                         <TableCell className="align-top">
-                          <p className="text-sm">{formatDate(bill.date)}</p>
-                          <p className="text-xs text-muted-foreground">{formatTime(bill.date)}</p>
+                          <p className="text-sm font-medium whitespace-nowrap">{formatTableDate(bill.date)}</p>
+                          <p className="text-xs text-muted-foreground">{formatTableTime(bill.date)}</p>
                         </TableCell>
 
-                        {/* Description */}
+                        {/* Details */}
                         <TableCell className="align-top">
                           <div className="flex items-center gap-2.5">
                             <div
@@ -657,13 +657,13 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                           </div>
                         </TableCell>
 
-                        {/* Patient */}
+                        {/* Member */}
                         <TableCell className="align-top">
                           <p className="text-sm">{bill.patient_name}</p>
                         </TableCell>
 
                         {/* Amount */}
-                        <TableCell className="align-top">
+                        <TableCell className="align-top text-right">
                           {bill.due_amount > 0 && bill.due_amount !== bill.original_amount ? (
                             <div>
                               <p className="text-sm font-medium">₹{bill.due_amount.toLocaleString()}</p>
@@ -690,9 +690,9 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                           )}
                         </TableCell>
 
-                        {/* Visual indicator - no actions, click row for details */}
+                        {/* Visual indicator - click row for details */}
                         <TableCell className="align-top">
-                          <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
                         </TableCell>
                       </TableRow>
                     );
@@ -746,7 +746,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
         )}
 
         {/* Support CTA */}
-        <div className="mt-8 py-6 border-t border-gray-200 text-center">
+        <div className="mt-8 py-6 text-center">
           <p className="text-sm text-gray-600">
             Need help with Billing?{' '}
             <a href="mailto:support@healthfirst.in?subject=Billing Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">

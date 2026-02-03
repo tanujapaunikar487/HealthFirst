@@ -290,16 +290,25 @@ export function DetailsSheet({
               <span className="text-sm font-medium">Notes</span>
             </div>
             <div className="flex items-center gap-2">
-              <button
-                className="text-xs text-primary hover:underline"
+              <span
+                role="button"
+                tabIndex={0}
+                className="text-xs text-primary hover:underline cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsEditingNotes(true);
                   setNotesOpen(true);
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.stopPropagation();
+                    setIsEditingNotes(true);
+                    setNotesOpen(true);
+                  }
+                }}
               >
                 {notesValue ? 'Edit' : 'Add note'}
-              </button>
+              </span>
               <Icon
                 icon={ChevronDown}
                 className={cn(
@@ -387,16 +396,6 @@ export function DetailsSheet({
             </ul>
           </CollapsibleContent>
         </Collapsible>
-      </div>
-
-      {/* Support CTA */}
-      <div className="py-4 border-t border-gray-200 text-center">
-        <p className="text-xs text-gray-600">
-          Need help with this appointment?{' '}
-          <a href="mailto:support@healthfirst.in?subject=Appointment Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
-            Contact support →
-          </a>
-        </p>
       </div>
 
       {/* Footer */}
@@ -504,14 +503,25 @@ export function DetailsSheet({
 
         {tab === 'past' && (
           <>
-            <Button
-              className="flex-1"
-              size="lg"
-              onClick={() => onAction({ type: 'book_again', appointment })}
-            >
-              <Icon icon={RotateCcw} className="h-4 w-4 mr-2" />
-              Book Again
-            </Button>
+            {isDoctor ? (
+              <Button
+                className="flex-1"
+                size="lg"
+                onClick={() => onAction({ type: 'book_again', appointment })}
+              >
+                <Icon icon={RotateCcw} className="h-4 w-4 mr-2" />
+                Book Again
+              </Button>
+            ) : (
+              <Button
+                className="flex-1"
+                size="lg"
+                onClick={() => router.visit('/booking?type=lab')}
+              >
+                <Icon icon={TestTube2} className="h-4 w-4 mr-2" />
+                Book Lab Test
+              </Button>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="icon" className="h-10 w-10 flex-shrink-0">
@@ -532,14 +542,25 @@ export function DetailsSheet({
         )}
 
         {tab === 'cancelled' && (
-          <Button
-            className="flex-1"
-            size="lg"
-            onClick={() => onAction({ type: 'book_again', appointment })}
-          >
-            <Icon icon={RotateCcw} className="h-4 w-4 mr-2" />
-            Book Again
-          </Button>
+          isDoctor ? (
+            <Button
+              className="flex-1"
+              size="lg"
+              onClick={() => onAction({ type: 'book_again', appointment })}
+            >
+              <Icon icon={RotateCcw} className="h-4 w-4 mr-2" />
+              Book Again
+            </Button>
+          ) : (
+            <Button
+              className="flex-1"
+              size="lg"
+              onClick={() => router.visit('/booking?type=lab')}
+            >
+              <Icon icon={TestTube2} className="h-4 w-4 mr-2" />
+              Book Lab Test
+            </Button>
+          )
         )}
       </SheetFooter>
     </div>
@@ -615,26 +636,27 @@ export function CancelledDetailsSheet({
         </div>
       </div>
 
-      {/* Support CTA */}
-      <div className="py-4 border-t border-gray-200 text-center">
-        <p className="text-xs text-gray-600">
-          Need help with this appointment?{' '}
-          <a href="mailto:support@healthfirst.in?subject=Appointment Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
-            Contact support →
-          </a>
-        </p>
-      </div>
-
       {/* Footer */}
       <SheetFooter>
-        <Button
-          className="flex-1"
-          size="lg"
-          onClick={() => onAction({ type: 'book_again', appointment })}
-        >
-          <Icon icon={RotateCcw} className="h-4 w-4 mr-2" />
-          Book Again
-        </Button>
+        {isDoctor ? (
+          <Button
+            className="flex-1"
+            size="lg"
+            onClick={() => onAction({ type: 'book_again', appointment })}
+          >
+            <Icon icon={RotateCcw} className="h-4 w-4 mr-2" />
+            Book Again
+          </Button>
+        ) : (
+          <Button
+            className="flex-1"
+            size="lg"
+            onClick={() => router.visit('/booking?type=lab')}
+          >
+            <Icon icon={TestTube2} className="h-4 w-4 mr-2" />
+            Book Lab Test
+          </Button>
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon" className="h-10 w-10 flex-shrink-0">
@@ -1357,7 +1379,10 @@ export function BookAgainSheet({
   // Initial fetch
   useEffect(() => {
     fetch(`/appointments/${appointment.id}/book-again-slots`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error('Failed to load');
+        return r.json();
+      })
       .then((responseData: BookAgainData) => {
         setData(responseData);
         // Auto-select first date if available
@@ -1384,7 +1409,10 @@ export function BookAgainSheet({
     setSelectedTime('');
     setSlotsLoading(true);
     fetch(`/appointments/${appointment.id}/book-again-slots?date=${date}`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error('Failed to load');
+        return r.json();
+      })
       .then((responseData: BookAgainData) => {
         if (data) {
           setData({ ...data, slots: responseData.slots });

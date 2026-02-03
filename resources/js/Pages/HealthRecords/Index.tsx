@@ -25,7 +25,7 @@ import {
 } from '@/Components/ui/table';
 import { Tabs, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import { Toast } from '@/Components/ui/toast';
-import { cn } from '@/Lib/utils';
+import { cn, formatTableDate } from '@/Lib/utils';
 import {
   Search,
   Stethoscope,
@@ -877,9 +877,9 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                         aria-label="Select all"
                       />
                     </TableHead>
-                    <TableHead className="w-[100px]">Date</TableHead>
-                    <TableHead>Record</TableHead>
-                    <TableHead className="w-[120px]">Patient</TableHead>
+                    <TableHead className="w-[120px]">Date</TableHead>
+                    <TableHead>Details</TableHead>
+                    <TableHead className="w-[120px]">Member</TableHead>
                     <TableHead className="w-[180px]">Status</TableHead>
                     <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
@@ -905,7 +905,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                           />
                         </TableCell>
                         <TableCell>
-                          <p className="text-sm font-medium whitespace-nowrap">{formatDate(record.record_date)}</p>
+                          <p className="text-sm font-medium whitespace-nowrap">{formatTableDate(record.record_date)}</p>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-3">
@@ -924,7 +924,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                           </span>
                         </TableCell>
                         <TableCell>
-                          {record.status && <StatusBadge status={record.status} />}
+                          {record.status ? <StatusBadge status={record.status} /> : <span className="text-sm text-muted-foreground">—</span>}
                         </TableCell>
                         <TableCell>
                           <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -977,7 +977,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
             </div>
 
             {/* Support CTA */}
-            <div className="mt-8 py-6 border-t border-gray-200 text-center">
+            <div className="mt-8 py-6 text-center">
               <p className="text-sm text-gray-600">
                 Need help with Health Records?{' '}
                 <a href="mailto:support@healthfirst.in?subject=Health Records Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">

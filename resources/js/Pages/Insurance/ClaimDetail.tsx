@@ -1515,7 +1515,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         </div>{/* End of flex container */}
 
         {/* Support CTA */}
-        <div className="mt-8 py-6 border-t border-gray-200 text-center">
+        <div className="mt-8 py-6 text-center">
           <p className="text-sm text-gray-600">
             Need help with this claim?{' '}
             <a href="mailto:support@healthfirst.in?subject=Insurance Claim Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">

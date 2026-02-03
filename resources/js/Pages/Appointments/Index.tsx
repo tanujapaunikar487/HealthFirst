@@ -31,7 +31,7 @@ import {
   SheetDescription,
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
-import { cn } from '@/Lib/utils';
+import { cn, formatTableDate, formatTableTime } from '@/Lib/utils';
 import {
   CalendarPlus,
   Copy,
@@ -383,7 +383,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
         </Tabs>
 
         {/* Support CTA */}
-        <div className="mt-8 py-6 border-t border-gray-200 text-center">
+        <div className="mt-8 py-6 text-center">
           <p className="text-sm text-gray-600">
             Need help with Appointments?{' '}
             <a href="mailto:support@healthfirst.in?subject=Appointments Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
@@ -493,10 +493,11 @@ function AppointmentsTable({
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <TableHead className="w-[140px]">Date</TableHead>
-            <TableHead>Appointment</TableHead>
-            <TableHead className="w-[120px]">Patient</TableHead>
-            <TableHead className="w-[140px]">Amount</TableHead>
+            <TableHead className="w-[180px]">Date</TableHead>
+            <TableHead>Details</TableHead>
+            <TableHead className="w-[120px]">Member</TableHead>
+            <TableHead className="w-[120px] text-right">Amount</TableHead>
+            <TableHead className="w-[100px]">Status</TableHead>
             <TableHead className="w-[50px]" />
           </TableRow>
         </TableHeader>
@@ -519,8 +520,8 @@ function AppointmentsTable({
               onClick={handleRowClick}
             >
               <TableCell className="align-top">
-                <p className="text-sm font-medium">{formatDate(appt.date)}</p>
-                <p className="text-xs text-muted-foreground">{formatTime(appt.date)}</p>
+                <p className="text-sm font-medium whitespace-nowrap">{formatTableDate(appt.date)}</p>
+                <p className="text-xs text-muted-foreground">{formatTableTime(appt.date)}</p>
               </TableCell>
               <TableCell className="align-top">
                 <div className="flex items-center gap-2.5">
@@ -546,8 +547,10 @@ function AppointmentsTable({
               <TableCell className="align-top">
                 <p className="text-sm">{appt.patient_name}</p>
               </TableCell>
-              <TableCell className="align-top">
+              <TableCell className="align-top text-right">
                 <p className="text-sm font-medium">₹{appt.fee.toLocaleString()}</p>
+              </TableCell>
+              <TableCell className="align-top">
                 <PaymentStatusTag status={appt.payment_status} />
               </TableCell>
               <TableCell className="align-top">
