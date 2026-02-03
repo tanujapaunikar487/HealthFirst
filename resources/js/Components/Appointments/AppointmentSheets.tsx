@@ -82,6 +82,7 @@ export type SheetView =
   | { type: 'cancel'; appointment: Appointment }
   | { type: 'reschedule'; appointment: Appointment }
   | { type: 'followup'; appointment: Appointment }
+  | { type: 'book_again'; appointment: Appointment }
   | { type: 'share'; appointment: Appointment }
   | null;
 
@@ -407,9 +408,7 @@ export function DetailsSheet({
             <Button
               className="flex-1"
               size="lg"
-              onClick={() => {
-                window.location.href = `/appointments/${appointment.id}/book-again`;
-              }}
+              onClick={() => onAction({ type: 'book_again', appointment })}
             >
               <Icon icon={RotateCcw} className="h-4 w-4 mr-2" />
               Book Again
@@ -437,9 +436,7 @@ export function DetailsSheet({
           <Button
             className="flex-1"
             size="lg"
-            onClick={() => {
-              window.location.href = `/appointments/${appointment.id}/book-again`;
-            }}
+            onClick={() => onAction({ type: 'book_again', appointment })}
           >
             <Icon icon={RotateCcw} className="h-4 w-4 mr-2" />
             Book Again
@@ -524,9 +521,7 @@ export function CancelledDetailsSheet({
         <Button
           className="flex-1"
           size="lg"
-          onClick={() => {
-            window.location.href = `/appointments/${appointment.id}/book-again`;
-          }}
+          onClick={() => onAction({ type: 'book_again', appointment })}
         >
           <Icon icon={RotateCcw} className="h-4 w-4 mr-2" />
           Book Again
@@ -1165,6 +1160,310 @@ export function FollowUpSheet({
                 : getSelectedPrice()
                 ? `Book Follow-up ₹${getSelectedPrice()?.toLocaleString()}`
                 : 'Book Follow-up'}
+            </Button>
+          </SheetFooter>
+        </>
+      ) : (
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-sm text-muted-foreground">Failed to load data</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Book Again Sheet ─── */
+
+interface BookAgainDateOption {
+  date: string;
+  display: string;
+  sublabel: string;
+  is_today: boolean;
+}
+
+interface BookAgainSlot {
+  time: string;
+  available: boolean;
+  preferred: boolean;
+}
+
+interface BookAgainMode {
+  type: 'video' | 'in_person';
+  label: string;
+  description: string;
+  price: number;
+}
+
+interface BookAgainData {
+  dates: BookAgainDateOption[];
+  slots: BookAgainSlot[];
+  doctor: {
+    id: number;
+    name: string;
+    specialization: string;
+    avatar_url: string | null;
+  };
+  patient: {
+    id: number | null;
+    name: string;
+  };
+  modes: BookAgainMode[];
+  original_mode: 'video' | 'in_person' | null;
+}
+
+export function BookAgainSheet({
+  appointment,
+  onSuccess,
+  onError,
+}: {
+  appointment: Appointment;
+  onSuccess: () => void;
+  onError: (message: string) => void;
+  onClose?: () => void;
+}) {
+  const [data, setData] = useState<BookAgainData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [slotsLoading, setSlotsLoading] = useState(false);
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedTime, setSelectedTime] = useState('');
+  const [selectedMode, setSelectedMode] = useState<'video' | 'in_person' | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Initial fetch
+  useEffect(() => {
+    fetch(`/appointments/${appointment.id}/book-again-slots`)
+      .then((r) => r.json())
+      .then((responseData: BookAgainData) => {
+        setData(responseData);
+        // Auto-select first date if available
+        if (responseData.dates.length > 0) {
+          setSelectedDate(responseData.dates[0].date);
+        }
+        // Pre-select original mode if available, otherwise auto-select if only one option
+        if (responseData.original_mode && responseData.modes.some(m => m.type === responseData.original_mode)) {
+          setSelectedMode(responseData.original_mode);
+        } else if (responseData.modes.length === 1) {
+          setSelectedMode(responseData.modes[0].type);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+        onError('Failed to load available slots. Please try again.');
+      });
+  }, [appointment.id]);
+
+  // Refetch slots when date changes
+  const handleDateChange = (date: string) => {
+    setSelectedDate(date);
+    setSelectedTime('');
+    setSlotsLoading(true);
+    fetch(`/appointments/${appointment.id}/book-again-slots?date=${date}`)
+      .then((r) => r.json())
+      .then((responseData: BookAgainData) => {
+        if (data) {
+          setData({ ...data, slots: responseData.slots });
+        }
+        setSlotsLoading(false);
+      })
+      .catch(() => {
+        setSlotsLoading(false);
+        onError('Failed to load time slots. Please try again.');
+      });
+  };
+
+  const handleSubmit = () => {
+    if (!selectedDate || !selectedTime || !selectedMode) return;
+    setSubmitting(true);
+    router.post(
+      `/appointments/${appointment.id}/book-again-create`,
+      { date: selectedDate, time: selectedTime, mode: selectedMode },
+      {
+        onSuccess: () => onSuccess(),
+        onError: () => {
+          setSubmitting(false);
+          onError('Failed to book appointment. Please try again.');
+        },
+      }
+    );
+  };
+
+  const getSelectedPrice = () => {
+    if (!data || !selectedMode) return null;
+    const mode = data.modes.find((m) => m.type === selectedMode);
+    return mode?.price ?? null;
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+      <SheetHeader>
+        <SheetTitle>Book Again</SheetTitle>
+        <SheetDescription>
+          {data?.doctor ? `with ${data.doctor.name}` : 'Loading...'}
+        </SheetDescription>
+      </SheetHeader>
+
+      {loading ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-spin h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full" />
+        </div>
+      ) : data ? (
+        <>
+          <div className="flex-1 space-y-6 overflow-y-auto">
+            {/* Doctor & Patient Card */}
+            <div className="rounded-lg bg-muted/50 p-4 space-y-3">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                  {data.doctor.avatar_url ? (
+                    <AvatarImage src={data.doctor.avatar_url} alt={data.doctor.name} />
+                  ) : null}
+                  <AvatarFallback className="bg-orange-400 text-white font-medium">
+                    {getInitials(data.doctor.name)}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-medium text-sm">{data.doctor.name}</p>
+                  <p className="text-xs text-muted-foreground">{data.doctor.specialization}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Icon icon={User} className="h-3.5 w-3.5" />
+                <span>For: {data.patient.name}</span>
+              </div>
+            </div>
+
+            <SheetDivider />
+
+            {/* Date Pills */}
+            <div>
+              <p className="text-sm font-medium mb-3">Select a date</p>
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {data.dates.map((d) => (
+                  <button
+                    key={d.date}
+                    type="button"
+                    onClick={() => handleDateChange(d.date)}
+                    className={cn(
+                      'flex flex-col items-center justify-center min-w-[100px] px-4 py-3 rounded-xl border text-sm transition-all flex-shrink-0',
+                      selectedDate === d.date
+                        ? 'bg-foreground text-background border-foreground'
+                        : 'bg-background hover:border-primary/50 border-gray-200'
+                    )}
+                  >
+                    <span className="font-medium">{d.display}</span>
+                    <span
+                      className={cn(
+                        'text-[10px] mt-0.5',
+                        selectedDate === d.date ? 'text-background/70' : 'text-muted-foreground'
+                      )}
+                    >
+                      {d.sublabel}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Time Slots */}
+            {selectedDate && (
+              <div>
+                <p className="text-sm font-medium mb-3">Select a time</p>
+                {slotsLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full" />
+                  </div>
+                ) : data.slots.length === 0 ? (
+                  <div className="text-center py-8 px-4 rounded-lg border border-dashed">
+                    <p className="text-sm text-muted-foreground">No available slots for this date</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {data.slots.map((s) => (
+                      <button
+                        key={s.time}
+                        type="button"
+                        onClick={() => s.available && setSelectedTime(s.time)}
+                        disabled={!s.available}
+                        className={cn(
+                          'px-4 py-2 rounded-full border text-sm transition-all',
+                          selectedTime === s.time
+                            ? 'bg-foreground text-background border-foreground'
+                            : s.available
+                            ? 'bg-background hover:border-primary/50 border-gray-200'
+                            : 'bg-muted text-muted-foreground border-gray-200 cursor-not-allowed opacity-50'
+                        )}
+                      >
+                        {s.time}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Consultation Mode */}
+            {selectedDate && selectedTime && data.modes.length > 0 && (
+              <div>
+                <p className="text-sm font-medium mb-3">How would you like to consult?</p>
+                <div className="space-y-2">
+                  {data.modes.map((mode) => (
+                    <button
+                      key={mode.type}
+                      type="button"
+                      onClick={() => setSelectedMode(mode.type)}
+                      className={cn(
+                        'w-full flex items-center justify-between p-4 rounded-lg border text-left transition-all',
+                        selectedMode === mode.type
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={cn(
+                            'h-4 w-4 rounded-full border-2 flex items-center justify-center',
+                            selectedMode === mode.type ? 'border-blue-500' : 'border-gray-300'
+                          )}
+                        >
+                          {selectedMode === mode.type && (
+                            <div className="h-2 w-2 rounded-full bg-blue-500" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">{mode.label}</p>
+                          <p className="text-xs text-muted-foreground">{mode.description}</p>
+                        </div>
+                      </div>
+                      <span className="font-semibold text-sm">₹{mode.price.toLocaleString()}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <SheetFooter>
+            <Button
+              className="flex-1"
+              size="lg"
+              onClick={handleSubmit}
+              disabled={!selectedDate || !selectedTime || !selectedMode || submitting}
+            >
+              {submitting
+                ? 'Booking...'
+                : getSelectedPrice()
+                ? `Book Appointment ₹${getSelectedPrice()?.toLocaleString()}`
+                : 'Book Appointment'}
             </Button>
           </SheetFooter>
         </>

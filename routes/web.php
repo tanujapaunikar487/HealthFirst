@@ -113,11 +113,41 @@ Route::post('/appointments/{appointment}/generate-video-link', [AppointmentsCont
 Route::post('/appointments/{appointment}/rate', [AppointmentsController::class, 'rate'])->name('appointments.rate');
 Route::get('/appointments/{appointment}/followup-slots', [AppointmentsController::class, 'followUpSlots'])->name('appointments.followup-slots');
 Route::post('/appointments/{appointment}/followup', [AppointmentsController::class, 'createFollowUp'])->name('appointments.followup');
+Route::get('/appointments/{appointment}/book-again-slots', [AppointmentsController::class, 'bookAgainSlots'])->name('appointments.book-again-slots');
+Route::post('/appointments/{appointment}/book-again-create', [AppointmentsController::class, 'createBookAgain'])->name('appointments.book-again-create');
 
 
 // Settings
-Route::get('/settings', [\App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
-Route::put('/settings/video', [\App\Http\Controllers\SettingsController::class, 'updateVideoSettings'])->name('settings.video.update');
+Route::prefix('settings')->name('settings.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\SettingsController::class, 'index'])->name('index');
+
+    // Profile
+    Route::put('/profile', [\App\Http\Controllers\SettingsController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/avatar', [\App\Http\Controllers\SettingsController::class, 'uploadAvatar'])->name('avatar.upload');
+    Route::delete('/avatar', [\App\Http\Controllers\SettingsController::class, 'deleteAvatar'])->name('avatar.delete');
+
+    // Notifications
+    Route::put('/notifications', [\App\Http\Controllers\SettingsController::class, 'updateNotifications'])->name('notifications.update');
+
+    // Preferences
+    Route::put('/preferences', [\App\Http\Controllers\SettingsController::class, 'updatePreferences'])->name('preferences.update');
+    Route::put('/booking-defaults', [\App\Http\Controllers\SettingsController::class, 'updateBookingDefaults'])->name('booking-defaults.update');
+
+    // Video (existing)
+    Route::put('/video', [\App\Http\Controllers\SettingsController::class, 'updateVideoSettings'])->name('video.update');
+
+    // Calendar OAuth
+    Route::get('/calendar/google/connect', [\App\Http\Controllers\SettingsController::class, 'initiateGoogleCalendarOAuth'])->name('calendar.google.connect');
+    Route::get('/calendar/google/callback', [\App\Http\Controllers\SettingsController::class, 'handleGoogleCalendarCallback'])->name('calendar.google.callback');
+    Route::delete('/calendar/google', [\App\Http\Controllers\SettingsController::class, 'disconnectGoogleCalendar'])->name('calendar.google.disconnect');
+    Route::get('/calendar/apple/export', [\App\Http\Controllers\SettingsController::class, 'generateAppleCalendarExport'])->name('calendar.apple.export');
+
+    // Account Actions
+    Route::post('/verify-password', [\App\Http\Controllers\SettingsController::class, 'verifyCurrentPassword'])->name('verify-password');
+    Route::put('/password', [\App\Http\Controllers\SettingsController::class, 'changePassword'])->name('password.update');
+    Route::get('/download-data', [\App\Http\Controllers\SettingsController::class, 'downloadMyData'])->name('download-data');
+    Route::delete('/account', [\App\Http\Controllers\SettingsController::class, 'deleteAccount'])->name('account.delete');
+});
 
 // Family Members
 Route::get('/family-members', [FamilyMembersController::class, 'index'])->name('family-members.index');

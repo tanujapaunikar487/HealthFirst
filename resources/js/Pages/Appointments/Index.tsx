@@ -61,6 +61,7 @@ import {
   CancelledDetailsSheet,
   CancelSheet,
   RescheduleSheet,
+  BookAgainSheet,
   type Appointment,
   type SheetView,
 } from '@/Components/Appointments/AppointmentSheets';
@@ -424,6 +425,14 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
               onClose={() => setSheetView(null)}
             />
           )}
+          {sheetView?.type === 'book_again' && (
+            <BookAgainSheet
+              appointment={sheetView.appointment}
+              onSuccess={() => handleSheetSuccess('Appointment booked successfully.')}
+              onError={(msg) => handleSheetError(msg)}
+              onClose={() => setSheetView(null)}
+            />
+          )}
           {!sheetView && <SheetSkeleton />}
         </SheetContent>
       </Sheet>
@@ -649,9 +658,7 @@ function ActionsMenu({
             </DropdownMenuItem>
             <DropdownMenuItem
               className="gap-2 cursor-pointer"
-              onClick={() => {
-                window.location.href = `/appointments/${appointment.id}/book-again`;
-              }}
+              onClick={() => onAction({ type: 'book_again', appointment })}
             >
               <Icon icon={RotateCcw} className="h-4 w-4" />
               Book Again
@@ -670,9 +677,7 @@ function ActionsMenu({
             </DropdownMenuItem>
             <DropdownMenuItem
               className="gap-2 cursor-pointer"
-              onClick={() => {
-                window.location.href = `/appointments/${appointment.id}/book-again`;
-              }}
+              onClick={() => onAction({ type: 'book_again', appointment })}
             >
               <Icon icon={RotateCcw} className="h-4 w-4" />
               Book Again

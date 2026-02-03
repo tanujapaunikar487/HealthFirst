@@ -364,6 +364,151 @@ class AppointmentsController extends Controller
     }
 
     /**
+     * Get available slots for book-again (same doctor, new appointment)
+     */
+    public function bookAgainSlots(Appointment $appointment, Request $request)
+    {
+        $user = Auth::user() ?? \App\User::first();
+
+        if ($appointment->user_id !== $user->id) {
+            abort(403);
+        }
+
+        // Only doctor appointments can be booked again via sheet
+        if ($appointment->appointment_type !== 'doctor' || !$appointment->doctor_id) {
+            return response()->json(['error' => 'Book again only available for doctor appointments'], 400);
+        }
+
+        $selectedDate = $request->get('date', now()->toDateString());
+        $doctor = $appointment->doctor;
+
+        // Get doctor's working days
+        $availabilities = \App\Models\DoctorAvailability::where('doctor_id', $doctor->id)
+            ->where('is_available', true)
+            ->pluck('day_of_week')
+            ->toArray();
+
+        // Generate available dates (next 14 days filtered by doctor availability)
+        $dates = [];
+        for ($i = 0; $i < 14; $i++) {
+            $d = Carbon::today()->addDays($i);
+            $dayOfWeek = $d->dayOfWeek;
+            if (in_array($dayOfWeek, $availabilities)) {
+                $dates[] = [
+                    'date' => $d->format('Y-m-d'),
+                    'display' => $i === 0 ? 'Today' : ($i === 1 ? 'Tomorrow' : $d->format('D')),
+                    'sublabel' => $d->format('M d'),
+                    'is_today' => $i === 0,
+                ];
+            }
+        }
+
+        // Get time slots for selected date
+        $slots = TimeSlot::where('doctor_id', $doctor->id)
+            ->whereDate('date', $selectedDate)
+            ->where('is_booked', false)
+            ->orderBy('start_time')
+            ->get()
+            ->map(fn($slot) => [
+                'time' => Carbon::parse($slot->start_time)->format('g:i A'),
+                'available' => true,
+                'preferred' => $slot->is_preferred ?? false,
+            ])
+            ->toArray();
+
+        // Get doctor info with consultation modes
+        $doctor->load('consultationModes');
+        $modes = [];
+        foreach ($doctor->consultationModes as $mode) {
+            $modes[] = [
+                'type' => $mode->mode,
+                'label' => $mode->mode === 'video' ? 'Video Appointment' : 'In-Person Visit',
+                'description' => $mode->mode === 'video'
+                    ? 'Connect from home via video call'
+                    : 'Visit the doctor at the clinic',
+                'price' => $mode->fee,
+            ];
+        }
+
+        // Patient info
+        $patient = $appointment->familyMember;
+
+        // Original appointment mode (for pre-selection)
+        $originalMode = $appointment->consultation_mode;
+
+        return response()->json([
+            'dates' => $dates,
+            'slots' => $slots,
+            'doctor' => [
+                'id' => $doctor->id,
+                'name' => $doctor->name,
+                'specialization' => $doctor->specialization,
+                'avatar_url' => $doctor->avatar_url,
+            ],
+            'patient' => [
+                'id' => $patient?->id,
+                'name' => $patient?->name ?? 'Unknown',
+            ],
+            'modes' => $modes,
+            'original_mode' => $originalMode,
+        ]);
+    }
+
+    /**
+     * Create a book-again appointment (new appointment with same doctor)
+     */
+    public function createBookAgain(Request $request, Appointment $appointment)
+    {
+        $user = Auth::user() ?? \App\User::first();
+
+        if ($appointment->user_id !== $user->id) {
+            abort(403);
+        }
+
+        if ($appointment->appointment_type !== 'doctor' || !$appointment->doctor_id) {
+            return back()->with('error', 'Book again only available for doctor appointments');
+        }
+
+        $validated = $request->validate([
+            'date' => 'required|date|after_or_equal:today|before_or_equal:' . now()->addDays(14)->format('Y-m-d'),
+            'time' => 'required|string',
+            'mode' => 'required|in:video,in_person',
+        ]);
+
+        $doctor = $appointment->doctor;
+        $doctor->load('consultationModes');
+
+        // Validate mode is supported by doctor
+        $supportedModes = $doctor->consultationModes->pluck('mode')->toArray();
+        if (!in_array($validated['mode'], $supportedModes)) {
+            return back()->with('error', "{$doctor->name} does not offer {$validated['mode']} appointments");
+        }
+
+        // Get fee for selected mode
+        $fee = $doctor->consultationModes->firstWhere('mode', $validated['mode'])?->fee ?? 0;
+
+        // Create the new appointment
+        $newAppointment = Appointment::create([
+            'user_id' => $user->id,
+            'family_member_id' => $appointment->family_member_id,
+            'doctor_id' => $doctor->id,
+            'department_id' => $doctor->department_id,
+            'appointment_type' => 'doctor',
+            'consultation_mode' => $validated['mode'],
+            'appointment_date' => $validated['date'],
+            'appointment_time' => $validated['time'],
+            'status' => 'confirmed',
+            'payment_status' => 'paid',
+            'fee' => $fee,
+            'metadata' => [
+                'booked_again_from' => $appointment->id,
+            ],
+        ]);
+
+        return back()->with('success', 'Appointment booked successfully.');
+    }
+
+    /**
      * Get available slots for follow-up booking
      */
     public function followUpSlots(Appointment $appointment, Request $request)
