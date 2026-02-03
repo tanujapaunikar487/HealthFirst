@@ -786,7 +786,7 @@ export default function FamilyMemberShow({
                         message="No conditions recorded"
                         description="Add any medical conditions for better care coordination"
                         action={
-                          <Button variant="outline" size="sm" onClick={() => setShowEditSheet(true)}>
+                          <Button variant="outline" size="sm" onClick={() => setShowEditForm(true)}>
                             Add Conditions
                           </Button>
                         }
@@ -807,7 +807,7 @@ export default function FamilyMemberShow({
                         message="No known allergies"
                         description="Recording allergies helps prevent adverse reactions"
                         action={
-                          <Button variant="outline" size="sm" onClick={() => setShowEditSheet(true)}>
+                          <Button variant="outline" size="sm" onClick={() => setShowEditForm(true)}>
                             Add Allergies
                           </Button>
                         }
@@ -842,7 +842,7 @@ export default function FamilyMemberShow({
                     message="No emergency contact added"
                     description="Add someone to contact in case of emergencies"
                     action={
-                      <Button variant="outline" size="sm" onClick={() => setShowEditSheet(true)}>
+                      <Button variant="outline" size="sm" onClick={() => setShowEditForm(true)}>
                         Add Contact
                       </Button>
                     }

@@ -29,6 +29,7 @@ interface FamilyMember {
 interface Props {
   members: FamilyMember[];
   canCreate: boolean;
+  memberCount: number;
   alertMemberCount: number;
 }
 
@@ -89,7 +90,7 @@ function FamilyMembersSkeleton() {
 
 /* ─── Component ─── */
 
-export default function FamilyMembersIndex({ members, canCreate, alertMemberCount }: Props) {
+export default function FamilyMembersIndex({ members, canCreate, memberCount, alertMemberCount }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(members);
   const { props } = usePage<{ toast?: string }>();
   const user = (usePage().props as any).auth?.user;
@@ -147,17 +148,24 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
       <div className="w-full max-w-[800px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
-          <h1
-            className="font-bold"
-            style={{
-              fontSize: '36px',
-              lineHeight: '44px',
-              letterSpacing: '-1px',
-              color: '#171717',
-            }}
-          >
-            Family Members
-          </h1>
+          <div>
+            <h1
+              className="font-bold"
+              style={{
+                fontSize: '36px',
+                lineHeight: '44px',
+                letterSpacing: '-1px',
+                color: '#171717',
+              }}
+            >
+              Family Members
+            </h1>
+            {!canCreate && memberCount >= 12 && (
+              <p className="text-sm text-muted-foreground mt-1">
+                You've reached the maximum of 12 family members.
+              </p>
+            )}
+          </div>
           {canCreate && (
             <Button
               onClick={openAddForm}

@@ -27,18 +27,49 @@ class FamilyMembersController extends Controller
             ->whereIn('family_member_id', $members->pluck('id'))
             ->get();
 
-        $membersData = $members->map(function (FamilyMember $m) use ($healthRecords) {
-            $alertCount = $healthRecords
+        // Load appointments for billing alerts
+        $overdueAppointments = Appointment::where('user_id', $user->id)
+            ->whereIn('family_member_id', $members->pluck('id'))
+            ->where('payment_status', 'pending')
+            ->where('appointment_date', '<', now()->subDays(7))
+            ->get();
+
+        // Load insurance claims for insurance alerts
+        $actionableClaims = InsuranceClaim::where('user_id', $user->id)
+            ->whereIn('family_member_id', $members->pluck('id'))
+            ->whereIn('claim_status', [
+                'enhancement_required',
+                'partially_approved',
+                'disputed',
+                'enhancement_rejected'
+            ])
+            ->get();
+
+        $membersData = $members->map(function (FamilyMember $m) use ($healthRecords, $overdueAppointments, $actionableClaims) {
+            // 1. Lab report alerts (include borderline to match Show page detection)
+            $labAlertCount = $healthRecords
                 ->where('family_member_id', $m->id)
                 ->filter(function ($r) {
                     if ($r->category !== 'lab_report') return false;
                     foreach ($r->metadata['results'] ?? [] as $result) {
                         $status = strtolower($result['status'] ?? 'normal');
-                        if (in_array($status, ['abnormal', 'high'])) return true;
+                        if (in_array($status, ['abnormal', 'high', 'borderline'])) return true;
                     }
                     return false;
                 })
                 ->count();
+
+            // 2. Billing alerts (overdue payments)
+            $billingAlertCount = $overdueAppointments
+                ->where('family_member_id', $m->id)
+                ->count();
+
+            // 3. Insurance alerts (actionable claims)
+            $insuranceAlertCount = $actionableClaims
+                ->where('family_member_id', $m->id)
+                ->count();
+
+            $alertCount = $labAlertCount + $billingAlertCount + $insuranceAlertCount;
 
             return [
                 'id' => $m->id,
@@ -58,7 +89,8 @@ class FamilyMembersController extends Controller
 
         return Inertia::render('FamilyMembers/Index', [
             'members' => $membersData,
-            'canCreate' => $members->count() < 10,
+            'canCreate' => $members->count() < 12,
+            'memberCount' => $members->count(),
             'alertMemberCount' => $membersData->where('alert_count', '>', 0)->count(),
         ]);
     }
