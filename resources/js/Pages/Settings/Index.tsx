@@ -124,12 +124,12 @@ export default function SettingsIndex({
         <AppLayout user={user}>
             <Head title="Settings" />
 
-            <div className="max-w-[960px] mx-auto" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+            <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
                 <h1 className="text-2xl font-bold mb-6">Settings</h1>
 
-                <div className="flex flex-col lg:flex-row gap-6">
+                <div className="flex gap-8">
                     {/* Sidebar Navigation */}
-                    <div className="lg:w-64 flex-shrink-0">
+                    <div className="w-48 flex-shrink-0">
                         <nav className="space-y-1">
                             {tabs.map((tab) => {
                                 const Icon = tab.icon;

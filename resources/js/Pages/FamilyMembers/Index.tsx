@@ -183,7 +183,7 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
             }
           />
         ) : (
-          <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white overflow-hidden">
+          <div className="divide-y divide-gray-100 rounded-[20px] border border-gray-200 bg-white overflow-hidden">
             {members.map(member => {
               const colors = relationColors[member.relation] || relationColors.other;
 

@@ -162,6 +162,9 @@ OLLAMA_MODEL=qwen2.5:7b
 
 | Date | Feature |
 |------|---------|
+| Feb 3 | Fix OTP send in Link Existing Patient flow (event handler bug) |
+| Feb 3 | Family Members card 20px border-radius |
+| Feb 3 | Settings page 960px width alignment with detail pages |
 | Feb 3 | Unified "Add Member" across all booking flows (3 modes) |
 | Feb 3 | Insurance pages 960px width fix |
 | Feb 3 | Settings 4-tab redesign with full functionality |

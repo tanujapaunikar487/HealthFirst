@@ -586,6 +586,8 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         setError('');
 
         try {
+            console.log('Sending OTP request:', { member_id: state.foundMember.id, contact_method: contactMethod });
+
             const response = await fetch('/family-members/send-otp', {
                 method: 'POST',
                 headers: {
@@ -599,10 +601,49 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                 }),
             });
 
-            const data = await response.json();
+            console.log('Fetch completed. Status:', response.status, response.statusText);
 
-            if (response.ok && data.otp_sent) {
-                setState((prev) => ({
+            // Handle non-OK responses before parsing JSON (Laravel may return HTML for 419/500)
+            if (!response.ok) {
+                console.error('OTP request failed:', response.status, response.statusText);
+
+                // Handle CSRF token mismatch (419) - Laravel returns HTML for this
+                if (response.status === 419) {
+                    setError('Session expired. Please refresh the page and try again.');
+                    setLoading(false);
+                    return;
+                }
+
+                // Handle rate limiting (429)
+                if (response.status === 429) {
+                    setError('Too many requests. Please wait a moment and try again.');
+                    setLoading(false);
+                    return;
+                }
+
+                // Try to parse JSON error response, fallback gracefully for HTML responses
+                const data = await response.json().catch(() => ({ error: 'Request failed. Please try again.' }));
+                console.log('OTP error response:', response.status, data);
+
+                if (data.locked_out) {
+                    setState((prev: FlowState) => ({
+                        ...prev,
+                        lockedOut: true,
+                        attemptsRemaining: 0,
+                        loading: false,
+                    }));
+                }
+                setError(data.error || data.message || 'Failed to send OTP. Please try again.');
+                setLoading(false);
+                return;
+            }
+
+            // Parse successful response
+            const data = await response.json();
+            console.log('OTP success response:', response.status, data);
+
+            if (data.otp_sent) {
+                setState((prev: FlowState) => ({
                     ...prev,
                     otpSentTo: data.sent_to,  // Store masked contact where OTP was sent
                     contactType: data.method_used,
@@ -614,20 +655,17 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     step: 'otp',  // Move to OTP step
                 }));
             } else {
-                if (data.locked_out) {
-                    setState((prev) => ({
-                        ...prev,
-                        lockedOut: true,
-                        attemptsRemaining: 0,
-                        loading: false,
-                    }));
-                }
                 setError(data.error || 'Failed to send OTP. Please try again.');
                 setLoading(false);
             }
         } catch (error) {
-            console.error('Send OTP error:', error);
-            setError('Failed to send OTP. Please try again.');
+            console.error('Send OTP error (full):', error);
+            console.error('Error type:', error instanceof Error ? error.constructor.name : typeof error);
+            console.error('Error message:', error instanceof Error ? error.message : String(error));
+
+            // Show more specific error message based on error type
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            setError(`Request failed: ${errorMessage}`);
             setLoading(false);
         }
     };
@@ -1256,7 +1294,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                             {/* Send OTP Button */}
                             <Button
-                                onClick={handleSendOtp}
+                                onClick={() => handleSendOtp()}
                                 className="w-full"
                                 disabled={state.loading || state.lockedOut || !state.relation}
                             >
@@ -1950,7 +1988,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     {/* Send OTP Button */}
                     <Button
-                        onClick={handleSendOtp}
+                        onClick={() => handleSendOtp()}
                         className="w-full"
                         disabled={state.loading || state.lockedOut || !state.relation}
                     >
