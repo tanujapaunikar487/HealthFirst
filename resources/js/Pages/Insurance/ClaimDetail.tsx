@@ -401,6 +401,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
         subtitle: claim.claim_date_formatted
           ? `Submitted on ${claim.claim_date_formatted}. Usually approved within 4-6 hours.`
           : 'Usually approved within 4-6 hours.',
+        action: { label: 'Track Status', toastMsg: 'Viewing claim timeline...' },
       };
 
     case 'approved':
@@ -415,6 +416,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
         subtitle: claim.claim_date_formatted
           ? `Approved on ${claim.claim_date_formatted}. You can proceed with cashless treatment.`
           : 'You can proceed with cashless treatment.',
+        action: { label: 'Download EOB', toastMsg: 'Downloading Explanation of Benefits...' },
       };
 
     case 'partially_approved':
@@ -446,7 +448,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
           ? `Pre-authorisation rejected on ${claim.claim_date_formatted}`
           : 'Pre-authorisation rejected.',
         subtitle: claim.rejection_reason ?? undefined,
-        action: { label: 'Try Different Policy', toastMsg: 'Redirecting to policies...' },
+        action: { label: 'File Appeal', toastMsg: 'Opening appeal flow...' },
       };
 
     case 'expired':
@@ -494,6 +496,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
           f?.original_approved != null && f?.enhancement_requested != null
             ? `Original: ${formatCurrency(f.original_approved)} · Requested enhancement: ${formatCurrency(f.enhancement_requested)}`
             : undefined,
+        action: { label: 'Track Enhancement', toastMsg: 'Viewing enhancement timeline...' },
       };
 
     case 'enhancement_approved':
@@ -507,6 +510,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
           f?.enhancement_approved != null && f?.original_approved != null
             ? `${formatCurrency(f.enhancement_approved)} additional coverage approved. Total now ${formatCurrency(f.original_approved + f.enhancement_approved)}.`
             : 'Additional coverage approved.',
+        action: { label: 'Download EOB', toastMsg: 'Downloading Explanation of Benefits...' },
       };
 
     case 'enhancement_rejected':
@@ -517,6 +521,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
         textColor: 'text-red-800',
         title: 'Enhancement request rejected',
         subtitle: claim.rejection_reason ?? undefined,
+        action: { label: 'File Appeal', toastMsg: 'Opening appeal flow...' },
       };
 
     case 'current':
@@ -555,6 +560,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
         textColor: 'text-amber-800',
         title: 'Settlement disputed under review',
         subtitle: (claim.rejection_reason ?? 'Your dispute is being reviewed.') + ' Expected resolution: 5-7 days.',
+        action: { label: 'Track Dispute', toastMsg: 'Viewing dispute timeline...' },
       };
 
     case 'dispute_resolved':
@@ -569,6 +575,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
         subtitle: f?.refunded
           ? `${formatCurrency(f.refunded)} has been refunded to your account.`
           : undefined,
+        action: { label: 'View Resolution', toastMsg: 'Viewing resolution details...' },
       };
 
     default:
@@ -915,10 +922,73 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
             </div>
             <div className="hidden md:flex items-center gap-2 flex-shrink-0">
               {getStatusBadge(claim.status)}
-              <Button onClick={() => document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
-                <Clock className="h-4 w-4" />
-                Check Status
-              </Button>
+              {/* Status-based primary button */}
+              {claim.status === 'rejected' || claim.status === 'enhancement_rejected' ? (
+                <Button onClick={() => {
+                  if (confirm('Would you like to file an appeal for this claim?')) {
+                    router.post(`/insurance/claims/${claim.id}/appeal`, {}, {
+                      onSuccess: () => toast('Appeal request submitted'),
+                      onError: () => toast('Failed to submit appeal'),
+                    });
+                  }
+                }}>
+                  <FileText className="h-4 w-4" />
+                  File Appeal
+                </Button>
+              ) : claim.status === 'approved' || claim.status === 'enhancement_approved' ? (
+                <Button onClick={() => {
+                  const f = claim.financial;
+                  downloadAsHtml(`eob-${claim.claim_reference}.pdf`, `
+                    <h1>Explanation of Benefits</h1>
+                    <p class="subtitle">${claim.claim_reference}</p>
+                    <h2>Claim Details</h2>
+                    <div class="row"><span class="row-label">Treatment</span><span class="row-value">${claim.treatment_name}</span></div>
+                    <div class="row"><span class="row-label">Provider</span><span class="row-value">${claim.provider_name ?? 'N/A'}</span></div>
+                    <div class="row"><span class="row-label">Patient</span><span class="row-value">${patient.name}</span></div>
+                    <div class="row"><span class="row-label">Claim Date</span><span class="row-value">${claim.claim_date_formatted ?? 'N/A'}</span></div>
+                    <h2>Financial Summary</h2>
+                    ${f?.preauth_approved ? `<div class="row"><span class="row-label">Approved Amount</span><span class="row-value">₹${f.preauth_approved.toLocaleString()}</span></div>` : ''}
+                    ${f?.total_approved ? `<div class="row"><span class="row-label">Total Approved</span><span class="row-value">₹${f.total_approved.toLocaleString()}</span></div>` : ''}
+                    ${f?.not_covered ? `<div class="row"><span class="row-label">Not Covered</span><span class="row-value">₹${f.not_covered.toLocaleString()}</span></div>` : ''}
+                    <p style="margin-top:24px;font-size:12px;color:#6b7280">Generated on ${new Date().toLocaleDateString()}</p>
+                  `);
+                  toast('EOB downloaded');
+                }}>
+                  <Download className="h-4 w-4" />
+                  Download EOB
+                </Button>
+              ) : claim.status === 'settled' ? (
+                <Button onClick={() => {
+                  const f = claim.financial;
+                  downloadAsHtml(`settlement-${claim.claim_reference}.pdf`, `
+                    <h1>Settlement Letter</h1>
+                    <p class="subtitle">${claim.claim_reference}</p>
+                    <h2>Claim Details</h2>
+                    <div class="row"><span class="row-label">Treatment</span><span class="row-value">${claim.treatment_name}</span></div>
+                    <div class="row"><span class="row-label">Provider</span><span class="row-value">${claim.provider_name ?? 'N/A'}</span></div>
+                    <div class="row"><span class="row-label">Patient</span><span class="row-value">${patient.name}</span></div>
+                    <div class="row"><span class="row-label">Settlement Date</span><span class="row-value">${claim.claim_date_formatted ?? 'N/A'}</span></div>
+                    <h2>Settlement Summary</h2>
+                    ${f?.insurance_covered ? `<div class="row"><span class="row-label">Insurance Covered</span><span class="row-value">₹${f.insurance_covered.toLocaleString()}</span></div>` : ''}
+                    ${f?.patient_paid ? `<div class="row"><span class="row-label">Patient Paid</span><span class="row-value">₹${f.patient_paid.toLocaleString()}</span></div>` : ''}
+                    <p style="margin-top:24px;font-size:12px;color:#6b7280">Generated on ${new Date().toLocaleDateString()}</p>
+                  `);
+                  toast('Settlement letter downloaded');
+                }}>
+                  <Download className="h-4 w-4" />
+                  Download Settlement
+                </Button>
+              ) : claim.status === 'dispute_resolved' ? (
+                <Button variant="outline" onClick={() => document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+                  <FileText className="h-4 w-4" />
+                  View Resolution
+                </Button>
+              ) : (claim.status === 'pending' || claim.status === 'enhancement_in_progress' || claim.status === 'dispute_under_review') ? (
+                <Button variant="outline" onClick={() => document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+                  <Clock className="h-4 w-4" />
+                  Track Status
+                </Button>
+              ) : null}
               <ThreeDotMenu />
             </div>
           </div>
@@ -978,6 +1048,33 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                         onError: () => toast('Failed to submit dispute'),
                       });
                     }
+                  } else if (label === 'File Appeal') {
+                    if (confirm('Would you like to file an appeal for this claim?')) {
+                      router.post(`/insurance/claims/${claim.id}/appeal`, {}, {
+                        onSuccess: () => toast('Appeal request submitted'),
+                        onError: () => toast('Failed to submit appeal'),
+                      });
+                    }
+                  } else if (label === 'Download EOB') {
+                    const f = claim.financial;
+                    downloadAsHtml(`eob-${claim.claim_reference}.pdf`, `
+                      <h1>Explanation of Benefits</h1>
+                      <p class="subtitle">${claim.claim_reference}</p>
+                      <h2>Claim Details</h2>
+                      <div class="row"><span class="row-label">Treatment</span><span class="row-value">${claim.treatment_name}</span></div>
+                      <div class="row"><span class="row-label">Provider</span><span class="row-value">${claim.provider_name ?? 'N/A'}</span></div>
+                      <div class="row"><span class="row-label">Patient</span><span class="row-value">${patient.name}</span></div>
+                      <div class="row"><span class="row-label">Claim Date</span><span class="row-value">${claim.claim_date_formatted ?? 'N/A'}</span></div>
+                      <h2>Financial Summary</h2>
+                      ${f?.preauth_approved ? `<div class="row"><span class="row-label">Approved Amount</span><span class="row-value">₹${f.preauth_approved.toLocaleString()}</span></div>` : ''}
+                      ${f?.total_approved ? `<div class="row"><span class="row-label">Total Approved</span><span class="row-value">₹${f.total_approved.toLocaleString()}</span></div>` : ''}
+                      ${f?.not_covered ? `<div class="row"><span class="row-label">Not Covered</span><span class="row-value">₹${f.not_covered.toLocaleString()}</span></div>` : ''}
+                      <p style="margin-top:24px;font-size:12px;color:#6b7280">Generated on ${new Date().toLocaleDateString()}</p>
+                    `);
+                    toast('EOB downloaded');
+                  } else if (label === 'Track Status' || label === 'Track Enhancement' || label === 'Track Dispute' || label === 'View Resolution') {
+                    document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    toast(banner.action!.toastMsg);
                   } else {
                     toast(banner.action!.toastMsg);
                   }

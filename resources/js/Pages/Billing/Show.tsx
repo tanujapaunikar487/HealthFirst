@@ -33,6 +33,8 @@ import {
   ChevronRight,
   FileText,
   Share2,
+  ClipboardList,
+  XCircle,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { downloadAsHtml } from '@/Lib/download';
@@ -641,9 +643,56 @@ export default function Show({ user, bill }: Props) {
               </Button>
             )}
             {bill.billing_status === 'disputed' && (
-              <Button onClick={() => document.getElementById('dispute')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
-                <AlertTriangle className="h-4 w-4" />
-                View Status
+              bill.dispute_details?.status === 'Under Review' ? (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    if (confirm('Are you sure you want to cancel this dispute?')) {
+                      router.post(`/billing/${bill.id}/dispute/cancel`, {}, {
+                        onSuccess: () => showToast('Dispute cancelled'),
+                        onError: () => showToast('Failed to cancel dispute'),
+                      });
+                    }
+                  }}
+                >
+                  <XCircle className="h-4 w-4" />
+                  Cancel Dispute
+                </Button>
+              ) : (
+                <Button variant="outline" onClick={() => document.getElementById('dispute')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+                  <AlertTriangle className="h-4 w-4" />
+                  View Dispute
+                </Button>
+              )
+            )}
+            {(bill.billing_status === 'awaiting_approval' || bill.billing_status === 'claim_pending') && (
+              <Button variant="outline" onClick={() => document.getElementById('payment')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+                <ClipboardList className="h-4 w-4" />
+                Track Claim
+              </Button>
+            )}
+            {bill.billing_status === 'refunded' && (
+              <Button onClick={() => {
+                const itemRows = bill.line_items.map(i => `<div class="row"><span class="row-label">${i.label}</span><span class="row-value">₹${i.total.toLocaleString()}</span></div>`).join('');
+                downloadAsHtml(`refund-receipt-${bill.invoice_number}.pdf`, `
+                  <h1>Refund Receipt</h1>
+                  <p class="subtitle">${bill.invoice_number} &middot; ${bill.invoice_date}</p>
+                  <h2>Patient</h2>
+                  <p>${bill.patient_name}</p>
+                  <h2>Service</h2>
+                  <p>${bill.appointment_title}</p>
+                  <p style="font-size:12px;color:#6b7280">${bill.appointment_date} at ${bill.appointment_time} &middot; ${bill.appointment_mode}</p>
+                  <h2>Charges</h2>
+                  ${itemRows}
+                  <div class="row total-row"><span class="row-label">Total Refunded</span><span class="row-value">₹${bill.total.toLocaleString()}</span></div>
+                  <h2>Refund Details</h2>
+                  <div class="row"><span class="row-label">Status</span><span class="row-value">Refunded</span></div>
+                  <div class="row"><span class="row-label">Method</span><span class="row-value">${bill.payment_method}</span></div>
+                  <div class="row"><span class="row-label">Reference</span><span class="row-value">${bill.reference_number}</span></div>
+                `);
+              }}>
+                <Receipt className="h-4 w-4" />
+                Download Receipt
               </Button>
             )}
             {/* 3-dot Menu by Status */}
