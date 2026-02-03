@@ -108,7 +108,7 @@ resources/js/
 ### Key Components
 - `EmbeddedFamilyMemberFlow.tsx` - 3-mode add member wizard (embedded/standalone/guided)
 - `AppointmentSheets.tsx` - Detail, cancel, reschedule, follow-up, book-again sheets
-- `ShareSheet.tsx` - Custom share component
+- `ShareSheet.tsx` - Consistent share UI (Copy Link, WhatsApp, Email) used app-wide
 - `PhoneInput.tsx` - +91 fixed prefix input
 
 ---
@@ -162,6 +162,7 @@ OLLAMA_MODEL=qwen2.5:7b
 
 | Date | Feature |
 |------|---------|
+| Feb 3 | Consistent ShareSheet across app (Billing, Insurance, Health Records, Appointments) |
 | Feb 3 | Fix OTP send in Link Existing Patient flow (event handler bug) |
 | Feb 3 | Family Members card 20px border-radius |
 | Feb 3 | Settings page 960px width alignment with detail pages |
