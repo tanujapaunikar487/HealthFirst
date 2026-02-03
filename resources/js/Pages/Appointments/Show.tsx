@@ -413,6 +413,37 @@ export default function Show({ user, appointment }: Props) {
         </SheetContent>
       </Sheet>
 
+      {/* Book Again Sheet */}
+      <Sheet open={showBookAgainSheet} onOpenChange={setShowBookAgainSheet}>
+        <SheetContent side="right" className="sm:max-w-lg">
+          <BookAgainSheet
+            appointment={{
+              id: appointment.id,
+              type: appointment.type as 'doctor' | 'lab_test',
+              title: appointment.title,
+              subtitle: appointment.subtitle,
+              patient_name: appointment.patient_name,
+              patient_id: appointment.patient_id,
+              doctor_id: appointment.doctor_id,
+              date: appointment.date,
+              date_formatted: appointment.date_formatted,
+              time: appointment.time,
+              status: appointment.status,
+              fee: appointment.fee,
+              payment_status: appointment.payment_status,
+              mode: appointment.mode,
+              is_upcoming: appointment.is_upcoming,
+            } as AppointmentBase}
+            onSuccess={() => {
+              setShowBookAgainSheet(false);
+              setToastMessage('Appointment booked successfully!');
+              router.visit('/appointments');
+            }}
+            onError={(msg) => setToastMessage(msg)}
+          />
+        </SheetContent>
+      </Sheet>
+
       {/* Lab Test Detail Sheet */}
       <Sheet open={!!selectedLabTest} onOpenChange={(o) => !o && setSelectedLabTest(null)}>
         <SheetContent side="right" className="sm:max-w-lg">
