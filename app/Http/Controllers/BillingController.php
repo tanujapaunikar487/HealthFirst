@@ -549,6 +549,38 @@ class BillingController extends Controller
         return back()->with('success', 'Dispute raised successfully. Our team will review it.');
     }
 
+    public function cancelDispute(Appointment $appointment)
+    {
+        $user = Auth::user() ?? \App\User::first();
+
+        if ($appointment->user_id !== $user->id) {
+            abort(403);
+        }
+
+        if ($appointment->payment_status !== 'disputed') {
+            return back()->with('error', 'No active dispute to cancel.');
+        }
+
+        $metadata = $appointment->metadata ?? [];
+        $dispute = $metadata['dispute'] ?? null;
+
+        if (!$dispute || $dispute['status'] !== 'Under Review') {
+            return back()->with('error', 'Dispute cannot be cancelled at this stage.');
+        }
+
+        $metadata['dispute']['status'] = 'cancelled';
+        $metadata['dispute']['cancelled_at'] = now()->toISOString();
+
+        // Revert payment status to previous state (unpaid if not paid)
+        $previousStatus = $metadata['dispute']['previous_status'] ?? 'unpaid';
+        $appointment->update([
+            'payment_status' => $previousStatus,
+            'metadata' => $metadata,
+        ]);
+
+        return back()->with('success', 'Dispute cancelled.');
+    }
+
     private function buildActivityLog(Appointment $appt, string $billingStatus): array
     {
         $log = [];

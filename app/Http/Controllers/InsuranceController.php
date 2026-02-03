@@ -315,4 +315,94 @@ class InsuranceController extends Controller
         return redirect()->route('insurance.index')
             ->with('toast', 'Policy removed');
     }
+
+    public function setPrimary(InsurancePolicy $policy)
+    {
+        $user = auth()->user() ?? \App\User::first();
+
+        // Remove primary flag from all other policies
+        InsurancePolicy::where('user_id', $user->id)
+            ->where('id', '!=', $policy->id)
+            ->update(['is_primary' => false]);
+
+        // Set this policy as primary
+        $policy->update(['is_primary' => true]);
+
+        return back()->with('success', 'Policy set as primary');
+    }
+
+    public function edit(InsurancePolicy $policy)
+    {
+        $policy->load('insuranceProvider');
+
+        $providers = InsuranceProvider::where('is_active', true)
+            ->select('id', 'name')
+            ->orderBy('name')
+            ->get();
+
+        $familyMembers = FamilyMember::where('user_id', $policy->user_id)
+            ->orderByRaw("CASE WHEN relation = 'self' THEN 0 ELSE 1 END")
+            ->orderBy('name')
+            ->get()
+            ->map(fn ($m) => ['id' => $m->id, 'name' => $m->name, 'relation' => $m->relation]);
+
+        return Inertia::render('Insurance/Edit', [
+            'policy' => [
+                'id' => $policy->id,
+                'insurance_provider_id' => $policy->insurance_provider_id,
+                'provider_name' => $policy->insuranceProvider->name,
+                'plan_name' => $policy->plan_name,
+                'policy_number' => $policy->policy_number,
+                'plan_type' => $policy->plan_type,
+                'sum_insured' => $policy->sum_insured,
+                'premium_amount' => $policy->premium_amount,
+                'start_date' => $policy->start_date->format('Y-m-d'),
+                'end_date' => $policy->end_date->format('Y-m-d'),
+                'members' => $policy->members ?? [],
+            ],
+            'insuranceProviders' => $providers,
+            'familyMembers' => $familyMembers,
+        ]);
+    }
+
+    public function update(Request $request, InsurancePolicy $policy)
+    {
+        $validated = $request->validate([
+            'plan_name' => 'sometimes|string|max:255',
+            'plan_type' => 'sometimes|string|in:individual,family,corporate,senior_citizen',
+            'sum_insured' => 'sometimes|integer|min:1',
+            'premium_amount' => 'nullable|integer|min:0',
+            'start_date' => 'sometimes|date',
+            'end_date' => 'sometimes|date|after:start_date',
+            'members' => 'nullable|array',
+            'members.*' => 'integer|exists:family_members,id',
+        ]);
+
+        $policy->update($validated);
+
+        return redirect()->route('insurance.show', $policy)
+            ->with('toast', 'Policy updated successfully');
+    }
+
+    public function appealClaim(InsuranceClaim $claim)
+    {
+        if ($claim->status !== 'rejected') {
+            return back()->with('error', 'Only rejected claims can be appealed.');
+        }
+
+        $timeline = $claim->timeline ?? [];
+        $timeline[] = [
+            'event' => 'Appeal filed',
+            'date' => now()->format('d M Y'),
+            'status' => 'under_review',
+            'details' => 'Appeal request submitted for review',
+        ];
+
+        $claim->update([
+            'status' => 'under_review',
+            'timeline' => $timeline,
+        ]);
+
+        return back()->with('success', 'Appeal request submitted');
+    }
 }

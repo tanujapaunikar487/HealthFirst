@@ -173,10 +173,14 @@ Route::post('/insurance/pre-auth', [InsuranceController::class, 'preAuth'])->nam
 Route::get('/insurance/claims/{claim}', [InsuranceController::class, 'showClaim'])->name('insurance.claim.show');
 Route::get('/insurance/{policy}', [InsuranceController::class, 'show'])->name('insurance.show');
 Route::delete('/insurance/{policy}', [InsuranceController::class, 'destroy'])->name('insurance.destroy');
+Route::post('/insurance/{policy}/set-primary', [InsuranceController::class, 'setPrimary'])->name('insurance.set-primary');
+Route::get('/insurance/{policy}/edit', [InsuranceController::class, 'edit'])->name('insurance.edit');
+Route::put('/insurance/{policy}', [InsuranceController::class, 'update'])->name('insurance.update');
 Route::post('/insurance/claims/{claim}/accept', [InsuranceController::class, 'acceptClaim'])->name('insurance.claim.accept');
 Route::post('/insurance/claims/{claim}/enhancement', [InsuranceController::class, 'requestEnhancement'])->name('insurance.claim.enhancement');
 Route::post('/insurance/claims/{claim}/new-preauth', [InsuranceController::class, 'requestPreAuth'])->name('insurance.claim.new-preauth');
 Route::post('/insurance/claims/{claim}/dispute', [InsuranceController::class, 'disputeClaim'])->name('insurance.claim.dispute');
+Route::post('/insurance/claims/{claim}/appeal', [InsuranceController::class, 'appealClaim'])->name('insurance.claim.appeal');
 
 // Health Records
 Route::get('/health-records', [HealthRecordController::class, 'index'])->name('health-records.index');
@@ -189,6 +193,7 @@ Route::get('/billing/{appointment}', [BillingController::class, 'show'])->name('
 Route::post('/billing/{appointment}/payment/create-order', [BillingController::class, 'createOrder'])->name('billing.payment.create-order');
 Route::post('/billing/{appointment}/payment/verify', [BillingController::class, 'verifyPayment'])->name('billing.payment.verify');
 Route::post('/billing/{appointment}/dispute', [BillingController::class, 'createDispute'])->name('billing.dispute');
+Route::post('/billing/{appointment}/dispute/cancel', [BillingController::class, 'cancelDispute'])->name('billing.dispute.cancel');
 
 // Search
 Route::get('/search', [SearchController::class, 'search'])->name('search');
