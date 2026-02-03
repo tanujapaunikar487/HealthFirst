@@ -155,6 +155,7 @@ OLLAMA_MODEL=qwen2.5:7b
 6. **2-Week Window**: Enforced across booking
 7. **Doctor IDs**: Frontend 'd' prefix, backend strips it
 8. **Phone Format**: +91XXXXXXXXXX required
+9. **Table Row Click**: Row click opens details (sheet or page); 3-dot menu for actions only
 
 ---
 
@@ -162,6 +163,7 @@ OLLAMA_MODEL=qwen2.5:7b
 
 | Date | Feature |
 |------|---------|
+| Feb 3 | Table row click opens details; 3-dot menu for actions only (Appointments, Billing, Insurance) |
 | Feb 3 | Consistent ShareSheet across app (Billing, Insurance, Health Records, Appointments) |
 | Feb 3 | Fix OTP send in Link Existing Patient flow (event handler bug) |
 | Feb 3 | Family Members card 20px border-radius |
