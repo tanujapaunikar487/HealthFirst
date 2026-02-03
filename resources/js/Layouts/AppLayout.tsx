@@ -17,7 +17,7 @@ import {
   Bell, Search, CheckCheck,
   Receipt, Clock, CheckCircle2, XCircle,
   ShieldCheck, ShieldAlert, MessageSquare, CreditCard,
-  AlertTriangle, LogOut,
+  AlertTriangle,
   // Notification icons
   Calendar, Video, TestTube, AlertCircle, Pill, User, UserPlus, Stethoscope,
 } from '@/Lib/icons';
@@ -571,17 +571,6 @@ function Sidebar({ user }: { user: User | null }) {
               </p>
               <p className="text-xs text-muted-foreground truncate">{user.email}</p>
             </div>
-          </Link>
-
-          {/* Logout button */}
-          <Link
-            href={route('logout')}
-            method="post"
-            as="button"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors mt-2 text-left"
-          >
-            <Icon icon={LogOut} className="h-5 w-5 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Sign Out</span>
           </Link>
         </div>
       )}

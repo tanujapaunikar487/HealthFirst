@@ -205,6 +205,7 @@ OLLAMA_MODEL=qwen2.5:7b
 | Feb 4 | Date/time split: Date on line 1, time as subtext on line 2 (Appointments, Billing) |
 | Feb 4 | "Book Lab Test" button for lab test appointments (instead of "Book Again") |
 | Feb 4 | Removed support CTAs from side sheets (now only in page footers) |
+| Feb 4 | Sidebar cleanup: Removed Sign Out button (available in Settings/Profile instead) |
 | Feb 3 | PDF formatting overhaul: Category-specific formatters, tables for lab results, AI summary callouts, status dots |
 | Feb 3 | Health Records table: Category badges replaced with plain text (Lab Report • Dr. Name) |
 | Feb 3 | Backend routes: Set Primary, Edit, Appeal (Insurance), Cancel Dispute (Billing) |
