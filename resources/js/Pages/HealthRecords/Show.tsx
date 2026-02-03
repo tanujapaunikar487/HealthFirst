@@ -729,7 +729,7 @@ export default function Show({ user, record, familyMember }: Props) {
 
   return (
     <AppLayout user={user} pageTitle="Health Records" pageIcon="/assets/icons/records.svg">
-      <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+      <div className="w-full max-w-[960px] min-h-full flex flex-col" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
         {/* Header */}
         <div className="mb-8">
           <Link
@@ -997,7 +997,7 @@ export default function Show({ user, record, familyMember }: Props) {
         </div>
 
         {/* Support CTA */}
-        <div className="mt-8 py-6 text-center">
+        <div className="mt-auto pt-8 py-6 text-center">
           <p className="text-sm text-gray-600">
             Need help with this record?{' '}
             <a href="mailto:support@healthfirst.in?subject=Health Records Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">

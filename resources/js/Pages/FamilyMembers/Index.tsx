@@ -64,7 +64,7 @@ function getInitials(name: string): string {
 
 function FamilyMembersSkeleton() {
   return (
-    <div className="w-full max-w-[800px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+    <div className="w-full max-w-[800px]" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
       <div className="flex items-center justify-between mb-8">
         <div className="space-y-2">
           <Pulse className="h-9 w-48" />
@@ -145,7 +145,7 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
       pageTitle="Family Members"
       pageIcon={AddTeam}
     >
-      <div className="w-full max-w-[800px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+      <div className="w-full max-w-[800px]" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <div>

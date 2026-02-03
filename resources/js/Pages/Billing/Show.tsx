@@ -352,7 +352,7 @@ function StatusAlertBanner({ bill }: { bill: Bill }) {
 
 function BillingShowSkeleton() {
   return (
-    <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+    <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
       {/* Back link */}
       <Pulse className="h-4 w-16 mb-6" />
       {/* Page Header */}
@@ -576,7 +576,7 @@ export default function Show({ user, bill }: Props) {
 
   return (
     <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing.svg">
-      <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+      <div className="w-full max-w-[960px] min-h-full flex flex-col" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
 
         {/* ─── Back Link ─── */}
         <button
@@ -1067,8 +1067,8 @@ export default function Show({ user, bill }: Props) {
           </div>
         </div>
 
-        {/* Support CTA */}
-        <div className="mt-8 py-6 text-center">
+        {/* Support CTA - always at bottom */}
+        <div className="mt-auto pt-8 py-6 text-center">
           <p className="text-sm text-gray-600">
             Need help with this bill?{' '}
             <a href="mailto:support@healthfirst.in?subject=Billing Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">

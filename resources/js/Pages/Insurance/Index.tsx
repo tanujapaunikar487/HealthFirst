@@ -231,7 +231,7 @@ function formatFileSize(bytes: number): string {
 
 function InsuranceSkeleton() {
   return (
-    <div style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '80px' }}>
+    <div style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '40px' }}>
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <Pulse className="h-9 w-36" />
@@ -653,7 +653,7 @@ export default function InsuranceIndex({
 
   return (
     <AppLayout pageTitle="Insurance" pageIcon="insurance">
-      <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+      <div className="w-full max-w-[960px] min-h-full flex flex-col" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <h1
@@ -910,8 +910,8 @@ export default function InsuranceIndex({
           </>
         )}
 
-        {/* Support CTA */}
-        <div className="mt-8 py-6 text-center">
+        {/* Support CTA - always at bottom */}
+        <div className="mt-auto pt-8 py-6 text-center">
           <p className="text-sm text-gray-600">
             Need help with Insurance?{' '}
             <a href="mailto:support@healthfirst.in?subject=Insurance Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">

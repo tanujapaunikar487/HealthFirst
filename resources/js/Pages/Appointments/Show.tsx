@@ -225,7 +225,7 @@ export default function Show({ user, appointment }: Props) {
   if (!appointment?.id) {
     return (
       <AppLayout user={user} pageTitle="Appointment Details" pageIcon="/assets/icons/appointment.svg">
-        <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+        <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
           <SkeletonPage />
         </div>
       </AppLayout>
@@ -257,7 +257,7 @@ export default function Show({ user, appointment }: Props) {
 
   return (
     <AppLayout user={user} pageTitle="Appointment Details" pageIcon="/assets/icons/appointment.svg">
-      <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+      <div className="w-full max-w-[960px] min-h-full flex flex-col" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-4">
           <Link href="/appointments" className="hover:text-foreground transition-colors">
@@ -374,8 +374,8 @@ export default function Show({ user, appointment }: Props) {
           </div>
         </div>
 
-        {/* Support CTA */}
-        <div className="mt-8 py-6 text-center">
+        {/* Support CTA - always at bottom */}
+        <div className="mt-auto pt-8 py-6 text-center">
           <p className="text-sm text-gray-600">
             Need help with this appointment?{' '}
             <a href="mailto:support@healthfirst.in?subject=Appointment Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">

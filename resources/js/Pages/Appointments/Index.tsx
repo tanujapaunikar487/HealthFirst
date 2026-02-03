@@ -87,7 +87,7 @@ interface Props {
 
 function AppointmentsSkeleton() {
   return (
-    <div style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '80px' }}>
+    <div style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '40px' }}>
       <div className="flex items-center justify-between mb-8">
         <Pulse className="h-9 w-48" />
         <Pulse className="h-10 w-40 rounded-full" />
@@ -261,7 +261,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
       pageTitle="Appointments"
       pageIcon="/assets/icons/appointment.svg"
     >
-      <div style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '80px' }}>
+      <div className="min-h-full flex flex-col" style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '40px' }}>
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h1
@@ -382,8 +382,8 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
           </TabsContent>
         </Tabs>
 
-        {/* Support CTA */}
-        <div className="mt-8 py-6 text-center">
+        {/* Support CTA - always at bottom */}
+        <div className="mt-auto pt-8 py-6 text-center">
           <p className="text-sm text-gray-600">
             Need help with Appointments?{' '}
             <a href="mailto:support@healthfirst.in?subject=Appointments Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">

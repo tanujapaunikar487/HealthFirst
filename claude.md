@@ -150,6 +150,8 @@ OLLAMA_MODEL=qwen2.5:7b
 | Sheets | Right-side, 1 primary button + 3-dot menu |
 | Badges | Pastel backgrounds, colored text |
 | Skeleton | 300ms min, 10s timeout |
+| EmptyState | #F5F5F5 bg, 60px padding, 500px height, 20px radius |
+| Page Container | 960px max-width, 40px top/bottom padding |
 
 ### Table Consistency
 
@@ -187,6 +189,9 @@ OLLAMA_MODEL=qwen2.5:7b
 
 | Date | Feature |
 |------|---------|
+| Feb 4 | EmptyState redesign: #F5F5F5 background, 60px padding, 500px height, 20px radius |
+| Feb 4 | Page container padding reduced from 80px to 40px bottom |
+| Feb 4 | Sticky support footer: `mt-auto pt-8` pattern for bottom-anchored CTAs |
 | Feb 4 | **Extended Notifications**: 14 new notification types (appointments, health records, family members, insurance policies) with category-specific icons and navigation |
 | Feb 4 | **Authentication**: Complete auth system with sign in/up, logout, forgot/reset password, route protection, rate limiting |
 | Feb 4 | Auth pages converted to TypeScript + shadcn/ui (Login, Register, ForgotPassword, ResetPassword, VerifyEmail, ConfirmPassword) |
@@ -219,7 +224,7 @@ OLLAMA_MODEL=qwen2.5:7b
 | Feb 3 | Unified "Add Member" across all booking flows (3 modes) |
 | Feb 3 | Insurance pages 960px width fix |
 | Feb 3 | Settings 4-tab redesign with full functionality |
-| Feb 3 | Page container standardization (960px, 80px bottom) |
+| Feb 3 | Page container standardization (960px, 40px bottom) |
 | Feb 3 | Book Again side sheet |
 | Feb 3 | Follow-up booking sheet |
 | Feb 3 | Secure OTP flow with masked contacts |

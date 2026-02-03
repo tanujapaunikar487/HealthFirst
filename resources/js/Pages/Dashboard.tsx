@@ -207,7 +207,7 @@ function Pulse({ className, style }: { className?: string; style?: React.CSSProp
 
 function DashboardSkeleton() {
   return (
-    <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ minHeight: '720px', paddingTop: '40px', paddingBottom: '80px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
+    <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ minHeight: '720px', paddingTop: '40px', paddingBottom: '40px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
       <div style={{ display: 'flex', flexDirection: 'row', width: '100%', height: '68px', gap: '12px', alignItems: 'flex-start' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexGrow: 1 }}>
           <Pulse className="h-10 w-48" />
@@ -257,7 +257,7 @@ function DashboardSkeleton() {
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ minHeight: '720px', paddingTop: '40px', paddingBottom: '80px' }}>
+    <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ minHeight: '720px', paddingTop: '40px', paddingBottom: '40px' }}>
       <div className="flex flex-col items-center justify-center gap-4 py-32">
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
           <Icon icon={AlertCircle} className="h-7 w-7 text-gray-400" />
@@ -1038,7 +1038,7 @@ export default function Dashboard({
     <AppLayout user={user}>
       <Head title="Dashboard" />
 
-      <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ minHeight: '720px', paddingTop: '40px', paddingBottom: '80px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
+      <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ minHeight: '720px', paddingTop: '40px', paddingBottom: '40px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
         {/* Page Header */}
         <div style={{ display: 'flex', flexDirection: 'row', width: '100%', height: '68px', gap: '12px', alignItems: 'flex-start' }}>
           <div style={{ display: 'flex', flexDirection: 'column', width: '485px', height: '68px', gap: '4px', flexGrow: 1 }}>
@@ -1181,23 +1181,25 @@ export default function Dashboard({
               </div>
               <Card className="overflow-hidden w-full">
                 <CardContent className="p-0">
-                  {profileSteps.map((step, i) => renderProfileStep(step, i === profileSteps.length - 1))}
+                  {profileSteps.map((step, i) => (
+                    <ProfileStepItem key={step.id} step={step} isLast={i === profileSteps.length - 1} />
+                  ))}
                 </CardContent>
               </Card>
             </div>
 
             {/* Promotional vaccination banner */}
-            {visiblePromotion && (
+            {activePromotion && (
               <div
                 className="relative overflow-hidden w-full"
                 style={{
                   height: '216px',
-                  background: visiblePromotion.bg_gradient,
+                  background: activePromotion.bg_gradient,
                   borderRadius: '24px',
                 }}
               >
                 <button
-                  onClick={() => dismissPromotion(visiblePromotion.id)}
+                  onClick={() => handleDismissPromotion(activePromotion.id)}
                   className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 transition-colors z-10"
                 >
                   <Icon icon={X} className="h-4 w-4 text-white" />
@@ -1205,21 +1207,21 @@ export default function Dashboard({
                 <div className="flex items-center justify-between h-full px-10">
                   <div className="flex flex-col gap-3 max-w-md">
                     <h3 className="text-white font-bold text-2xl leading-tight">
-                      {visiblePromotion.title}
+                      {activePromotion.title}
                     </h3>
                     <p className="text-white/90 font-medium text-sm leading-relaxed">
-                      {visiblePromotion.description}
+                      {activePromotion.description}
                     </p>
                     <Button asChild size="lg" className="bg-white text-[#171717] hover:bg-white/90 w-fit mt-2 font-semibold">
-                      <Link href={visiblePromotion.button_href}>
-                        {visiblePromotion.button_text}
+                      <Link href={activePromotion.button_href}>
+                        {activePromotion.button_text}
                       </Link>
                     </Button>
                   </div>
-                  {visiblePromotion.image_url && (
+                  {activePromotion.image_url && (
                     <img
-                      src={visiblePromotion.image_url}
-                      alt={visiblePromotion.title}
+                      src={activePromotion.image_url}
+                      alt={activePromotion.title}
                       className="h-full object-contain"
                     />
                   )}

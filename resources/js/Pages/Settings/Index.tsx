@@ -124,7 +124,7 @@ export default function SettingsIndex({
         <AppLayout user={user}>
             <Head title="Settings" />
 
-            <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+            <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
                 <h1 className="text-2xl font-bold mb-6">Settings</h1>
 
                 <div className="flex gap-8">

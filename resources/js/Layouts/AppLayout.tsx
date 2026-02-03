@@ -49,7 +49,6 @@ interface NotificationItem {
 
 interface AppLayoutProps {
   children: React.ReactNode;
-  user: User;
   pageTitle?: string;
   pageIcon?: string | typeof Icon | any;
 }
@@ -197,13 +196,16 @@ interface UserPreferences {
   };
 }
 
-export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLayoutProps) {
+export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutProps) {
   const { props } = usePage<{
+    auth: { user: User | null; check: boolean };
     notificationUnreadCount: number;
     allNotifications: NotificationItem[];
     profileWarnings: Array<{ key: string; label: string; href: string }>;
     userPreferences: UserPreferences | null;
   }>();
+
+  const user = props.auth?.user;
 
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifFilter, setNotifFilter] = useState<'all' | 'unread'>('all');
@@ -322,7 +324,7 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
             {/* Page Title */}
             <div className="flex items-center gap-3">
               {typeof pageIcon === 'string' ? (
-                <img src={pageIcon} alt={pageTitle || 'Home'} className="h-6 w-6" />
+                <img src={pageIcon.startsWith('/') ? pageIcon : `/assets/icons/${pageIcon}.svg`} alt={pageTitle || 'Home'} className="h-6 w-6" />
               ) : pageIcon ? (
                 <Icon icon={pageIcon} className="h-6 w-6" style={{ color: '#00184D' }} />
               ) : (

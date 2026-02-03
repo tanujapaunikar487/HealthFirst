@@ -102,7 +102,7 @@ class HandleInertiaRequests extends Middleware
             $warnings[] = [
                 'key' => 'emergency_contact',
                 'label' => 'emergency contact',
-                'href' => '/family-members/' . ($selfMember?->id ?? ''),
+                'href' => '/settings',
             ];
         }
 

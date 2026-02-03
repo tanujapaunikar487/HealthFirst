@@ -678,7 +678,7 @@ function TimelineEventRow({
 
 function ClaimDetailSkeleton() {
   return (
-    <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+    <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
       <Pulse className="h-4 w-24 mb-6" />
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -872,7 +872,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         </div>
       </div>
 
-      <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+      <div className="w-full max-w-[960px] min-h-full flex flex-col" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
         {/* Breadcrumb */}
         <div className="mb-6 flex items-center gap-1.5 text-sm text-gray-500">
           <button
@@ -1621,7 +1621,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         </div>{/* End of flex container */}
 
         {/* Support CTA */}
-        <div className="mt-8 py-6 text-center">
+        <div className="mt-auto pt-8 py-6 text-center">
           <p className="text-sm text-gray-600">
             Need help with this claim?{' '}
             <a href="mailto:support@healthfirst.in?subject=Insurance Claim Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">

@@ -400,7 +400,7 @@ function StatusBadge({ status }: { status: RecordStatus }) {
 
 function HealthRecordsSkeleton() {
   return (
-    <div style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '80px' }}>
+    <div style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '40px' }}>
       <div className="flex items-start justify-between mb-6">
         <div className="space-y-2">
           <Pulse className="h-9 w-48" />
@@ -705,7 +705,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
       pageTitle="Health Records"
       pageIcon="/assets/icons/records.svg"
     >
-      <div style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '80px' }}>
+      <div className="min-h-full flex flex-col" style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '40px' }}>
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
           <div>
@@ -977,7 +977,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
             </div>
 
             {/* Support CTA */}
-            <div className="mt-8 py-6 text-center">
+            <div className="mt-auto pt-8 py-6 text-center">
               <p className="text-sm text-gray-600">
                 Need help with Health Records?{' '}
                 <a href="mailto:support@healthfirst.in?subject=Health Records Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
