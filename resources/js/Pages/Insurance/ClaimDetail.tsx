@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
@@ -16,8 +16,10 @@ import {
   DropdownMenuTrigger,
 } from '@/Components/ui/dropdown-menu';
 import { downloadAsHtml } from '@/Lib/download';
+import { ShareSheet } from '@/Components/ui/share-sheet';
 import {
   ChevronRight,
+  Share2,
   ChevronDown,
   Download,
   FileText,
@@ -55,6 +57,7 @@ const SECTIONS = [
 
 function SideNav({ hasFinancial }: { hasFinancial: boolean }) {
   const [activeSection, setActiveSection] = useState('overview');
+  const isScrollingRef = useRef(false);
   const visibleSections = hasFinancial
     ? SECTIONS
     : SECTIONS.filter((s) => s.id !== 'financial');
@@ -62,6 +65,9 @@ function SideNav({ hasFinancial }: { hasFinancial: boolean }) {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
+        // Skip observer updates during programmatic scrolling
+        if (isScrollingRef.current) return;
+
         const visible = entries.filter((e) => e.isIntersecting);
         if (visible.length > 0) {
           const topmost = visible.reduce((prev, curr) =>
@@ -82,7 +88,13 @@ function SideNav({ hasFinancial }: { hasFinancial: boolean }) {
   }, [visibleSections]);
 
   const scrollTo = (id: string) => {
+    isScrollingRef.current = true;
+    setActiveSection(id);
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Re-enable observer after scroll animation completes
+    setTimeout(() => {
+      isScrollingRef.current = false;
+    }, 1000);
   };
 
   return (
@@ -92,13 +104,15 @@ function SideNav({ hasFinancial }: { hasFinancial: boolean }) {
           const isActive = activeSection === id;
           return (
             <button
+              type="button"
               key={id}
               onClick={() => scrollTo(id)}
               className={cn(
-                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full',
-                isActive ? '' : 'text-[#0A0B0D] hover:bg-muted'
+                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full cursor-pointer',
+                isActive
+                  ? 'bg-[#F5F8FF] text-[#0052FF]'
+                  : 'text-[#0A0B0D] hover:bg-muted'
               )}
-              style={isActive ? { backgroundColor: '#F5F8FF', color: '#0052FF' } : {}}
             >
               <Icon icon={SectionIcon} className="h-4 w-4 flex-shrink-0" />
               <span className="truncate">{label}</span>
@@ -703,6 +717,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
   const { isLoading, hasError, retry } = useSkeletonLoading(claim);
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
+  const [showShareSheet, setShowShareSheet] = useState(false);
   const [expandedTimeline, setExpandedTimeline] = useState<number[]>([]);
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
   const [showAllTimeline, setShowAllTimeline] = useState(false);
@@ -914,6 +929,9 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
             </div>
             <div className="hidden md:flex items-center gap-2 flex-shrink-0">
               {getStatusBadge(claim.status)}
+              <Button variant="outline" size="icon" onClick={() => setShowShareSheet(true)}>
+                <Share2 className="h-4 w-4" />
+              </Button>
               <ThreeDotMenu />
             </div>
           </div>
@@ -1511,6 +1529,14 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
       </div>
 
       <Toast message={toastMessage} show={showToast} onHide={() => setShowToast(false)} />
+
+      <ShareSheet
+        open={showShareSheet}
+        onOpenChange={setShowShareSheet}
+        title={`${claim.treatment_name} - ${claim.claim_reference}`}
+        description={`${claim.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} · ${formatCurrency(claim.claim_amount)}${claim.claim_date_formatted ? ` · ${claim.claim_date_formatted}` : ''}`}
+        url={window.location.href}
+      />
     </AppLayout>
   );
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
@@ -32,10 +32,12 @@ import {
   MessageSquare,
   ChevronRight,
   FileText,
+  Share2,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { downloadAsHtml } from '@/Lib/download';
 import { Textarea } from '@/Components/ui/textarea';
+import { ShareSheet } from '@/Components/ui/share-sheet';
 
 /* ─── Types ─── */
 
@@ -187,6 +189,7 @@ const SECTIONS = [
 
 function SideNav({ hasEmi, hasDispute, hasPayment }: { hasEmi: boolean; hasDispute: boolean; hasPayment: boolean }) {
   const [activeSection, setActiveSection] = useState(SECTIONS[0].id);
+  const isScrollingRef = useRef(false);
 
   // Filter sections based on what's visible
   const visibleSections = SECTIONS.filter((s) => {
@@ -199,6 +202,9 @@ function SideNav({ hasEmi, hasDispute, hasPayment }: { hasEmi: boolean; hasDispu
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
+        // Skip observer updates during programmatic scrolling
+        if (isScrollingRef.current) return;
+
         const visible = entries.filter((e) => e.isIntersecting);
         if (visible.length > 0) {
           const topmost = visible.reduce((prev, curr) =>
@@ -219,7 +225,13 @@ function SideNav({ hasEmi, hasDispute, hasPayment }: { hasEmi: boolean; hasDispu
   }, [visibleSections]);
 
   const scrollTo = (id: string) => {
+    isScrollingRef.current = true;
+    setActiveSection(id);
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Re-enable observer after scroll animation completes
+    setTimeout(() => {
+      isScrollingRef.current = false;
+    }, 1000);
   };
 
   return (
@@ -229,13 +241,15 @@ function SideNav({ hasEmi, hasDispute, hasPayment }: { hasEmi: boolean; hasDispu
           const isActive = activeSection === id;
           return (
             <button
+              type="button"
               key={id}
               onClick={() => scrollTo(id)}
               className={cn(
-                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full',
-                isActive ? '' : 'text-[#0A0B0D] hover:bg-muted'
+                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full cursor-pointer',
+                isActive
+                  ? 'bg-[#F5F8FF] text-[#0052FF]'
+                  : 'text-[#0A0B0D] hover:bg-muted'
               )}
-              style={isActive ? { backgroundColor: '#F5F8FF', color: '#0052FF' } : {}}
             >
               <Icon icon={SectionIcon} className="h-4 w-4 flex-shrink-0" />
               <span className="truncate">{label}</span>
@@ -411,6 +425,7 @@ export default function Show({ user, bill }: Props) {
   const [disputeReason, setDisputeReason] = useState('');
   const [disputeLoading, setDisputeLoading] = useState(false);
   const [showContactDialog, setShowContactDialog] = useState(false);
+  const [showShareSheet, setShowShareSheet] = useState(false);
   const isDoctor = bill.appointment_type === 'doctor';
   const isPayable = PAYABLE_STATUSES.includes(bill.billing_status);
   const isEmi = bill.billing_status === 'emi';
@@ -607,6 +622,9 @@ export default function Show({ user, bill }: Props) {
                 Download Invoice
               </Button>
             )}
+            <Button variant="outline" size="icon" onClick={() => setShowShareSheet(true)}>
+              <Share2 className="h-4 w-4" />
+            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="icon" className="text-gray-400">
@@ -1118,6 +1136,15 @@ export default function Show({ user, bill }: Props) {
           </div>
         </div>
       )}
+
+      {/* Share Sheet */}
+      <ShareSheet
+        open={showShareSheet}
+        onOpenChange={setShowShareSheet}
+        title={`Invoice ${bill.invoice_number}`}
+        description={`${bill.appointment_title} · ₹${bill.total.toLocaleString()}`}
+        url={window.location.href}
+      />
     </AppLayout>
   );
 }

@@ -7,7 +7,7 @@ import { Toast } from '@/Components/ui/toast';
 import { Icon } from '@/Components/ui/icon';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { cn } from '@/Lib/utils';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,7 +53,7 @@ import {
   ClipboardList,
 } from '@/Lib/icons';
 import { downloadAsHtml } from '@/Lib/download';
-import { shareContent } from '@/Lib/share';
+import { ShareSheet } from '@/Components/ui/share-sheet';
 
 /* ─── Types ─── */
 
@@ -423,6 +423,7 @@ const fmtDate = (d?: string) => d ? new Date(d).toLocaleDateString('en-IN', { da
 
 function SideNav({ hasProvider }: { hasProvider: boolean }) {
   const [activeSection, setActiveSection] = useState('summary');
+  const isScrollingRef = useRef(false);
 
   // Filter out provider section if no provider info
   const visibleSections = hasProvider
@@ -432,6 +433,9 @@ function SideNav({ hasProvider }: { hasProvider: boolean }) {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
+        // Skip observer updates during programmatic scrolling
+        if (isScrollingRef.current) return;
+
         const visible = entries.filter((e) => e.isIntersecting);
         if (visible.length > 0) {
           const topmost = visible.reduce((prev, curr) =>
@@ -452,7 +456,13 @@ function SideNav({ hasProvider }: { hasProvider: boolean }) {
   }, [visibleSections]);
 
   const scrollTo = (id: string) => {
+    isScrollingRef.current = true;
+    setActiveSection(id);
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Re-enable observer after scroll animation completes
+    setTimeout(() => {
+      isScrollingRef.current = false;
+    }, 1000);
   };
 
   return (
@@ -462,13 +472,15 @@ function SideNav({ hasProvider }: { hasProvider: boolean }) {
           const isActive = activeSection === id;
           return (
             <button
+              type="button"
               key={id}
               onClick={() => scrollTo(id)}
               className={cn(
-                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full',
-                isActive ? '' : 'text-[#0A0B0D] hover:bg-muted'
+                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full cursor-pointer',
+                isActive
+                  ? 'bg-[#F5F8FF] text-[#0052FF]'
+                  : 'text-[#0A0B0D] hover:bg-muted'
               )}
-              style={isActive ? { backgroundColor: '#F5F8FF', color: '#0052FF' } : {}}
             >
               <Icon icon={SectionIcon} className="h-4 w-4 flex-shrink-0" />
               <span className="truncate">{label}</span>
@@ -608,6 +620,7 @@ function FindingsImpression({ findings, impression, impressionColor = '#0E7490',
 export default function Show({ user, record, familyMember }: Props) {
   const { formatDate } = useFormatPreferences();
   const [toastMessage, setToastMessage] = useState('');
+  const [showShareSheet, setShowShareSheet] = useState(false);
   const toast = (msg: string) => setToastMessage(msg);
 
   const config = categoryConfig[record.category] || { label: record.category, color: '#6B7280', bg: '#F3F4F6' };
@@ -619,19 +632,8 @@ export default function Show({ user, record, familyMember }: Props) {
     toast('Record downloaded');
   };
 
-  const handleShare = async () => {
-    try {
-      const result = await shareContent({
-        title: record.title,
-        text: `${config.label} — ${record.record_date_formatted}${record.doctor_name ? ` — ${record.doctor_name}` : ''}`,
-        url: window.location.href,
-      });
-      if (result.method === 'clipboard') {
-        toast('Record details copied to clipboard');
-      }
-    } catch {
-      // User cancelled share
-    }
+  const handleShare = () => {
+    setShowShareSheet(true);
   };
 
   const hasProvider = !!(record.doctor_name || record.department_name);
@@ -844,6 +846,14 @@ export default function Show({ user, record, familyMember }: Props) {
       </div>
 
       <Toast show={!!toastMessage} message={toastMessage} onHide={() => setToastMessage('')} />
+
+      <ShareSheet
+        open={showShareSheet}
+        onOpenChange={setShowShareSheet}
+        title={record.title}
+        description={`${config.label} — ${record.record_date_formatted}${record.doctor_name ? ` — ${record.doctor_name}` : ''}`}
+        url={window.location.href}
+      />
     </AppLayout>
   );
 }

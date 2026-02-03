@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
@@ -139,6 +139,7 @@ const SECTIONS = [
 
 function SideNav({ isGuest }: { isGuest: boolean }) {
   const [activeSection, setActiveSection] = useState(SECTIONS[0].id);
+  const isScrollingRef = useRef(false);
 
   // Filter sections for guests (only show personal)
   const visibleSections = isGuest
@@ -148,6 +149,9 @@ function SideNav({ isGuest }: { isGuest: boolean }) {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
+        // Skip observer updates during programmatic scrolling
+        if (isScrollingRef.current) return;
+
         const visible = entries.filter((e) => e.isIntersecting);
         if (visible.length > 0) {
           const topmost = visible.reduce((prev, curr) =>
@@ -168,7 +172,13 @@ function SideNav({ isGuest }: { isGuest: boolean }) {
   }, [visibleSections]);
 
   const scrollTo = (id: string) => {
+    isScrollingRef.current = true;
+    setActiveSection(id);
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Re-enable observer after scroll animation completes
+    setTimeout(() => {
+      isScrollingRef.current = false;
+    }, 1000);
   };
 
   return (
@@ -178,13 +188,15 @@ function SideNav({ isGuest }: { isGuest: boolean }) {
           const isActive = activeSection === id;
           return (
             <button
+              type="button"
               key={id}
               onClick={() => scrollTo(id)}
               className={cn(
-                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full',
-                isActive ? '' : 'text-[#0A0B0D] hover:bg-muted'
+                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full cursor-pointer',
+                isActive
+                  ? 'bg-[#F5F8FF] text-[#0052FF]'
+                  : 'text-[#0A0B0D] hover:bg-muted'
               )}
-              style={isActive ? { backgroundColor: '#F5F8FF', color: '#0052FF' } : {}}
             >
               <Icon icon={SectionIcon} className="h-4 w-4 flex-shrink-0" />
               <span className="truncate">{label}</span>

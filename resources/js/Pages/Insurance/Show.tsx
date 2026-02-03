@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
@@ -36,7 +36,9 @@ import {
   Check,
   ClipboardList,
   Receipt,
+  Share2,
 } from '@/Lib/icons';
+import { ShareSheet } from '@/Components/ui/share-sheet';
 
 /* ─── Section Config ─── */
 
@@ -50,10 +52,14 @@ const SECTIONS = [
 
 function SideNav() {
   const [activeSection, setActiveSection] = useState('details');
+  const isScrollingRef = useRef(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
+        // Skip observer updates during programmatic scrolling
+        if (isScrollingRef.current) return;
+
         const visible = entries.filter((e) => e.isIntersecting);
         if (visible.length > 0) {
           const topmost = visible.reduce((prev, curr) =>
@@ -74,7 +80,13 @@ function SideNav() {
   }, []);
 
   const scrollTo = (id: string) => {
+    isScrollingRef.current = true;
+    setActiveSection(id);
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Re-enable observer after scroll animation completes
+    setTimeout(() => {
+      isScrollingRef.current = false;
+    }, 1000);
   };
 
   return (
@@ -84,13 +96,15 @@ function SideNav() {
           const isActive = activeSection === id;
           return (
             <button
+              type="button"
               key={id}
               onClick={() => scrollTo(id)}
               className={cn(
-                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full',
-                isActive ? '' : 'text-[#0A0B0D] hover:bg-muted'
+                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full cursor-pointer',
+                isActive
+                  ? 'bg-[#F5F8FF] text-[#0052FF]'
+                  : 'text-[#0A0B0D] hover:bg-muted'
               )}
-              style={isActive ? { backgroundColor: '#F5F8FF', color: '#0052FF' } : {}}
             >
               <Icon icon={SectionIcon} className="h-4 w-4 flex-shrink-0" />
               <span className="truncate">{label}</span>
@@ -327,6 +341,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
   const { isLoading, hasError, retry } = useSkeletonLoading(policy);
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
+  const [showShareSheet, setShowShareSheet] = useState(false);
   const [showPreAuth, setShowPreAuth] = useState(false);
   const [preAuthStep, setPreAuthStep] = useState<PreAuthStep>('patient');
   const [preAuthForm, setPreAuthForm] = useState<PreAuthForm>(EMPTY_PREAUTH_FORM);
@@ -434,6 +449,9 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
           <div className="flex items-center gap-2 flex-shrink-0">
             <Button onClick={openPreAuth}>
               Use for Admission
+            </Button>
+            <Button variant="outline" size="icon" onClick={() => setShowShareSheet(true)}>
+              <Share2 className="h-4 w-4" />
             </Button>
             <Button
               variant="outline"
@@ -830,6 +848,14 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
       </Sheet>
 
       <Toast message={toastMessage} show={showToast} onHide={() => setShowToast(false)} />
+
+      <ShareSheet
+        open={showShareSheet}
+        onOpenChange={setShowShareSheet}
+        title={`${policy.plan_name} Insurance Policy`}
+        description={`${policy.provider_name} · ${policy.policy_number}`}
+        url={window.location.href}
+      />
     </AppLayout>
   );
 }
