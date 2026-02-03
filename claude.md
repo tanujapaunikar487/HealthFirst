@@ -36,7 +36,7 @@ resources/js/
   Pages/               Inertia pages
   Components/ui/       shadcn components
   Features/booking-chat/  Conversational booking
-  Layouts/             AppLayout, GuidedBookingLayout
+  Layouts/             AppLayout, GuestLayout, GuidedBookingLayout
 ```
 
 **AI Pipeline**: `User message → BookingPromptBuilder → AIService → EntityNormalizer → BookingStateMachine`
@@ -59,7 +59,8 @@ resources/js/
 | **Insurance** | Policies, claims (14 statuses), pre-auth flow |
 | **Family Members** | 18 fields, OTP verification, alert deep-links |
 | **Settings** | 4 tabs (Profile, Notifications, Preferences, Connections) |
-| **Global** | Cmd+K search, notifications, skeleton loading, error pages |
+| **Authentication** | Sign in/up, logout, forgot/reset password, route protection, rate limiting |
+| **Global** | Cmd+K search, notifications (27 types, 5 categories), skeleton loading, error pages |
 
 ---
 
@@ -80,6 +81,7 @@ resources/js/
 ## Key Files
 
 ### Controllers
+- `Auth/*Controller` - Login, register, password reset (Laravel Breeze)
 - `DashboardController` - Aggregated data
 - `BookingConversationController` - AI chat
 - `GuidedDoctorController` / `GuidedLabController` - Wizard flows
@@ -98,6 +100,7 @@ resources/js/
 - `VideoMeetingService` - Google Meet/Zoom
 
 ### Frontend Pages
+- `Auth/Login.tsx`, `Auth/Register.tsx`, `Auth/ForgotPassword.tsx`, `Auth/ResetPassword.tsx`
 - `Dashboard.tsx`, `Booking/Conversation.tsx`, `Booking/Index.tsx`
 - `Appointments/Index.tsx`, `Appointments/Show.tsx`
 - `Billing/Index.tsx`, `Billing/Show.tsx`
@@ -127,7 +130,7 @@ npm run dev                       # Vite
 ollama serve                      # AI (optional)
 ```
 
-**Tests**: `php artisan test` (36 tests, 121 assertions)
+**Tests**: `php artisan test` (61 tests, 171 assertions)
 
 **AI Config** (.env):
 ```
@@ -176,6 +179,7 @@ OLLAMA_MODEL=qwen2.5:7b
 9. **Table Row Click**: Row click opens details (sheet or page); 3-dot menu for actions only
 10. **Status-Based Actions**: Primary button on detail pages varies by status (e.g., rejected→File Appeal, approved→Download EOB, pending→Track Status)
 11. **Context-Aware Breadcrumbs**: Breadcrumbs reflect actual navigation path, not just data hierarchy (use `?from=` query params)
+12. **Session-Based Auth**: Laravel Breeze with session guard, CSRF protection, rate limiting (5 attempts)
 
 ---
 
@@ -183,6 +187,12 @@ OLLAMA_MODEL=qwen2.5:7b
 
 | Date | Feature |
 |------|---------|
+| Feb 4 | **Extended Notifications**: 14 new notification types (appointments, health records, family members, insurance policies) with category-specific icons and navigation |
+| Feb 4 | **Authentication**: Complete auth system with sign in/up, logout, forgot/reset password, route protection, rate limiting |
+| Feb 4 | Auth pages converted to TypeScript + shadcn/ui (Login, Register, ForgotPassword, ResetPassword, VerifyEmail, ConfirmPassword) |
+| Feb 4 | AppLayout updated with auth-aware sidebar: logout button when authenticated, sign in/up buttons for guests |
+| Feb 4 | Route protection: All app routes wrapped in `auth` middleware, smart root redirect based on auth state |
+| Feb 4 | Auth feature tests: 25 tests covering login, registration, password reset, route protection |
 | Feb 4 | Context-aware breadcrumbs: ClaimDetail shows policy in breadcrumb only when navigated from policy page (uses `?from=policy` query param) |
 | Feb 4 | Status-based primary actions: Billing/Claims detail pages show contextual buttons (File Appeal, Download EOB, Track Claim, etc.) instead of generic "Check Status" |
 | Feb 4 | Table consistency: Unified column order (Date→Details→Member→Amount→Status→Actions), date format helpers |
