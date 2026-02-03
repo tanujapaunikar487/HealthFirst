@@ -54,6 +54,9 @@ class HandleInertiaRequests extends Middleware
                         'created_at' => $n->created_at->toIso8601String(),
                         'appointment_id' => $n->appointment_id,
                         'insurance_claim_id' => $n->data['insurance_claim_id'] ?? null,
+                        'health_record_id' => $n->data['health_record_id'] ?? null,
+                        'family_member_id' => $n->data['family_member_id'] ?? null,
+                        'insurance_policy_id' => $n->data['insurance_policy_id'] ?? null,
                     ])
                 : [],
             'profileWarnings' => $user ? $this->getProfileWarnings($user) : [],

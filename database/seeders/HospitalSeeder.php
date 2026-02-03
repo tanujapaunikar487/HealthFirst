@@ -1762,6 +1762,235 @@ class HospitalSeeder extends Seeder
             ];
         }
 
+        // ─────────────────────────────────────────────────────────────
+        // APPOINTMENT NOTIFICATIONS
+        // ─────────────────────────────────────────────────────────────
+
+        // Appointment reminder — upcoming appointment (3 days from now)
+        if ($appt = $appointments->get(4)) {
+            $notifications[] = [
+                'appointment_id' => $appt->id,
+                'type' => 'appointment_reminder',
+                'title' => 'Appointment Reminder',
+                'message' => 'Your appointment with Dr. Sarah Johnson is in 3 days. Please arrive 15 minutes early.',
+                'channels' => ['push', 'email', 'sms'],
+                'data' => ['doctor_name' => 'Dr. Sarah Johnson', 'appointment_date' => now()->addDays(3)->format('Y-m-d')],
+                'read_at' => null,
+                'created_at' => now()->subHours(1),
+            ];
+        }
+
+        // Appointment confirmed — upcoming lab test
+        if ($appt = $appointments->get(5)) {
+            $notifications[] = [
+                'appointment_id' => $appt->id,
+                'type' => 'appointment_confirmed',
+                'title' => 'Appointment Confirmed',
+                'message' => 'Your Complete Health Checkup (home collection) on ' . now()->addDays(5)->format('M d') . ' has been confirmed.',
+                'channels' => ['push', 'email'],
+                'data' => ['test_name' => 'Complete Health Checkup', 'collection_type' => 'home'],
+                'read_at' => now()->subDays(1),
+                'created_at' => now()->subDays(2),
+            ];
+        }
+
+        // Appointment cancelled — cancelled appointment
+        if ($appt = $appointments->get(6)) {
+            $notifications[] = [
+                'appointment_id' => $appt->id,
+                'type' => 'appointment_cancelled',
+                'title' => 'Appointment Cancelled',
+                'message' => 'Your appointment with Dr. Emily Chen has been cancelled. A refund of ₹1,500 will be processed within 5-7 business days.',
+                'channels' => ['push', 'email', 'sms'],
+                'data' => ['doctor_name' => 'Dr. Emily Chen', 'refund_amount' => 1500],
+                'read_at' => null,
+                'created_at' => now()->subDays(1),
+            ];
+        }
+
+        // Appointment rescheduled — past appointment
+        if ($appt = $appointments->get(0)) {
+            $notifications[] = [
+                'appointment_id' => $appt->id,
+                'type' => 'appointment_rescheduled',
+                'title' => 'Appointment Rescheduled',
+                'message' => 'Your appointment with Dr. Sarah Johnson has been rescheduled to ' . now()->subDays(16)->format('M d') . ' at 10:00 AM.',
+                'channels' => ['push', 'email', 'sms'],
+                'data' => ['doctor_name' => 'Dr. Sarah Johnson', 'new_date' => now()->subDays(16)->format('Y-m-d'), 'new_time' => '10:00 AM'],
+                'read_at' => now()->subDays(17),
+                'created_at' => now()->subDays(18),
+            ];
+        }
+
+        // Check-in available — upcoming appointment
+        if ($appt = $appointments->get(4)) {
+            $notifications[] = [
+                'appointment_id' => $appt->id,
+                'type' => 'checkin_available',
+                'title' => 'Check-in Available',
+                'message' => 'Online check-in is now available for your appointment with Dr. Sarah Johnson. Check in to save time at the clinic.',
+                'channels' => ['push'],
+                'data' => ['doctor_name' => 'Dr. Sarah Johnson'],
+                'read_at' => null,
+                'created_at' => now()->subMinutes(30),
+            ];
+        }
+
+        // Video link ready — for video consultations
+        $videoAppt = Appointment::where('user_id', $user->id)
+            ->where('consultation_mode', 'video')
+            ->first();
+        if ($videoAppt) {
+            $notifications[] = [
+                'appointment_id' => $videoAppt->id,
+                'type' => 'video_link_ready',
+                'title' => 'Video Consultation Link Ready',
+                'message' => 'Your video consultation link is ready. Join the call 5 minutes before your scheduled time.',
+                'channels' => ['push', 'email'],
+                'data' => ['meeting_link' => 'https://meet.hospital.com/abc123'],
+                'read_at' => null,
+                'created_at' => now()->subMinutes(15),
+            ];
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // HEALTH RECORDS NOTIFICATIONS
+        // ─────────────────────────────────────────────────────────────
+
+        $healthRecords = HealthRecord::where('user_id', $user->id)->orderBy('id')->get();
+
+        // Lab results ready
+        $labRecord = $healthRecords->where('category', 'lab_reports')->first();
+        if ($labRecord) {
+            $notifications[] = [
+                'appointment_id' => $labRecord->appointment_id,
+                'type' => 'lab_results_ready',
+                'title' => 'Lab Results Ready',
+                'message' => 'Your Complete Blood Count (CBC) results are now available. View your report in Health Records.',
+                'channels' => ['push', 'email'],
+                'data' => ['test_name' => 'Complete Blood Count (CBC)', 'health_record_id' => $labRecord->id],
+                'read_at' => now()->subDays(10),
+                'created_at' => now()->subDays(12),
+            ];
+        }
+
+        // Abnormal results alert
+        $lipidRecord = $healthRecords->where('category', 'lab_reports')->skip(1)->first();
+        if ($lipidRecord) {
+            $notifications[] = [
+                'appointment_id' => $lipidRecord->appointment_id,
+                'type' => 'abnormal_results',
+                'title' => 'Abnormal Results Detected',
+                'message' => 'Your Lipid Panel shows abnormal values. Please consult your doctor for a follow-up.',
+                'channels' => ['push', 'email', 'sms'],
+                'data' => ['test_name' => 'Lipid Panel', 'abnormal_markers' => ['LDL Cholesterol', 'Triglycerides'], 'health_record_id' => $lipidRecord->id],
+                'read_at' => null,
+                'created_at' => now()->subDays(2),
+            ];
+        }
+
+        // Prescription expiring
+        $prescriptionRecord = $healthRecords->where('category', 'prescriptions')->first();
+        if ($prescriptionRecord) {
+            $notifications[] = [
+                'appointment_id' => $prescriptionRecord->appointment_id,
+                'type' => 'prescription_expiring',
+                'title' => 'Prescription Expiring Soon',
+                'message' => 'Your prescription for Paracetamol 500mg expires in 7 days. Schedule a follow-up to get a refill.',
+                'channels' => ['push', 'email'],
+                'data' => ['medication' => 'Paracetamol 500mg', 'expiry_date' => now()->addDays(7)->format('Y-m-d'), 'health_record_id' => $prescriptionRecord->id],
+                'read_at' => null,
+                'created_at' => now()->subHours(12),
+            ];
+        }
+
+        // Follow-up required
+        $consultationRecord = $healthRecords->where('category', 'consultation_notes')->first();
+        if ($consultationRecord) {
+            $notifications[] = [
+                'appointment_id' => $consultationRecord->appointment_id,
+                'type' => 'followup_required',
+                'title' => 'Follow-up Recommended',
+                'message' => 'Dr. Sarah Johnson recommends a follow-up appointment. Book now to continue your treatment plan.',
+                'channels' => ['push', 'email'],
+                'data' => ['doctor_name' => 'Dr. Sarah Johnson', 'reason' => 'Routine check-up', 'health_record_id' => $consultationRecord->id],
+                'read_at' => null,
+                'created_at' => now()->subDays(5),
+            ];
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // FAMILY MEMBERS NOTIFICATIONS
+        // ─────────────────────────────────────────────────────────────
+
+        $familyMembers = FamilyMember::where('user_id', $user->id)->orderBy('id')->get();
+
+        // Member verification pending
+        $unverifiedMember = $familyMembers->whereNull('phone_verified_at')->first();
+        if ($unverifiedMember) {
+            $notifications[] = [
+                'appointment_id' => null,
+                'type' => 'member_verification_pending',
+                'title' => 'Verification Pending',
+                'message' => 'Phone verification pending for ' . $unverifiedMember->full_name . '. Verify now to enable appointment booking.',
+                'channels' => ['push'],
+                'data' => ['member_name' => $unverifiedMember->full_name, 'family_member_id' => $unverifiedMember->id],
+                'read_at' => null,
+                'created_at' => now()->subHours(6),
+            ];
+        }
+
+        // Member added
+        $recentMember = $familyMembers->where('relation', '!=', 'self')->first();
+        if ($recentMember) {
+            $notifications[] = [
+                'appointment_id' => null,
+                'type' => 'member_added',
+                'title' => 'Family Member Added',
+                'message' => $recentMember->full_name . ' (' . ucfirst($recentMember->relation) . ') has been added to your family members.',
+                'channels' => ['push', 'email'],
+                'data' => ['member_name' => $recentMember->full_name, 'relation' => $recentMember->relation, 'family_member_id' => $recentMember->id],
+                'read_at' => now()->subDays(20),
+                'created_at' => now()->subDays(25),
+            ];
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // INSURANCE POLICY NOTIFICATIONS
+        // ─────────────────────────────────────────────────────────────
+
+        $policies = InsurancePolicy::where('user_id', $user->id)->orderBy('id')->get();
+
+        // Policy expiring soon (within 60 days)
+        $expiringPolicy = $policies->first();
+        if ($expiringPolicy) {
+            $notifications[] = [
+                'appointment_id' => null,
+                'type' => 'policy_expiring_soon',
+                'title' => 'Policy Expiring Soon',
+                'message' => 'Your ' . $expiringPolicy->plan_name . ' policy expires on ' . now()->addDays(45)->format('M d, Y') . '. Renew now to avoid coverage gaps.',
+                'channels' => ['push', 'email'],
+                'data' => ['policy_name' => $expiringPolicy->plan_name, 'expiry_date' => now()->addDays(45)->format('Y-m-d'), 'insurance_policy_id' => $expiringPolicy->id],
+                'read_at' => null,
+                'created_at' => now()->subDays(1),
+            ];
+        }
+
+        // Policy expired
+        $expiredPolicy = $policies->where('is_active', false)->first();
+        if ($expiredPolicy) {
+            $notifications[] = [
+                'appointment_id' => null,
+                'type' => 'policy_expired',
+                'title' => 'Policy Expired',
+                'message' => 'Your ' . $expiredPolicy->plan_name . ' policy has expired. Renew immediately to restore coverage.',
+                'channels' => ['push', 'email', 'sms'],
+                'data' => ['policy_name' => $expiredPolicy->plan_name, 'expired_on' => now()->subDays(30)->format('Y-m-d'), 'insurance_policy_id' => $expiredPolicy->id],
+                'read_at' => null,
+                'created_at' => now()->subDays(5),
+            ];
+        }
+
         foreach ($notifications as $notification) {
             BillingNotification::create(array_merge($notification, [
                 'user_id' => $user->id,

@@ -18,6 +18,8 @@ import {
   Receipt, Clock, CheckCircle2, XCircle,
   ShieldCheck, ShieldAlert, MessageSquare, CreditCard,
   AlertTriangle, LogOut,
+  // Notification icons
+  Calendar, Video, TestTube, AlertCircle, Pill, User, UserPlus, Stethoscope,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 
@@ -40,6 +42,9 @@ interface NotificationItem {
   created_at: string;
   appointment_id: number | null;
   insurance_claim_id: number | null;
+  health_record_id?: number | null;
+  family_member_id?: number | null;
+  insurance_policy_id?: number | null;
 }
 
 interface AppLayoutProps {
@@ -52,10 +57,15 @@ interface AppLayoutProps {
 // --- Notification Helpers ---
 
 const notificationIconMap: Record<string, { icon: React.ComponentType<any>; color: string; bg: string }> = {
+  // Billing Notifications
   bill_generated:           { icon: Receipt,        color: '#3B82F6', bg: '#EFF6FF' },
   payment_due_reminder:     { icon: Clock,          color: '#F59E0B', bg: '#FFFBEB' },
   payment_successful:       { icon: CheckCircle2,   color: '#22C55E', bg: '#F0FDF4' },
   payment_failed:           { icon: XCircle,        color: '#EF4444', bg: '#FEF2F2' },
+  dispute_update:           { icon: MessageSquare,  color: '#F59E0B', bg: '#FFFBEB' },
+  emi_due_reminder:         { icon: CreditCard,     color: '#3B82F6', bg: '#EFF6FF' },
+
+  // Insurance Claims Notifications
   insurance_claim_approved:       { icon: ShieldCheck,    color: '#22C55E', bg: '#F0FDF4' },
   insurance_claim_rejected:       { icon: ShieldAlert,    color: '#EF4444', bg: '#FEF2F2' },
   insurance_preauth_approved:     { icon: ShieldCheck,    color: '#22C55E', bg: '#F0FDF4' },
@@ -63,8 +73,28 @@ const notificationIconMap: Record<string, { icon: React.ComponentType<any>; colo
   insurance_enhancement_required: { icon: ShieldAlert,    color: '#F59E0B', bg: '#FFFBEB' },
   insurance_enhancement_approved: { icon: ShieldCheck,    color: '#22C55E', bg: '#F0FDF4' },
   insurance_claim_settled:        { icon: ShieldCheck,    color: '#22C55E', bg: '#F0FDF4' },
-  dispute_update:                 { icon: MessageSquare,  color: '#F59E0B', bg: '#FFFBEB' },
-  emi_due_reminder:         { icon: CreditCard,     color: '#3B82F6', bg: '#EFF6FF' },
+
+  // Appointment Notifications
+  appointment_reminder:     { icon: Calendar,       color: '#3B82F6', bg: '#EFF6FF' },
+  appointment_confirmed:    { icon: CheckCircle2,   color: '#22C55E', bg: '#F0FDF4' },
+  appointment_cancelled:    { icon: XCircle,        color: '#EF4444', bg: '#FEF2F2' },
+  appointment_rescheduled:  { icon: Calendar,       color: '#F59E0B', bg: '#FFFBEB' },
+  checkin_available:        { icon: Clock,          color: '#22C55E', bg: '#F0FDF4' },
+  video_link_ready:         { icon: Video,          color: '#3B82F6', bg: '#EFF6FF' },
+
+  // Health Records Notifications
+  lab_results_ready:        { icon: TestTube,       color: '#22C55E', bg: '#F0FDF4' },
+  abnormal_results:         { icon: AlertCircle,    color: '#EF4444', bg: '#FEF2F2' },
+  prescription_expiring:    { icon: Pill,           color: '#F59E0B', bg: '#FFFBEB' },
+  followup_required:        { icon: Stethoscope,    color: '#F59E0B', bg: '#FFFBEB' },
+
+  // Family Members Notifications
+  member_verification_pending: { icon: User,        color: '#F59E0B', bg: '#FFFBEB' },
+  member_added:                { icon: UserPlus,    color: '#22C55E', bg: '#F0FDF4' },
+
+  // Insurance Policy Notifications
+  policy_expiring_soon:     { icon: ShieldAlert,    color: '#F59E0B', bg: '#FFFBEB' },
+  policy_expired:           { icon: ShieldAlert,    color: '#EF4444', bg: '#FEF2F2' },
 };
 
 const channelLabels: Record<string, string> = {
@@ -227,10 +257,50 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
       router.post(`/notifications/${notification.id}/read`, {}, { preserveScroll: true });
     }
     setNotifOpen(false);
-    const isInsuranceNotif = notification.type.startsWith('insurance_');
-    if (isInsuranceNotif && notification.insurance_claim_id) {
+
+    // Insurance claim notifications
+    const isInsuranceClaimNotif = notification.type.startsWith('insurance_');
+    if (isInsuranceClaimNotif && notification.insurance_claim_id) {
       router.visit(`/insurance/claims/${notification.insurance_claim_id}`);
-    } else if (notification.appointment_id) {
+      return;
+    }
+
+    // Insurance policy notifications
+    const isPolicyNotif = notification.type === 'policy_expiring_soon' || notification.type === 'policy_expired';
+    if (isPolicyNotif && notification.insurance_policy_id) {
+      router.visit(`/insurance/${notification.insurance_policy_id}`);
+      return;
+    }
+
+    // Appointment notifications
+    const isAppointmentNotif = notification.type.startsWith('appointment_') ||
+      notification.type === 'checkin_available' ||
+      notification.type === 'video_link_ready';
+    if (isAppointmentNotif && notification.appointment_id) {
+      router.visit(`/appointments/${notification.appointment_id}`);
+      return;
+    }
+
+    // Health record notifications
+    const isHealthRecordNotif = notification.type === 'lab_results_ready' ||
+      notification.type === 'abnormal_results' ||
+      notification.type === 'prescription_expiring' ||
+      notification.type === 'followup_required';
+    if (isHealthRecordNotif && notification.health_record_id) {
+      router.visit(`/health-records/${notification.health_record_id}`);
+      return;
+    }
+
+    // Family member notifications
+    const isFamilyMemberNotif = notification.type === 'member_verification_pending' ||
+      notification.type === 'member_added';
+    if (isFamilyMemberNotif && notification.family_member_id) {
+      router.visit(`/family-members/${notification.family_member_id}`);
+      return;
+    }
+
+    // Billing notifications (default for backward compatibility)
+    if (notification.appointment_id) {
       router.visit(`/billing/${notification.appointment_id}`);
     }
   };
@@ -396,7 +466,7 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
                 <p className="text-xs text-muted-foreground mt-1">
                   {notifFilter === 'unread'
                     ? "You're all caught up!"
-                    : 'Billing notifications will appear here.'}
+                    : 'Updates about appointments, billing, and more will appear here.'}
                 </p>
               </div>
             ) : (
