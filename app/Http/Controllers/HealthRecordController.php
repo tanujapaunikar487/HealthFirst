@@ -184,4 +184,47 @@ class HealthRecordController extends Controller
             default => ['label' => 'Pending', 'variant' => 'warning'],
         };
     }
+
+    public function show(HealthRecord $record)
+    {
+        $user = Auth::user() ?? \App\User::first();
+
+        // Ensure the record belongs to this user
+        if ($record->user_id !== $user->id) {
+            abort(403);
+        }
+
+        $status = $this->computeStatus($record->category, $record->metadata);
+
+        $recordData = [
+            'id' => $record->id,
+            'appointment_id' => $record->appointment_id,
+            'family_member_id' => $record->family_member_id,
+            'category' => $record->category,
+            'title' => $record->title,
+            'description' => $record->description,
+            'doctor_name' => $record->doctor_name,
+            'department_name' => $record->department_name,
+            'record_date' => $record->record_date->format('Y-m-d'),
+            'record_date_formatted' => $record->record_date->format('d M Y'),
+            'metadata' => $record->metadata,
+            'file_url' => $record->file_url,
+            'file_type' => $record->file_type,
+            'status' => $status,
+            'insurance_claim_id' => $record->category === 'invoice' && $record->appointment_id
+                ? InsuranceClaim::where('appointment_id', $record->appointment_id)->value('id')
+                : null,
+        ];
+
+        $familyMember = null;
+        if ($record->family_member_id) {
+            $familyMember = FamilyMember::find($record->family_member_id, ['id', 'name', 'relation', 'age', 'gender', 'blood_group']);
+        }
+
+        return Inertia::render('HealthRecords/Show', [
+            'user' => $user,
+            'record' => $recordData,
+            'familyMember' => $familyMember,
+        ]);
+    }
 }

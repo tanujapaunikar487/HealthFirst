@@ -34,7 +34,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,  // Use fallback user for dev mode
             ],
             'notificationUnreadCount' => $user
                 ? \App\Models\BillingNotification::where('user_id', $user->id)->whereNull('read_at')->count()
@@ -57,6 +57,17 @@ class HandleInertiaRequests extends Middleware
                 : [],
             'profileWarnings' => $user ? $this->getProfileWarnings($user) : [],
             'toast' => fn () => $request->session()->get('toast'),
+            'userPreferences' => $user ? $user->getSetting('preferences', [
+                'language' => 'en',
+                'date_format' => 'DD/MM/YYYY',
+                'time_format' => '12h',
+                'accessibility' => ['text_size' => 16, 'high_contrast' => false],
+            ]) : null,
+            'bookingDefaults' => $user ? $user->getSetting('booking_defaults', [
+                'default_patient_id' => null,
+                'default_consultation_mode' => null,
+                'default_lab_collection_method' => null,
+            ]) : null,
         ];
     }
 

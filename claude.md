@@ -1990,6 +1990,57 @@ Adds 13 new columns to users table for profile completion and emergency contact 
 
 ---
 
+## Settings Full Functionality (February 3, 2026)
+
+Made all Settings page features fully functional with persistence across the application.
+
+### Working Features
+- **Profile Tab**: Personal info, avatar upload (JPG/PNG/WebP, 5MB), emergency contact
+- **Notifications Tab**: Channel preferences (email/SMS/WhatsApp), category toggles, granular health alerts
+- **Preferences Tab**: Language, date/time format, text size (14-24px), high contrast mode, booking defaults
+- **Connections Tab**: Video provider selection (Google Meet/Zoom), Apple Calendar .ics export
+- **Account Actions**: Password change (2-step verification), Download My Data (JSON), Delete Account
+
+### Global Settings Application
+- User preferences passed globally via `HandleInertiaRequests` middleware
+- `AppLayout.tsx` applies text size and high contrast mode on mount via `useEffect`
+- Date/time formatting utilities in `resources/js/Lib/format-date.ts`
+- Custom hook `useFormatPreferences()` for consistent date formatting across pages
+- High contrast CSS in `resources/css/app.css`
+
+### Backend Endpoints Added
+- `DELETE /settings/video/google` - Disconnect Google Meet
+- `DELETE /settings/video/zoom` - Disconnect Zoom
+- Updated `PUT /settings/notifications` to include granular health_alerts
+
+---
+
+## Page Container Standardization (February 3, 2026)
+
+Standardized page container widths and bottom padding across all pages.
+
+### Container Specifications
+- **All pages (except Dashboard)**: 960px max-width, 80px bottom padding
+- **Dashboard**: 800px max-width, 80px bottom padding (kept narrower for home page)
+
+### Files Updated (12 pages)
+| Page | Change |
+|------|--------|
+| Appointments/Show | 1100px → 960px, 40px → 80px bottom |
+| Appointments/Index | 40px → 80px bottom |
+| Billing/Show | 800px → 960px, 40px → 80px bottom |
+| Billing/Index | 40px → 80px bottom |
+| HealthRecords/Index | 40px → 80px bottom |
+| Insurance/Show | 800px → 960px, 40px → 80px bottom |
+| Insurance/ClaimDetail | 800px → 960px, 40px → 80px bottom |
+| Insurance/Index | 40px → 80px bottom |
+| FamilyMembers/Index | 800px → 960px, 40px → 80px bottom |
+| FamilyMembers/Show | 800px → 960px, 40px → 80px bottom |
+| Settings/Index | 6xl (1152px) → 960px, added 80px bottom |
+| Dashboard | Width unchanged (800px), 40px → 80px bottom |
+
+---
+
 **Status**: Production-ready healthcare management platform with AI-powered booking, comprehensive health records, billing, and insurance management.
 
-**Last Updated**: February 3, 2026 — Settings page 4-tab redesign, test OTP mode, book again side sheet
+**Last Updated**: February 3, 2026 — Settings full functionality, page container standardization (960px width, 80px bottom padding)

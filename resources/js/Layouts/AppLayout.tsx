@@ -157,16 +157,50 @@ function NotificationCard({
 
 // --- Main Layout ---
 
+interface UserPreferences {
+  language: string;
+  date_format: string;
+  time_format: string;
+  accessibility: {
+    text_size: number;
+    high_contrast: boolean;
+  };
+}
+
 export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLayoutProps) {
   const { props } = usePage<{
     notificationUnreadCount: number;
     allNotifications: NotificationItem[];
     profileWarnings: Array<{ key: string; label: string; href: string }>;
+    userPreferences: UserPreferences | null;
   }>();
 
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifFilter, setNotifFilter] = useState<'all' | 'unread'>('all');
   const [searchOpen, setSearchOpen] = useState(false);
+
+  // Apply user preferences (text size and high contrast)
+  useEffect(() => {
+    const prefs = props.userPreferences;
+    if (prefs?.accessibility) {
+      // Apply text size to root element
+      const textSize = prefs.accessibility.text_size || 16;
+      document.documentElement.style.fontSize = `${textSize}px`;
+
+      // Apply high contrast mode
+      if (prefs.accessibility.high_contrast) {
+        document.documentElement.classList.add('high-contrast');
+      } else {
+        document.documentElement.classList.remove('high-contrast');
+      }
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.documentElement.style.fontSize = '';
+      document.documentElement.classList.remove('high-contrast');
+    };
+  }, [props.userPreferences]);
 
   // Cmd+K / Ctrl+K keyboard shortcut
   useEffect(() => {
@@ -222,7 +256,7 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
               ) : pageIcon ? (
                 <Icon icon={pageIcon} className="h-6 w-6" style={{ color: '#00184D' }} />
               ) : (
-                <img src="/assets/icons/home-3.svg" alt={pageTitle || 'Home'} className="h-6 w-6" />
+                <img src="/assets/icons/home.svg" alt={pageTitle || 'Home'} className="h-6 w-6" />
               )}
               <h2 className="text-base font-semibold" style={{ color: '#00184D' }}>{pageTitle || 'Home'}</h2>
             </div>
@@ -389,7 +423,7 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
 /**
  * Sidebar Navigation Component
  */
-function Sidebar({ user }: { user: User }) {
+function Sidebar({ user }: { user: User | null }) {
   const { url } = usePage();
 
   const isActive = (href: string) => {
@@ -444,23 +478,25 @@ function Sidebar({ user }: { user: User }) {
       </nav>
 
       {/* User Profile Section */}
-      <div className="px-6 py-4 border-t" style={{ borderColor: '#E5E5E5' }}>
-        <Link
-          href="/settings"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors"
-        >
-          <Avatar className="h-10 w-10 flex-shrink-0">
-            <AvatarImage src={user.avatar_url} />
-            <AvatarFallback className="text-sm">{getInitials(user.name)}</AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold truncate" style={{ color: '#00184D' }}>
-              {user.name}
-            </p>
-            <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-          </div>
-        </Link>
-      </div>
+      {user && (
+        <div className="px-6 py-4 border-t" style={{ borderColor: '#E5E5E5' }}>
+          <Link
+            href="/settings"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors"
+          >
+            <Avatar className="h-10 w-10 flex-shrink-0">
+              <AvatarImage src={user.avatar_url} />
+              <AvatarFallback className="text-sm">{getInitials(user.name)}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold truncate" style={{ color: '#00184D' }}>
+                {user.name}
+              </p>
+              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+            </div>
+          </Link>
+        </div>
+      )}
     </aside>
   );
 }
@@ -479,7 +515,7 @@ function NavLink({ href, iconName, label, active = false }: NavLinkProps) {
   const baseClasses =
     'flex items-center gap-3 px-4 py-3 font-semibold transition-all h-[50px]';
 
-  const shapeClasses = active ? 'rounded-full' : 'rounded-lg';
+  const shapeClasses = 'rounded-full';
   const restClasses = !active ? 'text-[#0A0B0D] hover:bg-muted' : '';
 
   const iconSrc = active

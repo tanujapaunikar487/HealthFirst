@@ -63,7 +63,7 @@ function getInitials(name: string): string {
 
 function FamilyMembersSkeleton() {
   return (
-    <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
+    <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
       <div className="flex items-center justify-between mb-8">
         <div className="space-y-2">
           <Pulse className="h-9 w-48" />
@@ -115,7 +115,7 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
 
   if (hasError) {
     return (
-      <AppLayout user={user} pageTitle="Family Members" pageIcon="/assets/icons/family-selected.svg">
+      <AppLayout user={user} pageTitle="Family Members" pageIcon="/assets/icons/family.svg">
         <ErrorState onRetry={retry} label="Unable to load family members" />
       </AppLayout>
     );
@@ -123,7 +123,7 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
 
   if (isLoading) {
     return (
-      <AppLayout user={user} pageTitle="Family Members" pageIcon="/assets/icons/family-selected.svg">
+      <AppLayout user={user} pageTitle="Family Members" pageIcon="/assets/icons/family.svg">
         <FamilyMembersSkeleton />
       </AppLayout>
     );
@@ -144,7 +144,7 @@ export default function FamilyMembersIndex({ members, canCreate, alertMemberCoun
       pageTitle="Family Members"
       pageIcon={AddTeam}
     >
-      <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
+      <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <h1

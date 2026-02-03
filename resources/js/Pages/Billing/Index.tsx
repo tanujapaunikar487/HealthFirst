@@ -4,6 +4,7 @@ import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading, SheetSkeleton } from '@/Components/ui/skeleton';
 import { EmptyState } from '@/Components/ui/empty-state';
 import { Button } from '@/Components/ui/button';
+import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { Input } from '@/Components/ui/input';
 import {
   Select,
@@ -157,7 +158,7 @@ const PAYABLE_STATUSES: BillingStatus[] = ['due', 'copay_due'];
 
 function BillingSkeleton() {
   return (
-    <div style={{ width: '100%', maxWidth: '960px', padding: '40px 0' }}>
+    <div style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '80px' }}>
       <div className="mb-8">
         <Pulse className="h-9 w-32" />
       </div>
@@ -219,6 +220,7 @@ function BillingSkeleton() {
 
 export default function Index({ user, bills, stats, familyMembers }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(bills);
+  const { formatDate, formatTime } = useFormatPreferences();
   const [tab, setTab] = useState<'all' | 'outstanding' | 'paid'>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [memberFilter, setMemberFilter] = useState<string>('all');
@@ -450,7 +452,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
 
   if (hasError) {
     return (
-      <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing-selected.svg">
+      <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing.svg">
         <ErrorState onRetry={retry} label="Unable to load billing" />
       </AppLayout>
     );
@@ -458,7 +460,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
 
   if (isLoading) {
     return (
-      <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing-selected.svg">
+      <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing.svg">
         <BillingSkeleton />
       </AppLayout>
     );
@@ -468,9 +470,9 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
     <AppLayout
       user={user}
       pageTitle="Billing"
-      pageIcon="/assets/icons/billing-selected.svg"
+      pageIcon="/assets/icons/billing.svg"
     >
-      <div style={{ width: '100%', maxWidth: '960px', padding: '40px 0' }}>
+      <div style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '80px' }}>
         {/* Header */}
         <div className="mb-8">
           <h1
@@ -673,8 +675,8 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
 
                         {/* Date & Time */}
                         <TableCell className="align-top">
-                          <p className="text-sm">{bill.date_formatted}</p>
-                          <p className="text-xs text-muted-foreground">{bill.time}</p>
+                          <p className="text-sm">{formatDate(bill.date)}</p>
+                          <p className="text-xs text-muted-foreground">{formatTime(bill.date)}</p>
                         </TableCell>
 
                         {/* Description */}
@@ -998,7 +1000,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                       {/* Reference + Date + Amount */}
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span className="font-mono">{bill.invoice_number}</span>
-                        <span>{bill.date_formatted}</span>
+                        <span>{formatDate(bill.date)}</span>
                       </div>
                       <div className="flex justify-between items-baseline">
                         <span className="text-xs text-muted-foreground">Amount</span>

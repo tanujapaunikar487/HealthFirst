@@ -231,7 +231,7 @@ function StatusAlertBanner({ bill }: { bill: Bill }) {
 
 function BillingShowSkeleton() {
   return (
-    <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
+    <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
       {/* Back link */}
       <Pulse className="h-4 w-16 mb-6" />
       {/* Page Header */}
@@ -439,7 +439,7 @@ export default function Show({ user, bill }: Props) {
 
   if (hasError) {
     return (
-      <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing-selected.svg">
+      <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing.svg">
         <ErrorState onRetry={retry} label="Unable to load bill details" />
       </AppLayout>
     );
@@ -447,15 +447,15 @@ export default function Show({ user, bill }: Props) {
 
   if (isLoading) {
     return (
-      <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing-selected.svg">
+      <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing.svg">
         <BillingShowSkeleton />
       </AppLayout>
     );
   }
 
   return (
-    <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing-selected.svg">
-      <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
+    <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing.svg">
+      <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
 
         {/* ─── Back Link ─── */}
         <button

@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
-import { Download, Lock, Trash2, AlertTriangle } from '@/Lib/icons';
+import { Download, Lock, Trash2, AlertTriangle, ChevronRight } from '@/Lib/icons';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
 import { Label } from '@/Components/ui/label';
 import { Input } from '@/Components/ui/input';
 import { Switch } from '@/Components/ui/switch';
-import { Slider } from '@/Components/ui/slider';
 import {
     Select,
     SelectContent,
@@ -61,8 +60,8 @@ export function PreferencesTab({
 }: PreferencesTabProps) {
     const [prefs, setPrefs] = useState(settings);
     const [defaults, setDefaults] = useState(bookingDefaults);
+    const [downloadFormat, setDownloadFormat] = useState('pdf');
     const [saving, setSaving] = useState(false);
-    const [savingDefaults, setSavingDefaults] = useState(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [deletePassword, setDeletePassword] = useState('');
     const [deleting, setDeleting] = useState(false);
@@ -85,24 +84,30 @@ export function PreferencesTab({
     };
 
     const handleDefaultChange = <K extends keyof BookingDefaults>(key: K, value: string | null) => {
-        setDefaults((prev) => ({ ...prev, [key]: value || null }));
+        setDefaults((prev) => ({ ...prev, [key]: value === 'none' ? null : (value || null) }));
     };
 
-    const handleSavePreferences = () => {
+    const handleSaveAll = () => {
         setSaving(true);
-        router.put('/settings/preferences', prefs, {
-            onSuccess: () => toast.success('Preferences updated'),
-            onError: () => toast.error('Failed to update preferences'),
-            onFinish: () => setSaving(false),
-        });
-    };
 
-    const handleSaveDefaults = () => {
-        setSavingDefaults(true);
-        router.put('/settings/booking-defaults', defaults, {
-            onSuccess: () => toast.success('Booking defaults updated'),
-            onError: () => toast.error('Failed to update defaults'),
-            onFinish: () => setSavingDefaults(false),
+        // Save preferences
+        router.put('/settings/preferences', prefs, {
+            preserveState: true,
+            onSuccess: () => {
+                // Save booking defaults
+                router.put('/settings/booking-defaults', defaults, {
+                    preserveState: true,
+                    onSuccess: () => {
+                        toast.success('Settings saved');
+                    },
+                    onError: () => toast.error('Failed to save settings'),
+                    onFinish: () => setSaving(false),
+                });
+            },
+            onError: () => {
+                toast.error('Failed to save settings');
+                setSaving(false);
+            },
         });
     };
 
@@ -126,23 +131,38 @@ export function PreferencesTab({
         });
     };
 
-    const prefsChanged = JSON.stringify(prefs) !== JSON.stringify(settings);
-    const defaultsChanged = JSON.stringify(defaults) !== JSON.stringify(bookingDefaults);
+    // Map text size to segmented control value
+    const getTextSizeOption = (size: number) => {
+        if (size <= 14) return 'small';
+        if (size <= 18) return 'medium';
+        return 'large';
+    };
+
+    const setTextSizeFromOption = (option: string) => {
+        const sizes = { small: 14, medium: 18, large: 22 };
+        handleAccessibilityChange('text_size', sizes[option as keyof typeof sizes]);
+    };
 
     return (
-        <div className="space-y-6">
-            {/* Regional Settings */}
-            <Card>
-                <CardContent className="pt-6 space-y-4">
-                    <h4 className="font-medium text-lg mb-4">Regional Settings</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                            <Label>Language</Label>
+        <div className="space-y-8">
+            {/* Language & Region */}
+            <div>
+                <h3 className="text-lg font-semibold mb-4">Language & Region</h3>
+                <Card>
+                    <CardContent className="p-0 divide-y">
+                        {/* Language Row */}
+                        <div className="flex items-center justify-between p-4">
+                            <div>
+                                <p className="font-medium">Language</p>
+                                <p className="text-sm text-muted-foreground">
+                                    Choose your preferred language
+                                </p>
+                            </div>
                             <Select
                                 value={prefs.language}
                                 onValueChange={(v) => handlePrefChange('language', v)}
                             >
-                                <SelectTrigger>
+                                <SelectTrigger className="w-[140px]">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -152,67 +172,114 @@ export function PreferencesTab({
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="space-y-2">
-                            <Label>Date Format</Label>
+
+                        {/* Date Format Row */}
+                        <div className="flex items-center justify-between p-4">
+                            <div>
+                                <p className="font-medium">Date Format</p>
+                                <p className="text-sm text-muted-foreground">
+                                    How dates appear throughout the app
+                                </p>
+                            </div>
                             <Select
                                 value={prefs.date_format}
                                 onValueChange={(v) => handlePrefChange('date_format', v)}
                             >
-                                <SelectTrigger>
+                                <SelectTrigger className="w-[140px]">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="DD/MM/YYYY">DD/MM/YYYY (31/12/2026)</SelectItem>
-                                    <SelectItem value="MM/DD/YYYY">MM/DD/YYYY (12/31/2026)</SelectItem>
-                                    <SelectItem value="YYYY-MM-DD">YYYY-MM-DD (2026-12-31)</SelectItem>
+                                    <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
+                                    <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
+                                    <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="space-y-2">
-                            <Label>Time Format</Label>
-                            <Select
-                                value={prefs.time_format}
-                                onValueChange={(v) => handlePrefChange('time_format', v)}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="12h">12-hour (2:30 PM)</SelectItem>
-                                    <SelectItem value="24h">24-hour (14:30)</SelectItem>
-                                </SelectContent>
-                            </Select>
+
+                        {/* Time Format Row */}
+                        <div className="flex items-center justify-between p-4">
+                            <div>
+                                <p className="font-medium">Time Format</p>
+                                <p className="text-sm text-muted-foreground">
+                                    12-hour or 24-hour clock
+                                </p>
+                            </div>
+                            <div className="flex rounded-full border bg-muted p-1">
+                                <button
+                                    onClick={() => handlePrefChange('time_format', '24h')}
+                                    className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${
+                                        prefs.time_format === '24h'
+                                            ? 'bg-background text-primary shadow-sm'
+                                            : 'text-muted-foreground hover:text-foreground'
+                                    }`}
+                                >
+                                    24 hrs
+                                </button>
+                                <button
+                                    onClick={() => handlePrefChange('time_format', '12h')}
+                                    className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${
+                                        prefs.time_format === '12h'
+                                            ? 'bg-background text-primary shadow-sm'
+                                            : 'text-muted-foreground hover:text-foreground'
+                                    }`}
+                                >
+                                    12 hrs
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </CardContent>
-            </Card>
+                    </CardContent>
+                </Card>
+            </div>
 
             {/* Accessibility */}
-            <Card>
-                <CardContent className="pt-6 space-y-6">
-                    <h4 className="font-medium text-lg mb-4">Accessibility</h4>
-
-                    <div className="space-y-4">
-                        <div className="space-y-3">
-                            <Label>Text Size</Label>
-                            <div className="flex items-center gap-4">
-                                <span className="text-xs font-medium">A</span>
-                                <Slider
-                                    value={[prefs.accessibility.text_size]}
-                                    min={14}
-                                    max={24}
-                                    step={2}
-                                    onValueChange={(v) => handleAccessibilityChange('text_size', v[0])}
-                                    className="flex-1"
-                                />
-                                <span className="text-lg font-medium">A</span>
+            <div>
+                <h3 className="text-lg font-semibold mb-4">Accessibility</h3>
+                <Card>
+                    <CardContent className="p-0 divide-y">
+                        {/* Text Size Row */}
+                        <div className="flex items-center justify-between p-4">
+                            <div>
+                                <p className="font-medium">Text Size</p>
+                                <p className="text-sm text-muted-foreground">
+                                    Adjust the font size throughout the app
+                                </p>
                             </div>
-                            <p className="text-sm text-muted-foreground">
-                                Current: {prefs.accessibility.text_size}px
-                            </p>
+                            <div className="flex rounded-full border bg-muted p-1">
+                                <button
+                                    onClick={() => setTextSizeFromOption('small')}
+                                    className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
+                                        getTextSizeOption(prefs.accessibility.text_size) === 'small'
+                                            ? 'bg-background text-primary shadow-sm'
+                                            : 'text-muted-foreground hover:text-foreground'
+                                    }`}
+                                >
+                                    A
+                                </button>
+                                <button
+                                    onClick={() => setTextSizeFromOption('medium')}
+                                    className={`px-3 py-1.5 text-sm font-medium rounded-full transition-colors ${
+                                        getTextSizeOption(prefs.accessibility.text_size) === 'medium'
+                                            ? 'bg-background text-primary shadow-sm'
+                                            : 'text-muted-foreground hover:text-foreground'
+                                    }`}
+                                >
+                                    A
+                                </button>
+                                <button
+                                    onClick={() => setTextSizeFromOption('large')}
+                                    className={`px-3 py-1.5 text-base font-medium rounded-full transition-colors ${
+                                        getTextSizeOption(prefs.accessibility.text_size) === 'large'
+                                            ? 'bg-background text-primary shadow-sm'
+                                            : 'text-muted-foreground hover:text-foreground'
+                                    }`}
+                                >
+                                    A
+                                </button>
+                            </div>
                         </div>
 
-                        <div className="flex items-center justify-between py-2">
+                        {/* High Contrast Row */}
+                        <div className="flex items-center justify-between p-4">
                             <div>
                                 <p className="font-medium">High Contrast Mode</p>
                                 <p className="text-sm text-muted-foreground">
@@ -224,122 +291,123 @@ export function PreferencesTab({
                                 onCheckedChange={(v) => handleAccessibilityChange('high_contrast', v)}
                             />
                         </div>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Save Preferences Button */}
-            <div className="flex justify-end">
-                <Button
-                    onClick={handleSavePreferences}
-                    disabled={saving || !prefsChanged}
-                    className="min-w-[120px]"
-                >
-                    {saving ? 'Saving...' : 'Save Preferences'}
-                </Button>
+                    </CardContent>
+                </Card>
             </div>
 
-            {/* Booking Defaults */}
-            <Card>
-                <CardContent className="pt-6 space-y-4">
-                    <h4 className="font-medium text-lg mb-4">Booking Defaults</h4>
-                    <p className="text-sm text-muted-foreground mb-4">
-                        Set default values for quicker booking
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                            <Label>Default Patient</Label>
+            {/* Default Settings */}
+            <div>
+                <h3 className="text-lg font-semibold mb-4">Default Settings</h3>
+                <Card>
+                    <CardContent className="p-0 divide-y">
+                        {/* Default Family Member Row */}
+                        <div className="flex items-center justify-between p-4">
+                            <div>
+                                <p className="font-medium">Default Family Member</p>
+                                <p className="text-sm text-muted-foreground">
+                                    Pre-select when booking appointments
+                                </p>
+                            </div>
                             <Select
-                                value={defaults.default_patient_id || ''}
+                                value={defaults.default_patient_id || 'none'}
                                 onValueChange={(v) => handleDefaultChange('default_patient_id', v)}
                             >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Always ask" />
+                                <SelectTrigger className="w-[140px]">
+                                    <SelectValue placeholder="Select" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">Always ask</SelectItem>
+                                    <SelectItem value="none">Always ask</SelectItem>
                                     <SelectItem value="self">Myself</SelectItem>
                                     {familyMembers.map((m) => (
                                         <SelectItem key={m.id} value={m.id.toString()}>
-                                            {m.name} ({m.relation})
+                                            {m.name}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="space-y-2">
-                            <Label>Consultation Mode</Label>
-                            <Select
-                                value={defaults.default_consultation_mode || ''}
-                                onValueChange={(v) => handleDefaultChange('default_consultation_mode', v)}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Always ask" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="">Always ask</SelectItem>
-                                    <SelectItem value="video">Video Consultation</SelectItem>
-                                    <SelectItem value="in_person">In-Person Visit</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Lab Collection Method</Label>
-                            <Select
-                                value={defaults.default_lab_collection_method || ''}
-                                onValueChange={(v) =>
-                                    handleDefaultChange('default_lab_collection_method', v)
-                                }
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Always ask" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="">Always ask</SelectItem>
-                                    <SelectItem value="home">Home Collection</SelectItem>
-                                    <SelectItem value="center">Visit Lab Center</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
 
-            {/* Save Defaults Button */}
-            <div className="flex justify-end">
-                <Button
-                    onClick={handleSaveDefaults}
-                    disabled={savingDefaults || !defaultsChanged}
-                    className="min-w-[120px]"
-                >
-                    {savingDefaults ? 'Saving...' : 'Save Defaults'}
-                </Button>
+                        {/* Download Format Row */}
+                        <div className="flex items-center justify-between p-4">
+                            <div>
+                                <p className="font-medium">Download Format</p>
+                                <p className="text-sm text-muted-foreground">
+                                    Preferred format for health records
+                                </p>
+                            </div>
+                            <Select
+                                value={downloadFormat}
+                                onValueChange={setDownloadFormat}
+                            >
+                                <SelectTrigger className="w-[100px]">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="pdf">PDF</SelectItem>
+                                    <SelectItem value="json">JSON</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
 
-            {/* Account Actions */}
-            <Card className="border-amber-200 bg-amber-50/30">
-                <CardContent className="pt-6 space-y-4">
-                    <h4 className="font-medium text-lg text-amber-800">Account Actions</h4>
-                    <div className="flex flex-wrap gap-3">
-                        <Button variant="outline" onClick={onOpenPasswordModal}>
-                            <Lock className="h-4 w-4 mr-2" />
-                            Change Password
-                        </Button>
-                        <Button variant="outline" onClick={handleDownloadData}>
-                            <Download className="h-4 w-4 mr-2" />
-                            Download My Data
-                        </Button>
-                        <Button
-                            variant="outline"
-                            className="text-destructive hover:bg-destructive/10"
-                            onClick={() => setShowDeleteDialog(true)}
+            {/* Account */}
+            <div>
+                <h3 className="text-lg font-semibold mb-4">Account</h3>
+                <Card>
+                    <CardContent className="p-0 divide-y">
+                        {/* Change Password Row */}
+                        <button
+                            onClick={onOpenPasswordModal}
+                            className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors text-left"
                         >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete Account
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
+                            <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                                    <Lock className="h-5 w-5 text-muted-foreground" />
+                                </div>
+                                <span className="font-medium">Change Password</span>
+                            </div>
+                            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                        </button>
+
+                        {/* Download My Data Row */}
+                        <button
+                            onClick={handleDownloadData}
+                            className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors text-left"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                                    <Download className="h-5 w-5 text-muted-foreground" />
+                                </div>
+                                <span className="font-medium">Download My Data</span>
+                            </div>
+                            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                        </button>
+
+                        {/* Delete Account Row */}
+                        <button
+                            onClick={() => setShowDeleteDialog(true)}
+                            className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors text-left"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                                    <Trash2 className="h-5 w-5 text-muted-foreground" />
+                                </div>
+                                <span className="font-medium">Delete Account</span>
+                            </div>
+                            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                        </button>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Save Changes Button */}
+            <div>
+                <Button onClick={handleSaveAll} disabled={saving} className="px-8">
+                    {saving ? 'Saving...' : 'Save Changes'}
+                </Button>
+            </div>
 
             {/* Delete Account Dialog */}
             <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
@@ -355,7 +423,7 @@ export function PreferencesTab({
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="py-4 space-y-4">
+                    <div className="space-y-4">
                         <div className="rounded-lg bg-destructive/10 p-4 text-sm text-destructive">
                             <p className="font-medium mb-2">The following data will be deleted:</p>
                             <ul className="list-disc list-inside space-y-1">

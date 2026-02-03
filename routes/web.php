@@ -135,6 +135,8 @@ Route::prefix('settings')->name('settings.')->group(function () {
 
     // Video (existing)
     Route::put('/video', [\App\Http\Controllers\SettingsController::class, 'updateVideoSettings'])->name('video.update');
+    Route::delete('/video/google', [\App\Http\Controllers\SettingsController::class, 'disconnectGoogleMeet'])->name('video.google.disconnect');
+    Route::delete('/video/zoom', [\App\Http\Controllers\SettingsController::class, 'disconnectZoom'])->name('video.zoom.disconnect');
 
     // Calendar OAuth
     Route::get('/calendar/google/connect', [\App\Http\Controllers\SettingsController::class, 'initiateGoogleCalendarOAuth'])->name('calendar.google.connect');
@@ -177,6 +179,7 @@ Route::post('/insurance/claims/{claim}/dispute', [InsuranceController::class, 'd
 
 // Health Records
 Route::get('/health-records', [HealthRecordController::class, 'index'])->name('health-records.index');
+Route::get('/health-records/{record}', [HealthRecordController::class, 'show'])->name('health-records.show');
 
 // Billing
 Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');

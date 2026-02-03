@@ -6,6 +6,12 @@ import { Card, CardContent } from '@/Components/ui/card';
 import { Switch } from '@/Components/ui/switch';
 import { toast } from 'sonner';
 
+interface HealthAlertSettings {
+    lab_results: boolean;
+    medication_reminders: boolean;
+    doctor_messages: boolean;
+}
+
 interface NotificationSettings {
     channels: {
         email: boolean;
@@ -19,51 +25,26 @@ interface NotificationSettings {
         insurance: boolean;
         promotions: boolean;
     };
+    health_alerts?: HealthAlertSettings;
 }
 
 interface NotificationsTabProps {
     settings: NotificationSettings;
 }
 
-const channelIcons = {
-    email: Mail,
-    sms: Phone,
-    whatsapp: MessageSquare,
-};
-
-const channelLabels = {
-    email: { name: 'Email', description: 'Receive notifications via email' },
-    sms: { name: 'SMS', description: 'Receive notifications via text message' },
-    whatsapp: { name: 'WhatsApp', description: 'Receive notifications via WhatsApp' },
-};
-
-const categoryLabels = {
-    appointments: {
-        name: 'Appointments',
-        description: 'Reminders, confirmations, and cancellations',
-    },
-    health_alerts: {
-        name: 'Health Alerts',
-        description: 'Abnormal results and medication reminders',
-    },
-    billing: {
-        name: 'Billing',
-        description: 'Due dates and payment confirmations',
-    },
-    insurance: {
-        name: 'Insurance',
-        description: 'Claim updates and policy renewals',
-    },
-    promotions: {
-        name: 'Promotions',
-        description: 'Health camps and special offers',
-    },
-};
-
 export function NotificationsTab({ settings }: NotificationsTabProps) {
     const [channels, setChannels] = useState(settings.channels);
     const [categories, setCategories] = useState(settings.categories);
     const [saving, setSaving] = useState(false);
+
+    // Initialize from settings prop with defaults
+    const [healthAlerts, setHealthAlerts] = useState<HealthAlertSettings>(
+        settings.health_alerts ?? {
+            lab_results: true,
+            medication_reminders: true,
+            doctor_messages: true,
+        }
+    );
 
     const handleChannelToggle = (channel: keyof typeof channels, value: boolean) => {
         setChannels((prev) => ({ ...prev, [channel]: value }));
@@ -73,11 +54,15 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
         setCategories((prev) => ({ ...prev, [category]: value }));
     };
 
+    const handleHealthAlertToggle = (key: keyof HealthAlertSettings, value: boolean) => {
+        setHealthAlerts((prev) => ({ ...prev, [key]: value }));
+    };
+
     const handleSave = () => {
         setSaving(true);
         router.put(
             '/settings/notifications',
-            { channels, categories },
+            { channels, categories, health_alerts: healthAlerts },
             {
                 onSuccess: () => {
                     toast.success('Notification preferences updated');
@@ -90,80 +75,190 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
         );
     };
 
-    const hasChanges =
-        JSON.stringify(channels) !== JSON.stringify(settings.channels) ||
-        JSON.stringify(categories) !== JSON.stringify(settings.categories);
-
     return (
-        <div className="space-y-6">
-            {/* Channel Preferences */}
-            <Card>
-                <CardContent className="pt-6">
-                    <h4 className="font-medium text-lg mb-4">Notification Channels</h4>
-                    <p className="text-sm text-muted-foreground mb-6">
-                        Choose how you want to receive notifications
-                    </p>
-                    <div className="space-y-4">
-                        {(Object.keys(channelLabels) as Array<keyof typeof channelLabels>).map((channel) => {
-                            const Icon = channelIcons[channel];
-                            const label = channelLabels[channel];
-                            return (
-                                <div key={channel} className="flex items-center justify-between py-2">
-                                    <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                                            <Icon className="h-5 w-5 text-primary" />
-                                        </div>
-                                        <div>
-                                            <p className="font-medium">{label.name}</p>
-                                            <p className="text-sm text-muted-foreground">{label.description}</p>
-                                        </div>
-                                    </div>
-                                    <Switch
-                                        checked={channels[channel]}
-                                        onCheckedChange={(v) => handleChannelToggle(channel, v)}
-                                    />
+        <div className="space-y-8">
+            {/* Notification Channels */}
+            <div>
+                <h3 className="text-lg font-semibold mb-4">Notification Channels</h3>
+                <Card>
+                    <CardContent className="p-0 divide-y">
+                        {/* Email */}
+                        <div className="flex items-center justify-between p-4">
+                            <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                                    <Mail className="h-5 w-5 text-muted-foreground" />
                                 </div>
-                            );
-                        })}
-                    </div>
-                </CardContent>
-            </Card>
+                                <div>
+                                    <p className="font-medium">Email</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        Receive notifications via email
+                                    </p>
+                                </div>
+                            </div>
+                            <Switch
+                                checked={channels.email}
+                                onCheckedChange={(v) => handleChannelToggle('email', v)}
+                            />
+                        </div>
 
-            {/* Category Preferences */}
-            <Card>
-                <CardContent className="pt-6">
-                    <h4 className="font-medium text-lg mb-4">Notification Categories</h4>
-                    <p className="text-sm text-muted-foreground mb-6">
-                        Choose which types of notifications you want to receive
-                    </p>
-                    <div className="space-y-4">
-                        {(Object.keys(categoryLabels) as Array<keyof typeof categoryLabels>).map(
-                            (category) => {
-                                const label = categoryLabels[category];
-                                return (
-                                    <div key={category} className="flex items-center justify-between py-2">
-                                        <div>
-                                            <p className="font-medium">{label.name}</p>
-                                            <p className="text-sm text-muted-foreground">
-                                                {label.description}
-                                            </p>
-                                        </div>
-                                        <Switch
-                                            checked={categories[category]}
-                                            onCheckedChange={(v) => handleCategoryToggle(category, v)}
-                                        />
-                                    </div>
-                                );
-                            }
-                        )}
-                    </div>
-                </CardContent>
-            </Card>
+                        {/* WhatsApp */}
+                        <div className="flex items-center justify-between p-4">
+                            <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                                    <MessageSquare className="h-5 w-5 text-muted-foreground" />
+                                </div>
+                                <div>
+                                    <p className="font-medium">WhatsApp</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        Receive notifications via WhatsApp
+                                    </p>
+                                </div>
+                            </div>
+                            <Switch
+                                checked={channels.whatsapp}
+                                onCheckedChange={(v) => handleChannelToggle('whatsapp', v)}
+                            />
+                        </div>
+
+                        {/* SMS */}
+                        <div className="flex items-center justify-between p-4">
+                            <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                                    <Phone className="h-5 w-5 text-muted-foreground" />
+                                </div>
+                                <div>
+                                    <p className="font-medium">SMS</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        Receive notifications via SMS
+                                    </p>
+                                </div>
+                            </div>
+                            <Switch
+                                checked={channels.sms}
+                                onCheckedChange={(v) => handleChannelToggle('sms', v)}
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Appointments */}
+            <div>
+                <h3 className="text-lg font-semibold mb-4">Appointments</h3>
+                <Card>
+                    <CardContent className="p-0">
+                        <div className="flex items-center justify-between p-4">
+                            <div>
+                                <p className="font-medium">Appointment Reminders</p>
+                                <p className="text-sm text-muted-foreground">
+                                    Get reminded before your scheduled appointments
+                                </p>
+                            </div>
+                            <Switch
+                                checked={categories.appointments}
+                                onCheckedChange={(v) => handleCategoryToggle('appointments', v)}
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Health Alerts */}
+            <div>
+                <h3 className="text-lg font-semibold mb-4">Health Alerts</h3>
+                <Card>
+                    <CardContent className="p-0 divide-y">
+                        {/* Lab Results */}
+                        <div className="flex items-center justify-between p-4">
+                            <div>
+                                <p className="font-medium">Lab Results Available</p>
+                                <p className="text-sm text-muted-foreground">
+                                    Get notified when new lab results are ready
+                                </p>
+                            </div>
+                            <Switch
+                                checked={healthAlerts.lab_results}
+                                onCheckedChange={(v) => handleHealthAlertToggle('lab_results', v)}
+                            />
+                        </div>
+
+                        {/* Medication Reminders */}
+                        <div className="flex items-center justify-between p-4">
+                            <div>
+                                <p className="font-medium">Medication Reminders</p>
+                                <p className="text-sm text-muted-foreground">
+                                    Daily reminders for your prescribed medications
+                                </p>
+                            </div>
+                            <Switch
+                                checked={healthAlerts.medication_reminders}
+                                onCheckedChange={(v) => handleHealthAlertToggle('medication_reminders', v)}
+                            />
+                        </div>
+
+                        {/* Doctor Messages */}
+                        <div className="flex items-center justify-between p-4">
+                            <div>
+                                <p className="font-medium">Doctor Messages</p>
+                                <p className="text-sm text-muted-foreground">
+                                    Notifications when your doctor sends a message
+                                </p>
+                            </div>
+                            <Switch
+                                checked={healthAlerts.doctor_messages}
+                                onCheckedChange={(v) => handleHealthAlertToggle('doctor_messages', v)}
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Billing & Payments */}
+            <div>
+                <h3 className="text-lg font-semibold mb-4">Billing & Payments</h3>
+                <Card>
+                    <CardContent className="p-0">
+                        <div className="flex items-center justify-between p-4">
+                            <div>
+                                <p className="font-medium">Bill Payment Reminders</p>
+                                <p className="text-sm text-muted-foreground">
+                                    Reminders for pending and upcoming bills
+                                </p>
+                            </div>
+                            <Switch
+                                checked={categories.billing}
+                                onCheckedChange={(v) => handleCategoryToggle('billing', v)}
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Updates & Offers */}
+            <div>
+                <h3 className="text-lg font-semibold mb-4">Updates & Offers</h3>
+                <Card>
+                    <CardContent className="p-0">
+                        <div className="flex items-center justify-between p-4">
+                            <div>
+                                <p className="font-medium">Health Tips & Promotions</p>
+                                <p className="text-sm text-muted-foreground">
+                                    Occasional emails about health camps and special offers
+                                </p>
+                            </div>
+                            <Switch
+                                checked={categories.promotions}
+                                onCheckedChange={(v) => handleCategoryToggle('promotions', v)}
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
 
             {/* Save Button */}
-            <div className="flex justify-end">
-                <Button onClick={handleSave} disabled={saving || !hasChanges} className="min-w-[120px]">
-                    {saving ? 'Saving...' : 'Save Preferences'}
+            <div>
+                <Button onClick={handleSave} disabled={saving} className="px-8">
+                    {saving ? 'Saving...' : 'Save Changes'}
                 </Button>
             </div>
         </div>

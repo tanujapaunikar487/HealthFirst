@@ -124,7 +124,7 @@ export default function SettingsIndex({
         <AppLayout user={user}>
             <Head title="Settings" />
 
-            <div className="max-w-6xl mx-auto py-8 px-4">
+            <div className="max-w-[960px] mx-auto" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
                 <h1 className="text-2xl font-bold mb-6">Settings</h1>
 
                 <div className="flex flex-col lg:flex-row gap-6">

@@ -1,10 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
-import { Pulse, ErrorState, useSkeletonLoading, SheetSkeleton } from '@/Components/ui/skeleton';
+import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { EmptyState } from '@/Components/ui/empty-state';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
+import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { Input } from '@/Components/ui/input';
 import { Checkbox } from '@/Components/ui/checkbox';
 import {
@@ -14,15 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/Components/ui/select';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-  SheetFooter,
-  SheetDivider,
-} from '@/Components/ui/sheet';
 import {
   Table,
   TableBody,
@@ -50,7 +42,6 @@ import {
   UserPlus,
   FileText,
   Receipt,
-  ExternalLink,
   Download,
   FolderOpen,
   HeartPulse,
@@ -65,22 +56,13 @@ import {
   Ambulance,
   BrainCircuit,
   MoreHorizontal,
-  AlertTriangle,
   Share2,
   Eye,
   ChevronLeft,
   ChevronRight,
   Link2,
-  Check,
   X,
-  MapPin,
-  Clock,
-  Phone,
-  ArrowRight,
-  Calendar,
-  Activity,
   ShieldCheck,
-  FileDown,
 } from '@/Lib/icons';
 import { downloadAsHtml } from '@/Lib/download';
 import { shareContent } from '@/Lib/share';
@@ -428,7 +410,7 @@ function StatusBadge({ status }: { status: RecordStatus }) {
 
 function HealthRecordsSkeleton() {
   return (
-    <div style={{ width: '100%', maxWidth: '960px', padding: '40px 0' }}>
+    <div style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '80px' }}>
       <div className="flex items-start justify-between mb-6">
         <div className="space-y-2">
           <Pulse className="h-9 w-48" />
@@ -477,6 +459,7 @@ function HealthRecordsSkeleton() {
 
 export default function Index({ user, records, familyMembers, abnormalCount, preSelectedRecordId, preSelectedMemberId }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(records);
+  const { formatDate } = useFormatPreferences();
   const [activeTab, setActiveTab] = useState('all');
   const [subCategoryFilter, setSubCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -712,7 +695,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
 
   if (hasError) {
     return (
-      <AppLayout user={user} pageTitle="Health Records" pageIcon="/assets/icons/records-selected.svg">
+      <AppLayout user={user} pageTitle="Health Records" pageIcon="/assets/icons/records.svg">
         <ErrorState onRetry={retry} label="Unable to load health records" />
       </AppLayout>
     );
@@ -720,7 +703,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
 
   if (isLoading) {
     return (
-      <AppLayout user={user} pageTitle="Health Records" pageIcon="/assets/icons/records-selected.svg">
+      <AppLayout user={user} pageTitle="Health Records" pageIcon="/assets/icons/records.svg">
         <HealthRecordsSkeleton />
       </AppLayout>
     );
@@ -730,9 +713,9 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
     <AppLayout
       user={user}
       pageTitle="Health Records"
-      pageIcon="/assets/icons/records-selected.svg"
+      pageIcon="/assets/icons/records.svg"
     >
-      <div style={{ width: '100%', maxWidth: '960px', padding: '40px 0' }}>
+      <div style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '80px' }}>
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
           <div>
@@ -935,7 +918,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                           />
                         </TableCell>
                         <TableCell>
-                          <p className="text-sm font-medium whitespace-nowrap">{record.record_date_formatted}</p>
+                          <p className="text-sm font-medium whitespace-nowrap">{formatDate(record.record_date)}</p>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-3">
@@ -1134,6 +1117,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
 /* ─── Detail Side Sheet ─── */
 
 function RecordDetailSheet({ record, memberMap, onDownload, onAction }: { record: HealthRecord; memberMap: Record<number, FamilyMember>; onDownload: () => void; onAction: (msg: string) => void }) {
+  const { formatDate } = useFormatPreferences();
   const config = categoryConfig[record.category] || { label: record.category, color: '#6B7280', bg: '#F3F4F6' };
   const member = record.family_member_id ? memberMap[record.family_member_id] : undefined;
   const meta = record.metadata;
@@ -1146,7 +1130,7 @@ function RecordDetailSheet({ record, memberMap, onDownload, onAction }: { record
           <div>
             <SheetTitle className="text-base">{record.title}</SheetTitle>
             <SheetDescription>
-              {record.record_date_formatted}
+              {formatDate(record.record_date)}
               {record.doctor_name ? ` · ${record.doctor_name}` : ''}
             </SheetDescription>
           </div>

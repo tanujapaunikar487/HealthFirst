@@ -32,7 +32,7 @@ class SettingsController extends Controller
             'familyMembers' => $user->familyMembers()
                 ->select('id', 'name', 'relation', 'phone')
                 ->get(),
-            'notificationSettings' => $user->getSetting('notifications', [
+            'notifications' => $user->getSetting('notifications', [
                 'channels' => ['email' => true, 'sms' => false, 'whatsapp' => false],
                 'categories' => [
                     'appointments' => true,
@@ -41,8 +41,13 @@ class SettingsController extends Controller
                     'insurance' => true,
                     'promotions' => false,
                 ],
+                'health_alerts' => [
+                    'lab_results' => true,
+                    'medication_reminders' => true,
+                    'doctor_messages' => true,
+                ],
             ]),
-            'preferenceSettings' => $user->getSetting('preferences', [
+            'preferences' => $user->getSetting('preferences', [
                 'language' => 'en',
                 'date_format' => 'DD/MM/YYYY',
                 'time_format' => '12h',
@@ -201,6 +206,56 @@ class SettingsController extends Controller
         $user->setSetting('video_conferencing', $currentSettings);
 
         return back()->with('success', 'Video provider updated successfully.');
+    }
+
+    /**
+     * Disconnect Google Meet.
+     */
+    public function disconnectGoogleMeet(): RedirectResponse
+    {
+        $user = Auth::user() ?? User::first();
+        $settings = $user->getSetting('video_conferencing', [
+            'provider' => 'google_meet',
+            'google_meet' => ['enabled' => true],
+            'zoom' => ['enabled' => false],
+        ]);
+
+        $settings['google_meet'] = ['enabled' => false];
+
+        // If Google Meet was the active provider, switch to Zoom
+        if ($settings['provider'] === 'google_meet') {
+            $settings['provider'] = 'zoom';
+            $settings['zoom'] = ['enabled' => true];
+        }
+
+        $user->setSetting('video_conferencing', $settings);
+
+        return back()->with('success', 'Google Meet disconnected.');
+    }
+
+    /**
+     * Disconnect Zoom.
+     */
+    public function disconnectZoom(): RedirectResponse
+    {
+        $user = Auth::user() ?? User::first();
+        $settings = $user->getSetting('video_conferencing', [
+            'provider' => 'google_meet',
+            'google_meet' => ['enabled' => true],
+            'zoom' => ['enabled' => false],
+        ]);
+
+        $settings['zoom'] = ['enabled' => false];
+
+        // If Zoom was the active provider, switch to Google Meet
+        if ($settings['provider'] === 'zoom') {
+            $settings['provider'] = 'google_meet';
+            $settings['google_meet'] = ['enabled' => true];
+        }
+
+        $user->setSetting('video_conferencing', $settings);
+
+        return back()->with('success', 'Zoom disconnected.');
     }
 
     /**

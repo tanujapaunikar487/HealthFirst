@@ -162,7 +162,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                             </DialogDescription>
                         </DialogHeader>
 
-                        <div className="py-4 space-y-4">
+                        <div className="space-y-4">
                             {error && (
                                 <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
                                     <AlertCircle className="h-4 w-4" />
@@ -222,7 +222,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                             </DialogDescription>
                         </DialogHeader>
 
-                        <div className="py-4 space-y-4">
+                        <div className="space-y-4">
                             {error && (
                                 <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
                                     <AlertCircle className="h-4 w-4" />

@@ -4,6 +4,7 @@ import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading, SheetSkeleton } from '@/Components/ui/skeleton';
 import { EmptyState } from '@/Components/ui/empty-state';
 import { Badge } from '@/Components/ui/badge';
+import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/Components/ui/tabs';
@@ -98,7 +99,7 @@ interface Props {
 
 function AppointmentsSkeleton() {
   return (
-    <div style={{ width: '100%', maxWidth: '960px', padding: '40px 0' }}>
+    <div style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '80px' }}>
       <div className="flex items-center justify-between mb-8">
         <Pulse className="h-9 w-48" />
         <Pulse className="h-10 w-40 rounded-full" />
@@ -145,6 +146,7 @@ function AppointmentsSkeleton() {
 
 export default function Index({ user, appointments, familyMembers, doctors }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(appointments);
+  const { formatDate, formatTime } = useFormatPreferences();
   const [memberFilter, setMemberFilter] = useState<string>('all');
   const [doctorFilter, setDoctorFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -251,7 +253,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
 
   if (hasError) {
     return (
-      <AppLayout user={user} pageTitle="Appointments" pageIcon="/assets/icons/appointment-selected.svg">
+      <AppLayout user={user} pageTitle="Appointments" pageIcon="/assets/icons/appointment.svg">
         <ErrorState onRetry={retry} label="Unable to load appointments" />
       </AppLayout>
     );
@@ -259,7 +261,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
 
   if (isLoading) {
     return (
-      <AppLayout user={user} pageTitle="Appointments" pageIcon="/assets/icons/appointment-selected.svg">
+      <AppLayout user={user} pageTitle="Appointments" pageIcon="/assets/icons/appointment.svg">
         <AppointmentsSkeleton />
       </AppLayout>
     );
@@ -269,9 +271,9 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
     <AppLayout
       user={user}
       pageTitle="Appointments"
-      pageIcon="/assets/icons/appointment-selected.svg"
+      pageIcon="/assets/icons/appointment.svg"
     >
-      <div style={{ width: '100%', maxWidth: '960px', padding: '40px 0' }}>
+      <div style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '80px' }}>
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h1
@@ -443,7 +445,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
           open={!!shareAppointment}
           onOpenChange={(open) => !open && setShareAppointment(null)}
           title={shareAppointment.title}
-          description={`${shareAppointment.date_formatted} at ${shareAppointment.time}`}
+          description={`${formatDate(shareAppointment.date)} at ${formatTime(shareAppointment.date)}`}
           url={`${typeof window !== 'undefined' ? window.location.origin : ''}/appointments/${shareAppointment.id}`}
         />
       )}
@@ -469,6 +471,8 @@ function AppointmentsTable({
   tab: 'upcoming' | 'past' | 'cancelled';
   onAction: (view: SheetView) => void;
 }) {
+  const { formatDate, formatTime } = useFormatPreferences();
+
   if (appointments.length === 0) {
     const message = tab === 'upcoming' ? 'No upcoming appointments'
       : tab === 'past' ? 'No past appointments'
@@ -518,8 +522,8 @@ function AppointmentsTable({
               onClick={clickable ? handleRowClick : undefined}
             >
               <TableCell className="align-top">
-                <p className="text-sm font-medium">{appt.date_formatted}</p>
-                <p className="text-xs text-muted-foreground">{appt.time}</p>
+                <p className="text-sm font-medium">{formatDate(appt.date)}</p>
+                <p className="text-xs text-muted-foreground">{formatTime(appt.date)}</p>
               </TableCell>
               <TableCell className="align-top">
                 <div className="flex items-center gap-2.5">

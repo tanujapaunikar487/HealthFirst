@@ -170,7 +170,7 @@ function getStatusBadge(status: string) {
 
 function InsuranceShowSkeleton() {
   return (
-    <div className="mx-auto max-w-[800px] px-4 sm:px-6 py-8">
+    <div className="mx-auto max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
       <Pulse className="h-4 w-24 mb-6" />
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
@@ -309,7 +309,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
 
   return (
     <AppLayout pageTitle="Insurance" pageIcon="insurance">
-      <div className="mx-auto max-w-[800px] px-4 sm:px-6 py-8">
+      <div className="mx-auto max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
         {/* Back link */}
         <button
           onClick={() => router.visit('/insurance')}

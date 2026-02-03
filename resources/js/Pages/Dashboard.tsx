@@ -207,7 +207,7 @@ function Pulse({ className, style }: { className?: string; style?: React.CSSProp
 
 function DashboardSkeleton() {
   return (
-    <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ minHeight: '720px', paddingTop: '40px', paddingBottom: '40px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
+    <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ minHeight: '720px', paddingTop: '40px', paddingBottom: '80px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
       <div style={{ display: 'flex', flexDirection: 'row', width: '100%', height: '68px', gap: '12px', alignItems: 'flex-start' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexGrow: 1 }}>
           <Pulse className="h-10 w-48" />
@@ -257,7 +257,7 @@ function DashboardSkeleton() {
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ minHeight: '720px', paddingTop: '40px', paddingBottom: '40px' }}>
+    <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ minHeight: '720px', paddingTop: '40px', paddingBottom: '80px' }}>
       <div className="flex flex-col items-center justify-center gap-4 py-32">
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
           <Icon icon={AlertCircle} className="h-7 w-7 text-gray-400" />
@@ -1038,7 +1038,7 @@ export default function Dashboard({
     <AppLayout user={user}>
       <Head title="Dashboard" />
 
-      <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ minHeight: '720px', paddingTop: '40px', paddingBottom: '40px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
+      <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ minHeight: '720px', paddingTop: '40px', paddingBottom: '80px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
         {/* Page Header */}
         <div style={{ display: 'flex', flexDirection: 'row', width: '100%', height: '68px', gap: '12px', alignItems: 'flex-start' }}>
           <div style={{ display: 'flex', flexDirection: 'column', width: '485px', height: '68px', gap: '4px', flexGrow: 1 }}>

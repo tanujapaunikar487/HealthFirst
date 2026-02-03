@@ -214,8 +214,8 @@ export default function Show({ user, appointment }: Props) {
   // Guard: if appointment data is missing, show skeleton
   if (!appointment?.id) {
     return (
-      <AppLayout user={user} pageTitle="Appointment Details" pageIcon="/assets/icons/appointment-selected.svg">
-        <div className="w-full max-w-[1100px] mx-auto px-6 py-8">
+      <AppLayout user={user} pageTitle="Appointment Details" pageIcon="/assets/icons/appointment.svg">
+        <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
           <SkeletonPage />
         </div>
       </AppLayout>
@@ -246,8 +246,8 @@ export default function Show({ user, appointment }: Props) {
   };
 
   return (
-    <AppLayout user={user} pageTitle="Appointment Details" pageIcon="/assets/icons/appointment-selected.svg">
-      <div className="w-full max-w-[1100px] mx-auto px-6 py-8">
+    <AppLayout user={user} pageTitle="Appointment Details" pageIcon="/assets/icons/appointment.svg">
+      <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-4">
           <Link href="/appointments" className="hover:text-foreground transition-colors">

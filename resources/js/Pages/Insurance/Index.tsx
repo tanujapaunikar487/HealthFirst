@@ -242,7 +242,7 @@ function formatFileSize(bytes: number): string {
 
 function InsuranceSkeleton() {
   return (
-    <div style={{ width: '100%', maxWidth: '960px', padding: '40px 0' }}>
+    <div style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '80px' }}>
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <Pulse className="h-9 w-36" />
@@ -664,7 +664,7 @@ export default function InsuranceIndex({
 
   return (
     <AppLayout pageTitle="Insurance" pageIcon="insurance">
-      <div className="mx-auto max-w-[960px] px-6 py-8">
+      <div className="mx-auto max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <h1
