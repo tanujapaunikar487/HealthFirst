@@ -47,7 +47,6 @@ import {
   Plus,
   Search,
   MoreHorizontal,
-  Eye,
   FileText,
   Download,
   AlertTriangle,
@@ -833,7 +832,11 @@ export default function InsuranceIndex({
                     </TableHeader>
                     <TableBody>
                       {filteredClaims.map((claim) => (
-                        <TableRow key={claim.id}>
+                        <TableRow
+                          key={claim.id}
+                          className="cursor-pointer hover:bg-muted/50"
+                          onClick={() => router.visit(`/insurance/claims/${claim.id}`)}
+                        >
                           <TableCell className="text-sm text-gray-600">
                             {claim.claim_date_formatted ?? '--'}
                           </TableCell>
@@ -875,18 +878,8 @@ export default function InsuranceIndex({
                             </p>
                             <div className="mt-0.5">{getStatusBadge(claim.status)}</div>
                           </TableCell>
-                          <TableCell>
+                          <TableCell onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center justify-end gap-1">
-                              {isCurrentStatus(claim.status) && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-7 text-xs"
-                                  onClick={() => router.visit(`/insurance/claims/${claim.id}`)}
-                                >
-                                  View
-                                </Button>
-                              )}
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                   <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -894,12 +887,6 @@ export default function InsuranceIndex({
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                  <DropdownMenuItem
-                                    onClick={() => router.visit(`/insurance/claims/${claim.id}`)}
-                                  >
-                                    <Eye className="mr-2 h-4 w-4" />
-                                    View Claim
-                                  </DropdownMenuItem>
                                   <DropdownMenuItem
                                     onClick={() => {
                                       window.scrollTo({ top: 0, behavior: 'smooth' });

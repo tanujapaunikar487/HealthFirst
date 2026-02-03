@@ -653,7 +653,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                     return (
                       <TableRow
                         key={bill.id}
-                        className="cursor-pointer"
+                        className="cursor-pointer hover:bg-muted/50"
                         onClick={() => {
                           if (isPayable) {
                             setPayBills([bill]);
@@ -744,13 +744,6 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-[220px]">
-                              <DropdownMenuItem
-                                className="gap-2 cursor-pointer"
-                                onClick={() => router.visit(`/billing/${bill.id}`)}
-                              >
-                                <Eye className="h-4 w-4" />
-                                View Details
-                              </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="gap-2 cursor-pointer"
                                 onClick={() => handleDownloadInvoice(bill)}

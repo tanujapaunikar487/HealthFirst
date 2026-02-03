@@ -41,7 +41,6 @@ import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
 import {
   MoreHorizontal,
-  Eye,
   CalendarClock,
   Share2,
   XCircle,
@@ -504,22 +503,21 @@ function AppointmentsTable({
         </TableHeader>
         <TableBody>
           {appointments.map((appt) => {
-            // Upcoming: no row click (use dropdown for sheet)
-            // Past: click navigates to full page
-            // Cancelled: click opens side sheet
+            // All rows are clickable - each tab has its own details pattern
             const handleRowClick = () => {
-              if (tab === 'past') {
+              if (tab === 'upcoming') {
+                onAction({ type: 'details', appointment: appt });
+              } else if (tab === 'past') {
                 router.visit(`/appointments/${appt.id}`);
               } else if (tab === 'cancelled') {
                 onAction({ type: 'cancelled_details', appointment: appt });
               }
             };
-            const clickable = tab !== 'upcoming';
             return (
             <TableRow
               key={appt.id}
-              className={clickable ? 'cursor-pointer' : ''}
-              onClick={clickable ? handleRowClick : undefined}
+              className="cursor-pointer hover:bg-muted/50"
+              onClick={handleRowClick}
             >
               <TableCell className="align-top">
                 <p className="text-sm font-medium">{formatDate(appt.date)}</p>
@@ -608,16 +606,9 @@ function ActionsMenu({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        {/* Upcoming: View Details opens side sheet, then actions */}
+        {/* Upcoming: Actions only (row click opens details) */}
         {tab === 'upcoming' && (
           <>
-            <DropdownMenuItem
-              className="gap-2 cursor-pointer"
-              onClick={() => onAction({ type: 'details', appointment })}
-            >
-              <Icon icon={Eye} className="h-4 w-4" />
-              View Details
-            </DropdownMenuItem>
             <DropdownMenuItem
               className="gap-2 cursor-pointer"
               onClick={() => onAction({ type: 'reschedule', appointment })}
@@ -643,16 +634,9 @@ function ActionsMenu({
           </>
         )}
 
-        {/* Past: View Details navigates to full page */}
+        {/* Past: Actions only (row click navigates to full page) */}
         {tab === 'past' && (
           <>
-            <DropdownMenuItem
-              className="gap-2 cursor-pointer"
-              onClick={() => router.visit(`/appointments/${appointment.id}`)}
-            >
-              <Icon icon={Eye} className="h-4 w-4" />
-              View Details
-            </DropdownMenuItem>
             <DropdownMenuItem
               className="gap-2 cursor-pointer"
               onClick={() => onAction({ type: 'share', appointment })}
@@ -670,23 +654,15 @@ function ActionsMenu({
           </>
         )}
 
+        {/* Cancelled: Actions only (row click opens details sheet) */}
         {tab === 'cancelled' && (
-          <>
-            <DropdownMenuItem
-              className="gap-2 cursor-pointer"
-              onClick={() => onAction({ type: 'cancelled_details', appointment })}
-            >
-              <Icon icon={Eye} className="h-4 w-4" />
-              View Details
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="gap-2 cursor-pointer"
-              onClick={() => onAction({ type: 'book_again', appointment })}
-            >
-              <Icon icon={RotateCcw} className="h-4 w-4" />
-              Book Again
-            </DropdownMenuItem>
-          </>
+          <DropdownMenuItem
+            className="gap-2 cursor-pointer"
+            onClick={() => onAction({ type: 'book_again', appointment })}
+          >
+            <Icon icon={RotateCcw} className="h-4 w-4" />
+            Book Again
+          </DropdownMenuItem>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

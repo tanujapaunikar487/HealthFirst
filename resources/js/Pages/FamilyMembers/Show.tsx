@@ -781,7 +781,16 @@ export default function FamilyMemberShow({
                         ))}
                       </div>
                     ) : (
-                      <EmptyState icon={Stethoscope} message="No conditions recorded" />
+                      <EmptyState
+                        icon={Stethoscope}
+                        message="No conditions recorded"
+                        description="Add any medical conditions for better care coordination"
+                        action={
+                          <Button variant="outline" size="sm" onClick={() => setShowEditSheet(true)}>
+                            Add Conditions
+                          </Button>
+                        }
+                      />
                     )}
                   </div>
                   <div>
@@ -793,7 +802,16 @@ export default function FamilyMemberShow({
                         ))}
                       </div>
                     ) : (
-                      <EmptyState icon={AlertTriangle} message="No known allergies" />
+                      <EmptyState
+                        icon={AlertTriangle}
+                        message="No known allergies"
+                        description="Recording allergies helps prevent adverse reactions"
+                        action={
+                          <Button variant="outline" size="sm" onClick={() => setShowEditSheet(true)}>
+                            Add Allergies
+                          </Button>
+                        }
+                      />
                     )}
                   </div>
                 </div>
@@ -819,9 +837,16 @@ export default function FamilyMemberShow({
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center rounded-lg border border-dashed border-gray-200 py-6">
-                    <p className="text-sm text-gray-400">No emergency contact added</p>
-                  </div>
+                  <EmptyState
+                    icon={Phone}
+                    message="No emergency contact added"
+                    description="Add someone to contact in case of emergencies"
+                    action={
+                      <Button variant="outline" size="sm" onClick={() => setShowEditSheet(true)}>
+                        Add Contact
+                      </Button>
+                    }
+                  />
                 )}
               </Section>
             )}
