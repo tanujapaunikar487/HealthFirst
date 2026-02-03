@@ -23,13 +23,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/Components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/Components/ui/dropdown-menu';
 import { Tabs, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
@@ -55,14 +48,10 @@ import {
   Archive,
   Ambulance,
   BrainCircuit,
-  MoreHorizontal,
   Share2,
-  Eye,
   ChevronLeft,
   ChevronRight,
-  Link2,
   X,
-  ShieldCheck,
 } from '@/Lib/icons';
 import { downloadAsHtml } from '@/Lib/download';
 import { ShareSheet } from '@/Components/ui/share-sheet';
@@ -957,51 +946,8 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                             )}
                           </div>
                         </TableCell>
-                        <TableCell onClick={(e) => e.stopPropagation()}>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => router.visit(`/health-records/${record.id}`)}>
-                                <Eye className="h-4 w-4 mr-2" />
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => {
-                                downloadAsHtml(`health-record-${record.id}.html`, `
-                                  <h1>${record.title}</h1>
-                                  <p class="subtitle">${record.category} &middot; ${record.date} &middot; ${record.provider ?? ''}</p>
-                                  ${record.summary ? `<h2>Summary</h2><p>${record.summary}</p>` : ''}
-                                  ${record.details ? `<h2>Details</h2><p>${typeof record.details === 'string' ? record.details : JSON.stringify(record.details, null, 2)}</p>` : ''}
-                                `);
-                              }}>
-                                <Download className="h-4 w-4 mr-2" />
-                                Download
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => setShareRecord(record)}>
-                                <Share2 className="h-4 w-4 mr-2" />
-                                Share
-                              </DropdownMenuItem>
-                              {record.appointment_id && (
-                                <DropdownMenuItem asChild>
-                                  <Link href={`/appointments/${record.appointment_id}`} className="flex items-center">
-                                    <Link2 className="h-4 w-4 mr-2" />
-                                    Link to Appointment
-                                  </Link>
-                                </DropdownMenuItem>
-                              )}
-                              {record.insurance_claim_id && (
-                                <DropdownMenuItem asChild>
-                                  <Link href={`/insurance/claims/${record.insurance_claim_id}`} className="flex items-center">
-                                    <ShieldCheck className="h-4 w-4 mr-2" />
-                                    View Insurance Claim
-                                  </Link>
-                                </DropdownMenuItem>
-                              )}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                        <TableCell>
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
                         </TableCell>
                       </TableRow>
                     );

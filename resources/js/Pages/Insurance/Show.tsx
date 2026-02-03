@@ -37,7 +37,18 @@ import {
   ClipboardList,
   Receipt,
   Share2,
+  MoreVertical,
+  Download,
+  Star,
+  Pencil,
 } from '@/Lib/icons';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/Components/ui/dropdown-menu';
 import { ShareSheet } from '@/Components/ui/share-sheet';
 
 /* ─── Section Config ─── */
@@ -450,17 +461,65 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
             <Button onClick={openPreAuth}>
               Use for Admission
             </Button>
-            <Button variant="outline" size="icon" onClick={() => setShowShareSheet(true)}>
-              <Share2 className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="text-gray-400 hover:text-red-500"
-              onClick={handleDelete}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="text-gray-400">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => {
+                  // Download policy card as HTML
+                  const html = `
+                    <h1>Insurance Policy Card</h1>
+                    <p class="subtitle">${policy.provider_name}</p>
+                    <h2>Policy Details</h2>
+                    <div class="row"><span class="row-label">Plan</span><span class="row-value">${policy.plan_name}</span></div>
+                    <div class="row"><span class="row-label">Policy Number</span><span class="row-value">${policy.policy_number}</span></div>
+                    <div class="row"><span class="row-label">Sum Insured</span><span class="row-value">${formatCurrency(policy.sum_insured)}</span></div>
+                    <div class="row"><span class="row-label">Valid</span><span class="row-value">${policy.start_date_formatted} to ${policy.end_date_formatted}</span></div>
+                    <h2>Covered Members</h2>
+                    ${coveredMembers.map(m => `<div class="row"><span class="row-label">${m.relation}</span><span class="row-value">${m.name}</span></div>`).join('')}
+                  `;
+                  const blob = new Blob([`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Policy - ${policy.policy_number}</title><style>body{font-family:system-ui,sans-serif;max-width:600px;margin:40px auto;padding:20px}h1{margin-bottom:4px}h2{margin-top:24px;font-size:14px;color:#6b7280;border-bottom:1px solid #e5e7eb;padding-bottom:8px}.subtitle{color:#6b7280;margin-top:0}.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f4f6}.row-label{color:#6b7280}.row-value{font-weight:500}</style></head><body>${html}</body></html>`], { type: 'text/html' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `policy-${policy.policy_number}.html`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                  toast('Policy card downloaded');
+                }}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Download
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => {
+                  router.post(`/insurance/${policy.id}/set-primary`, {}, {
+                    onSuccess: () => toast('Policy set as primary'),
+                    onError: () => toast('Failed to set as primary'),
+                  });
+                }}>
+                  <Star className="mr-2 h-4 w-4" />
+                  Set as Primary
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.visit(`/insurance/${policy.id}/edit`)}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowShareSheet(true)}>
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Share
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-red-600 focus:text-red-600"
+                  onClick={handleDelete}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 

@@ -24,13 +24,6 @@ import {
   SelectValue,
 } from '@/Components/ui/select';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/Components/ui/dropdown-menu';
-import {
   Sheet,
   SheetContent,
   SheetHeader,
@@ -40,11 +33,6 @@ import {
 import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
 import {
-  MoreHorizontal,
-  CalendarClock,
-  Share2,
-  XCircle,
-  RotateCcw,
   CalendarPlus,
   Copy,
   Calendar,
@@ -54,6 +42,7 @@ import {
   Stethoscope,
   TestTube2,
   Search,
+  ChevronRight,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import {
@@ -551,8 +540,8 @@ function AppointmentsTable({
                 <p className="text-sm font-medium">₹{appt.fee.toLocaleString()}</p>
                 <PaymentStatusTag status={appt.payment_status} />
               </TableCell>
-              <TableCell className="align-top" onClick={(e) => e.stopPropagation()}>
-                <ActionsMenu appointment={appt} tab={tab} onAction={onAction} />
+              <TableCell className="align-top">
+                <Icon icon={ChevronRight} className="h-4 w-4 text-muted-foreground" />
               </TableCell>
             </TableRow>
             );
@@ -587,85 +576,4 @@ function PaymentStatusTag({ status }: { status: string }) {
   return <span className={cn('text-[11px] font-medium', color)}>{label}</span>;
 }
 
-/* ─── Actions Dropdown ─── */
-
-function ActionsMenu({
-  appointment,
-  tab,
-  onAction,
-}: {
-  appointment: Appointment;
-  tab: 'upcoming' | 'past' | 'cancelled';
-  onAction: (view: SheetView) => void;
-}) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <Icon icon={MoreHorizontal} className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[160px]">
-        {/* Upcoming: Actions only (row click opens details) */}
-        {tab === 'upcoming' && (
-          <>
-            <DropdownMenuItem
-              className="gap-2 cursor-pointer"
-              onClick={() => onAction({ type: 'reschedule', appointment })}
-            >
-              <Icon icon={CalendarClock} className="h-4 w-4" />
-              Reschedule
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="gap-2 cursor-pointer"
-              onClick={() => onAction({ type: 'share', appointment })}
-            >
-              <Icon icon={Share2} className="h-4 w-4" />
-              Share
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="gap-2 cursor-pointer text-destructive focus:text-destructive"
-              onClick={() => onAction({ type: 'cancel', appointment })}
-            >
-              <Icon icon={XCircle} className="h-4 w-4" />
-              Cancel
-            </DropdownMenuItem>
-          </>
-        )}
-
-        {/* Past: Actions only (row click navigates to full page) */}
-        {tab === 'past' && (
-          <>
-            <DropdownMenuItem
-              className="gap-2 cursor-pointer"
-              onClick={() => onAction({ type: 'share', appointment })}
-            >
-              <Icon icon={Share2} className="h-4 w-4" />
-              Share
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="gap-2 cursor-pointer"
-              onClick={() => onAction({ type: 'book_again', appointment })}
-            >
-              <Icon icon={RotateCcw} className="h-4 w-4" />
-              Book Again
-            </DropdownMenuItem>
-          </>
-        )}
-
-        {/* Cancelled: Actions only (row click opens details sheet) */}
-        {tab === 'cancelled' && (
-          <DropdownMenuItem
-            className="gap-2 cursor-pointer"
-            onClick={() => onAction({ type: 'book_again', appointment })}
-          >
-            <Icon icon={RotateCcw} className="h-4 w-4" />
-            Book Again
-          </DropdownMenuItem>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
 

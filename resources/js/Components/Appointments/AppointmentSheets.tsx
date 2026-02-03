@@ -40,6 +40,8 @@ import {
   Video,
   FileText,
   ClipboardCheck,
+  MapPin,
+  CalendarPlus,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 
@@ -133,6 +135,73 @@ export function DetailsSheet({
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [notesValue, setNotesValue] = useState(appointment.notes || '');
   const [isSavingNotes, setIsSavingNotes] = useState(false);
+
+  // Check-in state
+  const [isCheckingIn, setIsCheckingIn] = useState(false);
+
+  // Check if appointment is within 24-48 hours (check-in window)
+  const getHoursUntilAppointment = () => {
+    const appointmentDate = new Date(appointment.date);
+    const now = new Date();
+    const diffMs = appointmentDate.getTime() - now.getTime();
+    return diffMs / (1000 * 60 * 60);
+  };
+
+  const hoursUntil = getHoursUntilAppointment();
+  const canCheckIn = tab === 'upcoming' && hoursUntil > 0 && hoursUntil <= 48;
+
+  const handleCheckIn = () => {
+    setIsCheckingIn(true);
+    router.post(
+      `/appointments/${appointment.id}/check-in`,
+      {},
+      {
+        onSuccess: () => {
+          setIsCheckingIn(false);
+          // The parent will handle closing the sheet and showing toast
+        },
+        onError: () => {
+          setIsCheckingIn(false);
+        },
+      }
+    );
+  };
+
+  const handleAddToCalendar = () => {
+    // Generate ICS download for calendar event
+    const startDate = new Date(appointment.date);
+    const endDate = new Date(startDate.getTime() + 30 * 60 * 1000); // 30 min appointment
+
+    const formatDateForICS = (date: Date) => {
+      return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    };
+
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'BEGIN:VEVENT',
+      `DTSTART:${formatDateForICS(startDate)}`,
+      `DTEND:${formatDateForICS(endDate)}`,
+      `SUMMARY:${appointment.title}`,
+      `DESCRIPTION:${appointment.mode} appointment for ${appointment.patient_name}`,
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\n');
+
+    const blob = new Blob([icsContent], { type: 'text/calendar' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `appointment-${appointment.id}.ics`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleGetDirections = () => {
+    // Open Google Maps with hospital location (placeholder coordinates)
+    // In a real app, this would use the actual location from the appointment
+    window.open('https://maps.google.com/maps?q=hospital', '_blank');
+  };
 
   const handleSaveNotes = () => {
     setIsSavingNotes(true);
@@ -324,8 +393,18 @@ export function DetailsSheet({
       <SheetFooter>
         {tab === 'upcoming' && (
           <>
-            {/* Join Video Call Button - only for video appointments */}
-            {isVideoAppointment ? (
+            {/* Primary Button: Check-in (if within 24-48h) else Reschedule/Join Video */}
+            {canCheckIn ? (
+              <Button
+                className="flex-1"
+                size="lg"
+                onClick={handleCheckIn}
+                disabled={isCheckingIn}
+              >
+                <Icon icon={ClipboardCheck} className="h-4 w-4 mr-2" />
+                {isCheckingIn ? 'Checking in...' : 'Check-in'}
+              </Button>
+            ) : isVideoAppointment ? (
               appointment.video_meeting_url ? (
                 <Button
                   className="flex-1"
@@ -355,7 +434,6 @@ export function DetailsSheet({
               <Button
                 className="flex-1"
                 size="lg"
-                variant="outline"
                 onClick={() => onAction({ type: 'reschedule', appointment })}
               >
                 <Icon icon={CalendarClock} className="h-4 w-4 mr-2" />
@@ -370,18 +448,22 @@ export function DetailsSheet({
                   <Icon icon={MoreHorizontal} className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[160px]">
-                {isVideoAppointment && (
-                  <>
-                    <DropdownMenuItem
-                      className="gap-2 cursor-pointer"
-                      onClick={() => onAction({ type: 'reschedule', appointment })}
-                    >
-                      <Icon icon={CalendarClock} className="h-4 w-4" />
-                      Reschedule
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                  </>
+              <DropdownMenuContent align="end" className="w-[180px]">
+                <DropdownMenuItem
+                  className="gap-2 cursor-pointer"
+                  onClick={handleAddToCalendar}
+                >
+                  <Icon icon={CalendarPlus} className="h-4 w-4" />
+                  Add to Calendar
+                </DropdownMenuItem>
+                {!isVideoAppointment && (
+                  <DropdownMenuItem
+                    className="gap-2 cursor-pointer"
+                    onClick={handleGetDirections}
+                  >
+                    <Icon icon={MapPin} className="h-4 w-4" />
+                    Get Directions
+                  </DropdownMenuItem>
                 )}
                 <DropdownMenuItem
                   className="gap-2 cursor-pointer"
@@ -391,6 +473,13 @@ export function DetailsSheet({
                   Share
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="gap-2 cursor-pointer"
+                  onClick={() => onAction({ type: 'reschedule', appointment })}
+                >
+                  <Icon icon={CalendarClock} className="h-4 w-4" />
+                  Reschedule
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   className="gap-2 cursor-pointer text-destructive focus:text-destructive"
                   onClick={() => onAction({ type: 'cancel', appointment })}
@@ -526,6 +615,22 @@ export function CancelledDetailsSheet({
           <Icon icon={RotateCcw} className="h-4 w-4 mr-2" />
           Book Again
         </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon" className="h-10 w-10 flex-shrink-0">
+              <Icon icon={MoreHorizontal} className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[140px]">
+            <DropdownMenuItem
+              className="gap-2 cursor-pointer"
+              onClick={() => onAction({ type: 'share', appointment })}
+            >
+              <Icon icon={Share2} className="h-4 w-4" />
+              Share
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </SheetFooter>
     </div>
   );

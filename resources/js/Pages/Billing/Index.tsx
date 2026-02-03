@@ -21,13 +21,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/Components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/Components/ui/dropdown-menu';
 import { Tabs, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import {
   Sheet,
@@ -41,26 +34,18 @@ import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
 import {
   MoreHorizontal,
-  Eye,
-  Download,
   Search,
-  IndianRupee,
   Stethoscope,
   TestTube2,
   FileText,
   CreditCard,
   AlertCircle,
-  ShieldCheck,
   ChevronLeft,
   ChevronRight,
-  Calendar,
   X,
   Loader2,
   CheckCircle2,
-  Share2,
 } from '@/Lib/icons';
-import { downloadAsHtml } from '@/Lib/download';
-import { ShareSheet } from '@/Components/ui/share-sheet';
 
 declare global {
   interface Window {
@@ -233,7 +218,6 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
   const [payBills, setPayBills] = useState<Bill[]>([]);
   const [excludedPayBillIds, setExcludedPayBillIds] = useState<Set<number>>(new Set());
   const [paymentState, setPaymentState] = useState<'idle' | 'processing' | 'success'>('idle');
-  const [shareBill, setShareBill] = useState<Bill | null>(null);
 
   // Reset sheet state when payBills changes
   useEffect(() => {
@@ -423,29 +407,6 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
   const clearSelection = () => setSelectedIds(new Set());
 
   const showToast = (msg: string) => setToastMessage(msg);
-
-  const handleDownloadInvoice = (bill: Bill) => {
-    const statusLabel = STATUS_CONFIG[bill.billing_status]?.label ?? bill.billing_status;
-    downloadAsHtml(`invoice-${bill.invoice_number}.pdf`, `
-      <h1>Invoice</h1>
-      <p class="subtitle">${bill.invoice_number} &middot; ${bill.date_formatted}</p>
-      <div class="section">
-        <h3>From</h3>
-        <p>HealthFirst Hospital<br/>123 Hospital Road, Pune 411001<br/>GSTIN: 27AABCH1234P1ZP</p>
-      </div>
-      <h2>Details</h2>
-      <div class="row"><span class="row-label">Appointment</span><span class="row-value">${bill.appointment_title}</span></div>
-      <div class="row"><span class="row-label">Patient</span><span class="row-value">${bill.patient_name}</span></div>
-      <h2>Charges</h2>
-      <div class="row"><span class="row-label">Amount</span><span class="row-value">₹${bill.original_amount.toLocaleString()}</span></div>
-      ${bill.due_amount !== bill.original_amount ? `<div class="row"><span class="row-label">Due</span><span class="row-value">₹${bill.due_amount.toLocaleString()}</span></div>` : ''}
-      <div class="total-row row"><span class="row-label" style="font-weight:600">Total</span><span class="row-value" style="font-weight:700;font-size:15px">₹${bill.total.toLocaleString()}</span></div>
-      <h2>Payment</h2>
-      <div class="row"><span class="row-label">Method</span><span class="row-value">${bill.payment_method}</span></div>
-      <div class="row"><span class="row-label">Status</span><span class="row-value">${statusLabel}</span></div>
-      ${bill.payment_date ? `<div class="row"><span class="row-label">Date</span><span class="row-value">${bill.payment_date}</span></div>` : ''}
-    `);
-  };
 
   const handleTabChange = (value: string) => {
     setTab(value as 'all' | 'outstanding' | 'paid');
@@ -654,13 +615,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                       <TableRow
                         key={bill.id}
                         className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => {
-                          if (isPayable) {
-                            setPayBills([bill]);
-                          } else {
-                            router.visit(`/billing/${bill.id}`);
-                          }
-                        }}
+                        onClick={() => router.visit(`/billing/${bill.id}`)}
                       >
                         {/* Checkbox */}
                         <TableCell className="align-top" onClick={(e) => e.stopPropagation()}>
@@ -735,116 +690,9 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                           )}
                         </TableCell>
 
-                        {/* Actions */}
-                        <TableCell className="align-top" onClick={(e) => e.stopPropagation()}>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-[220px]">
-                              <DropdownMenuItem
-                                className="gap-2 cursor-pointer"
-                                onClick={() => handleDownloadInvoice(bill)}
-                              >
-                                <Download className="h-4 w-4" />
-                                Download Invoice
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="gap-2 cursor-pointer"
-                                onClick={() => setShareBill(bill)}
-                              >
-                                <Share2 className="h-4 w-4" />
-                                Share
-                              </DropdownMenuItem>
-
-                              {/* Pay Now — only for due / copay_due */}
-                              {PAYABLE_STATUSES.includes(bill.billing_status) && (
-                                <>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    className="gap-2 cursor-pointer"
-                                    onClick={() => setPayBills([bill])}
-                                  >
-                                    <CreditCard className="h-4 w-4" />
-                                    Pay Now
-                                  </DropdownMenuItem>
-                                </>
-                              )}
-
-                              {/* Raise Dispute — only for paid / disputed */}
-                              {['paid', 'disputed'].includes(bill.billing_status) && (
-                                <>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    className="gap-2 cursor-pointer"
-                                    onClick={() => {
-                                      if (confirm('Are you sure you want to raise a dispute for this bill?')) {
-                                        router.post(`/billing/${bill.id}/dispute`, { reason: 'Dispute raised by patient' }, {
-                                          onSuccess: () => showToast('Dispute submitted successfully'),
-                                          onError: () => showToast('Failed to submit dispute'),
-                                        });
-                                      }
-                                    }}
-                                  >
-                                    <AlertCircle className="h-4 w-4" />
-                                    Raise Dispute
-                                  </DropdownMenuItem>
-                                </>
-                              )}
-
-                              {/* Request Reimbursement Letter — only for paid */}
-                              {bill.billing_status === 'paid' && (
-                                <DropdownMenuItem
-                                  className="gap-2 cursor-pointer"
-                                  onClick={() => {
-                                    downloadAsHtml(`reimbursement-letter-${bill.invoice_number}.html`, `
-                                      <h1>Reimbursement Request Letter</h1>
-                                      <p class="subtitle">Reference: ${bill.invoice_number}</p>
-                                      <h2>Treatment Details</h2>
-                                      <div class="row"><span class="row-label">Patient</span><span class="row-value">${bill.patient_name}</span></div>
-                                      <div class="row"><span class="row-label">Treatment</span><span class="row-value">${bill.appointment_title}</span></div>
-                                      <div class="row"><span class="row-label">Date</span><span class="row-value">${bill.appointment_date}</span></div>
-                                      <div class="row"><span class="row-label">Amount</span><span class="row-value">₹${bill.total.toLocaleString()}</span></div>
-                                    `);
-                                    showToast('Reimbursement letter downloaded');
-                                  }}
-                                >
-                                  <FileText className="h-4 w-4" />
-                                  Request Reimbursement Letter
-                                </DropdownMenuItem>
-                              )}
-
-                              {/* View Insurance Claim — claim_pending / awaiting_approval / covered */}
-                              {['claim_pending', 'awaiting_approval', 'covered'].includes(bill.billing_status) && bill.insurance_claim_id && (
-                                <>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    className="gap-2 cursor-pointer"
-                                    onClick={() => router.visit(`/insurance/claims/${bill.insurance_claim_id}`)}
-                                  >
-                                    <ShieldCheck className="h-4 w-4" />
-                                    View Insurance Claim
-                                  </DropdownMenuItem>
-                                </>
-                              )}
-
-                              {/* View EMI Schedule — emi */}
-                              {bill.billing_status === 'emi' && (
-                                <>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    className="gap-2 cursor-pointer"
-                                    onClick={() => router.visit(`/billing/${bill.id}`)}
-                                  >
-                                    <Calendar className="h-4 w-4" />
-                                    View EMI Schedule
-                                  </DropdownMenuItem>
-                                </>
-                              )}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                        {/* Visual indicator - no actions, click row for details */}
+                        <TableCell className="align-top">
+                          <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
                         </TableCell>
                       </TableRow>
                     );
@@ -1081,17 +929,6 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
         message={toastMessage}
         onHide={() => setToastMessage('')}
       />
-
-      {/* Share Sheet */}
-      {shareBill && (
-        <ShareSheet
-          open={!!shareBill}
-          onOpenChange={(open) => !open && setShareBill(null)}
-          title={`Invoice ${shareBill.invoice_number}`}
-          description={`${shareBill.appointment_title} · ${shareBill.patient_name} · ₹${shareBill.total.toLocaleString()}`}
-          url={`${window.location.origin}/billing/${shareBill.id}`}
-        />
-      )}
     </AppLayout>
   );
 }

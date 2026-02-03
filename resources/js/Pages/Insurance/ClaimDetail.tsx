@@ -783,60 +783,46 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {claim.documents.length > 0 && (
+        {/* Download claim summary */}
+        <DropdownMenuItem onClick={() => {
+          const f = claim.financial;
+          downloadAsHtml(`claim-${claim.claim_reference}.html`, `
+            <h1>Insurance Claim</h1>
+            <p class="subtitle">${claim.claim_reference}</p>
+            <h2>Claim Details</h2>
+            <div class="row"><span class="row-label">Treatment</span><span class="row-value">${claim.treatment_name}</span></div>
+            <div class="row"><span class="row-label">Provider</span><span class="row-value">${claim.provider_name ?? 'N/A'}</span></div>
+            <div class="row"><span class="row-label">Status</span><span class="row-value">${claim.status.replace(/_/g, ' ')}</span></div>
+            <div class="row"><span class="row-label">Claim Amount</span><span class="row-value">₹${claim.claim_amount.toLocaleString()}</span></div>
+            ${f?.insurance_covered ? `<div class="row"><span class="row-label">Insurance Covered</span><span class="row-value">₹${f.insurance_covered.toLocaleString()}</span></div>` : ''}
+            ${f?.patient_paid ? `<div class="row"><span class="row-label">Patient Paid</span><span class="row-value">₹${f.patient_paid.toLocaleString()}</span></div>` : ''}
+            <p style="margin-top:24px;font-size:12px;color:#6b7280">Generated on ${new Date().toLocaleDateString()}</p>
+          `);
+        }}>
+          <Download className="mr-2 h-4 w-4" />
+          Download
+        </DropdownMenuItem>
+
+        {/* Appeal (if rejected) */}
+        {claim.status === 'rejected' && (
           <DropdownMenuItem onClick={() => {
-            const docList = claim.documents.map(d => `<div class="row"><span class="row-label">${d.type}</span><span class="row-value">${d.date}</span></div>`).join('');
-            downloadAsHtml(`claim-documents-${claim.claim_reference}.html`, `
-              <h1>Claim Documents</h1>
-              <p class="subtitle">${claim.claim_reference} &middot; ${claim.treatment_name}</p>
-              <h2>Documents</h2>
-              ${docList}
-              <p style="margin-top:16px;font-size:12px;color:#6b7280">In production, actual document files would be downloaded here.</p>
-            `);
+            if (confirm('Would you like to file an appeal for this rejected claim?')) {
+              router.post(`/insurance/claims/${claim.id}/appeal`, {}, {
+                onSuccess: () => toast('Appeal request submitted'),
+                onError: () => toast('Failed to submit appeal'),
+              });
+            }
           }}>
-            <Download className="mr-2 h-4 w-4" />
-            Download Documents
+            <FileText className="mr-2 h-4 w-4" />
+            Appeal
           </DropdownMenuItem>
         )}
-        {isInTreatment && (
-          <>
-            <DropdownMenuItem onClick={() => {
-              toast(`TPA Contact: ${claim.provider_name ?? 'Insurance Provider'} — Call 1800-123-4567 or email claims@tpa.in`);
-            }}>
-              <Phone className="mr-2 h-4 w-4" />
-              Contact TPA
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => {
-              if (claim.appointment_id) {
-                router.visit(`/billing/${claim.appointment_id}`);
-              } else {
-                toast('No linked bill found');
-              }
-            }}>
-              <Receipt className="mr-2 h-4 w-4" />
-              View Interim Bill
-            </DropdownMenuItem>
-          </>
-        )}
-        {claim.status === 'settled' && (
-          <DropdownMenuItem onClick={() => {
-            const f = claim.financial;
-            downloadAsHtml(`settlement-letter-${claim.claim_reference}.html`, `
-              <h1>Settlement Letter</h1>
-              <p class="subtitle">${claim.claim_reference}</p>
-              <h2>Claim Details</h2>
-              <div class="row"><span class="row-label">Treatment</span><span class="row-value">${claim.treatment_name}</span></div>
-              <div class="row"><span class="row-label">Provider</span><span class="row-value">${claim.provider_name ?? 'N/A'}</span></div>
-              <div class="row"><span class="row-label">Claim Amount</span><span class="row-value">₹${claim.claim_amount.toLocaleString()}</span></div>
-              ${f?.insurance_covered ? `<div class="row"><span class="row-label">Insurance Covered</span><span class="row-value">₹${f.insurance_covered.toLocaleString()}</span></div>` : ''}
-              ${f?.patient_paid ? `<div class="row"><span class="row-label">Patient Paid</span><span class="row-value">₹${f.patient_paid.toLocaleString()}</span></div>` : ''}
-              <p style="margin-top:24px;font-size:12px;color:#6b7280">This is an auto-generated settlement summary.</p>
-            `);
-          }}>
-            <Download className="mr-2 h-4 w-4" />
-            Download Settlement Letter
-          </DropdownMenuItem>
-        )}
+
+        {/* Share */}
+        <DropdownMenuItem onClick={() => setShowShareSheet(true)}>
+          <Share2 className="mr-2 h-4 w-4" />
+          Share
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -929,8 +915,9 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
             </div>
             <div className="hidden md:flex items-center gap-2 flex-shrink-0">
               {getStatusBadge(claim.status)}
-              <Button variant="outline" size="icon" onClick={() => setShowShareSheet(true)}>
-                <Share2 className="h-4 w-4" />
+              <Button onClick={() => document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+                <Clock className="h-4 w-4" />
+                Check Status
               </Button>
               <ThreeDotMenu />
             </div>

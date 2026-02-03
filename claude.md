@@ -55,7 +55,7 @@ resources/js/
 | **Booking** | AI chat + guided wizard, 15+ intents, 2-week window, calendar sync |
 | **Appointments** | 3 tabs, 10-section detail, video calls, reschedule/cancel/book again |
 | **Billing** | 10 statuses, Razorpay, EMI, disputes, PDF downloads |
-| **Health Records** | 21 categories, server-side status, deep-linking |
+| **Health Records** | 21 categories, server-side status, deep-linking, AI summaries |
 | **Insurance** | Policies, claims (14 statuses), pre-auth flow |
 | **Family Members** | 18 fields, OTP verification, alert deep-links |
 | **Settings** | 4 tabs (Profile, Notifications, Preferences, Connections) |
@@ -163,6 +163,7 @@ OLLAMA_MODEL=qwen2.5:7b
 
 | Date | Feature |
 |------|---------|
+| Feb 3 | AI-generated summaries on health records (plain language explanations with next steps) |
 | Feb 3 | Table row click opens details; 3-dot menu for actions only (Appointments, Billing, Insurance) |
 | Feb 3 | Consistent ShareSheet across app (Billing, Insurance, Health Records, Appointments) |
 | Feb 3 | Fix OTP send in Link Existing Patient flow (event handler bug) |

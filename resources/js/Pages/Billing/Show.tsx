@@ -598,6 +598,7 @@ export default function Show({ user, bill }: Props) {
             </p>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Primary Button by Status */}
             {isPayable && (
               <Button
                 disabled={paymentLoading}
@@ -616,15 +617,37 @@ export default function Show({ user, bill }: Props) {
                 {paymentLoading ? 'Processing...' : `Pay EMI ₹${bill.emi_details.monthly_amount.toLocaleString()}`}
               </Button>
             )}
-            {!isPayable && !isEmi && (
-              <Button onClick={handleDownloadInvoice}>
-                <Download className="h-4 w-4" />
-                Download Invoice
+            {isPaid && !isEmi && (
+              <Button onClick={() => {
+                const itemRows = bill.line_items.map(i => `<div class="row"><span class="row-label">${i.label}</span><span class="row-value">₹${i.total.toLocaleString()}</span></div>`).join('');
+                downloadAsHtml(`receipt-${bill.invoice_number}.pdf`, `
+                  <h1>Payment Receipt</h1>
+                  <p class="subtitle">${bill.invoice_number} &middot; ${bill.invoice_date}</p>
+                  <h2>Patient</h2>
+                  <p>${bill.patient_name}</p>
+                  <h2>Service</h2>
+                  <p>${bill.appointment_title}</p>
+                  <p style="font-size:12px;color:#6b7280">${bill.appointment_date} at ${bill.appointment_time} &middot; ${bill.appointment_mode}</p>
+                  <h2>Charges</h2>
+                  ${itemRows}
+                  <div class="row total-row"><span class="row-label">Total</span><span class="row-value">₹${bill.total.toLocaleString()}</span></div>
+                  <h2>Payment</h2>
+                  <div class="row"><span class="row-label">Method</span><span class="row-value">${bill.payment_method}</span></div>
+                  <div class="row"><span class="row-label">Status</span><span class="row-value">Paid</span></div>
+                  <div class="row"><span class="row-label">Date</span><span class="row-value">${bill.payment_date}</span></div>
+                `);
+              }}>
+                <Receipt className="h-4 w-4" />
+                Download Receipt
               </Button>
             )}
-            <Button variant="outline" size="icon" onClick={() => setShowShareSheet(true)}>
-              <Share2 className="h-4 w-4" />
-            </Button>
+            {bill.billing_status === 'disputed' && (
+              <Button onClick={() => document.getElementById('dispute')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+                <AlertTriangle className="h-4 w-4" />
+                View Status
+              </Button>
+            )}
+            {/* 3-dot Menu by Status */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="icon" className="text-gray-400">
@@ -632,34 +655,27 @@ export default function Show({ user, bill }: Props) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                {/* Common: Download Invoice */}
                 <DropdownMenuItem onClick={handleDownloadInvoice}>
                   <Download className="mr-2 h-4 w-4" />
                   Download Invoice
                 </DropdownMenuItem>
-                {isPaid && (
-                  <DropdownMenuItem onClick={() => {
-                    const itemRows = bill.line_items.map(i => `<div class="row"><span class="row-label">${i.label}</span><span class="row-value">₹${i.total.toLocaleString()}</span></div>`).join('');
-                    downloadAsHtml(`receipt-${bill.invoice_number}.pdf`, `
-                      <h1>Payment Receipt</h1>
-                      <p class="subtitle">${bill.invoice_number} &middot; ${bill.invoice_date}</p>
-                      <h2>Patient</h2>
-                      <p>${bill.patient_name}</p>
-                      <h2>Service</h2>
-                      <p>${bill.appointment_title}</p>
-                      <p style="font-size:12px;color:#6b7280">${bill.appointment_date} at ${bill.appointment_time} &middot; ${bill.appointment_mode}</p>
-                      <h2>Charges</h2>
-                      ${itemRows}
-                      <div class="row total-row"><span class="row-label">Total</span><span class="row-value">₹${bill.total.toLocaleString()}</span></div>
-                      <h2>Payment</h2>
-                      <div class="row"><span class="row-label">Method</span><span class="row-value">${bill.payment_method}</span></div>
-                      <div class="row"><span class="row-label">Status</span><span class="row-value">Paid</span></div>
-                      <div class="row"><span class="row-label">Date</span><span class="row-value">${bill.payment_date}</span></div>
-                    `);
-                  }}>
-                    <Receipt className="mr-2 h-4 w-4" />
-                    Download Receipt
-                  </DropdownMenuItem>
+
+                {/* Unpaid: Payment Plan, Raise Dispute */}
+                {isPayable && (
+                  <>
+                    <DropdownMenuItem onClick={() => showToast('Payment plan feature coming soon')}>
+                      <CreditCard className="mr-2 h-4 w-4" />
+                      Payment Plan
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setShowDisputeDialog(true)}>
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      Raise Dispute
+                    </DropdownMenuItem>
+                  </>
                 )}
+
+                {/* Paid: Reimbursement Letter, View Appointment */}
                 {isPaid && bill.insurance_details && (
                   <DropdownMenuItem onClick={() => {
                     downloadAsHtml(`reimbursement-letter-${bill.invoice_number}.pdf`, `
@@ -690,20 +706,41 @@ export default function Show({ user, bill }: Props) {
                     Reimbursement Letter
                   </DropdownMenuItem>
                 )}
-                {isPaid && !bill.dispute_details && (
-                  <DropdownMenuItem onClick={() => setShowDisputeDialog(true)}>
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    Raise Dispute
+                {isPaid && (
+                  <DropdownMenuItem onClick={() => router.visit(`/appointments/${bill.appointment_id}`)}>
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    View Appointment
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={() => router.visit(`/appointments/${bill.appointment_id}`)}>
-                  <ExternalLink className="mr-2 h-4 w-4" />
-                  View Appointment
+
+                {/* Disputed: Cancel Dispute */}
+                {bill.billing_status === 'disputed' && bill.dispute_details?.status === 'Under Review' && (
+                  <DropdownMenuItem onClick={() => {
+                    if (confirm('Are you sure you want to cancel this dispute?')) {
+                      router.post(`/billing/${bill.id}/dispute/cancel`, {}, {
+                        onSuccess: () => showToast('Dispute cancelled'),
+                        onError: () => showToast('Failed to cancel dispute'),
+                      });
+                    }
+                  }}>
+                    <AlertTriangle className="mr-2 h-4 w-4" />
+                    Cancel Dispute
+                  </DropdownMenuItem>
+                )}
+
+                {/* Common: Share */}
+                <DropdownMenuItem onClick={() => setShowShareSheet(true)}>
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Share
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setShowContactDialog(true)}>
-                  <Mail className="mr-2 h-4 w-4" />
-                  Contact Support
-                </DropdownMenuItem>
+
+                {/* Unpaid & Disputed: Contact Support */}
+                {(isPayable || bill.billing_status === 'disputed') && (
+                  <DropdownMenuItem onClick={() => setShowContactDialog(true)}>
+                    <Mail className="mr-2 h-4 w-4" />
+                    Contact Support
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

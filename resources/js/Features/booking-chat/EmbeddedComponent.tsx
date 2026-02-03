@@ -20,6 +20,7 @@ import { EmbeddedAddressSelector } from './embedded/EmbeddedAddressSelector';
 import { EmbeddedFamilyMemberForm } from './embedded/EmbeddedFamilyMemberForm';
 import { EmbeddedAddressForm } from './embedded/EmbeddedAddressForm';
 import EmbeddedFamilyMemberFlow from './embedded/EmbeddedFamilyMemberFlow';
+import InlineMemberTypeSelector from './embedded/InlineMemberTypeSelector';
 
 /**
  * EmbeddedComponent
@@ -780,7 +781,7 @@ export function EmbeddedComponent({
 
     case 'family_member_flow':
       return (
-        <EmbeddedFamilyMemberFlow
+        <InlineMemberTypeSelector
           onComplete={(value) => onSelect(value)}
           onCancel={() => onSelect({ cancel_add_member: true })}
         />

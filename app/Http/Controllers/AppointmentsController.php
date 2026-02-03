@@ -118,6 +118,33 @@ class AppointmentsController extends Controller
         return back()->with('success', 'Appointment rescheduled successfully.');
     }
 
+    public function checkIn(Appointment $appointment)
+    {
+        $user = Auth::user() ?? \App\User::first();
+
+        if ($appointment->user_id !== $user->id) {
+            abort(403);
+        }
+
+        if ($appointment->status !== 'confirmed') {
+            return back()->with('error', 'Only confirmed appointments can be checked in.');
+        }
+
+        // Check if appointment is within 48 hours
+        $appointmentDate = Carbon::parse($appointment->appointment_date . ' ' . $appointment->appointment_time);
+        $hoursUntil = now()->diffInHours($appointmentDate, false);
+
+        if ($hoursUntil < 0 || $hoursUntil > 48) {
+            return back()->with('error', 'Check-in is only available within 48 hours of your appointment.');
+        }
+
+        $appointment->update([
+            'checked_in_at' => now(),
+        ]);
+
+        return back()->with('success', 'Checked in successfully.');
+    }
+
     public function updateNotes(Request $request, Appointment $appointment)
     {
         $user = Auth::user() ?? \App\User::first();

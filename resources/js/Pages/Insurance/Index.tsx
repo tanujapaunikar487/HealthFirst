@@ -25,13 +25,6 @@ import {
   TableRow,
 } from '@/Components/ui/table';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/Components/ui/dropdown-menu';
-import {
   Sheet,
   SheetContent,
   SheetHeader,
@@ -46,9 +39,6 @@ import {
   ShieldCheck,
   Plus,
   Search,
-  MoreHorizontal,
-  FileText,
-  Download,
   AlertTriangle,
   Users,
   ClipboardList,
@@ -827,7 +817,7 @@ export default function InsuranceIndex({
                         <TableHead>Appointment</TableHead>
                         <TableHead>Patient</TableHead>
                         <TableHead className="text-right">Amount</TableHead>
-                        <TableHead className="w-[100px]">Actions</TableHead>
+                        <TableHead className="w-[50px]" />
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -878,34 +868,8 @@ export default function InsuranceIndex({
                             </p>
                             <div className="mt-0.5">{getStatusBadge(claim.status)}</div>
                           </TableCell>
-                          <TableCell onClick={(e) => e.stopPropagation()}>
-                            <div className="flex items-center justify-end gap-1">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                    <MoreHorizontal className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem
-                                    onClick={() => {
-                                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                                      showToastMessage('Scroll up to view the linked policy');
-                                    }}
-                                  >
-                                    <FileText className="mr-2 h-4 w-4" />
-                                    View Policy
-                                  </DropdownMenuItem>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    onClick={() => router.visit(`/insurance/claims/${claim.id}`)}
-                                  >
-                                    <Download className="mr-2 h-4 w-4" />
-                                    View Documents
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
+                          <TableCell>
+                            <ChevronRight className="h-4 w-4 text-muted-foreground" />
                           </TableCell>
                         </TableRow>
                       ))}

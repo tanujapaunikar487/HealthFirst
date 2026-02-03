@@ -5,8 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Card } from '@/Components/ui/card';
 import { Textarea } from '@/Components/ui/textarea';
 import { FollowUpBanner } from '@/Components/Booking/FollowUpBanner';
-import { Sheet, SheetContent } from '@/Components/ui/sheet';
-import EmbeddedFamilyMemberFlow from '@/Features/booking-chat/embedded/EmbeddedFamilyMemberFlow';
+import InlineMemberTypeSelector from '@/Features/booking-chat/embedded/InlineMemberTypeSelector';
 import { cn } from '@/Lib/utils';
 import { ArrowRight, Star, Calendar, MessageSquare, AlertCircle } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
@@ -117,8 +116,8 @@ export default function PatientStep({
   const [showPreviousDoctors, setShowPreviousDoctors] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Add member sheet state
-  const [showAddMemberSheet, setShowAddMemberSheet] = useState(false);
+  // Add member inline state
+  const [showAddMemberInline, setShowAddMemberInline] = useState(false);
   const [members, setMembers] = useState(familyMembers);
 
   const selectedPatient = members.find((f) => f.id === patientId);
@@ -199,7 +198,7 @@ export default function PatientStep({
 
     setMembers((prev) => [...prev, newMember]);
     setPatientId(newMember.id);
-    setShowAddMemberSheet(false);
+    setShowAddMemberInline(false);
     setShowAppointmentType(true);
   };
 
@@ -396,13 +395,25 @@ export default function PatientStep({
             ))}
           </div>
 
-          <button
-            onClick={() => setShowAddMemberSheet(true)}
-            className="mt-3 inline-flex items-center gap-1 text-sm text-foreground hover:text-primary transition-colors"
-          >
-            Add family member or guest
-            <Icon icon={ArrowRight} className="h-4 w-4" />
-          </button>
+          {!showAddMemberInline && (
+            <button
+              onClick={() => setShowAddMemberInline(true)}
+              className="mt-3 inline-flex items-center gap-1 text-sm text-foreground hover:text-primary transition-colors"
+            >
+              Add family member or guest
+              <Icon icon={ArrowRight} className="h-4 w-4" />
+            </button>
+          )}
+
+          {/* Inline Member Type Selector */}
+          {showAddMemberInline && (
+            <div className="mt-4 p-4 border rounded-xl bg-muted/30">
+              <InlineMemberTypeSelector
+                onComplete={handleMemberAdded}
+                onCancel={() => setShowAddMemberInline(false)}
+              />
+            </div>
+          )}
 
           {errors.patient && (
             <p className="text-sm text-destructive mt-2">{errors.patient}</p>
@@ -592,17 +603,6 @@ export default function PatientStep({
         )}
 
       </div>
-
-      {/* Add Family Member Sheet */}
-      <Sheet open={showAddMemberSheet} onOpenChange={setShowAddMemberSheet}>
-        <SheetContent>
-          <EmbeddedFamilyMemberFlow
-            mode="guided"
-            onComplete={handleMemberAdded}
-            onCancel={() => setShowAddMemberSheet(false)}
-          />
-        </SheetContent>
-      </Sheet>
     </GuidedBookingLayout>
   );
 }
