@@ -1816,20 +1816,36 @@ Replaced OS-based `navigator.share` with a custom platform-agnostic share sheet.
 - `Appointments/Index.tsx` — Row dropdown share action opens ShareSheet
 - `AppointmentSheets.tsx` — Delegates to parent (no changes needed)
 
-### Book Again Flow Streamlining
-Reduced "Book Again" from 5 steps to 3 by pre-filling doctor and skipping patient selection.
+### Book Again Side Sheet
+Implemented "Book Again" as a side sheet (matching Reschedule and Follow-up UX) instead of navigating to guided booking flow.
 
-**Backend Changes**:
-- `AppointmentsController::bookAgain()` — Pre-fills `selectedDoctorId`, `appointmentMode`, `appointmentType`
-- Redirects directly to `booking.doctor.doctor-time` (skips patient step)
-- `GuidedDoctorController::doctorTime()` — Auto-sets `appointmentType = 'new'` if missing
+**Backend Endpoints** (`AppointmentsController.php`):
+- `GET /appointments/{id}/book-again-slots` — Returns dates, slots, doctor, patient, modes, original_mode
+- `POST /appointments/{id}/book-again-create` — Creates new appointment with same doctor/patient
 
-**New Flow**:
-| Before | After |
-|--------|-------|
-| Book Again → Patient → Doctor-Time → Confirm | Book Again → Doctor-Time (pre-selected) → Confirm |
+**Frontend Component** (`AppointmentSheets.tsx`):
+- `BookAgainSheet` component with:
+  - Doctor & patient info card (pre-filled from original appointment)
+  - Horizontal scrolling date pills (next 14 days filtered by doctor availability)
+  - Time slot selection grid
+  - Consultation mode radio buttons (video/in-person, pre-selects original mode)
+  - "Book Appointment ₹X" submit button with loading state
 
-User now only picks date/time and confirms — doctor and patient are pre-filled from original appointment.
+**Integration Points** (all now open sheet instead of navigating away):
+- `DetailsSheet` footer — Past tab "Book Again" button
+- `DetailsSheet` footer — Cancelled tab "Book Again" button
+- `CancelledDetailsSheet` footer — "Book Again" button
+- `ActionsMenu` dropdown — Past tab "Book Again" menu item
+- `ActionsMenu` dropdown — Cancelled tab "Book Again" menu item
+
+**User Flow**:
+1. User opens past/cancelled appointment → Clicks "Book Again"
+2. Side sheet opens with doctor & patient pre-filled
+3. User picks date → time → mode (original mode pre-selected)
+4. Clicks "Book Appointment ₹X" → Appointment created
+5. Sheet closes, success toast shown, list refreshes
+
+All booking happens in-page without navigation — consistent with Reschedule and Follow-up sheets.
 
 ---
 
@@ -1884,6 +1900,74 @@ if (app()->environment('local')) {
 
 ---
 
+## Settings Page Redesign (February 3, 2026)
+
+Complete redesign of the Settings page with a 4-tab layout for better organization and user experience.
+
+### Tab Structure
+
+| Tab | Icon | Description |
+|-----|------|-------------|
+| **Profile** | User | Personal info, contact details, address, emergency contact |
+| **Notifications** | Bell | Channel preferences (email/SMS/WhatsApp), category toggles |
+| **Preferences** | Settings2 | Language, date/time format, accessibility, booking defaults |
+| **Connections** | Link2 | Video conferencing (Google Meet/Zoom), calendar sync |
+
+### New Components
+
+**Files Created** in `resources/js/Pages/Settings/components/`:
+- `ProfileTab.tsx` — Personal info form with DOB, gender, address fields
+- `NotificationsTab.tsx` — Channel toggles + category preferences
+- `PreferencesTab.tsx` — Language, format, accessibility settings + booking defaults
+- `ConnectionsTab.tsx` — Video provider selection, calendar integration status
+- `PasswordModal.tsx` — Secure password change dialog
+
+### User Model Additions
+
+**File**: `app/User.php`
+
+New fillable fields:
+```php
+'date_of_birth', 'gender', 'avatar_url',
+'address_line_1', 'address_line_2', 'city', 'state', 'pincode',
+'emergency_contact_type', 'emergency_contact_member_id',
+'emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_relation'
+```
+
+### Backend Endpoints
+
+**File**: `app/Http/Controllers/SettingsController.php`
+
+| Method | Route | Purpose |
+|--------|-------|---------|
+| `index()` | GET /settings | Returns all settings data |
+| `updateProfile()` | PUT /settings/profile | Update personal info |
+| `updateNotifications()` | PUT /settings/notifications | Update notification prefs |
+| `updatePreferences()` | PUT /settings/preferences | Update app preferences |
+| `updatePassword()` | PUT /settings/password | Change password |
+| `updateBookingDefaults()` | PUT /settings/booking-defaults | Update booking defaults |
+| `updateVideoSettings()` | PUT /settings/video | Update video provider |
+
+### Database Migration
+
+**File**: `database/migrations/2026_02_03_095355_add_profile_fields_to_users_table.php`
+
+Adds 13 new columns to users table for profile completion and emergency contact storage.
+
+### UI Components Added
+
+- `Components/ui/label.tsx` — Form field labels
+- `Components/ui/slider.tsx` — Accessibility text size control
+- `Components/ui/switch.tsx` — Toggle switches for preferences
+
+### Navigation
+
+- Settings icon added to AppLayout sidebar
+- Active/selected state icons: `settings.svg` / `settings-selected.svg`
+- Logout button moved to Settings sidebar (removed from main nav)
+
+---
+
 **Status**: Production-ready healthcare management platform with AI-powered booking, comprehensive health records, billing, and insurance management.
 
-**Last Updated**: February 3, 2026 — Test OTP mode for development, dev mode email bypass
+**Last Updated**: February 3, 2026 — Settings page 4-tab redesign, test OTP mode, book again side sheet

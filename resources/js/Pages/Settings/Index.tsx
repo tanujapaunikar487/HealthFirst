@@ -1,85 +1,203 @@
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
+import { User, Bell, Settings2, Link2, LogOut } from '@/Lib/icons';
 import AppLayout from '@/Layouts/AppLayout';
 import { Button } from '@/Components/ui/button';
-import { Card } from '@/Components/ui/card';
+import { ProfileTab } from './components/ProfileTab';
+import { NotificationsTab } from './components/NotificationsTab';
+import { PreferencesTab } from './components/PreferencesTab';
+import { ConnectionsTab } from './components/ConnectionsTab';
+import { PasswordModal } from './components/PasswordModal';
 
-interface Props {
-  user: any;
-  videoSettings: {
+interface FamilyMember {
+    id: number;
+    name: string;
+    relation: string;
+    phone: string | null;
+}
+
+interface User {
+    id: string;
+    name: string;
+    email: string;
+    phone: string | null;
+    date_of_birth: string | null;
+    gender: string | null;
+    avatar_url: string | null;
+    address_line_1: string | null;
+    address_line_2: string | null;
+    city: string | null;
+    state: string | null;
+    pincode: string | null;
+    emergency_contact_type: 'family_member' | 'custom' | null;
+    emergency_contact_member_id: number | null;
+    emergency_contact_name: string | null;
+    emergency_contact_phone: string | null;
+    emergency_contact_relation: string | null;
+}
+
+interface NotificationSettings {
+    channels: {
+        email: boolean;
+        sms: boolean;
+        whatsapp: boolean;
+    };
+    categories: {
+        appointments: boolean;
+        health_alerts: boolean;
+        billing: boolean;
+        insurance: boolean;
+        promotions: boolean;
+    };
+}
+
+interface PreferenceSettings {
+    language: string;
+    date_format: string;
+    time_format: string;
+    accessibility: {
+        text_size: number;
+        high_contrast: boolean;
+    };
+}
+
+interface BookingDefaults {
+    default_patient_id: string | null;
+    default_consultation_mode: string | null;
+    default_lab_collection_method: string | null;
+}
+
+interface VideoSettings {
     provider: 'google_meet' | 'zoom';
     google_meet: { enabled: boolean };
     zoom: { enabled: boolean };
-  };
 }
 
-export default function SettingsIndex({ user, videoSettings }: Props) {
-  const [selectedProvider, setSelectedProvider] = useState(videoSettings.provider);
-  const [saving, setSaving] = useState(false);
+interface CalendarSettings {
+    google: {
+        connected: boolean;
+        email?: string;
+    };
+    apple: {
+        enabled: boolean;
+    };
+}
 
-  const handleSave = () => {
-    setSaving(true);
-    router.put('/settings/video', { provider: selectedProvider }, {
-      onFinish: () => setSaving(false),
-    });
-  };
+interface Props {
+    user: User;
+    familyMembers: FamilyMember[];
+    notifications: NotificationSettings;
+    preferences: PreferenceSettings;
+    bookingDefaults: BookingDefaults;
+    videoSettings: VideoSettings;
+    calendarSettings: CalendarSettings;
+}
 
-  return (
-    <AppLayout user={user}>
-      <Head title="Settings" />
+type Tab = 'profile' | 'notifications' | 'preferences' | 'connections';
 
-      <div className="max-w-4xl mx-auto space-y-6 py-8 px-4">
-        <h1 className="text-2xl font-bold">Settings</h1>
+const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
+    { id: 'profile', label: 'Profile', icon: User },
+    { id: 'notifications', label: 'Notifications', icon: Bell },
+    { id: 'preferences', label: 'Preferences', icon: Settings2 },
+    { id: 'connections', label: 'Connections', icon: Link2 },
+];
 
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Video Conferencing</h2>
+export default function SettingsIndex({
+    user,
+    familyMembers,
+    notifications,
+    preferences,
+    bookingDefaults,
+    videoSettings,
+    calendarSettings,
+}: Props) {
+    const [activeTab, setActiveTab] = useState<Tab>('profile');
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [loggingOut, setLoggingOut] = useState(false);
 
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                Preferred Provider
-              </label>
+    const handleLogout = () => {
+        setLoggingOut(true);
+        router.post('/logout');
+    };
 
-              <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedProvider('google_meet')}
-                  className={`w-full text-left px-4 py-3 rounded-lg border transition-colors ${
-                    selectedProvider === 'google_meet'
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="font-medium">Google Meet</div>
-                  <div className="text-sm text-muted-foreground">Default provider</div>
-                </button>
+    return (
+        <AppLayout user={user}>
+            <Head title="Settings" />
 
-                <button
-                  type="button"
-                  onClick={() => setSelectedProvider('zoom')}
-                  className={`w-full text-left px-4 py-3 rounded-lg border transition-colors ${
-                    selectedProvider === 'zoom'
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="font-medium">Zoom</div>
-                  <div className="text-sm text-muted-foreground">Alternative provider</div>
-                </button>
-              </div>
+            <div className="max-w-6xl mx-auto py-8 px-4">
+                <h1 className="text-2xl font-bold mb-6">Settings</h1>
+
+                <div className="flex flex-col lg:flex-row gap-6">
+                    {/* Sidebar Navigation */}
+                    <div className="lg:w-64 flex-shrink-0">
+                        <nav className="space-y-1">
+                            {tabs.map((tab) => {
+                                const Icon = tab.icon;
+                                return (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id)}
+                                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                                            activeTab === tab.id
+                                                ? 'bg-primary/10 text-primary font-medium'
+                                                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                        }`}
+                                    >
+                                        <Icon className="h-5 w-5" />
+                                        {tab.label}
+                                    </button>
+                                );
+                            })}
+                        </nav>
+
+                        {/* Logout Button */}
+                        <div className="mt-6 pt-6 border-t">
+                            <Button
+                                variant="outline"
+                                onClick={handleLogout}
+                                disabled={loggingOut}
+                                className="w-full justify-start text-muted-foreground hover:text-destructive hover:border-destructive"
+                            >
+                                <LogOut className="h-5 w-5 mr-3" />
+                                {loggingOut ? 'Logging out...' : 'Logout'}
+                            </Button>
+                        </div>
+                    </div>
+
+                    {/* Content Area */}
+                    <div className="flex-1 min-w-0">
+                        {activeTab === 'profile' && (
+                            <ProfileTab user={user} familyMembers={familyMembers} />
+                        )}
+
+                        {activeTab === 'notifications' && (
+                            <NotificationsTab settings={notifications} />
+                        )}
+
+                        {activeTab === 'preferences' && (
+                            <PreferencesTab
+                                settings={preferences}
+                                bookingDefaults={bookingDefaults}
+                                familyMembers={familyMembers}
+                                onOpenPasswordModal={() => setShowPasswordModal(true)}
+                            />
+                        )}
+
+                        {activeTab === 'connections' && (
+                            <ConnectionsTab
+                                videoSettings={videoSettings}
+                                calendarSettings={calendarSettings}
+                            />
+                        )}
+                    </div>
+                </div>
             </div>
 
-            <div className="pt-4 border-t">
-              <Button
-                onClick={handleSave}
-                disabled={saving || selectedProvider === videoSettings.provider}
-              >
-                {saving ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </div>
-          </div>
-        </Card>
-      </div>
-    </AppLayout>
-  );
+            {/* Password Change Modal */}
+            <PasswordModal
+                open={showPasswordModal}
+                onOpenChange={setShowPasswordModal}
+            />
+        </AppLayout>
+    );
 }

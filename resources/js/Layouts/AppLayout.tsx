@@ -208,7 +208,7 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
   return (
     <div className="flex h-screen bg-background">
       {/* Sidebar Navigation */}
-      <Sidebar />
+      <Sidebar user={user} />
 
       {/* Main Content Area */}
       <div className="flex flex-col flex-1 overflow-hidden">
@@ -389,13 +389,21 @@ export default function AppLayout({ children, user, pageTitle, pageIcon }: AppLa
 /**
  * Sidebar Navigation Component
  */
-function Sidebar() {
+function Sidebar({ user }: { user: User }) {
   const { url } = usePage();
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return url === '/' || url.startsWith('/dashboard');
     return url.startsWith(href);
   };
+
+  const getInitials = (name: string) =>
+    name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
 
   return (
     <aside className="w-80 bg-background flex flex-col" style={{ borderRight: '1px solid #E5E5E5' }}>
@@ -434,6 +442,25 @@ function Sidebar() {
           active={isActive('/family-members')}
         />
       </nav>
+
+      {/* User Profile Section */}
+      <div className="px-6 py-4 border-t" style={{ borderColor: '#E5E5E5' }}>
+        <Link
+          href="/settings"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors"
+        >
+          <Avatar className="h-10 w-10 flex-shrink-0">
+            <AvatarImage src={user.avatar_url} />
+            <AvatarFallback className="text-sm">{getInitials(user.name)}</AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold truncate" style={{ color: '#00184D' }}>
+              {user.name}
+            </p>
+            <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+          </div>
+        </Link>
+      </div>
     </aside>
   );
 }

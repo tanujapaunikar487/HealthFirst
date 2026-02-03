@@ -103,6 +103,12 @@ import { Video01Icon } from '@hugeicons/core-free-icons';
 import { FastWindIcon } from '@hugeicons/core-free-icons';
 import { Cancel01Icon } from '@hugeicons/core-free-icons';
 import { CancelCircleIcon } from '@hugeicons/core-free-icons';
+import { Camera01Icon } from '@hugeicons/core-free-icons';
+import { Logout01Icon } from '@hugeicons/core-free-icons';
+import { LockKeyIcon } from '@hugeicons/core-free-icons';
+import { Settings02Icon } from '@hugeicons/core-free-icons';
+import { ViewOffIcon } from '@hugeicons/core-free-icons';
+import { Unlink01Icon } from '@hugeicons/core-free-icons';
 
 // Helper to create a React component from icon data
 function createIcon(iconData: any, displayName: string) {
@@ -250,3 +256,11 @@ export const Wind = createIcon(FastWindIcon, 'Wind');
 // X
 export const X = createIcon(Cancel01Icon, 'X');
 export const XCircle = createIcon(CancelCircleIcon, 'XCircle');
+
+// Additional icons for Settings
+export const Camera = createIcon(Camera01Icon, 'Camera');
+export const LogOut = createIcon(Logout01Icon, 'LogOut');
+export const Lock = createIcon(LockKeyIcon, 'Lock');
+export const Settings2 = createIcon(Settings02Icon, 'Settings2');
+export const EyeOff = createIcon(ViewOffIcon, 'EyeOff');
+export const Unlink = createIcon(Unlink01Icon, 'Unlink');

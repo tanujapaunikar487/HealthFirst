@@ -4,9 +4,11 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -16,6 +18,23 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        // Profile fields
+        'phone',
+        'date_of_birth',
+        'gender',
+        'avatar_path',
+        // Address
+        'address_line_1',
+        'address_line_2',
+        'city',
+        'state',
+        'pincode',
+        // Emergency contact
+        'emergency_contact_type',
+        'emergency_contact_member_id',
+        'emergency_contact_name',
+        'emergency_contact_phone',
+        'emergency_contact_relation',
     ];
 
     protected $hidden = [
@@ -28,7 +47,26 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'date_of_birth' => 'date',
         ];
+    }
+
+    /**
+     * Get the URL for the user's avatar.
+     */
+    public function getAvatarUrlAttribute(): ?string
+    {
+        return $this->avatar_path
+            ? Storage::url($this->avatar_path)
+            : null;
+    }
+
+    /**
+     * Get the emergency contact family member.
+     */
+    public function emergencyContactMember(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\FamilyMember::class, 'emergency_contact_member_id');
     }
 
     public function billingNotifications(): HasMany
