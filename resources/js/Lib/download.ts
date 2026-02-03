@@ -93,13 +93,44 @@ function buildStyledHtml(title: string, htmlContent: string): string {
     .badge-amber { background: #fffbeb; color: #d97706; }
     .badge-red { background: #fef2f2; color: #dc2626; }
     .badge-blue { background: #eff6ff; color: #1e40af; }
-    .section { margin-bottom: 24px; }
+    .section { margin-bottom: 20px; }
     .row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f3f4f6; }
     .row-label { color: #6b7280; font-size: 13px; }
-    .row-value { font-weight: 500; font-size: 13px; }
+    .row-value { font-weight: 500; font-size: 13px; text-align: right; max-width: 60%; }
     .total-row { border-top: 2px solid #e5e7eb; font-weight: 600; margin-top: 8px; padding-top: 8px; }
     .header-meta { display: flex; gap: 16px; font-size: 12px; color: #6b7280; margin-bottom: 4px; }
     .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9ca3af; text-align: center; }
+    /* Callout boxes */
+    .callout { padding: 12px 16px; border-radius: 8px; margin: 8px 0; }
+    .callout p { margin: 0; font-size: 13px; line-height: 1.5; }
+    .callout-purple { background: #faf5ff; border: 1px solid #e9d5ff; }
+    .callout-purple p { color: #581c87; }
+    .callout-blue { background: #eff6ff; border: 1px solid #bfdbfe; }
+    .callout-blue p { color: #1e40af; }
+    .callout-green { background: #ecfdf5; border: 1px solid #a7f3d0; }
+    .callout-green p { color: #065f46; }
+    .callout-amber { background: #fffbeb; border: 1px solid #fcd34d; }
+    .callout-amber p { color: #92400e; }
+    .callout-red { background: #fef2f2; border: 1px solid #fecaca; }
+    .callout-red p { color: #991b1b; }
+    /* Status dots for tables */
+    .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: middle; }
+    .status-normal { background: #22c55e; }
+    .status-abnormal { background: #f59e0b; }
+    .status-critical { background: #ef4444; }
+    /* AI Summary styling */
+    .ai-summary { margin: 16px 0 24px; }
+    .ai-summary-label { display: flex; align-items: center; gap: 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #9333ea; margin-bottom: 8px; font-weight: 600; }
+    /* Lists */
+    ul { margin: 8px 0; padding-left: 20px; }
+    li { margin: 4px 0; }
+    /* Vitals grid */
+    .vitals-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 8px 0; }
+    .vital-item { background: #f9fafb; border-radius: 8px; padding: 12px; text-align: center; }
+    .vital-label { display: block; font-size: 11px; color: #6b7280; margin-bottom: 4px; }
+    .vital-value { display: block; font-size: 14px; font-weight: 600; color: #1f2937; }
+    /* Small text helper */
+    .small-text { font-size: 11px; color: #6b7280; margin-top: 4px; }
     @media print {
       body { padding: 20px; }
       @page { margin: 1cm; }

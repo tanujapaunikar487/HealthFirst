@@ -56,6 +56,7 @@ import {
   Pencil,
 } from '@/Lib/icons';
 import { downloadAsHtml } from '@/Lib/download';
+import { generateHealthRecordPdfContent, escapeHtml } from '@/Lib/pdf-content';
 import { ShareSheet } from '@/Components/ui/share-sheet';
 
 /* ─── Types ─── */
@@ -679,9 +680,15 @@ export default function Show({ user, record, familyMember }: Props) {
   const config = categoryConfig[record.category] || { label: record.category, color: '#6B7280', bg: '#F3F4F6' };
 
   const handleDownload = () => {
-    const meta = record.metadata;
-    const details = meta ? Object.entries(meta).filter(([,v]) => v != null && v !== '').map(([k,v]) => `<div class="row"><span class="row-label">${k.replace(/_/g,' ')}</span><span class="row-value">${typeof v === 'object' ? JSON.stringify(v) : v}</span></div>`).join('') : '';
-    downloadAsHtml(`${record.category}-${record.id}.pdf`, `<h1>${record.title}</h1><p class="subtitle">${record.record_date_formatted} &middot; ${config.label}</p>${record.description ? `<p>${record.description}</p>` : ''}${details ? `<h2>Details</h2>${details}` : ''}`);
+    const pdfContent = generateHealthRecordPdfContent(record, aiSummary || undefined);
+
+    downloadAsHtml(
+      `${record.category}-${record.id}.pdf`,
+      `<h1>${escapeHtml(record.title)}</h1>
+       <p class="subtitle">${escapeHtml(record.record_date_formatted)} &middot; ${escapeHtml(config.label)}</p>
+       ${record.description ? `<p>${escapeHtml(record.description)}</p>` : ''}
+       ${pdfContent}`
+    );
     toast('Record downloaded');
   };
 

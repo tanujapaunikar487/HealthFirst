@@ -54,6 +54,7 @@ import {
   X,
 } from '@/Lib/icons';
 import { downloadAsHtml } from '@/Lib/download';
+import { generateBulkRecordsPdfContent } from '@/Lib/pdf-content';
 import { ShareSheet } from '@/Components/ui/share-sheet';
 
 /* ─── Types ─── */
@@ -842,8 +843,11 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
             <span className="text-sm font-medium">{selectedIds.size} selected</span>
             <Button variant="outline" size="sm" className="gap-1.5" onClick={() => {
               const selected = records.filter(r => selectedIds.has(r.id));
-              const rows = selected.map(r => `<div class="row"><span class="row-label">${r.title}</span><span class="row-value">${r.record_date_formatted}</span></div>`).join('');
-              downloadAsHtml(`health-records-${selected.length}.html`, `<h1>Health Records (${selected.length})</h1>${rows}`);
+              const categoryLabels = Object.fromEntries(
+                Object.entries(categoryConfig).map(([k, v]) => [k, v.label])
+              );
+              const pdfContent = generateBulkRecordsPdfContent(selected, categoryLabels);
+              downloadAsHtml(`health-records-${selected.length}.pdf`, `<h1>Health Records</h1>${pdfContent}`);
               toast('Records downloaded');
             }}>
               <Download className="h-3.5 w-3.5" />
