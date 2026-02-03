@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\FamilyMember;
 use App\Models\HealthRecord;
 use App\Models\InsuranceClaim;
+use App\Services\AI\AIService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class HealthRecordController extends Controller
@@ -226,5 +228,86 @@ class HealthRecordController extends Controller
             'record' => $recordData,
             'familyMember' => $familyMember,
         ]);
+    }
+
+    /**
+     * Generate an AI summary for a health record.
+     */
+    public function generateSummary(HealthRecord $record, AIService $aiService)
+    {
+        $user = Auth::user() ?? \App\User::first();
+
+        // Ensure the record belongs to this user
+        if ($record->user_id !== $user->id) {
+            abort(403);
+        }
+
+        try {
+            // Check if AI is enabled
+            if (!$aiService->isEnabled()) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'AI service is currently unavailable.',
+                ], 503);
+            }
+
+            // Check if we have a cached summary
+            $cachedSummary = $record->metadata['ai_summary'] ?? null;
+            $summaryGeneratedAt = $record->metadata['ai_summary_generated_at'] ?? null;
+
+            // Use cached summary if it's less than 24 hours old
+            if ($cachedSummary && $summaryGeneratedAt) {
+                $generatedAt = Carbon::parse($summaryGeneratedAt);
+                if ($generatedAt->diffInHours(now()) < 24) {
+                    return response()->json([
+                        'success' => true,
+                        'summary' => $cachedSummary,
+                        'cached' => true,
+                        'generated_at' => $summaryGeneratedAt,
+                    ]);
+                }
+            }
+
+            // Compute status for context
+            $status = $this->computeStatus($record->category, $record->metadata);
+
+            // Generate new summary
+            $summary = $aiService->generateHealthRecordSummary(
+                $record->category,
+                $record->title,
+                $record->metadata,
+                $status
+            );
+
+            // Cache the summary in metadata
+            $metadata = $record->metadata ?? [];
+            $metadata['ai_summary'] = $summary;
+            $metadata['ai_summary_generated_at'] = now()->toIso8601String();
+            $record->metadata = $metadata;
+            $record->save();
+
+            Log::info('AI summary generated for health record', [
+                'record_id' => $record->id,
+                'category' => $record->category,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'summary' => $summary,
+                'cached' => false,
+                'generated_at' => $metadata['ai_summary_generated_at'],
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to generate AI summary', [
+                'record_id' => $record->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Unable to generate summary at this time. Please try again later.',
+            ], 500);
+        }
     }
 }

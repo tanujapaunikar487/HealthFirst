@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
@@ -7,7 +7,7 @@ import { Toast } from '@/Components/ui/toast';
 import { Icon } from '@/Components/ui/icon';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { cn } from '@/Lib/utils';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,6 +51,9 @@ import {
   User,
   Settings2,
   ClipboardList,
+  Sparkles,
+  Loader2,
+  Pencil,
 } from '@/Lib/icons';
 import { downloadAsHtml } from '@/Lib/download';
 import { ShareSheet } from '@/Components/ui/share-sheet';
@@ -127,6 +130,9 @@ interface AttachedFile {
 }
 
 interface RecordMetadata {
+  // AI Summary (cached)
+  ai_summary?: string;
+  ai_summary_generated_at?: string;
   // consultation_notes
   diagnosis?: string;
   icd_code?: string;
@@ -623,6 +629,53 @@ export default function Show({ user, record, familyMember }: Props) {
   const [showShareSheet, setShowShareSheet] = useState(false);
   const toast = (msg: string) => setToastMessage(msg);
 
+  // AI Summary state
+  const [aiSummary, setAiSummary] = useState<string | null>(record.metadata?.ai_summary || null);
+  const [aiSummaryLoading, setAiSummaryLoading] = useState(false);
+  const [aiSummaryError, setAiSummaryError] = useState<string | null>(null);
+  const [summaryGeneratedAt, setSummaryGeneratedAt] = useState<string | null>(
+    record.metadata?.ai_summary_generated_at || null
+  );
+
+  const generateAiSummary = useCallback(async (regenerate = false) => {
+    setAiSummaryLoading(true);
+    setAiSummaryError(null);
+
+    try {
+      const response = await fetch(`/health-records/${record.id}/summary`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+        },
+        body: JSON.stringify({ regenerate }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setAiSummary(data.summary);
+        setSummaryGeneratedAt(data.generated_at);
+        if (!data.cached) {
+          toast('AI summary generated');
+        }
+      } else {
+        setAiSummaryError(data.error || 'Failed to generate summary');
+      }
+    } catch (error) {
+      setAiSummaryError('Unable to connect to the AI service. Please try again.');
+    } finally {
+      setAiSummaryLoading(false);
+    }
+  }, [record.id]);
+
+  // Auto-generate summary on page load if no cached summary exists
+  useEffect(() => {
+    if (!aiSummary && !aiSummaryLoading && !aiSummaryError) {
+      generateAiSummary();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const config = categoryConfig[record.category] || { label: record.category, color: '#6B7280', bg: '#F3F4F6' };
 
   const handleDownload = () => {
@@ -634,6 +687,36 @@ export default function Show({ user, record, familyMember }: Props) {
 
   const handleShare = () => {
     setShowShareSheet(true);
+  };
+
+  // Platform detection for health sync
+  const getHealthSyncLabel = () => {
+    const userAgent = navigator.userAgent || '';
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+    const isAndroid = /Android/.test(userAgent);
+    if (isIOS) return 'Add to Apple Health';
+    if (isAndroid) return 'Add to Google Fit';
+    return 'Add to Health App';
+  };
+
+  const handleHealthSync = () => {
+    const userAgent = navigator.userAgent || '';
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+    const isAndroid = /Android/.test(userAgent);
+
+    if (isIOS) {
+      toast('Opening Apple Health...');
+      // In a native app, this would use HealthKit APIs
+    } else if (isAndroid) {
+      toast('Opening Google Fit...');
+      // In a native app, this would use Google Fit APIs
+    } else {
+      toast('Health sync is available on mobile devices');
+    }
+  };
+
+  const handleRequestAmendment = () => {
+    toast('Amendment request submitted. You will be contacted within 48 hours.');
   };
 
   const hasProvider = !!(record.doctor_name || record.department_name);
@@ -686,6 +769,14 @@ export default function Show({ user, record, familyMember }: Props) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
+                  {record.appointment_id && (
+                    <DropdownMenuItem asChild>
+                      <Link href={`/appointments/${record.appointment_id}`} className="flex items-center">
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        View Appointment
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem onClick={handleShare}>
                     <Share2 className="h-4 w-4 mr-2" />
                     Share
@@ -696,17 +787,20 @@ export default function Show({ user, record, familyMember }: Props) {
                       Download
                     </DropdownMenuItem>
                   )}
-                  {record.appointment_id && (
+                  {['lab_report', 'vitals', 'immunization'].includes(record.category) && (
                     <>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link href={`/appointments/${record.appointment_id}`} className="flex items-center">
-                          <ExternalLink className="h-4 w-4 mr-2" />
-                          View Appointment
-                        </Link>
+                      <DropdownMenuItem onClick={handleHealthSync}>
+                        <HeartPulse className="h-4 w-4 mr-2" />
+                        {getHealthSyncLabel()}
                       </DropdownMenuItem>
                     </>
                   )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleRequestAmendment}>
+                    <Pencil className="h-4 w-4 mr-2" />
+                    Request Amendment
+                  </DropdownMenuItem>
                   {record.insurance_claim_id && (
                     <DropdownMenuItem asChild>
                       <Link href={`/insurance/claims/${record.insurance_claim_id}`} className="flex items-center">
@@ -740,6 +834,58 @@ export default function Show({ user, record, familyMember }: Props) {
               ) : (
                 <p className="text-sm text-muted-foreground mb-6">No description available.</p>
               )}
+
+              {/* AI Summary */}
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles className="h-4 w-4 text-purple-500" />
+                  <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">AI Summary</span>
+                </div>
+
+                {aiSummaryLoading ? (
+                  <div className="rounded-lg bg-purple-50 border border-purple-100 px-4 py-4">
+                    <div className="flex items-center gap-3">
+                      <Loader2 className="h-5 w-5 text-purple-500 animate-spin" />
+                      <p className="text-sm text-purple-700">Generating AI summary...</p>
+                    </div>
+                  </div>
+                ) : aiSummaryError ? (
+                  <div className="rounded-lg bg-red-50 border border-red-100 px-4 py-4">
+                    <p className="text-sm text-red-600 mb-3">{aiSummaryError}</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => generateAiSummary()}
+                      className="text-red-600 border-red-200 hover:bg-red-50"
+                    >
+                      Try Again
+                    </Button>
+                  </div>
+                ) : aiSummary ? (
+                  <div className="rounded-lg bg-purple-50 border border-purple-100 px-4 py-4">
+                    <p className="text-sm leading-relaxed" style={{ color: '#581C87' }}>{aiSummary}</p>
+                    {summaryGeneratedAt && (
+                      <p className="text-xs text-purple-400 mt-3">
+                        Generated {new Date(summaryGeneratedAt).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="rounded-lg bg-purple-50 border border-purple-100 px-4 py-4">
+                    <div className="flex items-center gap-3">
+                      <Loader2 className="h-5 w-5 text-purple-500 animate-spin" />
+                      <p className="text-sm text-purple-700">Generating AI summary...</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="border-t pt-4">
                 <SectionTitle>Record Information</SectionTitle>
                 <div className="space-y-0">

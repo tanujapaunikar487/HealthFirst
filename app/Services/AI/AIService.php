@@ -370,6 +370,222 @@ class AIService
     }
 
     /**
+     * Generate a plain-language AI summary for a health record.
+     *
+     * @param  string  $category  The record category (e.g., 'lab_report', 'prescription')
+     * @param  string  $title  The record title
+     * @param  array|null  $metadata  Category-specific metadata
+     * @param  array|null  $status  Computed status (label, variant)
+     * @return string The AI-generated summary
+     */
+    public function generateHealthRecordSummary(
+        string $category,
+        string $title,
+        ?array $metadata = null,
+        ?array $status = null
+    ): string {
+        if (!config('ai.features.summarize_medical_history')) {
+            throw new \Exception('Medical history summarization feature is disabled.');
+        }
+
+        $systemPrompt = <<<PROMPT
+You are a helpful health assistant that explains medical reports in plain, easy-to-understand language.
+
+GUIDELINES:
+1. Be informational and supportive - help users understand what their results mean
+2. NEVER make definitive diagnoses or alarming statements like "you have a disease"
+3. Explain values that are in or out of range in simple terms
+4. Mention possible common, non-alarming reasons for any abnormal values
+5. Always recommend discussing results with a healthcare provider for proper interpretation
+6. Keep the summary concise (2-4 sentences for simple reports, up to 6 sentences for complex ones)
+7. Use everyday language, avoid medical jargon when possible
+8. Be reassuring without dismissing concerns
+9. Focus on what the user can understand and actionable next steps
+
+EXAMPLE GOOD RESPONSES:
+- "Your cholesterol levels are slightly elevated. This is common and can often be managed with dietary changes and exercise. Consider discussing lifestyle modifications with your doctor at your next visit."
+- "All your blood test values are within normal ranges, which is a positive sign. Continue maintaining your current healthy habits."
+- "Your hemoglobin is a bit lower than the typical range. This can happen for various reasons including diet or hydration. Your doctor can help determine if any follow-up is needed."
+
+AVOID RESPONSES LIKE:
+- "You have high cholesterol which indicates heart disease risk" (too alarming)
+- "Your low hemoglobin means you are anemic" (definitive diagnosis)
+- "This is a serious condition" (alarming language)
+PROMPT;
+
+        // Build the record context for the AI
+        $recordContext = "HEALTH RECORD TO SUMMARIZE:\n";
+        $recordContext .= "Category: {$category}\n";
+        $recordContext .= "Title: {$title}\n";
+
+        if ($status) {
+            $recordContext .= "Status: {$status['label']}\n";
+        }
+
+        if ($metadata) {
+            $recordContext .= "\nDetails:\n";
+            $recordContext .= $this->formatMetadataForSummary($category, $metadata);
+        }
+
+        $messages = [
+            ['role' => 'system', 'content' => $systemPrompt],
+            ['role' => 'user', 'content' => $recordContext . "\n\nPlease provide a brief, easy-to-understand summary of this health record."],
+        ];
+
+        try {
+            $response = $this->provider->chat($messages, [
+                'temperature' => 0.5,
+                'max_tokens' => 500,
+            ]);
+
+            Log::info('Health record summary generated', [
+                'category' => $category,
+                'title' => $title,
+            ]);
+
+            return trim($response);
+        } catch (\Exception $e) {
+            Log::error('Health record summary generation failed', [
+                'category' => $category,
+                'title' => $title,
+                'error' => $e->getMessage(),
+            ]);
+            throw new \Exception('Failed to generate health record summary.');
+        }
+    }
+
+    /**
+     * Format metadata for AI summary based on category.
+     */
+    private function formatMetadataForSummary(string $category, array $metadata): string
+    {
+        $formatted = '';
+
+        switch ($category) {
+            case 'lab_report':
+                if (isset($metadata['test_name'])) {
+                    $formatted .= "Test: {$metadata['test_name']}\n";
+                }
+                if (isset($metadata['results']) && is_array($metadata['results'])) {
+                    $formatted .= "Results:\n";
+                    foreach ($metadata['results'] as $result) {
+                        $param = $result['parameter'] ?? 'Unknown';
+                        $value = $result['value'] ?? '';
+                        $unit = $result['unit'] ?? '';
+                        $range = $result['reference_range'] ?? '';
+                        $status = $result['status'] ?? 'normal';
+                        $formatted .= "- {$param}: {$value} {$unit} (Reference: {$range}) - Status: {$status}\n";
+                    }
+                }
+                break;
+
+            case 'prescription':
+                if (isset($metadata['drugs']) && is_array($metadata['drugs'])) {
+                    $formatted .= "Medications prescribed:\n";
+                    foreach ($metadata['drugs'] as $drug) {
+                        $name = $drug['name'] ?? 'Unknown';
+                        $dosage = $drug['dosage'] ?? '';
+                        $frequency = $drug['frequency'] ?? '';
+                        $duration = $drug['duration'] ?? '';
+                        $formatted .= "- {$name}: {$dosage}, {$frequency}, for {$duration}\n";
+                    }
+                }
+                if (isset($metadata['valid_until'])) {
+                    $formatted .= "Valid until: {$metadata['valid_until']}\n";
+                }
+                break;
+
+            case 'consultation_notes':
+                if (isset($metadata['diagnosis'])) {
+                    $formatted .= "Diagnosis: {$metadata['diagnosis']}\n";
+                }
+                if (isset($metadata['symptoms']) && is_array($metadata['symptoms'])) {
+                    $formatted .= "Symptoms: " . implode(', ', $metadata['symptoms']) . "\n";
+                }
+                if (isset($metadata['treatment_plan'])) {
+                    $formatted .= "Treatment plan: {$metadata['treatment_plan']}\n";
+                }
+                if (isset($metadata['follow_up_recommendation'])) {
+                    $formatted .= "Follow-up: {$metadata['follow_up_recommendation']}\n";
+                }
+                break;
+
+            case 'discharge_summary':
+                if (isset($metadata['primary_diagnosis']) || isset($metadata['diagnosis'])) {
+                    $formatted .= "Primary diagnosis: " . ($metadata['primary_diagnosis'] ?? $metadata['diagnosis']) . "\n";
+                }
+                if (isset($metadata['length_of_stay'])) {
+                    $formatted .= "Hospital stay: {$metadata['length_of_stay']}\n";
+                }
+                if (isset($metadata['discharge_instructions'])) {
+                    $formatted .= "Instructions: {$metadata['discharge_instructions']}\n";
+                }
+                break;
+
+            case 'xray_report':
+            case 'mri_report':
+            case 'ultrasound_report':
+            case 'ecg_report':
+            case 'pathology_report':
+            case 'pft_report':
+                if (isset($metadata['body_part'])) {
+                    $formatted .= "Body part: {$metadata['body_part']}\n";
+                }
+                if (isset($metadata['indication'])) {
+                    $formatted .= "Indication: {$metadata['indication']}\n";
+                }
+                if (isset($metadata['findings'])) {
+                    $formatted .= "Findings: {$metadata['findings']}\n";
+                }
+                if (isset($metadata['impression'])) {
+                    $formatted .= "Impression: {$metadata['impression']}\n";
+                }
+                if (isset($metadata['interpretation'])) {
+                    $formatted .= "Interpretation: {$metadata['interpretation']}\n";
+                }
+                break;
+
+            case 'vaccination':
+                if (isset($metadata['vaccine_name'])) {
+                    $formatted .= "Vaccine: {$metadata['vaccine_name']}\n";
+                }
+                if (isset($metadata['dose_number']) && isset($metadata['total_doses'])) {
+                    $formatted .= "Dose: {$metadata['dose_number']} of {$metadata['total_doses']}\n";
+                }
+                if (isset($metadata['next_due_date'])) {
+                    $formatted .= "Next due: {$metadata['next_due_date']}\n";
+                }
+                break;
+
+            case 'medication_active':
+            case 'medication_past':
+                if (isset($metadata['drug_name'])) {
+                    $formatted .= "Medication: {$metadata['drug_name']}\n";
+                }
+                if (isset($metadata['condition'])) {
+                    $formatted .= "Prescribed for: {$metadata['condition']}\n";
+                }
+                if (isset($metadata['dosage'])) {
+                    $formatted .= "Dosage: {$metadata['dosage']}\n";
+                }
+                if (isset($metadata['reason_stopped'])) {
+                    $formatted .= "Reason stopped: {$metadata['reason_stopped']}\n";
+                }
+                break;
+
+            default:
+                // Generic formatting for other categories
+                foreach ($metadata as $key => $value) {
+                    if (is_string($value) && !empty($value)) {
+                        $formatted .= ucfirst(str_replace('_', ' ', $key)) . ": {$value}\n";
+                    }
+                }
+        }
+
+        return $formatted ?: "No specific details available.\n";
+    }
+
+    /**
      * Answer a general medical/booking question (informational only).
      *
      * @param  string  $question  The question to answer

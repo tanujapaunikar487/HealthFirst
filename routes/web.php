@@ -106,6 +106,7 @@ Route::get('/appointments', [AppointmentsController::class, 'index'])->name('app
 Route::get('/appointments/{appointment}', [AppointmentsController::class, 'show'])->name('appointments.show');
 Route::post('/appointments/{appointment}/cancel', [AppointmentsController::class, 'cancel'])->name('appointments.cancel');
 Route::post('/appointments/{appointment}/reschedule', [AppointmentsController::class, 'reschedule'])->name('appointments.reschedule');
+Route::post('/appointments/{appointment}/check-in', [AppointmentsController::class, 'checkIn'])->name('appointments.check-in');
 Route::get('/appointments/{appointment}/available-slots', [AppointmentsController::class, 'availableSlots'])->name('appointments.available-slots');
 Route::get('/appointments/{appointment}/book-again', [AppointmentsController::class, 'bookAgain'])->name('appointments.book-again');
 Route::put('/appointments/{appointment}/notes', [AppointmentsController::class, 'updateNotes'])->name('appointments.update-notes');
@@ -180,6 +181,7 @@ Route::post('/insurance/claims/{claim}/dispute', [InsuranceController::class, 'd
 // Health Records
 Route::get('/health-records', [HealthRecordController::class, 'index'])->name('health-records.index');
 Route::get('/health-records/{record}', [HealthRecordController::class, 'show'])->name('health-records.show');
+Route::post('/health-records/{record}/summary', [HealthRecordController::class, 'generateSummary'])->name('health-records.summary');
 
 // Billing
 Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');
