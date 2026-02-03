@@ -1668,6 +1668,135 @@ Subtitle (Specialization)                    [Book Follow-up] [Share]
 
 ---
 
+## Secure OTP Flow for Link Existing Patient (February 3, 2026)
+
+Implemented secure OTP verification for linking existing hospital patients to user accounts. Addresses security vulnerability where users could enter any email to receive OTP.
+
+### Security Model
+
+**Problem**: Previous implementation allowed users to enter any email address for OTP verification, enabling unauthorized linking of patient records.
+
+**Solution**: OTP is now sent ONLY to the patient's registered contact information stored in the database, not user-provided values.
+
+### Backend Changes (`FamilyMembersController.php`)
+
+**Contact Masking Helpers**:
+```php
+private function maskPhone(?string $phone): ?string
+{
+    // +919876543210 → +91****3210
+    return substr($phone, 0, 3) . '****' . substr($phone, -4);
+}
+
+private function maskEmail(?string $email): ?string
+{
+    // ramesh.kumar@example.com → r***@example.com
+    $parts = explode('@', $email);
+    return substr($parts[0], 0, 1) . '***@' . $parts[1];
+}
+```
+
+**Updated `lookup()` Response**:
+```php
+return [
+    'found' => true,
+    'member_data' => [
+        'id' => $member->id,
+        'name' => $member->name,
+        'masked_phone' => $this->maskPhone($member->phone),
+        'masked_email' => $this->maskEmail($member->email),
+        'has_phone' => !empty($member->phone),
+        'has_email' => !empty($member->email),
+    ],
+];
+```
+
+**Critical Security Fix in `sendOtp()`**:
+```php
+// BEFORE (insecure): Accepted user-provided contact_value
+$validated = $request->validate([
+    'contact_type' => 'required|in:phone,email',
+    'contact_value' => 'required|string',  // User could enter ANY email
+]);
+
+// AFTER (secure): Uses member_id to fetch registered contact from database
+$validated = $request->validate([
+    'member_id' => 'required|integer|exists:family_members,id',
+    'contact_method' => 'required|in:phone,email',
+]);
+$member = FamilyMember::findOrFail($validated['member_id']);
+$contactValue = $contactMethod === 'phone' ? $member->phone : $member->email;
+```
+
+### Frontend Changes (`EmbeddedFamilyMemberFlow.tsx`)
+
+**New Step Type**:
+```typescript
+type Step = 'choice' | 'guest_form' | 'member_details' | 'search'
+          | 'contact_selection'  // NEW: Select phone or email for OTP
+          | 'otp' | 'success';
+```
+
+**Contact Selection UI**:
+- Shows patient card with name and patient ID
+- Radio buttons for available contact methods (phone/email)
+- Displays masked contacts: "+91****5001", "r***@example.com"
+- Disabled option if contact not available
+- "Request Contact Update" link for outdated info
+
+**OTP Step Updates**:
+- Shows "OTP sent to {maskedContact}" header
+- Proper error handling for invalid OTP (stays on step, shows error)
+- "Try {other method}" link if alternative contact available
+
+**Contact Update Modal**:
+- Explains secure contact update process
+- Hospital helpline number: 1800-XXX-XXXX
+- Instructions for in-person ID verification
+
+### Flow Diagram
+
+```
+Search (phone/email/patient_id)
+           ↓
+    Patient Found
+           ↓
+  Contact Selection ← "Request Contact Update" → Modal
+   (radio buttons)
+           ↓
+   Send OTP (to DB contact)
+           ↓
+  Verify OTP → Wrong OTP → Error (stay on step)
+           ↓
+    Link Success
+```
+
+### Bug Fix: Blank Screen on Wrong OTP
+
+**Problem**: Entering incorrect OTP caused blank screen instead of error message.
+
+**Solution**: Updated `handleVerifyOtp()` with proper error handling:
+```typescript
+if (!response.ok || !data.verified) {
+    setState(prev => ({
+        ...prev,
+        error: data.error || 'Invalid OTP. Please try again.',
+        otpValue: '',  // Clear for retry
+        loading: false,
+    }));
+    return;  // Stay on OTP step
+}
+```
+
+### Test Data
+
+Added secondary test user in `HospitalSeeder.php`:
+- Email: `testuser2@example.com`
+- Has 2 linkable patients (Ramesh Kumar, Sunita Devi)
+- Patients have both phone and email for testing both OTP methods
+
+---
+
 **Status**: Production-ready healthcare management platform with AI-powered booking, comprehensive health records, billing, and insurance management.
 
-**Last Updated**: February 3, 2026 — Follow-up booking sheet, past appointment detail UX improvements
+**Last Updated**: February 3, 2026 — Secure OTP flow for Link Existing Patient feature
