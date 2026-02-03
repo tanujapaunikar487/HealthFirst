@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
@@ -7,6 +7,8 @@ import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Textarea } from '@/Components/ui/textarea';
+import { Icon } from '@/Components/ui/icon';
+import { cn } from '@/Lib/utils';
 import {
   Select,
   SelectContent,
@@ -32,7 +34,103 @@ import {
   Trash2,
   Users,
   Check,
+  ClipboardList,
+  Receipt,
 } from '@/Lib/icons';
+
+/* ─── Section Config ─── */
+
+const SECTIONS = [
+  { id: 'details', label: 'Details', icon: ClipboardList },
+  { id: 'members', label: 'Members', icon: Users },
+  { id: 'claims', label: 'Claims', icon: Receipt },
+] as const;
+
+/* ─── Side Navigation ─── */
+
+function SideNav() {
+  const [activeSection, setActiveSection] = useState('details');
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length > 0) {
+          const topmost = visible.reduce((prev, curr) =>
+            prev.boundingClientRect.top < curr.boundingClientRect.top ? prev : curr
+          );
+          setActiveSection(topmost.target.id);
+        }
+      },
+      { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
+    );
+
+    SECTIONS.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  return (
+    <div className="w-48 flex-shrink-0 hidden lg:block">
+      <div className="sticky top-6 space-y-1">
+        {SECTIONS.map(({ id, label, icon: SectionIcon }) => {
+          const isActive = activeSection === id;
+          return (
+            <button
+              key={id}
+              onClick={() => scrollTo(id)}
+              className={cn(
+                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full',
+                isActive ? '' : 'text-[#0A0B0D] hover:bg-muted'
+              )}
+              style={isActive ? { backgroundColor: '#F5F8FF', color: '#0052FF' } : {}}
+            >
+              <Icon icon={SectionIcon} className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">{label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Section Wrapper ─── */
+
+function Section({
+  id,
+  title,
+  icon: SectionIcon,
+  noPadding,
+  children,
+}: {
+  id: string;
+  title: string;
+  icon: React.ElementType;
+  noPadding?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div id={id} className="scroll-mt-24">
+      <div className="flex items-center gap-2.5 mb-4">
+        <Icon icon={SectionIcon} className="h-5 w-5 text-muted-foreground" />
+        <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+          {title}
+        </h2>
+      </div>
+      <Card className={noPadding ? '' : 'p-6'}>
+        {children}
+      </Card>
+    </div>
+  );
+}
 
 interface PolicyDetail {
   id: number;
@@ -170,7 +268,7 @@ function getStatusBadge(status: string) {
 
 function InsuranceShowSkeleton() {
   return (
-    <div className="mx-auto max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+    <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
       <Pulse className="h-4 w-24 mb-6" />
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
@@ -309,7 +407,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
 
   return (
     <AppLayout pageTitle="Insurance" pageIcon="insurance">
-      <div className="mx-auto max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+      <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
         {/* Back link */}
         <button
           onClick={() => router.visit('/insurance')}
@@ -350,7 +448,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
 
         {/* Expiry warning */}
         {policy.is_expiring_soon && (
-          <div className="mb-6 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+          <div className="mb-8 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
             <AlertTriangle className="h-4 w-4 flex-shrink-0 text-amber-600" />
             <div>
               <p className="text-sm font-semibold text-amber-800">
@@ -363,11 +461,14 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
           </div>
         )}
 
+        {/* Main Content with Side Nav */}
+        <div className="flex gap-8">
+          <SideNav />
+          <div className="flex-1 min-w-0 space-y-8 pb-12">
+
         {/* Policy Details */}
-        <h2 className="text-sm font-semibold text-gray-900 mb-3">Policy Details</h2>
-        <Card className="mb-6 p-0">
-          <div className="px-5 py-4">
-            <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+        <Section id="details" title="Policy Details" icon={ClipboardList}>
+          <div className="grid grid-cols-2 gap-x-8 gap-y-4">
               <div>
                 <p className="text-xs font-medium text-gray-500">Policy Number</p>
                 <p className="mt-1 text-sm font-semibold text-gray-900">{policy.policy_number}</p>
@@ -417,48 +518,43 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                 </div>
               )}
             </div>
-          </div>
-        </Card>
+        </Section>
 
         {/* Covered Members */}
-        <div className="mb-6">
-          <h2 className="text-sm font-semibold text-gray-900 mb-3">Covered Members</h2>
+        <Section id="members" title="Covered Members" icon={Users}>
           {coveredMembers.length > 0 ? (
-            <Card className="p-0">
-              <div className="px-5 py-4">
-              <div className="flex flex-wrap gap-3">
-                {coveredMembers.map((member) => {
-                  const color = getAvatarColor(member.name);
-                  return (
+            <div className="flex flex-wrap gap-3">
+              {coveredMembers.map((member) => {
+                const color = getAvatarColor(member.name);
+                return (
+                  <div
+                    key={member.id}
+                    className="flex items-center gap-2.5 rounded-full border px-3 py-1.5"
+                  >
                     <div
-                      key={member.id}
-                      className="flex items-center gap-2.5 rounded-full border px-3 py-1.5"
+                      className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-semibold"
+                      style={{ backgroundColor: color.bg, color: color.text }}
                     >
-                      <div
-                        className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-semibold"
-                        style={{ backgroundColor: color.bg, color: color.text }}
-                      >
-                        {getMemberInitials(member.name)}
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">{member.name}</span>
+                      {getMemberInitials(member.name)}
                     </div>
-                  );
-                })}
-              </div>
+                    <span className="text-sm font-medium text-gray-900">{member.name}</span>
+                  </div>
+                );
+              })}
             </div>
-          </Card>
           ) : (
             <EmptyState icon={Users} message="No covered members" description="Add family members to this policy" />
           )}
-        </div>
+        </Section>
 
         {/* Claims at This Hospital */}
-        <div>
-          <h2 className="mb-4 text-sm font-semibold text-gray-500">Claims at This Hospital</h2>
+        <Section id="claims" title="Claims at This Hospital" icon={Receipt} noPadding>
           {claims.length === 0 ? (
-            <EmptyState icon={FileText} message="No claims yet" description="Claims filed at this hospital will appear here" />
+            <div className="p-6">
+              <EmptyState icon={FileText} message="No claims yet" description="Claims filed at this hospital will appear here" />
+            </div>
           ) : (
-            <Card className="divide-y p-0">
+            <div className="divide-y">
               {claims.map((claim) => (
                 <button
                   key={claim.id}
@@ -481,9 +577,12 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                   <ChevronRight className="ml-3 h-4 w-4 flex-shrink-0 text-gray-400" />
                 </button>
               ))}
-            </Card>
+            </div>
           )}
-        </div>
+        </Section>
+
+          </div>{/* End flex-1 */}
+        </div>{/* End flex container */}
       </div>
 
       {/* Pre-Auth Sheet */}

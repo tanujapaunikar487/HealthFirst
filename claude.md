@@ -2041,6 +2041,44 @@ Standardized page container widths and bottom padding across all pages.
 
 ---
 
+## Unified "Add Member" Feature Across All Booking Flows (February 3, 2026)
+
+Unified the family member/guest addition flow across all booking entry points to provide consistent UX.
+
+### Problem
+- **Family Members Tab** (`FamilyMembers/Index.tsx`): Full 3-option flow with OTP verification ✅
+- **AI Booking Chat** (`Booking/Conversation.tsx`): Full 3-option flow ✅
+- **Doctor Guided Booking** (`Booking/Doctor/PatientStep.tsx`): Simple 4-field inline form ❌
+- **Lab Guided Booking** (`Booking/Lab/PatientStep.tsx`): Non-functional button ❌
+
+### Solution
+Added `guided` mode to `EmbeddedFamilyMemberFlow` component and integrated it into both guided booking flows.
+
+### Mode Behavior Matrix
+
+| Mode | Rendering | On Complete |
+|------|-----------|-------------|
+| `embedded` | Inline (chat flow) | `onComplete` callback |
+| `standalone` | Sheet (Family Members page) | `router.reload` + close |
+| `guided` (NEW) | Sheet (Guided booking) | `onComplete` callback |
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `EmbeddedFamilyMemberFlow.tsx` | Added `guided` mode that uses Sheet styling but fires `onComplete` callback |
+| `Booking/Doctor/PatientStep.tsx` | Replaced 4-field inline form with Sheet + EmbeddedFamilyMemberFlow (~200 lines removed) |
+| `Booking/Lab/PatientStep.tsx` | Added Sheet + EmbeddedFamilyMemberFlow (button was non-functional before) |
+
+### Features Now Available in All Flows
+- **3 Options**: Guest, Add New Family Member, Link Existing Patient
+- **Full Fields**: Name, phone, DOB, age, gender, email, blood group
+- **Phone Auto-Detection**: Detects existing hospital patients
+- **OTP Verification**: Secure linking for existing patients
+- **Masked Contacts**: Privacy protection for patient data
+
+---
+
 **Status**: Production-ready healthcare management platform with AI-powered booking, comprehensive health records, billing, and insurance management.
 
-**Last Updated**: February 3, 2026 — Settings full functionality, page container standardization (960px width, 80px bottom padding)
+**Last Updated**: February 3, 2026 — Unified "Add Member" feature across all booking flows

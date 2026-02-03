@@ -98,7 +98,7 @@ interface FlowState {
 }
 
 interface Props {
-    mode?: 'embedded' | 'standalone';
+    mode?: 'embedded' | 'standalone' | 'guided';
     onComplete: (data: {
         member_type: 'guest' | 'family';
         member_id?: number;
@@ -856,7 +856,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         }
     };
 
-    if (mode === 'standalone') {
+    if (mode === 'standalone' || mode === 'guided') {
         return (
             <div className="flex flex-col h-full">
                 {state.step !== 'success' && (
@@ -878,8 +878,6 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     {/* Step Content - standalone renders buttons in footer */}
                     {state.step === 'choice' && (
                         <div className="space-y-4">
-                            <h3 className="text-lg font-semibold">Add New Person</h3>
-                            <p className="text-sm text-muted-foreground">Choose how you'd like to add this person</p>
                             <div className="grid gap-3">
                                 <button onClick={() => handleInitialChoice('add_new_family')} className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
                                     <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center"><Users className="h-6 w-6" /></div>
@@ -900,7 +898,6 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     {state.step === 'guest_form' && (
                         <div className="space-y-6">
                             <div className="space-y-4">
-                                <div className="flex items-center gap-2"><div className="h-px flex-1 bg-border"></div><span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Required Information</span><div className="h-px flex-1 bg-border"></div></div>
                                 <div className="space-y-2">
                                     <label htmlFor="guest_name_s" className="block text-sm font-medium text-foreground">Name <span className="text-destructive">*</span></label>
                                     <Input id="guest_name_s" value={state.guestName} onChange={(e) => setState((prev) => ({ ...prev, guestName: e.target.value }))} placeholder="Enter guest name" autoFocus />
@@ -911,7 +908,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 </div>
                             </div>
                             <div className="space-y-4">
-                                <div className="flex items-center gap-2"><div className="h-px flex-1 bg-border"></div><span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Optional Details</span><div className="h-px flex-1 bg-border"></div></div>
+                                <p className="text-xs text-muted-foreground uppercase tracking-wide pt-2">Optional</p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div className="space-y-2">
                                         <label htmlFor="guest_dob_s" className="block text-sm font-medium text-foreground">Date of Birth</label>
@@ -940,15 +937,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         <div className="space-y-6">
                             {/* Essential Information Section */}
                             <div className="space-y-4">
-                                <div className="flex items-center gap-2">
-                                    <div className="h-px flex-1 bg-border"></div>
-                                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                                        Relationship & Contact
-                                    </span>
-                                    <div className="h-px flex-1 bg-border"></div>
-                                </div>
-
-                                {/* Relationship dropdown - MOVED HERE */}
+                                {/* Relationship dropdown */}
                                 <div className="space-y-2">
                                     <label htmlFor="relationship_s" className="block text-sm font-medium text-foreground">
                                         Relationship <span className="text-destructive">*</span>
@@ -1009,15 +998,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                             {/* Optional Details Section */}
                             <div className="space-y-4">
-                                <div className="flex items-center gap-2">
-                                    <div className="h-px flex-1 bg-border"></div>
-                                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                                        Optional Details (Recommended)
-                                    </span>
-                                    <div className="h-px flex-1 bg-border"></div>
-                                </div>
-
-                                <p className="text-xs text-muted-foreground">Help us serve them better</p>
+                                <p className="text-xs text-muted-foreground uppercase tracking-wide pt-2">Optional</p>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div className="space-y-2">
@@ -1476,12 +1457,6 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     {/* Required Information */}
                     <div className="space-y-4">
-                        <div className="flex items-center gap-2">
-                            <div className="h-px flex-1 bg-border"></div>
-                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Required Information</span>
-                            <div className="h-px flex-1 bg-border"></div>
-                        </div>
-
                         <div className="space-y-2">
                             <label htmlFor="guest_name" className="block text-sm font-medium text-foreground">
                                 Name <span className="text-destructive">*</span>
@@ -1509,11 +1484,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     {/* Optional Details */}
                     <div className="space-y-4">
-                        <div className="flex items-center gap-2">
-                            <div className="h-px flex-1 bg-border"></div>
-                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Optional Details</span>
-                            <div className="h-px flex-1 bg-border"></div>
-                        </div>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide pt-2">Optional</p>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div className="space-y-2">
@@ -1590,17 +1561,9 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     <h3 className="text-lg font-semibold">Add Family Member</h3>
                     <p className="text-sm text-muted-foreground">Add a new family member to your account</p>
 
-                    {/* SECTION 1: Relationship & Contact */}
+                    {/* SECTION 1: Required Fields */}
                     <div className="space-y-4">
-                        <div className="flex items-center gap-2">
-                            <div className="h-px flex-1 bg-border"></div>
-                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                                Relationship & Contact
-                            </span>
-                            <div className="h-px flex-1 bg-border"></div>
-                        </div>
-
-                        {/* Relationship dropdown - MOVED HERE */}
+                        {/* Relationship dropdown */}
                         <div className="space-y-2">
                             <label htmlFor="relationship" className="block text-sm font-medium text-foreground">
                                 Relationship <span className="text-destructive">*</span>
@@ -1694,15 +1657,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     {/* Optional Details Section */}
                     <div className="space-y-4">
-                        <div className="flex items-center gap-2">
-                            <div className="h-px flex-1 bg-border"></div>
-                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                                Optional Details (Recommended)
-                            </span>
-                            <div className="h-px flex-1 bg-border"></div>
-                        </div>
-
-                        <p className="text-xs text-muted-foreground">Help us serve them better</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide pt-2">Optional</p>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div className="space-y-2">

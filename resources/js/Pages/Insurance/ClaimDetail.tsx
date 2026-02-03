@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
@@ -7,6 +7,8 @@ import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Toast } from '@/Components/ui/toast';
 import { EmptyState } from '@/Components/ui/empty-state';
+import { Icon } from '@/Components/ui/icon';
+import { cn } from '@/Lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,7 +36,114 @@ import {
   Baby,
   Microscope,
   Siren,
+  Link2,
+  IndianRupee,
+  FolderOpen,
 } from '@/Lib/icons';
+
+/* ─── Section Config ─── */
+
+const SECTIONS = [
+  { id: 'overview', label: 'Overview', icon: ClipboardList },
+  { id: 'linked', label: 'Linked', icon: Link2 },
+  { id: 'financial', label: 'Financial', icon: IndianRupee },
+  { id: 'documents', label: 'Documents', icon: FolderOpen },
+  { id: 'timeline', label: 'Timeline', icon: Clock },
+] as const;
+
+/* ─── Side Navigation ─── */
+
+function SideNav({ hasFinancial }: { hasFinancial: boolean }) {
+  const [activeSection, setActiveSection] = useState('overview');
+  const visibleSections = hasFinancial
+    ? SECTIONS
+    : SECTIONS.filter((s) => s.id !== 'financial');
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length > 0) {
+          const topmost = visible.reduce((prev, curr) =>
+            prev.boundingClientRect.top < curr.boundingClientRect.top ? prev : curr
+          );
+          setActiveSection(topmost.target.id);
+        }
+      },
+      { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
+    );
+
+    visibleSections.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [visibleSections]);
+
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  return (
+    <div className="w-48 flex-shrink-0 hidden lg:block">
+      <div className="sticky top-6 space-y-1">
+        {visibleSections.map(({ id, label, icon: SectionIcon }) => {
+          const isActive = activeSection === id;
+          return (
+            <button
+              key={id}
+              onClick={() => scrollTo(id)}
+              className={cn(
+                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full',
+                isActive ? '' : 'text-[#0A0B0D] hover:bg-muted'
+              )}
+              style={isActive ? { backgroundColor: '#F5F8FF', color: '#0052FF' } : {}}
+            >
+              <Icon icon={SectionIcon} className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">{label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Section Wrapper ─── */
+
+function Section({
+  id,
+  title,
+  icon: SectionIcon,
+  action,
+  noPadding,
+  children,
+}: {
+  id: string;
+  title: string;
+  icon: React.ElementType;
+  action?: React.ReactNode;
+  noPadding?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div id={id} className="scroll-mt-24">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2.5">
+          <Icon icon={SectionIcon} className="h-5 w-5 text-muted-foreground" />
+          <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+            {title}
+          </h2>
+        </div>
+        {action}
+      </div>
+      <Card className={noPadding ? '' : 'p-6'}>
+        {children}
+      </Card>
+    </div>
+  );
+}
 
 // --- Interfaces ---
 
@@ -548,7 +657,7 @@ function TimelineEventRow({
 
 function ClaimDetailSkeleton() {
   return (
-    <div className="mx-auto max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+    <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
       <Pulse className="h-4 w-24 mb-6" />
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -746,7 +855,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         </div>
       </div>
 
-      <div className="mx-auto max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+      <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
         {/* Breadcrumb */}
         <div className="mb-6 flex items-center gap-1.5 text-sm text-gray-500">
           <button
@@ -811,7 +920,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         </div>
 
         {/* Status Banner */}
-        <div className={`mb-6 rounded-xl border px-4 py-3 ${banner.bg} ${banner.border}`}>
+        <div className={`mb-8 rounded-xl border px-4 py-3 ${banner.bg} ${banner.border}`}>
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-2.5 min-w-0">
               <div
@@ -875,11 +984,13 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           </div>
         </div>
 
-        {/* Overview Card */}
-        <Card className="mb-6 p-0">
-          <div className="border-b px-5 py-3.5" style={{ backgroundColor: '#FAFAFA' }}>
-            <h2 className="text-sm font-semibold text-gray-900">Overview</h2>
-          </div>
+        {/* Main Content with Side Nav */}
+        <div className="flex gap-8">
+          <SideNav hasFinancial={!!fin} />
+          <div className="flex-1 min-w-0 space-y-8 pb-12">
+
+        {/* Overview Section */}
+        <Section id="overview" title="Overview" icon={ClipboardList} noPadding>
           <div className="divide-y">
             {/* Patient */}
             <div className="flex items-center gap-4 px-5 py-3.5">
@@ -992,13 +1103,11 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               </div>
             )}
           </div>
-        </Card>
+        </Section>
 
         {/* Linked Section */}
-        <Card className="mb-6 divide-y p-0">
-          <div className="border-b px-5 py-3.5" style={{ backgroundColor: '#FAFAFA' }}>
-            <h2 className="text-sm font-semibold text-gray-900">Linked</h2>
-          </div>
+        <Section id="linked" title="Linked" icon={Link2} noPadding>
+          <div className="divide-y">
 
           {/* Original Policy (if transferred) */}
           {claim.original_policy_id && claim.original_policy_plan_name && (
@@ -1079,30 +1188,13 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               <ChevronRight className="h-4 w-4 flex-shrink-0 text-gray-400" />
             </button>
           )}
-
-        </Card>
+          </div>
+        </Section>
 
         {/* Financial Summary */}
         {fin && (
-          <div className="mb-6">
-            <button
-              className="mb-3 flex w-full items-center justify-between md:cursor-default"
-              onClick={() => toggleSection('financial')}
-            >
-              <h2 className="text-base font-bold text-gray-900">Financial Summary</h2>
-              <div className="flex items-center gap-2">
-                {collapsedSections.has('financial') && financialPreview && (
-                  <span className="text-sm font-bold text-green-700 md:hidden">{financialPreview}</span>
-                )}
-                <ChevronDown
-                  className={`h-4 w-4 text-gray-400 transition-transform md:hidden ${
-                    collapsedSections.has('financial') ? '-rotate-90' : ''
-                  }`}
-                />
-              </div>
-            </button>
-            <div className={collapsedSections.has('financial') ? 'hidden md:block' : ''}>
-              <Card className="divide-y p-0 overflow-hidden">
+          <Section id="financial" title="Financial Summary" icon={IndianRupee} noPadding>
+            <div className="divide-y">
                 {fin.preauth_requested != null && (
                   <div className="flex items-center justify-between px-5 py-3.5">
                     <span className="text-sm text-gray-600">
@@ -1266,107 +1358,89 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                     </span>
                   </div>
                 )}
-              </Card>
             </div>
-          </div>
+          </Section>
         )}
 
-        {/* Documents */}
-        <Card className="mb-6 p-0">
-          <button
-            className="flex w-full items-center justify-between border-b px-5 py-3.5 md:cursor-default"
-            style={{ backgroundColor: '#FAFAFA' }}
-            onClick={() => toggleSection('documents')}
-          >
-            <h2 className="text-sm font-semibold text-gray-900">Documents</h2>
-            <div className="flex items-center gap-2">
-              {claim.documents.length > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="hidden md:inline-flex h-7 text-xs"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const docList = claim.documents.map(d => `<div class="row"><span class="row-label">${d.type}</span><span class="row-value">${d.date}</span></div>`).join('');
-                    downloadAsHtml(`claim-documents-${claim.claim_reference}.html`, `
-                      <h1>Claim Documents</h1>
-                      <p class="subtitle">${claim.claim_reference} &middot; ${claim.treatment_name}</p>
-                      <h2>Documents</h2>
-                      ${docList}
-                      <p style="margin-top:16px;font-size:12px;color:#6b7280">In production, actual document files would be downloaded here.</p>
+        {/* Documents Section */}
+        <Section
+          id="documents"
+          title="Documents"
+          icon={FolderOpen}
+          noPadding
+          action={
+            claim.documents.length > 0 ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs"
+                onClick={() => {
+                  const docList = claim.documents.map(d => `<div class="row"><span class="row-label">${d.type}</span><span class="row-value">${d.date}</span></div>`).join('');
+                  downloadAsHtml(`claim-documents-${claim.claim_reference}.html`, `
+                    <h1>Claim Documents</h1>
+                    <p class="subtitle">${claim.claim_reference} &middot; ${claim.treatment_name}</p>
+                    <h2>Documents</h2>
+                    ${docList}
+                    <p style="margin-top:16px;font-size:12px;color:#6b7280">In production, actual document files would be downloaded here.</p>
+                  `);
+                }}
+              >
+                <Download className="h-3.5 w-3.5" />
+                Download All
+              </Button>
+            ) : undefined
+          }
+        >
+          {claim.documents.length === 0 ? (
+            <div className="p-6">
+              <EmptyState icon={FileText} message="No documents uploaded" description="Upload supporting documents for this claim" />
+            </div>
+          ) : (
+            <div className="divide-y">
+              {claim.documents.map((doc, idx) => (
+                <button
+                  key={idx}
+                  className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-gray-50"
+                  onClick={() => {
+                    downloadAsHtml(`${doc.type.replace(/\s+/g, '-').toLowerCase()}-${claim.claim_reference}.html`, `
+                      <h1>${doc.type}</h1>
+                      <p class="subtitle">${claim.claim_reference} &middot; ${doc.date}</p>
+                      <p>Document: ${doc.filename ?? doc.type}</p>
+                      <p style="margin-top:16px;font-size:12px;color:#6b7280">In production, the actual document file would be downloaded here.</p>
                     `);
                   }}
                 >
-                  <Download className="mr-1.5 h-3.5 w-3.5" />
-                  Download All
-                </Button>
-              )}
-              <ChevronDown
-                className={`h-4 w-4 text-gray-400 transition-transform md:hidden ${
-                  collapsedSections.has('documents') ? '-rotate-90' : ''
-                }`}
-              />
-            </div>
-          </button>
-          <div className={collapsedSections.has('documents') ? 'hidden md:block' : ''}>
-            {claim.documents.length === 0 ? (
-              <EmptyState icon={FileText} message="No documents uploaded" description="Upload supporting documents for this claim" />
-            ) : (
-              <div className="divide-y">
-                {claim.documents.map((doc, idx) => (
-                  <button
-                    key={idx}
-                    className="flex w-full items-center justify-between px-5 py-3 text-left transition-colors hover:bg-gray-50"
-                    onClick={() => {
-                      downloadAsHtml(`${doc.type.replace(/\s+/g, '-').toLowerCase()}-${claim.claim_reference}.html`, `
-                        <h1>${doc.type}</h1>
-                        <p class="subtitle">${claim.claim_reference} &middot; ${doc.date}</p>
-                        <p>Document: ${doc.filename ?? doc.type}</p>
-                        <p style="margin-top:16px;font-size:12px;color:#6b7280">In production, the actual document file would be downloaded here.</p>
-                      `);
-                    }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
-                        <FileText className="h-4 w-4 text-gray-500" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">{doc.type}</p>
-                        <p className="text-xs text-gray-500">{doc.date}</p>
-                      </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                      <FileText className="h-4 w-4 text-gray-500" />
                     </div>
-                    <Download className="h-4 w-4 flex-shrink-0 text-gray-400" />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </Card>
-
-        {/* Timeline */}
-        <Card className="mb-6 p-0">
-          <button
-            className="flex w-full items-center justify-between border-b px-5 py-3.5 md:cursor-default"
-            style={{ backgroundColor: '#FAFAFA' }}
-            onClick={() => toggleSection('timeline')}
-          >
-            <h2 className="text-sm font-semibold text-gray-900">Timeline</h2>
-            <div className="flex items-center gap-2">
-              {lastUpdatedDate && (
-                <span className="hidden md:inline text-xs text-gray-400">
-                  Last Updated: {lastUpdatedDate}
-                </span>
-              )}
-              <ChevronDown
-                className={`h-4 w-4 text-gray-400 transition-transform md:hidden ${
-                  collapsedSections.has('timeline') ? '-rotate-90' : ''
-                }`}
-              />
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{doc.type}</p>
+                      <p className="text-xs text-gray-500">{doc.date}</p>
+                    </div>
+                  </div>
+                  <Download className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                </button>
+              ))}
             </div>
-          </button>
-          <div className={collapsedSections.has('timeline') ? 'hidden md:block' : ''}>
-            {claim.timeline.length === 0 ? (
+          )}
+        </Section>
+
+        {/* Timeline Section */}
+        <Section
+          id="timeline"
+          title="Timeline"
+          icon={Clock}
+          action={
+            lastUpdatedDate ? (
+              <span className="text-xs text-gray-400">Last Updated: {lastUpdatedDate}</span>
+            ) : undefined
+          }
+        >
+          {claim.timeline.length === 0 ? (
+            <div className="p-6">
               <EmptyState icon={Clock} message="No timeline events" />
+            </div>
             ) : (
               <div className="px-5 py-4">
                 {/* Last updated on mobile */}
@@ -1430,80 +1504,10 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 )}
               </div>
             )}
-          </div>
-        </Card>
+        </Section>
 
-        {/* Actions */}
-        <div className="flex flex-wrap items-center gap-3">
-          {claim.status === 'partially_approved' && (
-            <>
-              <Button onClick={() => {
-                if (confirm('Accept the partially approved amount?')) {
-                  router.post(`/insurance/claims/${claim.id}/accept`, {}, {
-                    onSuccess: () => toast('Claim accepted successfully'),
-                    onError: () => toast('Failed to accept claim'),
-                  });
-                }
-              }}>Accept</Button>
-              <Button variant="outline" onClick={() => {
-                router.post(`/insurance/claims/${claim.id}/enhancement`, {}, {
-                  onSuccess: () => toast('Enhancement request submitted'),
-                  onError: () => toast('Failed to submit enhancement request'),
-                });
-              }}>
-                Request Enhancement
-              </Button>
-            </>
-          )}
-          {claim.status === 'rejected' && (
-            <Button onClick={() => router.visit('/insurance')}>
-              Try Different Policy
-            </Button>
-          )}
-          {claim.status === 'expired' && (
-            <Button onClick={() => {
-              router.post(`/insurance/claims/${claim.id}/new-preauth`, {}, {
-                onSuccess: () => toast('New pre-authorization request submitted'),
-                onError: () => toast('Failed to submit request'),
-              });
-            }}>
-              Request New Pre-Auth
-            </Button>
-          )}
-          {claim.status === 'enhancement_required' && (
-            <Button onClick={() => {
-              document.getElementById('financial')?.scrollIntoView({ behavior: 'smooth' });
-            }}>
-              View Enhancement Details
-            </Button>
-          )}
-          {claim.status === 'settled' && (
-            <Button variant="outline" onClick={() => {
-              if (confirm('Are you sure you want to raise a dispute for this settled claim?')) {
-                router.post(`/insurance/claims/${claim.id}/dispute`, {}, {
-                  onSuccess: () => toast('Dispute submitted successfully'),
-                  onError: () => toast('Failed to submit dispute'),
-                });
-              }
-            }}>
-              Raise Dispute
-            </Button>
-          )}
-          {claim.documents.length > 0 && (
-            <Button variant="outline" onClick={() => {
-              const docList = claim.documents.map(d => `<div class="row"><span class="row-label">${d.type}</span><span class="row-value">${d.date}</span></div>`).join('');
-              downloadAsHtml(`claim-documents-${claim.claim_reference}.html`, `
-                <h1>Claim Documents</h1>
-                <p class="subtitle">${claim.claim_reference} &middot; ${claim.treatment_name}</p>
-                <h2>Documents</h2>
-                ${docList}
-              `);
-            }}>
-              <Download className="mr-1.5 h-4 w-4" />
-              Download Documents
-            </Button>
-          )}
-        </div>
+          </div>{/* End of flex-1 content area */}
+        </div>{/* End of flex container */}
       </div>
 
       <Toast message={toastMessage} show={showToast} onHide={() => setShowToast(false)} />

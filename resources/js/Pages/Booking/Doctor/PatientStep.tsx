@@ -4,20 +4,12 @@ import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Card } from '@/Components/ui/card';
 import { Textarea } from '@/Components/ui/textarea';
-import { Button } from '@/Components/ui/button';
 import { FollowUpBanner } from '@/Components/Booking/FollowUpBanner';
+import { Sheet, SheetContent } from '@/Components/ui/sheet';
+import EmbeddedFamilyMemberFlow from '@/Features/booking-chat/embedded/EmbeddedFamilyMemberFlow';
 import { cn } from '@/Lib/utils';
-import { ArrowRight, Star, Calendar, MessageSquare, AlertCircle, UserPlus, X } from '@/Lib/icons';
+import { ArrowRight, Star, Calendar, MessageSquare, AlertCircle } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
-
-const RELATION_OPTIONS = [
-  'mother', 'father', 'brother', 'sister',
-  'son', 'daughter', 'spouse',
-  'grandmother', 'grandfather',
-  'friend', 'other',
-];
-
-const GENDER_OPTIONS = ['male', 'female', 'other'];
 
 const doctorSteps = [
   { id: 'concerns', label: 'Concerns' },
@@ -125,15 +117,9 @@ export default function PatientStep({
   const [showPreviousDoctors, setShowPreviousDoctors] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Add member form state
-  const [showAddMemberForm, setShowAddMemberForm] = useState(false);
+  // Add member sheet state
+  const [showAddMemberSheet, setShowAddMemberSheet] = useState(false);
   const [members, setMembers] = useState(familyMembers);
-  const [newMemberName, setNewMemberName] = useState('');
-  const [newMemberRelation, setNewMemberRelation] = useState('');
-  const [newMemberAge, setNewMemberAge] = useState('');
-  const [newMemberGender, setNewMemberGender] = useState('');
-  const [isAddingMember, setIsAddingMember] = useState(false);
-  const [addMemberErrors, setAddMemberErrors] = useState<Record<string, string>>({});
 
   const selectedPatient = members.find((f) => f.id === patientId);
 
@@ -198,51 +184,23 @@ export default function PatientStep({
     }
   }, [showFollowupNotes, followupNotes, patientPreviousConsultations.length]);
 
-  const handleAddMemberSubmit = async () => {
-    const newErrors: Record<string, string> = {};
-    if (!newMemberName.trim()) newErrors.name = 'Name is required';
-    if (!newMemberRelation) newErrors.relation = 'Please select a relation';
+  const handleMemberAdded = (data: {
+    member_type: 'guest' | 'family';
+    member_id?: number;
+    member_name: string;
+    relation?: string;
+  }) => {
+    const newMember = {
+      id: data.member_id?.toString() || `temp-${Date.now()}`,
+      name: data.member_name,
+      avatar: null,
+      relationship: data.relation ? data.relation.charAt(0).toUpperCase() + data.relation.slice(1) : 'Guest',
+    };
 
-    if (Object.keys(newErrors).length > 0) {
-      setAddMemberErrors(newErrors);
-      return;
-    }
-
-    setIsAddingMember(true);
-    try {
-      const response = await fetch('/booking/doctor/add-family-member', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-        },
-        body: JSON.stringify({
-          name: newMemberName.trim(),
-          relation: newMemberRelation,
-          ...(newMemberAge ? { age: parseInt(newMemberAge, 10) } : {}),
-          ...(newMemberGender ? { gender: newMemberGender } : {}),
-        }),
-      });
-
-      if (!response.ok) throw new Error('Failed to add member');
-
-      const newMember = await response.json();
-      setMembers((prev) => [...prev, newMember]);
-      setPatientId(newMember.id);
-      setShowAddMemberForm(false);
-      setNewMemberName('');
-      setNewMemberRelation('');
-      setNewMemberAge('');
-      setNewMemberGender('');
-      setAddMemberErrors({});
-      // Auto-advance
-      setShowAppointmentType(true);
-    } catch (error) {
-      console.error('Failed to add member:', error);
-      setAddMemberErrors({ submit: 'Failed to add member. Please try again.' });
-    } finally {
-      setIsAddingMember(false);
-    }
+    setMembers((prev) => [...prev, newMember]);
+    setPatientId(newMember.id);
+    setShowAddMemberSheet(false);
+    setShowAppointmentType(true);
   };
 
   const handleSymptomToggle = (symptomId: string) => {
@@ -439,119 +397,12 @@ export default function PatientStep({
           </div>
 
           <button
-            onClick={() => setShowAddMemberForm(!showAddMemberForm)}
+            onClick={() => setShowAddMemberSheet(true)}
             className="mt-3 inline-flex items-center gap-1 text-sm text-foreground hover:text-primary transition-colors"
           >
-            {showAddMemberForm ? (
-              <>
-                Cancel
-                <Icon icon={X} className="h-4 w-4" />
-              </>
-            ) : (
-              <>
-                Add family member or guest
-                <Icon icon={ArrowRight} className="h-4 w-4" />
-              </>
-            )}
+            Add family member or guest
+            <Icon icon={ArrowRight} className="h-4 w-4" />
           </button>
-
-          {showAddMemberForm && (
-            <div className="mt-4 border rounded-xl p-4 space-y-4 max-w-md">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Icon icon={UserPlus} className="h-4 w-4 text-primary" />
-                </div>
-                <h4 className="font-semibold text-sm text-foreground">Add family member or guest</h4>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">
-                  Name <span className="text-destructive">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={newMemberName}
-                  onChange={(e) => { setNewMemberName(e.target.value); setAddMemberErrors((prev) => ({ ...prev, name: '' })); }}
-                  placeholder="Enter full name"
-                  disabled={isAddingMember}
-                  className={cn(
-                    'w-full rounded-lg border border-border bg-background px-3 py-2 text-sm',
-                    'placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary',
-                    addMemberErrors.name && 'border-destructive focus:ring-destructive/20'
-                  )}
-                />
-                {addMemberErrors.name && <p className="text-xs text-destructive">{addMemberErrors.name}</p>}
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">
-                  Relation <span className="text-destructive">*</span>
-                </label>
-                <select
-                  value={newMemberRelation}
-                  onChange={(e) => { setNewMemberRelation(e.target.value); setAddMemberErrors((prev) => ({ ...prev, relation: '' })); }}
-                  disabled={isAddingMember}
-                  className={cn(
-                    'w-full rounded-lg border border-border bg-background px-3 py-2 text-sm',
-                    'focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary',
-                    !newMemberRelation && 'text-muted-foreground',
-                    addMemberErrors.relation && 'border-destructive focus:ring-destructive/20'
-                  )}
-                >
-                  <option value="">Select relation</option>
-                  {RELATION_OPTIONS.map((r) => (
-                    <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
-                  ))}
-                </select>
-                {addMemberErrors.relation && <p className="text-xs text-destructive">{addMemberErrors.relation}</p>}
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground">Age</label>
-                  <input
-                    type="number"
-                    value={newMemberAge}
-                    onChange={(e) => setNewMemberAge(e.target.value)}
-                    placeholder="Optional"
-                    min="0"
-                    max="120"
-                    disabled={isAddingMember}
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground">Gender</label>
-                  <select
-                    value={newMemberGender}
-                    onChange={(e) => setNewMemberGender(e.target.value)}
-                    disabled={isAddingMember}
-                    className={cn(
-                      'w-full rounded-lg border border-border bg-background px-3 py-2 text-sm',
-                      'focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary',
-                      !newMemberGender && 'text-muted-foreground'
-                    )}
-                  >
-                    <option value="">Optional</option>
-                    {GENDER_OPTIONS.map((g) => (
-                      <option key={g} value={g}>{g.charAt(0).toUpperCase() + g.slice(1)}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {addMemberErrors.submit && <p className="text-xs text-destructive">{addMemberErrors.submit}</p>}
-
-              <Button
-                onClick={handleAddMemberSubmit}
-                disabled={isAddingMember}
-                className="w-full"
-                size="sm"
-              >
-                {isAddingMember ? 'Adding...' : 'Add & Continue'}
-              </Button>
-            </div>
-          )}
 
           {errors.patient && (
             <p className="text-sm text-destructive mt-2">{errors.patient}</p>
@@ -741,6 +592,17 @@ export default function PatientStep({
         )}
 
       </div>
+
+      {/* Add Family Member Sheet */}
+      <Sheet open={showAddMemberSheet} onOpenChange={setShowAddMemberSheet}>
+        <SheetContent>
+          <EmbeddedFamilyMemberFlow
+            mode="guided"
+            onComplete={handleMemberAdded}
+            onCancel={() => setShowAddMemberSheet(false)}
+          />
+        </SheetContent>
+      </Sheet>
     </GuidedBookingLayout>
   );
 }

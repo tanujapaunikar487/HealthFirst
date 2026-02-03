@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
+import { Sheet, SheetContent } from '@/Components/ui/sheet';
+import EmbeddedFamilyMemberFlow from '@/Features/booking-chat/embedded/EmbeddedFamilyMemberFlow';
 import { ArrowRight } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { cn } from '@/Lib/utils';
@@ -30,9 +32,29 @@ interface Props {
 export default function PatientStep({ familyMembers, savedData }: Props) {
   const [patientId, setPatientId] = useState<string | null>(savedData?.patientId || null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showAddMemberSheet, setShowAddMemberSheet] = useState(false);
+  const [members, setMembers] = useState(familyMembers);
 
   const handleBack = () => {
     router.get('/booking');
+  };
+
+  const handleMemberAdded = (data: {
+    member_type: 'guest' | 'family';
+    member_id?: number;
+    member_name: string;
+    relation?: string;
+  }) => {
+    const newMember = {
+      id: data.member_id?.toString() || `temp-${Date.now()}`,
+      name: data.member_name,
+      avatar: null,
+      relationship: data.relation ? data.relation.charAt(0).toUpperCase() + data.relation.slice(1) : 'Guest',
+    };
+
+    setMembers((prev) => [...prev, newMember]);
+    setPatientId(newMember.id);
+    setShowAddMemberSheet(false);
   };
 
   const handleContinue = () => {
@@ -60,7 +82,7 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
           </p>
 
           <div className="grid grid-cols-2 gap-3">
-            {familyMembers.map((member) => (
+            {members.map((member) => (
               <button
                 key={member.id}
                 onClick={() => setPatientId(member.id)}
@@ -81,7 +103,10 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
             ))}
           </div>
 
-          <button className="mt-3 inline-flex items-center gap-1 text-sm text-foreground hover:text-primary transition-colors">
+          <button
+            onClick={() => setShowAddMemberSheet(true)}
+            className="mt-3 inline-flex items-center gap-1 text-sm text-foreground hover:text-primary transition-colors"
+          >
             Add family member or guest
             <Icon icon={ArrowRight} className="h-4 w-4" />
           </button>
@@ -89,6 +114,17 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
           {errors.patient && <p className="text-sm text-destructive mt-2">{errors.patient}</p>}
         </section>
       </div>
+
+      {/* Add Family Member Sheet */}
+      <Sheet open={showAddMemberSheet} onOpenChange={setShowAddMemberSheet}>
+        <SheetContent>
+          <EmbeddedFamilyMemberFlow
+            mode="guided"
+            onComplete={handleMemberAdded}
+            onCancel={() => setShowAddMemberSheet(false)}
+          />
+        </SheetContent>
+      </Sheet>
     </GuidedBookingLayout>
   );
 }

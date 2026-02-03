@@ -664,7 +664,7 @@ export default function InsuranceIndex({
 
   return (
     <AppLayout pageTitle="Insurance" pageIcon="insurance">
-      <div className="mx-auto max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+      <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <h1
