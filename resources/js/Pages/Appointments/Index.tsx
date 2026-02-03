@@ -58,6 +58,7 @@ import {
 import { Icon } from '@/Components/ui/icon';
 import {
   DetailsSheet,
+  CancelledDetailsSheet,
   CancelSheet,
   RescheduleSheet,
   type Appointment,
@@ -414,6 +415,12 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
               onAction={handleAction}
             />
           )}
+          {sheetView?.type === 'cancelled_details' && (
+            <CancelledDetailsSheet
+              appointment={sheetView.appointment}
+              onAction={handleAction}
+            />
+          )}
           {sheetView?.type === 'cancel' && (
             <CancelSheet
               appointment={sheetView.appointment}
@@ -486,12 +493,22 @@ function AppointmentsTable({
         </TableHeader>
         <TableBody>
           {appointments.map((appt) => {
+            // Upcoming: no row click (use dropdown for sheet)
+            // Past: click navigates to full page
+            // Cancelled: click opens side sheet
+            const handleRowClick = () => {
+              if (tab === 'past') {
+                router.visit(`/appointments/${appt.id}`);
+              } else if (tab === 'cancelled') {
+                onAction({ type: 'cancelled_details', appointment: appt });
+              }
+            };
             const clickable = tab !== 'upcoming';
             return (
             <TableRow
               key={appt.id}
               className={clickable ? 'cursor-pointer' : ''}
-              onClick={clickable ? () => router.visit(`/appointments/${appt.id}`) : undefined}
+              onClick={clickable ? handleRowClick : undefined}
             >
               <TableCell className="align-top">
                 <p className="text-sm font-medium">{appt.date_formatted}</p>
@@ -580,22 +597,16 @@ function ActionsMenu({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem
-          className="gap-2 cursor-pointer"
-          onClick={() => {
-            if (tab === 'upcoming') {
-              onAction({ type: 'details', appointment });
-            } else {
-              router.visit(`/appointments/${appointment.id}`);
-            }
-          }}
-        >
-          <Icon icon={Eye} className="h-4 w-4" />
-          View Details
-        </DropdownMenuItem>
-
+        {/* Upcoming: View Details opens side sheet, then actions */}
         {tab === 'upcoming' && (
           <>
+            <DropdownMenuItem
+              className="gap-2 cursor-pointer"
+              onClick={() => onAction({ type: 'details', appointment })}
+            >
+              <Icon icon={Eye} className="h-4 w-4" />
+              View Details
+            </DropdownMenuItem>
             <DropdownMenuItem
               className="gap-2 cursor-pointer"
               onClick={() => onAction({ type: 'reschedule', appointment })}
@@ -621,8 +632,16 @@ function ActionsMenu({
           </>
         )}
 
+        {/* Past: View Details navigates to full page */}
         {tab === 'past' && (
           <>
+            <DropdownMenuItem
+              className="gap-2 cursor-pointer"
+              onClick={() => router.visit(`/appointments/${appointment.id}`)}
+            >
+              <Icon icon={Eye} className="h-4 w-4" />
+              View Details
+            </DropdownMenuItem>
             <DropdownMenuItem
               className="gap-2 cursor-pointer"
               onClick={() => onAction({ type: 'share', appointment })}
@@ -643,15 +662,24 @@ function ActionsMenu({
         )}
 
         {tab === 'cancelled' && (
-          <DropdownMenuItem
-            className="gap-2 cursor-pointer"
-            onClick={() => {
-              window.location.href = `/appointments/${appointment.id}/book-again`;
-            }}
-          >
-            <Icon icon={RotateCcw} className="h-4 w-4" />
-            Book Again
-          </DropdownMenuItem>
+          <>
+            <DropdownMenuItem
+              className="gap-2 cursor-pointer"
+              onClick={() => onAction({ type: 'cancelled_details', appointment })}
+            >
+              <Icon icon={Eye} className="h-4 w-4" />
+              View Details
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="gap-2 cursor-pointer"
+              onClick={() => {
+                window.location.href = `/appointments/${appointment.id}/book-again`;
+              }}
+            >
+              <Icon icon={RotateCcw} className="h-4 w-4" />
+              Book Again
+            </DropdownMenuItem>
+          </>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

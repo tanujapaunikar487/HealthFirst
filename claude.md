@@ -1524,6 +1524,150 @@ Comprehensive UX redesign of all three family member flows (Guest, New Family Me
 
 ---
 
+## Empty States & Loading States — Platform-Wide (February 3, 2026)
+
+### Shared Components Created
+- **`Components/ui/empty-state.tsx`** (NEW): Reusable `EmptyState` component with dashed border, centered icon (muted), message, optional description, and optional action slot
+- **`Components/ui/skeleton.tsx`**: Added `SheetSkeleton` (header + configurable content lines) and `CardSkeleton` components; `Pulse` signature changed to `React.HTMLAttributes<HTMLDivElement>` for key prop support
+
+### Empty States Added
+- **Appointments/Show.tsx**: Vitals, prescriptions, clinical summary sections always render with `EmptyState` fallback (were hidden when empty)
+- **Appointments/Index.tsx**: Per-tab empty states (upcoming/past/cancelled) with "Book an appointment" CTA
+- **Insurance/Show.tsx**: Claims list and covered members sections
+- **Insurance/ClaimDetail.tsx**: Documents and timeline sections
+- **Insurance/Index.tsx**: Policy list empty state
+- **FamilyMembers/Show.tsx**: Medical conditions and allergies sections
+- **FamilyMembers/Index.tsx**: Member list empty state
+- **Billing/Index.tsx**: Bills list with contextual messaging
+- **HealthRecords/Index.tsx**: Records list empty state
+
+### Sheet Loading Skeletons Added
+- **Appointments/Index.tsx**: Appointment detail sheet fallback
+- **Billing/Index.tsx**: Payment sheet fallback
+- **HealthRecords/Index.tsx**: Record detail sheet fallback
+- **Dashboard.tsx**: Appointment sheet fallback
+- **Appointments/Show.tsx**: Document preview sheet fallback
+
+### Skipped (Form-based sheets — no skeleton needed)
+- Insurance Add Policy, FamilyMembers Add wizard, FamilyMembers Edit
+
+---
+
+## Insurance Pre-Authorization Admission Flow (February 3, 2026)
+
+### What Changed
+Replaced "Use for Admission" button (previously navigated to `/booking`) with a real pre-authorization request flow.
+
+### Flow (Side Sheet)
+1. **Select Policy** (Insurance/Index.tsx only — skipped if single policy)
+2. **Select Patient** — covered members from the policy's `members` JSON array
+3. **Admission Details** — Treatment (required), admission date (required), discharge date, room type (required: General/Semi-Private/Private/ICU), estimated cost, doctor name, notes
+4. **Review & Submit** — summary card → POST creates `InsuranceClaim` with `pending` status → redirects to claim detail page
+
+### Backend
+- **`InsuranceController::preAuth()`** — validates, creates `InsuranceClaim` with `stay_details`, `financial.preauth_requested`, initial `timeline` event
+- **`POST /insurance/pre-auth`** route added
+- **`InsuranceController::index()`** — added `members` array to policy response for frontend filtering
+
+### Frontend
+- **Insurance/Show.tsx**: 3-step pre-auth sheet (patient → details → review)
+- **Insurance/Index.tsx**: 4-step pre-auth sheet (policy → patient → details → review, skips policy step if only 1)
+
+### Claim Data Created
+```php
+[
+    'status' => 'pending',
+    'procedure_type' => 'hospitalization',
+    'stay_details' => ['admission_date', 'discharge_date', 'room_type'],
+    'financial' => ['preauth_requested' => estimated_cost],
+    'timeline' => [['event' => 'Pre-authorization requested', ...]],
+]
+```
+
+---
+
+## Miscellaneous Cleanups (February 3, 2026)
+
+- Removed `refillRequest()` from AppointmentsController (refill feature removed)
+- Removed `getPrescriptionRefills()` from DashboardController
+- Removed `refills_remaining` from health record seed data
+- `EmbeddedAddressForm.tsx`: Made state/city grid responsive (`grid-cols-1 sm:grid-cols-2`)
+- `EmbeddedFamilyMemberFlow.tsx`: Added `DetectionCard` component, simplified step types (`relationship_verify` → `otp`)
+
+---
+
+## Follow-Up Booking Sheet (February 3, 2026)
+
+Implemented a side sheet for booking follow-up appointments directly from the appointment detail page.
+
+### Backend Endpoints
+- **`GET /appointments/{id}/followup-slots`**: Returns available dates (next 14 days filtered by doctor availability), time slots, doctor info, patient info, and consultation modes with prices
+- **`POST /appointments/{id}/followup`**: Creates new appointment with same doctor/patient, validates date/time/mode, sets `is_followup: true` in metadata
+
+### Frontend Component (`AppointmentSheets.tsx`)
+- **FollowUpSheet**: ~260 lines with:
+  - Doctor & patient info card (avatar, name, specialization)
+  - Horizontal scrollable date pills with Today/Tomorrow labels
+  - Time slot buttons (available/unavailable states)
+  - Consultation mode selector (Video/In-Person with prices)
+  - "Book Follow-up ₹X" button with loading state
+  - Auto-selects first date and single mode when applicable
+
+### Integration
+- Added `'followup'` to `SheetView` type union
+- `Appointments/Show.tsx`: "Book Follow-up" button opens sheet for doctor appointments
+- Follow-up alert card also has "Schedule" button linking to sheet
+- On success: closes sheet, shows toast, reloads page
+
+---
+
+## Past Appointment Detail UX Updates (February 3, 2026)
+
+Improved the past appointment detail page layout and UX based on user feedback.
+
+### Changes Made to `Appointments/Show.tsx`
+
+1. **Removed allergies from header** — Already shown in Clinical Summary card, duplicate removed
+2. **Removed "View Trends" button from Vitals** — Button removed from Vitals section header
+3. **Made lab tests clickable with detail sheet**:
+   - Added `selectedLabTest` state
+   - `LabTestDetailSheet` component (~80 lines): status badge, reason, result with Normal/Abnormal badge, Download Report button
+   - Completed test rows show chevron and are clickable
+4. **Added individual prescription download buttons** — Each prescription card has download icon for single medication PDF
+5. **Moved follow-up alert below title** — Card now appears directly after header, before main content grid (more prominent)
+6. **Moved "symptoms worsen" alert to Clinical Summary** — Emergency contact info at bottom of Clinical Summary card (contextually appropriate)
+7. **Updated FooterActions** — Now only contains star rating section (removed duplicate follow-up and emergency cards)
+
+### Visual Layout
+
+**Header Area**:
+```
+[Badges] #APT-001
+Title (Dr. Name)
+Subtitle (Specialization)                    [Book Follow-up] [Share]
+```
+
+**Follow-up Alert** (new location):
+```
+┌─────────────────────────────────────────────────┐
+│ 📅 Follow-up Recommended              [Schedule]│
+│    Dec 20, 2025 - Follow up in 2 weeks...       │
+└─────────────────────────────────────────────────┘
+```
+
+**Clinical Summary** (with alert):
+```
+┌─────────────────────────────────────────────────┐
+│ Clinical Summary                                │
+│ [Diagnosis] [Allergies] [Collapsible sections] │
+│ ─────────────────────────────────────────────── │
+│ ⚠️ If Symptoms Worsen                           │
+│    Contact your doctor immediately...           │
+└─────────────────────────────────────────────────┘
+```
+
+---
+
 **Status**: Production-ready healthcare management platform with AI-powered booking, comprehensive health records, billing, and insurance management.
 
-**Last Updated**: February 3, 2026 — Family member flows UX redesign (Phase 1 & 3 complete)
+**Last Updated**: February 3, 2026 — Follow-up booking sheet, past appointment detail UX improvements

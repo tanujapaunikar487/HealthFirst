@@ -15,6 +15,7 @@ import {
 import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
 import { downloadAsHtml } from '@/Lib/download';
+import { FollowUpSheet, Appointment as AppointmentBase } from '@/Components/Appointments/AppointmentSheets';
 import {
   ChevronRight,
   Download,
@@ -155,6 +156,8 @@ interface DetailedAppointment {
   title: string;
   subtitle: string;
   patient_name: string;
+  patient_id: number | null;
+  doctor_id: number | null;
   date: string;
   date_formatted: string;
   time: string;
@@ -177,6 +180,7 @@ interface DetailedAppointment {
   documents: AppDocument[];
   activity: ActivityItem[];
   follow_up: FollowUp;
+  insurance_claim_id?: number | null;
 }
 
 interface Props {
@@ -202,6 +206,8 @@ const SECTIONS = [
 export default function Show({ user, appointment }: Props) {
   const [toastMessage, setToastMessage] = useState('');
   const [previewDoc, setPreviewDoc] = useState<AppDocument | null>(null);
+  const [showFollowUpSheet, setShowFollowUpSheet] = useState(false);
+  const [selectedLabTest, setSelectedLabTest] = useState<LabTest | null>(null);
 
   // Guard: if appointment data is missing, show skeleton
   if (!appointment?.id) {
@@ -215,7 +221,6 @@ export default function Show({ user, appointment }: Props) {
   }
 
   const isDoctor = appointment.type === 'doctor';
-  const allergies = appointment.clinical_summary?.allergies ?? [];
 
   const handleShareLink = async () => {
     try {
@@ -288,29 +293,39 @@ export default function Show({ user, appointment }: Props) {
             {appointment.subtitle && (
               <p className="text-muted-foreground mt-1">{appointment.subtitle}</p>
             )}
-            {allergies.length > 0 && (
-              <div className="flex items-center gap-2 mt-3">
-                <AlertTriangle className="h-4 w-4 text-red-500" />
-                <span className="text-xs font-medium text-red-600">Allergies:</span>
-                {allergies.map((a) => (
-                  <Badge key={a} variant="destructive" className="text-xs">
-                    {a}
-                  </Badge>
-                ))}
-              </div>
-            )}
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <Link href={`/appointments/${appointment.id}/book-again`}>
-              <Button>
+            {appointment.type === 'doctor' && (
+              <Button onClick={() => setShowFollowUpSheet(true)}>
                 Book Follow-up
               </Button>
-            </Link>
+            )}
             <Button variant="outline" size="icon" onClick={handleShareLink}>
               <Share2 className="h-4 w-4" />
             </Button>
           </div>
         </div>
+
+        {/* Follow-up Alert - moved from footer */}
+        {appointment.follow_up && appointment.type === 'doctor' && (
+          <Card className="p-4 border-blue-200 bg-blue-50/30 mb-8">
+            <div className="flex items-start gap-3">
+              <Calendar className="h-5 w-5 text-blue-600 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold" style={{ color: '#00184D' }}>Follow-up Recommended</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {appointment.follow_up.recommended_date_formatted}
+                </p>
+                <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                  {appointment.follow_up.notes}
+                </p>
+              </div>
+              <Button size="sm" variant="outline" className="text-xs" onClick={() => setShowFollowUpSheet(true)}>
+                Schedule
+              </Button>
+            </div>
+          </Card>
+        )}
 
         {/* Main content: Side nav + sections */}
         <div className="flex gap-8">
@@ -329,7 +344,7 @@ export default function Show({ user, appointment }: Props) {
               ? <PrescriptionsSection prescriptions={appointment.prescriptions} appointmentId={appointment.appointment_id} appointmentTitle={appointment.title} appointmentDate={appointment.date_formatted} appointmentTime={appointment.time} />
               : <Section id="prescriptions" title="Prescriptions" icon={Pill}><EmptyState icon={Pill} message="No prescriptions for this appointment" /></Section>
             }
-            <LabTestsSection tests={appointment.lab_tests ?? []} />
+            <LabTestsSection tests={appointment.lab_tests ?? []} onSelect={(test) => test.status === 'completed' && setSelectedLabTest(test)} />
             {appointment.billing && (
               <BillingSection billing={appointment.billing} appointmentId={appointment.id} insuranceClaimId={appointment.insurance_claim_id} onDownloadInvoice={handleDownloadInvoice} />
             )}
@@ -344,6 +359,44 @@ export default function Show({ user, appointment }: Props) {
       <Sheet open={!!previewDoc} onOpenChange={(o) => !o && setPreviewDoc(null)}>
         <SheetContent side="right" className="sm:max-w-lg">
           {previewDoc ? <DocumentPreview doc={previewDoc} /> : <SheetSkeleton />}
+        </SheetContent>
+      </Sheet>
+
+      {/* Follow-up Sheet */}
+      <Sheet open={showFollowUpSheet} onOpenChange={setShowFollowUpSheet}>
+        <SheetContent side="right" className="sm:max-w-lg">
+          <FollowUpSheet
+            appointment={{
+              id: appointment.id,
+              type: appointment.type as 'doctor' | 'lab_test',
+              title: appointment.title,
+              subtitle: appointment.subtitle,
+              patient_name: appointment.patient_name,
+              patient_id: appointment.patient_id,
+              doctor_id: appointment.doctor_id,
+              date: appointment.date,
+              date_formatted: appointment.date_formatted,
+              time: appointment.time,
+              status: appointment.status,
+              fee: appointment.fee,
+              payment_status: appointment.payment_status,
+              mode: appointment.mode,
+              is_upcoming: appointment.is_upcoming,
+            } as AppointmentBase}
+            onSuccess={() => {
+              setShowFollowUpSheet(false);
+              setToastMessage('Follow-up appointment booked successfully!');
+              router.reload();
+            }}
+            onError={(msg) => setToastMessage(msg)}
+          />
+        </SheetContent>
+      </Sheet>
+
+      {/* Lab Test Detail Sheet */}
+      <Sheet open={!!selectedLabTest} onOpenChange={(o) => !o && setSelectedLabTest(null)}>
+        <SheetContent side="right" className="sm:max-w-lg">
+          {selectedLabTest && <LabTestDetailSheet test={selectedLabTest} />}
         </SheetContent>
       </Sheet>
 
@@ -392,6 +445,95 @@ function SkeletonPage() {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ─── Lab Test Detail Sheet ─── */
+
+function LabTestDetailSheet({ test }: { test: LabTest }) {
+  const handleDownload = () => {
+    downloadAsHtml(`lab-report-${test.name.toLowerCase().replace(/\s+/g, '-')}.pdf`, `
+      <h1>Lab Test Report</h1>
+      <p class="subtitle">${test.name}</p>
+      <div class="section">
+        <h3>Test Information</h3>
+        <div class="row"><span class="row-label">Test Name</span><span class="row-value">${test.name}</span></div>
+        <div class="row"><span class="row-label">Reason</span><span class="row-value">${test.reason}</span></div>
+        <div class="row"><span class="row-label">Date</span><span class="row-value">${test.date ?? 'N/A'}</span></div>
+        <div class="row"><span class="row-label">Status</span><span class="row-value">${test.status}</span></div>
+      </div>
+      ${test.result ? `
+        <div class="section">
+          <h3>Result</h3>
+          <p style="font-size:14px;margin-top:8px">${test.result}</p>
+          <p style="font-size:12px;margin-top:4px;color:${test.is_normal ? '#16a34a' : '#dc2626'};font-weight:500">${test.is_normal ? 'Within normal range' : 'Abnormal - requires attention'}</p>
+        </div>
+      ` : ''}
+    `);
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+      <SheetHeader>
+        <SheetTitle className="text-base">Lab Test Result</SheetTitle>
+        <SheetDescription>{test.name}</SheetDescription>
+      </SheetHeader>
+
+      <div className="flex-1 -mx-6 px-6 overflow-y-auto space-y-5 mt-4">
+        {/* Status badge */}
+        <div className="flex items-center gap-2">
+          <Badge
+            variant="outline"
+            className={cn(
+              'text-xs',
+              test.status === 'completed'
+                ? 'bg-green-50 text-green-700 border-green-200'
+                : 'bg-amber-50 text-amber-700 border-amber-200'
+            )}
+          >
+            <CheckCircle2 className="h-3 w-3 mr-1" />
+            {test.status === 'completed' ? 'Completed' : 'Pending'}
+          </Badge>
+          {test.date && (
+            <span className="text-xs text-muted-foreground">{test.date}</span>
+          )}
+        </div>
+
+        {/* Reason */}
+        <div className="rounded-lg border p-4">
+          <p className="text-xs text-muted-foreground uppercase font-medium mb-2">Reason for Test</p>
+          <p className="text-sm">{test.reason}</p>
+        </div>
+
+        {/* Result */}
+        {test.result && (
+          <div className="rounded-lg border p-4">
+            <p className="text-xs text-muted-foreground uppercase font-medium mb-2">Result</p>
+            <p className="text-sm font-medium">{test.result}</p>
+            <div className="mt-3">
+              <Badge
+                variant="outline"
+                className={cn(
+                  'text-xs',
+                  test.is_normal
+                    ? 'bg-green-50 text-green-700 border-green-200'
+                    : 'bg-red-50 text-red-700 border-red-200'
+                )}
+              >
+                {test.is_normal ? 'Normal' : 'Abnormal'}
+              </Badge>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <SheetFooter>
+        <Button className="flex-1" onClick={handleDownload}>
+          <Download className="h-4 w-4" />
+          Download Report
+        </Button>
+      </SheetFooter>
     </div>
   );
 }
@@ -623,18 +765,7 @@ function VitalsSection({ vitals }: { vitals: Vital[] }) {
     s === 'normal' ? 'text-green-600 bg-green-50' : s === 'elevated' ? 'text-red-600 bg-red-50' : 'text-amber-600 bg-amber-50';
 
   return (
-    <Section
-      id="vitals"
-      title="Vitals"
-      icon={Heart}
-      action={
-        <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={() => {
-          router.visit('/health-records?category=lab');
-        }}>
-          View Trends
-        </Button>
-      }
-    >
+    <Section id="vitals" title="Vitals" icon={Heart}>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {vitals.map((v) => (
           <div key={v.label} className="border rounded-lg p-3 space-y-1.5">
@@ -721,6 +852,19 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
         <CollapsibleRow label="Examination Findings" content={summary.examination_findings} />
         <CollapsibleRow label="Assessment" content={summary.assessment} defaultOpen />
         <CollapsibleRow label="Treatment Plan" content={summary.treatment_plan} defaultOpen />
+      </div>
+
+      {/* Symptoms worsen alert - moved from footer */}
+      <div className="rounded-lg border border-amber-200 bg-amber-50/30 p-4 mt-5">
+        <div className="flex items-start gap-3">
+          <Phone className="h-4 w-4 text-amber-600 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold" style={{ color: '#00184D' }}>If Symptoms Worsen</p>
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+              Contact your doctor immediately or visit the nearest emergency room. For urgent assistance, call the hospital helpline at <span className="font-medium text-foreground">1800-123-4567</span>.
+            </p>
+          </div>
+        </div>
       </div>
     </Section>
   );
@@ -820,6 +964,31 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">{rx.purpose}</p>
               </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                onClick={() => {
+                  downloadAsHtml(`prescription-${rx.drug.toLowerCase().replace(/\s+/g, '-')}.pdf`, `
+                    <h1>Prescription</h1>
+                    <p class="subtitle">${appointmentTitle} &middot; ${appointmentDate} &middot; ${appointmentTime}</p>
+                    <h2>Medication</h2>
+                    <table>
+                      <thead><tr><th>Drug</th><th>Strength</th><th>Dosage</th><th>Frequency</th><th>Duration</th><th>Purpose</th></tr></thead>
+                      <tbody><tr>
+                        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;font-weight:500">${rx.drug}</td>
+                        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px">${rx.strength}</td>
+                        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px">${rx.dosage}</td>
+                        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px">${rx.frequency}</td>
+                        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px">${rx.duration}</td>
+                        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px">${rx.purpose}</td>
+                      </tr></tbody>
+                    </table>
+                  `);
+                }}
+              >
+                <Download className="h-4 w-4" />
+              </Button>
             </div>
             <div className="grid grid-cols-3 gap-4 mt-3 pt-3 border-t">
               <div>
@@ -844,7 +1013,7 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
 
 /* ─── 5. Lab Tests ─── */
 
-function LabTestsSection({ tests }: { tests: LabTest[] }) {
+function LabTestsSection({ tests, onSelect }: { tests: LabTest[]; onSelect?: (test: LabTest) => void }) {
   if (tests.length === 0) {
     return (
       <Section id="lab-tests" title="Lab Tests" icon={FlaskConical}>
@@ -881,8 +1050,19 @@ function LabTestsSection({ tests }: { tests: LabTest[] }) {
           </thead>
           <tbody className="divide-y">
             {tests.map((t, i) => (
-              <tr key={i}>
-                <td className="px-4 py-3 font-medium">{t.name}</td>
+              <tr
+                key={i}
+                className={cn(t.status === 'completed' && onSelect && 'cursor-pointer hover:bg-muted/30 transition-colors')}
+                onClick={() => t.status === 'completed' && onSelect?.(t)}
+              >
+                <td className="px-4 py-3 font-medium">
+                  <span className="flex items-center gap-2">
+                    {t.name}
+                    {t.status === 'completed' && onSelect && (
+                      <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                    )}
+                  </span>
+                </td>
                 <td className="px-4 py-3 text-muted-foreground text-xs">{t.reason}</td>
                 <td className="px-4 py-3">
                   <Badge
@@ -1115,72 +1295,33 @@ function FooterActions({ appointment }: { appointment: DetailedAppointment }) {
   };
 
   return (
-    <div className="space-y-4">
-      {/* Follow-up card */}
-      {appointment.follow_up && (
-        <Card className="p-5 border-blue-200 bg-blue-50/30">
-          <div className="flex items-start gap-3">
-            <Calendar className="h-5 w-5 text-blue-600 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm font-semibold" style={{ color: '#00184D' }}>Follow-up Recommended</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                {appointment.follow_up.recommended_date_formatted}
-              </p>
-              <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                {appointment.follow_up.notes}
-              </p>
-            </div>
-            <Link href={`/appointments/${appointment.id}/book-again`}>
-              <Button size="sm" variant="outline" className="text-xs">
-                Schedule
-              </Button>
-            </Link>
-          </div>
-        </Card>
-      )}
-
-      {/* Emergency info */}
-      <Card className="p-5 border-amber-200 bg-amber-50/30">
-        <div className="flex items-start gap-3">
-          <Phone className="h-5 w-5 text-amber-600 mt-0.5" />
-          <div>
-            <p className="text-sm font-semibold" style={{ color: '#00184D' }}>If Symptoms Worsen</p>
-            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-              Contact your doctor immediately or visit the nearest emergency room. For urgent assistance, call the hospital helpline at <span className="font-medium text-foreground">1800-123-4567</span>.
-            </p>
-          </div>
-        </div>
-      </Card>
-
-      {/* Rate */}
-      <div className="flex items-center justify-between rounded-lg border p-4">
-        <div>
-          <p className="text-sm font-medium">
-            {ratingSubmitted ? 'Thank you for your feedback!' : 'Rate this consultation'}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {ratingSubmitted ? `You rated ${rating} out of 5 stars` : 'Your feedback helps us improve'}
-          </p>
-        </div>
-        <div className="flex gap-1">
-          {[1, 2, 3, 4, 5].map((n) => (
-            <button
-              key={n}
-              className="p-1 hover:scale-110 transition-transform"
-              onClick={() => !ratingSubmitted && handleRate(n)}
-              onMouseEnter={() => !ratingSubmitted && setHoverRating(n)}
-              onMouseLeave={() => !ratingSubmitted && setHoverRating(0)}
-              disabled={ratingSubmitted}
-            >
-              <Star className={cn(
-                'h-5 w-5 transition-colors',
-                n <= (hoverRating || rating)
-                  ? 'text-amber-400 fill-amber-400'
-                  : 'text-muted-foreground/30'
-              )} />
-            </button>
-          ))}
-        </div>
+    <div className="flex items-center justify-between rounded-lg border p-4">
+      <div>
+        <p className="text-sm font-medium">
+          {ratingSubmitted ? 'Thank you for your feedback!' : 'Rate this consultation'}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          {ratingSubmitted ? `You rated ${rating} out of 5 stars` : 'Your feedback helps us improve'}
+        </p>
+      </div>
+      <div className="flex gap-1">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            className="p-1 hover:scale-110 transition-transform"
+            onClick={() => !ratingSubmitted && handleRate(n)}
+            onMouseEnter={() => !ratingSubmitted && setHoverRating(n)}
+            onMouseLeave={() => !ratingSubmitted && setHoverRating(0)}
+            disabled={ratingSubmitted}
+          >
+            <Star className={cn(
+              'h-5 w-5 transition-colors',
+              n <= (hoverRating || rating)
+                ? 'text-amber-400 fill-amber-400'
+                : 'text-muted-foreground/30'
+            )} />
+          </button>
+        ))}
       </div>
     </div>
   );
