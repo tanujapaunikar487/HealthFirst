@@ -145,10 +145,31 @@ User message → BookingPromptBuilder.build() → AIService.classifyIntent()
   - Sorted by date (most recent first)
 
 ### 8. Settings
-- **Video Conferencing Preferences**: Choose between Google Meet (default) or Zoom
-- **Provider Management**: User-specific video provider selection
-- **Mock Mode**: Generates valid-looking URLs without API credentials
-- **Real Integration Ready**: Supports Google Calendar API and Zoom API when configured
+Full settings page at `/settings` with 4 tabs, accessible via user profile section in sidebar.
+
+**Profile Tab**:
+- Avatar upload with camera icon overlay (JPG/PNG/WebP, max 5MB)
+- Personal information: name, email, phone, DOB, gender
+- Address: line 1, line 2, state (36 states dropdown), city (filtered by state), pincode
+- Emergency contact: dual-mode (link family member OR enter custom contact)
+
+**Notifications Tab**:
+- Channel preferences: Email, SMS, WhatsApp toggles
+- Category preferences: Appointments, Health Alerts, Billing, Insurance, Promotions
+
+**Preferences Tab**:
+- Regional settings: Language (English/Hindi/Marathi), date format, time format
+- Accessibility: Text size slider (14-24px), high contrast toggle
+- Booking defaults: Default patient, consultation mode, lab collection method
+- Account actions: Change password (3-step modal), download my data (JSON), delete account
+
+**Connections Tab**:
+- Video conferencing: Google Meet (default) or Zoom selection
+- Calendar sync: Google Calendar OAuth connect/disconnect, Apple Calendar .ics export
+
+**Sidebar Integration**:
+- User profile mini-section at bottom of sidebar (avatar, name, email)
+- Clicking profile navigates to `/settings`
 
 ### 9. Global Features
 - **Search**: Cmd+K/Ctrl+K shortcut, searches across doctors, appointments, health records, bills
@@ -1960,11 +1981,12 @@ Adds 13 new columns to users table for profile completion and emergency contact 
 - `Components/ui/slider.tsx` — Accessibility text size control
 - `Components/ui/switch.tsx` — Toggle switches for preferences
 
-### Navigation
+### Sidebar Navigation
 
-- Settings icon added to AppLayout sidebar
-- Active/selected state icons: `settings.svg` / `settings-selected.svg`
-- Logout button moved to Settings sidebar (removed from main nav)
+- User profile section at bottom of sidebar (avatar, name, email) links to `/settings`
+- Settings NOT in main nav — accessed only via profile section
+- Logout button in Settings page sidebar (below tabs)
+- Settings icons: `settings.svg` / `settings-selected.svg` (for page title)
 
 ---
 
