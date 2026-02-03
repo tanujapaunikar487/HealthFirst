@@ -111,6 +111,11 @@ resources/js/
 - `ShareSheet.tsx` - Consistent share UI (Copy Link, WhatsApp, Email) used app-wide
 - `PhoneInput.tsx` - +91 fixed prefix input
 
+### Utilities
+- `Lib/utils.ts` - `formatTableDate()`, `formatTableTime()` for consistent table date display
+- `Lib/pdf-content.ts` - Category-specific PDF content generators for health records (15+ formatters)
+- `Lib/download.ts` - Client-side PDF generation via browser print-to-PDF
+
 ---
 
 ## How to Run
@@ -143,6 +148,19 @@ OLLAMA_MODEL=qwen2.5:7b
 | Badges | Pastel backgrounds, colored text |
 | Skeleton | 300ms min, 10s timeout |
 
+### Table Consistency
+
+| Rule | Specification |
+|------|---------------|
+| Column Order | Date → Details → Member → Amount → Status → Actions |
+| Date Format | `03 Feb 2026` via `formatTableDate()` |
+| Time (Appointments) | Subtext line below date via `formatTableTime()` |
+| Details Cell | Icon + Title + Subtitle (what + meta) |
+| Status | Dedicated column; pill badge only |
+| Actions | Row clickable + ChevronRight indicator |
+| Empty Values | Show `—` (em dash) |
+| Amount | Right-aligned; `₹X,XXX` format |
+
 ---
 
 ## Technical Decisions
@@ -156,6 +174,7 @@ OLLAMA_MODEL=qwen2.5:7b
 7. **Doctor IDs**: Frontend 'd' prefix, backend strips it
 8. **Phone Format**: +91XXXXXXXXXX required
 9. **Table Row Click**: Row click opens details (sheet or page); 3-dot menu for actions only
+10. **Status-Based Actions**: Primary button on detail pages varies by status (e.g., rejected→File Appeal, approved→Download EOB, pending→Track Status)
 
 ---
 
@@ -163,6 +182,13 @@ OLLAMA_MODEL=qwen2.5:7b
 
 | Date | Feature |
 |------|---------|
+| Feb 4 | Status-based primary actions: Billing/Claims detail pages show contextual buttons (File Appeal, Download EOB, Track Claim, etc.) instead of generic "Check Status" |
+| Feb 4 | Table consistency: Unified column order (Date→Details→Member→Amount→Status→Actions), date format helpers |
+| Feb 4 | Insurance Policies converted from cards to table layout |
+| Feb 4 | Date/time split: Date on line 1, time as subtext on line 2 (Appointments, Billing) |
+| Feb 4 | "Book Lab Test" button for lab test appointments (instead of "Book Again") |
+| Feb 4 | Removed support CTAs from side sheets (now only in page footers) |
+| Feb 3 | PDF formatting overhaul: Category-specific formatters, tables for lab results, AI summary callouts, status dots |
 | Feb 3 | Health Records table: Category badges replaced with plain text (Lab Report • Dr. Name) |
 | Feb 3 | Backend routes: Set Primary, Edit, Appeal (Insurance), Cancel Dispute (Billing) |
 | Feb 3 | QA_ACTION_CONSISTENCY.md - Full test script for action audit |
@@ -196,4 +222,4 @@ OLLAMA_MODEL=qwen2.5:7b
 
 **Status**: Production-ready healthcare platform
 
-**Last Updated**: February 3, 2026
+**Last Updated**: February 4, 2026
