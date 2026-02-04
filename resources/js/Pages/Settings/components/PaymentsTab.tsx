@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
-import { CreditCard, Plus, Trash2, Check, Info, Phone } from '@/Lib/icons';
+import { CreditCard, Plus, Trash2, Check, Phone } from '@/Lib/icons';
 import { Button } from '@/Components/ui/button';
-import { Card, CardContent } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
-import { EmptyState } from '@/Components/ui/empty-state';
+import { Alert } from '@/Components/ui/alert';
+import { cn } from '@/Lib/utils';
 import {
     Sheet,
     SheetContent,
@@ -80,16 +80,16 @@ function formatExpiry(value: string): string {
 function getCardBrandIcon(brand: string): string {
     switch (brand.toLowerCase()) {
         case 'visa':
-            return '💳';
+            return '/assets/icons/visa.svg';
         case 'mastercard':
-            return '💳';
+            return '/assets/icons/mastercard.svg';
         case 'amex':
         case 'american express':
-            return '💳';
+            return '/assets/icons/amex.svg';
         case 'rupay':
-            return '💳';
+            return '/assets/icons/rupay.svg';
         default:
-            return '💳';
+            return '/assets/icons/card-generic.svg';
     }
 }
 
@@ -110,6 +110,7 @@ export function PaymentsTab({ paymentMethods = [], upiIds = [] }: PaymentsTabPro
     const [savingUpi, setSavingUpi] = useState(false);
     const [deleteUpi, setDeleteUpi] = useState<UpiId | null>(null);
     const [deletingUpi, setDeletingUpi] = useState(false);
+    const [showAddUpiForm, setShowAddUpiForm] = useState(false);
 
     const resetForm = () => {
         setCardNumber('');
@@ -276,164 +277,226 @@ export function PaymentsTab({ paymentMethods = [], upiIds = [] }: PaymentsTabPro
                 </div>
 
                 {paymentMethods.length === 0 ? (
-                    <EmptyState
-                        icon={CreditCard}
-                        message="No cards saved"
-                        description="Add a debit or credit card for faster checkout when paying bills."
-                        action={
-                            <Button onClick={() => setShowAddSheet(true)}>
+                    <div className="rounded-[20px] border border-border bg-white overflow-hidden">
+                        <div className="px-6 py-8 text-center">
+                            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
+                                <CreditCard className="h-6 w-6 text-muted-foreground" />
+                            </div>
+                            <p className="text-[14px] font-semibold leading-5 text-[#171717]">No cards saved</p>
+                            <p className="text-[14px] font-normal leading-5 text-[#737373] mt-1">
+                                Add a debit or credit card for faster checkout when paying bills.
+                            </p>
+                            <Button onClick={() => setShowAddSheet(true)} className="mt-4">
                                 <Plus className="h-4 w-4" />
                                 Add card
                             </Button>
-                        }
-                    />
+                        </div>
+                    </div>
                 ) : (
-                    <Card>
-                        <CardContent className="p-0 divide-y">
-                            {paymentMethods.map((method) => (
-                                <div
-                                    key={method.id}
-                                    className="flex items-center justify-between px-6 py-4"
+                    <div className="rounded-[20px] border border-border bg-white overflow-hidden">
+                        {paymentMethods.map((method, index) => (
+                            <div
+                                key={method.id}
+                                className={cn(
+                                    "flex items-center justify-between px-6 py-4",
+                                    index !== paymentMethods.length - 1 && "border-b border-border"
+                                )}
+                            >
+                                <button
+                                    onClick={() => handleSetDefault(method)}
+                                    className="flex items-center gap-3 text-left hover:opacity-80 transition-opacity"
                                 >
-                                    <button
-                                        onClick={() => handleSetDefault(method)}
-                                        className="flex items-center gap-3 text-left hover:opacity-80 transition-opacity"
-                                    >
-                                        <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center text-xl">
-                                            {getCardBrandIcon(method.brand)}
-                                        </div>
-                                        <div>
-                                            <div className="flex items-center gap-2">
-                                                <p className="text-[14px] font-semibold leading-5 text-[#171717]">
-                                                    {method.brand} •••• {method.last_four}
-                                                </p>
-                                                {method.is_default && (
-                                                    <Badge variant="outline" className="border-green-200 bg-green-50 text-green-700">
-                                                        <Check className="h-3 w-3 mr-1" /> Default
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                            <p className="text-[14px] font-normal leading-5 text-[#737373]">
-                                                Expires {method.expiry_month.toString().padStart(2, '0')}/{method.expiry_year.toString().slice(-2)}
-                                                {method.holder_name && ` · ${method.holder_name}`}
+                                    <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                                        <img src={getCardBrandIcon(method.brand)} alt={method.brand} className="h-8 w-8 object-contain" />
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-[14px] font-semibold leading-5 text-[#171717]">
+                                                {method.brand} •••• {method.last_four}
                                             </p>
+                                            {method.is_default && (
+                                                <Badge variant="outline" className="border-green-200 bg-green-50 text-green-700">
+                                                    <Check className="h-3 w-3 mr-1" /> Default
+                                                </Badge>
+                                            )}
                                         </div>
-                                    </button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="text-muted-foreground hover:text-destructive"
-                                        onClick={() => setDeleteMethod(method)}
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            ))}
-                        </CardContent>
-                    </Card>
+                                        <p className="text-[14px] font-normal leading-5 text-[#737373]">
+                                            Expires {method.expiry_month.toString().padStart(2, '0')}/{method.expiry_year.toString().slice(-2)}
+                                            {method.holder_name && ` · ${method.holder_name}`}
+                                        </p>
+                                    </div>
+                                </button>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-muted-foreground hover:text-destructive"
+                                    onClick={() => setDeleteMethod(method)}
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
                 )}
             </div>
 
             {/* UPI Section */}
             <div>
-                <div className="mb-4">
-                    <SectionTitle>UPI</SectionTitle>
-                    <p className="text-[14px] text-muted-foreground mt-1">
-                        Link your UPI ID for instant payments
-                    </p>
+                <div className="flex items-center justify-between mb-4">
+                    <div>
+                        <SectionTitle>UPI</SectionTitle>
+                        <p className="text-[14px] text-muted-foreground mt-1">
+                            Link your UPI ID for instant payments
+                        </p>
+                    </div>
+                    {upiIds.length > 0 && (
+                        <Button onClick={() => setShowAddUpiForm(true)}>
+                            <Plus className="h-4 w-4" />
+                            Add UPI
+                        </Button>
+                    )}
                 </div>
 
-                {/* Add UPI Form */}
-                <Card className="mb-4">
-                    <CardContent className="px-6 py-4">
-                        <div className="flex gap-3">
-                            <div className="flex-1">
-                                <Input
-                                    placeholder="name@upi or 9876543210@paytm"
-                                    value={newUpiId}
-                                    onChange={(e) => setNewUpiId(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') handleAddUpi();
-                                    }}
-                                />
-                            </div>
-                            <Button
-                                onClick={handleAddUpi}
-                                disabled={savingUpi || !newUpiId.trim()}
-                            >
-                                {savingUpi ? 'Adding...' : 'Add UPI'}
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                {/* Saved UPI IDs */}
                 {upiIds.length === 0 ? (
-                    <EmptyState
-                        icon={Phone}
-                        message="No UPI IDs saved"
-                        description="Add your UPI ID to pay instantly using GPay, PhonePe, Paytm, or any UPI app."
-                    />
-                ) : (
-                    <Card>
-                        <CardContent className="p-0 divide-y">
-                            {upiIds.map((upi) => (
-                                <div
-                                    key={upi.id}
-                                    className="flex items-center justify-between px-6 py-4"
-                                >
-                                    <button
-                                        onClick={() => handleSetDefaultUpi(upi)}
-                                        className="flex items-center gap-3 text-left hover:opacity-80 transition-opacity"
-                                    >
-                                        <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center">
-                                            <Phone className="h-6 w-6 text-muted-foreground" />
-                                        </div>
-                                        <div>
-                                            <div className="flex items-center gap-2">
-                                                <p className="text-[14px] font-semibold leading-5 text-[#171717]">{upi.upi_id}</p>
-                                                {upi.is_default && (
-                                                    <Badge variant="outline" className="border-green-200 bg-green-50 text-green-700">
-                                                        <Check className="h-3 w-3 mr-1" /> Default
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                            <p className="text-[14px] font-normal leading-5 text-[#737373]">
-                                                UPI ID
-                                            </p>
-                                        </div>
-                                    </button>
+                    /* Empty state - shown when no UPI IDs */
+                    <div className="rounded-[20px] border border-border bg-white overflow-hidden">
+                        {showAddUpiForm ? (
+                            <div className="px-6 py-4">
+                                <div className="flex gap-3 items-center">
+                                    <div className="flex-1">
+                                        <Input
+                                            placeholder="name@upi or 9876543210@paytm"
+                                            value={newUpiId}
+                                            onChange={(e) => setNewUpiId(e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') handleAddUpi();
+                                            }}
+                                            autoFocus
+                                        />
+                                    </div>
                                     <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="text-muted-foreground hover:text-destructive"
-                                        onClick={() => setDeleteUpi(upi)}
+                                        size="md"
+                                        variant="outline"
+                                        onClick={() => {
+                                            setShowAddUpiForm(false);
+                                            setNewUpiId('');
+                                        }}
                                     >
-                                        <Trash2 className="h-4 w-4" />
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        size="md"
+                                        onClick={handleAddUpi}
+                                        disabled={savingUpi || !newUpiId.trim()}
+                                    >
+                                        {savingUpi ? 'Adding...' : 'Add'}
                                     </Button>
                                 </div>
-                            ))}
-                        </CardContent>
-                    </Card>
+                            </div>
+                        ) : (
+                            <div className="px-6 py-8 text-center">
+                                <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
+                                    <Phone className="h-6 w-6 text-muted-foreground" />
+                                </div>
+                                <p className="text-[14px] font-semibold leading-5 text-[#171717]">No UPI IDs saved</p>
+                                <p className="text-[14px] font-normal leading-5 text-[#737373] mt-1">
+                                    Add a UPI ID for instant payments when paying bills.
+                                </p>
+                                <Button onClick={() => setShowAddUpiForm(true)} className="mt-4">
+                                    <Plus className="h-4 w-4" />
+                                    Add UPI
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    /* Saved UPI IDs */
+                    <div className="rounded-[20px] border border-border bg-white overflow-hidden">
+                        {/* Inline add form when showAddUpiForm is true */}
+                        {showAddUpiForm && (
+                            <div className="px-6 py-4 border-b border-border">
+                                <div className="flex gap-3 items-center">
+                                    <div className="flex-1">
+                                        <Input
+                                            placeholder="name@upi or 9876543210@paytm"
+                                            value={newUpiId}
+                                            onChange={(e) => setNewUpiId(e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') handleAddUpi();
+                                            }}
+                                            autoFocus
+                                        />
+                                    </div>
+                                    <Button
+                                        size="md"
+                                        variant="outline"
+                                        onClick={() => {
+                                            setShowAddUpiForm(false);
+                                            setNewUpiId('');
+                                        }}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        size="md"
+                                        onClick={() => {
+                                            handleAddUpi();
+                                            setShowAddUpiForm(false);
+                                        }}
+                                        disabled={savingUpi || !newUpiId.trim()}
+                                    >
+                                        {savingUpi ? 'Adding...' : 'Add'}
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+                        {upiIds.map((upi, index) => (
+                            <div
+                                key={upi.id}
+                                className={cn(
+                                    "flex items-center justify-between px-6 py-4",
+                                    index !== upiIds.length - 1 && "border-b border-border"
+                                )}
+                            >
+                                <button
+                                    onClick={() => handleSetDefaultUpi(upi)}
+                                    className="flex items-center gap-3 text-left hover:opacity-80 transition-opacity"
+                                >
+                                    <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+                                        <Phone className="h-6 w-6 text-muted-foreground" />
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-[14px] font-semibold leading-5 text-[#171717]">{upi.upi_id}</p>
+                                            {upi.is_default && (
+                                                <Badge variant="outline" className="border-green-200 bg-green-50 text-green-700">
+                                                    <Check className="h-3 w-3 mr-1" /> Default
+                                                </Badge>
+                                            )}
+                                        </div>
+                                        <p className="text-[14px] font-normal leading-5 text-[#737373]">
+                                            UPI ID
+                                        </p>
+                                    </div>
+                                </button>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-muted-foreground hover:text-destructive"
+                                    onClick={() => setDeleteUpi(upi)}
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
                 )}
             </div>
 
             {/* Security Info */}
-            <div className="rounded-xl border-2 border-cyan-200 bg-cyan-50/50 p-4">
-                <div className="flex gap-3">
-                    <div className="flex-shrink-0">
-                        <div className="h-8 w-8 rounded-full bg-cyan-100 flex items-center justify-center">
-                            <Info className="h-4 w-4 text-cyan-600" />
-                        </div>
-                    </div>
-                    <div>
-                        <p className="text-[14px] font-semibold leading-5 text-[#171717]">Secure payments</p>
-                        <p className="text-[14px] font-normal leading-5 text-[#737373] mt-0.5">
-                            Your card details are encrypted and securely stored. We use industry-standard security protocols to protect your payment information.
-                        </p>
-                    </div>
-                </div>
-            </div>
+            <Alert variant="info" title="Secure payments">
+                Your card details are encrypted and securely stored. We use industry-standard security protocols to protect your payment information.
+            </Alert>
 
             {/* Add Card Sheet */}
             <Sheet open={showAddSheet} onOpenChange={setShowAddSheet}>

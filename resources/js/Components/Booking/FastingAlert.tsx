@@ -1,5 +1,4 @@
-import { AlertCircle } from '@/Lib/icons';
-import { Icon } from '@/Components/ui/icon';
+import { Alert } from '@/Components/ui/alert';
 import { cn } from '@/Lib/utils';
 
 interface FastingAlertProps {
@@ -9,19 +8,8 @@ interface FastingAlertProps {
 
 export function FastingAlert({ hours, className }: FastingAlertProps) {
   return (
-    <div
-      className={cn(
-        'bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3',
-        className
-      )}
-    >
-      <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
-        <Icon icon={AlertCircle} className="w-4 h-4 text-white" />
-      </div>
-      <div>
-        <p className="font-semibold text-amber-900">Fasting required</p>
-        <p className="text-[14px] text-amber-700">{hours} hours before. Morning recommended.</p>
-      </div>
-    </div>
+    <Alert variant="warning" title="Fasting required" className={cn(className)}>
+      {hours} hours before. Morning recommended.
+    </Alert>
   );
 }

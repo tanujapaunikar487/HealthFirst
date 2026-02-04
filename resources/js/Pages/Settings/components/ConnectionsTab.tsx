@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
-import { Download, Info, Check } from '@/Lib/icons';
+import { Download, Check } from '@/Lib/icons';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
+import { Alert } from '@/Components/ui/alert';
 import { toast } from 'sonner';
 
 interface VideoSettings {
@@ -244,21 +245,9 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
             </div>
 
             {/* Security Info Box */}
-            <div className="rounded-xl border-2 border-cyan-200 bg-cyan-50/50 p-4">
-                <div className="flex gap-3">
-                    <div className="flex-shrink-0">
-                        <div className="h-8 w-8 rounded-full bg-cyan-100 flex items-center justify-center">
-                            <Info className="h-4 w-4 text-cyan-600" />
-                        </div>
-                    </div>
-                    <div>
-                        <p className="text-[14px] font-semibold leading-5 text-[#171717]">Your data is secure</p>
-                        <p className="text-[14px] font-normal leading-5 text-[#737373] mt-0.5">
-                            Video calls are generated on-demand for each appointment. No third-party account linking is required.
-                        </p>
-                    </div>
-                </div>
-            </div>
+            <Alert variant="info" title="Your data is secure">
+                Video calls are generated on-demand for each appointment. No third-party account linking is required.
+            </Alert>
         </div>
     );
 }

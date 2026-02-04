@@ -117,6 +117,8 @@ resources/js/
 - `SearchModal.tsx` - Cmd+K search with category filters, Clear button, 24px close icon
 - `Auth/SocialLoginButtons.tsx` - Google and Apple OAuth buttons with branded icons
 - `Auth/SocialDivider.tsx` - "or continue with email" divider
+- `Alert.tsx` - Standalone alert component with CVA variants (info/warning/success/error), 20px radius, bottom border
+- `SideNav.tsx` - Reusable side navigation with pill buttons, 8px/12px padding, 20px icons, blue active state
 
 ### Utilities
 - `Lib/utils.ts` - `formatTableDate()`, `formatTableTime()` for consistent table date display
@@ -238,6 +240,10 @@ All UI text uses **sentence case** (only first word capitalized):
 
 | Date | Feature |
 |------|---------|
+| Feb 5 | **Alert Component**: Standardized inline alerts across app using Alert component with CVA variants (info, warning, success, error) - blue/amber/green/red styling with 20px radius, 2px bottom border |
+| Feb 5 | **SideNav Padding**: Consistent 8px vertical, 12px horizontal padding (`padding: 8px 12px`), gap-3 between icon and text |
+| Feb 5 | **PaymentsTab UPI Empty State**: UPI section now matches Cards empty state style (centered icon, title, description, button in rounded card) |
+| Feb 5 | **Family Members Listing**: Member name font size fixed to 16px (`text-[16px]`) |
 | Feb 5 | **EmptyState Title**: Fixed title size to `text-[16px]` (was `text-lg` rem-based) |
 | Feb 5 | **Page Widths**: FamilyMembers/Index at 800px (matches Dashboard), FamilyMembers/Show at 960px (detail page) |
 | Feb 5 | **Profile Photo Remove**: Added "Remove photo" text link below name in ProfileTab, DELETE /settings/avatar endpoint |

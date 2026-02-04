@@ -3,9 +3,9 @@ import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { Card } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
+import { Alert } from '@/Components/ui/alert';
 import { EmbeddedPackageList } from '@/Features/booking-chat/embedded/EmbeddedPackageList';
-import { Search, Loader2, Info } from '@/Lib/icons';
-import { Icon } from '@/Components/ui/icon';
+import { Search, Loader2 } from '@/Lib/icons';
 
 const labSteps = [
   { id: 'patient', label: 'Patient' },
@@ -247,12 +247,9 @@ export default function TestSearchStep({ savedData }: Props) {
             <div ref={resultsSectionRef}>
               {/* Symptom query banner */}
               {searchResults.isSymptomQuery && (
-                <div className="flex items-start gap-3 p-3 mb-3 rounded-xl bg-blue-50 border border-blue-200">
-                  <Icon icon={Info} className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-[14px] text-blue-800">
-                    Based on your symptoms, here are relevant tests. Select the ones your doctor has advised, or pick a health package for a comprehensive check.
-                  </p>
-                </div>
+                <Alert variant="info" className="mb-3">
+                  Based on your symptoms, here are relevant tests. Select the ones your doctor has advised, or pick a health package for a comprehensive check.
+                </Alert>
               )}
               <EmbeddedPackageList
                 packages={searchResults.packages}

@@ -5,8 +5,9 @@ import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton'
 import { EmptyState } from '@/Components/ui/empty-state';
 import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
-import { Card, CardContent } from '@/Components/ui/card';
+import { Card } from '@/Components/ui/card';
 import { InfoCard } from '@/Components/ui/info-card';
+import { Alert } from '@/Components/ui/alert';
 import { Input } from '@/Components/ui/input';
 import { PhoneInput } from '@/Components/ui/phone-input';
 import { DatePicker } from '@/Components/ui/date-picker';
@@ -726,13 +727,9 @@ export default function FamilyMemberShow({
 
         {/* Guest Information Message */}
         {member.is_guest && (
-          <Card className="mb-6 border-amber-200 bg-amber-50">
-            <CardContent className="pt-6">
-              <p className="text-[14px] text-muted-foreground">
-                Guest members have limited profile features. Only appointment booking is available.
-              </p>
-            </CardContent>
-          </Card>
+          <Alert variant="warning" className="mb-6">
+            Guest members have limited profile features. Only appointment booking is available.
+          </Alert>
         )}
 
         {/* Main Content with Side Nav */}

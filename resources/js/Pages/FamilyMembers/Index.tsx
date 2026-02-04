@@ -213,7 +213,7 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
 
                   {/* Name + Badge */}
                   <div className="flex flex-1 items-center gap-2">
-                    <span className="truncate text-[14px] font-medium text-gray-900">
+                    <span className="truncate text-[16px] font-medium text-gray-900">
                       {member.name}
                     </span>
                     {member.alert_count > 0 && (

@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
 import { Card } from '@/Components/ui/card';
+import { Alert } from '@/Components/ui/alert';
 import { format, parseISO } from 'date-fns';
 
 const labSteps = [
@@ -117,24 +118,16 @@ export default function ConfirmStep({ summary }: Props) {
 
         {/* Preparation Instructions */}
         {summary.prepInstructions.length > 0 && (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-            <div className="flex items-start gap-3">
-              <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-[14px] font-bold">!</span>
-              </div>
-              <div className="flex-1">
-                <p className="font-semibold text-amber-900 mb-2">Preparation Instructions</p>
-                <ul className="space-y-1">
-                  {summary.prepInstructions.map((instruction, i) => (
-                    <li key={i} className="text-[14px] text-amber-800 flex items-start gap-2">
-                      <span>•</span>
-                      <span>{instruction}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
+          <Alert variant="warning" title="Preparation instructions">
+            <ul className="space-y-1 mt-1">
+              {summary.prepInstructions.map((instruction, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <span>•</span>
+                  <span>{instruction}</span>
+                </li>
+              ))}
+            </ul>
+          </Alert>
         )}
       </div>
     </GuidedBookingLayout>

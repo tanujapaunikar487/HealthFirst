@@ -42,12 +42,12 @@ export function SideNav({
               key={id}
               onClick={() => onSelect(id)}
               className={cn(
-                'w-full flex items-center gap-1.5 px-3 py-2 font-medium transition-all text-left rounded-full cursor-pointer',
+                'w-full flex items-center gap-3 font-medium transition-all text-left rounded-full cursor-pointer',
                 isActive
                   ? 'bg-[#F5F8FF] text-[#0052FF]'
                   : 'text-neutral-900 hover:bg-muted'
               )}
-              style={{ fontSize: '14px', lineHeight: '20px' }}
+              style={{ fontSize: '14px', lineHeight: '20px', padding: '8px 12px' }}
             >
               <Icon icon={ItemIcon} className="h-5 w-5 flex-shrink-0" />
               <span className="truncate">{label}</span>

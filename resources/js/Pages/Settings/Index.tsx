@@ -184,9 +184,10 @@ export default function SettingsIndex({
                                     type="button"
                                     onClick={handleLogout}
                                     disabled={loggingOut}
-                                    className="w-full flex items-center gap-2.5 px-3 py-2 text-[14px] font-medium transition-all text-left rounded-full cursor-pointer text-neutral-900 hover:bg-red-50 hover:text-red-600"
+                                    className="w-full flex items-center gap-3 text-[14px] font-medium transition-all text-left rounded-full cursor-pointer text-neutral-900 hover:bg-red-50 hover:text-red-600"
+                                    style={{ padding: '8px 12px', lineHeight: '20px' }}
                                 >
-                                    <Icon icon={LogOut} className="h-4 w-4 flex-shrink-0" />
+                                    <Icon icon={LogOut} className="h-5 w-5 flex-shrink-0" />
                                     <span className="truncate">{loggingOut ? 'Logging out...' : 'Logout'}</span>
                                 </button>
                             </div>
