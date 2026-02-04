@@ -238,6 +238,8 @@ All UI text uses **sentence case** (only first word capitalized):
 
 | Date | Feature |
 |------|---------|
+| Feb 5 | **EmptyState Title**: Fixed title size to `text-[16px]` (was `text-lg` rem-based) |
+| Feb 5 | **Page Widths**: FamilyMembers/Index at 800px (matches Dashboard), FamilyMembers/Show at 960px (detail page) |
 | Feb 5 | **Profile Photo Remove**: Added "Remove photo" text link below name in ProfileTab, DELETE /settings/avatar endpoint |
 | Feb 5 | **TagInput Local Component**: ProfileTab now has local TagInput with comma-separated tag support (splits "tag1, tag2" into separate tags) |
 | Feb 5 | **Profile Update Fix**: Changed from fetch() to router.put() for proper Inertia redirect handling |
