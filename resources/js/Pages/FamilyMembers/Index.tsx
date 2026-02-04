@@ -65,7 +65,7 @@ function getInitials(name: string): string {
 
 function FamilyMembersSkeleton() {
   return (
-    <div className="w-full max-w-[960px]">
+    <div className="w-full max-w-[800px]">
       <div className="flex items-center justify-between mb-8">
         <div className="space-y-2">
           <Pulse className="h-9 w-48" />
@@ -146,7 +146,7 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
       pageTitle="Family Members"
       pageIcon={AddTeam}
     >
-      <div className="w-full max-w-[960px] min-h-full flex flex-col">
+      <div className="w-full max-w-[800px] min-h-full flex flex-col">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
