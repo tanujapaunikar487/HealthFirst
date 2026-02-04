@@ -160,24 +160,26 @@ export default function SettingsIndex({
                 <div className="flex gap-8">
                     {/* Sidebar Navigation */}
                     <div className="w-48 flex-shrink-0">
-                        <SideNav
-                            items={NAV_ITEMS}
-                            activeId={activeTab}
-                            onSelect={(id) => setActiveTab(id as Tab)}
-                            sticky={false}
-                        />
+                        <div className="sticky top-6">
+                            <SideNav
+                                items={NAV_ITEMS}
+                                activeId={activeTab}
+                                onSelect={(id) => setActiveTab(id as Tab)}
+                                sticky={false}
+                            />
 
-                        {/* Logout Button */}
-                        <div className="mt-6 pt-6 border-t">
-                            <button
-                                type="button"
-                                onClick={handleLogout}
-                                disabled={loggingOut}
-                                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium transition-all text-left rounded-full cursor-pointer text-neutral-900 hover:bg-red-50 hover:text-red-600"
-                            >
-                                <Icon icon={LogOut} className="h-4 w-4 flex-shrink-0" />
-                                <span className="truncate">{loggingOut ? 'Logging out...' : 'Logout'}</span>
-                            </button>
+                            {/* Logout Button */}
+                            <div className="mt-6 pt-6 border-t">
+                                <button
+                                    type="button"
+                                    onClick={handleLogout}
+                                    disabled={loggingOut}
+                                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium transition-all text-left rounded-full cursor-pointer text-neutral-900 hover:bg-red-50 hover:text-red-600"
+                                >
+                                    <Icon icon={LogOut} className="h-4 w-4 flex-shrink-0" />
+                                    <span className="truncate">{loggingOut ? 'Logging out...' : 'Logout'}</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
