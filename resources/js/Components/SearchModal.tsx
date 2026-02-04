@@ -273,7 +273,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
           maxWidth: '90vw',
           borderRadius: '20px',
           border: '1px solid #E5E5E5',
-          background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.97) 0%, rgba(255, 255, 255, 0.85) 100%)',
+          background: '#FFFFFF',
           boxShadow: '0 5px 10px 0 rgba(0, 0, 0, 0.10), 0 15px 30px 0 rgba(0, 0, 0, 0.10), 0 20px 40px 0 rgba(0, 0, 0, 0.15)',
           backdropFilter: 'blur(10px)',
         }}
@@ -292,12 +292,6 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
               <span className="font-medium text-gray-900">
                 @{category === 'health_records' ? 'health records' : category === 'appointments' ? 'appointment' : category}
               </span>
-              <button
-                onClick={() => setCategory('all')}
-                className="ml-0.5 text-gray-400 hover:text-gray-600"
-              >
-                <Icon icon={X} className="h-3 w-3" />
-              </button>
             </div>
           )}
 
@@ -314,8 +308,18 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
             autoComplete="off"
           />
           {loading && <Icon icon={Loader2} className="h-4 w-4 animate-spin text-muted-foreground flex-shrink-0" />}
-          {query && !loading && (
-            <button onClick={() => setQuery('')} className="flex-shrink-0 text-muted-foreground hover:text-foreground">
+          {/* Single Clear Button - clears query first, then category */}
+          {(query || category !== 'all') && !loading && (
+            <button
+              onClick={() => {
+                if (query) {
+                  setQuery('');
+                } else {
+                  setCategory('all');
+                }
+              }}
+              className="flex-shrink-0 text-muted-foreground hover:text-foreground"
+            >
               <Icon icon={X} className="h-4 w-4" />
             </button>
           )}
