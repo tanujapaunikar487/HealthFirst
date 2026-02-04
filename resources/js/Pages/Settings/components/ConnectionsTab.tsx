@@ -112,8 +112,8 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                                     <Video className="h-6 w-6 text-muted-foreground" />
                                 </div>
                                 <div>
-                                    <p className="font-medium">Google Meet</p>
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-sm font-semibold leading-5 text-[#171717]">Google Meet</p>
+                                    <p className="text-sm font-normal leading-5 text-[#737373]">
                                         Free video calls, no download required
                                     </p>
                                 </div>
@@ -147,8 +147,8 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                                     <Video className="h-6 w-6 text-muted-foreground" />
                                 </div>
                                 <div>
-                                    <p className="font-medium">Zoom</p>
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-sm font-semibold leading-5 text-[#171717]">Zoom</p>
+                                    <p className="text-sm font-normal leading-5 text-[#737373]">
                                         Popular video conferencing platform
                                     </p>
                                 </div>
@@ -192,8 +192,8 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                                     <Calendar className="h-6 w-6 text-muted-foreground" />
                                 </div>
                                 <div>
-                                    <p className="font-medium">Google Calendar</p>
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-sm font-semibold leading-5 text-[#171717]">Google Calendar</p>
+                                    <p className="text-sm font-normal leading-5 text-[#737373]">
                                         Auto-sync appointments to Google Calendar
                                     </p>
                                 </div>
@@ -208,8 +208,8 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                                     <Calendar className="h-6 w-6 text-muted-foreground" />
                                 </div>
                                 <div>
-                                    <p className="font-medium">Apple Calendar / Other</p>
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-sm font-semibold leading-5 text-[#171717]">Apple Calendar / Other</p>
+                                    <p className="text-sm font-normal leading-5 text-[#737373]">
                                         Download .ics file for any calendar app
                                     </p>
                                 </div>
@@ -236,8 +236,8 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                         </div>
                     </div>
                     <div>
-                        <p className="font-medium text-foreground">Your data is secure</p>
-                        <p className="text-sm text-muted-foreground mt-0.5">
+                        <p className="text-sm font-semibold leading-5 text-[#171717]">Your data is secure</p>
+                        <p className="text-sm font-normal leading-5 text-[#737373] mt-0.5">
                             Video calls are generated on-demand for each appointment. No third-party account linking is required.
                         </p>
                     </div>

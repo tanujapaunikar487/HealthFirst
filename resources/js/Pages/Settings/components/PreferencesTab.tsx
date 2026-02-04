@@ -169,8 +169,8 @@ export function PreferencesTab({
                         {/* Language Row */}
                         <div className="flex items-center justify-between p-4">
                             <div>
-                                <p className="font-medium">Language</p>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm font-semibold leading-5 text-[#171717]">Language</p>
+                                <p className="text-sm font-normal leading-5 text-[#737373]">
                                     Choose your preferred language
                                 </p>
                             </div>
@@ -192,8 +192,8 @@ export function PreferencesTab({
                         {/* Date Format Row */}
                         <div className="flex items-center justify-between p-4">
                             <div>
-                                <p className="font-medium">Date Format</p>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm font-semibold leading-5 text-[#171717]">Date Format</p>
+                                <p className="text-sm font-normal leading-5 text-[#737373]">
                                     How dates appear throughout the app
                                 </p>
                             </div>
@@ -215,8 +215,8 @@ export function PreferencesTab({
                         {/* Time Format Row */}
                         <div className="flex items-center justify-between p-4">
                             <div>
-                                <p className="font-medium">Time Format</p>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm font-semibold leading-5 text-[#171717]">Time Format</p>
+                                <p className="text-sm font-normal leading-5 text-[#737373]">
                                     12-hour or 24-hour clock
                                 </p>
                             </div>
@@ -255,8 +255,8 @@ export function PreferencesTab({
                         {/* Text Size Row */}
                         <div className="flex items-center justify-between p-4">
                             <div>
-                                <p className="font-medium">Text Size</p>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm font-semibold leading-5 text-[#171717]">Text Size</p>
+                                <p className="text-sm font-normal leading-5 text-[#737373]">
                                     Adjust the font size throughout the app
                                 </p>
                             </div>
@@ -297,8 +297,8 @@ export function PreferencesTab({
                         {/* High Contrast Row */}
                         <div className="flex items-center justify-between p-4">
                             <div>
-                                <p className="font-medium">High Contrast Mode</p>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm font-semibold leading-5 text-[#171717]">High Contrast Mode</p>
+                                <p className="text-sm font-normal leading-5 text-[#737373]">
                                     Increase contrast for better visibility
                                 </p>
                             </div>
@@ -319,8 +319,8 @@ export function PreferencesTab({
                         {/* Default Family Member Row */}
                         <div className="flex items-center justify-between p-4">
                             <div>
-                                <p className="font-medium">Default Family Member</p>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm font-semibold leading-5 text-[#171717]">Default Family Member</p>
+                                <p className="text-sm font-normal leading-5 text-[#737373]">
                                     Pre-select when booking appointments
                                 </p>
                             </div>
@@ -346,8 +346,8 @@ export function PreferencesTab({
                         {/* Download Format Row */}
                         <div className="flex items-center justify-between p-4">
                             <div>
-                                <p className="font-medium">Download Format</p>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm font-semibold leading-5 text-[#171717]">Download Format</p>
+                                <p className="text-sm font-normal leading-5 text-[#737373]">
                                     Preferred format for health records
                                 </p>
                             </div>
@@ -382,7 +382,7 @@ export function PreferencesTab({
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                                     <Lock className="h-5 w-5 text-muted-foreground" />
                                 </div>
-                                <span className="font-medium">Change password</span>
+                                <span className="text-sm font-semibold leading-5 text-[#171717]">Change password</span>
                             </div>
                             <ChevronRight className="h-5 w-5 text-muted-foreground" />
                         </button>
@@ -396,7 +396,7 @@ export function PreferencesTab({
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                                     <Download className="h-5 w-5 text-muted-foreground" />
                                 </div>
-                                <span className="font-medium">Download My Data</span>
+                                <span className="text-sm font-semibold leading-5 text-[#171717]">Download My Data</span>
                             </div>
                             <ChevronRight className="h-5 w-5 text-muted-foreground" />
                         </button>
@@ -410,7 +410,7 @@ export function PreferencesTab({
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                                     <Trash2 className="h-5 w-5 text-muted-foreground" />
                                 </div>
-                                <span className="font-medium">Delete account</span>
+                                <span className="text-sm font-semibold leading-5 text-[#171717]">Delete account</span>
                             </div>
                             <ChevronRight className="h-5 w-5 text-muted-foreground" />
                         </button>

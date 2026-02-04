@@ -105,8 +105,8 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                                     <Mail className="h-5 w-5 text-muted-foreground" />
                                 </div>
                                 <div>
-                                    <p className="font-medium">Email</p>
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-sm font-semibold leading-5 text-[#171717]">Email</p>
+                                    <p className="text-sm font-normal leading-5 text-[#737373]">
                                         Receive notifications via email
                                     </p>
                                 </div>
@@ -124,8 +124,8 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                                     <MessageSquare className="h-5 w-5 text-muted-foreground" />
                                 </div>
                                 <div>
-                                    <p className="font-medium">WhatsApp</p>
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-sm font-semibold leading-5 text-[#171717]">WhatsApp</p>
+                                    <p className="text-sm font-normal leading-5 text-[#737373]">
                                         Receive notifications via WhatsApp
                                     </p>
                                 </div>
@@ -143,8 +143,8 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                                     <Phone className="h-5 w-5 text-muted-foreground" />
                                 </div>
                                 <div>
-                                    <p className="font-medium">SMS</p>
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-sm font-semibold leading-5 text-[#171717]">SMS</p>
+                                    <p className="text-sm font-normal leading-5 text-[#737373]">
                                         Receive notifications via SMS
                                     </p>
                                 </div>
@@ -165,8 +165,8 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                     <CardContent className="p-0">
                         <div className="flex items-center justify-between p-4">
                             <div>
-                                <p className="font-medium">Appointment Reminders</p>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm font-semibold leading-5 text-[#171717]">Appointment Reminders</p>
+                                <p className="text-sm font-normal leading-5 text-[#737373]">
                                     Get reminded before your scheduled appointments
                                 </p>
                             </div>
@@ -187,8 +187,8 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                         {/* Lab Results */}
                         <div className="flex items-center justify-between p-4">
                             <div>
-                                <p className="font-medium">Lab Results Available</p>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm font-semibold leading-5 text-[#171717]">Lab Results Available</p>
+                                <p className="text-sm font-normal leading-5 text-[#737373]">
                                     Get notified when new lab results are ready
                                 </p>
                             </div>
@@ -201,8 +201,8 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                         {/* Prescription Reminders */}
                         <div className="flex items-center justify-between p-4">
                             <div>
-                                <p className="font-medium">Prescription Reminders</p>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm font-semibold leading-5 text-[#171717]">Prescription Reminders</p>
+                                <p className="text-sm font-normal leading-5 text-[#737373]">
                                     Daily reminders for your prescriptions
                                 </p>
                             </div>
@@ -215,8 +215,8 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                         {/* Doctor Messages */}
                         <div className="flex items-center justify-between p-4">
                             <div>
-                                <p className="font-medium">Doctor Messages</p>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm font-semibold leading-5 text-[#171717]">Doctor Messages</p>
+                                <p className="text-sm font-normal leading-5 text-[#737373]">
                                     Notifications when your doctor sends a message
                                 </p>
                             </div>
@@ -236,8 +236,8 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                     <CardContent className="p-0">
                         <div className="flex items-center justify-between p-4">
                             <div>
-                                <p className="font-medium">Bill Payment Reminders</p>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm font-semibold leading-5 text-[#171717]">Bill Payment Reminders</p>
+                                <p className="text-sm font-normal leading-5 text-[#737373]">
                                     Reminders for pending and upcoming bills
                                 </p>
                             </div>
@@ -257,8 +257,8 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                     <CardContent className="p-0">
                         <div className="flex items-center justify-between p-4">
                             <div>
-                                <p className="font-medium">Health Tips & Promotions</p>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm font-semibold leading-5 text-[#171717]">Health Tips & Promotions</p>
+                                <p className="text-sm font-normal leading-5 text-[#737373]">
                                     Occasional emails about health camps and special offers
                                 </p>
                             </div>
