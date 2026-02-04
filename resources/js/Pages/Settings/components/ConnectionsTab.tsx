@@ -72,11 +72,27 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
     const handleExportCalendar = () => {
         setExporting(true);
 
-        fetch('/settings/calendar/apple/export')
-            .then(response => response.json())
+        fetch('/settings/calendar/apple/export', {
+            credentials: 'same-origin',
+            headers: {
+                'Accept': 'application/json',
+            },
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Export failed');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.download_url) {
-                    window.open(data.download_url, '_blank');
+                    // Create a temporary anchor element to trigger download
+                    const link = document.createElement('a');
+                    link.href = data.download_url;
+                    link.download = `appointments-${new Date().toISOString().split('T')[0]}.ics`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
                     toast.success('Calendar exported successfully');
                 } else {
                     toast.error('Failed to export calendar');
