@@ -229,8 +229,7 @@ function DashboardSkeleton() {
                 key={i}
                 style={{
                   width: '738px',
-                  height: '96px',
-                  padding: '20px',
+                  padding: '16px',
                   borderBottom: i === 2 ? 'none' : '1px solid #E5E5E5',
                   display: 'flex',
                   flexDirection: 'row',
@@ -262,8 +261,8 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
           <Icon icon={AlertCircle} className="h-7 w-7 text-gray-400" />
         </div>
-        <p className="text-sm font-medium text-gray-600">Unable to load dashboard</p>
-        <p className="text-xs text-gray-400">Please check your connection and try again.</p>
+        <p className="text-[14px] font-medium text-gray-600">Unable to load dashboard</p>
+        <p className="text-[14px] text-gray-400">Please check your connection and try again.</p>
         <Button variant="outline" className="mt-2" onClick={onRetry}>
           <Icon icon={RefreshCw} className="h-4 w-4" />
           Try Again
@@ -322,7 +321,7 @@ function DashboardCard({
   return (
     <div
       style={{
-        padding: '16px 20px',
+        padding: '16px',
         borderBottom: isLast ? 'none' : '1px solid #E5E5E5',
         display: 'flex',
         flexDirection: 'row',
@@ -343,7 +342,7 @@ function DashboardCard({
         {/* Patient + badge row */}
         <div className="flex items-center gap-2">
           <div
-            className="flex items-center justify-center flex-shrink-0 text-xs font-semibold"
+            className="flex items-center justify-center flex-shrink-0 text-[14px] font-semibold"
             style={{
               width: '24px', height: '24px', borderRadius: '9999px',
               backgroundColor: '#EEF0F3', color: '#525252', fontSize: '10px',
@@ -351,10 +350,10 @@ function DashboardCard({
           >
             {patientInitials}
           </div>
-          <span className="text-xs font-medium" style={{ color: '#737373' }}>{patientName}</span>
+          <span className="text-[14px] font-medium" style={{ color: '#737373' }}>{patientName}</span>
           {badge && (
             <span
-              className="text-xs font-medium px-2 py-0.5 rounded-full"
+              className="text-[14px] font-medium px-2 py-0.5 rounded-full"
               style={{ backgroundColor: badgeColor ? `${badgeColor}15` : '#FEE2E2', color: badgeColor || '#DC2626', fontSize: '11px' }}
             >
               {badge}
@@ -363,12 +362,12 @@ function DashboardCard({
         </div>
         {/* Title */}
         <h3
-          className="text-sm font-medium leading-5 text-[#0A0B0D] truncate"
+          className="text-[14px] font-semibold leading-5 text-[#171717] truncate"
         >
           {title}
         </h3>
         {/* Subtitle */}
-        <p className="text-sm font-medium leading-5 text-[#737373]">{subtitle}</p>
+        <p className="text-[14px] font-normal leading-5 text-[#737373]">{subtitle}</p>
       </div>
 
       {/* Action button */}
@@ -1044,7 +1043,7 @@ export default function Dashboard({
             <h1 className="font-bold" style={{ fontSize: '36px', lineHeight: '44px', letterSpacing: '-1px', color: '#171717', margin: 0, width: '384px', height: '44px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               Hi, {firstName}
             </h1>
-            <p className="font-medium" style={{ fontSize: '14px', fontWeight: 500, lineHeight: '20px', letterSpacing: '0px', color: '#737373', margin: 0, width: '100%', height: '20px', display: 'flex', alignItems: 'center' }}>
+            <p className="font-normal" style={{ fontSize: '14px', fontWeight: 400, lineHeight: '20px', letterSpacing: '0px', color: '#737373', margin: 0, width: '100%', height: '20px', display: 'flex', alignItems: 'center' }}>
               {formattedDate}
             </p>
           </div>
@@ -1075,10 +1074,10 @@ export default function Dashboard({
                     {/* View all button inside card */}
                     {upNextCards.length > 3 && (
                       <div
-                        className="px-5 py-4 border-t border-[#E5E5E5] flex justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+                        className="px-6 py-4 border-t border-[#E5E5E5] flex justify-center cursor-pointer hover:bg-gray-50 transition-colors"
                         onClick={() => setUpNextExpanded(!upNextExpanded)}
                       >
-                        <span className="text-sm font-medium text-blue-600">
+                        <span className="text-[14px] font-medium text-blue-600">
                           {upNextExpanded ? 'Show less' : `View all ${upNextCards.length}`}
                         </span>
                       </div>
@@ -1101,10 +1100,10 @@ export default function Dashboard({
                     {/* View all button inside card */}
                     {laterCards.length > 3 && (
                       <div
-                        className="px-5 py-4 border-t border-[#E5E5E5] flex justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+                        className="px-6 py-4 border-t border-[#E5E5E5] flex justify-center cursor-pointer hover:bg-gray-50 transition-colors"
                         onClick={() => setLaterExpanded(!laterExpanded)}
                       >
-                        <span className="text-sm font-medium text-blue-600">
+                        <span className="text-[14px] font-medium text-blue-600">
                           {laterExpanded ? 'Show less' : `View all ${laterCards.length}`}
                         </span>
                       </div>
@@ -1168,7 +1167,7 @@ export default function Dashboard({
                 <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: '#171717' }}>
                   Complete your profile
                 </h2>
-                <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: '#EEF0F3', color: '#525252' }}>
+                <span className="text-[14px] font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: '#EEF0F3', color: '#525252' }}>
                   {profileSteps.filter(s => s.completed).length} of {profileSteps.length} done
                 </span>
               </div>
@@ -1350,9 +1349,8 @@ function ProfileStepItem({ step, isLast }: ProfileStepItemProps) {
     <div
       className={`transition-colors duration-300 w-full ${step.completed ? '' : 'hover:bg-[#F7F8F9]'}`}
       style={{
-        height: '96px',
         backgroundColor: step.completed ? '#F0FDF4' : '#FFFFFF',
-        padding: '20px',
+        padding: '16px',
         borderBottom: isLast ? 'none' : '1px solid #E5E5E5',
         display: 'flex',
         flexDirection: 'row',
@@ -1382,10 +1380,10 @@ function ProfileStepItem({ step, isLast }: ProfileStepItemProps) {
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flexGrow: 1 }}>
-        <h3 className="text-sm font-medium leading-5 text-[#0A0B0D] truncate">
+        <h3 className="text-[14px] font-semibold leading-5 text-[#171717] truncate">
           {step.title}
         </h3>
-        <p className="text-sm font-medium leading-5 text-[#737373] truncate">
+        <p className="text-[14px] font-normal leading-5 text-[#737373] truncate">
           {step.subtitle}
         </p>
       </div>

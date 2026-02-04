@@ -157,8 +157,12 @@ OLLAMA_MODEL=qwen2.5:7b
 | EmptyState | #F5F5F5 bg, 24px/48px padding, content-based height, 20px radius, optional image |
 | CtaBanner | Dark radial gradient, white text, illustration, used for empty pages |
 | Page Container | 960px max-width, 40px top/bottom padding |
-| Card Title | #171717, 14px, font-weight 600, line-height 20px |
-| Card Subtext | #737373, 14px, font-weight 400, line-height 20px |
+| Card Title | #0A0B0D, 14px, font-weight 500, line-height 20px, truncate |
+| Card Subtext | #737373, 14px, font-weight 500, line-height 20px |
+| SideNav | 14px font, 20px icons, 6px gap, pill buttons with blue active state, 200px min-width |
+| Section Spacing | `space-y-16` (4rem/64px) between major sections |
+| Font Sizes | Use fixed pixels (`text-[14px]`) not rem (`text-sm`) to prevent accessibility scaling issues |
+| Card Padding | 16px all sides (`p-4` or `padding: '16px'`) |
 
 ### Empty State Pattern
 
@@ -234,6 +238,20 @@ All UI text uses **sentence case** (only first word capitalized):
 
 | Date | Feature |
 |------|---------|
+| Feb 5 | **Fixed Pixel Fonts**: Replaced `text-sm` and `text-xs` with `text-[14px]` across 105+ files - prevents text scaling issues with accessibility settings |
+| Feb 5 | **Section Spacing**: Standardized to `space-y-16` (4rem/64px) gap between sections across all pages |
+| Feb 5 | **SideNav Width**: Set minimum width to 200px (`min-w-[200px]`) for consistent layout on 1440px screens |
+| Feb 5 | **Card Padding**: Standardized Dashboard cards to 16px padding, removed fixed 96px heights for natural content sizing |
+| Feb 5 | **ProfileTab Cleanup**: Removed duplicate form sections, consolidated to InfoCard-based read-only display with all fields shown |
+| Feb 5 | **Accessibility Settings**: Text size (14/18/22px) and high contrast mode apply globally via AppLayout useEffect and CSS variables in app.css |
+| Feb 5 | **Data Export (PDF)**: Download My Data renders Settings/DataExport page with auto-print dialog for PDF save, removed JSON/CSV format options |
+| Feb 5 | **Notifications Tab**: Added Insurance Claim Updates toggle, Health Alerts master toggle with disabled sub-toggles when off |
+| Feb 5 | **Social Login UI**: Google/Apple OAuth buttons moved to end of auth forms, side-by-side layout, conditional rendering based on config |
+| Feb 5 | **Settings Labels**: "Language" renamed to "Doctor's language" with description "Preferred language for doctor communication" |
+| Feb 5 | **TagInput Redesign**: "Add" text inside field changes from #737373 to #2563EB when user types |
+| Feb 5 | **Card Typography Update**: Updated to #0A0B0D title, #737373 subtext, both 14px/500 weight/20px line-height across card.tsx, card-typography.tsx, info-card.tsx, Settings tabs, Dashboard, FamilyMembers |
+| Feb 5 | **SideNav Refinement**: 20px icons (h-5 w-5), 6px gap, 14px font with truncate |
+| Feb 5 | **Family Members Profile Sections**: Consolidated edit sidesheet from 6 to 4 sections (Personal Details, Contact & Address, Health Information, Emergency Contact), FormCard wrapper matching InfoCard style |
 | Feb 4 | **Social Login (OAuth)**: Google and Apple Sign-In/Sign-Up via Laravel Socialite, social_accounts table, account linking (existing user email match), SocialLoginButtons component |
 | Feb 4 | **Card Typography**: Standardized title (#171717, 14px, 600) and subtext (#737373, 14px, 400) across card components |
 | Feb 4 | **TagInput Button**: Replaced "Add" text with Plus icon in 40px secondary button |
@@ -310,4 +328,4 @@ All UI text uses **sentence case** (only first word capitalized):
 
 **Status**: Production-ready healthcare platform
 
-**Last Updated**: February 4, 2026
+**Last Updated**: February 5, 2026

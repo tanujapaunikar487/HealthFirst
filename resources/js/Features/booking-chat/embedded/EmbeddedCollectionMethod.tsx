@@ -57,7 +57,7 @@ export function EmbeddedCollectionMethod({ methods, selectedMethod, onSelect, di
             {/* Text */}
             <div className="flex-1">
               <p className="font-medium">{method.label}</p>
-              <p className="text-sm text-muted-foreground">{method.address}</p>
+              <p className="text-[14px] text-muted-foreground">{method.address}</p>
             </div>
 
             {/* Price */}

@@ -281,7 +281,7 @@ function InsuranceSkeleton() {
             <Pulse className="h-3 w-16" />
           </div>
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-4 px-4 py-4 border-b border-border last:border-0">
+            <div key={i} className="flex items-center gap-4 px-6 py-4 border-b border-border last:border-0">
               <Pulse className="h-4 w-20" />
               <div className="flex items-center gap-3 w-48">
                 <Pulse className="h-9 w-9 rounded-xl flex-shrink-0" />
@@ -696,7 +696,7 @@ export default function InsuranceIndex({
           <>
             {/* Policies on file */}
             <div className="mb-10">
-              <h2 className="mb-4 text-sm font-semibold text-gray-500">Policies on file</h2>
+              <h2 className="mb-4 text-[14px] font-semibold text-gray-500">Policies on file</h2>
               <div className="border" style={{ borderRadius: '20px' }}>
                 <Table>
                   <TableHeader>
@@ -717,32 +717,32 @@ export default function InsuranceIndex({
                         onClick={() => router.visit('/insurance/' + policy.id)}
                       >
                         <TableCell className="align-top">
-                          <p className="text-sm text-gray-600 whitespace-nowrap">
+                          <p className="text-[14px] text-gray-600 whitespace-nowrap">
                             {policy.end_date_formatted ? `Valid until ${policy.end_date_formatted}` : '—'}
                           </p>
                         </TableCell>
                         <TableCell className="align-top">
                           <div className="flex items-center gap-2.5">
                             <div
-                              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-[14px] font-bold"
                               style={{ backgroundColor: '#BFDBFE', color: '#1E40AF' }}
                             >
                               {getProviderInitials(policy.provider_name)}
                             </div>
                             <div>
-                              <p className="text-sm font-medium text-gray-900">{policy.plan_name}</p>
-                              <p className="text-xs text-muted-foreground">{policy.policy_number}</p>
+                              <p className="text-[14px] font-medium text-gray-900">{policy.plan_name}</p>
+                              <p className="text-[14px] text-muted-foreground">{policy.policy_number}</p>
                             </div>
                           </div>
                         </TableCell>
                         <TableCell className="align-top">
-                          <span className="text-sm flex items-center gap-1">
+                          <span className="text-[14px] flex items-center gap-1">
                             <Users className="h-3.5 w-3.5 text-muted-foreground" />
                             {policy.member_count}
                           </span>
                         </TableCell>
                         <TableCell className="align-top text-right">
-                          <p className="text-sm font-medium">₹{policy.sum_insured.toLocaleString()}</p>
+                          <p className="text-[14px] font-medium">₹{policy.sum_insured.toLocaleString()}</p>
                         </TableCell>
                         <TableCell className="align-top">
                           {policy.is_expiring_soon ? (
@@ -769,7 +769,7 @@ export default function InsuranceIndex({
 
                 {/* Table Footer */}
                 {policies.length > 0 && (
-                  <div className="flex items-center justify-center px-4 py-4 border-t border-[#E5E5E5] text-xs text-gray-500">
+                  <div className="flex items-center justify-center px-6 py-4 border-t border-[#E5E5E5] text-[14px] text-gray-500">
                     <span>Showing {policies.length} {policies.length === 1 ? 'policy' : 'policies'}</span>
                   </div>
                 )}
@@ -837,7 +837,7 @@ export default function InsuranceIndex({
               {/* Claims Table */}
               {filteredClaims.length === 0 ? (
                 <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-200 py-12">
-                  <p className="text-sm text-gray-500">No claims found</p>
+                  <p className="text-[14px] text-gray-500">No claims found</p>
                 </div>
               ) : (
                 <div className="border" style={{ borderRadius: '20px' }}>
@@ -860,7 +860,7 @@ export default function InsuranceIndex({
                           onClick={() => router.visit(`/insurance/claims/${claim.id}`)}
                         >
                           <TableCell className="align-top">
-                            <p className="text-sm text-gray-600 whitespace-nowrap">
+                            <p className="text-[14px] text-gray-600 whitespace-nowrap">
                               {claim.claim_date_formatted ?? '—'}
                             </p>
                           </TableCell>
@@ -873,20 +873,20 @@ export default function InsuranceIndex({
                                 <Building2 className="h-5 w-5" style={{ color: '#1E40AF' }} />
                               </div>
                               <div>
-                                <p className="text-sm font-medium text-gray-900">
+                                <p className="text-[14px] font-medium text-gray-900">
                                   {claim.treatment_name}
                                 </p>
                                 {claim.plan_name && (
-                                  <p className="text-xs text-muted-foreground">{claim.plan_name}</p>
+                                  <p className="text-[14px] text-muted-foreground">{claim.plan_name}</p>
                                 )}
                               </div>
                             </div>
                           </TableCell>
                           <TableCell className="align-top">
-                            <span className="text-sm text-gray-600">{claim.patient_name}</span>
+                            <span className="text-[14px] text-gray-600">{claim.patient_name}</span>
                           </TableCell>
                           <TableCell className="align-top text-right">
-                            <p className="text-sm font-medium text-gray-900">
+                            <p className="text-[14px] font-medium text-gray-900">
                               {formatCurrency(claim.claim_amount)}
                             </p>
                           </TableCell>
@@ -903,7 +903,7 @@ export default function InsuranceIndex({
 
                   {/* Table Footer */}
                   {claims.length > 0 && (
-                    <div className="flex items-center justify-center px-4 py-4 border-t border-[#E5E5E5] text-xs text-gray-500">
+                    <div className="flex items-center justify-center px-6 py-4 border-t border-[#E5E5E5] text-[14px] text-gray-500">
                       <span>
                         Showing {filteredClaims.length} of {claims.length}
                       </span>
@@ -953,12 +953,12 @@ export default function InsuranceIndex({
                   >
                     <Upload className="h-6 w-6" style={{ color: '#1E40AF' }} />
                   </div>
-                  <p className="mb-1 text-sm font-semibold text-gray-900">Upload policy PDF</p>
-                  <p className="mb-3 text-xs text-gray-500">
+                  <p className="mb-1 text-[14px] font-semibold text-gray-900">Upload policy PDF</p>
+                  <p className="mb-3 text-[14px] text-gray-500">
                     We'll extract the details automatically
                   </p>
-                  <p className="text-xs text-gray-400">Drag & drop or click to browse</p>
-                  <p className="mt-1 text-xs text-gray-400">PDF only - Max 10MB</p>
+                  <p className="text-[14px] text-gray-400">Drag & drop or click to browse</p>
+                  <p className="mt-1 text-[14px] text-gray-400">PDF only - Max 10MB</p>
                 </div>
 
                 <input
@@ -970,7 +970,7 @@ export default function InsuranceIndex({
                 />
 
                 {uploadError && (
-                  <div className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+                  <div className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-[14px] text-red-600">
                     <AlertTriangle className="h-4 w-4 flex-shrink-0" />
                     {uploadError}
                   </div>
@@ -978,12 +978,12 @@ export default function InsuranceIndex({
 
                 <div className="flex items-center gap-3">
                   <div className="h-px flex-1 bg-gray-200" />
-                  <span className="text-xs text-gray-400">OR</span>
+                  <span className="text-[14px] text-gray-400">OR</span>
                   <div className="h-px flex-1 bg-gray-200" />
                 </div>
 
                 <button
-                  className="w-full text-center text-sm font-medium text-blue-600 hover:underline"
+                  className="w-full text-center text-[14px] font-medium text-blue-600 hover:underline"
                   onClick={handleEnterManually}
                 >
                   Enter details manually
@@ -995,15 +995,15 @@ export default function InsuranceIndex({
             {addStep === 'extracting' && (
               <div className="flex flex-col items-center justify-center py-12">
                 <LoaderCircle className="mb-4 h-10 w-10 animate-spin text-blue-600" />
-                <p className="mb-1 text-sm font-semibold text-gray-900">
+                <p className="mb-1 text-[14px] font-semibold text-gray-900">
                   Extracting policy details...
                 </p>
-                <p className="mb-6 text-xs text-gray-500">This may take a few moments</p>
+                <p className="mb-6 text-[14px] text-gray-500">This may take a few moments</p>
                 {uploadedFile && (
                   <div className="flex items-center gap-2 rounded-lg bg-gray-50 px-4 py-2">
                     <FileText className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm text-gray-600">{uploadedFile.name}</span>
-                    <span className="text-xs text-gray-400">
+                    <span className="text-[14px] text-gray-600">{uploadedFile.name}</span>
+                    <span className="text-[14px] text-gray-400">
                       ({formatFileSize(uploadedFile.size)})
                     </span>
                   </div>
@@ -1019,17 +1019,17 @@ export default function InsuranceIndex({
                 >
                   <XCircle className="h-6 w-6 text-red-500" />
                 </div>
-                <p className="mb-1 text-sm font-semibold text-gray-900">
+                <p className="mb-1 text-[14px] font-semibold text-gray-900">
                   Couldn't extract policy details
                 </p>
-                <p className="mb-6 max-w-xs text-center text-xs text-gray-500">
+                <p className="mb-6 max-w-xs text-center text-[14px] text-gray-500">
                   The document may be encrypted or in an unsupported format.
                 </p>
                 {uploadedFile && (
                   <div className="mb-6 flex items-center gap-2 rounded-lg bg-gray-50 px-4 py-2">
                     <FileText className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm text-gray-600">{uploadedFile.name}</span>
-                    <span className="text-xs text-gray-400">
+                    <span className="text-[14px] text-gray-600">{uploadedFile.name}</span>
+                    <span className="text-[14px] text-gray-400">
                       ({formatFileSize(uploadedFile.size)})
                     </span>
                   </div>
@@ -1050,19 +1050,19 @@ export default function InsuranceIndex({
             {addStep === 'review' && (
               <div className="space-y-6">
                 {cameFromUpload && extractionType === 'full' && (
-                  <div className="flex items-center gap-2 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">
+                  <div className="flex items-center gap-2 rounded-lg bg-green-50 px-3 py-2 text-[14px] text-green-700">
                     <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
                     Details extracted from PDF. Review and confirm below.
                   </div>
                 )}
                 {cameFromUpload && extractionType === 'partial' && (
-                  <div className="flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-700">
+                  <div className="flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-[14px] text-amber-700">
                     <AlertTriangle className="h-4 w-4 flex-shrink-0" />
                     Some details couldn't be extracted. Please fill in the highlighted fields.
                   </div>
                 )}
                 {formErrors.policy_number?.includes('already') && (
-                  <div className="flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-700">
+                  <div className="flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-[14px] text-amber-700">
                     <AlertTriangle className="h-4 w-4 flex-shrink-0" />
                     A policy with this number already exists. Please check and update if needed.
                   </div>
@@ -1070,12 +1070,12 @@ export default function InsuranceIndex({
 
                 {/* Provider */}
                 <div>
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                  <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">
                     Provider
                   </p>
                   <div className="space-y-3">
                     <div>
-                      <label className="mb-1 block text-xs font-medium text-gray-700">
+                      <label className="mb-1 block text-[14px] font-medium text-gray-700">
                         Insurance Provider *
                       </label>
                       <Select
@@ -1101,7 +1101,7 @@ export default function InsuranceIndex({
                         </SelectContent>
                       </Select>
                       {formErrors.insurance_provider_id && (
-                        <p className="mt-1 text-xs text-red-500">
+                        <p className="mt-1 text-[14px] text-red-500">
                           {formErrors.insurance_provider_id}
                         </p>
                       )}
@@ -1113,12 +1113,12 @@ export default function InsuranceIndex({
 
                 {/* Policy Details */}
                 <div>
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                  <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">
                     Policy Details
                   </p>
                   <div className="space-y-3">
                     <div>
-                      <label className="mb-1 block text-xs font-medium text-gray-700">
+                      <label className="mb-1 block text-[14px] font-medium text-gray-700">
                         Policy Number *
                       </label>
                       <Input
@@ -1130,11 +1130,11 @@ export default function InsuranceIndex({
                         )}
                       />
                       {formErrors.policy_number && (
-                        <p className="mt-1 text-xs text-red-500">{formErrors.policy_number}</p>
+                        <p className="mt-1 text-[14px] text-red-500">{formErrors.policy_number}</p>
                       )}
                     </div>
                     <div>
-                      <label className="mb-1 block text-xs font-medium text-gray-700">
+                      <label className="mb-1 block text-[14px] font-medium text-gray-700">
                         Plan Name *
                       </label>
                       <Input
@@ -1146,11 +1146,11 @@ export default function InsuranceIndex({
                         )}
                       />
                       {formErrors.plan_name && (
-                        <p className="mt-1 text-xs text-red-500">{formErrors.plan_name}</p>
+                        <p className="mt-1 text-[14px] text-red-500">{formErrors.plan_name}</p>
                       )}
                     </div>
                     <div>
-                      <label className="mb-1 block text-xs font-medium text-gray-700">
+                      <label className="mb-1 block text-[14px] font-medium text-gray-700">
                         Plan Type *
                       </label>
                       <Select
@@ -1174,7 +1174,7 @@ export default function InsuranceIndex({
                         </SelectContent>
                       </Select>
                       {formErrors.plan_type && (
-                        <p className="mt-1 text-xs text-red-500">{formErrors.plan_type}</p>
+                        <p className="mt-1 text-[14px] text-red-500">{formErrors.plan_type}</p>
                       )}
                     </div>
                   </div>
@@ -1184,12 +1184,12 @@ export default function InsuranceIndex({
 
                 {/* Coverage */}
                 <div>
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                  <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">
                     Coverage
                   </p>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="mb-1 block text-xs font-medium text-gray-700">
+                      <label className="mb-1 block text-[14px] font-medium text-gray-700">
                         Sum Insured (&#8377;) *
                       </label>
                       <Input
@@ -1204,11 +1204,11 @@ export default function InsuranceIndex({
                         )}
                       />
                       {formErrors.sum_insured && (
-                        <p className="mt-1 text-xs text-red-500">{formErrors.sum_insured}</p>
+                        <p className="mt-1 text-[14px] text-red-500">{formErrors.sum_insured}</p>
                       )}
                     </div>
                     <div>
-                      <label className="mb-1 block text-xs font-medium text-gray-700">
+                      <label className="mb-1 block text-[14px] font-medium text-gray-700">
                         Premium (&#8377;)
                       </label>
                       <Input
@@ -1225,12 +1225,12 @@ export default function InsuranceIndex({
 
                 {/* Validity */}
                 <div>
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                  <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">
                     Validity
                   </p>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="mb-1 block text-xs font-medium text-gray-700">
+                      <label className="mb-1 block text-[14px] font-medium text-gray-700">
                         Start Date *
                       </label>
                       <DatePicker
@@ -1244,11 +1244,11 @@ export default function InsuranceIndex({
                         placeholder="Select start date"
                       />
                       {formErrors.start_date && (
-                        <p className="mt-1 text-xs text-red-500">{formErrors.start_date}</p>
+                        <p className="mt-1 text-[14px] text-red-500">{formErrors.start_date}</p>
                       )}
                     </div>
                     <div>
-                      <label className="mb-1 block text-xs font-medium text-gray-700">
+                      <label className="mb-1 block text-[14px] font-medium text-gray-700">
                         End Date *
                       </label>
                       <DatePicker
@@ -1262,7 +1262,7 @@ export default function InsuranceIndex({
                         placeholder="Select end date"
                       />
                       {formErrors.end_date && (
-                        <p className="mt-1 text-xs text-red-500">{formErrors.end_date}</p>
+                        <p className="mt-1 text-[14px] text-red-500">{formErrors.end_date}</p>
                       )}
                     </div>
                   </div>
@@ -1273,7 +1273,7 @@ export default function InsuranceIndex({
                 {/* Covered Members */}
                 {familyMembers.length > 0 && (
                   <div>
-                    <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">
                       Covered Members
                     </p>
                     <div className="space-y-2">
@@ -1286,8 +1286,8 @@ export default function InsuranceIndex({
                             checked={policyForm.members.includes(m.id)}
                             onCheckedChange={() => toggleMember(m.id)}
                           />
-                          <span className="text-sm text-gray-900">{m.name}</span>
-                          <span className="text-xs capitalize text-gray-500">({m.relation})</span>
+                          <span className="text-[14px] text-gray-900">{m.name}</span>
+                          <span className="text-[14px] capitalize text-gray-500">({m.relation})</span>
                         </label>
                       ))}
                     </div>
@@ -1341,14 +1341,14 @@ export default function InsuranceIndex({
                     onClick={() => handlePreAuthPolicySelect(p.id)}
                   >
                     <div
-                      className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold"
+                      className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-[14px] font-bold"
                       style={{ backgroundColor: '#BFDBFE', color: '#1E40AF' }}
                     >
                       {getProviderInitials(p.provider_name)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">{p.plan_name}</p>
-                      <p className="text-xs text-gray-500">{p.provider_name} &middot; {formatCurrency(p.sum_insured)}</p>
+                      <p className="text-[14px] font-semibold text-gray-900 truncate">{p.plan_name}</p>
+                      <p className="text-[14px] text-gray-500">{p.provider_name} &middot; {formatCurrency(p.sum_insured)}</p>
                     </div>
                     <ChevronRight className="h-4 w-4 text-gray-400 flex-shrink-0" />
                   </button>
@@ -1375,14 +1375,14 @@ export default function InsuranceIndex({
                         onClick={() => handlePreAuthPatientSelect(member.id)}
                       >
                         <div
-                          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+                          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-[14px] font-semibold"
                           style={{ backgroundColor: color.bg, color: color.text }}
                         >
                           {getPatientInitials(member.name)}
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-semibold text-gray-900">{member.name}</p>
-                          <p className="text-xs text-gray-500 capitalize">{member.relation}</p>
+                          <p className="text-[14px] font-semibold text-gray-900">{member.name}</p>
+                          <p className="text-[14px] text-gray-500 capitalize">{member.relation}</p>
                         </div>
                         <ChevronRight className="h-4 w-4 text-gray-400" />
                       </button>
@@ -1396,7 +1396,7 @@ export default function InsuranceIndex({
             {preAuthStep === 'details' && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label className="block text-[14px] font-medium text-gray-700 mb-1.5">
                     Treatment / Reason <span className="text-red-500">*</span>
                   </label>
                   <Input
@@ -1406,7 +1406,7 @@ export default function InsuranceIndex({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label className="block text-[14px] font-medium text-gray-700 mb-1.5">
                     Expected Admission Date <span className="text-red-500">*</span>
                   </label>
                   <DatePicker
@@ -1417,7 +1417,7 @@ export default function InsuranceIndex({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label className="block text-[14px] font-medium text-gray-700 mb-1.5">
                     Expected Discharge Date
                   </label>
                   <DatePicker
@@ -1428,7 +1428,7 @@ export default function InsuranceIndex({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label className="block text-[14px] font-medium text-gray-700 mb-1.5">
                     Room Type <span className="text-red-500">*</span>
                   </label>
                   <Select
@@ -1446,7 +1446,7 @@ export default function InsuranceIndex({
                   </Select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label className="block text-[14px] font-medium text-gray-700 mb-1.5">
                     Estimated Cost
                   </label>
                   <Input
@@ -1458,7 +1458,7 @@ export default function InsuranceIndex({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label className="block text-[14px] font-medium text-gray-700 mb-1.5">
                     Doctor / Specialist Name
                   </label>
                   <Input
@@ -1468,7 +1468,7 @@ export default function InsuranceIndex({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label className="block text-[14px] font-medium text-gray-700 mb-1.5">
                     Additional Notes
                   </label>
                   <Textarea
@@ -1487,57 +1487,57 @@ export default function InsuranceIndex({
               <div className="space-y-4">
                 {preAuthPolicy && (
                   <div className="rounded-xl border px-4 py-3.5">
-                    <p className="text-xs font-medium text-gray-500 mb-1">Policy</p>
-                    <p className="text-sm font-semibold text-gray-900">{preAuthPolicy.plan_name}</p>
-                    <p className="text-xs text-gray-500">{preAuthPolicy.provider_name} &middot; {preAuthPolicy.policy_number}</p>
+                    <p className="text-[14px] font-medium text-gray-500 mb-1">Policy</p>
+                    <p className="text-[14px] font-semibold text-gray-900">{preAuthPolicy.plan_name}</p>
+                    <p className="text-[14px] text-gray-500">{preAuthPolicy.provider_name} &middot; {preAuthPolicy.policy_number}</p>
                   </div>
                 )}
 
                 {preAuthSelectedPatient && (
                   <div className="rounded-xl border px-4 py-3.5">
-                    <p className="text-xs font-medium text-gray-500 mb-1">Patient</p>
-                    <p className="text-sm font-semibold text-gray-900">{preAuthSelectedPatient.name}</p>
-                    <p className="text-xs text-gray-500 capitalize">{preAuthSelectedPatient.relation}</p>
+                    <p className="text-[14px] font-medium text-gray-500 mb-1">Patient</p>
+                    <p className="text-[14px] font-semibold text-gray-900">{preAuthSelectedPatient.name}</p>
+                    <p className="text-[14px] text-gray-500 capitalize">{preAuthSelectedPatient.relation}</p>
                   </div>
                 )}
 
                 <div className="rounded-xl border px-4 py-3.5 space-y-2.5">
-                  <p className="text-xs font-medium text-gray-500">Admission Details</p>
+                  <p className="text-[14px] font-medium text-gray-500">Admission Details</p>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-xs text-gray-500">Treatment</span>
-                      <span className="text-sm font-medium text-gray-900">{preAuthForm.treatment_name}</span>
+                      <span className="text-[14px] text-gray-500">Treatment</span>
+                      <span className="text-[14px] font-medium text-gray-900">{preAuthForm.treatment_name}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-xs text-gray-500">Admission Date</span>
-                      <span className="text-sm font-medium text-gray-900">{preAuthForm.admission_date}</span>
+                      <span className="text-[14px] text-gray-500">Admission Date</span>
+                      <span className="text-[14px] font-medium text-gray-900">{preAuthForm.admission_date}</span>
                     </div>
                     {preAuthForm.discharge_date && (
                       <div className="flex justify-between">
-                        <span className="text-xs text-gray-500">Discharge Date</span>
-                        <span className="text-sm font-medium text-gray-900">{preAuthForm.discharge_date}</span>
+                        <span className="text-[14px] text-gray-500">Discharge Date</span>
+                        <span className="text-[14px] font-medium text-gray-900">{preAuthForm.discharge_date}</span>
                       </div>
                     )}
                     <div className="flex justify-between">
-                      <span className="text-xs text-gray-500">Room Type</span>
-                      <span className="text-sm font-medium text-gray-900">{preAuthSelectedRoomLabel}</span>
+                      <span className="text-[14px] text-gray-500">Room Type</span>
+                      <span className="text-[14px] font-medium text-gray-900">{preAuthSelectedRoomLabel}</span>
                     </div>
                     {preAuthForm.estimated_cost && (
                       <div className="flex justify-between">
-                        <span className="text-xs text-gray-500">Estimated Cost</span>
-                        <span className="text-sm font-medium text-gray-900">{formatCurrency(parseInt(preAuthForm.estimated_cost))}</span>
+                        <span className="text-[14px] text-gray-500">Estimated Cost</span>
+                        <span className="text-[14px] font-medium text-gray-900">{formatCurrency(parseInt(preAuthForm.estimated_cost))}</span>
                       </div>
                     )}
                     {preAuthForm.doctor_name && (
                       <div className="flex justify-between">
-                        <span className="text-xs text-gray-500">Doctor</span>
-                        <span className="text-sm font-medium text-gray-900">{preAuthForm.doctor_name}</span>
+                        <span className="text-[14px] text-gray-500">Doctor</span>
+                        <span className="text-[14px] font-medium text-gray-900">{preAuthForm.doctor_name}</span>
                       </div>
                     )}
                     {preAuthForm.notes && (
                       <div>
-                        <span className="text-xs text-gray-500">Notes</span>
-                        <p className="text-sm text-gray-700 mt-0.5">{preAuthForm.notes}</p>
+                        <span className="text-[14px] text-gray-500">Notes</span>
+                        <p className="text-[14px] text-gray-700 mt-0.5">{preAuthForm.notes}</p>
                       </div>
                     )}
                   </div>
@@ -1545,7 +1545,7 @@ export default function InsuranceIndex({
 
                 <div className="rounded-lg bg-blue-50 border border-blue-100 px-3.5 py-3 flex items-start gap-2.5">
                   <Check className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-xs text-blue-700">
+                  <p className="text-[14px] text-blue-700">
                     Your pre-authorization request will be sent to {preAuthPolicy?.provider_name} for review. You'll be notified once it's processed.
                   </p>
                 </div>

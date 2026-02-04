@@ -49,13 +49,13 @@ export function InfoCard({ items, className }: InfoCardProps) {
         <div
           key={index}
           className={cn(
-            'flex items-start px-6 py-5',
+            'flex items-start px-6 py-4',
             index !== items.length - 1 && 'border-b border-border'
           )}
         >
           {/* Label */}
           <div className="w-[140px] flex-shrink-0">
-            <span className="text-sm text-neutral-500">{item.label}</span>
+            <span className="text-[14px] font-normal leading-5 text-[#737373]">{item.label}</span>
           </div>
 
           {/* Content */}
@@ -63,7 +63,7 @@ export function InfoCard({ items, className }: InfoCardProps) {
             {/* Avatar (optional) - only show if there's a value */}
             {item.avatar && item.value && (
               <div
-                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold overflow-hidden"
+                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-[14px] font-semibold overflow-hidden"
                 style={{
                   backgroundColor: item.avatar.bgColor || '#F3F4F6',
                   color: item.avatar.textColor || '#374151',
@@ -85,16 +85,16 @@ export function InfoCard({ items, className }: InfoCardProps) {
             {/* Text content */}
             <div className="flex-1 min-w-0">
               {item.value === null || item.value === undefined ? (
-                <p className="text-sm font-medium truncate" style={{ color: '#0A0B0D', lineHeight: '20px' }}>—</p>
+                <p className="text-[14px] font-semibold truncate" style={{ color: '#171717', lineHeight: '20px' }}>—</p>
               ) : typeof item.value === 'string' ? (
-                <p className="text-sm font-medium truncate" style={{ color: '#0A0B0D', lineHeight: '20px' }}>
+                <p className="text-[14px] font-semibold truncate" style={{ color: '#171717', lineHeight: '20px' }}>
                   {item.value || '—'}
                 </p>
               ) : (
                 item.value
               )}
               {item.subtitle && (
-                <p className="text-sm font-medium text-neutral-500 mt-0.5" style={{ lineHeight: '20px' }}>{item.subtitle}</p>
+                <p className="text-[14px] font-normal text-neutral-500 mt-0.5" style={{ lineHeight: '20px' }}>{item.subtitle}</p>
               )}
             </div>
           </div>

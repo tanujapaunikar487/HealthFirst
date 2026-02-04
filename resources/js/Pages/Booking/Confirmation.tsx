@@ -97,10 +97,10 @@ export default function Confirmation({ booking }: Props) {
               <Icon icon={Info} className="w-3.5 h-3.5 text-white" />
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-sm mb-2">What's next?</p>
+              <p className="font-semibold text-[14px] mb-2">What's next?</p>
               <ul className="space-y-1">
                 {getWhatsNextItems().map((item, i) => (
-                  <li key={i} className="text-sm text-foreground flex items-start gap-2">
+                  <li key={i} className="text-[14px] text-foreground flex items-start gap-2">
                     <span>•</span>
                     <span>{item}</span>
                   </li>
@@ -143,9 +143,9 @@ export default function Confirmation({ booking }: Props) {
 
 function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between p-4">
-      <span className="text-sm text-muted-foreground">{label}</span>
-      <div className="text-sm text-right font-medium">{value}</div>
+    <div className="flex items-center justify-between px-6 py-4">
+      <span className="text-[14px] text-muted-foreground">{label}</span>
+      <div className="text-[14px] text-right font-medium">{value}</div>
     </div>
   );
 }

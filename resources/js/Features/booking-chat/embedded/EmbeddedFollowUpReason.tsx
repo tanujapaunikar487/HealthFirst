@@ -55,10 +55,10 @@ export function EmbeddedFollowUpReason({ selectedReason, onSelect, disabled }: P
 
             {/* Text content */}
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-sm text-foreground leading-tight mb-0.5">
+              <p className="font-medium text-[14px] text-foreground leading-tight mb-0.5">
                 {reason.label}
               </p>
-              <p className="text-xs text-muted-foreground leading-tight">
+              <p className="text-[14px] text-muted-foreground leading-tight">
                 {reason.description}
               </p>
             </div>

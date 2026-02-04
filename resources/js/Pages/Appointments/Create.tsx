@@ -102,7 +102,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
               fontSize: '16px',
               fontWeight: 600,
               lineHeight: '24px',
-              color: '#0A0B0D',
+              color: '#171717',
             }}
           >
             Booking an appointment
@@ -258,7 +258,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
               fontWeight: 700,
               lineHeight: '40px',
               letterSpacing: '-0.64px',
-              color: '#0A0B0D',
+              color: '#171717',
               textAlign: 'center',
               margin: 0,
             }}
@@ -347,7 +347,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                       transition: 'all 0.2s ease',
                       fontSize: '15px',
                       fontWeight: 400,
-                      color: '#0A0B0D',
+                      color: '#171717',
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.backgroundColor = '#F9FAFB';
@@ -495,10 +495,10 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
 
           {/* Disclaimer */}
           <p
-            className="font-medium"
+            className="font-normal"
             style={{
               fontSize: '14px',
-              fontWeight: 500,
+              fontWeight: 400,
               lineHeight: '20px',
               color: '#737373',
               textAlign: 'center',

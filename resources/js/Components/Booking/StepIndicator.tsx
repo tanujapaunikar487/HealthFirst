@@ -60,7 +60,7 @@ export function StepIndicator({ steps, currentStepId, className }: StepIndicator
             return (
               <div
                 key={step.id}
-                className="text-sm whitespace-nowrap text-center"
+                className="text-[14px] whitespace-nowrap text-center"
                 style={{
                   flex: '1 1 0%',
                 }}

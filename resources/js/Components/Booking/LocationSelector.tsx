@@ -60,10 +60,10 @@ export function LocationSelector({
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm">{location.label}</p>
-                  <p className="text-xs text-muted-foreground">{location.description}</p>
+                  <p className="font-medium text-[14px]">{location.label}</p>
+                  <p className="text-[14px] text-muted-foreground">{location.description}</p>
                   {location.address && (
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-[14px] text-muted-foreground mt-1">
                       {location.address}
                       {location.distance && ` • ${location.distance}`}
                     </p>
@@ -77,7 +77,7 @@ export function LocationSelector({
                           e.stopPropagation();
                           onChangeAddress();
                         }}
-                        className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
+                        className="inline-flex items-center gap-1 text-[14px] text-primary hover:text-primary/80 transition-colors"
                       >
                         <Icon icon={MapPin} className="h-3 w-3" />
                         Change address
@@ -88,7 +88,7 @@ export function LocationSelector({
                           e.stopPropagation();
                           onChangeBranch();
                         }}
-                        className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
+                        className="inline-flex items-center gap-1 text-[14px] text-primary hover:text-primary/80 transition-colors"
                       >
                         <Icon icon={MapPin} className="h-3 w-3" />
                         Change branch
@@ -97,7 +97,7 @@ export function LocationSelector({
                   </div>
                 </div>
 
-                <span className="font-semibold text-sm flex-shrink-0">
+                <span className="font-semibold text-[14px] flex-shrink-0">
                   ₹{location.fee.toLocaleString()}
                 </span>
               </button>

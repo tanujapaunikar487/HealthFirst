@@ -50,7 +50,7 @@ export function EmergencyAlert({
                     {policeNumber && (
                         <a
                             href={`tel:${policeNumber}`}
-                            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold text-sm shadow-sm transition-colors"
+                            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold text-[14px] shadow-sm transition-colors"
                         >
                             <Icon icon={Shield} className="w-4 h-4" />
                             <span>Police {policeNumber}</span>
@@ -59,7 +59,7 @@ export function EmergencyAlert({
                     {fireNumber && (
                         <a
                             href={`tel:${fireNumber}`}
-                            className="flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white py-3 px-4 rounded-lg font-semibold text-sm shadow-sm transition-colors"
+                            className="flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white py-3 px-4 rounded-lg font-semibold text-[14px] shadow-sm transition-colors"
                         >
                             <Icon icon={Flame} className="w-4 h-4" />
                             <span>Fire {fireNumber}</span>
@@ -95,7 +95,7 @@ export function EmergencyAlert({
 
             {/* Warning Text */}
             <div className="mt-4 p-4 bg-white rounded-lg border border-red-300">
-                <p className="text-sm text-red-800 leading-relaxed">
+                <p className="text-[14px] text-red-800 leading-relaxed">
                     <strong>Important:</strong> This booking system cannot handle
                     medical emergencies. If you're experiencing a life-threatening
                     situation, please call the emergency numbers above or go
@@ -105,7 +105,7 @@ export function EmergencyAlert({
 
             {/* Disclaimer for Non-Emergency */}
             <div className="mt-3 text-center">
-                <p className="text-xs text-gray-600">
+                <p className="text-[14px] text-gray-600">
                     If this is not an emergency and I misunderstood, please start a
                     new chat and describe your needs differently.
                 </p>

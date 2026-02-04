@@ -20,7 +20,7 @@ export function FastingAlert({ hours, className }: FastingAlertProps) {
       </div>
       <div>
         <p className="font-semibold text-amber-900">Fasting required</p>
-        <p className="text-sm text-amber-700">{hours} hours before. Morning recommended.</p>
+        <p className="text-[14px] text-amber-700">{hours} hours before. Morning recommended.</p>
       </div>
     </div>
   );

@@ -24,7 +24,7 @@ export function TimeSlotGrid({ slots, selectedTime, onSelect, className }: TimeS
           onClick={() => slot.available && onSelect(slot.time)}
           disabled={!slot.available}
           className={cn(
-            'px-3 py-1.5 rounded-lg text-sm border transition-all relative',
+            'px-3 py-1.5 rounded-lg text-[14px] border transition-all relative',
             'hover:border-primary/50',
             selectedTime === slot.time &&
               'bg-foreground text-background border-foreground hover:border-foreground',

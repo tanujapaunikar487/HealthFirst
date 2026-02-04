@@ -422,7 +422,7 @@ function HealthRecordsSkeleton() {
           <Pulse className="h-3 w-12" />
         </div>
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-4 px-4 py-4 border-b border-border last:border-0">
+          <div key={i} className="flex items-center gap-4 px-6 py-4 border-b border-border last:border-0">
             <Pulse className="h-4 w-4 rounded flex-shrink-0" />
             <Pulse className="h-4 w-20" />
             <div className="flex items-center gap-3 w-64">
@@ -804,9 +804,9 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
 
             {datePreset === 'custom' && (
               <div className="flex items-center gap-1.5">
-                <DatePicker value={dateFrom} onChange={setDateFrom} className="h-9 w-[140px] text-sm" placeholder="From" />
-                <span className="text-xs text-muted-foreground">to</span>
-                <DatePicker value={dateTo} onChange={setDateTo} className="h-9 w-[140px] text-sm" placeholder="To" />
+                <DatePicker value={dateFrom} onChange={setDateFrom} className="h-9 w-[140px] text-[14px]" placeholder="From" />
+                <span className="text-[14px] text-muted-foreground">to</span>
+                <DatePicker value={dateTo} onChange={setDateTo} className="h-9 w-[140px] text-[14px]" placeholder="To" />
               </div>
             )}
 
@@ -825,14 +825,14 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
           {activeFilters.length > 0 && (
             <div className="flex items-center gap-2 flex-wrap">
               {activeFilters.map((f) => (
-                <Badge key={f.key} variant="secondary" className="gap-1 pl-2.5 pr-1.5 py-1 h-7 text-xs font-medium">
+                <Badge key={f.key} variant="secondary" className="gap-1 pl-2.5 pr-1.5 py-1 h-7 text-[14px] font-medium">
                   {f.label}
                   <button onClick={f.onRemove} className="ml-1 rounded-full hover:bg-muted-foreground/20 p-0.5">
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
               ))}
-              <button onClick={clearAllFilters} className="text-xs text-muted-foreground hover:text-foreground ml-1">
+              <button onClick={clearAllFilters} className="text-[14px] text-muted-foreground hover:text-foreground ml-1">
                 Clear all
               </button>
             </div>
@@ -842,7 +842,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
         {/* Bulk Actions Bar */}
         {selectedIds.size > 0 && (
           <div className="flex items-center gap-3 rounded-lg bg-muted px-4 py-2.5 mt-4 mb-4">
-            <span className="text-sm font-medium">{selectedIds.size} selected</span>
+            <span className="text-[14px] font-medium">{selectedIds.size} selected</span>
             <Button variant="outline" size="sm" className="gap-1.5" onClick={() => {
               const selected = records.filter(r => selectedIds.has(r.id));
               const categoryLabels = Object.fromEntries(
@@ -907,26 +907,26 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                           />
                         </TableCell>
                         <TableCell>
-                          <p className="text-sm font-medium whitespace-nowrap">{formatTableDate(record.record_date)}</p>
+                          <p className="text-[14px] font-medium whitespace-nowrap">{formatTableDate(record.record_date)}</p>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <CategoryIcon category={record.category} size="sm" />
                             <div className="min-w-0">
-                              <p className="text-sm font-medium truncate">{record.title}</p>
-                              <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                              <p className="text-[14px] font-medium truncate">{record.title}</p>
+                              <p className="text-[14px] text-muted-foreground mt-0.5 truncate">
                                 {config.label}{record.doctor_name && ` • ${record.doctor_name}`}
                               </p>
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <span className="text-sm">
+                          <span className="text-[14px]">
                             {member ? member.name : 'You'}
                           </span>
                         </TableCell>
                         <TableCell>
-                          {record.status ? <StatusBadge status={record.status} /> : <span className="text-sm text-muted-foreground">—</span>}
+                          {record.status ? <StatusBadge status={record.status} /> : <span className="text-[14px] text-muted-foreground">—</span>}
                         </TableCell>
                         <TableCell>
                           <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -938,8 +938,8 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
               </Table>
 
               {/* Pagination Footer */}
-              <div className="flex items-center justify-between px-4 py-4 border-t border-[#E5E5E5]">
-                <p className="text-sm text-muted-foreground">
+              <div className="flex items-center justify-between px-6 py-4 border-t border-[#E5E5E5]">
+                <p className="text-[14px] text-muted-foreground">
                   Showing {startIdx + 1}–{Math.min(startIdx + RECORDS_PER_PAGE, filteredRecords.length)} of {filteredRecords.length} records
                 </p>
                 {totalPages > 1 && (

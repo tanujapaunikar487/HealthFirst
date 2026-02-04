@@ -142,7 +142,7 @@ function NotificationCard({
   return (
     <button
       onClick={onClick}
-      className="w-full text-left rounded-xl p-3.5 transition-colors hover:bg-gray-50"
+      className="w-full text-left rounded-xl p-4 transition-colors hover:bg-gray-50"
       style={{
         backgroundColor: isUnread ? '#F8FAFF' : '#FFFFFF',
         border: `1px solid ${isUnread ? '#DBEAFE' : '#F0F0F0'}`,
@@ -164,7 +164,7 @@ function NotificationCard({
               )}
             </div>
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">
+          <p className="text-[14px] text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">
             {notification.message}
           </p>
           <div className="flex items-center gap-1.5 mt-2">
@@ -386,7 +386,7 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
             >
               <Icon icon={AlertTriangle} className="h-3.5 w-3.5" style={{ color: '#F57F17' }} />
             </div>
-            <p className="flex-1 text-sm font-medium" style={{ color: '#5D4037' }}>
+            <p className="flex-1 text-[14px] font-medium" style={{ color: '#5D4037' }}>
               Your profile is incomplete. Add{' '}
               {profileWarnings.map((w, i) => (
                 <span key={w.key}>
@@ -443,7 +443,7 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
               {unreadCount > 0 && (
                 <button
                   onClick={handleMarkAllAsRead}
-                  className="flex items-center gap-1 text-xs font-medium hover:underline"
+                  className="flex items-center gap-1 text-[14px] font-medium hover:underline"
                   style={{ color: '#0052FF' }}
                 >
                   <Icon icon={CheckCheck} className="h-3.5 w-3.5" />
@@ -471,7 +471,7 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
           <SheetDivider />
 
           {/* Scrollable Notification List */}
-          <div className="flex-1 overflow-y-auto px-4 py-4">
+          <div className="flex-1 overflow-y-auto px-6 py-4">
             {displayedNotifications.length === 0 ? (
               <div className="text-center py-16">
                 <div
@@ -480,10 +480,10 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
                 >
                   <Icon icon={Bell} className="h-6 w-6 text-gray-400" />
                 </div>
-                <p className="text-sm font-medium" style={{ color: '#00184D' }}>
+                <p className="text-[14px] font-medium" style={{ color: '#00184D' }}>
                   {notifFilter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-[14px] text-muted-foreground mt-1">
                   {notifFilter === 'unread'
                     ? "You're all caught up!"
                     : 'Updates about appointments, billing, and more will appear here.'}
@@ -582,13 +582,13 @@ function Sidebar({ user }: { user: User | null }) {
           >
             <Avatar className="h-10 w-10 flex-shrink-0">
               <AvatarImage src={user.avatar_url} />
-              <AvatarFallback className="text-sm">{getInitials(user.name)}</AvatarFallback>
+              <AvatarFallback className="text-[14px]">{getInitials(user.name)}</AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold truncate" style={{ color: '#00184D' }}>
+              <p className="text-[14px] font-semibold leading-5 truncate" style={{ color: '#00184D' }}>
                 {user.name}
               </p>
-              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+              <p className="text-[14px] leading-5 text-[#737373] truncate">{user.email}</p>
             </div>
           </Link>
         </div>

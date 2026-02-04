@@ -60,7 +60,7 @@ const ChainOfThoughtTrigger = React.forwardRef<
       <CollapsiblePrimitive.Trigger
         ref={ref}
         className={cn(
-          'flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors',
+          'flex items-center gap-2 text-[14px] font-medium text-muted-foreground transition-colors',
           'hover:text-foreground',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           'rounded-sm px-2 py-1 -ml-2',
@@ -100,7 +100,7 @@ const ChainOfThoughtContent = React.forwardRef<
       )}
       {...props}
     >
-      <div className="pt-2 pb-2 text-sm text-muted-foreground">{children}</div>
+      <div className="pt-2 pb-2 text-[14px] text-muted-foreground">{children}</div>
     </CollapsiblePrimitive.Content>
   </>
 ));

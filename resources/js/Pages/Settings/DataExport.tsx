@@ -92,7 +92,7 @@ export default function DataExport({
                 {/* Header */}
                 <div className="border-b-2 border-gray-800 pb-4 mb-6">
                     <h1 className="text-2xl font-bold text-gray-900">Healthcare Data Export</h1>
-                    <p className="text-sm text-gray-600 mt-1">Generated on {exportDate}</p>
+                    <p className="text-[14px] text-gray-600 mt-1">Generated on {exportDate}</p>
                 </div>
 
                 {/* Profile Section */}
@@ -100,7 +100,7 @@ export default function DataExport({
                     <h2 className="text-lg font-semibold text-gray-900 border-b border-gray-300 pb-2 mb-4">
                         Personal Information
                     </h2>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-2 gap-4 text-[14px]">
                         <div>
                             <span className="font-medium text-gray-700">Name:</span>{' '}
                             <span className="text-gray-900">{profile.name}</span>
@@ -125,7 +125,7 @@ export default function DataExport({
 
                     {/* Address */}
                     {(profile.address_line_1 || profile.city) && (
-                        <div className="mt-4 text-sm">
+                        <div className="mt-4 text-[14px]">
                             <span className="font-medium text-gray-700">Address:</span>{' '}
                             <span className="text-gray-900">
                                 {[profile.address_line_1, profile.address_line_2, profile.city, profile.state, profile.pincode]
@@ -137,7 +137,7 @@ export default function DataExport({
 
                     {/* Emergency Contact */}
                     {profile.emergency_contact_name && (
-                        <div className="mt-4 text-sm">
+                        <div className="mt-4 text-[14px]">
                             <span className="font-medium text-gray-700">Emergency Contact:</span>{' '}
                             <span className="text-gray-900">
                                 {profile.emergency_contact_name}
@@ -154,7 +154,7 @@ export default function DataExport({
                         <h2 className="text-lg font-semibold text-gray-900 border-b border-gray-300 pb-2 mb-4">
                             Family Members ({familyMembers.length})
                         </h2>
-                        <table className="w-full text-sm">
+                        <table className="w-full text-[14px]">
                             <thead>
                                 <tr className="border-b border-gray-200">
                                     <th className="text-left py-2 font-medium text-gray-700">Name</th>
@@ -183,7 +183,7 @@ export default function DataExport({
                         <h2 className="text-lg font-semibold text-gray-900 border-b border-gray-300 pb-2 mb-4">
                             Appointments ({appointments.length})
                         </h2>
-                        <table className="w-full text-sm">
+                        <table className="w-full text-[14px]">
                             <thead>
                                 <tr className="border-b border-gray-200">
                                     <th className="text-left py-2 font-medium text-gray-700">Date</th>
@@ -212,7 +212,7 @@ export default function DataExport({
                         <h2 className="text-lg font-semibold text-gray-900 border-b border-gray-300 pb-2 mb-4">
                             Health Records ({healthRecords.length})
                         </h2>
-                        <table className="w-full text-sm">
+                        <table className="w-full text-[14px]">
                             <thead>
                                 <tr className="border-b border-gray-200">
                                     <th className="text-left py-2 font-medium text-gray-700">Category</th>
@@ -234,7 +234,7 @@ export default function DataExport({
                 )}
 
                 {/* Footer */}
-                <div className="border-t border-gray-300 pt-4 mt-8 text-xs text-gray-500">
+                <div className="border-t border-gray-300 pt-4 mt-8 text-[14px] text-gray-500">
                     <p>This document contains personal health information exported from your healthcare account.</p>
                     <p className="mt-1">Please store this document securely.</p>
                 </div>

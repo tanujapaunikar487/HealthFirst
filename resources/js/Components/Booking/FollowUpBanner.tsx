@@ -19,7 +19,7 @@ export function FollowUpBanner({ symptoms, doctorName, date, className }: Follow
         <p className="font-medium text-foreground">
           Following up on: {symptoms.join(', ')}
         </p>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-[14px] text-muted-foreground">
           From {doctorName} on {date}. Add any new symptoms below.
         </p>
       </div>

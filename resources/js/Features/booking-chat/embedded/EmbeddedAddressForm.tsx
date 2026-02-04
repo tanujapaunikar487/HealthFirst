@@ -73,7 +73,7 @@ export function EmbeddedAddressForm({ onSelect, disabled }: Props) {
   };
 
   const inputClasses = cn(
-    'w-full rounded-lg border border-border bg-background px-3 py-2 text-sm',
+    'w-full rounded-lg border border-border bg-background px-3 py-2 text-[14px]',
     'placeholder:text-muted-foreground',
     'focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary',
     'disabled:opacity-50 disabled:cursor-not-allowed',
@@ -87,12 +87,12 @@ export function EmbeddedAddressForm({ onSelect, disabled }: Props) {
         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
           <MapPin className="h-4 w-4 text-primary" />
         </div>
-        <h4 className="font-semibold text-sm text-foreground">Add new address</h4>
+        <h4 className="font-semibold text-[14px] text-foreground">Add new address</h4>
       </div>
 
       {/* Label */}
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-muted-foreground">
+        <label className="text-[14px] font-medium text-muted-foreground">
           Label <span className="text-destructive">*</span>
         </label>
         <input
@@ -103,12 +103,12 @@ export function EmbeddedAddressForm({ onSelect, disabled }: Props) {
           disabled={disabled}
           className={cn(inputClasses, errors.label && errorClass)}
         />
-        {errors.label && <p className="text-xs text-destructive">{errors.label}</p>}
+        {errors.label && <p className="text-[14px] text-destructive">{errors.label}</p>}
       </div>
 
       {/* Address Line 1 */}
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-muted-foreground">
+        <label className="text-[14px] font-medium text-muted-foreground">
           Address <span className="text-destructive">*</span>
         </label>
         <input
@@ -119,12 +119,12 @@ export function EmbeddedAddressForm({ onSelect, disabled }: Props) {
           disabled={disabled}
           className={cn(inputClasses, errors.line1 && errorClass)}
         />
-        {errors.line1 && <p className="text-xs text-destructive">{errors.line1}</p>}
+        {errors.line1 && <p className="text-[14px] text-destructive">{errors.line1}</p>}
       </div>
 
       {/* Address Line 2 */}
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-muted-foreground">Landmark / Area</label>
+        <label className="text-[14px] font-medium text-muted-foreground">Landmark / Area</label>
         <input
           type="text"
           value={line2}
@@ -138,7 +138,7 @@ export function EmbeddedAddressForm({ onSelect, disabled }: Props) {
       {/* State + City row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground">
+          <label className="text-[14px] font-medium text-muted-foreground">
             State <span className="text-destructive">*</span>
           </label>
           <Select value={state} onValueChange={handleStateChange} disabled={disabled}>
@@ -151,10 +151,10 @@ export function EmbeddedAddressForm({ onSelect, disabled }: Props) {
               ))}
             </SelectContent>
           </Select>
-          {errors.state && <p className="text-xs text-destructive">{errors.state}</p>}
+          {errors.state && <p className="text-[14px] text-destructive">{errors.state}</p>}
         </div>
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground">
+          <label className="text-[14px] font-medium text-muted-foreground">
             City <span className="text-destructive">*</span>
           </label>
           <Select
@@ -171,13 +171,13 @@ export function EmbeddedAddressForm({ onSelect, disabled }: Props) {
               ))}
             </SelectContent>
           </Select>
-          {errors.city && <p className="text-xs text-destructive">{errors.city}</p>}
+          {errors.city && <p className="text-[14px] text-destructive">{errors.city}</p>}
         </div>
       </div>
 
       {/* Pincode */}
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-muted-foreground">
+        <label className="text-[14px] font-medium text-muted-foreground">
           Pincode <span className="text-destructive">*</span>
         </label>
         <input
@@ -189,7 +189,7 @@ export function EmbeddedAddressForm({ onSelect, disabled }: Props) {
           disabled={disabled}
           className={cn(inputClasses, errors.pincode && errorClass, 'max-w-[140px]')}
         />
-        {errors.pincode && <p className="text-xs text-destructive">{errors.pincode}</p>}
+        {errors.pincode && <p className="text-[14px] text-destructive">{errors.pincode}</p>}
       </div>
 
       {/* Submit */}

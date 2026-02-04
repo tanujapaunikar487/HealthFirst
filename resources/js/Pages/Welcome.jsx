@@ -117,7 +117,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                                     Documentation
                                                 </h2>
 
-                                                <p className="mt-4 text-sm/relaxed">
+                                                <p className="mt-4 text-[14px]/relaxed">
                                                     Laravel has wonderful
                                                     documentation covering every
                                                     aspect of the framework.
@@ -168,7 +168,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                             Laracasts
                                         </h2>
 
-                                        <p className="mt-4 text-sm/relaxed">
+                                        <p className="mt-4 text-[14px]/relaxed">
                                             Laracasts offers thousands of video
                                             tutorials on Laravel, PHP, and
                                             JavaScript development. Check them
@@ -217,7 +217,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                             Laravel News
                                         </h2>
 
-                                        <p className="mt-4 text-sm/relaxed">
+                                        <p className="mt-4 text-[14px]/relaxed">
                                             Laravel News is a community driven
                                             portal and newsletter aggregating
                                             all of the latest and most important
@@ -261,7 +261,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                             Vibrant Ecosystem
                                         </h2>
 
-                                        <p className="mt-4 text-sm/relaxed">
+                                        <p className="mt-4 text-[14px]/relaxed">
                                             Laravel's robust library of
                                             first-party tools and libraries,
                                             such as{' '}
@@ -350,7 +350,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             </div>
                         </main>
 
-                        <footer className="py-16 text-center text-sm text-black dark:text-white/70">
+                        <footer className="py-16 text-center text-[14px] text-black dark:text-white/70">
                             Laravel v{laravelVersion} (PHP v{phpVersion})
                         </footer>
                     </div>

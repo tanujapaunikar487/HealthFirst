@@ -62,15 +62,15 @@ export function EmbeddedLocationSelector({ locations, selectedLocationId, onSele
 
               {/* Text */}
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm">
+                <p className="font-medium text-[14px]">
                   {location.name || config.label}
                   {location.distance_km && (
-                    <span className="text-xs text-muted-foreground ml-2">
+                    <span className="text-[14px] text-muted-foreground ml-2">
                       ({location.distance_km} km away)
                     </span>
                   )}
                 </p>
-                <p className="text-xs text-muted-foreground">{location.address}</p>
+                <p className="text-[14px] text-muted-foreground">{location.address}</p>
 
                 {/* Change link - always visible on the card */}
                 {!disabled && (
@@ -81,7 +81,7 @@ export function EmbeddedLocationSelector({ locations, selectedLocationId, onSele
                           e.stopPropagation();
                           onChangeAddress();
                         }}
-                        className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
+                        className="inline-flex items-center gap-1 text-[14px] text-primary hover:text-primary/80 transition-colors"
                       >
                         <MapPin className="h-3 w-3" />
                         Change address
@@ -92,7 +92,7 @@ export function EmbeddedLocationSelector({ locations, selectedLocationId, onSele
                           e.stopPropagation();
                           onChangeBranch();
                         }}
-                        className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
+                        className="inline-flex items-center gap-1 text-[14px] text-primary hover:text-primary/80 transition-colors"
                       >
                         <MapPin className="h-3 w-3" />
                         Change branch
@@ -104,9 +104,9 @@ export function EmbeddedLocationSelector({ locations, selectedLocationId, onSele
 
               {/* Fee */}
               {isFree ? (
-                <span className="font-semibold text-sm text-green-600 flex-shrink-0">Free</span>
+                <span className="font-semibold text-[14px] text-green-600 flex-shrink-0">Free</span>
               ) : (
-                <span className="font-semibold text-sm flex-shrink-0">₹{typeof location.fee === 'number' ? location.fee.toLocaleString() : location.fee}</span>
+                <span className="font-semibold text-[14px] flex-shrink-0">₹{typeof location.fee === 'number' ? location.fee.toLocaleString() : location.fee}</span>
               )}
             </button>
           </div>

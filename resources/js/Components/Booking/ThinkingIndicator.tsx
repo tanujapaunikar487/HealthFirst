@@ -41,7 +41,7 @@ export function ThinkingIndicator({ steps = [], className }: ThinkingIndicatorPr
   return (
     <div className={cn('space-y-1.5', className)}>
       {/* Header */}
-      <div className="flex items-center gap-2 text-xs text-gray-500">
+      <div className="flex items-center gap-2 text-[14px] text-gray-500">
         <svg
           className={cn(
             'w-3.5 h-3.5',
@@ -84,7 +84,7 @@ export function ThinkingIndicator({ steps = [], className }: ThinkingIndicatorPr
           <div
             key={index}
             className={cn(
-              'flex items-start gap-2 text-xs text-gray-600 animate-in fade-in-50 slide-in-from-left-2',
+              'flex items-start gap-2 text-[14px] text-gray-600 animate-in fade-in-50 slide-in-from-left-2',
               'transition-opacity duration-200'
             )}
             style={{
@@ -100,7 +100,7 @@ export function ThinkingIndicator({ steps = [], className }: ThinkingIndicatorPr
 
       {/* Progress indicator when not complete */}
       {!isComplete && visibleSteps > 0 && (
-        <div className="ml-5 flex items-center gap-1.5 text-xs text-gray-400">
+        <div className="ml-5 flex items-center gap-1.5 text-[14px] text-gray-400">
           <div className="flex gap-0.5">
             <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
             <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />

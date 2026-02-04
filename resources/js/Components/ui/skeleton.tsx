@@ -19,8 +19,8 @@ export function ErrorState({ onRetry, label = 'Unable to load page' }: { onRetry
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
         <AlertCircle className="h-7 w-7 text-gray-400" />
       </div>
-      <p className="text-sm font-medium text-gray-600">{label}</p>
-      <p className="text-xs text-gray-400">Please check your connection and try again.</p>
+      <p className="text-[14px] font-medium text-gray-600">{label}</p>
+      <p className="text-[14px] text-gray-400">Please check your connection and try again.</p>
       <Button variant="outline" className="mt-2" onClick={onRetry}>
         <RefreshCw className="h-4 w-4" />
         Try Again
@@ -72,7 +72,7 @@ export function useSkeletonLoading(data: unknown) {
 
 export function TableRowSkeleton({ cols }: { cols: number }) {
   return (
-    <div className="flex items-center gap-4 px-4 py-4 border-b border-border last:border-0">
+    <div className="flex items-center gap-4 px-6 py-4 border-b border-border last:border-0">
       {Array.from({ length: cols }).map((_, i) => (
         <Pulse key={i} className={`h-4 ${i === 0 ? 'w-20' : i === 1 ? 'w-40' : 'w-24'}`} />
       ))}
@@ -89,7 +89,7 @@ export function TableSkeleton({ rows = 5, cols = 5 }: { rows?: number; cols?: nu
         ))}
       </div>
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="flex items-center gap-4 px-4 py-4 border-b border-border last:border-0">
+        <div key={i} className="flex items-center gap-4 px-6 py-4 border-b border-border last:border-0">
           {Array.from({ length: cols }).map((_, j) => (
             <Pulse key={j} className={`h-4 ${j === 0 ? 'w-20' : j === 1 ? 'w-40' : 'w-24'}`} />
           ))}

@@ -288,7 +288,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
 
           {/* Category Tag */}
           {category !== 'all' && (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-medium flex-shrink-0">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[14px] font-medium flex-shrink-0">
               <span>
                 {category === 'health_records' ? 'Health records' : category.charAt(0).toUpperCase() + category.slice(1)}
               </span>
@@ -307,7 +307,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search..."
-            className="flex-1 bg-transparent text-sm outline-none border-none focus:outline-none focus:ring-0 placeholder:text-muted-foreground"
+            className="flex-1 bg-transparent text-[14px] outline-none border-none focus:outline-none focus:ring-0 placeholder:text-muted-foreground"
             style={{ boxShadow: 'none' }}
             autoComplete="off"
           />
@@ -318,7 +318,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
             {query && !loading && (
               <button
                 onClick={() => setQuery('')}
-                className="text-sm text-muted-foreground hover:text-foreground"
+                className="text-[14px] text-muted-foreground hover:text-foreground"
               >
                 Clear
               </button>
@@ -344,7 +344,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                     setCategory('appointments');
                     inputRef.current?.focus();
                   }}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-gray-200 bg-white text-[14px] font-medium text-gray-900 hover:bg-gray-50 transition-colors"
                 >
                   <Icon icon={Calendar} className="h-4 w-4 text-gray-500" />
                   Search in <span className="font-semibold">appointment</span>
@@ -354,7 +354,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                     setCategory('health_records');
                     inputRef.current?.focus();
                   }}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-gray-200 bg-white text-[14px] font-medium text-gray-900 hover:bg-gray-50 transition-colors"
                 >
                   <Icon icon={ClipboardList} className="h-4 w-4 text-gray-500" />
                   Search in <span className="font-semibold">health records</span>
@@ -364,7 +364,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                     setCategory('bills');
                     inputRef.current?.focus();
                   }}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-gray-200 bg-white text-[14px] font-medium text-gray-900 hover:bg-gray-50 transition-colors"
                 >
                   <Icon icon={FileText} className="h-4 w-4 text-gray-500" />
                   Search in <span className="font-semibold">bills</span>
@@ -377,12 +377,12 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
           {error && !loading && (
             <div className="text-center py-10 px-4">
               <Icon icon={AlertTriangle} className="h-8 w-8 text-amber-500 mx-auto mb-3" />
-              <p className="text-sm font-medium" style={{ color: '#00184D' }}>
+              <p className="text-[14px] font-medium" style={{ color: '#00184D' }}>
                 {error}
               </p>
               <button
                 onClick={performSearch}
-                className="mt-3 text-sm font-medium px-4 py-2 rounded-lg transition-colors hover:bg-gray-100"
+                className="mt-3 text-[14px] font-medium px-4 py-2 rounded-lg transition-colors hover:bg-gray-100"
                 style={{ backgroundColor: '#F5F5F5', color: '#00184D' }}
               >
                 Retry
@@ -398,10 +398,10 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                 alt="No results"
                 className="w-24 h-24 mb-3"
               />
-              <p className="text-sm font-medium" style={{ color: '#00184D' }}>
+              <p className="text-[14px] font-medium" style={{ color: '#00184D' }}>
                 No results for "{query}"
               </p>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-[14px] text-muted-foreground mt-1">
                 Try a different search term or browse by category
               </p>
             </div>
@@ -430,8 +430,8 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                           <Icon icon={Stethoscope} className="h-4 w-4" />
                         </ResultIcon>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium truncate" style={{ color: '#00184D' }}>{doctor.name}</p>
-                          <p className="text-xs text-muted-foreground truncate">
+                          <p className="text-[14px] font-medium truncate" style={{ color: '#00184D' }}>{doctor.name}</p>
+                          <p className="text-[14px] text-muted-foreground truncate">
                             {doctor.specialization} &middot; {doctor.experience_years} years
                           </p>
                         </div>
@@ -462,8 +462,8 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                           <Icon icon={apptIcon} className="h-4 w-4" />
                         </ResultIcon>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium truncate" style={{ color: '#00184D' }}>{appt.title}</p>
-                          <p className="text-xs text-muted-foreground truncate">
+                          <p className="text-[14px] font-medium truncate" style={{ color: '#00184D' }}>{appt.title}</p>
+                          <p className="text-[14px] text-muted-foreground truncate">
                             {appt.subtitle} &middot; {appt.date_formatted} &middot; {appt.patient_name}
                           </p>
                         </div>
@@ -493,8 +493,8 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                           <Icon icon={FileText} className="h-4 w-4" />
                         </ResultIcon>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium truncate" style={{ color: '#00184D' }}>{record.title}</p>
-                          <p className="text-xs text-muted-foreground truncate">
+                          <p className="text-[14px] font-medium truncate" style={{ color: '#00184D' }}>{record.title}</p>
+                          <p className="text-[14px] text-muted-foreground truncate">
                             {record.doctor_name || record.category} &middot; {record.record_date_formatted} &middot; {record.patient_name}
                           </p>
                         </div>
@@ -524,10 +524,10 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                           <Icon icon={Receipt} className="h-4 w-4" />
                         </ResultIcon>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium truncate" style={{ color: '#00184D' }}>
+                          <p className="text-[14px] font-medium truncate" style={{ color: '#00184D' }}>
                             {bill.title} &middot; {bill.invoice_number}
                           </p>
-                          <p className="text-xs text-muted-foreground truncate">
+                          <p className="text-[14px] text-muted-foreground truncate">
                             {bill.patient_name} &middot; {bill.date_formatted} &middot; ₹{bill.amount}
                           </p>
                         </div>
@@ -568,7 +568,7 @@ function ResultSection({
       {total !== undefined && shownCount !== undefined && total > shownCount && onViewAll && (
         <button
           onClick={onViewAll}
-          className="flex items-center gap-1.5 w-full px-4 py-2 text-xs font-medium transition-colors hover:bg-muted"
+          className="flex items-center gap-1.5 w-full px-4 py-2 text-[14px] font-medium transition-colors hover:bg-muted"
           style={{ color: '#1E40AF' }}
         >
           <span>View all {total} results</span>

@@ -38,7 +38,7 @@ export function BasicSymptomSelection() {
     <div className="space-y-4">
       <div>
         <h3 className="text-lg font-semibold mb-2">What symptoms are you experiencing?</h3>
-        <p className="text-sm text-muted-foreground mb-4">
+        <p className="text-[14px] text-muted-foreground mb-4">
           Select all that apply, or describe in your own words
         </p>
       </div>
@@ -49,7 +49,7 @@ export function BasicSymptomSelection() {
         onToggle={handleToggle}
       />
 
-      <div className="text-sm text-muted-foreground">
+      <div className="text-[14px] text-muted-foreground">
         Selected: {selectedIds.length} symptom(s)
       </div>
     </div>
@@ -95,7 +95,7 @@ export function FollowUpSymptomSelection() {
   return (
     <div className="space-y-4">
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-        <p className="text-sm">
+        <p className="text-[14px]">
           <span className="font-semibold">Following up on:</span> Headache, dizziness
           <br />
           <span className="text-muted-foreground">
@@ -106,7 +106,7 @@ export function FollowUpSymptomSelection() {
 
       <div>
         <h3 className="text-lg font-semibold mb-2">What symptoms are you experiencing?</h3>
-        <p className="text-sm text-muted-foreground mb-4">
+        <p className="text-[14px] text-muted-foreground mb-4">
           Select all that apply, or describe in your own words
         </p>
       </div>
@@ -143,7 +143,7 @@ export function SymptomSelectionForm() {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold mb-2">What symptoms are you experiencing?</h3>
-        <p className="text-sm text-muted-foreground mb-4">
+        <p className="text-[14px] text-muted-foreground mb-4">
           Select all that apply, or describe in your own words
         </p>
       </div>
@@ -208,7 +208,7 @@ export function CategorizedSymptomSelection() {
   return (
     <div className="space-y-6">
       <div>
-        <h4 className="text-sm font-semibold mb-3 text-muted-foreground">Respiratory</h4>
+        <h4 className="text-[14px] font-semibold mb-3 text-muted-foreground">Respiratory</h4>
         <SymptomChips
           symptoms={respiratorySymptoms}
           selectedIds={selectedIds}
@@ -217,7 +217,7 @@ export function CategorizedSymptomSelection() {
       </div>
 
       <div>
-        <h4 className="text-sm font-semibold mb-3 text-muted-foreground">Pain</h4>
+        <h4 className="text-[14px] font-semibold mb-3 text-muted-foreground">Pain</h4>
         <SymptomChips
           symptoms={painSymptoms}
           selectedIds={selectedIds}
@@ -226,7 +226,7 @@ export function CategorizedSymptomSelection() {
       </div>
 
       <div>
-        <h4 className="text-sm font-semibold mb-3 text-muted-foreground">General</h4>
+        <h4 className="text-[14px] font-semibold mb-3 text-muted-foreground">General</h4>
         <SymptomChips
           symptoms={generalSymptoms}
           selectedIds={selectedIds}

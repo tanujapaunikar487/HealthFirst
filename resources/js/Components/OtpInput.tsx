@@ -113,7 +113,7 @@ export function OtpInput({
             </div>
 
             {error && (
-                <p className="text-sm text-destructive text-center">{error}</p>
+                <p className="text-[14px] text-destructive text-center">{error}</p>
             )}
 
             {onResend && (
@@ -128,7 +128,7 @@ export function OtpInput({
                             Resend OTP
                         </Button>
                     ) : (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-[14px] text-muted-foreground">
                             Resend OTP in {resendTimer}s
                         </p>
                     )}

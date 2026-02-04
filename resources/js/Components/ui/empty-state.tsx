@@ -26,7 +26,7 @@ export function EmptyState({ image, icon: EmptyIcon, message, description, actio
       ) : null}
       <h3 className="text-lg font-semibold" style={{ color: '#171717' }}>{message}</h3>
       {description && (
-        <p className="text-sm text-muted-foreground mt-2 max-w-sm">{description}</p>
+        <p className="text-[14px] text-muted-foreground mt-2 max-w-sm">{description}</p>
       )}
       {action && <div className="mt-6">{action}</div>}
     </div>

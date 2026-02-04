@@ -34,7 +34,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                 <h1 className="text-2xl font-bold" style={{ color: '#00184D' }}>
                     Reset your password
                 </h1>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-[14px] text-muted-foreground mt-1">
                     Enter your new password below
                 </p>
             </div>
@@ -51,7 +51,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                         className={errors.email ? 'border-red-500' : ''}
                     />
                     {errors.email && (
-                        <p className="text-sm text-red-600">{errors.email}</p>
+                        <p className="text-[14px] text-red-600">{errors.email}</p>
                     )}
                 </div>
 
@@ -67,7 +67,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                         className={errors.password ? 'border-red-500' : ''}
                     />
                     {errors.password && (
-                        <p className="text-sm text-red-600">{errors.password}</p>
+                        <p className="text-[14px] text-red-600">{errors.password}</p>
                     )}
                 </div>
 
@@ -82,7 +82,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                         className={errors.password_confirmation ? 'border-red-500' : ''}
                     />
                     {errors.password_confirmation && (
-                        <p className="text-sm text-red-600">{errors.password_confirmation}</p>
+                        <p className="text-[14px] text-red-600">{errors.password_confirmation}</p>
                     )}
                 </div>
 

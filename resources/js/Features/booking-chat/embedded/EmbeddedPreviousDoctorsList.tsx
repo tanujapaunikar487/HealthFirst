@@ -135,7 +135,7 @@ function PreviousDoctorCard({
 
   return (
     <div className={cn(
-      "p-4 transition-colors hover:bg-accent",
+      "px-6 py-4 transition-colors hover:bg-accent",
       isSelected && "bg-accent border-l-4 border-l-primary"
     )}>
       {/* Header row */}
@@ -148,16 +148,16 @@ function PreviousDoctorCard({
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-1">
-            <p className="text-sm font-medium leading-none">{doctor.name}</p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-[14px] font-medium leading-none">{doctor.name}</p>
+            <p className="text-[14px] text-muted-foreground">
               {doctor.specialization} {doctor.experience_years ? `· ${doctor.experience_years} years` : ''}
             </p>
             {doctor.rating && (
               <div className="flex items-center gap-1">
                 <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                <span className="text-sm font-medium">{doctor.rating}</span>
+                <span className="text-[14px] font-medium">{doctor.rating}</span>
                 {doctor.reviewCount && (
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-[14px] text-muted-foreground">
                     ({doctor.reviewCount})
                   </span>
                 )}
@@ -184,26 +184,26 @@ function PreviousDoctorCard({
           {doctor.consultation_modes && doctor.consultation_modes.length > 0 && (
             <div className="flex gap-1">
               {doctor.consultation_modes.includes('video') && (
-                <Badge variant="default" className="text-xs">
+                <Badge variant="default" className="text-[14px]">
                   Video
                 </Badge>
               )}
               {doctor.consultation_modes.includes('in_person') && (
-                <Badge variant="purple" className="text-xs">
+                <Badge variant="purple" className="text-[14px]">
                   In-person
                 </Badge>
               )}
             </div>
           )}
 
-          <p className="text-sm font-medium">{getPrice()}</p>
+          <p className="text-[14px] font-medium">{getPrice()}</p>
         </div>
       </div>
 
       {/* Previous symptoms (optional) */}
       {doctor.previousSymptoms && doctor.previousSymptoms.length > 0 && (
         <div className="bg-muted rounded-lg p-3 mb-3">
-          <p className="text-sm">
+          <p className="text-[14px]">
             <span className="font-medium">Previous:</span>{' '}
             <span className="text-muted-foreground">
               {doctor.previousSymptoms.join(', ')}
@@ -214,7 +214,7 @@ function PreviousDoctorCard({
 
       {/* Quick time slots or full time slots */}
       {doctor.available_on_date === false ? (
-        <div className="text-sm text-muted-foreground italic">
+        <div className="text-[14px] text-muted-foreground italic">
           No available slots on the selected date
         </div>
       ) : (
@@ -222,7 +222,7 @@ function PreviousDoctorCard({
           {/* Show quick times if available (from backend enhancement) */}
           {doctor.quick_times && doctor.quick_times.length > 0 ? (
             <>
-              <p className="text-xs text-muted-foreground">Quick available times:</p>
+              <p className="text-[14px] text-muted-foreground">Quick available times:</p>
               <div className="flex flex-wrap gap-2">
                 {doctor.quick_times.map((time) => (
                   <button
@@ -230,7 +230,7 @@ function PreviousDoctorCard({
                     onClick={() => !disabled && onSelectTime(time)}
                     disabled={disabled}
                     className={cn(
-                      "px-3 py-1.5 rounded-full text-sm border transition-colors",
+                      "px-3 py-1.5 rounded-full text-[14px] border transition-colors",
                       "hover:bg-accent hover:border-primary",
                       selectedTime === time && "bg-primary text-primary-foreground border-primary"
                     )}
@@ -249,7 +249,7 @@ function PreviousDoctorCard({
                   onClick={() => !disabled && slot.available && onSelectTime(slot.time)}
                   disabled={disabled || !slot.available}
                   className={cn(
-                    "px-3 py-1.5 rounded-full text-sm border transition-colors",
+                    "px-3 py-1.5 rounded-full text-[14px] border transition-colors",
                     "hover:bg-accent hover:border-primary disabled:cursor-not-allowed disabled:opacity-50",
                     selectedTime === slot.time && "bg-primary text-primary-foreground border-primary"
                   )}

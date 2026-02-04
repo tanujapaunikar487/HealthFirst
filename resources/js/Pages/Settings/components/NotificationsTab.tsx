@@ -93,14 +93,14 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
     };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-16">
             {/* Notification Channels */}
             <div>
                 <SectionTitle>Notification channels</SectionTitle>
                 <Card className="mt-4">
                     <CardContent className="p-0 divide-y">
                         {/* Email */}
-                        <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center justify-between px-6 py-4">
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                                     <Mail className="h-5 w-5 text-muted-foreground" />
@@ -117,7 +117,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                         </div>
 
                         {/* WhatsApp */}
-                        <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center justify-between px-6 py-4">
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                                     <MessageSquare className="h-5 w-5 text-muted-foreground" />
@@ -134,7 +134,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                         </div>
 
                         {/* SMS */}
-                        <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center justify-between px-6 py-4">
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                                     <Phone className="h-5 w-5 text-muted-foreground" />
@@ -158,7 +158,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                 <SectionTitle>Appointments</SectionTitle>
                 <Card className="mt-4">
                     <CardContent className="p-0">
-                        <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center justify-between px-6 py-4">
                             <div>
                                 <CardTitle>Appointment Reminders</CardTitle>
                                 <CardSubtext>Get reminded before your scheduled appointments</CardSubtext>
@@ -178,7 +178,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                 <Card className="mt-4">
                     <CardContent className="p-0 divide-y">
                         {/* Master Health Alerts Toggle */}
-                        <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center justify-between px-6 py-4">
                             <div>
                                 <CardTitle>Health Alerts</CardTitle>
                                 <CardSubtext>Enable all health-related notifications</CardSubtext>
@@ -190,7 +190,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                         </div>
 
                         {/* Lab Results */}
-                        <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center justify-between px-6 py-4">
                             <div>
                                 <CardTitle>Lab Results Available</CardTitle>
                                 <CardSubtext>Get notified when new lab results are ready</CardSubtext>
@@ -203,7 +203,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                         </div>
 
                         {/* Prescription Reminders */}
-                        <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center justify-between px-6 py-4">
                             <div>
                                 <CardTitle>Prescription Reminders</CardTitle>
                                 <CardSubtext>Daily reminders for your prescriptions</CardSubtext>
@@ -216,7 +216,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                         </div>
 
                         {/* Doctor Messages */}
-                        <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center justify-between px-6 py-4">
                             <div>
                                 <CardTitle>Doctor Messages</CardTitle>
                                 <CardSubtext>Notifications when your doctor sends a message</CardSubtext>
@@ -236,7 +236,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                 <SectionTitle>Billing & payments</SectionTitle>
                 <Card className="mt-4">
                     <CardContent className="p-0">
-                        <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center justify-between px-6 py-4">
                             <div>
                                 <CardTitle>Bill Payment Reminders</CardTitle>
                                 <CardSubtext>Reminders for pending and upcoming bills</CardSubtext>
@@ -255,7 +255,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                 <SectionTitle>Insurance</SectionTitle>
                 <Card className="mt-4">
                     <CardContent className="p-0">
-                        <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center justify-between px-6 py-4">
                             <div>
                                 <CardTitle>Insurance Claim Updates</CardTitle>
                                 <CardSubtext>Get notified about claim status changes and approvals</CardSubtext>
@@ -274,7 +274,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                 <SectionTitle>Updates & offers</SectionTitle>
                 <Card className="mt-4">
                     <CardContent className="p-0">
-                        <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center justify-between px-6 py-4">
                             <div>
                                 <CardTitle>Health Tips & Promotions</CardTitle>
                                 <CardSubtext>Occasional emails about health camps and special offers</CardSubtext>

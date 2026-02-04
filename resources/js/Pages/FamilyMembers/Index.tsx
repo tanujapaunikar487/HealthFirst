@@ -75,7 +75,7 @@ function FamilyMembersSkeleton() {
       </div>
       <div className="rounded-xl border border-border overflow-hidden">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-4 px-5 py-4 border-b border-border last:border-0">
+          <div key={i} className="flex items-center gap-4 px-6 py-4 border-b border-border last:border-0">
             <Pulse className="h-11 w-11 rounded-full flex-shrink-0" />
             <div className="space-y-2 flex-1">
               <Pulse className="h-5 w-32" />
@@ -162,7 +162,7 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
               Family Members
             </h1>
             {!canCreate && memberCount >= 12 && (
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-[14px] text-muted-foreground mt-1">
                 You've reached the maximum of 12 family members.
               </p>
             )}
@@ -201,7 +201,7 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
                 >
                   {/* Avatar */}
                   <div
-                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold"
+                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-[14px] font-semibold"
                     style={{ backgroundColor: colors.bg, color: colors.text }}
                   >
                     {member.avatar_url ? (
@@ -213,7 +213,7 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
 
                   {/* Name + Badge */}
                   <div className="flex flex-1 items-center gap-2">
-                    <span className="truncate text-sm font-medium text-gray-900">
+                    <span className="truncate text-[14px] font-medium text-gray-900">
                       {member.name}
                     </span>
                     {member.alert_count > 0 && (

@@ -52,7 +52,7 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled }: TypeSe
             </div>
             <div className="flex-1 min-w-0">
                 <h4 className="font-semibold">{config.title}</h4>
-                <p className="text-sm text-muted-foreground">{config.description}</p>
+                <p className="text-[14px] text-muted-foreground">{config.description}</p>
             </div>
             <ChevronDown
                 className={cn(

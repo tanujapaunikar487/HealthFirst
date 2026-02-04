@@ -423,7 +423,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
         {/* Back link */}
         <button
           onClick={() => router.visit('/insurance')}
-          className="mb-6 flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900"
+          className="mb-6 flex items-center gap-1.5 text-[14px] font-medium text-gray-500 hover:text-gray-900"
         >
           <ArrowLeft className="h-4 w-4" />
           Insurance
@@ -433,14 +433,14 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
         <div className="mb-6 flex items-start justify-between">
           <div className="flex items-center gap-4">
             <div
-              className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl text-sm font-bold"
+              className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl text-[14px] font-bold"
               style={{ backgroundColor: '#BFDBFE', color: '#1E40AF' }}
             >
               {getProviderInitials(policy.provider_name)}
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{policy.plan_name}</h1>
-              <p className="text-sm text-gray-500">{policy.provider_name}</p>
+              <p className="text-[14px] text-gray-500">{policy.provider_name}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
@@ -514,10 +514,10 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
           <div className="mb-8 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
             <AlertTriangle className="h-4 w-4 flex-shrink-0 text-amber-600" />
             <div>
-              <p className="text-sm font-semibold text-amber-800">
+              <p className="text-[14px] font-semibold text-amber-800">
                 Policy expires in {policy.days_until_expiry} days
               </p>
-              <p className="text-xs text-amber-600">
+              <p className="text-[14px] text-amber-600">
                 Valid until {policy.end_date_formatted}. Consider renewing soon.
               </p>
             </div>
@@ -525,57 +525,57 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
         )}
 
         {/* Main Content with Side Nav */}
-        <div className="flex gap-8">
+        <div className="flex gap-24">
           <PolicySideNav />
-          <div className="flex-1 min-w-0 space-y-8 pb-12">
+          <div className="flex-1 min-w-0 space-y-16 pb-12">
 
         {/* Policy Details */}
         <Section id="details" title="Policy Details" icon={ClipboardList}>
           <div className="grid grid-cols-2 gap-x-8 gap-y-4">
               <div>
-                <p className="text-xs font-medium text-gray-500">Policy Number</p>
-                <p className="mt-1 text-sm font-semibold text-gray-900">{policy.policy_number}</p>
+                <p className="text-[14px] font-medium text-gray-500">Policy Number</p>
+                <p className="mt-1 text-[14px] font-semibold text-gray-900">{policy.policy_number}</p>
               </div>
               <div>
-                <p className="text-xs font-medium text-gray-500">Valid</p>
-                <p className="mt-1 text-sm font-semibold text-gray-900">
+                <p className="text-[14px] font-medium text-gray-500">Valid</p>
+                <p className="mt-1 text-[14px] font-semibold text-gray-900">
                   {policy.start_date_formatted} &rarr; {policy.end_date_formatted}
                 </p>
               </div>
               {meta.icu_limit && (
                 <div>
-                  <p className="text-xs font-medium text-gray-500">ICU Limit</p>
-                  <p className="mt-1 text-sm font-semibold text-gray-900">{meta.icu_limit}</p>
+                  <p className="text-[14px] font-medium text-gray-500">ICU Limit</p>
+                  <p className="mt-1 text-[14px] font-semibold text-gray-900">{meta.icu_limit}</p>
                 </div>
               )}
               {meta.copay && (
                 <div>
-                  <p className="text-xs font-medium text-gray-500">Co-pay</p>
-                  <p className="mt-1 text-sm font-semibold text-gray-900">{meta.copay}</p>
+                  <p className="text-[14px] font-medium text-gray-500">Co-pay</p>
+                  <p className="mt-1 text-[14px] font-semibold text-gray-900">{meta.copay}</p>
                 </div>
               )}
               {meta.tpa && (
                 <div>
-                  <p className="text-xs font-medium text-gray-500">TPA</p>
-                  <p className="mt-1 text-sm font-semibold text-gray-900">{meta.tpa}</p>
+                  <p className="text-[14px] font-medium text-gray-500">TPA</p>
+                  <p className="mt-1 text-[14px] font-semibold text-gray-900">{meta.tpa}</p>
                 </div>
               )}
               {meta.tpa_contact && (
                 <div>
-                  <p className="text-xs font-medium text-gray-500">TPA Contact</p>
-                  <p className="mt-1 text-sm font-semibold text-gray-900">{meta.tpa_contact}</p>
+                  <p className="text-[14px] font-medium text-gray-500">TPA Contact</p>
+                  <p className="mt-1 text-[14px] font-semibold text-gray-900">{meta.tpa_contact}</p>
                 </div>
               )}
               <div>
-                <p className="text-xs font-medium text-gray-500">Sum Insured</p>
-                <p className="mt-1 text-sm font-semibold text-gray-900">
+                <p className="text-[14px] font-medium text-gray-500">Sum Insured</p>
+                <p className="mt-1 text-[14px] font-semibold text-gray-900">
                   {formatCurrency(policy.sum_insured)}
                 </p>
               </div>
               {policy.premium_amount && (
                 <div>
-                  <p className="text-xs font-medium text-gray-500">Annual Premium</p>
-                  <p className="mt-1 text-sm font-semibold text-gray-900">
+                  <p className="text-[14px] font-medium text-gray-500">Annual Premium</p>
+                  <p className="mt-1 text-[14px] font-semibold text-gray-900">
                     {formatCurrency(policy.premium_amount)}
                   </p>
                 </div>
@@ -600,7 +600,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                     >
                       {getMemberInitials(member.name)}
                     </div>
-                    <span className="text-sm font-medium text-gray-900">{member.name}</span>
+                    <span className="text-[14px] font-medium text-gray-900">{member.name}</span>
                   </div>
                 );
               })}
@@ -621,18 +621,18 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
               {claims.map((claim) => (
                 <button
                   key={claim.id}
-                  className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-gray-50"
+                  className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-gray-50"
                   onClick={() => router.visit(`/insurance/claims/${claim.id}?from=policy`)}
                 >
                   <div className="min-w-0 flex-1">
                     <div className="mb-1 flex items-center gap-2">
-                      <span className="text-xs font-medium text-gray-500">
+                      <span className="text-[14px] font-medium text-gray-500">
                         Claim #{claim.id}
                       </span>
                       {getStatusBadge(claim.status)}
                     </div>
-                    <p className="text-sm font-semibold text-gray-900">{claim.treatment_name}</p>
-                    <p className="mt-0.5 text-xs text-gray-500">
+                    <p className="text-[14px] font-semibold text-gray-900">{claim.treatment_name}</p>
+                    <p className="mt-0.5 text-[14px] text-gray-500">
                       {claim.patient_name}
                       {claim.claim_date_formatted && ` \u00B7 ${claim.claim_date_formatted}`}
                     </p>
@@ -686,14 +686,14 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                         onClick={() => handlePreAuthPatientSelect(member.id)}
                       >
                         <div
-                          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+                          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-[14px] font-semibold"
                           style={{ backgroundColor: color.bg, color: color.text }}
                         >
                           {getMemberInitials(member.name)}
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-semibold text-gray-900">{member.name}</p>
-                          <p className="text-xs text-gray-500 capitalize">{member.relation}</p>
+                          <p className="text-[14px] font-semibold text-gray-900">{member.name}</p>
+                          <p className="text-[14px] text-gray-500 capitalize">{member.relation}</p>
                         </div>
                         <ChevronRight className="h-4 w-4 text-gray-400" />
                       </button>
@@ -707,7 +707,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
             {preAuthStep === 'details' && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label className="block text-[14px] font-medium text-gray-700 mb-1.5">
                     Treatment / Reason <span className="text-red-500">*</span>
                   </label>
                   <Input
@@ -717,7 +717,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label className="block text-[14px] font-medium text-gray-700 mb-1.5">
                     Expected Admission Date <span className="text-red-500">*</span>
                   </label>
                   <DatePicker
@@ -728,7 +728,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label className="block text-[14px] font-medium text-gray-700 mb-1.5">
                     Expected Discharge Date
                   </label>
                   <DatePicker
@@ -739,7 +739,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label className="block text-[14px] font-medium text-gray-700 mb-1.5">
                     Room Type <span className="text-red-500">*</span>
                   </label>
                   <Select
@@ -757,7 +757,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                   </Select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label className="block text-[14px] font-medium text-gray-700 mb-1.5">
                     Estimated Cost
                   </label>
                   <Input
@@ -769,7 +769,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label className="block text-[14px] font-medium text-gray-700 mb-1.5">
                     Doctor / Specialist Name
                   </label>
                   <Input
@@ -779,7 +779,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label className="block text-[14px] font-medium text-gray-700 mb-1.5">
                     Additional Notes
                   </label>
                   <Textarea
@@ -798,58 +798,58 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
               <div className="space-y-4">
                 {/* Policy summary */}
                 <div className="rounded-xl border px-4 py-3.5">
-                  <p className="text-xs font-medium text-gray-500 mb-1">Policy</p>
-                  <p className="text-sm font-semibold text-gray-900">{policy.plan_name}</p>
-                  <p className="text-xs text-gray-500">{policy.provider_name} &middot; {policy.policy_number}</p>
+                  <p className="text-[14px] font-medium text-gray-500 mb-1">Policy</p>
+                  <p className="text-[14px] font-semibold text-gray-900">{policy.plan_name}</p>
+                  <p className="text-[14px] text-gray-500">{policy.provider_name} &middot; {policy.policy_number}</p>
                 </div>
 
                 {/* Patient */}
                 {selectedPatient && (
                   <div className="rounded-xl border px-4 py-3.5">
-                    <p className="text-xs font-medium text-gray-500 mb-1">Patient</p>
-                    <p className="text-sm font-semibold text-gray-900">{selectedPatient.name}</p>
-                    <p className="text-xs text-gray-500 capitalize">{selectedPatient.relation}</p>
+                    <p className="text-[14px] font-medium text-gray-500 mb-1">Patient</p>
+                    <p className="text-[14px] font-semibold text-gray-900">{selectedPatient.name}</p>
+                    <p className="text-[14px] text-gray-500 capitalize">{selectedPatient.relation}</p>
                   </div>
                 )}
 
                 {/* Admission details */}
                 <div className="rounded-xl border px-4 py-3.5 space-y-2.5">
-                  <p className="text-xs font-medium text-gray-500">Admission Details</p>
+                  <p className="text-[14px] font-medium text-gray-500">Admission Details</p>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-xs text-gray-500">Treatment</span>
-                      <span className="text-sm font-medium text-gray-900">{preAuthForm.treatment_name}</span>
+                      <span className="text-[14px] text-gray-500">Treatment</span>
+                      <span className="text-[14px] font-medium text-gray-900">{preAuthForm.treatment_name}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-xs text-gray-500">Admission Date</span>
-                      <span className="text-sm font-medium text-gray-900">{preAuthForm.admission_date}</span>
+                      <span className="text-[14px] text-gray-500">Admission Date</span>
+                      <span className="text-[14px] font-medium text-gray-900">{preAuthForm.admission_date}</span>
                     </div>
                     {preAuthForm.discharge_date && (
                       <div className="flex justify-between">
-                        <span className="text-xs text-gray-500">Discharge Date</span>
-                        <span className="text-sm font-medium text-gray-900">{preAuthForm.discharge_date}</span>
+                        <span className="text-[14px] text-gray-500">Discharge Date</span>
+                        <span className="text-[14px] font-medium text-gray-900">{preAuthForm.discharge_date}</span>
                       </div>
                     )}
                     <div className="flex justify-between">
-                      <span className="text-xs text-gray-500">Room Type</span>
-                      <span className="text-sm font-medium text-gray-900">{selectedRoomLabel}</span>
+                      <span className="text-[14px] text-gray-500">Room Type</span>
+                      <span className="text-[14px] font-medium text-gray-900">{selectedRoomLabel}</span>
                     </div>
                     {preAuthForm.estimated_cost && (
                       <div className="flex justify-between">
-                        <span className="text-xs text-gray-500">Estimated Cost</span>
-                        <span className="text-sm font-medium text-gray-900">{formatCurrency(parseInt(preAuthForm.estimated_cost))}</span>
+                        <span className="text-[14px] text-gray-500">Estimated Cost</span>
+                        <span className="text-[14px] font-medium text-gray-900">{formatCurrency(parseInt(preAuthForm.estimated_cost))}</span>
                       </div>
                     )}
                     {preAuthForm.doctor_name && (
                       <div className="flex justify-between">
-                        <span className="text-xs text-gray-500">Doctor</span>
-                        <span className="text-sm font-medium text-gray-900">{preAuthForm.doctor_name}</span>
+                        <span className="text-[14px] text-gray-500">Doctor</span>
+                        <span className="text-[14px] font-medium text-gray-900">{preAuthForm.doctor_name}</span>
                       </div>
                     )}
                     {preAuthForm.notes && (
                       <div>
-                        <span className="text-xs text-gray-500">Notes</span>
-                        <p className="text-sm text-gray-700 mt-0.5">{preAuthForm.notes}</p>
+                        <span className="text-[14px] text-gray-500">Notes</span>
+                        <p className="text-[14px] text-gray-700 mt-0.5">{preAuthForm.notes}</p>
                       </div>
                     )}
                   </div>
@@ -858,7 +858,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                 {/* Info banner */}
                 <div className="rounded-lg bg-blue-50 border border-blue-100 px-3.5 py-3 flex items-start gap-2.5">
                   <Check className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-xs text-blue-700">
+                  <p className="text-[14px] text-blue-700">
                     Your pre-authorization request will be sent to {policy.provider_name} for review. You'll be notified once it's processed.
                   </p>
                 </div>

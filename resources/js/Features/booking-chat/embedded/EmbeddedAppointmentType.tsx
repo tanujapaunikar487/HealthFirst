@@ -28,7 +28,7 @@ export function EmbeddedAppointmentType({ selectedType, onSelect, disabled }: Pr
               isSelected ? "border-primary bg-accent" : "border-border bg-background"
             )}
           >
-            <span className="font-medium text-sm">{option.label}</span>
+            <span className="font-medium text-[14px]">{option.label}</span>
           </button>
         );
       })}

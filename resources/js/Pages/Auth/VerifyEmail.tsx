@@ -24,13 +24,13 @@ export default function VerifyEmail({ status }: VerifyEmailProps) {
                 <h1 className="text-2xl font-bold" style={{ color: '#00184D' }}>
                     Verify your email
                 </h1>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-[14px] text-muted-foreground mt-1">
                     Thanks for signing up! Please verify your email address by clicking the link we sent you.
                 </p>
             </div>
 
             {status === 'verification-link-sent' && (
-                <div className="mb-4 text-sm font-medium text-green-600 bg-green-50 p-3 rounded-lg">
+                <div className="mb-4 text-[14px] font-medium text-green-600 bg-green-50 p-3 rounded-lg">
                     A new verification link has been sent to your email address.
                 </div>
             )}
@@ -44,7 +44,7 @@ export default function VerifyEmail({ status }: VerifyEmailProps) {
                     href={route('logout')}
                     method="post"
                     as="button"
-                    className="w-full text-center block text-sm text-muted-foreground hover:underline"
+                    className="w-full text-center block text-[14px] text-muted-foreground hover:underline"
                 >
                     Sign out
                 </Link>

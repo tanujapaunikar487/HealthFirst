@@ -527,8 +527,8 @@ function AppointmentsTable({
               onClick={handleRowClick}
             >
               <TableCell className="align-top">
-                <p className="text-sm font-medium whitespace-nowrap">{formatTableDate(appt.date)}</p>
-                <p className="text-xs text-muted-foreground">{formatTableTime(appt.date)}</p>
+                <p className="text-[14px] font-medium whitespace-nowrap">{formatTableDate(appt.date)}</p>
+                <p className="text-[14px] text-muted-foreground">{formatTableTime(appt.date)}</p>
               </TableCell>
               <TableCell className="align-top">
                 <div className="flex items-center gap-2.5">
@@ -543,8 +543,8 @@ function AppointmentsTable({
                     )}
                   </div>
                   <div>
-                    <p className="text-sm font-medium">{appt.title}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[14px] font-medium">{appt.title}</p>
+                    <p className="text-[14px] text-muted-foreground">
                       {appt.mode}
                       {appt.subtitle ? ` • ${appt.subtitle}` : ''}
                     </p>
@@ -552,10 +552,10 @@ function AppointmentsTable({
                 </div>
               </TableCell>
               <TableCell className="align-top">
-                <p className="text-sm">{appt.patient_name}</p>
+                <p className="text-[14px]">{appt.patient_name}</p>
               </TableCell>
               <TableCell className="align-top text-right">
-                <p className="text-sm font-medium">₹{appt.fee.toLocaleString()}</p>
+                <p className="text-[14px] font-medium">₹{appt.fee.toLocaleString()}</p>
               </TableCell>
               <TableCell className="align-top">
                 <PaymentStatusTag status={appt.payment_status} />
@@ -571,8 +571,8 @@ function AppointmentsTable({
 
       {/* Table Footer */}
       {appointments.length > 0 && (
-        <div className="flex items-center justify-between px-4 py-4 border-t border-[#E5E5E5]">
-          <p className="text-sm text-muted-foreground">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-[#E5E5E5]">
+          <p className="text-[14px] text-muted-foreground">
             Showing {appointments.length} {appointments.length === 1 ? 'appointment' : 'appointments'}
           </p>
         </div>

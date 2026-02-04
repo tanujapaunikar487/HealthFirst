@@ -68,7 +68,7 @@ export function FollowUpSymptomSelectionPage() {
         <h2 className="text-xl font-semibold mb-2">
           What symptoms are you experiencing?
         </h2>
-        <p className="text-sm text-muted-foreground mb-4">
+        <p className="text-[14px] text-muted-foreground mb-4">
           Select all that apply, or describe in your own words
         </p>
 
@@ -122,7 +122,7 @@ export function BannerInCard() {
       />
 
       <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-[14px] text-muted-foreground">
           Continue with the same doctor or choose a different one.
         </p>
         {/* Rest of the booking form */}
@@ -186,7 +186,7 @@ export function FollowUpWithStepIndicator() {
           <h2 className="text-xl font-semibold mb-2">
             What symptoms are you experiencing?
           </h2>
-          <p className="text-sm text-muted-foreground mb-4">
+          <p className="text-[14px] text-muted-foreground mb-4">
             Select all that apply, or describe in your own words
           </p>
 

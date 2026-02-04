@@ -145,7 +145,7 @@ export default function BookingIndex() {
           <div className="flex items-center justify-between px-6 py-4">
             <div className="flex items-center gap-2">
               <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-5 h-5" />
-              <span className="font-medium text-sm">Booking an appointment</span>
+              <span className="font-medium text-[14px]">Booking an appointment</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1 border rounded-full p-1 bg-gray-50">
@@ -205,7 +205,7 @@ export default function BookingIndex() {
             <button
               onClick={() => setMode('ai')}
               className={cn(
-                'flex items-center gap-2 px-5 py-2.5 rounded-full text-sm transition-all',
+                'flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] transition-all',
                 mode === 'ai'
                   ? 'bg-white shadow-md text-gray-900 font-semibold'
                   : 'text-gray-400 hover:text-gray-600 bg-transparent font-normal'
@@ -225,7 +225,7 @@ export default function BookingIndex() {
             <button
               onClick={() => setMode('guided')}
               className={cn(
-                'flex items-center gap-2 px-5 py-2.5 rounded-full text-sm transition-all',
+                'flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] transition-all',
                 mode === 'guided'
                   ? 'bg-white shadow-md text-gray-900 font-semibold'
                   : 'text-gray-400 hover:text-gray-600 bg-transparent font-normal'
@@ -268,11 +268,11 @@ export default function BookingIndex() {
               >
                 {isRecording ? (
                   // Recording mode - show waveform
-                  <div className="px-4 py-4 min-h-[140px] flex items-center justify-between">
+                  <div className="px-6 py-4 min-h-[140px] flex items-center justify-between">
                     <div className="flex items-center gap-3 flex-1">
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                        <span className="text-sm font-medium text-gray-700">
+                        <span className="text-[14px] font-medium text-gray-700">
                           {formatRecordingTime(recordingTime)}
                         </span>
                       </div>

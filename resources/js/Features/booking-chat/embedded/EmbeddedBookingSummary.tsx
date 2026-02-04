@@ -39,7 +39,7 @@ export function EmbeddedBookingSummary({ summary, onPay, onSelect, disabled, con
     return (
       <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
         <p className="text-red-900 font-medium">Unable to load booking summary</p>
-        <p className="text-red-700 text-sm mt-1">Please try again or contact support.</p>
+        <p className="text-red-700 text-[14px] mt-1">Please try again or contact support.</p>
       </div>
     );
   }
@@ -234,8 +234,8 @@ export function EmbeddedBookingSummary({ summary, onPay, onSelect, disabled, con
 
         {/* Fee row - no Change link */}
         <div className="flex items-center justify-between px-4 py-3">
-          <span className="text-sm text-muted-foreground">Appointment Fee</span>
-          <span className="text-sm font-medium">₹{summary.fee.toLocaleString()}</span>
+          <span className="text-[14px] text-muted-foreground">Appointment Fee</span>
+          <span className="text-[14px] font-medium">₹{summary.fee.toLocaleString()}</span>
         </div>
       </div>
 
@@ -244,13 +244,13 @@ export function EmbeddedBookingSummary({ summary, onPay, onSelect, disabled, con
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
           <div className="flex items-start gap-3">
             <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-xs font-bold">!</span>
+              <span className="text-white text-[14px] font-bold">!</span>
             </div>
             <div>
               <p className="font-semibold text-amber-900 mb-2">Preparation Instructions</p>
               <ul className="space-y-1">
                 {summary.prepInstructions.map((instruction, i) => (
-                  <li key={i} className="text-sm text-amber-800 flex items-start gap-2">
+                  <li key={i} className="text-[14px] text-amber-800 flex items-start gap-2">
                     <span>•</span>
                     <span>{instruction}</span>
                   </li>
@@ -288,13 +288,13 @@ function SummaryRow({
 }) {
   return (
     <div className="flex items-center justify-between px-4 py-3">
-      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="text-[14px] text-muted-foreground">{label}</span>
       <div className="flex items-center gap-3">
-        <span className="text-sm text-right">{value}</span>
+        <span className="text-[14px] text-right">{value}</span>
         {showChange && (
           <button
             onClick={onChange}
-            className="text-primary text-sm hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+            className="text-primary text-[14px] hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={!onChange}
           >
             Change

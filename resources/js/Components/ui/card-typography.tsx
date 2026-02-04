@@ -15,9 +15,9 @@ export function CardTitle({ children, className = '' }: CardTitleProps) {
         <p
             className={`truncate ${className}`}
             style={{
-                color: '#0A0B0D',
+                color: '#171717',
                 fontSize: '14px',
-                fontWeight: 500,
+                fontWeight: 600,
                 lineHeight: '20px',
                 letterSpacing: 0,
             }}
@@ -34,7 +34,7 @@ export function CardSubtext({ children, className = '' }: CardSubtextProps) {
             style={{
                 color: '#737373',
                 fontSize: '14px',
-                fontWeight: 500,
+                fontWeight: 400,
                 lineHeight: '20px',
                 letterSpacing: 0,
                 marginTop: '2px',

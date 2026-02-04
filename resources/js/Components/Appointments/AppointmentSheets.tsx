@@ -106,7 +106,7 @@ function PaymentStatusTag({ status }: { status: string }) {
   };
 
   return (
-    <span className={cn('text-xs font-medium', colors[status as keyof typeof colors] || 'text-gray-600')}>
+    <span className={cn('text-[14px] font-medium', colors[status as keyof typeof colors] || 'text-gray-600')}>
       {labels[status as keyof typeof labels] || status}
     </span>
   );
@@ -231,7 +231,7 @@ export function DetailsSheet({
       {isDoctorOnline && (
         <div className="mb-4 flex items-center gap-2 rounded-lg bg-green-50 border border-green-200 px-3 py-2.5">
           <Icon icon={Check} className="h-4 w-4 text-green-600 flex-shrink-0" />
-          <span className="text-sm text-green-800">Doctor is online. You can join now</span>
+          <span className="text-[14px] text-green-800">Doctor is online. You can join now</span>
         </div>
       )}
 
@@ -256,7 +256,7 @@ export function DetailsSheet({
           <CollapsibleTrigger className="flex items-center justify-between w-full py-3 hover:bg-muted/50 transition-colors">
             <div className="flex items-center gap-2">
               <Icon icon={Calendar} className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Details</span>
+              <span className="text-[14px] font-medium">Details</span>
             </div>
             <Icon
               icon={ChevronDown}
@@ -287,13 +287,13 @@ export function DetailsSheet({
           <CollapsibleTrigger className="flex items-center justify-between w-full py-3 hover:bg-muted/50 transition-colors">
             <div className="flex items-center gap-2">
               <Icon icon={FileText} className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Notes</span>
+              <span className="text-[14px] font-medium">Notes</span>
             </div>
             <div className="flex items-center gap-2">
               <span
                 role="button"
                 tabIndex={0}
-                className="text-xs text-primary hover:underline cursor-pointer"
+                className="text-[14px] text-primary hover:underline cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsEditingNotes(true);
@@ -352,9 +352,9 @@ export function DetailsSheet({
             ) : (
               <div>
                 {notesValue ? (
-                  <p className="text-sm text-foreground whitespace-pre-wrap">{notesValue}</p>
+                  <p className="text-[14px] text-foreground whitespace-pre-wrap">{notesValue}</p>
                 ) : (
-                  <p className="text-sm text-muted-foreground">No notes added</p>
+                  <p className="text-[14px] text-muted-foreground">No notes added</p>
                 )}
               </div>
             )}
@@ -369,7 +369,7 @@ export function DetailsSheet({
           <CollapsibleTrigger className="flex items-center justify-between w-full py-3 hover:bg-muted/50 transition-colors">
             <div className="flex items-center gap-2">
               <Icon icon={ClipboardCheck} className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Preparation</span>
+              <span className="text-[14px] font-medium">Preparation</span>
             </div>
             <Icon
               icon={ChevronDown}
@@ -380,7 +380,7 @@ export function DetailsSheet({
             />
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-2 pb-3">
-            <ul className="space-y-1.5 text-sm text-muted-foreground">
+            <ul className="space-y-1.5 text-[14px] text-muted-foreground">
               <li className="flex items-start gap-2">
                 <span className="mt-1.5">•</span>
                 <span>Have prescription list ready</span>
@@ -588,7 +588,7 @@ export function CancelledDetailsSheet({
       {/* Cancelled Banner */}
       <div className="mb-4 flex items-center gap-2 rounded-lg bg-red-50 border border-red-200 px-3 py-2.5">
         <Icon icon={XCircle} className="h-4 w-4 text-red-600 flex-shrink-0" />
-        <span className="text-sm text-red-800">This appointment was cancelled</span>
+        <span className="text-[14px] text-red-800">This appointment was cancelled</span>
       </div>
 
       {/* People Rows */}
@@ -606,7 +606,7 @@ export function CancelledDetailsSheet({
       <div className="flex-1 overflow-y-auto overflow-x-hidden pt-4 -mx-6 px-6">
         {/* Original Details Section */}
         <div className="space-y-3 pb-4">
-          <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Original Details</p>
+          <p className="text-[14px] font-medium text-muted-foreground uppercase tracking-wide">Original Details</p>
           <div className="space-y-2">
             <KeyValueRow label="Date" value={appointment.date_formatted} />
             <KeyValueRow label="Time" value={appointment.time} />
@@ -620,7 +620,7 @@ export function CancelledDetailsSheet({
 
         {/* Cancellation Info Section */}
         <div className="space-y-3 pt-4">
-          <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Cancellation Info</p>
+          <p className="text-[14px] font-medium text-muted-foreground uppercase tracking-wide">Cancellation Info</p>
           <div className="space-y-2">
             <KeyValueRow
               label="Refund"
@@ -692,20 +692,20 @@ function PeopleRow({ label, name }: { label: string; name: string }) {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-sm text-muted-foreground w-[70px] flex-shrink-0">{label}</span>
+      <span className="text-[14px] text-muted-foreground w-[70px] flex-shrink-0">{label}</span>
       <Avatar className="h-6 w-6">
-        <AvatarFallback className="bg-orange-400 text-white text-xs font-medium">
+        <AvatarFallback className="bg-orange-400 text-white text-[14px] font-medium">
           {getInitials(name)}
         </AvatarFallback>
       </Avatar>
-      <span className="text-sm font-medium">{name}</span>
+      <span className="text-[14px] font-medium">{name}</span>
     </div>
   );
 }
 
 function KeyValueRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-start justify-between text-sm">
+    <div className="flex items-start justify-between text-[14px]">
       <span className="text-muted-foreground w-[70px] flex-shrink-0">{label}</span>
       <span className="text-right flex-1">{value}</span>
     </div>
@@ -762,7 +762,7 @@ export function CancelSheet({
         {/* Warning */}
         <div className="flex gap-3 p-4 rounded-lg bg-amber-50 border border-amber-200">
           <Icon icon={AlertTriangle} className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
-          <div className="text-sm">
+          <div className="text-[14px]">
             <p className="font-medium text-amber-800">Are you sure?</p>
             <p className="text-amber-700 mt-1">
               Cancelling your appointment with{' '}
@@ -775,7 +775,7 @@ export function CancelSheet({
 
         {/* Reason selection */}
         <div>
-          <p className="text-sm font-medium mb-3">Reason for cancellation (optional)</p>
+          <p className="text-[14px] font-medium mb-3">Reason for cancellation (optional)</p>
           <div className="space-y-2">
             {reasons.map((r) => (
               <button
@@ -783,7 +783,7 @@ export function CancelSheet({
                 type="button"
                 onClick={() => setReason(reason === r ? '' : r)}
                 className={cn(
-                  'w-full text-left px-4 py-2.5 rounded-lg border text-sm transition-colors',
+                  'w-full text-left px-4 py-2.5 rounded-lg border text-[14px] transition-colors',
                   reason === r
                     ? 'border-blue-500 bg-blue-50 text-blue-700'
                     : 'border-gray-200 hover:border-gray-300 text-gray-700'
@@ -900,13 +900,13 @@ export function RescheduleSheet({
               )}
             </div>
             <div>
-              <p className="font-medium text-sm">{appointment.title}</p>
+              <p className="font-medium text-[14px]">{appointment.title}</p>
               {appointment.subtitle && (
-                <p className="text-xs text-muted-foreground">{appointment.subtitle}</p>
+                <p className="text-[14px] text-muted-foreground">{appointment.subtitle}</p>
               )}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="grid grid-cols-2 gap-2 text-[14px]">
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <Icon icon={User} className="h-3.5 w-3.5" />
               <span>{appointment.patient_name}</span>
@@ -934,7 +934,7 @@ export function RescheduleSheet({
           <>
             {/* Date pills — guided flow style */}
             <div>
-              <p className="text-sm font-medium mb-3">Select a new date</p>
+              <p className="text-[14px] font-medium mb-3">Select a new date</p>
               <div className="flex gap-2 overflow-x-auto pb-2">
                 {dates.map((d) => (
                   <button
@@ -942,7 +942,7 @@ export function RescheduleSheet({
                     type="button"
                     onClick={() => handleDateChange(d.date)}
                     className={cn(
-                      'flex flex-col items-center justify-center min-w-[100px] px-4 py-3 rounded-xl border text-sm transition-all flex-shrink-0',
+                      'flex flex-col items-center justify-center min-w-[100px] px-4 py-3 rounded-xl border text-[14px] transition-all flex-shrink-0',
                       selectedDate === d.date
                         ? 'bg-foreground text-background border-foreground'
                         : 'bg-background hover:border-primary/50 border-gray-200'
@@ -967,14 +967,14 @@ export function RescheduleSheet({
             {/* Time slots — guided flow style */}
             {selectedDate && (
               <div>
-                <p className="text-sm font-medium mb-3">Select a time</p>
+                <p className="text-[14px] font-medium mb-3">Select a time</p>
                 {slotsLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full" />
                   </div>
                 ) : slots.length === 0 ? (
                   <div className="text-center py-8 px-4 rounded-lg border border-dashed">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-[14px] text-muted-foreground">
                       No available slots for this date
                     </p>
                   </div>
@@ -986,7 +986,7 @@ export function RescheduleSheet({
                         type="button"
                         onClick={() => setSelectedTime(s.time)}
                         className={cn(
-                          'px-4 py-2 rounded-full border text-sm transition-all',
+                          'px-4 py-2 rounded-full border text-[14px] transition-all',
                           selectedTime === s.time
                             ? 'bg-foreground text-background border-foreground'
                             : 'bg-background hover:border-primary/50 border-gray-200'
@@ -1174,11 +1174,11 @@ export function FollowUpSheet({
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-medium text-sm">{data.doctor.name}</p>
-                  <p className="text-xs text-muted-foreground">{data.doctor.specialization}</p>
+                  <p className="font-medium text-[14px]">{data.doctor.name}</p>
+                  <p className="text-[14px] text-muted-foreground">{data.doctor.specialization}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5 text-[14px] text-muted-foreground">
                 <Icon icon={User} className="h-3.5 w-3.5" />
                 <span>For: {data.patient.name}</span>
               </div>
@@ -1188,7 +1188,7 @@ export function FollowUpSheet({
 
             {/* Date Pills */}
             <div>
-              <p className="text-sm font-medium mb-3">Select a date</p>
+              <p className="text-[14px] font-medium mb-3">Select a date</p>
               <div className="flex gap-2 overflow-x-auto pb-2">
                 {data.dates.map((d) => (
                   <button
@@ -1196,7 +1196,7 @@ export function FollowUpSheet({
                     type="button"
                     onClick={() => handleDateChange(d.date)}
                     className={cn(
-                      'flex flex-col items-center justify-center min-w-[100px] px-4 py-3 rounded-xl border text-sm transition-all flex-shrink-0',
+                      'flex flex-col items-center justify-center min-w-[100px] px-4 py-3 rounded-xl border text-[14px] transition-all flex-shrink-0',
                       selectedDate === d.date
                         ? 'bg-foreground text-background border-foreground'
                         : 'bg-background hover:border-primary/50 border-gray-200'
@@ -1219,14 +1219,14 @@ export function FollowUpSheet({
             {/* Time Slots */}
             {selectedDate && (
               <div>
-                <p className="text-sm font-medium mb-3">Select a time</p>
+                <p className="text-[14px] font-medium mb-3">Select a time</p>
                 {slotsLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full" />
                   </div>
                 ) : data.slots.length === 0 ? (
                   <div className="text-center py-8 px-4 rounded-lg border border-dashed">
-                    <p className="text-sm text-muted-foreground">No available slots for this date</p>
+                    <p className="text-[14px] text-muted-foreground">No available slots for this date</p>
                   </div>
                 ) : (
                   <div className="flex flex-wrap gap-2">
@@ -1237,7 +1237,7 @@ export function FollowUpSheet({
                         onClick={() => s.available && setSelectedTime(s.time)}
                         disabled={!s.available}
                         className={cn(
-                          'px-4 py-2 rounded-full border text-sm transition-all',
+                          'px-4 py-2 rounded-full border text-[14px] transition-all',
                           selectedTime === s.time
                             ? 'bg-foreground text-background border-foreground'
                             : s.available
@@ -1256,7 +1256,7 @@ export function FollowUpSheet({
             {/* Consultation Mode */}
             {selectedDate && selectedTime && data.modes.length > 0 && (
               <div>
-                <p className="text-sm font-medium mb-3">How would you like to consult?</p>
+                <p className="text-[14px] font-medium mb-3">How would you like to consult?</p>
                 <div className="space-y-2">
                   {data.modes.map((mode) => (
                     <button
@@ -1282,11 +1282,11 @@ export function FollowUpSheet({
                           )}
                         </div>
                         <div>
-                          <p className="font-medium text-sm">{mode.label}</p>
-                          <p className="text-xs text-muted-foreground">{mode.description}</p>
+                          <p className="font-medium text-[14px]">{mode.label}</p>
+                          <p className="text-[14px] text-muted-foreground">{mode.description}</p>
                         </div>
                       </div>
-                      <span className="font-semibold text-sm">₹{mode.price.toLocaleString()}</span>
+                      <span className="font-semibold text-[14px]">₹{mode.price.toLocaleString()}</span>
                     </button>
                   ))}
                 </div>
@@ -1312,7 +1312,7 @@ export function FollowUpSheet({
         </>
       ) : (
         <div className="flex-1 flex items-center justify-center">
-          <p className="text-sm text-muted-foreground">Failed to load data</p>
+          <p className="text-[14px] text-muted-foreground">Failed to load data</p>
         </div>
       )}
     </div>
@@ -1484,11 +1484,11 @@ export function BookAgainSheet({
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-medium text-sm">{data.doctor.name}</p>
-                  <p className="text-xs text-muted-foreground">{data.doctor.specialization}</p>
+                  <p className="font-medium text-[14px]">{data.doctor.name}</p>
+                  <p className="text-[14px] text-muted-foreground">{data.doctor.specialization}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5 text-[14px] text-muted-foreground">
                 <Icon icon={User} className="h-3.5 w-3.5" />
                 <span>For: {data.patient.name}</span>
               </div>
@@ -1498,7 +1498,7 @@ export function BookAgainSheet({
 
             {/* Date Pills */}
             <div>
-              <p className="text-sm font-medium mb-3">Select a date</p>
+              <p className="text-[14px] font-medium mb-3">Select a date</p>
               <div className="flex gap-2 overflow-x-auto pb-2">
                 {data.dates.map((d) => (
                   <button
@@ -1506,7 +1506,7 @@ export function BookAgainSheet({
                     type="button"
                     onClick={() => handleDateChange(d.date)}
                     className={cn(
-                      'flex flex-col items-center justify-center min-w-[100px] px-4 py-3 rounded-xl border text-sm transition-all flex-shrink-0',
+                      'flex flex-col items-center justify-center min-w-[100px] px-4 py-3 rounded-xl border text-[14px] transition-all flex-shrink-0',
                       selectedDate === d.date
                         ? 'bg-foreground text-background border-foreground'
                         : 'bg-background hover:border-primary/50 border-gray-200'
@@ -1529,14 +1529,14 @@ export function BookAgainSheet({
             {/* Time Slots */}
             {selectedDate && (
               <div>
-                <p className="text-sm font-medium mb-3">Select a time</p>
+                <p className="text-[14px] font-medium mb-3">Select a time</p>
                 {slotsLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full" />
                   </div>
                 ) : data.slots.length === 0 ? (
                   <div className="text-center py-8 px-4 rounded-lg border border-dashed">
-                    <p className="text-sm text-muted-foreground">No available slots for this date</p>
+                    <p className="text-[14px] text-muted-foreground">No available slots for this date</p>
                   </div>
                 ) : (
                   <div className="flex flex-wrap gap-2">
@@ -1547,7 +1547,7 @@ export function BookAgainSheet({
                         onClick={() => s.available && setSelectedTime(s.time)}
                         disabled={!s.available}
                         className={cn(
-                          'px-4 py-2 rounded-full border text-sm transition-all',
+                          'px-4 py-2 rounded-full border text-[14px] transition-all',
                           selectedTime === s.time
                             ? 'bg-foreground text-background border-foreground'
                             : s.available
@@ -1566,7 +1566,7 @@ export function BookAgainSheet({
             {/* Consultation Mode */}
             {selectedDate && selectedTime && data.modes.length > 0 && (
               <div>
-                <p className="text-sm font-medium mb-3">How would you like to consult?</p>
+                <p className="text-[14px] font-medium mb-3">How would you like to consult?</p>
                 <div className="space-y-2">
                   {data.modes.map((mode) => (
                     <button
@@ -1592,11 +1592,11 @@ export function BookAgainSheet({
                           )}
                         </div>
                         <div>
-                          <p className="font-medium text-sm">{mode.label}</p>
-                          <p className="text-xs text-muted-foreground">{mode.description}</p>
+                          <p className="font-medium text-[14px]">{mode.label}</p>
+                          <p className="text-[14px] text-muted-foreground">{mode.description}</p>
                         </div>
                       </div>
-                      <span className="font-semibold text-sm">₹{mode.price.toLocaleString()}</span>
+                      <span className="font-semibold text-[14px]">₹{mode.price.toLocaleString()}</span>
                     </button>
                   ))}
                 </div>
@@ -1622,7 +1622,7 @@ export function BookAgainSheet({
         </>
       ) : (
         <div className="flex-1 flex items-center justify-center">
-          <p className="text-sm text-muted-foreground">Failed to load data</p>
+          <p className="text-[14px] text-muted-foreground">Failed to load data</p>
         </div>
       )}
     </div>

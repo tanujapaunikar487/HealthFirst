@@ -142,7 +142,7 @@ export function EmbeddedDoctorList({ doctors, selectedDoctorId, selectedTime, on
         </Select>
 
         {/* Results count */}
-        <div className="ml-auto text-sm text-muted-foreground">
+        <div className="ml-auto text-[14px] text-muted-foreground">
           {filteredDoctors.length} doctor{filteredDoctors.length !== 1 ? 's' : ''}
         </div>
       </div>
@@ -193,7 +193,7 @@ function DoctorCard({
 
   return (
     <div className={cn(
-      "p-4 transition-colors hover:bg-accent",
+      "px-6 py-4 transition-colors hover:bg-accent",
       isSelected && "bg-accent border-l-4 border-l-primary"
     )}>
       {/* Doctor info */}
@@ -204,8 +204,8 @@ function DoctorCard({
             <AvatarFallback>{doctor.name?.charAt(0) || 'D'}</AvatarFallback>
           </Avatar>
           <div className="space-y-1">
-            <p className="text-sm font-medium leading-none">{doctor.name || 'Unknown Doctor'}</p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-[14px] font-medium leading-none">{doctor.name || 'Unknown Doctor'}</p>
+            <p className="text-[14px] text-muted-foreground">
               {doctor.specialization || 'General'} • {doctor.experience_years || 0} years
             </p>
           </div>
@@ -224,7 +224,7 @@ function DoctorCard({
               </Badge>
             )}
           </div>
-          <p className="text-sm font-medium">{getPrice()}</p>
+          <p className="text-[14px] font-medium">{getPrice()}</p>
         </div>
       </div>
 
@@ -236,7 +236,7 @@ function DoctorCard({
             onClick={() => !disabled && slot.available && onSelectTime(slot.time)}
             disabled={disabled || !slot.available}
             className={cn(
-              "px-3 py-1.5 rounded-full text-sm border transition-colors inline-flex items-center gap-1",
+              "px-3 py-1.5 rounded-full text-[14px] border transition-colors inline-flex items-center gap-1",
               "hover:bg-accent hover:border-primary",
               selectedTime === slot.time && "bg-primary text-primary-foreground border-primary",
               !slot.available && "opacity-50 cursor-not-allowed",

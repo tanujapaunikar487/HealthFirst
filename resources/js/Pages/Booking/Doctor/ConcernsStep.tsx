@@ -142,7 +142,7 @@ export default function ConcernsStep({
       onContinue={handleContinue}
       continueDisabled={!urgency}
     >
-      <div className="space-y-10">
+      <div className="space-y-16">
         {/* Follow-up Banner */}
         {followUp && (
           <FollowUpBanner
@@ -155,7 +155,7 @@ export default function ConcernsStep({
         {/* Symptoms - Always visible */}
         <section>
           <h2 className="text-xl font-semibold mb-2">What symptoms are you experiencing?</h2>
-          <p className="text-sm text-muted-foreground mb-4">
+          <p className="text-[14px] text-muted-foreground mb-4">
             Select all that apply, or describe in your own words
           </p>
 
@@ -190,7 +190,7 @@ export default function ConcernsStep({
         {showUrgency && (
           <section ref={urgencySectionRef}>
             <h2 className="text-xl font-semibold mb-2">How soon do you need to see a doctor?</h2>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-[14px] text-muted-foreground mb-4">
               This determines which slots you'll see
             </p>
 
@@ -213,18 +213,18 @@ export default function ConcernsStep({
                   />
                   <div className="flex-1">
                     <p className="font-medium">{option.label}</p>
-                    <p className="text-sm text-muted-foreground">{option.description}</p>
+                    <p className="text-[14px] text-muted-foreground">{option.description}</p>
                   </div>
                   {option.doctorCount !== undefined ? (
-                    <span className="text-sm text-muted-foreground">{option.doctorCount} doctors</span>
+                    <span className="text-[14px] text-muted-foreground">{option.doctorCount} doctors</span>
                   ) : (
-                    <span className="text-sm text-muted-foreground">Full flexibility</span>
+                    <span className="text-[14px] text-muted-foreground">Full flexibility</span>
                   )}
                 </button>
               ))}
             </Card>
 
-            {errors.urgency && <p className="text-sm text-destructive mt-2">{errors.urgency}</p>}
+            {errors.urgency && <p className="text-[14px] text-destructive mt-2">{errors.urgency}</p>}
           </section>
         )}
       </div>

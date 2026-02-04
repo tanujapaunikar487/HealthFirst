@@ -164,7 +164,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
 
                         <div className="space-y-4">
                             {error && (
-                                <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                                <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-[14px]">
                                     <AlertCircle className="h-4 w-4" />
                                     {error}
                                 </div>
@@ -224,7 +224,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
 
                         <div className="space-y-4">
                             {error && (
-                                <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                                <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-[14px]">
                                     <AlertCircle className="h-4 w-4" />
                                     {error}
                                 </div>
@@ -269,7 +269,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                                                 />
                                             ))}
                                         </div>
-                                        <p className="text-xs text-muted-foreground">
+                                        <p className="text-[14px] text-muted-foreground">
                                             Password strength: <span className="font-medium">{strength.label}</span>
                                         </p>
                                     </div>
@@ -304,7 +304,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                                     </button>
                                 </div>
                                 {confirmPassword && !passwordsMatch && (
-                                    <p className="text-xs text-destructive">Passwords do not match</p>
+                                    <p className="text-[14px] text-destructive">Passwords do not match</p>
                                 )}
                             </div>
 
@@ -342,7 +342,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                         </div>
                         <div>
                             <h3 className="text-lg font-semibold">Password Changed!</h3>
-                            <p className="text-sm text-muted-foreground mt-1">
+                            <p className="text-[14px] text-muted-foreground mt-1">
                                 Your password has been updated successfully
                             </p>
                         </div>

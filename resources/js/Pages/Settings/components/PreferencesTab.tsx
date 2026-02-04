@@ -159,17 +159,17 @@ export function PreferencesTab({
     };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-16">
             {/* Language & Region */}
             <div>
                 <SectionTitle>Language & region</SectionTitle>
                 <Card className="mt-4">
                     <CardContent className="p-0 divide-y">
                         {/* Language Row */}
-                        <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center justify-between px-6 py-4">
                             <div>
-                                <p className="text-sm font-medium leading-5 text-[#0A0B0D]">Doctor's language</p>
-                                <p className="text-sm font-medium leading-5 text-[#737373]">
+                                <p className="text-[14px] font-semibold leading-5 text-[#171717]">Doctor's language</p>
+                                <p className="text-[14px] font-normal leading-5 text-[#737373]">
                                     Preferred language for doctor communication
                                 </p>
                             </div>
@@ -189,10 +189,10 @@ export function PreferencesTab({
                         </div>
 
                         {/* Date Format Row */}
-                        <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center justify-between px-6 py-4">
                             <div>
-                                <p className="text-sm font-medium leading-5 text-[#0A0B0D]">Date Format</p>
-                                <p className="text-sm font-medium leading-5 text-[#737373]">
+                                <p className="text-[14px] font-semibold leading-5 text-[#171717]">Date Format</p>
+                                <p className="text-[14px] font-normal leading-5 text-[#737373]">
                                     How dates appear throughout the app
                                 </p>
                             </div>
@@ -212,17 +212,17 @@ export function PreferencesTab({
                         </div>
 
                         {/* Time Format Row */}
-                        <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center justify-between px-6 py-4">
                             <div>
-                                <p className="text-sm font-medium leading-5 text-[#0A0B0D]">Time Format</p>
-                                <p className="text-sm font-medium leading-5 text-[#737373]">
+                                <p className="text-[14px] font-semibold leading-5 text-[#171717]">Time Format</p>
+                                <p className="text-[14px] font-normal leading-5 text-[#737373]">
                                     12-hour or 24-hour clock
                                 </p>
                             </div>
                             <div className="flex rounded-full border bg-muted p-1">
                                 <button
                                     onClick={() => handlePrefChange('time_format', '24h')}
-                                    className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${
+                                    className={`px-4 py-1.5 text-[14px] font-medium rounded-full transition-colors ${
                                         prefs.time_format === '24h'
                                             ? 'bg-background text-primary shadow-sm'
                                             : 'text-muted-foreground hover:text-foreground'
@@ -232,7 +232,7 @@ export function PreferencesTab({
                                 </button>
                                 <button
                                     onClick={() => handlePrefChange('time_format', '12h')}
-                                    className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${
+                                    className={`px-4 py-1.5 text-[14px] font-medium rounded-full transition-colors ${
                                         prefs.time_format === '12h'
                                             ? 'bg-background text-primary shadow-sm'
                                             : 'text-muted-foreground hover:text-foreground'
@@ -252,17 +252,17 @@ export function PreferencesTab({
                 <Card className="mt-4">
                     <CardContent className="p-0 divide-y">
                         {/* Text Size Row */}
-                        <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center justify-between px-6 py-4">
                             <div>
-                                <p className="text-sm font-medium leading-5 text-[#0A0B0D]">Text Size</p>
-                                <p className="text-sm font-medium leading-5 text-[#737373]">
+                                <p className="text-[14px] font-semibold leading-5 text-[#171717]">Text Size</p>
+                                <p className="text-[14px] font-normal leading-5 text-[#737373]">
                                     Adjust the font size throughout the app
                                 </p>
                             </div>
                             <div className="flex rounded-full border bg-muted p-1">
                                 <button
                                     onClick={() => setTextSizeFromOption('small')}
-                                    className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
+                                    className={`px-3 py-1.5 text-[14px] font-medium rounded-full transition-colors ${
                                         getTextSizeOption(prefs.accessibility.text_size) === 'small'
                                             ? 'bg-background text-primary shadow-sm'
                                             : 'text-muted-foreground hover:text-foreground'
@@ -272,7 +272,7 @@ export function PreferencesTab({
                                 </button>
                                 <button
                                     onClick={() => setTextSizeFromOption('medium')}
-                                    className={`px-3 py-1.5 text-sm font-medium rounded-full transition-colors ${
+                                    className={`px-3 py-1.5 text-[14px] font-medium rounded-full transition-colors ${
                                         getTextSizeOption(prefs.accessibility.text_size) === 'medium'
                                             ? 'bg-background text-primary shadow-sm'
                                             : 'text-muted-foreground hover:text-foreground'
@@ -294,10 +294,10 @@ export function PreferencesTab({
                         </div>
 
                         {/* High Contrast Row */}
-                        <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center justify-between px-6 py-4">
                             <div>
-                                <p className="text-sm font-medium leading-5 text-[#0A0B0D]">High Contrast Mode</p>
-                                <p className="text-sm font-medium leading-5 text-[#737373]">
+                                <p className="text-[14px] font-semibold leading-5 text-[#171717]">High Contrast Mode</p>
+                                <p className="text-[14px] font-normal leading-5 text-[#737373]">
                                     Increase contrast for better visibility
                                 </p>
                             </div>
@@ -316,10 +316,10 @@ export function PreferencesTab({
                 <Card className="mt-4">
                     <CardContent className="p-0 divide-y">
                         {/* Default Family Member Row */}
-                        <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center justify-between px-6 py-4">
                             <div>
-                                <p className="text-sm font-medium leading-5 text-[#0A0B0D]">Default Family Member</p>
-                                <p className="text-sm font-medium leading-5 text-[#737373]">
+                                <p className="text-[14px] font-semibold leading-5 text-[#171717]">Default Family Member</p>
+                                <p className="text-[14px] font-normal leading-5 text-[#737373]">
                                     Pre-select when booking appointments
                                 </p>
                             </div>
@@ -353,13 +353,13 @@ export function PreferencesTab({
                         {/* Change password Row */}
                         <button
                             onClick={onOpenPasswordModal}
-                            className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors text-left"
+                            className="w-full flex items-center justify-between px-6 py-4 hover:bg-muted/50 transition-colors text-left"
                         >
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                                     <Lock className="h-5 w-5 text-muted-foreground" />
                                 </div>
-                                <span className="text-sm font-medium leading-5 text-[#0A0B0D]">Change password</span>
+                                <span className="text-[14px] font-semibold leading-5 text-[#171717]">Change password</span>
                             </div>
                             <ChevronRight className="h-5 w-5 text-muted-foreground" />
                         </button>
@@ -367,13 +367,13 @@ export function PreferencesTab({
                         {/* Download My Data Row */}
                         <button
                             onClick={handleDownloadData}
-                            className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors text-left"
+                            className="w-full flex items-center justify-between px-6 py-4 hover:bg-muted/50 transition-colors text-left"
                         >
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                                     <Download className="h-5 w-5 text-muted-foreground" />
                                 </div>
-                                <span className="text-sm font-medium leading-5 text-[#0A0B0D]">Download My Data</span>
+                                <span className="text-[14px] font-semibold leading-5 text-[#171717]">Download My Data</span>
                             </div>
                             <ChevronRight className="h-5 w-5 text-muted-foreground" />
                         </button>
@@ -381,13 +381,13 @@ export function PreferencesTab({
                         {/* Delete account Row */}
                         <button
                             onClick={() => setShowDeleteDialog(true)}
-                            className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors text-left"
+                            className="w-full flex items-center justify-between px-6 py-4 hover:bg-muted/50 transition-colors text-left"
                         >
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                                     <Trash2 className="h-5 w-5 text-muted-foreground" />
                                 </div>
-                                <span className="text-sm font-medium leading-5 text-[#0A0B0D]">Delete account</span>
+                                <span className="text-[14px] font-semibold leading-5 text-[#171717]">Delete account</span>
                             </div>
                             <ChevronRight className="h-5 w-5 text-muted-foreground" />
                         </button>
@@ -417,7 +417,7 @@ export function PreferencesTab({
                     </DialogHeader>
 
                     <div className="space-y-4">
-                        <div className="rounded-lg bg-destructive/10 p-4 text-sm text-destructive">
+                        <div className="rounded-lg bg-destructive/10 p-4 text-[14px] text-destructive">
                             <p className="font-medium mb-2">The following data will be deleted:</p>
                             <ul className="list-disc list-inside space-y-1">
                                 <li>Your profile and personal information</li>

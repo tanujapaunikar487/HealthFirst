@@ -24,7 +24,7 @@ export function SymptomChips({ symptoms, selectedIds, onToggle, className }: Sym
             type="button"
             onClick={() => onToggle(symptom.id)}
             className={cn(
-              "px-4 py-2 rounded-full border text-sm transition-all",
+              "px-4 py-2 rounded-full border text-[14px] transition-all",
               "hover:border-primary/50 hover:bg-primary/5",
               isSelected
                 ? "bg-primary/10 border-primary text-primary font-medium"

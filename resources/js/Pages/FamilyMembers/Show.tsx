@@ -296,11 +296,11 @@ function AlertBanner({ alert }: { alert: Alert }) {
         {getAlertIcon(alert.type)}
       </div>
       <div className="flex-1">
-        <p className={cn('text-sm font-medium', colors.text)}>
+        <p className={cn('text-[14px] font-medium', colors.text)}>
           {alert.message}
         </p>
         {alert.details && (
-          <p className={cn('text-xs mt-0.5', colors.text, 'opacity-80')}>
+          <p className={cn('text-[14px] mt-0.5', colors.text, 'opacity-80')}>
             {alert.details}
           </p>
         )}
@@ -308,7 +308,7 @@ function AlertBanner({ alert }: { alert: Alert }) {
       <button
         onClick={() => router.visit(alert.url)}
         className={cn(
-          'flex items-center gap-1 text-sm font-medium',
+          'flex items-center gap-1 text-[14px] font-medium',
           colors.button
         )}
       >
@@ -653,7 +653,7 @@ export default function FamilyMemberShow({
         {/* Back Navigation */}
         <button
           onClick={() => router.visit('/family-members')}
-          className="mb-6 flex items-center gap-1.5 text-sm font-medium text-gray-500 transition-colors hover:text-gray-900"
+          className="mb-6 flex items-center gap-1.5 text-[14px] font-medium text-gray-500 transition-colors hover:text-gray-900"
         >
           <ArrowLeft className="h-4 w-4" />
           Family Members
@@ -684,7 +684,7 @@ export default function FamilyMemberShow({
               {member.name}
             </h1>
             {member.patient_id && (
-              <p className="mt-0.5 text-sm text-gray-500">{member.patient_id}</p>
+              <p className="mt-0.5 text-[14px] text-gray-500">{member.patient_id}</p>
             )}
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
@@ -721,7 +721,7 @@ export default function FamilyMemberShow({
         {member.is_guest && (
           <Card className="mb-6 border-amber-200 bg-amber-50">
             <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-[14px] text-muted-foreground">
                 Guest members have limited profile features. Only appointment booking is available.
               </p>
             </CardContent>
@@ -729,9 +729,9 @@ export default function FamilyMemberShow({
         )}
 
         {/* Main Content with Side Nav */}
-        <div className="flex gap-8">
+        <div className="flex gap-24">
           <MemberSideNav isGuest={!!member.is_guest} />
-          <div className="flex-1 min-w-0 space-y-8 pb-12">
+          <div className="flex-1 min-w-0 space-y-16 pb-12">
             {/* Personal Information Section */}
             <div id="personal" className="scroll-mt-24">
               <div className="flex items-center gap-2.5 mb-4">
@@ -823,7 +823,7 @@ export default function FamilyMemberShow({
                           ))}
                         </div>
                       ) : (
-                        <span className="text-sm text-neutral-500">None recorded</span>
+                        <span className="text-[14px] text-neutral-500">None recorded</span>
                       ),
                     },
                     {
@@ -835,7 +835,7 @@ export default function FamilyMemberShow({
                           ))}
                         </div>
                       ) : (
-                        <span className="text-sm text-neutral-500">None recorded</span>
+                        <span className="text-[14px] text-neutral-500">None recorded</span>
                       ),
                     },
                   ]}
@@ -897,7 +897,7 @@ export default function FamilyMemberShow({
                     <button
                       key={i}
                       onClick={() => router.visit(link.href)}
-                      className="w-full flex items-center gap-4 px-5 py-4 text-left hover:bg-muted/30 transition-colors"
+                      className="w-full flex items-center gap-4 px-6 py-4 text-left hover:bg-muted/30 transition-colors"
                     >
                       <div
                         className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full"
@@ -906,8 +906,8 @@ export default function FamilyMemberShow({
                         <link.icon className="h-5 w-5" style={{ color: '#1E40AF' }} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-[#0A0B0D]">{link.title}</p>
-                        <p className="text-sm font-medium text-[#737373]">{link.subtitle}</p>
+                        <p className="text-[14px] font-semibold text-[#171717]">{link.title}</p>
+                        <p className="text-[14px] font-normal text-[#737373]">{link.subtitle}</p>
                       </div>
                       <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0" />
                     </button>
@@ -932,10 +932,10 @@ export default function FamilyMemberShow({
           <div className="flex-1 overflow-y-auto -mx-6 px-6">
             {/* Personal Details */}
             <div>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Personal Details</p>
+              <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">Personal Details</p>
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">
                     Name <span className="text-red-500">*</span>
                   </label>
                   <Input
@@ -948,12 +948,12 @@ export default function FamilyMemberShow({
                     className={cn(formErrors.name && 'border-red-300 focus-visible:ring-red-400')}
                   />
                   {formErrors.name && (
-                    <p className="mt-1 text-xs text-red-500">{formErrors.name}</p>
+                    <p className="mt-1 text-[14px] text-red-500">{formErrors.name}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">
                     Relation <span className="text-red-500">*</span>
                   </label>
                   <Select
@@ -973,12 +973,12 @@ export default function FamilyMemberShow({
                     </SelectContent>
                   </Select>
                   {formErrors.relation && (
-                    <p className="mt-1 text-xs text-red-500">{formErrors.relation}</p>
+                    <p className="mt-1 text-[14px] text-red-500">{formErrors.relation}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Date of Birth</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Date of Birth</label>
                   <DatePicker
                     value={formData.date_of_birth}
                     onChange={(value) => setFormData({ ...formData, date_of_birth: value })}
@@ -988,7 +988,7 @@ export default function FamilyMemberShow({
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Gender</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Gender</label>
                   <Select
                     value={formData.gender}
                     onValueChange={val => setFormData({ ...formData, gender: val })}
@@ -1010,17 +1010,17 @@ export default function FamilyMemberShow({
 
             {/* Contact & Address */}
             <div>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Contact & Address</p>
+              <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">Contact & Address</p>
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Phone</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Phone</label>
                   <PhoneInput
                     value={formData.phone || ''}
                     onChange={value => setFormData({ ...formData, phone: value })}
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Email</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Email</label>
                   <Input
                     type="email"
                     value={formData.email}
@@ -1029,7 +1029,7 @@ export default function FamilyMemberShow({
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Address Line 1</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Address Line 1</label>
                   <Input
                     value={formData.address_line_1}
                     onChange={e => setFormData({ ...formData, address_line_1: e.target.value })}
@@ -1037,7 +1037,7 @@ export default function FamilyMemberShow({
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Address Line 2</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Address Line 2</label>
                   <Input
                     value={formData.address_line_2}
                     onChange={e => setFormData({ ...formData, address_line_2: e.target.value })}
@@ -1046,7 +1046,7 @@ export default function FamilyMemberShow({
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="mb-1.5 block text-sm font-medium text-gray-700">State</label>
+                    <label className="mb-1.5 block text-[14px] font-medium text-gray-700">State</label>
                     <Select value={formData.state} onValueChange={handleStateChange}>
                       <SelectTrigger className={!formData.state ? 'text-muted-foreground' : ''}>
                         <SelectValue placeholder="Select state" />
@@ -1059,7 +1059,7 @@ export default function FamilyMemberShow({
                     </Select>
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-sm font-medium text-gray-700">City</label>
+                    <label className="mb-1.5 block text-[14px] font-medium text-gray-700">City</label>
                     <Select
                       value={formData.city}
                       onValueChange={(value: string) => setFormData({ ...formData, city: value })}
@@ -1076,7 +1076,7 @@ export default function FamilyMemberShow({
                     </Select>
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-sm font-medium text-gray-700">Pincode</label>
+                    <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Pincode</label>
                     <Input
                       value={formData.pincode}
                       onChange={e => setFormData({ ...formData, pincode: e.target.value })}
@@ -1091,10 +1091,10 @@ export default function FamilyMemberShow({
 
             {/* Health Information */}
             <div>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Health Information</p>
+              <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">Health Information</p>
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Blood Group</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Blood Group</label>
                   <Select
                     value={formData.blood_group}
                     onValueChange={val => setFormData({ ...formData, blood_group: val })}
@@ -1110,7 +1110,7 @@ export default function FamilyMemberShow({
                   </Select>
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Primary Doctor</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Primary Doctor</label>
                   <Select
                     value={formData.primary_doctor_id}
                     onValueChange={val => setFormData({ ...formData, primary_doctor_id: val })}
@@ -1128,7 +1128,7 @@ export default function FamilyMemberShow({
                   </Select>
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Conditions</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Conditions</label>
                   <TagInput
                     tags={formData.medical_conditions}
                     onChange={tags => setFormData({ ...formData, medical_conditions: tags })}
@@ -1136,7 +1136,7 @@ export default function FamilyMemberShow({
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Allergies</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Allergies</label>
                   <TagInput
                     tags={formData.allergies}
                     onChange={tags => setFormData({ ...formData, allergies: tags })}
@@ -1151,10 +1151,10 @@ export default function FamilyMemberShow({
 
             {/* Emergency Contact */}
             <div>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Emergency Contact</p>
+              <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">Emergency Contact</p>
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Contact Name</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Contact Name</label>
                   <Input
                     value={formData.emergency_contact_name}
                     onChange={e => setFormData({ ...formData, emergency_contact_name: e.target.value })}
@@ -1162,7 +1162,7 @@ export default function FamilyMemberShow({
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Contact Relation</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Contact Relation</label>
                   <Input
                     value={formData.emergency_contact_relation}
                     onChange={e => setFormData({ ...formData, emergency_contact_relation: e.target.value })}
@@ -1170,7 +1170,7 @@ export default function FamilyMemberShow({
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Contact Phone</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Contact Phone</label>
                   <PhoneInput
                     value={formData.emergency_contact_phone || ''}
                     onChange={value => setFormData({ ...formData, emergency_contact_phone: value })}
@@ -1205,7 +1205,7 @@ export default function FamilyMemberShow({
               <UserPlus className="h-5 w-5 text-blue-600" />
             </div>
             <h3 className="mb-1 text-lg font-semibold text-gray-900">Upgrade {member.name}?</h3>
-            <p className="mb-6 text-sm text-gray-500">
+            <p className="mb-6 text-[14px] text-gray-500">
               This will convert this guest to a full family member with access to health records, billing, and all other features.
             </p>
             <div className="flex gap-3">
@@ -1246,13 +1246,13 @@ export default function FamilyMemberShow({
             </div>
             <h3 className="mb-2 text-lg font-semibold text-gray-900">Remove {member.name}?</h3>
             <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3">
-              <p className="text-sm text-red-800 font-medium mb-2">
+              <p className="text-[14px] text-red-800 font-medium mb-2">
                 ⚠️ This action cannot be undone
               </p>
-              <p className="text-sm text-red-700">
+              <p className="text-[14px] text-red-700">
                 This will permanently delete:
               </p>
-              <ul className="mt-2 text-sm text-red-700 space-y-1 ml-4 list-disc">
+              <ul className="mt-2 text-[14px] text-red-700 space-y-1 ml-4 list-disc">
                 <li>All health records and medical history</li>
                 <li>Past appointments and consultation notes</li>
                 <li>Billing and insurance claim records</li>
@@ -1260,7 +1260,7 @@ export default function FamilyMemberShow({
               </ul>
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-[14px] font-medium text-gray-700 mb-2">
                 Type <span className="font-semibold">{member.name}</span> to confirm
               </label>
               <Input

@@ -37,7 +37,7 @@ export function PackageCard({ package: pkg, isSelected, onSelect, className }: P
         <div className="flex items-center gap-2">
           <span className="font-medium">{pkg.name}</span>
           {pkg.is_recommended && (
-            <Badge variant="orange" className="text-xs">
+            <Badge variant="orange" className="text-[14px]">
               Recommended
             </Badge>
           )}
@@ -45,7 +45,7 @@ export function PackageCard({ package: pkg, isSelected, onSelect, className }: P
         <div className="text-right">
           <span className="font-semibold">₹{pkg.price.toLocaleString()}</span>
           {pkg.original_price > pkg.price && (
-            <span className="text-sm text-muted-foreground line-through ml-2">
+            <span className="text-[14px] text-muted-foreground line-through ml-2">
               ₹{pkg.original_price.toLocaleString()}
             </span>
           )}
@@ -53,11 +53,11 @@ export function PackageCard({ package: pkg, isSelected, onSelect, className }: P
       </div>
 
       {/* Description */}
-      <p className="text-sm text-muted-foreground mb-3">{pkg.description}</p>
+      <p className="text-[14px] text-muted-foreground mb-3">{pkg.description}</p>
 
       {/* Metadata + Book button */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+        <div className="flex items-center gap-4 text-[14px] text-muted-foreground">
           <span className="flex items-center gap-1">
             <Clock className="h-4 w-4" />
             {pkg.duration_hours} hrs

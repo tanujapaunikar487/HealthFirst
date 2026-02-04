@@ -41,19 +41,19 @@ export default function Login({ status, canResetPassword, socialLoginEnabled }: 
                 <h1 className="text-2xl font-bold" style={{ color: '#00184D' }}>
                     Welcome back
                 </h1>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-[14px] text-muted-foreground mt-1">
                     Sign in to your account to continue
                 </p>
             </div>
 
             {status && (
-                <div className="mb-4 text-sm font-medium text-green-600 bg-green-50 p-3 rounded-lg">
+                <div className="mb-4 text-[14px] font-medium text-green-600 bg-green-50 p-3 rounded-lg">
                     {status}
                 </div>
             )}
 
             {flash?.error && (
-                <div className="mb-4 text-sm font-medium text-red-600 bg-red-50 p-3 rounded-lg">
+                <div className="mb-4 text-[14px] font-medium text-red-600 bg-red-50 p-3 rounded-lg">
                     {flash.error}
                 </div>
             )}
@@ -71,7 +71,7 @@ export default function Login({ status, canResetPassword, socialLoginEnabled }: 
                         className={errors.email ? 'border-red-500' : ''}
                     />
                     {errors.email && (
-                        <p className="text-sm text-red-600">{errors.email}</p>
+                        <p className="text-[14px] text-red-600">{errors.email}</p>
                     )}
                 </div>
 
@@ -86,7 +86,7 @@ export default function Login({ status, canResetPassword, socialLoginEnabled }: 
                         className={errors.password ? 'border-red-500' : ''}
                     />
                     {errors.password && (
-                        <p className="text-sm text-red-600">{errors.password}</p>
+                        <p className="text-[14px] text-red-600">{errors.password}</p>
                     )}
                 </div>
 
@@ -99,7 +99,7 @@ export default function Login({ status, canResetPassword, socialLoginEnabled }: 
                                 setData('remember', checked as boolean)
                             }
                         />
-                        <Label htmlFor="remember" className="text-sm font-normal cursor-pointer">
+                        <Label htmlFor="remember" className="text-[14px] font-normal cursor-pointer">
                             Remember me
                         </Label>
                     </div>
@@ -107,7 +107,7 @@ export default function Login({ status, canResetPassword, socialLoginEnabled }: 
                     {canResetPassword && (
                         <Link
                             href={route('password.request')}
-                            className="text-sm text-blue-600 hover:underline"
+                            className="text-[14px] text-blue-600 hover:underline"
                         >
                             Forgot password?
                         </Link>
@@ -125,7 +125,7 @@ export default function Login({ status, canResetPassword, socialLoginEnabled }: 
                     </>
                 )}
 
-                <p className="text-center text-sm text-muted-foreground">
+                <p className="text-center text-[14px] text-muted-foreground">
                     Don't have an account?{' '}
                     <Link href={route('register')} className="text-blue-600 hover:underline">
                         Sign up

@@ -80,7 +80,7 @@ export default function ConfirmStep({ summary }: Props) {
               <div className="flex items-center gap-2">
                 <Avatar className="w-6 h-6">
                   <AvatarImage src={summary.patient.avatar || undefined} />
-                  <AvatarFallback className="bg-orange-400 text-white text-xs font-medium">
+                  <AvatarFallback className="bg-orange-400 text-white text-[14px] font-medium">
                     {getInitial(summary.patient.name)}
                   </AvatarFallback>
                 </Avatar>
@@ -109,7 +109,7 @@ export default function ConfirmStep({ summary }: Props) {
           />
 
           {/* Fee - no Change button */}
-          <div className="flex items-center justify-between p-4">
+          <div className="flex items-center justify-between px-6 py-4">
             <span className="text-muted-foreground">Consultation Fee</span>
             <span className="font-semibold">₹{summary.fee.toLocaleString()}</span>
           </div>
@@ -120,13 +120,13 @@ export default function ConfirmStep({ summary }: Props) {
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
             <div className="flex items-start gap-3">
               <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-xs font-bold">!</span>
+                <span className="text-white text-[14px] font-bold">!</span>
               </div>
               <div className="flex-1">
                 <p className="font-semibold text-amber-900 mb-2">Preparation Instructions</p>
                 <ul className="space-y-1">
                   {summary.prepInstructions.map((instruction, i) => (
-                    <li key={i} className="text-sm text-amber-800 flex items-start gap-2">
+                    <li key={i} className="text-[14px] text-amber-800 flex items-start gap-2">
                       <span>•</span>
                       <span>{instruction}</span>
                     </li>
@@ -150,11 +150,11 @@ interface SummaryRowProps {
 
 function SummaryRow({ label, value, onChangeClick }: SummaryRowProps) {
   return (
-    <div className="flex items-center justify-between p-4">
+    <div className="flex items-center justify-between px-6 py-4">
       <span className="text-muted-foreground">{label}</span>
       <div className="flex items-center gap-3">
         <div>{value}</div>
-        <button onClick={onChangeClick} className="text-primary text-sm hover:underline">
+        <button onClick={onChangeClick} className="text-primary text-[14px] hover:underline">
           Change
         </button>
       </div>

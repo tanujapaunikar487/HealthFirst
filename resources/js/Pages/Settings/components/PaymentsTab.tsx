@@ -257,13 +257,13 @@ export function PaymentsTab({ paymentMethods = [], upiIds = [] }: PaymentsTabPro
     };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-16">
             {/* Cards Section */}
             <div>
                 <div className="flex items-center justify-between mb-4">
                     <div>
                         <SectionTitle>Cards</SectionTitle>
-                        <p className="text-sm text-muted-foreground mt-1">
+                        <p className="text-[14px] text-muted-foreground mt-1">
                             Manage your saved debit and credit cards
                         </p>
                     </div>
@@ -293,7 +293,7 @@ export function PaymentsTab({ paymentMethods = [], upiIds = [] }: PaymentsTabPro
                             {paymentMethods.map((method) => (
                                 <div
                                     key={method.id}
-                                    className="flex items-center justify-between p-4"
+                                    className="flex items-center justify-between px-6 py-4"
                                 >
                                     <button
                                         onClick={() => handleSetDefault(method)}
@@ -304,7 +304,7 @@ export function PaymentsTab({ paymentMethods = [], upiIds = [] }: PaymentsTabPro
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-2">
-                                                <p className="text-sm font-medium leading-5 text-[#0A0B0D]">
+                                                <p className="text-[14px] font-semibold leading-5 text-[#171717]">
                                                     {method.brand} •••• {method.last_four}
                                                 </p>
                                                 {method.is_default && (
@@ -313,7 +313,7 @@ export function PaymentsTab({ paymentMethods = [], upiIds = [] }: PaymentsTabPro
                                                     </Badge>
                                                 )}
                                             </div>
-                                            <p className="text-sm font-medium leading-5 text-[#737373]">
+                                            <p className="text-[14px] font-normal leading-5 text-[#737373]">
                                                 Expires {method.expiry_month.toString().padStart(2, '0')}/{method.expiry_year.toString().slice(-2)}
                                                 {method.holder_name && ` · ${method.holder_name}`}
                                             </p>
@@ -338,14 +338,14 @@ export function PaymentsTab({ paymentMethods = [], upiIds = [] }: PaymentsTabPro
             <div>
                 <div className="mb-4">
                     <SectionTitle>UPI</SectionTitle>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-[14px] text-muted-foreground mt-1">
                         Link your UPI ID for instant payments
                     </p>
                 </div>
 
                 {/* Add UPI Form */}
                 <Card className="mb-4">
-                    <CardContent className="p-4">
+                    <CardContent className="px-6 py-4">
                         <div className="flex gap-3">
                             <div className="flex-1">
                                 <Input
@@ -380,7 +380,7 @@ export function PaymentsTab({ paymentMethods = [], upiIds = [] }: PaymentsTabPro
                             {upiIds.map((upi) => (
                                 <div
                                     key={upi.id}
-                                    className="flex items-center justify-between p-4"
+                                    className="flex items-center justify-between px-6 py-4"
                                 >
                                     <button
                                         onClick={() => handleSetDefaultUpi(upi)}
@@ -391,14 +391,14 @@ export function PaymentsTab({ paymentMethods = [], upiIds = [] }: PaymentsTabPro
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-2">
-                                                <p className="text-sm font-medium leading-5 text-[#0A0B0D]">{upi.upi_id}</p>
+                                                <p className="text-[14px] font-semibold leading-5 text-[#171717]">{upi.upi_id}</p>
                                                 {upi.is_default && (
                                                     <Badge variant="outline" className="border-green-200 bg-green-50 text-green-700">
                                                         <Check className="h-3 w-3 mr-1" /> Default
                                                     </Badge>
                                                 )}
                                             </div>
-                                            <p className="text-sm font-medium leading-5 text-[#737373]">
+                                            <p className="text-[14px] font-normal leading-5 text-[#737373]">
                                                 UPI ID
                                             </p>
                                         </div>
@@ -427,8 +427,8 @@ export function PaymentsTab({ paymentMethods = [], upiIds = [] }: PaymentsTabPro
                         </div>
                     </div>
                     <div>
-                        <p className="text-sm font-medium leading-5 text-[#0A0B0D]">Secure payments</p>
-                        <p className="text-sm font-medium leading-5 text-[#737373] mt-0.5">
+                        <p className="text-[14px] font-semibold leading-5 text-[#171717]">Secure payments</p>
+                        <p className="text-[14px] font-normal leading-5 text-[#737373] mt-0.5">
                             Your card details are encrypted and securely stored. We use industry-standard security protocols to protect your payment information.
                         </p>
                     </div>

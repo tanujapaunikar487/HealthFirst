@@ -624,7 +624,7 @@ function TimelineEventRow({
           onClick={hasDetails ? onToggle : undefined}
         >
           <p
-            className={`text-sm font-medium ${
+            className={`text-[14px] font-medium ${
               event.status === 'pending' ? 'text-gray-400' : 'text-gray-900'
             }`}
           >
@@ -639,15 +639,15 @@ function TimelineEventRow({
           )}
         </div>
         {event.date && (
-          <p className="text-xs text-gray-500">{event.date}</p>
+          <p className="text-[14px] text-gray-500">{event.date}</p>
         )}
         {event.note && (
-          <p className="mt-0.5 text-xs italic text-gray-500">{event.note}</p>
+          <p className="mt-0.5 text-[14px] italic text-gray-500">{event.note}</p>
         )}
         {hasDetails && isExpanded && (
           <div className="mt-2 rounded-lg border bg-gray-50 px-3 py-2">
             {Object.entries(event.details!).map(([key, value]) => (
-              <div key={key} className="flex items-center justify-between py-1 text-xs">
+              <div key={key} className="flex items-center justify-between py-1 text-[14px]">
                 <span className="text-gray-500">{key}</span>
                 <span className="font-medium text-gray-700">{value}</span>
               </div>
@@ -850,7 +850,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
       <div className="sticky top-0 z-10 border-b bg-white/95 backdrop-blur px-6 py-3 md:hidden">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-500">{claim.claim_reference}</span>
+            <span className="text-[14px] font-medium text-gray-500">{claim.claim_reference}</span>
             {getStatusBadge(claim.status)}
           </div>
           <ThreeDotMenu />
@@ -859,7 +859,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
       <div className="w-full max-w-[960px] min-h-full flex flex-col pb-10">
         {/* Breadcrumb */}
-        <div className="mb-6 flex items-center gap-1.5 text-sm text-gray-500">
+        <div className="mb-6 flex items-center gap-1.5 text-[14px] text-gray-500">
           <button
             onClick={() => router.visit('/insurance')}
             className="font-medium hover:text-gray-900"
@@ -904,7 +904,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   </Badge>
                 )}
               </div>
-              <div className="mt-1 flex items-center gap-2 text-sm text-gray-500">
+              <div className="mt-1 flex items-center gap-2 text-[14px] text-gray-500">
                 {claim.provider_name && <span>{claim.provider_name}</span>}
                 {claim.claim_date_formatted && (
                   <>
@@ -996,14 +996,14 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 className={`mt-1.5 h-2.5 w-2.5 flex-shrink-0 rounded-full ${banner.dotColor}`}
               />
               <div className="min-w-0">
-                <p className={`text-sm font-semibold ${banner.textColor}`}>{banner.title}</p>
+                <p className={`text-[14px] font-semibold ${banner.textColor}`}>{banner.title}</p>
                 {banner.subtitle && (
-                  <p className={`mt-0.5 text-sm ${banner.textColor} opacity-80`}>
+                  <p className={`mt-0.5 text-[14px] ${banner.textColor} opacity-80`}>
                     {banner.subtitle}
                   </p>
                 )}
                 {banner.breakdown && (
-                  <p className={`mt-1.5 text-xs font-medium ${banner.textColor} opacity-70`}>
+                  <p className={`mt-1.5 text-[14px] font-medium ${banner.textColor} opacity-70`}>
                     {banner.breakdown}
                   </p>
                 )}
@@ -1013,7 +1013,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               <Button
                 size="sm"
                 variant="outline"
-                className="flex-shrink-0 h-8 text-xs"
+                className="flex-shrink-0 h-8 text-[14px]"
                 onClick={() => {
                   const label = banner.action!.label;
                   if (label === 'Accept') {
@@ -1081,16 +1081,16 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         </div>
 
         {/* Main Content with Side Nav */}
-        <div className="flex gap-8">
+        <div className="flex gap-24">
           <ClaimSideNav hasFinancial={!!fin} />
-          <div className="flex-1 min-w-0 space-y-8 pb-12">
+          <div className="flex-1 min-w-0 space-y-16 pb-12">
 
         {/* Overview Section */}
         <Section id="overview" title="Overview" icon={ClipboardList} noPadding>
           <div className="divide-y">
             {/* Patient */}
             <div className="flex items-center gap-4 px-5 py-3.5">
-              <div className="flex w-24 flex-shrink-0 items-center gap-1.5 text-xs font-medium text-gray-500">
+              <div className="flex w-24 flex-shrink-0 items-center gap-1.5 text-[14px] font-medium text-gray-500">
                 <User className="h-3.5 w-3.5" />
                 Patient
               </div>
@@ -1112,21 +1112,21 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 >
                   {getInitials(patient.name)}
                 </div>
-                <span className="text-sm font-medium text-gray-900">{patient.name}</span>
+                <span className="text-[14px] font-medium text-gray-900">{patient.name}</span>
                 {patient.relation !== 'self' && (
-                  <span className="text-xs capitalize text-gray-500">({patient.relation})</span>
+                  <span className="text-[14px] capitalize text-gray-500">({patient.relation})</span>
                 )}
               </button>
             </div>
 
             {/* Doctor */}
             <div className="flex items-center gap-4 px-5 py-3.5">
-              <div className="flex w-24 flex-shrink-0 items-center gap-1.5 text-xs font-medium text-gray-500">
+              <div className="flex w-24 flex-shrink-0 items-center gap-1.5 text-[14px] font-medium text-gray-500">
                 <Stethoscope className="h-3.5 w-3.5" />
                 Doctor
               </div>
               {doctor ? (
-                <div className="flex items-center gap-2.5 text-sm">
+                <div className="flex items-center gap-2.5 text-[14px]">
                   <div
                     className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-semibold"
                     style={{
@@ -1141,20 +1141,20 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   <span className="text-gray-500">{doctor.specialization}</span>
                 </div>
               ) : (
-                <span className="text-sm text-gray-400">N/A</span>
+                <span className="text-[14px] text-gray-400">N/A</span>
               )}
             </div>
 
             {/* Stay */}
             <div className="flex items-center gap-4 px-5 py-3.5">
-              <div className="flex w-24 flex-shrink-0 items-center gap-1.5 text-xs font-medium text-gray-500">
+              <div className="flex w-24 flex-shrink-0 items-center gap-1.5 text-[14px] font-medium text-gray-500">
                 <BedDouble className="h-3.5 w-3.5" />
                 Stay
               </div>
               {isOutpatient ? (
-                <span className="text-sm font-medium text-gray-900">Outpatient</span>
+                <span className="text-[14px] font-medium text-gray-900">Outpatient</span>
               ) : (
-                <div className="flex items-center gap-1.5 text-sm flex-wrap">
+                <div className="flex items-center gap-1.5 text-[14px] flex-wrap">
                   <span className="font-medium text-gray-900">{stay!.days} Days</span>
                   {isOngoing && (
                     <Badge variant="default" className="text-[10px] px-1.5 py-0">
@@ -1177,11 +1177,11 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
             {/* Room */}
             {!isOutpatient && (
               <div className="flex items-center gap-4 px-5 py-3.5">
-                <div className="flex w-24 flex-shrink-0 items-center gap-1.5 text-xs font-medium text-gray-500">
+                <div className="flex w-24 flex-shrink-0 items-center gap-1.5 text-[14px] font-medium text-gray-500">
                   <DoorOpen className="h-3.5 w-3.5" />
                   Room
                 </div>
-                <div className="flex items-center gap-1.5 text-sm">
+                <div className="flex items-center gap-1.5 text-[14px]">
                   <span className="font-medium text-gray-900">{stay!.room_type ?? 'General'}</span>
                   {stay!.room_number && (
                     <>
@@ -1207,14 +1207,14 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
           {/* Original Policy (if transferred) */}
           {claim.original_policy_id && claim.original_policy_plan_name && (
-            <div className="flex items-center gap-3 px-5 py-4">
+            <div className="flex items-center gap-3 px-6 py-4">
               <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
                 <Shield className="h-4 w-4 text-gray-400" />
               </div>
               <div className="flex-1">
-                <p className="text-xs font-medium text-gray-500">Insurance Plan (Original)</p>
+                <p className="text-[14px] font-medium text-gray-500">Insurance Plan (Original)</p>
                 <div className="mt-0.5 flex items-center gap-2">
-                  <p className="text-sm font-semibold text-gray-400 line-through">
+                  <p className="text-[14px] font-semibold text-gray-400 line-through">
                     {claim.original_policy_plan_name}
                   </p>
                   <Badge variant="secondary" className="text-[10px]">
@@ -1222,7 +1222,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   </Badge>
                 </div>
                 {claim.original_policy_expired_date && (
-                  <p className="text-xs text-gray-400">Expired {claim.original_policy_expired_date}</p>
+                  <p className="text-[14px] text-gray-400">Expired {claim.original_policy_expired_date}</p>
                 )}
               </div>
             </div>
@@ -1231,7 +1231,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           {/* Current Insurance Plan */}
           {claim.policy_id && claim.policy_plan_name && (
             <button
-              className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-gray-50"
+              className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-gray-50"
               onClick={() => router.visit(`/insurance/${claim.policy_id}`)}
             >
               <div className="flex items-center gap-3">
@@ -1239,17 +1239,17 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   <Shield className="h-4 w-4 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-gray-500">
+                  <p className="text-[14px] font-medium text-gray-500">
                     Insurance Plan{claim.original_policy_id ? ' (Current)' : ''}
                   </p>
-                  <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                  <p className="mt-0.5 text-[14px] font-semibold text-gray-900">
                     {claim.policy_plan_name}
                   </p>
                   {claim.transfer_date && (
-                    <p className="text-xs text-gray-500">Transferred on {claim.transfer_date}</p>
+                    <p className="text-[14px] text-gray-500">Transferred on {claim.transfer_date}</p>
                   )}
                   {!claim.transfer_date && claim.provider_name && (
-                    <p className="text-xs text-gray-500">{claim.provider_name}</p>
+                    <p className="text-[14px] text-gray-500">{claim.provider_name}</p>
                   )}
                 </div>
               </div>
@@ -1260,7 +1260,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           {/* Related Appointment */}
           {claim.appointment_id && (
             <button
-              className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-gray-50"
+              className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-gray-50"
               onClick={() => router.visit(`/appointments/${claim.appointment_id}`)}
             >
               <div className="flex items-center gap-3">
@@ -1268,12 +1268,12 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   <Calendar className="h-4 w-4 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-gray-500">Related Appointment</p>
-                  <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                  <p className="text-[14px] font-medium text-gray-500">Related Appointment</p>
+                  <p className="mt-0.5 text-[14px] font-semibold text-gray-900">
                     {claim.treatment_name}
                   </p>
                   {(doctor || appointment?.date_formatted) && (
-                    <p className="text-xs text-gray-500">
+                    <p className="text-[14px] text-gray-500">
                       {doctor?.name}
                       {doctor && appointment?.date_formatted && ' \u00B7 '}
                       {appointment?.date_formatted}
@@ -1293,18 +1293,18 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
             <div className="divide-y">
                 {fin.preauth_requested != null && (
                   <div className="flex items-center justify-between px-5 py-3.5">
-                    <span className="text-sm text-gray-600">
+                    <span className="text-[14px] text-gray-600">
                       {hasEnhancements ? 'Original pre-auth' : 'Pre-auth requested'}
                     </span>
-                    <span className="text-sm font-semibold text-gray-900">
+                    <span className="text-[14px] font-semibold text-gray-900">
                       {formatCurrency(fin.preauth_requested)}
                     </span>
                   </div>
                 )}
                 {fin.preauth_approved != null && !hasEnhancements && (
                   <div className="flex items-center justify-between bg-green-50 px-5 py-3.5">
-                    <span className="text-sm font-medium text-green-700">Pre-auth approved</span>
-                    <span className="text-sm font-bold text-green-700">
+                    <span className="text-[14px] font-medium text-green-700">Pre-auth approved</span>
+                    <span className="text-[14px] font-bold text-green-700">
                       {formatCurrency(fin.preauth_approved)}
                     </span>
                   </div>
@@ -1318,14 +1318,14 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                       enh.status === 'approved' ? 'bg-green-50' : enh.status === 'rejected' ? 'bg-red-50' : ''
                     }`}
                   >
-                    <span className={`text-sm ${
+                    <span className={`text-[14px] ${
                       enh.status === 'approved' ? 'font-medium text-green-700'
                         : enh.status === 'rejected' ? 'font-medium text-red-600'
                           : 'text-gray-600'
                     }`}>
                       Enhancement {idx + 1} ({enh.status})
                     </span>
-                    <span className={`text-sm font-bold ${
+                    <span className={`text-[14px] font-bold ${
                       enh.status === 'approved' ? 'text-green-700'
                         : enh.status === 'rejected' ? 'text-red-600'
                           : 'text-amber-700'
@@ -1336,8 +1336,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 ))}
                 {hasEnhancements && fin.total_approved != null && (
                   <div className="flex items-center justify-between bg-green-50 px-5 py-3.5">
-                    <span className="text-sm font-medium text-green-700">Total approved</span>
-                    <span className="text-sm font-bold text-green-700">
+                    <span className="text-[14px] font-medium text-green-700">Total approved</span>
+                    <span className="text-[14px] font-bold text-green-700">
                       {formatCurrency(fin.total_approved)}
                     </span>
                   </div>
@@ -1345,8 +1345,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
                 {fin.not_covered != null && fin.not_covered > 0 && (
                   <div className="flex items-center justify-between bg-red-50 px-5 py-3.5">
-                    <span className="text-sm font-medium text-red-600">Not covered</span>
-                    <span className="text-sm font-bold text-red-600">
+                    <span className="text-[14px] font-medium text-red-600">Not covered</span>
+                    <span className="text-[14px] font-bold text-red-600">
                       {formatCurrency(fin.not_covered)}
                     </span>
                   </div>
@@ -1355,16 +1355,16 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 {/* Single enhancement (legacy) */}
                 {!hasEnhancements && fin.enhancement_requested != null && (
                   <div className="flex items-center justify-between px-5 py-3.5">
-                    <span className="text-sm text-gray-600">Enhancement requested</span>
-                    <span className="text-sm font-semibold text-amber-700">
+                    <span className="text-[14px] text-gray-600">Enhancement requested</span>
+                    <span className="text-[14px] font-semibold text-amber-700">
                       {formatCurrency(fin.enhancement_requested)}
                     </span>
                   </div>
                 )}
                 {!hasEnhancements && fin.enhancement_approved != null && (
                   <div className="flex items-center justify-between bg-green-50 px-5 py-3.5">
-                    <span className="text-sm font-medium text-green-700">Enhancement approved</span>
-                    <span className="text-sm font-bold text-green-700">
+                    <span className="text-[14px] font-medium text-green-700">Enhancement approved</span>
+                    <span className="text-[14px] font-bold text-green-700">
                       {formatCurrency(fin.enhancement_approved)}
                     </span>
                   </div>
@@ -1372,8 +1372,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
                 {fin.current_bill != null && (
                   <div className="flex items-center justify-between px-5 py-3.5">
-                    <span className="text-sm text-gray-600">Current bill</span>
-                    <span className="text-sm font-semibold text-gray-900">
+                    <span className="text-[14px] text-gray-600">Current bill</span>
+                    <span className="text-[14px] font-semibold text-gray-900">
                       {formatCurrency(fin.current_bill)}
                     </span>
                   </div>
@@ -1381,8 +1381,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
                 {fin.insurance_covered != null && (
                   <div className="flex items-center justify-between px-5 py-3.5">
-                    <span className="text-sm text-gray-600">Insurance covered</span>
-                    <span className="text-sm font-semibold text-gray-900">
+                    <span className="text-[14px] text-gray-600">Insurance covered</span>
+                    <span className="text-[14px] font-semibold text-gray-900">
                       {formatCurrency(fin.insurance_covered)}
                     </span>
                   </div>
@@ -1392,15 +1392,15 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 {fin.deductions && fin.deductions.length > 0 && (
                   <>
                     <div className="flex items-center justify-between bg-red-50 px-5 py-3.5">
-                      <span className="text-sm font-medium text-red-600">Deductions</span>
-                      <span className="text-sm font-bold text-red-600">
+                      <span className="text-[14px] font-medium text-red-600">Deductions</span>
+                      <span className="text-[14px] font-bold text-red-600">
                         -{formatCurrency(fin.deductions.reduce((sum, d) => sum + d.amount, 0))}
                       </span>
                     </div>
                     {fin.deductions.map((d, idx) => (
                       <div key={idx} className="flex items-center justify-between px-5 py-2.5 pl-9">
-                        <span className="text-xs text-gray-500">{d.label}</span>
-                        <span className="text-xs font-medium text-red-500">{formatCurrency(d.amount)}</span>
+                        <span className="text-[14px] text-gray-500">{d.label}</span>
+                        <span className="text-[14px] font-medium text-red-500">{formatCurrency(d.amount)}</span>
                       </div>
                     ))}
                   </>
@@ -1409,8 +1409,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 {/* Co-pay */}
                 {fin.copay_percentage != null && (
                   <div className="flex items-center justify-between px-5 py-3.5">
-                    <span className="text-sm text-gray-600">Co-pay ({fin.copay_percentage}%)</span>
-                    <span className="text-sm font-semibold text-gray-900">
+                    <span className="text-[14px] text-gray-600">Co-pay ({fin.copay_percentage}%)</span>
+                    <span className="text-[14px] font-semibold text-gray-900">
                       {fin.copay_amount != null ? formatCurrency(fin.copay_amount) : '-'}
                     </span>
                   </div>
@@ -1418,8 +1418,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
                 {/* You Paid — bold dark row */}
                 {fin.patient_paid != null && (
-                  <div className="flex items-center justify-between bg-gray-900 px-5 py-4">
-                    <span className="text-sm font-semibold text-white">You paid</span>
+                  <div className="flex items-center justify-between bg-gray-900 px-6 py-4">
+                    <span className="text-[14px] font-semibold text-white">You paid</span>
                     <span className="text-base font-bold text-white">
                       {formatCurrency(fin.patient_paid)}
                     </span>
@@ -1430,15 +1430,15 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 {isInTreatment && fin.estimated_remaining != null && (
                   <>
                     <div className="flex items-center justify-between px-5 py-3.5">
-                      <span className="text-sm text-gray-500">Estimated remaining</span>
-                      <span className="text-sm font-medium text-gray-600">
+                      <span className="text-[14px] text-gray-500">Estimated remaining</span>
+                      <span className="text-[14px] font-medium text-gray-600">
                         {formatCurrency(fin.estimated_remaining)}
                       </span>
                     </div>
                     {fin.estimated_out_of_pocket != null && (
                       <div className="flex items-center justify-between px-5 py-3.5">
-                        <span className="text-sm text-gray-500">Estimated out-of-pocket</span>
-                        <span className="text-sm font-medium text-gray-600">
+                        <span className="text-[14px] text-gray-500">Estimated out-of-pocket</span>
+                        <span className="text-[14px] font-medium text-gray-600">
                           {formatCurrency(fin.estimated_out_of_pocket)}
                         </span>
                       </div>
@@ -1448,8 +1448,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
                 {fin.refunded != null && fin.refunded > 0 && (
                   <div className="flex items-center justify-between bg-green-50 px-5 py-3.5">
-                    <span className="text-sm font-medium text-green-700">Refunded</span>
-                    <span className="text-sm font-bold text-green-700">
+                    <span className="text-[14px] font-medium text-green-700">Refunded</span>
+                    <span className="text-[14px] font-bold text-green-700">
                       {formatCurrency(fin.refunded)}
                     </span>
                   </div>
@@ -1469,7 +1469,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               <Button
                 variant="outline"
                 size="sm"
-                className="text-xs"
+                className="text-[14px]"
                 onClick={() => {
                   const docList = claim.documents.map(d => `<div class="row"><span class="row-label">${d.type}</span><span class="row-value">${d.date}</span></div>`).join('');
                   downloadAsHtml(`claim-documents-${claim.claim_reference}.html`, `
@@ -1496,7 +1496,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               {claim.documents.map((doc, idx) => (
                 <button
                   key={idx}
-                  className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-gray-50"
+                  className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-gray-50"
                   onClick={() => {
                     downloadAsHtml(`${doc.type.replace(/\s+/g, '-').toLowerCase()}-${claim.claim_reference}.html`, `
                       <h1>${doc.type}</h1>
@@ -1511,8 +1511,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                       <FileText className="h-4 w-4 text-gray-500" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{doc.type}</p>
-                      <p className="text-xs text-gray-500">{doc.date}</p>
+                      <p className="text-[14px] font-medium text-gray-900">{doc.type}</p>
+                      <p className="text-[14px] text-gray-500">{doc.date}</p>
                     </div>
                   </div>
                   <Download className="h-4 w-4 flex-shrink-0 text-gray-400" />
@@ -1529,7 +1529,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           icon={Clock}
           action={
             lastUpdatedDate ? (
-              <span className="text-xs text-gray-400">Last Updated: {lastUpdatedDate}</span>
+              <span className="text-[14px] text-gray-400">Last Updated: {lastUpdatedDate}</span>
             ) : undefined
           }
         >
@@ -1538,10 +1538,10 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               <EmptyState icon={Clock} message="No timeline events" />
             </div>
             ) : (
-              <div className="px-5 py-4">
+              <div className="px-6 py-4">
                 {/* Last updated on mobile */}
                 {lastUpdatedDate && (
-                  <p className="mb-3 text-xs text-gray-400 md:hidden">
+                  <p className="mb-3 text-[14px] text-gray-400 md:hidden">
                     Last Updated: {lastUpdatedDate}
                   </p>
                 )}
@@ -1592,7 +1592,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 {/* Show all button (when truncated) */}
                 {!useMonthGroups && !showAllTimeline && claim.timeline.length > 10 && (
                   <button
-                    className="mt-4 w-full text-center text-sm font-medium text-blue-600 hover:text-blue-700"
+                    className="mt-4 w-full text-center text-[14px] font-medium text-blue-600 hover:text-blue-700"
                     onClick={() => setShowAllTimeline(true)}
                   >
                     Show all {claim.timeline.length} events

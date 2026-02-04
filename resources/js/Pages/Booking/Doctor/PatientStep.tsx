@@ -365,11 +365,11 @@ export default function PatientStep({
       onContinue={handleContinue}
       continueDisabled={continueDisabled}
     >
-      <div className="space-y-10">
+      <div className="space-y-16">
         {/* 1. Patient Selection - Always visible */}
         <section>
           <h2 className="text-xl font-semibold mb-2">Who is this appointment for?</h2>
-          <p className="text-sm text-muted-foreground mb-4">
+          <p className="text-[14px] text-muted-foreground mb-4">
             Select a family member or add a new patient
           </p>
 
@@ -386,11 +386,11 @@ export default function PatientStep({
               >
                 <Avatar className="w-10 h-10">
                   <AvatarImage src={member.avatar || undefined} />
-                  <AvatarFallback className="bg-orange-400 text-white text-sm font-medium">
+                  <AvatarFallback className="bg-orange-400 text-white text-[14px] font-medium">
                     {member.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
-                <span className="font-medium text-sm">{member.name}</span>
+                <span className="font-medium text-[14px]">{member.name}</span>
               </button>
             ))}
           </div>
@@ -398,7 +398,7 @@ export default function PatientStep({
           {!showAddMemberInline && (
             <button
               onClick={() => setShowAddMemberInline(true)}
-              className="mt-3 inline-flex items-center gap-1 text-sm text-foreground hover:text-primary transition-colors"
+              className="mt-3 inline-flex items-center gap-1 text-[14px] text-foreground hover:text-primary transition-colors"
             >
               Add family member or guest
               <Icon icon={ArrowRight} className="h-4 w-4" />
@@ -416,7 +416,7 @@ export default function PatientStep({
           )}
 
           {errors.patient && (
-            <p className="text-sm text-destructive mt-2">{errors.patient}</p>
+            <p className="text-[14px] text-destructive mt-2">{errors.patient}</p>
           )}
 
         </section>
@@ -427,7 +427,7 @@ export default function PatientStep({
             <h2 className="text-xl font-semibold mb-2">
               Is this a new appointment or a follow-up?
             </h2>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-[14px] text-muted-foreground mb-4">
               Follow-ups will show your previous doctors
             </p>
 
@@ -455,7 +455,7 @@ export default function PatientStep({
             </div>
 
             {errors.appointmentType && (
-              <p className="text-sm text-destructive mt-2">{errors.appointmentType}</p>
+              <p className="text-[14px] text-destructive mt-2">{errors.appointmentType}</p>
             )}
           </section>
         )}
@@ -464,7 +464,7 @@ export default function PatientStep({
         {isFollowup && showFollowupReason && (
           <section ref={followupReasonRef}>
             <h2 className="text-xl font-semibold mb-2">What brings you back?</h2>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-[14px] text-muted-foreground mb-4">
               This helps us prepare for your visit
             </p>
 
@@ -484,14 +484,14 @@ export default function PatientStep({
                   </div>
                   <div className="flex-1">
                     <p className="font-medium">{option.label}</p>
-                    <p className="text-sm text-muted-foreground">{option.description}</p>
+                    <p className="text-[14px] text-muted-foreground">{option.description}</p>
                   </div>
                 </button>
               ))}
             </Card>
 
             {errors.followupReason && (
-              <p className="text-sm text-destructive mt-2">{errors.followupReason}</p>
+              <p className="text-[14px] text-destructive mt-2">{errors.followupReason}</p>
             )}
           </section>
         )}
@@ -511,7 +511,7 @@ export default function PatientStep({
             <h2 className="text-xl font-semibold mb-2">
               {getFollowupNotesPrompt().heading}
             </h2>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-[14px] text-muted-foreground mb-4">
               {getFollowupNotesPrompt().description}
             </p>
 
@@ -526,7 +526,7 @@ export default function PatientStep({
               {!showPreviousDoctors && !followupNotes.trim() && (
                 <button
                   onClick={handleFollowupNotesSkip}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-[14px] text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Skip this step
                 </button>
@@ -543,7 +543,7 @@ export default function PatientStep({
               <h2 className="text-xl font-semibold mb-2">
                 Book with a previous doctor?
               </h2>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-[14px] text-muted-foreground mb-4">
                 {selectedPatient?.name}'s previous appointments
               </p>
 
@@ -569,7 +569,7 @@ export default function PatientStep({
         {appointmentType === 'new' && showSymptoms && (
           <section ref={symptomsSectionRef}>
             <h2 className="text-xl font-semibold mb-2">What symptoms are you experiencing?</h2>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-[14px] text-muted-foreground mb-4">
               Select all that apply, or describe in your own words
             </p>
 
@@ -580,7 +580,7 @@ export default function PatientStep({
                     key={symptom.id}
                     onClick={() => handleSymptomToggle(symptom.id)}
                     className={cn(
-                      'px-4 py-2 rounded-full border text-sm transition-all',
+                      'px-4 py-2 rounded-full border text-[14px] transition-all',
                       'hover:border-primary/50 hover:bg-primary/5',
                       selectedSymptoms.includes(symptom.id)
                         ? 'bg-primary/10 border-primary text-primary font-medium'
@@ -646,12 +646,12 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: D
         </Avatar>
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-foreground">{doctor.name}</h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-[14px] text-muted-foreground">
             {doctor.specialization} &bull; {doctor.experience_years} years of experience
           </p>
         </div>
         <div className="flex-shrink-0">
-          <span className="inline-block px-2 py-1 text-xs font-medium text-primary bg-primary/10 rounded">
+          <span className="inline-block px-2 py-1 text-[14px] font-medium text-primary bg-primary/10 rounded">
             {formatAppointmentModes(doctor.consultation_modes)}
           </span>
         </div>
@@ -665,7 +665,7 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: D
             onClick={() => slot.available && onSelectTime(slot.time)}
             disabled={!slot.available}
             className={cn(
-              'px-3 py-1.5 text-sm rounded-lg border transition-all',
+              'px-3 py-1.5 text-[14px] rounded-lg border transition-all',
               'hover:border-primary/50 hover:bg-primary/5',
               slot.preferred && 'relative',
               selectedTime === slot.time &&

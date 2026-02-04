@@ -38,20 +38,20 @@ export function EmbeddedPreviousVisit({ visit }: Props) {
       {/* Header */}
       <div className="flex items-center gap-2 text-primary">
         <Clock className="h-4 w-4" />
-        <span className="text-sm font-medium">Previous Visit</span>
+        <span className="text-[14px] font-medium">Previous Visit</span>
       </div>
 
       {/* Doctor info */}
       <div className="flex items-center gap-3">
         <Avatar className="h-10 w-10">
           <AvatarImage src={visit.doctor.avatar || undefined} />
-          <AvatarFallback className="bg-orange-400 text-white text-sm font-medium">
+          <AvatarFallback className="bg-orange-400 text-white text-[14px] font-medium">
             {getInitial(visit.doctor.name)}
           </AvatarFallback>
         </Avatar>
         <div>
-          <p className="font-semibold text-sm text-foreground">{visit.doctor.name}</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="font-semibold text-[14px] text-foreground">{visit.doctor.name}</p>
+          <p className="text-[14px] text-muted-foreground">
             {visit.doctor.specialization} · {formatDate(visit.date)}
           </p>
         </div>
@@ -59,14 +59,14 @@ export function EmbeddedPreviousVisit({ visit }: Props) {
 
       {/* Reason box */}
       <div className="bg-muted rounded-lg px-3 py-2.5">
-        <p className="text-sm">
+        <p className="text-[14px]">
           <span className="font-semibold text-foreground">Reason:</span>{' '}
           <span className="text-muted-foreground">{visit.reason}</span>
         </p>
       </div>
 
       {/* Doctor's notes */}
-      <p className="text-sm">
+      <p className="text-[14px]">
         <span className="font-semibold text-foreground">Doctor's notes:</span>{' '}
         <span className="text-muted-foreground">{visit.doctorNotes}</span>
       </p>

@@ -26,7 +26,7 @@ export default function ConfirmPassword() {
                 <h1 className="text-2xl font-bold" style={{ color: '#00184D' }}>
                     Confirm your password
                 </h1>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-[14px] text-muted-foreground mt-1">
                     This is a secure area. Please confirm your password to continue.
                 </p>
             </div>
@@ -43,7 +43,7 @@ export default function ConfirmPassword() {
                         className={errors.password ? 'border-red-500' : ''}
                     />
                     {errors.password && (
-                        <p className="text-sm text-red-600">{errors.password}</p>
+                        <p className="text-[14px] text-red-600">{errors.password}</p>
                     )}
                 </div>
 

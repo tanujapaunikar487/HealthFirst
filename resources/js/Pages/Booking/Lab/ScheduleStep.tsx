@@ -255,7 +255,7 @@ export default function ScheduleStep({
       onContinue={handleContinue}
       continueDisabled={!selectedTime || !isCollectionComplete()}
     >
-      <div className="space-y-10">
+      <div className="space-y-16">
         {/* Date Selection */}
         <section>
           <h2 className="text-xl font-semibold mb-4">Select Date</h2>
@@ -276,10 +276,10 @@ export default function ScheduleStep({
                     : 'bg-background hover:border-primary/50'
                 )}
               >
-                <p className="font-medium text-sm">{dateOption.label}</p>
+                <p className="font-medium text-[14px]">{dateOption.label}</p>
                 <p
                   className={cn(
-                    'text-xs',
+                    'text-[14px]',
                     selectedDate === dateOption.date
                       ? 'text-background/70'
                       : 'text-muted-foreground'
@@ -303,7 +303,7 @@ export default function ScheduleStep({
               onSelect={(time) => setSelectedTime(time)}
             />
 
-            {errors.time && <p className="text-sm text-destructive mt-2">{errors.time}</p>}
+            {errors.time && <p className="text-[14px] text-destructive mt-2">{errors.time}</p>}
           </section>
         )}
 
@@ -339,10 +339,10 @@ export default function ScheduleStep({
                       )}
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium text-sm">{loc.label}</p>
-                      <p className="text-xs text-muted-foreground">{loc.description}</p>
+                      <p className="font-medium text-[14px]">{loc.label}</p>
+                      <p className="text-[14px] text-muted-foreground">{loc.description}</p>
                       {loc.fee > 0 && (
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <p className="text-[14px] text-muted-foreground mt-1">
                           +₹{loc.fee} collection fee
                         </p>
                       )}
@@ -356,7 +356,7 @@ export default function ScheduleStep({
             </div>
 
             {errors.location && (
-              <p className="text-sm text-destructive mt-2">{errors.location}</p>
+              <p className="text-[14px] text-destructive mt-2">{errors.location}</p>
             )}
 
             {/* Address Selection (Home Collection) */}
@@ -374,7 +374,7 @@ export default function ScheduleStep({
                   />
                 ) : (
                   <div className="text-center py-4">
-                    <p className="text-sm text-muted-foreground mb-3">No saved addresses yet</p>
+                    <p className="text-[14px] text-muted-foreground mb-3">No saved addresses yet</p>
                     <Button
                       variant="outline"
                       size="sm"
@@ -386,7 +386,7 @@ export default function ScheduleStep({
                 )}
 
                 {errors.address && (
-                  <p className="text-sm text-destructive mt-2">{errors.address}</p>
+                  <p className="text-[14px] text-destructive mt-2">{errors.address}</p>
                 )}
               </div>
             )}
@@ -425,7 +425,7 @@ export default function ScheduleStep({
                 />
 
                 {errors.center && (
-                  <p className="text-sm text-destructive mt-2">{errors.center}</p>
+                  <p className="text-[14px] text-destructive mt-2">{errors.center}</p>
                 )}
               </div>
             )}

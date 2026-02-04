@@ -325,8 +325,8 @@ function StatusAlertBanner({ bill }: { bill: Bill }) {
     <div className="rounded-lg px-3.5 py-3 flex items-start gap-2.5 mb-4" style={{ backgroundColor: config.bg, border: `1px solid ${config.border}` }}>
       <div className={cn('mt-0.5 flex-shrink-0', config.titleColor)}>{config.icon}</div>
       <div>
-        <p className={cn('text-sm font-semibold', config.titleColor)}>{config.title}</p>
-        <p className={cn('text-xs mt-0.5', config.textColor)}>{config.message}</p>
+        <p className={cn('text-[14px] font-semibold', config.titleColor)}>{config.title}</p>
+        <p className={cn('text-[14px] mt-0.5', config.textColor)}>{config.message}</p>
       </div>
     </div>
   );
@@ -565,7 +565,7 @@ export default function Show({ user, bill }: Props) {
         {/* ─── Back Link ─── */}
         <button
           onClick={() => router.visit('/billing')}
-          className="mb-6 flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900"
+          className="mb-6 flex items-center gap-1.5 text-[14px] font-medium text-gray-500 hover:text-gray-900"
         >
           <ArrowLeft className="h-4 w-4" />
           Billing
@@ -578,7 +578,7 @@ export default function Show({ user, bill }: Props) {
               <h1 className="text-2xl font-bold text-gray-900">{bill.invoice_number}</h1>
               <StatusBadge status={bill.billing_status} />
             </div>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-[14px] text-gray-500">
               {bill.patient_name} &middot; {bill.generated_date}
             </p>
           </div>
@@ -775,36 +775,36 @@ export default function Show({ user, bill }: Props) {
         <StatusAlertBanner bill={bill} />
 
         {/* ─── Main Content with Side Nav ─── */}
-        <div className="flex gap-8">
+        <div className="flex gap-24">
           <BillingSideNav
             hasEmi={!!bill.emi_details}
             hasDispute={!!bill.dispute_details}
             hasPayment={!!(bill.payment_info || bill.insurance_details)}
           />
-          <div className="flex-1 min-w-0 space-y-8 pb-12">
+          <div className="flex-1 min-w-0 space-y-16 pb-12">
 
             {/* ─── Invoice Section ─── */}
             <Section id="invoice" title="Invoice" icon={FileText}>
               {/* Hospital Identity */}
               <div className="mb-4 pb-4 border-b border-dashed">
                 <p className="text-base font-bold" style={{ color: '#171717' }}>HealthFirst Hospital</p>
-                <p className="text-xs text-muted-foreground mt-0.5">123 Hospital Road, Pune 411001 &middot; GSTIN: 27AABCH1234P1ZP</p>
+                <p className="text-[14px] text-muted-foreground mt-0.5">123 Hospital Road, Pune 411001 &middot; GSTIN: 27AABCH1234P1ZP</p>
               </div>
 
               {/* Invoice Metadata */}
               <div className="grid grid-cols-2 gap-x-8 gap-y-3 mb-4 pb-4 border-b">
                 <div>
                   <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Date</p>
-                  <p className="mt-1 text-sm font-semibold" style={{ color: '#171717' }}>{bill.generated_date}</p>
+                  <p className="mt-1 text-[14px] font-semibold" style={{ color: '#171717' }}>{bill.generated_date}</p>
                 </div>
                 <div>
                   <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Reference</p>
-                  <p className="mt-1 text-sm font-semibold" style={{ color: '#171717' }}>{bill.reference_number}</p>
+                  <p className="mt-1 text-[14px] font-semibold" style={{ color: '#171717' }}>{bill.reference_number}</p>
                 </div>
                 {bill.due_date && (
                   <div>
                     <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Due Date</p>
-                    <p className={cn('mt-1 text-sm font-semibold', bill.is_overdue ? 'text-red-600' : '')} style={bill.is_overdue ? {} : { color: '#171717' }}>
+                    <p className={cn('mt-1 text-[14px] font-semibold', bill.is_overdue ? 'text-red-600' : '')} style={bill.is_overdue ? {} : { color: '#171717' }}>
                       {bill.due_date}
                       {bill.is_overdue && (
                         <span className="ml-2 text-[10px] font-semibold text-red-600 bg-red-50 px-1.5 py-0.5 rounded-full">
@@ -820,7 +820,7 @@ export default function Show({ user, bill }: Props) {
               <div className="grid grid-cols-2 gap-x-8 gap-y-3">
                 <div>
                   <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Patient</p>
-                  <p className="mt-1 text-sm font-semibold" style={{ color: '#171717' }}>{bill.patient_name}</p>
+                  <p className="mt-1 text-[14px] font-semibold" style={{ color: '#171717' }}>{bill.patient_name}</p>
                 </div>
                 <div>
                   <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Service</p>
@@ -828,13 +828,13 @@ export default function Show({ user, bill }: Props) {
                     <div className="h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#BFDBFE' }}>
                       {isDoctor ? <Stethoscope className="h-2.5 w-2.5" style={{ color: '#1E40AF' }} /> : <TestTube2 className="h-2.5 w-2.5" style={{ color: '#1E40AF' }} />}
                     </div>
-                    <p className="text-sm font-semibold" style={{ color: '#171717' }}>{bill.appointment_title}</p>
+                    <p className="text-[14px] font-semibold" style={{ color: '#171717' }}>{bill.appointment_title}</p>
                   </div>
                 </div>
                 {bill.doctor_name && (
                   <div>
                     <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Doctor</p>
-                    <p className="mt-1 text-sm font-semibold" style={{ color: '#171717' }}>
+                    <p className="mt-1 text-[14px] font-semibold" style={{ color: '#171717' }}>
                       {bill.doctor_name}
                       {bill.doctor_specialization && <span className="text-muted-foreground font-normal"> &middot; {bill.doctor_specialization}</span>}
                     </p>
@@ -842,7 +842,7 @@ export default function Show({ user, bill }: Props) {
                 )}
                 <div>
                   <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Date of Service</p>
-                  <p className="mt-1 text-sm font-semibold" style={{ color: '#171717' }}>
+                  <p className="mt-1 text-[14px] font-semibold" style={{ color: '#171717' }}>
                     {bill.service_date}
                     <span className="text-muted-foreground font-normal"> &middot; {bill.appointment_mode}</span>
                   </p>
@@ -852,10 +852,10 @@ export default function Show({ user, bill }: Props) {
 
             {/* ─── Charges Section ─── */}
             <Section id="charges" title="Charges" icon={Receipt} noPadding>
-              <div className="px-5 py-4">
+              <div className="px-6 py-4">
                 {/* Table */}
                 <div className="overflow-x-auto -mx-5">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-[14px]">
                     <thead>
                       <tr className="border-b" style={{ backgroundColor: '#FAFAFA' }}>
                         <th className="text-left font-medium text-muted-foreground px-5 py-2">Item</th>
@@ -879,30 +879,30 @@ export default function Show({ user, bill }: Props) {
 
                 {/* Summary rows */}
                 <div className="border-t mt-2 pt-3 space-y-1.5">
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-[14px]">
                     <span className="text-muted-foreground">Subtotal</span>
                     <span>₹{bill.subtotal.toLocaleString()}</span>
                   </div>
                   {bill.discount > 0 && (
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-[14px]">
                       <span className="text-muted-foreground">Discount</span>
                       <span className="text-green-600">-₹{bill.discount.toLocaleString()}</span>
                     </div>
                   )}
                   {bill.tax > 0 && (
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-[14px]">
                       <span className="text-muted-foreground">Tax</span>
                       <span>₹{bill.tax.toLocaleString()}</span>
                     </div>
                   )}
                   {bill.insurance_deduction > 0 && (
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-[14px]">
                       <span className="text-muted-foreground">Insurance Coverage</span>
                       <span className="text-green-600">-₹{bill.insurance_deduction.toLocaleString()}</span>
                     </div>
                   )}
                   <div className="flex justify-between pt-2 border-t">
-                    <span className="text-sm font-semibold">
+                    <span className="text-[14px] font-semibold">
                       {isPayable ? 'Amount Due' : 'Amount Paid'}
                     </span>
                     <span className="text-lg font-bold" style={{ color: '#171717' }}>
@@ -920,10 +920,10 @@ export default function Show({ user, bill }: Props) {
                   {/* Payment info */}
                   {bill.payment_info && (
                     <div>
-                      <p className="text-sm" style={{ color: '#171717' }}>
+                      <p className="text-[14px]" style={{ color: '#171717' }}>
                         Paid via <span className="font-medium">{bill.payment_info.method}</span> on {bill.payment_info.paid_at}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-[14px] text-muted-foreground mt-1">
                         Transaction: <span className="font-mono">{bill.payment_info.transaction_id}</span>
                         <span className="mx-2">&middot;</span>
                         Receipt: <span className="font-mono">{bill.payment_info.receipt_number}</span>
@@ -936,25 +936,25 @@ export default function Show({ user, bill }: Props) {
                     <div className={bill.payment_info ? 'pt-4 border-t' : ''}>
                       <div className="flex items-center gap-1.5 mb-2">
                         <Shield className="h-3.5 w-3.5 text-blue-600" />
-                        <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Insurance</p>
+                        <p className="text-[14px] font-semibold text-blue-600 uppercase tracking-wide">Insurance</p>
                       </div>
-                      <p className="text-sm font-medium" style={{ color: '#171717' }}>
+                      <p className="text-[14px] font-semibold" style={{ color: '#171717' }}>
                         {bill.insurance_details.provider_name}
                         <span className="text-muted-foreground font-normal"> &middot; {bill.insurance_details.policy_number}</span>
                       </p>
-                      <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+                      <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-[14px]">
                         <span>
                           <span className="text-muted-foreground">Claim:</span>{' '}
-                          <span className="font-mono text-xs">{bill.insurance_details.claim_id}</span>
+                          <span className="font-mono text-[14px]">{bill.insurance_details.claim_id}</span>
                           <span className="ml-1.5">
                             {bill.insurance_details.claim_status === 'Approved' || bill.insurance_details.claim_status === 'Reimbursed'
-                              ? <span className="text-green-600 text-xs font-medium">{bill.insurance_details.claim_status}</span>
-                              : <span className="text-amber-600 text-xs font-medium">{bill.insurance_details.claim_status}</span>
+                              ? <span className="text-green-600 text-[14px] font-medium">{bill.insurance_details.claim_status}</span>
+                              : <span className="text-amber-600 text-[14px] font-medium">{bill.insurance_details.claim_status}</span>
                             }
                           </span>
                         </span>
                       </div>
-                      <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+                      <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-[14px]">
                         <span>
                           <span className="text-muted-foreground">Covered:</span>{' '}
                           <span className="text-green-600 font-medium">₹{bill.insurance_details.covered_amount.toLocaleString()}</span>
@@ -968,7 +968,7 @@ export default function Show({ user, bill }: Props) {
                       </div>
                       {bill.insurance_details.insurance_claim_id && (
                         <button
-                          className="mt-3 text-xs font-medium hover:underline flex items-center gap-1"
+                          className="mt-3 text-[14px] font-medium hover:underline flex items-center gap-1"
                           style={{ color: '#0052FF' }}
                           onClick={() => router.visit(`/insurance/claims/${bill.insurance_details!.insurance_claim_id}`)}
                         >
@@ -985,13 +985,13 @@ export default function Show({ user, bill }: Props) {
             {/* ─── EMI Section ─── */}
             {bill.emi_details && (
               <Section id="emi" title="EMI Plan" icon={IndianRupee}>
-                <p className="text-sm font-medium" style={{ color: '#171717' }}>
+                <p className="text-[14px] font-semibold" style={{ color: '#171717' }}>
                   ₹{bill.emi_details.monthly_amount.toLocaleString()}/month for {bill.emi_details.plan_months} months
                 </p>
 
                 {/* Progress bar */}
                 <div className="mt-3">
-                  <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
+                  <div className="flex justify-between text-[14px] text-muted-foreground mb-1.5">
                     <span>{bill.emi_details.paid_installments} of {bill.emi_details.total_installments} paid</span>
                     <span>{Math.round((bill.emi_details.paid_installments / bill.emi_details.total_installments) * 100)}%</span>
                   </div>
@@ -1003,7 +1003,7 @@ export default function Show({ user, bill }: Props) {
                   </div>
                 </div>
 
-                <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+                <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-[14px]">
                   <span>
                     <span className="text-muted-foreground">Next due:</span>{' '}
                     <span className="text-amber-600 font-medium">{bill.emi_details.next_due_date}</span>
@@ -1028,19 +1028,19 @@ export default function Show({ user, bill }: Props) {
                 <Card className="p-5" style={{ backgroundColor: '#FEF2F2', borderColor: '#FECACA' }}>
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="h-4 w-4 text-red-600" />
-                    <p className="text-sm font-semibold text-red-800">
+                    <p className="text-[14px] font-semibold text-red-800">
                       {bill.dispute_details.dispute_id} &middot; Raised {bill.dispute_details.raised_on}
                     </p>
                   </div>
-                  <p className="text-sm text-red-700">
+                  <p className="text-[14px] text-red-700">
                     <span className="text-muted-foreground">Reason:</span> {bill.dispute_details.reason}
                   </p>
-                  <p className="text-sm text-red-700 mt-1">
+                  <p className="text-[14px] text-red-700 mt-1">
                     <span className="text-muted-foreground">Status:</span>{' '}
                     <span className="font-medium">{bill.dispute_details.status}</span>
                   </p>
                   {bill.dispute_details.resolution_notes && (
-                    <p className="text-sm text-red-700 mt-1">
+                    <p className="text-[14px] text-red-700 mt-1">
                       <span className="text-muted-foreground">Resolution:</span> {bill.dispute_details.resolution_notes}
                     </p>
                   )}
@@ -1071,11 +1071,11 @@ export default function Show({ user, bill }: Props) {
               <AlertTriangle className="h-6 w-6 text-amber-600" />
             </div>
             <h3 className="mb-2 text-lg font-semibold text-gray-900">Raise a dispute?</h3>
-            <p className="mb-4 text-sm text-gray-500">
+            <p className="mb-4 text-[14px] text-gray-500">
               Our team will review your dispute within 3–5 business days. Payment will be paused during review.
             </p>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-[14px] font-medium text-gray-700 mb-2">
                 Reason for dispute
               </label>
               <Textarea
@@ -1086,7 +1086,7 @@ export default function Show({ user, bill }: Props) {
                 rows={4}
                 className="w-full"
               />
-              <p className="mt-1 text-xs text-gray-400 text-right">{disputeReason.length}/1000</p>
+              <p className="mt-1 text-[14px] text-gray-400 text-right">{disputeReason.length}/1000</p>
             </div>
             <div className="flex gap-3">
               <Button
@@ -1130,7 +1130,7 @@ export default function Show({ user, bill }: Props) {
       {/* Toast */}
       {toastMessage && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-          <div className="flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm text-white shadow-lg">
+          <div className="flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-[14px] text-white shadow-lg">
             <CheckCircle2 className="h-4 w-4 text-green-400" />
             {toastMessage}
           </div>

@@ -43,7 +43,7 @@ export function EmbeddedAppointmentMode({ modes, selectedMode, onSelect, disable
               onClick={() => !disabled && onSelect(mode.type)}
               disabled={disabled}
               className={cn(
-                "w-full flex items-center gap-4 p-4 text-left transition-colors",
+                "w-full flex items-center gap-4 px-6 py-4 text-left transition-colors",
                 "hover:bg-accent",
                 isSelected && "bg-accent border-l-4 border-l-primary",
                 disabled && !isSelected && "opacity-60"
@@ -59,12 +59,12 @@ export function EmbeddedAppointmentMode({ modes, selectedMode, onSelect, disable
 
               {/* Text */}
               <div className="flex-1 space-y-1">
-                <p className="text-sm font-medium leading-none">{config.label}</p>
-                <p className="text-sm text-muted-foreground">{config.description}</p>
+                <p className="text-[14px] font-medium leading-none">{config.label}</p>
+                <p className="text-[14px] text-muted-foreground">{config.description}</p>
               </div>
 
               {/* Price */}
-              <span className="text-sm font-medium">₹{mode.price.toLocaleString()}</span>
+              <span className="text-[14px] font-medium">₹{mode.price.toLocaleString()}</span>
             </button>
           );
         })}

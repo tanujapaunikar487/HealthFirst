@@ -66,7 +66,7 @@ export function AddressModal({
               {/* Saved Addresses */}
               {savedAddresses.length > 0 && (
                 <div className="space-y-3">
-                  <p className="text-sm font-medium">Saved Addresses</p>
+                  <p className="text-[14px] font-medium">Saved Addresses</p>
                   <RadioGroup value={selectedAddressId || ''} onValueChange={setSelectedAddressId}>
                     {savedAddresses.map((address) => (
                       <label
@@ -81,11 +81,11 @@ export function AddressModal({
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <Icon icon={Home} className="h-4 w-4 text-muted-foreground" />
-                            <p className="font-medium text-sm">{address.label}</p>
+                            <p className="font-medium text-[14px]">{address.label}</p>
                           </div>
-                          <p className="text-xs text-muted-foreground mt-1">{address.addressLine}</p>
+                          <p className="text-[14px] text-muted-foreground mt-1">{address.addressLine}</p>
                           {address.distance && (
-                            <p className="text-xs text-muted-foreground mt-1">{address.distance}</p>
+                            <p className="text-[14px] text-muted-foreground mt-1">{address.distance}</p>
                           )}
                         </div>
                       </label>

@@ -81,7 +81,7 @@ export default function ConfirmStep({ summary }: Props) {
               <div className="flex items-center gap-2">
                 <Avatar className="w-6 h-6">
                   <AvatarImage src={summary.doctor.avatar || undefined} />
-                  <AvatarFallback className="bg-orange-400 text-white text-xs font-medium">
+                  <AvatarFallback className="bg-orange-400 text-white text-[14px] font-medium">
                     {getInitial(summary.doctor.name)}
                   </AvatarFallback>
                 </Avatar>
@@ -98,7 +98,7 @@ export default function ConfirmStep({ summary }: Props) {
               <div className="flex items-center gap-2">
                 <Avatar className="w-6 h-6">
                   <AvatarImage src={summary.patient.avatar || undefined} />
-                  <AvatarFallback className="bg-orange-400 text-white text-xs font-medium">
+                  <AvatarFallback className="bg-orange-400 text-white text-[14px] font-medium">
                     {getInitial(summary.patient.name)}
                   </AvatarFallback>
                 </Avatar>
@@ -123,7 +123,7 @@ export default function ConfirmStep({ summary }: Props) {
           />
 
           {/* Fee - no Change button */}
-          <div className="flex items-center justify-between p-4">
+          <div className="flex items-center justify-between px-6 py-4">
             <span className="text-muted-foreground">Appointment Fee</span>
             <span className="font-semibold">₹{summary.fee.toLocaleString()}</span>
           </div>
@@ -142,11 +142,11 @@ interface SummaryRowProps {
 
 function SummaryRow({ label, value, onChangeClick }: SummaryRowProps) {
   return (
-    <div className="flex items-center justify-between p-4">
+    <div className="flex items-center justify-between px-6 py-4">
       <span className="text-muted-foreground">{label}</span>
       <div className="flex items-center gap-3">
         <div>{value}</div>
-        <button onClick={onChangeClick} className="text-primary text-sm hover:underline">
+        <button onClick={onChangeClick} className="text-primary text-[14px] hover:underline">
           Change
         </button>
       </div>

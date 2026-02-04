@@ -105,12 +105,12 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
     };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-16">
             {/* Video Appointment Section */}
             <div>
                 <div className="mb-4">
                     <SectionTitle>Video appointment</SectionTitle>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-[14px] text-muted-foreground mt-1">
                         Choose your preferred video platform for online appointments
                     </p>
                 </div>
@@ -121,15 +121,15 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                         <button
                             onClick={() => handleProviderChange('google_meet')}
                             disabled={saving}
-                            className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors text-left"
+                            className="w-full flex items-center justify-between px-6 py-4 hover:bg-muted/50 transition-colors text-left"
                         >
                             <div className="flex items-center gap-3">
                                 <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
                                     <img src="/assets/icons/google-meet.svg" alt="Google Meet" className="h-8 w-8" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium leading-5 text-[#0A0B0D]">Google Meet</p>
-                                    <p className="text-sm font-medium leading-5 text-[#737373]">
+                                    <p className="text-[14px] font-semibold leading-5 text-[#171717]">Google Meet</p>
+                                    <p className="text-[14px] font-normal leading-5 text-[#737373]">
                                         Free video calls, no download required
                                     </p>
                                 </div>
@@ -156,15 +156,15 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                         <button
                             onClick={() => handleProviderChange('zoom')}
                             disabled={saving}
-                            className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors text-left"
+                            className="w-full flex items-center justify-between px-6 py-4 hover:bg-muted/50 transition-colors text-left"
                         >
                             <div className="flex items-center gap-3">
                                 <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
                                     <img src="/assets/icons/zoom.svg" alt="Zoom" className="h-8 w-8" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium leading-5 text-[#0A0B0D]">Zoom</p>
-                                    <p className="text-sm font-medium leading-5 text-[#737373]">
+                                    <p className="text-[14px] font-semibold leading-5 text-[#171717]">Zoom</p>
+                                    <p className="text-[14px] font-normal leading-5 text-[#737373]">
                                         Popular video conferencing platform
                                     </p>
                                 </div>
@@ -194,7 +194,7 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
             <div>
                 <div className="mb-4">
                     <SectionTitle>Calendar</SectionTitle>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-[14px] text-muted-foreground mt-1">
                         Export appointments to your personal calendar
                     </p>
                 </div>
@@ -202,14 +202,14 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                 <Card>
                     <CardContent className="p-0 divide-y">
                         {/* Google Calendar - Coming Soon */}
-                        <div className="flex items-center justify-between p-4 opacity-60">
+                        <div className="flex items-center justify-between px-6 py-4 opacity-60">
                             <div className="flex items-center gap-3">
                                 <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
                                     <img src="/assets/icons/google-calendar.svg" alt="Google Calendar" className="h-8 w-8" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium leading-5 text-[#0A0B0D]">Google Calendar</p>
-                                    <p className="text-sm font-medium leading-5 text-[#737373]">
+                                    <p className="text-[14px] font-semibold leading-5 text-[#171717]">Google Calendar</p>
+                                    <p className="text-[14px] font-normal leading-5 text-[#737373]">
                                         Auto-sync appointments to Google Calendar
                                     </p>
                                 </div>
@@ -218,14 +218,14 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                         </div>
 
                         {/* Apple Calendar / ICS Export */}
-                        <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center justify-between px-6 py-4">
                             <div className="flex items-center gap-3">
                                 <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
                                     <img src="/assets/icons/apple-calendar.svg" alt="Apple Calendar" className="h-8 w-8" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium leading-5 text-[#0A0B0D]">Apple Calendar / Other</p>
-                                    <p className="text-sm font-medium leading-5 text-[#737373]">
+                                    <p className="text-[14px] font-semibold leading-5 text-[#171717]">Apple Calendar / Other</p>
+                                    <p className="text-[14px] font-normal leading-5 text-[#737373]">
                                         Download .ics file for any calendar app
                                     </p>
                                 </div>
@@ -252,8 +252,8 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                         </div>
                     </div>
                     <div>
-                        <p className="text-sm font-medium leading-5 text-[#0A0B0D]">Your data is secure</p>
-                        <p className="text-sm font-medium leading-5 text-[#737373] mt-0.5">
+                        <p className="text-[14px] font-semibold leading-5 text-[#171717]">Your data is secure</p>
+                        <p className="text-[14px] font-normal leading-5 text-[#737373] mt-0.5">
                             Video calls are generated on-demand for each appointment. No third-party account linking is required.
                         </p>
                     </div>

@@ -39,13 +39,13 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
                 <h1 className="text-2xl font-bold" style={{ color: '#00184D' }}>
                     Create your account
                 </h1>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-[14px] text-muted-foreground mt-1">
                     Get started with your healthcare journey
                 </p>
             </div>
 
             {flash?.error && (
-                <div className="mb-4 text-sm font-medium text-red-600 bg-red-50 p-3 rounded-lg">
+                <div className="mb-4 text-[14px] font-medium text-red-600 bg-red-50 p-3 rounded-lg">
                     {flash.error}
                 </div>
             )}
@@ -62,7 +62,7 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
                         className={errors.name ? 'border-red-500' : ''}
                     />
                     {errors.name && (
-                        <p className="text-sm text-red-600">{errors.name}</p>
+                        <p className="text-[14px] text-red-600">{errors.name}</p>
                     )}
                 </div>
 
@@ -77,7 +77,7 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
                         className={errors.email ? 'border-red-500' : ''}
                     />
                     {errors.email && (
-                        <p className="text-sm text-red-600">{errors.email}</p>
+                        <p className="text-[14px] text-red-600">{errors.email}</p>
                     )}
                 </div>
 
@@ -92,7 +92,7 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
                         className={errors.password ? 'border-red-500' : ''}
                     />
                     {errors.password && (
-                        <p className="text-sm text-red-600">{errors.password}</p>
+                        <p className="text-[14px] text-red-600">{errors.password}</p>
                     )}
                 </div>
 
@@ -107,7 +107,7 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
                         className={errors.password_confirmation ? 'border-red-500' : ''}
                     />
                     {errors.password_confirmation && (
-                        <p className="text-sm text-red-600">{errors.password_confirmation}</p>
+                        <p className="text-[14px] text-red-600">{errors.password_confirmation}</p>
                     )}
                 </div>
 
@@ -122,7 +122,7 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
                     </>
                 )}
 
-                <p className="text-center text-sm text-muted-foreground">
+                <p className="text-center text-[14px] text-muted-foreground">
                     Already have an account?{' '}
                     <Link href={route('login')} className="text-blue-600 hover:underline">
                         Sign in

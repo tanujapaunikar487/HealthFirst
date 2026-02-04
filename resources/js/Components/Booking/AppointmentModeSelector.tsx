@@ -55,12 +55,12 @@ export function AppointmentModeSelector({
 
             {/* Text */}
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-sm">{mode.label}</p>
-              <p className="text-xs text-muted-foreground">{mode.description}</p>
+              <p className="font-medium text-[14px]">{mode.label}</p>
+              <p className="text-[14px] text-muted-foreground">{mode.description}</p>
             </div>
 
             {/* Price */}
-            <span className="font-semibold text-sm flex-shrink-0">
+            <span className="font-semibold text-[14px] flex-shrink-0">
               ₹{mode.price.toLocaleString()}
             </span>
           </button>

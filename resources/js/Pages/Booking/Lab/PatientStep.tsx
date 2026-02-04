@@ -73,10 +73,10 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
       onContinue={handleContinue}
       continueDisabled={!patientId}
     >
-      <div className="space-y-10">
+      <div className="space-y-16">
         <section>
           <h2 className="text-xl font-semibold mb-2">Who is this for?</h2>
-          <p className="text-sm text-muted-foreground mb-4">
+          <p className="text-[14px] text-muted-foreground mb-4">
             Select a family member or add a new patient
           </p>
 
@@ -93,11 +93,11 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
               >
                 <Avatar className="w-10 h-10">
                   <AvatarImage src={member.avatar || undefined} />
-                  <AvatarFallback className="bg-orange-400 text-white text-sm font-medium">
+                  <AvatarFallback className="bg-orange-400 text-white text-[14px] font-medium">
                     {member.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
-                <span className="font-medium text-sm">{member.name}</span>
+                <span className="font-medium text-[14px]">{member.name}</span>
               </button>
             ))}
           </div>
@@ -105,7 +105,7 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
           {!showAddMemberInline && (
             <button
               onClick={() => setShowAddMemberInline(true)}
-              className="mt-3 inline-flex items-center gap-1 text-sm text-foreground hover:text-primary transition-colors"
+              className="mt-3 inline-flex items-center gap-1 text-[14px] text-foreground hover:text-primary transition-colors"
             >
               Add family member or guest
               <Icon icon={ArrowRight} className="h-4 w-4" />
@@ -122,7 +122,7 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
             </div>
           )}
 
-          {errors.patient && <p className="text-sm text-destructive mt-2">{errors.patient}</p>}
+          {errors.patient && <p className="text-[14px] text-destructive mt-2">{errors.patient}</p>}
         </section>
       </div>
     </GuidedBookingLayout>

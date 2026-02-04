@@ -123,7 +123,7 @@ export function EmbeddedComponent({
             >
               <div className="font-semibold text-gray-900">{option.label}</div>
               {option.description && (
-                <div className="text-sm text-gray-500 mt-1">{option.description}</div>
+                <div className="text-[14px] text-gray-500 mt-1">{option.description}</div>
               )}
             </button>
           ))}
@@ -148,7 +148,7 @@ export function EmbeddedComponent({
             >
               <div className="font-semibold text-gray-900">{option.label}</div>
               {option.description && (
-                <div className="text-sm text-gray-500 mt-1">{option.description}</div>
+                <div className="text-[14px] text-gray-500 mt-1">{option.description}</div>
               )}
             </button>
           ))}
@@ -402,7 +402,7 @@ export function EmbeddedComponent({
               className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-left"
             >
               <div className="font-semibold text-gray-900">See all available doctors</div>
-              <div className="text-sm text-gray-500 mt-1">Browse our full list of doctors</div>
+              <div className="text-[14px] text-gray-500 mt-1">Browse our full list of doctors</div>
             </button>
           </div>
         );
@@ -442,9 +442,9 @@ export function EmbeddedComponent({
                   </Avatar>
                   <div className="flex-1">
                     <div className="font-semibold text-gray-900">{doctor.name}</div>
-                    <div className="text-sm text-gray-500">{doctor.specialization}</div>
+                    <div className="text-[14px] text-gray-500">{doctor.specialization}</div>
                     {doctor.last_visit && (
-                      <div className="text-xs text-blue-600 mt-1">Last visit: {doctor.last_visit}</div>
+                      <div className="text-[14px] text-blue-600 mt-1">Last visit: {doctor.last_visit}</div>
                     )}
                   </div>
                 </div>
@@ -458,7 +458,7 @@ export function EmbeddedComponent({
               disabled={disabled || isSelected}
               className="w-full px-6 py-3 border-2 border-gray-300 rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <div className="text-sm font-semibold text-gray-700">Or see all other doctors</div>
+              <div className="text-[14px] font-semibold text-gray-700">Or see all other doctors</div>
             </button>
           )}
         </div>
@@ -534,7 +534,7 @@ export function EmbeddedComponent({
           {selectorDoctors.length === 0 ? (
             <div className="p-6 text-center rounded-xl border border-dashed">
               <p className="font-medium text-gray-900">No doctors available on this date</p>
-              <p className="text-sm text-gray-500 mt-1">Some doctors don't work on certain days. Try a different date.</p>
+              <p className="text-[14px] text-gray-500 mt-1">Some doctors don't work on certain days. Try a different date.</p>
             </div>
           ) : (
             <EmbeddedDoctorList
@@ -584,10 +584,10 @@ export function EmbeddedComponent({
                       : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
                   )}
                 >
-                  <div className="font-medium text-sm">{d.label}</div>
-                  <div className="text-xs opacity-75">{d.day}</div>
+                  <div className="font-medium text-[14px]">{d.label}</div>
+                  <div className="text-[14px] opacity-75">{d.day}</div>
                   {d.doctor_count !== undefined && (
-                    <div className={cn('text-xs mt-0.5', dateIsActive ? 'opacity-75' : 'opacity-50')}>
+                    <div className={cn('text-[14px] mt-0.5', dateIsActive ? 'opacity-75' : 'opacity-50')}>
                       {d.doctor_count} dr{d.doctor_count !== 1 ? 's' : ''}
                     </div>
                   )}
@@ -610,14 +610,14 @@ export function EmbeddedComponent({
                 {/* Doctors heading */}
                 <div>
                   <h3 className="text-lg font-semibold">{filteredDoctors.length} doctor{filteredDoctors.length !== 1 ? 's' : ''} available</h3>
-                  <p className="text-sm text-gray-500">{data?.doctors_subtitle}</p>
+                  <p className="text-[14px] text-gray-500">{data?.doctors_subtitle}</p>
                 </div>
 
                 {/* Doctor list */}
                 {filteredDoctors.length === 0 ? (
                   <div className="p-6 text-center rounded-xl border border-dashed">
                     <p className="font-medium text-gray-900">No doctors available on this date</p>
-                    <p className="text-sm text-gray-500 mt-1">Try selecting a different date above</p>
+                    <p className="text-[14px] text-gray-500 mt-1">Try selecting a different date above</p>
                   </div>
                 ) : (
                   <EmbeddedDoctorList
@@ -654,11 +654,11 @@ export function EmbeddedComponent({
             <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
               <div className="flex items-start gap-3">
                 <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-xs font-bold">!</span>
+                  <span className="text-white text-[14px] font-bold">!</span>
                 </div>
                 <div className="flex-1">
                   <p className="font-semibold text-amber-900 mb-1">{data.warning.title}</p>
-                  <p className="text-sm text-amber-800">{data.warning.description}</p>
+                  <p className="text-[14px] text-amber-800">{data.warning.description}</p>
                 </div>
               </div>
             </div>
@@ -666,7 +666,7 @@ export function EmbeddedComponent({
 
           {/* Date pills */}
           <div>
-            <h4 className="font-semibold text-sm mb-3 text-foreground">Pick a date</h4>
+            <h4 className="font-semibold text-[14px] mb-3 text-foreground">Pick a date</h4>
             <div className="flex gap-2 overflow-x-auto pb-2">
               {data?.dates?.map((d: any) => {
                 const dateValue = d.value || d.date;
@@ -689,10 +689,10 @@ export function EmbeddedComponent({
                         : 'border-border bg-background text-foreground'
                     )}
                   >
-                    <div className={cn('font-semibold text-sm', dateIsActive && 'text-background')}>
+                    <div className={cn('font-semibold text-[14px]', dateIsActive && 'text-background')}>
                       {d.label}
                     </div>
-                    <div className={cn('text-xs', dateIsActive ? 'text-background/70' : 'text-muted-foreground')}>
+                    <div className={cn('text-[14px]', dateIsActive ? 'text-background/70' : 'text-muted-foreground')}>
                       {d.day}
                     </div>
                   </button>
@@ -723,8 +723,8 @@ export function EmbeddedComponent({
                   : 'bg-gray-100 hover:bg-gray-200'
               }`}
             >
-              <div className="font-medium text-sm">{d.label}</div>
-              <div className="text-xs opacity-75">{d.day}</div>
+              <div className="font-medium text-[14px]">{d.label}</div>
+              <div className="text-[14px] opacity-75">{d.day}</div>
             </button>
           ))}
         </div>
@@ -821,14 +821,14 @@ function PatientSelector({ patients, selected, onSelect, onAddMember, disabled }
           >
             <Avatar className="w-9 h-9 flex-shrink-0">
               <AvatarImage src={patient.avatar} />
-              <AvatarFallback className="bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700 text-xs font-medium">
+              <AvatarFallback className="bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700 text-[14px] font-medium">
                 {patient.name.split(' ').map((n: string) => n[0]).join('')}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <div className="font-medium text-sm leading-tight text-foreground truncate">{patient.name}</div>
+              <div className="font-medium text-[14px] leading-tight text-foreground truncate">{patient.name}</div>
               {patient.relation && (
-                <div className="text-xs leading-tight text-muted-foreground mt-0.5">{patient.relation}</div>
+                <div className="text-[14px] leading-tight text-muted-foreground mt-0.5">{patient.relation}</div>
               )}
             </div>
           </button>
@@ -838,7 +838,7 @@ function PatientSelector({ patients, selected, onSelect, onAddMember, disabled }
       <button
         onClick={() => !disabled && onAddMember?.()}
         disabled={disabled}
-        className="text-sm text-foreground hover:text-primary transition-colors flex items-center gap-1 mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="text-[14px] text-foreground hover:text-primary transition-colors flex items-center gap-1 mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Add family member or guest &rarr;
       </button>
@@ -856,7 +856,7 @@ function OptionSelector({ options, selected, onSelect, disabled }: any) {
           onClick={() => !disabled && onSelect(option.id)}
           disabled={disabled}
           className={cn(
-            'px-5 py-2.5 rounded-full border-2 text-sm font-medium transition-all',
+            'px-5 py-2.5 rounded-full border-2 text-[14px] font-medium transition-all',
             'hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60',
             selected === option.id
               ? 'border-[#0052FF] bg-blue-50 text-[#0A0B0D]'
@@ -902,9 +902,9 @@ function UrgencySelector({ levels, selected, onSelect, disabled }: any) {
         >
           <div className={cn('w-2 h-2 rounded-full mt-1.5 flex-shrink-0', getIndicatorColor(level.id))} />
           <div className="flex-1">
-            <div className="font-semibold text-sm text-[#0A0B0D]">{level.label}</div>
+            <div className="font-semibold text-[14px] text-[#171717]">{level.label}</div>
             {level.description && (
-              <div className="text-xs text-gray-500 mt-0.5">{level.description}</div>
+              <div className="text-[14px] text-gray-500 mt-0.5">{level.description}</div>
             )}
           </div>
         </button>
@@ -921,7 +921,7 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
     <div className="space-y-4 max-w-3xl">
       {/* Search and filter header */}
       <div className="flex items-center gap-3">
-        <button className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg text-sm text-[#0A0B0D] hover:bg-gray-50">
+        <button className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg text-[14px] text-[#0A0B0D] hover:bg-gray-50">
           Recommended <ChevronDown className="w-4 h-4" />
         </button>
         <div className="flex-1 flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg">
@@ -931,7 +931,7 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
             placeholder="Search patient, doctor, date"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 text-sm bg-transparent border-0 outline-none placeholder:text-gray-400"
+            className="flex-1 text-[14px] bg-transparent border-0 outline-none placeholder:text-gray-400"
           />
         </div>
       </div>
@@ -958,21 +958,21 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <div className="font-semibold text-sm text-[#0A0B0D]">{doctor.name}</div>
-                  <div className="text-xs text-gray-600">{doctor.specialty} • {doctor.experience}</div>
+                  <div className="font-semibold text-[14px] text-[#171717]">{doctor.name}</div>
+                  <div className="text-[14px] text-gray-600">{doctor.specialty} • {doctor.experience}</div>
                 </div>
               </div>
               <div className="flex items-start gap-2 flex-shrink-0">
                 {doctor.modes?.includes('video') && (
-                  <span className="px-2 py-1 text-xs font-medium text-[#0052FF] bg-blue-100 rounded">Video</span>
+                  <span className="px-2 py-1 text-[14px] font-medium text-[#0052FF] bg-blue-100 rounded">Video</span>
                 )}
                 {doctor.modes?.includes('in_person') && (
-                  <span className="px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded">In-hospital</span>
+                  <span className="px-2 py-1 text-[14px] font-medium text-green-700 bg-green-100 rounded">In-hospital</span>
                 )}
                 <div className="text-right">
-                  <div className="font-semibold text-sm text-[#0A0B0D]">₹{doctor.fees?.video || doctor.fees}</div>
+                  <div className="font-semibold text-[14px] text-[#171717]">₹{doctor.fees?.video || doctor.fees}</div>
                   {doctor.fees?.in_person && doctor.fees.in_person !== doctor.fees.video && (
-                    <div className="text-xs text-gray-500">/ {doctor.fees.in_person}</div>
+                    <div className="text-[14px] text-gray-500">/ {doctor.fees.in_person}</div>
                   )}
                 </div>
               </div>
@@ -987,7 +987,7 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
                     onClick={() => !disabled && onSelect(doctor.id, slot.time)}
                     disabled={disabled}
                     className={cn(
-                      'px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-1',
+                      'px-3 py-1.5 rounded-lg text-[14px] font-medium transition-all flex items-center gap-1',
                       'hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60',
                       selectedDoctorId === doctor.id && selectedTime === slot.time
                         ? 'bg-[#0A0B0D] text-white'
@@ -1033,11 +1033,11 @@ function ConsultationModeSelector({ modes, selected, onSelect, disabled }: any) 
               )}
             </div>
             <div>
-              <div className="font-semibold text-sm text-[#0A0B0D]">{mode.label}</div>
-              <div className="text-xs text-gray-500">{mode.description}</div>
+              <div className="font-semibold text-[14px] text-[#171717]">{mode.label}</div>
+              <div className="text-[14px] text-gray-500">{mode.description}</div>
             </div>
           </div>
-          <div className="font-semibold text-sm text-[#0A0B0D]">₹{mode.price}</div>
+          <div className="font-semibold text-[14px] text-[#171717]">₹{mode.price}</div>
         </button>
       ))}
     </div>
@@ -1055,24 +1055,24 @@ function BookingSummary({ summary, onPay, disabled }: any) {
 
             return (
               <div key={key} className="flex items-center justify-between">
-                <span className="text-sm text-gray-600 capitalize">{key.replace(/_/g, ' ')}</span>
+                <span className="text-[14px] text-gray-600 capitalize">{key.replace(/_/g, ' ')}</span>
                 <div className="flex items-center gap-2">
                   {value.avatar && (
                     <Avatar className="w-6 h-6">
                       <AvatarImage src={value.avatar} />
-                      <AvatarFallback className="text-xs">{value.label?.[0]}</AvatarFallback>
+                      <AvatarFallback className="text-[14px]">{value.label?.[0]}</AvatarFallback>
                     </Avatar>
                   )}
-                  <span className="text-sm font-medium text-[#0A0B0D]">{value.label || String(value)}</span>
-                  <button className="text-[#0052FF] text-sm font-medium hover:underline">Change</button>
+                  <span className="text-[14px] font-semibold text-[#171717]">{value.label || String(value)}</span>
+                  <button className="text-[#0052FF] text-[14px] font-medium hover:underline">Change</button>
                 </div>
               </div>
             );
           })}
           {(summary?.consultation_fee || summary?.total) && (
             <div className="flex items-center justify-between pt-2 border-t">
-              <span className="text-sm font-medium text-gray-600">Appointment Fee</span>
-              <span className="text-sm font-semibold text-[#0A0B0D]">
+              <span className="text-[14px] font-medium text-gray-600">Appointment Fee</span>
+              <span className="text-[14px] font-semibold text-[#171717]">
                 ₹{summary.consultation_fee || summary.total}
               </span>
             </div>
@@ -1112,14 +1112,14 @@ function PackageList({ packages, selected, onSelect, disabled }: any) {
         >
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <div className="font-semibold text-sm text-[#0A0B0D]">{pkg.name}</div>
-              <div className="text-xs text-gray-600 mt-1">
+              <div className="font-semibold text-[14px] text-[#171717]">{pkg.name}</div>
+              <div className="text-[14px] text-gray-600 mt-1">
                 {pkg.tests_included?.join(', ')}
               </div>
               <div className="text-[10px] text-gray-500 mt-2">Duration: {pkg.duration}</div>
             </div>
             <div className="text-right flex-shrink-0 ml-4">
-              <div className="font-semibold text-sm text-[#0A0B0D]">₹{pkg.price}</div>
+              <div className="font-semibold text-[14px] text-[#171717]">₹{pkg.price}</div>
             </div>
           </div>
         </button>
@@ -1147,8 +1147,8 @@ function LocationSelector({ locations, selected, onSelect, disabled }: any) {
         >
           <div className="flex items-center justify-between">
             <div>
-              <div className="font-medium text-sm text-[#0A0B0D]">{location.name}</div>
-              <div className="text-xs text-gray-500">{location.address}</div>
+              <div className="font-semibold text-[14px] text-[#171717]">{location.name}</div>
+              <div className="text-[14px] text-gray-500">{location.address}</div>
             </div>
           </div>
         </button>
@@ -1234,11 +1234,11 @@ function DateTimePicker({ selectedDate, selectedTime, onSelect, disabled, warnin
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
           <div className="flex items-start gap-3">
             <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-xs font-bold">!</span>
+              <span className="text-white text-[14px] font-bold">!</span>
             </div>
             <div className="flex-1">
               <p className="font-semibold text-amber-900 mb-1">{warning.title}</p>
-              <p className="text-sm text-amber-800">{warning.description}</p>
+              <p className="text-[14px] text-amber-800">{warning.description}</p>
             </div>
           </div>
         </div>
@@ -1246,7 +1246,7 @@ function DateTimePicker({ selectedDate, selectedTime, onSelect, disabled, warnin
 
       {/* Date selection */}
       <div>
-        <h4 className="font-semibold text-sm mb-3 text-foreground">Date</h4>
+        <h4 className="font-semibold text-[14px] mb-3 text-foreground">Date</h4>
         <div className="flex gap-2 overflow-x-auto pb-2">
           {dates.map((dateItem: any) => {
             const isSelected = tempDate === dateItem.value || selectedDate === dateItem.value;
@@ -1264,10 +1264,10 @@ function DateTimePicker({ selectedDate, selectedTime, onSelect, disabled, warnin
                     : 'border-border bg-background text-foreground'
                 )}
               >
-                <div className={cn('font-semibold text-sm', isSelected && 'text-background')}>
+                <div className={cn('font-semibold text-[14px]', isSelected && 'text-background')}>
                   {dateItem.label}
                 </div>
-                <div className={cn('text-xs', isSelected ? 'text-background/70' : 'text-muted-foreground')}>
+                <div className={cn('text-[14px]', isSelected ? 'text-background/70' : 'text-muted-foreground')}>
                   {dateItem.sublabel}
                 </div>
               </button>
@@ -1278,8 +1278,8 @@ function DateTimePicker({ selectedDate, selectedTime, onSelect, disabled, warnin
 
       {/* Time selection */}
       <div>
-        <h4 className="font-semibold text-sm mb-3 text-foreground">
-          Time {warning && <span className="text-xs font-normal text-muted-foreground">(morning recommended)</span>}
+        <h4 className="font-semibold text-[14px] mb-3 text-foreground">
+          Time {warning && <span className="text-[14px] font-normal text-muted-foreground">(morning recommended)</span>}
         </h4>
         <div className="flex flex-wrap gap-2">
           {timeSlots.map((slot: any) => {
@@ -1291,7 +1291,7 @@ function DateTimePicker({ selectedDate, selectedTime, onSelect, disabled, warnin
                 onClick={() => handleTimeSelect(slot.time)}
                 disabled={disabled || !slot.available}
                 className={cn(
-                  'px-3.5 py-1.5 rounded-full border text-xs font-medium transition-all inline-flex items-center gap-1.5',
+                  'px-3.5 py-1.5 rounded-full border text-[14px] font-medium transition-all inline-flex items-center gap-1.5',
                   'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
                   isSelected
                     ? 'border-foreground bg-foreground text-background'
@@ -1321,7 +1321,7 @@ function ModeComparison({ modes, recommendation, onSelect, disabled }: any) {
           <h4 className="font-semibold text-base mb-3">{mode.title}</h4>
           <ul className="space-y-2">
             {mode.benefits.map((benefit: string, i: number) => (
-              <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+              <li key={i} className="text-[14px] text-muted-foreground flex items-start gap-2">
                 <span className="text-foreground">•</span>
                 <span>{benefit}</span>
               </li>
@@ -1331,7 +1331,7 @@ function ModeComparison({ modes, recommendation, onSelect, disabled }: any) {
       ))}
       {recommendation && (
         <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
-          <p className="text-sm text-blue-900" dangerouslySetInnerHTML={{ __html: recommendation }} />
+          <p className="text-[14px] text-blue-900" dangerouslySetInnerHTML={{ __html: recommendation }} />
         </div>
       )}
     </div>
@@ -1366,7 +1366,7 @@ function ActionList({ actions, onSelect, disabled }: any) {
           <div className="flex-1">
             <div className="font-semibold text-foreground mb-1">{action.label}</div>
             {action.description && (
-              <div className="text-sm text-muted-foreground">{action.description}</div>
+              <div className="text-[14px] text-muted-foreground">{action.description}</div>
             )}
           </div>
           <svg className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1408,14 +1408,14 @@ function InfoLinks({ links, onSelect, disabled }: any) {
           </div>
           <div className="flex-1">
             <div className="font-semibold text-foreground mb-1">{link.title}</div>
-            <div className="text-sm text-muted-foreground">{link.description}</div>
+            <div className="text-[14px] text-muted-foreground">{link.description}</div>
           </div>
           <svg className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>
       ))}
-      <p className="text-sm text-muted-foreground text-center mt-4">
+      <p className="text-[14px] text-muted-foreground text-center mt-4">
         Would you like to continue booking an appointment?
       </p>
     </div>
@@ -1473,20 +1473,20 @@ function ScheduleConflict({ existing, newAppointment, onSelect, disabled }: any)
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-amber-900 mb-1">Schedule Conflict</h3>
-            <p className="text-sm text-amber-800">You already have an appointment at this time.</p>
+            <p className="text-[14px] text-amber-800">You already have an appointment at this time.</p>
           </div>
         </div>
       </div>
 
       <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200">
-        <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Existing Appointment</p>
+        <p className="text-[14px] font-semibold text-gray-500 uppercase mb-2">Existing Appointment</p>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
             <span className="text-orange-600 font-bold text-lg">D</span>
           </div>
           <div>
             <p className="font-semibold text-gray-900">{existing?.doctor}</p>
-            <p className="text-sm text-gray-600">
+            <p className="text-[14px] text-gray-600">
               {existing?.date && new Date(existing.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • {existing?.time}
             </p>
           </div>
@@ -1494,14 +1494,14 @@ function ScheduleConflict({ existing, newAppointment, onSelect, disabled }: any)
       </div>
 
       <div className="bg-blue-50 rounded-2xl p-4 border-2 border-blue-400">
-        <p className="text-xs font-semibold text-blue-700 uppercase mb-2">New Appointment</p>
+        <p className="text-[14px] font-semibold text-blue-700 uppercase mb-2">New Appointment</p>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
             <span className="text-blue-600 font-bold text-lg">D</span>
           </div>
           <div>
             <p className="font-semibold text-gray-900">{newAppointment?.doctor}</p>
-            <p className="text-sm text-gray-600">
+            <p className="text-[14px] text-gray-600">
               {newAppointment?.date && new Date(newAppointment.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • {newAppointment?.time}
             </p>
           </div>
@@ -1582,7 +1582,7 @@ function EmergencyWarning({ emergencyNumbers, category, disabled }: any) {
         </ul>
       </div>
 
-      <div className="text-center text-sm text-red-700 pt-2">
+      <div className="text-center text-[14px] text-red-700 pt-2">
         If this is not an emergency, you can continue booking a routine appointment below.
       </div>
     </div>
@@ -1644,7 +1644,7 @@ function TextInputComponent({
         <button
           onClick={handleSkip}
           disabled={disabled}
-          className="text-sm text-gray-500 hover:text-gray-700 underline disabled:opacity-50 disabled:cursor-not-allowed"
+          className="text-[14px] text-gray-500 hover:text-gray-700 underline disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {skipText}
         </button>

@@ -330,7 +330,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
           <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
             <div className="flex items-center gap-2">
               <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="font-medium text-xs sm:text-sm">Booking an appointment</span>
+              <span className="font-medium text-[14px] sm:text-[14px]">Booking an appointment</span>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="flex items-center gap-1 border rounded-full p-0.5 sm:p-1 bg-gray-50">
@@ -446,11 +446,11 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
               >
                 {isRecording ? (
                   // Recording mode - show waveform
-                  <div className="px-4 py-4 min-h-[80px] flex items-center justify-between">
+                  <div className="px-6 py-4 min-h-[80px] flex items-center justify-between">
                     <div className="flex items-center gap-3 flex-1">
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                        <span className="text-sm font-medium text-gray-700">
+                        <span className="text-[14px] font-medium text-gray-700">
                           {formatRecordingTime(recordingTime)}
                         </span>
                       </div>
@@ -461,7 +461,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                   // Normal mode - show textarea
                   <PromptInputTextarea
                     placeholder={isCancelled ? "Booking cancelled" : getPlaceholder(conversation.current_step)}
-                    className="text-sm text-[#0A0B0D] placeholder:text-[#9CA3AF] min-h-[80px] px-4 pt-4 pb-16 font-normal"
+                    className="text-[14px] text-[#0A0B0D] placeholder:text-[#9CA3AF] min-h-[80px] px-4 pt-4 pb-16 font-normal"
                     style={{ fontSize: '14px', lineHeight: '20px' }}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
@@ -629,7 +629,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
             </PromptInputContainer>
 
             {/* Disclaimer */}
-            <p className="text-xs text-center mt-3" style={{ color: '#737373' }}>
+            <p className="text-[14px] text-center mt-3" style={{ color: '#737373' }}>
               AI may make mistakes. Verify important health information.
             </p>
           </div>
@@ -670,7 +670,7 @@ function MessageBubble({
     return (
       <div className="flex gap-3 justify-end">
         <div className="rounded-2xl px-4 py-2.5 bg-[#BFDBFE] text-[#0A0B0D] max-w-2xl">
-          <p className="text-sm leading-relaxed">{message.content}</p>
+          <p className="text-[14px] leading-relaxed">{message.content}</p>
         </div>
       </div>
     );
@@ -690,7 +690,7 @@ function MessageBubble({
         {/* Text content */}
         {message.content && (
           <div className="rounded-2xl px-4 py-2.5 bg-[#F3F4F6] text-[#0A0B0D] mb-2.5">
-            <p className="text-sm leading-relaxed whitespace-pre-line">{message.content}</p>
+            <p className="text-[14px] leading-relaxed whitespace-pre-line">{message.content}</p>
           </div>
         )}
 

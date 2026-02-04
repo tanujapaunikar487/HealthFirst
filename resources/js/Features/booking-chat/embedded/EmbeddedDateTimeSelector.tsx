@@ -68,11 +68,11 @@ export function EmbeddedDateTimeSelector({
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
           <div className="flex items-start gap-3">
             <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-sm font-bold">!</span>
+              <span className="text-white text-[14px] font-bold">!</span>
             </div>
             <div>
               <p className="font-semibold text-amber-900">Fasting required</p>
-              <p className="text-sm text-amber-700">
+              <p className="text-[14px] text-amber-700">
                 {fastingHours || 12} hours before. Morning recommended.
               </p>
             </div>
@@ -82,7 +82,7 @@ export function EmbeddedDateTimeSelector({
 
       {/* Date section */}
       <div>
-        <label className="text-sm font-medium mb-2 block">Date</label>
+        <label className="text-[14px] font-medium mb-2 block">Date</label>
         <div className="flex gap-2 overflow-x-auto pb-2">
           {dates.map((dateOption, idx) => {
             const dateValue = dateOption.date || dateOption.value || '';
@@ -107,7 +107,7 @@ export function EmbeddedDateTimeSelector({
                 </p>
                 <p
                   className={cn(
-                    'text-sm',
+                    'text-[14px]',
                     isDateSelected ? 'text-background/70' : 'text-muted-foreground'
                   )}
                 >
@@ -121,7 +121,7 @@ export function EmbeddedDateTimeSelector({
 
       {/* Time section */}
       <div>
-        <label className="text-sm font-medium mb-2 block">
+        <label className="text-[14px] font-medium mb-2 block">
           Time
           {fastingRequired && (
             <span className="text-muted-foreground font-normal"> (morning recommended)</span>
@@ -137,7 +137,7 @@ export function EmbeddedDateTimeSelector({
                 onClick={() => handleTimeSelect(slot.time)}
                 disabled={disabled || !slot.available}
                 className={cn(
-                  'px-3 py-1.5 rounded-full text-sm border transition-all inline-flex items-center gap-1',
+                  'px-3 py-1.5 rounded-full text-[14px] border transition-all inline-flex items-center gap-1',
                   'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
                   isTimeSelected
                     ? 'bg-foreground text-background border-foreground'

@@ -48,14 +48,14 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <p className="font-medium text-sm">{addr.label}</p>
+                  <p className="font-medium text-[14px]">{addr.label}</p>
                   {addr.is_default && (
                     <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
                       Default
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1 mt-1 text-[14px] text-muted-foreground">
                   <MapPin className="h-3 w-3 flex-shrink-0" />
                   <span className="truncate">{addr.address}</span>
                 </div>
@@ -84,7 +84,7 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
         <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
           <Plus className="h-4 w-4 text-muted-foreground" />
         </div>
-        <span className="text-sm text-muted-foreground">Add new address</span>
+        <span className="text-[14px] text-muted-foreground">Add new address</span>
       </button>
     </div>
   );

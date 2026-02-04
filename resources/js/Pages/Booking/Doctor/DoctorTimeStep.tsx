@@ -216,7 +216,7 @@ export default function DoctorTimeStep({
       continueDisabled={!selectedDoctorId || !selectedTime || !appointmentMode}
       priceEstimate={getPriceEstimate()}
     >
-      <div className="space-y-10">
+      <div className="space-y-16">
         {/* Date Selection - 14 date pills */}
         <section>
           <h2 className="text-xl font-semibold mb-4">Available {selectedDateLabel}</h2>
@@ -237,16 +237,16 @@ export default function DoctorTimeStep({
                         : 'bg-background hover:border-primary/50'
                   )}
                 >
-                  <p className="font-medium text-sm">{dateOption.label}</p>
+                  <p className="font-medium text-[14px]">{dateOption.label}</p>
                   <p className={cn(
-                    'text-xs',
+                    'text-[14px]',
                     isSelected ? 'text-background/70' : 'text-muted-foreground'
                   )}>
                     {dateOption.sublabel}
                   </p>
                   {dateOption.doctorCount !== undefined && (
                     <p className={cn(
-                      'text-xs mt-0.5',
+                      'text-[14px] mt-0.5',
                       isSelected ? 'text-background/60' : noDoctors ? 'text-destructive/70' : 'text-muted-foreground'
                     )}>
                       {noDoctors ? 'No doctors' : `${dateOption.doctorCount} doctors`}
@@ -263,7 +263,7 @@ export default function DoctorTimeStep({
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-xl font-semibold">{filteredDoctors.length} doctors available</h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-[14px] text-muted-foreground">
                 Based on your symptoms and selected date
               </p>
             </div>
@@ -295,7 +295,7 @@ export default function DoctorTimeStep({
           {filteredDoctors.length === 0 ? (
             <Card className="p-8 text-center">
               <p className="font-medium text-foreground">No doctors available on this date</p>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-[14px] text-muted-foreground mt-1">
                 Some doctors don't work on {selectedDateLabel}s. Try selecting a different date.
               </p>
             </Card>
@@ -314,7 +314,7 @@ export default function DoctorTimeStep({
             </Card>
           )}
 
-          {errors.doctor && <p className="text-sm text-destructive mt-2">{errors.doctor}</p>}
+          {errors.doctor && <p className="text-[14px] text-destructive mt-2">{errors.doctor}</p>}
         </section>
 
         {/* Consultation Mode */}
@@ -328,7 +328,7 @@ export default function DoctorTimeStep({
               onSelect={(mode) => setConsultationMode(mode as 'video' | 'in_person')}
             />
 
-            {errors.mode && <p className="text-sm text-destructive mt-2">{errors.mode}</p>}
+            {errors.mode && <p className="text-[14px] text-destructive mt-2">{errors.mode}</p>}
           </section>
         )}
       </div>
@@ -396,15 +396,15 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: D
         </Avatar>
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-foreground">{doctor.name}</h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-[14px] text-muted-foreground">
             {doctor.specialization} • {doctor.experience_years} years of experience
           </p>
         </div>
         <div className="flex flex-col items-end gap-1">
-          <span className="inline-block px-2 py-1 text-xs font-medium text-primary bg-primary/10 rounded whitespace-nowrap">
+          <span className="inline-block px-2 py-1 text-[14px] font-medium text-primary bg-primary/10 rounded whitespace-nowrap">
             {formatConsultationModes(doctor.appointment_modes)}
           </span>
-          <span className="font-semibold text-sm">{getFeeRange()}</span>
+          <span className="font-semibold text-[14px]">{getFeeRange()}</span>
         </div>
       </div>
 
@@ -416,7 +416,7 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: D
             onClick={() => slot.available && onSelectTime(slot.time)}
             disabled={!slot.available}
             className={cn(
-              'px-3 py-1.5 text-sm rounded-lg border transition-all relative',
+              'px-3 py-1.5 text-[14px] rounded-lg border transition-all relative',
               'hover:border-primary/50 hover:bg-primary/5',
               selectedTime === slot.time &&
                 'bg-black text-white border-black hover:bg-black hover:border-black',

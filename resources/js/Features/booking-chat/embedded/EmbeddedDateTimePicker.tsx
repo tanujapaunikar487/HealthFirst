@@ -51,11 +51,11 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
           <div className="flex items-start gap-3">
             <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-xs font-bold">!</span>
+              <span className="text-white text-[14px] font-bold">!</span>
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-sm text-amber-900 mb-1">{warning.title}</p>
-              <p className="text-sm text-amber-800">{warning.description}</p>
+              <p className="font-semibold text-[14px] text-amber-900 mb-1">{warning.title}</p>
+              <p className="text-[14px] text-amber-800">{warning.description}</p>
             </div>
           </div>
         </div>
@@ -63,7 +63,7 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
 
       {/* Date selection */}
       <div>
-        <h4 className="font-semibold text-sm mb-3">Date</h4>
+        <h4 className="font-semibold text-[14px] mb-3">Date</h4>
         <div className="flex gap-2 overflow-x-auto pb-2">
           {dates.map((date, index) => {
             const dateValue = formatDateValue(date);
@@ -82,10 +82,10 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
                     : 'border-gray-200 bg-white text-[#0A0B0D]'
                 )}
               >
-                <div className={cn('font-semibold text-sm', isSelected && 'text-white')}>
+                <div className={cn('font-semibold text-[14px]', isSelected && 'text-white')}>
                   {formatDateLabel(date, index)}
                 </div>
-                <div className={cn('text-xs', isSelected ? 'text-gray-300' : 'text-gray-500')}>
+                <div className={cn('text-[14px]', isSelected ? 'text-gray-300' : 'text-gray-500')}>
                   {formatDateDisplay(date)}
                 </div>
               </button>
@@ -96,8 +96,8 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
 
       {/* Time selection */}
       <div>
-        <h4 className="font-semibold text-sm mb-3">
-          Time {warning && <span className="text-xs font-normal text-gray-500">(morning recommended)</span>}
+        <h4 className="font-semibold text-[14px] mb-3">
+          Time {warning && <span className="text-[14px] font-normal text-gray-500">(morning recommended)</span>}
         </h4>
         <div className="flex flex-wrap gap-2">
           {timeSlots.map((slot) => {
@@ -109,7 +109,7 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
                 onClick={() => !disabled && selectedDate && onSelect(selectedDate, slot.time)}
                 disabled={disabled || !slot.available}
                 className={cn(
-                  'px-3.5 py-1.5 rounded-full border-2 text-xs font-medium transition-all inline-flex items-center gap-1',
+                  'px-3.5 py-1.5 rounded-full border-2 text-[14px] font-medium transition-all inline-flex items-center gap-1',
                   'hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60',
                   isSelected
                     ? 'border-[#0A0B0D] bg-[#0A0B0D] text-white'
