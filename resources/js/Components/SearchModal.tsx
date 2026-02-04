@@ -267,10 +267,11 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="p-0 gap-0 overflow-hidden max-h-[480px] flex flex-col [&>button]:hidden"
+        className="p-0 gap-0 overflow-hidden flex flex-col [&>button]:hidden"
         style={{
           width: '714px',
           maxWidth: '90vw',
+          height: '420px',
           borderRadius: '20px',
           border: '1px solid #E5E5E5',
           background: '#FFFFFF',
@@ -285,14 +286,27 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
         <div className="flex items-center gap-2 px-4" style={{ borderBottom: '1px solid #E5E5E5', height: '56px' }}>
           <Icon icon={Search} className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
 
+          {/* Category Tag */}
+          {category !== 'all' && (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-medium flex-shrink-0">
+              <span>
+                {category === 'health_records' ? 'Health records' : category.charAt(0).toUpperCase() + category.slice(1)}
+              </span>
+              <button
+                onClick={() => setCategory('all')}
+                className="text-blue-500 hover:text-blue-700"
+              >
+                <Icon icon={X} className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
+
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={category !== 'all'
-              ? `Search ${category === 'health_records' ? 'health records' : category}...`
-              : "search reports, prescriptions.."}
+            placeholder="Search..."
             className="flex-1 bg-transparent text-sm outline-none border-none focus:outline-none focus:ring-0 placeholder:text-muted-foreground"
             style={{ boxShadow: 'none' }}
             autoComplete="off"
@@ -378,8 +392,12 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
 
           {/* No Results */}
           {noResults && (
-            <div className="text-center py-12 px-4">
-              <Icon icon={Search} className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+            <div className="flex flex-col items-center justify-center h-full px-4">
+              <img
+                src="/assets/images/search.png"
+                alt="No results"
+                className="w-24 h-24 mb-3"
+              />
               <p className="text-sm font-medium" style={{ color: '#00184D' }}>
                 No results for "{query}"
               </p>
