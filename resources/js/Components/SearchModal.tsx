@@ -289,7 +289,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search doctors, appointments, records, bills..."
+            placeholder="search reports, prescriptions.."
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             autoComplete="off"
           />
@@ -326,57 +326,40 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
 
         {/* Results Area */}
         <div ref={resultsRef} className="flex-1 overflow-y-auto">
-          {/* Initial State (no query) */}
+          {/* Initial State (no query) - Category Search Buttons */}
           {!hasQuery && (
-            <div className="p-4">
-              {/* Recent Searches */}
-              {recentSearches.length > 0 && (
-                <div className="mb-5">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Recent</p>
-                    <button
-                      onClick={() => {
-                        clearRecentSearches();
-                        setRecentSearches([]);
-                      }}
-                      className="text-[11px] text-muted-foreground hover:text-foreground"
-                    >
-                      Clear
-                    </button>
-                  </div>
-                  <div className="space-y-0.5">
-                    {recentSearches.map((s) => (
-                      <button
-                        key={s}
-                        onClick={() => setQuery(s)}
-                        className="flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-sm hover:bg-muted text-left"
-                      >
-                        <Icon icon={Clock} className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span>{s}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Quick Links */}
-              <div>
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Quick links</p>
-                <div className="space-y-0.5">
-                  {quickLinks.map((link) => (
-                    <button
-                      key={link.href}
-                      onClick={() => {
-                        onOpenChange(false);
-                        router.visit(link.href);
-                      }}
-                      className="flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-sm hover:bg-muted text-left"
-                    >
-                      <Icon icon={link.icon} className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span>{link.label}</span>
-                    </button>
-                  ))}
-                </div>
+            <div className="px-4 py-5">
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={() => {
+                    setCategory('appointments');
+                    inputRef.current?.focus();
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+                >
+                  <Icon icon={Calendar} className="h-4 w-4 text-gray-500" />
+                  Search in <span className="font-semibold">appointment</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setCategory('health_records');
+                    inputRef.current?.focus();
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+                >
+                  <Icon icon={ClipboardList} className="h-4 w-4 text-gray-500" />
+                  Search in <span className="font-semibold">health records</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setCategory('bills');
+                    inputRef.current?.focus();
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+                >
+                  <Icon icon={FileText} className="h-4 w-4 text-gray-500" />
+                  Search in <span className="font-semibold">bills</span>
+                </button>
               </div>
             </div>
           )}
