@@ -59,14 +59,14 @@ resources/js/
 | **Insurance** | Policies, claims (14 statuses), pre-auth flow |
 | **Family Members** | 18 fields, OTP verification, alert deep-links |
 | **Settings** | 4 tabs (Profile, Notifications, Preferences, Connections) |
-| **Authentication** | Sign in/up, logout, forgot/reset password, route protection, rate limiting |
+| **Authentication** | Sign in/up (email + Google/Apple OAuth), logout, forgot/reset password, route protection, rate limiting |
 | **Global** | Cmd+K search, notifications (27 types, 5 categories), skeleton loading, error pages |
 
 ---
 
-## Database (29 Tables)
+## Database (30 Tables)
 
-**Core**: users, family_members, appointments, booking_conversations, conversation_messages, user_settings
+**Core**: users, social_accounts, family_members, appointments, booking_conversations, conversation_messages, user_settings
 
 **Hospital**: departments, doctors, doctor_consultation_modes, doctor_availabilities, time_slots, symptoms
 
@@ -232,6 +232,7 @@ All UI text uses **sentence case** (only first word capitalized):
 
 | Date | Feature |
 |------|---------|
+| Feb 4 | **Social Login (OAuth)**: Google and Apple Sign-In/Sign-Up via Laravel Socialite, social_accounts table, account linking (existing user email match), SocialLoginButtons component |
 | Feb 4 | **Card Typography**: Standardized title (#171717, 14px, 600) and subtext (#737373, 14px, 400) across card components |
 | Feb 4 | **TagInput Button**: Replaced "Add" text with Plus icon in 40px secondary button |
 | Feb 4 | **Calendar Upgrade (react-day-picker v9)**: Updated to v9 API with dropdown month/year selectors, 3-letter month format (MMM), proper styling (8px radius dropdowns, centered layout, nav arrows on edges) |
