@@ -10,6 +10,7 @@ import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Textarea } from '@/Components/ui/textarea';
+import { DatePicker } from '@/Components/ui/date-picker';
 import { Checkbox } from '@/Components/ui/checkbox';
 import {
   Select,
@@ -1232,15 +1233,15 @@ export default function InsuranceIndex({
                       <label className="mb-1 block text-xs font-medium text-gray-700">
                         Start Date *
                       </label>
-                      <Input
-                        type="date"
+                      <DatePicker
                         value={policyForm.start_date}
-                        onChange={(e) => updateForm('start_date', e.target.value)}
+                        onChange={(value) => updateForm('start_date', value)}
+                        error={!!formErrors.start_date}
                         className={cn(
-                          formErrors.start_date && 'border-red-300 focus-visible:ring-red-400',
                           isPartialEmpty('start_date') &&
                             'ring-2 ring-amber-300 border-amber-300'
                         )}
+                        placeholder="Select start date"
                       />
                       {formErrors.start_date && (
                         <p className="mt-1 text-xs text-red-500">{formErrors.start_date}</p>
@@ -1250,15 +1251,15 @@ export default function InsuranceIndex({
                       <label className="mb-1 block text-xs font-medium text-gray-700">
                         End Date *
                       </label>
-                      <Input
-                        type="date"
+                      <DatePicker
                         value={policyForm.end_date}
-                        onChange={(e) => updateForm('end_date', e.target.value)}
+                        onChange={(value) => updateForm('end_date', value)}
+                        error={!!formErrors.end_date}
                         className={cn(
-                          formErrors.end_date && 'border-red-300 focus-visible:ring-red-400',
                           isPartialEmpty('end_date') &&
                             'ring-2 ring-amber-300 border-amber-300'
                         )}
+                        placeholder="Select end date"
                       />
                       {formErrors.end_date && (
                         <p className="mt-1 text-xs text-red-500">{formErrors.end_date}</p>
@@ -1408,22 +1409,22 @@ export default function InsuranceIndex({
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Expected Admission Date <span className="text-red-500">*</span>
                   </label>
-                  <Input
-                    type="date"
+                  <DatePicker
                     value={preAuthForm.admission_date}
-                    onChange={e => setPreAuthForm((f: PreAuthForm) => ({ ...f, admission_date: e.target.value }))}
-                    min={new Date().toISOString().split('T')[0]}
+                    onChange={(value) => setPreAuthForm((f: PreAuthForm) => ({ ...f, admission_date: value }))}
+                    min={new Date()}
+                    placeholder="Select admission date"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Expected Discharge Date
                   </label>
-                  <Input
-                    type="date"
+                  <DatePicker
                     value={preAuthForm.discharge_date}
-                    onChange={e => setPreAuthForm((f: PreAuthForm) => ({ ...f, discharge_date: e.target.value }))}
-                    min={preAuthForm.admission_date || new Date().toISOString().split('T')[0]}
+                    onChange={(value) => setPreAuthForm((f: PreAuthForm) => ({ ...f, discharge_date: value }))}
+                    min={preAuthForm.admission_date ? new Date(preAuthForm.admission_date) : new Date()}
+                    placeholder="Select discharge date"
                   />
                 </div>
                 <div>

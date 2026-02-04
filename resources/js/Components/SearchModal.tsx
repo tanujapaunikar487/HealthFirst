@@ -267,7 +267,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="p-0 gap-0 overflow-hidden max-h-[480px] flex flex-col"
+        className="p-0 gap-0 overflow-hidden max-h-[480px] flex flex-col [&>button]:hidden"
         style={{
           width: '714px',
           maxWidth: '90vw',
@@ -285,22 +285,6 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
         <div className="flex items-center gap-2 px-4" style={{ borderBottom: '1px solid #E5E5E5', height: '56px' }}>
           <Icon icon={Search} className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
 
-          {/* Category Tag (when not 'all') */}
-          {category !== 'all' && (
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-gray-100 text-sm flex-shrink-0">
-              <span className="text-gray-500">in:</span>
-              <span className="font-medium text-gray-900">
-                @{category === 'health_records' ? 'health records' : category === 'appointments' ? 'appointment' : category}
-              </span>
-              <button
-                onClick={() => setCategory('all')}
-                className="ml-0.5 text-gray-400 hover:text-gray-600"
-              >
-                <Icon icon={X} className="h-3 w-3" />
-              </button>
-            </div>
-          )}
-
           <input
             ref={inputRef}
             type="text"
@@ -314,22 +298,31 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
             autoComplete="off"
           />
           {loading && <Icon icon={Loader2} className="h-4 w-4 animate-spin text-muted-foreground flex-shrink-0" />}
-          {/* Clear Button - only shows when query exists */}
-          {query && !loading && (
+          {/* Clear and Close buttons */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {/* Clear Button - text only, clears query */}
+            {query && !loading && (
+              <button
+                onClick={() => setQuery('')}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Clear
+              </button>
+            )}
+            {/* Close Modal Button - 24px */}
             <button
-              onClick={() => setQuery('')}
-              className="flex-shrink-0 flex items-center gap-1 text-muted-foreground hover:text-foreground"
+              onClick={() => onOpenChange(false)}
+              className="text-muted-foreground hover:text-foreground"
             >
-              <Icon icon={X} className="h-4 w-4" />
-              <span className="text-sm">Clear</span>
+              <Icon icon={X} className="h-6 w-6" />
             </button>
-          )}
+          </div>
         </div>
 
         {/* Results Area */}
         <div ref={resultsRef} className="flex-1 overflow-y-auto">
-          {/* Initial State (no query) - Category Search Buttons */}
-          {!hasQuery && category === 'all' && (
+          {/* Category Search Buttons - always visible when no category selected */}
+          {category === 'all' && (
             <div className="px-4 py-5">
               <div className="flex flex-wrap gap-3">
                 <button

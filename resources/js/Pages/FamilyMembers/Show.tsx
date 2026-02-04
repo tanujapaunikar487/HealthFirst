@@ -8,6 +8,7 @@ import { Badge } from '@/Components/ui/badge';
 import { Card, CardContent } from '@/Components/ui/card';
 import { Input } from '@/Components/ui/input';
 import { PhoneInput } from '@/Components/ui/phone-input';
+import { DatePicker } from '@/Components/ui/date-picker';
 import { SideNav } from '@/Components/SideNav';
 import {
   Select,
@@ -924,11 +925,11 @@ export default function FamilyMemberShow({
 
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700">Date of Birth</label>
-                  <Input
-                    type="date"
+                  <DatePicker
                     value={formData.date_of_birth}
-                    onChange={e => setFormData({ ...formData, date_of_birth: e.target.value })}
-                    max={new Date().toISOString().split('T')[0]}
+                    onChange={(value) => setFormData({ ...formData, date_of_birth: value })}
+                    max={new Date()}
+                    placeholder="Select date of birth"
                   />
                 </div>
 

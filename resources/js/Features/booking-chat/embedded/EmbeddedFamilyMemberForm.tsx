@@ -2,6 +2,7 @@ import * as React from 'react';
 import { cn } from '@/Lib/utils';
 import { Button } from '@/Components/ui/button';
 import { PhoneInput } from '@/Components/ui/phone-input';
+import { DatePicker } from '@/Components/ui/date-picker';
 import { UserPlus } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 
@@ -137,13 +138,12 @@ export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
           <label className="text-xs font-medium text-muted-foreground">
             Date of Birth <span className="text-xs font-normal">(Recommended)</span>
           </label>
-          <input
-            type="date"
+          <DatePicker
             value={dateOfBirth}
-            onChange={(e) => { setDateOfBirth(e.target.value); setAge(''); setErrors((prev) => ({ ...prev, age: '' })); }}
-            max={new Date().toISOString().split('T')[0]}
+            onChange={(value) => { setDateOfBirth(value); setAge(''); setErrors((prev) => ({ ...prev, age: '' })); }}
+            max={new Date()}
             disabled={disabled}
-            className={inputClasses}
+            placeholder="Select date"
           />
         </div>
         <div className="space-y-1.5">

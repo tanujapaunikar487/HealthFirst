@@ -14,6 +14,7 @@ import {
     SelectValue,
 } from '@/Components/ui/select';
 import { PhoneInput } from '@/Components/ui/phone-input';
+import { DatePicker } from '@/Components/ui/date-picker';
 import { INDIAN_STATES, getCitiesForState } from '@/Lib/locations';
 import { toast } from 'sonner';
 
@@ -405,12 +406,12 @@ export function ProfileTab({ user, familyMembers: _familyMembers, doctors = [] }
                     {/* Date of Birth */}
                     <div className="space-y-2">
                         <Label htmlFor="dob">Date of birth</Label>
-                        <Input
+                        <DatePicker
                             id="dob"
-                            type="date"
                             value={formData.date_of_birth}
-                            onChange={(e) => handleInputChange('date_of_birth', e.target.value)}
-                            max={new Date().toISOString().split('T')[0]}
+                            onChange={(value) => handleInputChange('date_of_birth', value)}
+                            max={new Date()}
+                            placeholder="Select date of birth"
                         />
                     </div>
 

@@ -9,6 +9,7 @@ import { Button } from '@/Components/ui/button';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { Input } from '@/Components/ui/input';
 import { Checkbox } from '@/Components/ui/checkbox';
+import { DatePicker } from '@/Components/ui/date-picker';
 import {
   Select,
   SelectContent,
@@ -803,9 +804,9 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
 
             {datePreset === 'custom' && (
               <div className="flex items-center gap-1.5">
-                <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="h-9 w-[130px] text-sm" />
+                <DatePicker value={dateFrom} onChange={setDateFrom} className="h-9 w-[140px] text-sm" placeholder="From" />
                 <span className="text-xs text-muted-foreground">to</span>
-                <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="h-9 w-[130px] text-sm" />
+                <DatePicker value={dateTo} onChange={setDateTo} className="h-9 w-[140px] text-sm" placeholder="To" />
               </div>
             )}
 

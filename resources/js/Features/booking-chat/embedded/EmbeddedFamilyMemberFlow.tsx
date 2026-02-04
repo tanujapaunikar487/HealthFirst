@@ -4,6 +4,7 @@ import { router } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { PhoneInput } from '@/Components/ui/phone-input';
+import { DatePicker } from '@/Components/ui/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { RelationshipSelector } from '@/Components/RelationshipSelector';
 import { OtpInput } from '@/Components/OtpInput';
@@ -950,7 +951,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div className="space-y-2">
                                         <label htmlFor="guest_dob_s" className="block text-sm font-medium text-foreground">Date of Birth</label>
-                                        <Input id="guest_dob_s" type="date" value={state.guestDOB} onChange={(e) => setState((prev) => ({ ...prev, guestDOB: e.target.value, guestAge: '' }))} max={new Date().toISOString().split('T')[0]} />
+                                        <DatePicker id="guest_dob_s" value={state.guestDOB} onChange={(value) => setState((prev) => ({ ...prev, guestDOB: value, guestAge: '' }))} max={new Date()} placeholder="Select date" />
                                     </div>
                                     <div className="space-y-2">
                                         <label htmlFor="guest_age_s" className="block text-sm font-medium text-foreground">Age</label>
@@ -1043,16 +1044,16 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                         <label htmlFor="new_member_dob_s" className="block text-sm font-medium text-foreground">
                                             Date of Birth
                                         </label>
-                                        <Input
+                                        <DatePicker
                                             id="new_member_dob_s"
-                                            type="date"
                                             value={state.newMemberDOB}
-                                            onChange={(e) => setState((prev) => ({
+                                            onChange={(value) => setState((prev) => ({
                                                 ...prev,
-                                                newMemberDOB: e.target.value,
+                                                newMemberDOB: value,
                                                 newMemberAge: ''
                                             }))}
-                                            max={new Date().toISOString().split('T')[0]}
+                                            max={new Date()}
+                                            placeholder="Select date"
                                             disabled={state.loading}
                                         />
                                     </div>
@@ -1529,12 +1530,12 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 <label htmlFor="guest_dob" className="block text-sm font-medium text-foreground">
                                     Date of Birth
                                 </label>
-                                <Input
+                                <DatePicker
                                     id="guest_dob"
-                                    type="date"
                                     value={state.guestDOB}
-                                    onChange={(e) => setState((prev) => ({ ...prev, guestDOB: e.target.value, guestAge: '' }))}
-                                    max={new Date().toISOString().split('T')[0]}
+                                    onChange={(value) => setState((prev) => ({ ...prev, guestDOB: value, guestAge: '' }))}
+                                    max={new Date()}
+                                    placeholder="Select date"
                                 />
                             </div>
 
@@ -1702,16 +1703,16 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 <label htmlFor="new_member_dob" className="block text-sm font-medium text-foreground">
                                     Date of Birth
                                 </label>
-                                <Input
+                                <DatePicker
                                     id="new_member_dob"
-                                    type="date"
                                     value={state.newMemberDOB}
-                                    onChange={(e) => setState((prev) => ({
+                                    onChange={(value) => setState((prev) => ({
                                         ...prev,
-                                        newMemberDOB: e.target.value,
+                                        newMemberDOB: value,
                                         newMemberAge: ''
                                     }))}
-                                    max={new Date().toISOString().split('T')[0]}
+                                    max={new Date()}
+                                    placeholder="Select date"
                                     disabled={state.loading}
                                 />
                             </div>

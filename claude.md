@@ -113,6 +113,8 @@ resources/js/
 - `AppointmentSheets.tsx` - Detail, cancel, reschedule, follow-up, book-again, check-in sheets
 - `ShareSheet.tsx` - Consistent share UI (Copy Link, WhatsApp, Email) used app-wide
 - `PhoneInput.tsx` - +91 fixed prefix input
+- `DatePicker.tsx` - shadcn Calendar + Popover wrapper with calendar icon on right, dd/MM/yyyy display
+- `SearchModal.tsx` - Cmd+K search with category filters, Clear button, 24px close icon
 
 ### Utilities
 - `Lib/utils.ts` - `formatTableDate()`, `formatTableTime()` for consistent table date display
@@ -228,6 +230,16 @@ All UI text uses **sentence case** (only first word capitalized):
 
 | Date | Feature |
 |------|---------|
+| Feb 4 | **DatePicker Component**: Replaced all native `<input type="date">` with shadcn DatePicker (Calendar + Popover) across 10 files (20+ fields) - consistent UI with calendar icon on right |
+| Feb 4 | **Search Modal UI**: Fixed duplicate close icons, added text-only "Clear" button, 24px close icon, category buttons always visible when no category selected |
+| Feb 4 | **Settings UPI Payments**: Full UPI ID management in Settings > Payments (add, delete, set default) with backend routes |
+| Feb 4 | **Avatar Sync**: Profile photo upload now syncs to sidebar via `router.reload({ only: ['auth'] })` and User model `$appends` |
+| Feb 4 | **Search Modal Styling**: Frosted glass effect (714px width, 20px radius, backdrop blur, layered shadows) |
+| Feb 4 | **SideNav Component**: Reusable navigation component with pill-shaped buttons and blue active state |
+| Feb 4 | **Section Title Styling**: Consistent 20px/600 weight/#171717 titles across all Settings tabs |
+| Feb 4 | **Tag Input UX**: Tags now appear below input field instead of above |
+| Feb 4 | **Page Padding**: Added pb-10 to all detail pages and Settings content area for consistent bottom spacing |
+| Feb 4 | **Prescriptions Filter**: Health Records prescriptions tab now filters by Active/Past based on medication duration |
 | Feb 4 | **Sentence Case Standardization**: All buttons and headings converted to sentence case (e.g., "Book Appointment" → "Book appointment", "Save Changes" → "Save changes") for better UX and modern design alignment |
 | Feb 4 | **Terminology Consistency**: "Consultation" → "Appointment", "Medication" → "Prescription", "Member" → "Family member" across all pages |
 | Feb 4 | **Empty State Images**: Custom images for CtaBanner (booking, family, insurance) and EmptyState (health-records, billing) |

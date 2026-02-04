@@ -4,6 +4,7 @@ import { router } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { PhoneInput } from '@/Components/ui/phone-input';
+import { DatePicker } from '@/Components/ui/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { OtpInput } from '@/Components/OtpInput';
 import { MemberSearchCard } from '@/Components/MemberSearchCard';
@@ -674,16 +675,16 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-2">
                         <label htmlFor="guest_dob" className="block text-sm font-medium text-foreground">Date of Birth</label>
-                        <Input
+                        <DatePicker
                             id="guest_dob"
-                            type="date"
                             value={state.guest.dob}
-                            onChange={(e) => setState(prev => ({
+                            onChange={(value) => setState(prev => ({
                                 ...prev,
-                                guest: { ...prev.guest, dob: e.target.value, age: '' }
+                                guest: { ...prev.guest, dob: value, age: '' }
                             }))}
-                            max={new Date().toISOString().split('T')[0]}
+                            max={new Date()}
                             disabled={state.loading}
+                            placeholder="Select date"
                         />
                     </div>
                     <div className="space-y-2">
@@ -850,16 +851,16 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-2">
                         <label htmlFor="member_dob" className="block text-sm font-medium text-foreground">Date of Birth</label>
-                        <Input
+                        <DatePicker
                             id="member_dob"
-                            type="date"
                             value={state.newMember.dob}
-                            onChange={(e) => setState(prev => ({
+                            onChange={(value) => setState(prev => ({
                                 ...prev,
-                                newMember: { ...prev.newMember, dob: e.target.value, age: '' }
+                                newMember: { ...prev.newMember, dob: value, age: '' }
                             }))}
-                            max={new Date().toISOString().split('T')[0]}
+                            max={new Date()}
                             disabled={state.loading}
+                            placeholder="Select date"
                         />
                     </div>
                     <div className="space-y-2">

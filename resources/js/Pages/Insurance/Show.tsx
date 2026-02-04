@@ -6,6 +6,7 @@ import { Card } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
+import { DatePicker } from '@/Components/ui/date-picker';
 import { Textarea } from '@/Components/ui/textarea';
 import { Icon } from '@/Components/ui/icon';
 import { cn } from '@/Lib/utils';
@@ -719,22 +720,22 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Expected Admission Date <span className="text-red-500">*</span>
                   </label>
-                  <Input
-                    type="date"
+                  <DatePicker
                     value={preAuthForm.admission_date}
-                    onChange={e => setPreAuthForm(f => ({ ...f, admission_date: e.target.value }))}
-                    min={new Date().toISOString().split('T')[0]}
+                    onChange={(value) => setPreAuthForm(f => ({ ...f, admission_date: value }))}
+                    min={new Date()}
+                    placeholder="Select admission date"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Expected Discharge Date
                   </label>
-                  <Input
-                    type="date"
+                  <DatePicker
                     value={preAuthForm.discharge_date}
-                    onChange={e => setPreAuthForm(f => ({ ...f, discharge_date: e.target.value }))}
-                    min={preAuthForm.admission_date || new Date().toISOString().split('T')[0]}
+                    onChange={(value) => setPreAuthForm(f => ({ ...f, discharge_date: value }))}
+                    min={preAuthForm.admission_date ? new Date(preAuthForm.admission_date) : new Date()}
+                    placeholder="Select discharge date"
                   />
                 </div>
                 <div>
