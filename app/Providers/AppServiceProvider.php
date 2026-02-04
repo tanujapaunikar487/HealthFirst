@@ -13,9 +13,12 @@ use App\Services\Booking\BookingDataProvider;
 use App\Services\Booking\IntelligentBookingOrchestrator;
 use App\Services\Booking\BookingErrorHandler;
 use App\Services\KnowledgeBaseService;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use SocialiteProviders\Apple\AppleExtendSocialite;
+use SocialiteProviders\Manager\SocialiteWasCalled;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -74,5 +77,8 @@ class AppServiceProvider extends ServiceProvider
         Vite::prefetch(concurrency: 3);
 
         Gate::policy(BookingConversation::class, BookingConversationPolicy::class);
+
+        // Register Apple Socialite Provider
+        Event::listen(SocialiteWasCalled::class, AppleExtendSocialite::class.'@handle');
     }
 }

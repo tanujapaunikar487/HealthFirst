@@ -96,6 +96,27 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\UserSetting::class);
     }
 
+    public function socialAccounts(): HasMany
+    {
+        return $this->hasMany(\App\Models\SocialAccount::class);
+    }
+
+    /**
+     * Check if user has a specific social provider linked.
+     */
+    public function hasSocialProvider(string $provider): bool
+    {
+        return $this->socialAccounts()->where('provider', $provider)->exists();
+    }
+
+    /**
+     * Check if user can sign in without password (has at least one social account).
+     */
+    public function canSignInWithSocial(): bool
+    {
+        return $this->socialAccounts()->exists();
+    }
+
     public function getSetting(string $category, $default = null)
     {
         $setting = $this->settings()->where('category', $category)->first();

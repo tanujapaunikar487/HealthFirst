@@ -1,11 +1,14 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import { FormEventHandler } from 'react';
+import SocialLoginButtons from '@/Components/Auth/SocialLoginButtons';
+import SocialDivider from '@/Components/Auth/SocialDivider';
 
 export default function Register() {
+    const { flash } = usePage().props as { flash?: { error?: string } };
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
@@ -33,6 +36,17 @@ export default function Register() {
                     Get started with your healthcare journey
                 </p>
             </div>
+
+            {flash?.error && (
+                <div className="mb-4 text-sm font-medium text-red-600 bg-red-50 p-3 rounded-lg">
+                    {flash.error}
+                </div>
+            )}
+
+            {/* Social Login Buttons */}
+            <SocialLoginButtons isProcessing={processing} />
+
+            <SocialDivider />
 
             <form onSubmit={submit} className="space-y-4">
                 <div className="space-y-2">
