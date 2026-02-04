@@ -111,7 +111,7 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                 <div className="mb-4">
                     <SectionTitle>Video appointment</SectionTitle>
                     <p className="text-[14px] text-muted-foreground mt-1">
-                        Choose your preferred video platform for online appointments
+                        You don't need to link your account now — we're just collecting your preference. Your doctor will generate a meeting link and share it with you before your appointment.
                     </p>
                 </div>
 

@@ -672,40 +672,47 @@ export default function FamilyMemberShow({
             )}
           </div>
           <div className="flex-1">
-            <h1
-              className="font-bold"
-              style={{
-                fontSize: '28px',
-                lineHeight: '36px',
-                letterSpacing: '-0.5px',
-                color: '#171717',
-              }}
-            >
-              {member.name}
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1
+                className="font-bold"
+                style={{
+                  fontSize: '28px',
+                  lineHeight: '36px',
+                  letterSpacing: '-0.5px',
+                  color: '#171717',
+                }}
+              >
+                {member.name}
+              </h1>
+              {member.relation === 'self' && (
+                <Badge variant="default">Admin</Badge>
+              )}
+            </div>
             {member.patient_id && (
               <p className="mt-0.5 text-[14px] text-gray-500">{member.patient_id}</p>
             )}
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <Button
-              variant="outline"
-              onClick={openEditForm}
-            >
-              <Pencil className="h-4 w-4" />
-              Edit Profile
-            </Button>
-            {canDelete && (
+          {member.relation !== 'self' && (
+            <div className="flex items-center gap-2 flex-shrink-0">
               <Button
                 variant="outline"
-                size="icon"
-                onClick={() => setShowDeleteConfirm(true)}
-                className="h-10 w-10 text-destructive hover:text-destructive hover:bg-destructive/10"
+                onClick={openEditForm}
               >
-                <Trash2 className="h-4 w-4" />
+                <Pencil className="h-4 w-4" />
+                Edit profile
               </Button>
-            )}
-          </div>
+              {canDelete && (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="h-10 w-10 text-destructive hover:text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Alert Banners */}
