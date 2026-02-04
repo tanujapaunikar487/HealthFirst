@@ -1,6 +1,6 @@
 import { useState, useRef, ChangeEvent, useMemo } from 'react';
 import { router } from '@inertiajs/react';
-import { Camera, X } from '@/Lib/icons';
+import { Camera, X, Plus } from '@/Lib/icons';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
@@ -144,12 +144,13 @@ function TagInput({
                 />
                 <Button
                     type="button"
-                    variant="outline"
-                    size="sm"
+                    variant="secondary"
+                    size="icon"
                     onClick={addTag}
                     disabled={!inputValue.trim()}
+                    className="h-10 w-10 shrink-0"
                 >
-                    Add
+                    <Plus className="h-4 w-4" />
                 </Button>
             </div>
             {tags.length > 0 && (

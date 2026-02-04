@@ -363,13 +363,12 @@ function DashboardCard({
         </div>
         {/* Title */}
         <h3
-          className="font-semibold"
-          style={{ fontSize: '16px', fontWeight: 600, lineHeight: '24px', color: '#171717', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+          className="text-sm font-semibold leading-5 text-[#171717] truncate"
         >
           {title}
         </h3>
         {/* Subtitle */}
-        <p className="text-xs font-medium" style={{ color: '#737373' }}>{subtitle}</p>
+        <p className="text-sm font-normal leading-5 text-[#737373]">{subtitle}</p>
       </div>
 
       {/* Action button */}
@@ -1383,10 +1382,10 @@ function ProfileStepItem({ step, isLast }: ProfileStepItemProps) {
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flexGrow: 1 }}>
-        <h3 className="font-semibold" style={{ fontSize: '16px', fontWeight: 600, lineHeight: '24px', color: '#171717', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        <h3 className="text-sm font-semibold leading-5 text-[#171717] truncate">
           {step.title}
         </h3>
-        <p className="font-medium" style={{ fontSize: '14px', fontWeight: 500, lineHeight: '20px', color: '#737373', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        <p className="text-sm font-normal leading-5 text-[#737373] truncate">
           {step.subtitle}
         </p>
       </div>
