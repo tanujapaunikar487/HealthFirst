@@ -8,6 +8,7 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
+  SheetBody,
   SheetTitle,
   SheetDescription,
   SheetDivider,
@@ -427,11 +428,11 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
 
       {/* Notifications Side Sheet */}
       <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col">
-          <SheetHeader className="mx-0 px-5 pt-5 mb-0">
+        <SheetContent side="right">
+          <SheetHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <SheetTitle className="text-lg font-bold" style={{ color: '#00184D' }}>
+                <SheetTitle>
                   Notifications
                 </SheetTitle>
                 {unreadCount > 0 && (
@@ -459,9 +460,9 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
               onValueChange={(v) => setNotifFilter(v as 'all' | 'unread')}
               className="mt-3"
             >
-              <TabsList className="w-full">
-                <TabsTrigger value="all" className="flex-1">All</TabsTrigger>
-                <TabsTrigger value="unread" className="flex-1">
+              <TabsList>
+                <TabsTrigger value="all">All</TabsTrigger>
+                <TabsTrigger value="unread">
                   Unread{unreadCount > 0 ? ` (${unreadCount})` : ''}
                 </TabsTrigger>
               </TabsList>
@@ -471,16 +472,15 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
           <SheetDivider />
 
           {/* Scrollable Notification List */}
-          <div className="flex-1 overflow-y-auto px-6 py-4">
+          <SheetBody>
             {displayedNotifications.length === 0 ? (
-              <div className="text-center py-16">
-                <div
-                  className="h-14 w-14 rounded-full flex items-center justify-center mx-auto mb-3"
-                  style={{ backgroundColor: '#F3F4F6' }}
-                >
-                  <Icon icon={Bell} className="h-6 w-6 text-gray-400" />
-                </div>
-                <p className="text-[14px] font-medium" style={{ color: '#00184D' }}>
+              <div className="text-center py-12">
+                <img
+                  src="/assets/images/notification.png"
+                  alt=""
+                  className="h-[120px] w-[120px] mx-auto mb-4"
+                />
+                <p className="text-[16px] font-medium" style={{ color: '#0A0B0D' }}>
                   {notifFilter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
                 </p>
                 <p className="text-[14px] text-muted-foreground mt-1">
@@ -500,7 +500,7 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
                 ))}
               </div>
             )}
-          </div>
+          </SheetBody>
         </SheetContent>
       </Sheet>
 

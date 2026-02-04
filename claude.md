@@ -153,7 +153,7 @@ OLLAMA_MODEL=qwen2.5:7b
 | Cards | 20px border-radius |
 | Primary | Blue (#1E40AF bg, #BFDBFE icons) |
 | Success/Warning/Error | Green/Amber/Red |
-| Sheets | Right-side, 1 primary button + 3-dot menu |
+| Sheets | 500px width, 24px radius, 20px padding (header/body/footer), 24px close icon, edge-to-edge dividers, right-side |
 | Badges | Pastel backgrounds, colored text |
 | Skeleton | 300ms min, 10s timeout |
 | EmptyState | #F5F5F5 bg, 24px/48px padding, content-based height, 20px radius, optional image |
@@ -240,6 +240,9 @@ All UI text uses **sentence case** (only first word capitalized):
 
 | Date | Feature |
 |------|---------|
+| Feb 5 | **Sheet Redesign**: 500px width, 24px radius, no container padding, 20px fixed padding on header/body/footer, 24px close icon in 40px button, edge-to-edge dividers. New components: SheetBody, SheetSection, SheetSectionRow |
+| Feb 5 | **SheetTitle**: Color #0A0B0D, 20px fixed font, 600 weight, 28px line-height, -0.05px letter-spacing |
+| Feb 5 | **Notifications Sheet**: Empty state uses notification.png at 120px, 16px title, tabs hug content instead of full-width |
 | Feb 5 | **Alert Component**: Standardized inline alerts across app using Alert component with CVA variants (info, warning, success, error) - blue/amber/green/red styling with 20px radius, 2px bottom border |
 | Feb 5 | **SideNav Padding**: Consistent 8px vertical, 12px horizontal padding (`padding: 8px 12px`), gap-3 between icon and text |
 | Feb 5 | **PaymentsTab UPI Empty State**: UPI section now matches Cards empty state style (centered icon, title, description, button in rounded card) |

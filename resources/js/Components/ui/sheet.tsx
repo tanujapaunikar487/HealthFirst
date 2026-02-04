@@ -26,7 +26,7 @@ const SheetOverlay = React.forwardRef<
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
 
 const sheetVariants = cva(
-  'fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out',
+  'fixed z-50 gap-4 bg-background shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out',
   {
     variants: {
       side: {
@@ -74,8 +74,8 @@ const SheetContent = React.forwardRef<
       }}
       {...props}
     >
-      <SheetPrimitive.Close className="absolute right-4 top-4 h-8 w-8 rounded-full border border-border bg-background flex items-center justify-center transition-colors hover:bg-muted focus:outline-none disabled:pointer-events-none data-[state=open]:bg-secondary">
-        <X className="h-4 w-4" />
+      <SheetPrimitive.Close className="absolute h-10 w-10 rounded-full border border-border bg-background flex items-center justify-center transition-colors hover:bg-muted focus:outline-none disabled:pointer-events-none data-[state=open]:bg-secondary" style={{ right: '20px', top: '20px' }}>
+        <X className="h-6 w-6" />
         <span className="sr-only">Close</span>
       </SheetPrimitive.Close>
       {children}
@@ -92,17 +92,17 @@ const SheetHeader = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & { onBack?: () => void }) => (
   <div
-    className={cn('flex flex-col space-y-2 text-center sm:text-left -mx-6 px-6 pb-4 border-b mb-4', className)}
-    style={style}
+    className={cn('flex flex-col space-y-2 text-center sm:text-left', className)}
+    style={{ padding: '20px', ...style }}
     {...props}
   >
     {onBack ? (
       <div className="flex items-start gap-3">
         <button
           onClick={onBack}
-          className="h-8 w-8 rounded-full border border-border bg-background flex items-center justify-center transition-colors hover:bg-muted flex-shrink-0 mt-0.5"
+          className="h-10 w-10 rounded-full border border-border bg-background flex items-center justify-center transition-colors hover:bg-muted flex-shrink-0 mt-0.5"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-5 w-5" />
         </button>
         <div className="flex-1 flex flex-col space-y-1">{children}</div>
       </div>
@@ -119,9 +119,10 @@ const SheetFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'flex items-center gap-2 -mx-6 px-6 pt-4 border-t mt-auto',
+      'flex items-center gap-2 border-t mt-auto',
       className
     )}
+    style={{ padding: '20px' }}
     {...props}
   />
 );
@@ -132,11 +133,78 @@ const SheetDivider = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn('-mx-6 border-b', className)}
+    className={cn('border-b', className)}
     {...props}
   />
 );
 SheetDivider.displayName = 'SheetDivider';
+
+/**
+ * SheetBody - Scrollable content area with horizontal padding.
+ */
+const SheetBody = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn('flex-1 overflow-y-auto', className)}
+    style={{ padding: '20px' }}
+    {...props}
+  />
+);
+SheetBody.displayName = 'SheetBody';
+
+/**
+ * SheetSection - Info-card style content display without border and horizontal padding.
+ * Use for displaying read-only data rows in sheets.
+ */
+interface SheetSectionProps extends React.HTMLAttributes<HTMLDivElement> {
+  title?: string;
+}
+
+const SheetSection = ({
+  title,
+  className,
+  children,
+  ...props
+}: SheetSectionProps) => (
+  <div className={cn('space-y-0', className)} {...props}>
+    {title && (
+      <h4 className="text-[14px] font-semibold text-[#171717] mb-3">{title}</h4>
+    )}
+    <div className="divide-y divide-border">
+      {children}
+    </div>
+  </div>
+);
+SheetSection.displayName = 'SheetSection';
+
+/**
+ * SheetSectionRow - A single row within SheetSection, matching info-card row style.
+ */
+interface SheetSectionRowProps extends React.HTMLAttributes<HTMLDivElement> {
+  label: string;
+  value?: React.ReactNode;
+}
+
+const SheetSectionRow = ({
+  label,
+  value,
+  className,
+  children,
+  ...props
+}: SheetSectionRowProps) => (
+  <div
+    className={cn('flex items-center justify-between py-3', className)}
+    {...props}
+  >
+    <span className="text-[14px] font-normal text-[#737373]">{label}</span>
+    <span className="text-[14px] font-medium text-[#171717] text-right">
+      {value ?? children ?? '—'}
+    </span>
+  </div>
+);
+SheetSectionRow.displayName = 'SheetSectionRow';
 
 const SheetTitle = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Title>,
@@ -144,7 +212,13 @@ const SheetTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Title
     ref={ref}
-    className={cn('text-lg font-semibold text-foreground', className)}
+    className={cn('font-semibold', className)}
+    style={{
+      color: '#0A0B0D',
+      fontSize: '20px',
+      lineHeight: '28px',
+      letterSpacing: '-0.05px',
+    }}
     {...props}
   />
 ));
@@ -170,8 +244,11 @@ export {
   SheetClose,
   SheetContent,
   SheetHeader,
+  SheetBody,
   SheetFooter,
   SheetDivider,
+  SheetSection,
+  SheetSectionRow,
   SheetTitle,
   SheetDescription,
 };
