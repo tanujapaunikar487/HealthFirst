@@ -25,12 +25,12 @@ const buttonVariants = cva(
         cta: 'bg-white text-[#00184D] hover:bg-white/95',
       },
       size: {
-        default: 'h-10 px-6 py-2 text-sm',
+        default: 'h-12 py-2 px-8 text-sm',
         sm: 'h-8 px-4 text-sm',
         md: 'h-10 px-6 text-sm',
-        lg: 'h-12 px-8 text-sm',
+        lg: 'h-12 py-2 px-8 text-sm',
         xl: 'h-14 px-8 text-sm',
-        cta: 'h-12 px-6 text-sm',
+        cta: 'h-12 py-2 px-8 text-sm',
         icon: 'h-10 w-10',
       },
       rounded: {

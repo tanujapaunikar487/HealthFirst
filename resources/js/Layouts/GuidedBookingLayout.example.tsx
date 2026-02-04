@@ -219,7 +219,7 @@ export function DoctorSelectionStep() {
         <div>
           <h1 className="text-2xl font-semibold mb-2">Choose your doctor</h1>
           <p className="text-sm text-muted-foreground">
-            12 doctors available for your consultation
+            12 doctors available for your appointment
           </p>
         </div>
 

@@ -1390,7 +1390,7 @@ function DischargeDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (
 
       {meta.discharge_medications && meta.discharge_medications.length > 0 && (
         <div>
-          <SectionTitle>Discharge Medications</SectionTitle>
+          <SectionTitle>Discharge Prescriptions</SectionTitle>
           <ol className="space-y-2">
             {meta.discharge_medications.map((med, i) => (
               <li key={i} className="text-sm flex items-start gap-3" style={{ color: '#374151' }}>
@@ -1695,7 +1695,7 @@ function PrescriptionDetail({ meta }: { meta: RecordMetadata }) {
     <div className="space-y-5">
       {meta.drugs && meta.drugs.length > 0 && (
         <div>
-          <SectionTitle>Medications</SectionTitle>
+          <SectionTitle>Prescriptions</SectionTitle>
           <div className="space-y-4">
             {meta.drugs.map((drug, i) => (
               <div key={i} className="rounded-lg border p-4">

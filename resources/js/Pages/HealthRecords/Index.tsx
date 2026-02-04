@@ -3,7 +3,6 @@ import { router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { EmptyState } from '@/Components/ui/empty-state';
-import { CtaBanner } from '@/Components/ui/cta-banner';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
@@ -727,7 +726,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
               { value: 'all', label: 'All' },
               { value: 'reports', label: 'Reports' },
               { value: 'visits', label: 'Visits' },
-              { value: 'medications', label: 'Medications' },
+              { value: 'medications', label: 'Prescriptions' },
               { value: 'documents', label: 'Documents' },
             ].map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value} className="gap-1.5">
@@ -880,7 +879,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                     </TableHead>
                     <TableHead className="w-[120px]">Date</TableHead>
                     <TableHead>Details</TableHead>
-                    <TableHead className="w-[120px]">Member</TableHead>
+                    <TableHead className="w-[120px]">Family member</TableHead>
                     <TableHead className="w-[180px]">Status</TableHead>
                     <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
@@ -990,13 +989,10 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
         ) : (
           <div className="mt-6">
             {records.length === 0 ? (
-              <CtaBanner
-                heading="No health records yet"
-                description="Book an appointment to get started with your health journey."
-                buttonText="Book Appointment"
-                buttonHref="/booking"
-                imageSrc="/assets/illustrations/cta-banner.svg"
-                imageAlt="Health records illustration"
+              <EmptyState
+                image="/assets/images/health-records.png"
+                message="No health records yet"
+                description="Lab reports, prescriptions, and visit summaries will appear here after your appointments."
               />
             ) : (
               <EmptyState

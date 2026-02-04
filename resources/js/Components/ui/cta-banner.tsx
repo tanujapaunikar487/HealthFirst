@@ -2,6 +2,8 @@ import * as React from 'react';
 import { cn } from '@/Lib/utils';
 import { Button } from '@/Components/ui/button';
 import { Link } from '@inertiajs/react';
+import { X } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 /**
  * CTA Banner Component
@@ -11,46 +13,17 @@ import { Link } from '@inertiajs/react';
  */
 
 export interface CtaBannerProps extends React.HTMLAttributes<HTMLDivElement> {
-  /**
-   * Main heading text
-   */
   heading: string;
-  /**
-   * Descriptive body text
-   */
   description: string;
-  /**
-   * Button text
-   */
   buttonText: string;
-  /**
-   * Button link href (optional if onClick provided)
-   */
   buttonHref?: string;
-  /**
-   * Button click handler (alternative to buttonHref)
-   */
   onButtonClick?: () => void;
-  /**
-   * Illustration image source
-   */
   imageSrc: string;
-  /**
-   * Alt text for the illustration
-   */
   imageAlt: string;
-  /**
-   * Background gradient (default: radial blue gradient)
-   */
   gradient?: string;
-  /**
-   * Minimum width (default: '800px')
-   */
   minWidth?: string;
-  /**
-   * Border radius (default: '20px')
-   */
   borderRadius?: string;
+  onDismiss?: () => void;
 }
 
 const CtaBanner = React.forwardRef<HTMLDivElement, CtaBannerProps>(
@@ -66,6 +39,7 @@ const CtaBanner = React.forwardRef<HTMLDivElement, CtaBannerProps>(
       gradient = 'radial-gradient(circle at center, #003EC1 0%, #00184D 100%)',
       minWidth = '800px',
       borderRadius = '20px',
+      onDismiss,
       className,
       ...props
     },
@@ -80,25 +54,30 @@ const CtaBanner = React.forwardRef<HTMLDivElement, CtaBannerProps>(
           width: '100%',
           borderRadius,
           background: gradient,
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          overflow: 'hidden',
           position: 'relative',
         }}
         {...props}
       >
-        {/* Left Content Container */}
+        {/* Dismiss Button */}
+        {onDismiss && (
+          <button
+            onClick={onDismiss}
+            className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 transition-colors z-20"
+          >
+            <Icon icon={X} className="h-4 w-4 text-white" />
+          </button>
+        )}
+
+        {/* Content Container - determines banner height */}
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
+            alignItems: 'flex-start',
             gap: '20px',
             padding: '32px',
-            flex: '0 0 auto',
+            position: 'relative',
             zIndex: 10,
-            alignItems: 'flex-start',
           }}
         >
           <div
@@ -128,7 +107,6 @@ const CtaBanner = React.forwardRef<HTMLDivElement, CtaBannerProps>(
                 fontSize: '14px',
                 fontWeight: 500,
                 lineHeight: '20px',
-                letterSpacing: '0px',
                 color: 'rgba(255, 255, 255, 0.8)',
                 margin: 0,
               }}
@@ -148,23 +126,28 @@ const CtaBanner = React.forwardRef<HTMLDivElement, CtaBannerProps>(
           )}
         </div>
 
-        {/* Right Illustration Container */}
+        {/* Image wrapper with its own overflow hidden */}
         <div
           style={{
             position: 'absolute',
-            right: '-100px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            height: '120%',
-            display: 'flex',
-            alignItems: 'center',
+            right: 0,
+            top: 0,
+            bottom: 0,
+            width: '45%',
+            overflow: 'hidden',
+            borderTopRightRadius: borderRadius,
+            borderBottomRightRadius: borderRadius,
+            pointerEvents: 'none',
           }}
         >
           <img
             src={imageSrc}
             alt={imageAlt}
             style={{
-              height: '100%',
+              position: 'absolute',
+              right: 0,
+              bottom: '-72px',
+              height: 'calc(100% + 72px)',
               width: 'auto',
               objectFit: 'contain',
             }}

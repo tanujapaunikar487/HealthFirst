@@ -316,7 +316,7 @@ export default function PatientStep({
         return {
           heading: "Any updates for the doctor?",
           description: "Share any changes since your last visit. This helps the doctor prepare.",
-          placeholder: "e.g., Symptoms improved, new medications started...",
+          placeholder: "e.g., Symptoms improved, new prescriptions started...",
         };
       case 'new_concern':
         return {
@@ -328,7 +328,7 @@ export default function PatientStep({
         return {
           heading: "How are your symptoms now?",
           description: "Describe what's still bothering you so the doctor can adjust treatment.",
-          placeholder: "e.g., Pain hasn't improved, medication side effects...",
+          placeholder: "e.g., Pain hasn't improved, prescription side effects...",
         };
       default:
         return {

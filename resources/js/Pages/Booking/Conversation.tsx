@@ -132,7 +132,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
           'new_concern': 'New concern related to previous visit',
           'ongoing_issue': 'Ongoing issue from before',
           'test_results': 'Discuss test results',
-          'medication_review': 'Medication review'
+          'medication_review': 'Prescription review'
         };
         return reasonMap[value.followup_reason] || value.followup_reason || 'Follow-up reason selected';
 

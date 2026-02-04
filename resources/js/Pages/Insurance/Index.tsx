@@ -685,9 +685,9 @@ export default function InsuranceIndex({
           <CtaBanner
             heading="Add your insurance policy"
             description="Add your insurance policy to use cashless benefits during admission at this hospital."
-            buttonText="Add Policy"
+            buttonText="Add insurance"
             onButtonClick={openAddPolicy}
-            imageSrc="/assets/illustrations/cta-banner.svg"
+            imageSrc="/assets/images/insurance.png"
             imageAlt="Insurance illustration"
           />
         ) : (
@@ -701,7 +701,7 @@ export default function InsuranceIndex({
                     <TableRow className="hover:bg-transparent">
                       <TableHead className="w-[140px]">Date</TableHead>
                       <TableHead>Details</TableHead>
-                      <TableHead className="w-[100px]">Members</TableHead>
+                      <TableHead className="w-[100px]">Family members</TableHead>
                       <TableHead className="w-[140px] text-right">Amount</TableHead>
                       <TableHead className="w-[140px]">Status</TableHead>
                       <TableHead className="w-[50px]" />
@@ -844,7 +844,7 @@ export default function InsuranceIndex({
                       <TableRow className="hover:bg-transparent">
                         <TableHead className="w-[120px]">Date</TableHead>
                         <TableHead>Details</TableHead>
-                        <TableHead className="w-[150px]">Member</TableHead>
+                        <TableHead className="w-[150px]">Family member</TableHead>
                         <TableHead className="w-[120px] text-right">Amount</TableHead>
                         <TableHead className="w-[120px]">Status</TableHead>
                         <TableHead className="w-[50px]" />

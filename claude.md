@@ -150,8 +150,23 @@ OLLAMA_MODEL=qwen2.5:7b
 | Sheets | Right-side, 1 primary button + 3-dot menu |
 | Badges | Pastel backgrounds, colored text |
 | Skeleton | 300ms min, 10s timeout |
-| EmptyState | #F5F5F5 bg, 60px padding, 500px height, 20px radius |
+| EmptyState | #F5F5F5 bg, 24px/48px padding, content-based height, 20px radius, optional image |
+| CtaBanner | Dark radial gradient, white text, illustration, used for empty pages |
 | Page Container | 960px max-width, 40px top/bottom padding |
+
+### Empty State Pattern
+
+Use CtaBanner (dark gradient, prominent CTA) only for action-first pages where users need to create something. Use standard EmptyState for info-first pages where content appears passively. Each page has one CTA max.
+
+| Page | Component | CTA |
+|------|-----------|-----|
+| **Appointments** | CtaBanner | "Book appointment" |
+| **Insurance** | CtaBanner | "Add insurance" |
+| **Family Members** | CtaBanner | "Add family member" |
+| **Health Records** | EmptyState | None (records appear after visits/tests) |
+| **Billing** | EmptyState | "Add payment method" |
+
+For filtered results that are empty, always use EmptyState with no CTA.
 
 ### Table Consistency
 
@@ -189,7 +204,16 @@ OLLAMA_MODEL=qwen2.5:7b
 
 | Date | Feature |
 |------|---------|
-| Feb 4 | EmptyState redesign: #F5F5F5 background, 60px padding, 500px height, 20px radius |
+| Feb 4 | **Terminology Consistency**: "Consultation" → "Appointment", "Medication" → "Prescription", "Member" → "Family member" across all pages |
+| Feb 4 | **Empty State Images**: Custom images for CtaBanner (booking, family, insurance) and EmptyState (health-records, billing) |
+| Feb 4 | **CtaBanner Enhancement**: Dismissible banners with onDismiss prop, image clipping at bottom (-72px offset) |
+| Feb 4 | **Button Styling**: Primary CTA large updated to 48px height, 8px/32px padding, full pill radius, #2563EB background |
+| Feb 4 | Dashboard promotional banner converted to use CtaBanner component |
+| Feb 4 | **Empty Page CTA Pattern**: CtaBanner for fully empty pages, header button hidden when empty |
+| Feb 4 | CtaBanner: Added `onButtonClick` prop for sheet-based actions (FamilyMembers, Insurance) |
+| Feb 4 | Profile step links: "Complete your health profile" now goes to /settings |
+| Feb 4 | EmptyState height reduced to 400px |
+| Feb 4 | EmptyState redesign: #F5F5F5 background, 60px padding, 20px radius |
 | Feb 4 | Page container padding reduced from 80px to 40px bottom |
 | Feb 4 | Sticky support footer: `mt-auto pt-8` pattern for bottom-anchored CTAs |
 | Feb 4 | **Extended Notifications**: 14 new notification types (appointments, health records, family members, insurance policies) with category-specific icons and navigation |

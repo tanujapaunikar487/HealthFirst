@@ -182,9 +182,9 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
           <CtaBanner
             heading="Add your first family member"
             description="Add family members to book appointments and manage health records for them."
-            buttonText="Add Member"
+            buttonText="Add family member"
             onButtonClick={openAddForm}
-            imageSrc="/assets/illustrations/cta-banner.svg"
+            imageSrc="/assets/images/family.png"
             imageAlt="Family members illustration"
           />
         ) : (

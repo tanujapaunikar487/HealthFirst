@@ -76,9 +76,9 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
         <div className="space-y-8">
             {/* Video Consultation Section */}
             <div>
-                <h3 className="text-lg font-semibold mb-1">Video Consultation</h3>
+                <h3 className="text-lg font-semibold mb-1">Video Appointment</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                    Choose your preferred video platform for online consultations
+                    Choose your preferred video platform for online appointments
                 </p>
 
                 <Card>

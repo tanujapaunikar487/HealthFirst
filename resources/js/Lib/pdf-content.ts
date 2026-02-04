@@ -397,7 +397,7 @@ function generatePrescriptionContent(meta: RecordMetadata): string {
       escapeHtml(drug.duration || '-'),
       escapeHtml(drug.instructions || '-'),
     ]);
-    html += buildSection('Medications', buildTableHtml(['Medication', 'Dosage', 'Frequency', 'Duration', 'Instructions'], rows));
+    html += buildSection('Prescriptions', buildTableHtml(['Prescription', 'Dosage', 'Frequency', 'Duration', 'Instructions'], rows));
   }
 
   if (meta.valid_until) {
@@ -625,7 +625,7 @@ function generateDischargeContent(meta: RecordMetadata): string {
       escapeHtml(med.dosage || '-'),
       escapeHtml(med.duration || '-'),
     ]);
-    html += buildSection('Discharge Medications', buildTableHtml(['Medication', 'Dosage', 'Duration'], rows));
+    html += buildSection('Discharge Prescriptions', buildTableHtml(['Prescription', 'Dosage', 'Duration'], rows));
   }
 
   // Instructions

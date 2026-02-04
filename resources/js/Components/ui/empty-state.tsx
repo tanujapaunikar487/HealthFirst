@@ -15,13 +15,12 @@ export function EmptyState({ image, icon: EmptyIcon, message, description, actio
       className="text-center flex flex-col items-center justify-center"
       style={{
         backgroundColor: '#F5F5F5',
-        padding: '60px',
-        height: '400px',
+        padding: '24px 24px 48px 24px',
         borderRadius: '20px',
       }}
     >
       {image ? (
-        <img src={image} alt="" className="h-40 w-auto mb-6" />
+        <img src={image} alt="" className="h-48 w-auto mb-2" />
       ) : EmptyIcon ? (
         <Icon icon={EmptyIcon} className="h-12 w-12 text-muted-foreground/30 mb-4" />
       ) : null}

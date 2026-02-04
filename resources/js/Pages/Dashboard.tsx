@@ -1190,43 +1190,16 @@ export default function Dashboard({
 
             {/* Promotional vaccination banner */}
             {activePromotion && (
-              <div
-                className="relative overflow-hidden w-full"
-                style={{
-                  height: '216px',
-                  background: activePromotion.bg_gradient,
-                  borderRadius: '24px',
-                }}
-              >
-                <button
-                  onClick={() => handleDismissPromotion(activePromotion.id)}
-                  className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 transition-colors z-10"
-                >
-                  <Icon icon={X} className="h-4 w-4 text-white" />
-                </button>
-                <div className="flex items-center justify-between h-full px-10">
-                  <div className="flex flex-col gap-3 max-w-md">
-                    <h3 className="text-white font-bold text-2xl leading-tight">
-                      {activePromotion.title}
-                    </h3>
-                    <p className="text-white/90 font-medium text-sm leading-relaxed">
-                      {activePromotion.description}
-                    </p>
-                    <Button asChild size="lg" className="bg-white text-[#171717] hover:bg-white/90 w-fit mt-2 font-semibold">
-                      <Link href={activePromotion.button_href}>
-                        {activePromotion.button_text}
-                      </Link>
-                    </Button>
-                  </div>
-                  {activePromotion.image_url && (
-                    <img
-                      src={activePromotion.image_url}
-                      alt={activePromotion.title}
-                      className="h-full object-contain"
-                    />
-                  )}
-                </div>
-              </div>
+              <CtaBanner
+                heading={activePromotion.title}
+                description={activePromotion.description}
+                buttonText={activePromotion.button_text}
+                buttonHref={activePromotion.button_href}
+                imageSrc={activePromotion.image_url}
+                imageAlt={activePromotion.title}
+                gradient={activePromotion.bg_gradient}
+                onDismiss={() => handleDismissPromotion(activePromotion.id)}
+              />
             )}
           </>
         )}
@@ -1341,7 +1314,7 @@ function generateICSFile(appt: UpcomingAppointment): void {
 
   const dtStart = formatICSDateTime(appt.date_formatted, appt.time);
   const dtEnd = calculateEndTime(appt.date_formatted, appt.time);
-  const location = appt.mode === 'Video' ? 'Video Consultation' : appt.subtitle;
+  const location = appt.mode === 'Video' ? 'Video Appointment' : appt.subtitle;
 
   const icsContent = [
     'BEGIN:VCALENDAR',

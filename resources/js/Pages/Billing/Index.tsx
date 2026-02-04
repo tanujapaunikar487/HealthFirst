@@ -3,7 +3,6 @@ import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading, SheetSkeleton } from '@/Components/ui/skeleton';
 import { EmptyState } from '@/Components/ui/empty-state';
-import { CtaBanner } from '@/Components/ui/cta-banner';
 import { Button } from '@/Components/ui/button';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { Input } from '@/Components/ui/input';
@@ -571,13 +570,15 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
         {/* Table or Empty State */}
         {filtered.length === 0 ? (
           bills.length === 0 ? (
-            <CtaBanner
-              heading="No bills yet"
-              description="Book an appointment to get started with your health journey."
-              buttonText="Book Appointment"
-              buttonHref="/booking"
-              imageSrc="/assets/illustrations/cta-banner.svg"
-              imageAlt="Billing illustration"
+            <EmptyState
+              image="/assets/images/billing.png"
+              message="No bills yet"
+              description="Invoices and payment history will appear here after your appointments."
+              action={
+                <Button asChild variant="secondary" size="md">
+                  <Link href="/settings">Add payment method</Link>
+                </Button>
+              }
             />
           ) : (
             <EmptyState
@@ -604,7 +605,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                     </TableHead>
                     <TableHead className="w-[150px]">Date</TableHead>
                     <TableHead>Details</TableHead>
-                    <TableHead className="w-[120px]">Member</TableHead>
+                    <TableHead className="w-[120px]">Family member</TableHead>
                     <TableHead className="w-[130px] text-right">Amount</TableHead>
                     <TableHead className="w-[140px]">Status</TableHead>
                     <TableHead className="w-[50px]" />

@@ -658,8 +658,8 @@ export default function FamilyMemberShow({
       href: `/health-records?member=${member.id}`,
     },
     {
-      title: 'Medications',
-      subtitle: 'Active and past medications',
+      title: 'Prescriptions',
+      subtitle: 'Active and past prescriptions',
       icon: Pill,
       href: `/health-records?member=${member.id}&category=medication_active,medication_past`,
     },

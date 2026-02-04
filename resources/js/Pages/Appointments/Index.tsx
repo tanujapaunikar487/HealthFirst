@@ -284,7 +284,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
             >
               <Link href="/booking" className="flex items-center gap-2">
                 <Icon icon={CalendarPlus} className="h-5 w-5" />
-                Book Appointment
+                Book appointment
               </Link>
             </Button>
           )}
@@ -293,11 +293,11 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
         {appointments.length === 0 ? (
           <CtaBanner
             heading="Book your first appointment"
-            description="Find doctors, book consultations, and manage your family's health — all in one place."
-            buttonText="Book Appointment"
+            description="Find doctors, book appointments, and manage your family's health — all in one place."
+            buttonText="Book appointment"
             buttonHref="/booking"
-            imageSrc="/assets/illustrations/cta-banner.svg"
-            imageAlt="Appointments illustration"
+            imageSrc="/assets/images/booking.png"
+            imageAlt="Book appointment illustration"
           />
         ) : (
         /* Tabs */
@@ -509,7 +509,7 @@ function AppointmentsTable({
           <TableRow className="hover:bg-transparent">
             <TableHead className="w-[180px]">Date</TableHead>
             <TableHead>Details</TableHead>
-            <TableHead className="w-[120px]">Member</TableHead>
+            <TableHead className="w-[120px]">Family member</TableHead>
             <TableHead className="w-[120px] text-right">Amount</TableHead>
             <TableHead className="w-[100px]">Status</TableHead>
             <TableHead className="w-[50px]" />

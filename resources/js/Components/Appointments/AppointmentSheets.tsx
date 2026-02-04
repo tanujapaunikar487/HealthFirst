@@ -383,7 +383,7 @@ export function DetailsSheet({
             <ul className="space-y-1.5 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
                 <span className="mt-1.5">•</span>
-                <span>Have medication list ready</span>
+                <span>Have prescription list ready</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1.5">•</span>

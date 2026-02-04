@@ -1014,9 +1014,9 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
             downloadAsHtml(`prescription-${appointmentId}.html`, `
               <h1>Prescription</h1>
               <p class="subtitle">${appointmentTitle} &middot; ${appointmentDate} &middot; ${appointmentTime}</p>
-              <h2>Medications</h2>
+              <h2>Prescriptions</h2>
               <table>
-                <thead><tr><th>Medication</th><th>Dosage</th><th>Frequency</th><th>Duration</th><th>Purpose</th></tr></thead>
+                <thead><tr><th>Prescription</th><th>Dosage</th><th>Frequency</th><th>Duration</th><th>Purpose</th></tr></thead>
                 <tbody>${rows}</tbody>
               </table>
             `);
@@ -1058,7 +1058,7 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
                   downloadAsHtml(`prescription-${rx.drug.toLowerCase().replace(/\s+/g, '-')}.pdf`, `
                     <h1>Prescription</h1>
                     <p class="subtitle">${appointmentTitle} &middot; ${appointmentDate} &middot; ${appointmentTime}</p>
-                    <h2>Medication</h2>
+                    <h2>Prescription</h2>
                     <table>
                       <thead><tr><th>Drug</th><th>Strength</th><th>Dosage</th><th>Frequency</th><th>Duration</th><th>Purpose</th></tr></thead>
                       <tbody><tr>
@@ -1386,7 +1386,7 @@ function FooterActions({ appointment }: { appointment: DetailedAppointment }) {
     <div className="flex items-center justify-between rounded-lg border p-4">
       <div>
         <p className="text-sm font-medium">
-          {ratingSubmitted ? 'Thank you for your feedback!' : 'Rate this consultation'}
+          {ratingSubmitted ? 'Thank you for your feedback!' : 'Rate this appointment'}
         </p>
         <p className="text-xs text-muted-foreground">
           {ratingSubmitted ? `You rated ${rating} out of 5 stars` : 'Your feedback helps us improve'}

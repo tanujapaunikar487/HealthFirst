@@ -182,12 +182,12 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                             />
                         </div>
 
-                        {/* Medication Reminders */}
+                        {/* Prescription Reminders */}
                         <div className="flex items-center justify-between p-4">
                             <div>
-                                <p className="font-medium">Medication Reminders</p>
+                                <p className="font-medium">Prescription Reminders</p>
                                 <p className="text-sm text-muted-foreground">
-                                    Daily reminders for your prescribed medications
+                                    Daily reminders for your prescriptions
                                 </p>
                             </div>
                             <Switch
