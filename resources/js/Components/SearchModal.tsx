@@ -308,7 +308,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
             autoComplete="off"
           />
           {loading && <Icon icon={Loader2} className="h-4 w-4 animate-spin text-muted-foreground flex-shrink-0" />}
-          {/* Single Clear Button - clears query first, then category */}
+          {/* Clear Button - shows "Clear" text when query exists */}
           {(query || category !== 'all') && !loading && (
             <button
               onClick={() => {
@@ -318,9 +318,10 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                   setCategory('all');
                 }
               }}
-              className="flex-shrink-0 text-muted-foreground hover:text-foreground"
+              className="flex-shrink-0 flex items-center gap-1 text-muted-foreground hover:text-foreground"
             >
               <Icon icon={X} className="h-4 w-4" />
+              {query && <span className="text-sm">Clear</span>}
             </button>
           )}
         </div>
