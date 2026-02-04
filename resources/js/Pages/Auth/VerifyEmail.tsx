@@ -37,7 +37,7 @@ export default function VerifyEmail({ status }: VerifyEmailProps) {
 
             <form onSubmit={submit} className="space-y-4">
                 <Button type="submit" className="w-full" disabled={processing}>
-                    {processing ? 'Sending...' : 'Resend Verification Email'}
+                    {processing ? 'Sending...' : 'Resend verification email'}
                 </Button>
 
                 <Link
@@ -46,7 +46,7 @@ export default function VerifyEmail({ status }: VerifyEmailProps) {
                     as="button"
                     className="w-full text-center block text-sm text-muted-foreground hover:underline"
                 >
-                    Sign Out
+                    Sign out
                 </Link>
             </form>
         </GuestLayout>

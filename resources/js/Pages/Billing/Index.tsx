@@ -3,6 +3,7 @@ import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading, SheetSkeleton } from '@/Components/ui/skeleton';
 import { EmptyState } from '@/Components/ui/empty-state';
+import { SupportFooter } from '@/Components/SupportFooter';
 import { Button } from '@/Components/ui/button';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { Input } from '@/Components/ui/input';
@@ -130,9 +131,9 @@ const STATUS_CONFIG: Record<BillingStatus, { label: string; color: string; bg: s
   due: { label: 'Due', color: 'text-red-600', bg: 'bg-red-50' },
   paid: { label: 'Paid', color: 'text-green-600', bg: 'bg-green-50' },
   refunded: { label: 'Refunded', color: 'text-gray-600', bg: 'bg-gray-100' },
-  awaiting_approval: { label: 'Awaiting Approval', color: 'text-amber-600', bg: 'bg-amber-50' },
-  claim_pending: { label: 'Claim Pending', color: 'text-amber-600', bg: 'bg-amber-50' },
-  copay_due: { label: 'Co-pay Due', color: 'text-red-600', bg: 'bg-red-50' },
+  awaiting_approval: { label: 'Awaiting approval', color: 'text-amber-600', bg: 'bg-amber-50' },
+  claim_pending: { label: 'Claim pending', color: 'text-amber-600', bg: 'bg-amber-50' },
+  copay_due: { label: 'Co-pay due', color: 'text-red-600', bg: 'bg-red-50' },
   emi: { label: 'EMI', color: 'text-blue-600', bg: 'bg-blue-50' },
   disputed: { label: 'Disputed', color: 'text-red-600', bg: 'bg-red-50' },
   covered: { label: 'Covered', color: 'text-green-600', bg: 'bg-green-50' },
@@ -145,7 +146,7 @@ const PAYABLE_STATUSES: BillingStatus[] = ['due', 'copay_due'];
 
 function BillingSkeleton() {
   return (
-    <div style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '40px' }}>
+    <div style={{ width: '100%', maxWidth: '960px' }}>
       <div className="mb-8">
         <Pulse className="h-9 w-32" />
       </div>
@@ -436,7 +437,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
       pageTitle="Billing"
       pageIcon="/assets/icons/billing.svg"
     >
-      <div className="min-h-full flex flex-col" style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '40px' }}>
+      <div className="min-h-full flex flex-col" style={{ width: '100%', maxWidth: '960px' }}>
         {/* Header */}
         <div className="mb-8">
           <h1
@@ -482,7 +483,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
               }}
             >
               <CreditCard className="h-3.5 w-3.5" />
-              Pay All
+              Pay all
             </Button>
           </div>
         )}
@@ -500,16 +501,16 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
         <div className="flex items-center gap-3 mb-4 flex-wrap">
           <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
             <SelectTrigger className="w-[200px] h-9">
-              <SelectValue placeholder="All Statuses" />
+              <SelectValue placeholder="All statuses" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="all">All statuses</SelectItem>
               <SelectItem value="due">Due</SelectItem>
               <SelectItem value="paid">Paid</SelectItem>
               <SelectItem value="refunded">Refunded</SelectItem>
-              <SelectItem value="awaiting_approval">Awaiting Approval</SelectItem>
-              <SelectItem value="claim_pending">Claim Pending</SelectItem>
-              <SelectItem value="copay_due">Co-pay Due</SelectItem>
+              <SelectItem value="awaiting_approval">Awaiting approval</SelectItem>
+              <SelectItem value="claim_pending">Claim pending</SelectItem>
+              <SelectItem value="copay_due">Co-pay due</SelectItem>
               <SelectItem value="emi">EMI</SelectItem>
               <SelectItem value="disputed">Disputed</SelectItem>
               <SelectItem value="covered">Covered</SelectItem>
@@ -519,10 +520,10 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
 
           <Select value={memberFilter} onValueChange={(v) => { setMemberFilter(v); setPage(1); }}>
             <SelectTrigger className="w-[180px] h-9">
-              <SelectValue placeholder="All Members" />
+              <SelectValue placeholder="All members" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Members</SelectItem>
+              <SelectItem value="all">All members</SelectItem>
               {familyMembers.map((m) => (
                 <SelectItem key={m.id} value={String(m.id)}>
                   {m.name}
@@ -753,15 +754,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
           </>
         )}
 
-        {/* Support CTA - always at bottom */}
-        <div className="mt-auto pt-8 py-6 text-center">
-          <p className="text-sm text-gray-600">
-            Need help with Billing?{' '}
-            <a href="mailto:support@healthfirst.in?subject=Billing Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
-              Contact support →
-            </a>
-          </p>
-        </div>
+        <SupportFooter pageName="Billing" />
       </div>
 
       {/* Payment Summary Sheet */}
@@ -790,7 +783,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                 <div className="h-16 w-16 rounded-full bg-green-50 flex items-center justify-center mb-4">
                   <CheckCircle2 className="h-8 w-8 text-green-600" />
                 </div>
-                <h3 className="text-lg font-semibold mb-1" style={{ color: '#171717' }}>Payment Successful</h3>
+                <h3 className="text-lg font-semibold mb-1" style={{ color: '#171717' }}>Payment successful</h3>
                 <p className="text-sm text-muted-foreground">
                   {activePayBills.length} {activePayBills.length === 1 ? 'bill' : 'bills'} paid — ₹{activePayTotal.toLocaleString()}
                 </p>

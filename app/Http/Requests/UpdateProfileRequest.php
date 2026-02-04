@@ -37,6 +37,14 @@ class UpdateProfileRequest extends FormRequest
             'date_of_birth' => ['nullable', 'date', 'before:today'],
             'gender' => ['nullable', 'string', 'in:male,female,other'],
 
+            // Health Info
+            'blood_group' => ['nullable', 'string', 'in:A+,A-,B+,B-,AB+,AB-,O+,O-'],
+            'primary_doctor_id' => ['nullable', 'integer', 'exists:doctors,id'],
+            'medical_conditions' => ['nullable', 'array'],
+            'medical_conditions.*' => ['string', 'max:100'],
+            'allergies' => ['nullable', 'array'],
+            'allergies.*' => ['string', 'max:100'],
+
             // Address
             'address_line_1' => ['nullable', 'string', 'max:255'],
             'address_line_2' => ['nullable', 'string', 'max:255'],

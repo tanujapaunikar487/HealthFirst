@@ -357,7 +357,7 @@ export function PreferencesTab({
                 <h3 className="text-lg font-semibold mb-4">Account</h3>
                 <Card>
                     <CardContent className="p-0 divide-y">
-                        {/* Change Password Row */}
+                        {/* Change password Row */}
                         <button
                             onClick={onOpenPasswordModal}
                             className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors text-left"
@@ -366,7 +366,7 @@ export function PreferencesTab({
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                                     <Lock className="h-5 w-5 text-muted-foreground" />
                                 </div>
-                                <span className="font-medium">Change Password</span>
+                                <span className="font-medium">Change password</span>
                             </div>
                             <ChevronRight className="h-5 w-5 text-muted-foreground" />
                         </button>
@@ -385,7 +385,7 @@ export function PreferencesTab({
                             <ChevronRight className="h-5 w-5 text-muted-foreground" />
                         </button>
 
-                        {/* Delete Account Row */}
+                        {/* Delete account Row */}
                         <button
                             onClick={() => setShowDeleteDialog(true)}
                             className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors text-left"
@@ -394,7 +394,7 @@ export function PreferencesTab({
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                                     <Trash2 className="h-5 w-5 text-muted-foreground" />
                                 </div>
-                                <span className="font-medium">Delete Account</span>
+                                <span className="font-medium">Delete account</span>
                             </div>
                             <ChevronRight className="h-5 w-5 text-muted-foreground" />
                         </button>
@@ -405,17 +405,17 @@ export function PreferencesTab({
             {/* Save Changes Button */}
             <div>
                 <Button onClick={handleSaveAll} disabled={saving} className="px-8">
-                    {saving ? 'Saving...' : 'Save Changes'}
+                    {saving ? 'Saving...' : 'Save changes'}
                 </Button>
             </div>
 
-            {/* Delete Account Dialog */}
+            {/* Delete account Dialog */}
             <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2 text-destructive">
                             <AlertTriangle className="h-5 w-5" />
-                            Delete Account
+                            Delete account
                         </DialogTitle>
                         <DialogDescription>
                             This action cannot be undone. This will permanently delete your account and
@@ -457,7 +457,7 @@ export function PreferencesTab({
                             onClick={handleDeleteAccount}
                             disabled={!deletePassword || deleting}
                         >
-                            {deleting ? 'Deleting...' : 'Delete Account'}
+                            {deleting ? 'Deleting...' : 'Delete account'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { EmptyState } from '@/Components/ui/empty-state';
+import { SupportFooter } from '@/Components/SupportFooter';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
@@ -400,8 +401,8 @@ function StatusBadge({ status }: { status: RecordStatus }) {
 
 function HealthRecordsSkeleton() {
   return (
-    <div style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '40px' }}>
-      <div className="flex items-start justify-between mb-6">
+    <div style={{ width: '100%', maxWidth: '960px' }}>
+      <div className="flex items-start justify-between mb-8">
         <div className="space-y-2">
           <Pulse className="h-9 w-48" />
           <Pulse className="h-4 w-64" />
@@ -705,9 +706,9 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
       pageTitle="Health Records"
       pageIcon="/assets/icons/records.svg"
     >
-      <div className="min-h-full flex flex-col" style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '40px' }}>
+      <div className="min-h-full flex flex-col" style={{ width: '100%', maxWidth: '960px' }}>
         {/* Header */}
-        <div className="flex items-start justify-between mb-6">
+        <div className="flex items-start justify-between mb-8">
           <div>
             <h1
               className="font-bold"
@@ -742,11 +743,11 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
           <div className="flex items-center gap-3 flex-wrap">
             <Select value={subCategoryFilter} onValueChange={setSubCategoryFilter}>
               <SelectTrigger className="w-[170px] h-9">
-                <SelectValue placeholder={activeTab === 'all' ? 'All Categories' : `All ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`} />
+                <SelectValue placeholder={activeTab === 'all' ? 'All categories' : `All ${activeTab}`} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">
-                  {activeTab === 'all' ? 'All Categories' : `All ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`}
+                  {activeTab === 'all' ? 'All categories' : `All ${activeTab}`}
                 </SelectItem>
                 {subCategoryOptions.map(([key, cfg]) => (
                   <SelectItem key={key} value={key}>{cfg.label}</SelectItem>
@@ -756,16 +757,16 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-[150px] h-9">
-                <SelectValue placeholder="All Statuses" />
+                <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="all">All statuses</SelectItem>
                 <SelectItem value="normal">Normal</SelectItem>
-                <SelectItem value="needs_attention">Needs Attention</SelectItem>
+                <SelectItem value="needs_attention">Needs attention</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="completed">Completed</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="follow_up_required">Follow-up Required</SelectItem>
+                <SelectItem value="follow_up_required">Follow-up required</SelectItem>
                 <SelectItem value="valid">Valid</SelectItem>
                 <SelectItem value="expired">Expired</SelectItem>
                 <SelectItem value="discontinued">Discontinued</SelectItem>
@@ -774,10 +775,10 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
 
             <Select value={memberFilter} onValueChange={setMemberFilter}>
               <SelectTrigger className="w-[150px] h-9">
-                <SelectValue placeholder="All Members" />
+                <SelectValue placeholder="All members" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Members</SelectItem>
+                <SelectItem value="all">All members</SelectItem>
                 <SelectItem value="self">Yourself</SelectItem>
                 {familyMembers.map((m) => (
                   <SelectItem key={m.id} value={String(m.id)}>
@@ -789,14 +790,14 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
 
             <Select value={datePreset} onValueChange={(v) => { setDatePreset(v); if (v !== 'custom') { setDateFrom(''); setDateTo(''); } }}>
               <SelectTrigger className="w-[150px] h-9">
-                <SelectValue placeholder="Any Time" />
+                <SelectValue placeholder="Any time" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="any">Any Time</SelectItem>
-                <SelectItem value="last_7">Last 7 Days</SelectItem>
-                <SelectItem value="last_30">Last 30 Days</SelectItem>
-                <SelectItem value="last_90">Last 3 Months</SelectItem>
-                <SelectItem value="custom">Custom Range</SelectItem>
+                <SelectItem value="any">Any time</SelectItem>
+                <SelectItem value="last_7">Last 7 days</SelectItem>
+                <SelectItem value="last_30">Last 30 days</SelectItem>
+                <SelectItem value="last_90">Last 3 months</SelectItem>
+                <SelectItem value="custom">Custom range</SelectItem>
               </SelectContent>
             </Select>
 
@@ -976,15 +977,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
               </div>
             </div>
 
-            {/* Support CTA */}
-            <div className="mt-auto pt-8 py-6 text-center">
-              <p className="text-sm text-gray-600">
-                Need help with Health Records?{' '}
-                <a href="mailto:support@healthfirst.in?subject=Health Records Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
-                  Contact support →
-                </a>
-              </p>
-            </div>
+            <SupportFooter pageName="Health Records" />
           </div>
         ) : (
           <div className="mt-6">

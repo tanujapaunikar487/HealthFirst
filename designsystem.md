@@ -35,13 +35,23 @@ Defined as CSS custom properties in `resources/css/app.css` and consumed via Tai
 ### Brand Colors (Hardcoded)
 | Color | Hex | Usage |
 |-------|-----|-------|
-| Primary Dark | #00184D | Headings, dark text |
 | Accent Blue | #0052FF | CTAs, active states, links |
 | Border Gray | #CED2DB | Borders, dividers |
-| Text Primary | #0A0B0D | Body text |
-| Text Secondary | #5B636E | Muted text |
 | Background Light | #EEF0F3, #F7F8F9, #F5F8FF | Section backgrounds |
 | Success | #EEFBF4 | Completed states |
+
+### Text Colors (Standard)
+
+Use these standardized text colors across all pages:
+
+| Background | Usage | Color | Tailwind |
+|------------|-------|-------|----------|
+| **Light** | Primary text | `#171717` | `text-neutral-900` |
+| **Light** | Secondary text | `#737373` | `text-neutral-500` |
+| **Dark** | Primary text | `#FFFFFF` | `text-white` |
+| **Dark** | Secondary text | `rgba(255,255,255,0.7)` | `text-white/70` |
+
+**Deprecated**: Avoid `#00184D`, `#0A0B0D`, `#5B636E`, `#6b7280` for text.
 
 ### Gradients
 - CTA Banner: radial-gradient(#003EC1, #00184D)
@@ -181,6 +191,28 @@ badge.default          // 'inline-flex items-center rounded-full border px-2.5 p
 
 ---
 
+## Capitalization
+
+All UI text uses **sentence case** (only first word capitalized):
+
+| Element | Example |
+|---------|---------|
+| Page titles | "Health records", "Family members" |
+| Section headings | "Upcoming appointments", "Past claims" |
+| Buttons | "Book appointment", "Save changes" |
+| Tab labels | "Upcoming", "Outstanding", "Profile" |
+| Table headers | "Family member", "Date", "Details" |
+| Badge/status text | "Paid", "Awaiting approval", "Co-pay due" |
+| Select placeholders | "All doctors", "All statuses" |
+| Empty states | "No upcoming appointments" |
+
+**Exceptions (keep original case)**:
+- Acronyms: EMI, OTP, ICU, EOB
+- Proper nouns and brand names
+- Single words already correct: "Cancel", "Done"
+
+---
+
 ## Rules
 
 ### DO
@@ -189,6 +221,9 @@ badge.default          // 'inline-flex items-center rounded-full border px-2.5 p
 - Use semantic colors: `text-primary`, `bg-secondary`, `text-muted-foreground`
 - Use standard radius: `rounded-lg`, `rounded-md`, `rounded-full`
 - Use shadcn components: `<Card>`, `<Badge>`, `<Button>`
+- Use sentence case for all UI text
+- Use `#171717` / `#737373` for light background text
+- Use `#FFFFFF` / `rgba(255,255,255,0.7)` for dark background text
 
 ### DON'T
 - No arbitrary values: `rounded-[12px]`, `p-[18px]`
@@ -196,3 +231,4 @@ badge.default          // 'inline-flex items-center rounded-full border px-2.5 p
 - No custom shadows
 - No font-bold for UI text (use font-medium or font-semibold)
 - No skipping borders on cards
+- No Title Case for buttons/headings (use sentence case)

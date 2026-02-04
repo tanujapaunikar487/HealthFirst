@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/Components/ui/dropdown-menu';
 import { cn } from '@/Lib/utils';
+import { SupportFooter } from '@/Components/SupportFooter';
 import {
   ArrowLeft,
   Download,
@@ -352,7 +353,7 @@ function StatusAlertBanner({ bill }: { bill: Bill }) {
 
 function BillingShowSkeleton() {
   return (
-    <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
+    <div className="w-full max-w-[960px]">
       {/* Back link */}
       <Pulse className="h-4 w-16 mb-6" />
       {/* Page Header */}
@@ -576,7 +577,7 @@ export default function Show({ user, bill }: Props) {
 
   return (
     <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing.svg">
-      <div className="w-full max-w-[960px] min-h-full flex flex-col" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
+      <div className="w-full max-w-[960px] min-h-full flex flex-col">
 
         {/* ─── Back Link ─── */}
         <button
@@ -1067,15 +1068,7 @@ export default function Show({ user, bill }: Props) {
           </div>
         </div>
 
-        {/* Support CTA - always at bottom */}
-        <div className="mt-auto pt-8 py-6 text-center">
-          <p className="text-sm text-gray-600">
-            Need help with this bill?{' '}
-            <a href="mailto:support@healthfirst.in?subject=Billing Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
-              Contact support →
-            </a>
-          </p>
-        </div>
+        <SupportFooter pageName="this bill" />
       </div>
 
       {/* Dispute Dialog */}
@@ -1094,7 +1087,7 @@ export default function Show({ user, bill }: Props) {
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
               <AlertTriangle className="h-6 w-6 text-amber-600" />
             </div>
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">Raise a Dispute?</h3>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">Raise a dispute?</h3>
             <p className="mb-4 text-sm text-gray-500">
               Our team will review your dispute within 3–5 business days. Payment will be paused during review.
             </p>
@@ -1144,7 +1137,7 @@ export default function Show({ user, bill }: Props) {
                   });
                 }}
               >
-                {disputeLoading ? 'Submitting...' : 'Submit Dispute'}
+                {disputeLoading ? 'Submitting...' : 'Submit dispute'}
               </Button>
             </div>
           </div>

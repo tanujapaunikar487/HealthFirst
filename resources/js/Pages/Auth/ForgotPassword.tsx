@@ -56,7 +56,7 @@ export default function ForgotPassword({ status }: ForgotPasswordProps) {
                 </div>
 
                 <Button type="submit" className="w-full" disabled={processing}>
-                    {processing ? 'Sending...' : 'Send Reset Link'}
+                    {processing ? 'Sending...' : 'Send reset link'}
                 </Button>
 
                 <p className="text-center text-sm text-muted-foreground">

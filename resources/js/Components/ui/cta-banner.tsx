@@ -107,7 +107,7 @@ const CtaBanner = React.forwardRef<HTMLDivElement, CtaBannerProps>(
                 fontSize: '14px',
                 fontWeight: 500,
                 lineHeight: '20px',
-                color: 'rgba(255, 255, 255, 0.8)',
+                color: 'rgba(255, 255, 255, 0.7)',
                 margin: 0,
               }}
             >

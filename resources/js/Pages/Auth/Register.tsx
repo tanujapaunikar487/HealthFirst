@@ -96,7 +96,7 @@ export default function Register() {
                 </div>
 
                 <Button type="submit" className="w-full" disabled={processing}>
-                    {processing ? 'Creating account...' : 'Create Account'}
+                    {processing ? 'Creating account...' : 'Create account'}
                 </Button>
 
                 <p className="text-center text-sm text-muted-foreground">

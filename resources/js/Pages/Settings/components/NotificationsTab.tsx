@@ -258,7 +258,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
             {/* Save Button */}
             <div>
                 <Button onClick={handleSave} disabled={saving} className="px-8">
-                    {saving ? 'Saving...' : 'Save Changes'}
+                    {saving ? 'Saving...' : 'Save changes'}
                 </Button>
             </div>
         </div>

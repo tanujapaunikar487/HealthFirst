@@ -181,6 +181,30 @@ For filtered results that are empty, always use EmptyState with no CTA.
 | Empty Values | Show `—` (em dash) |
 | Amount | Right-aligned; `₹X,XXX` format |
 
+### Text Color Standards
+
+| Background | Usage | Color | Tailwind |
+|------------|-------|-------|----------|
+| Light | Primary text | `#171717` | `text-neutral-900` |
+| Light | Secondary text | `#737373` | `text-neutral-500` |
+| Dark | Primary text | `#FFFFFF` | `text-white` |
+| Dark | Secondary text | `rgba(255,255,255,0.7)` | `text-white/70` |
+
+### Capitalization (Sentence Case)
+
+All UI text uses **sentence case** (only first word capitalized):
+
+| Element | Example |
+|---------|---------|
+| Page titles | "Health records", "Family members" |
+| Buttons | "Book appointment", "Save changes" |
+| Tab labels | "Upcoming", "Outstanding" |
+| Table headers | "Family member", "Date" |
+| Badge/status | "Paid", "Awaiting approval" |
+| Placeholders | "All doctors", "Search appointments..." |
+
+**Exceptions**: Acronyms (EMI, OTP), proper nouns, brand names
+
 ---
 
 ## Technical Decisions
@@ -204,6 +228,7 @@ For filtered results that are empty, always use EmptyState with no CTA.
 
 | Date | Feature |
 |------|---------|
+| Feb 4 | **Sentence Case Standardization**: All buttons and headings converted to sentence case (e.g., "Book Appointment" → "Book appointment", "Save Changes" → "Save changes") for better UX and modern design alignment |
 | Feb 4 | **Terminology Consistency**: "Consultation" → "Appointment", "Medication" → "Prescription", "Member" → "Family member" across all pages |
 | Feb 4 | **Empty State Images**: Custom images for CtaBanner (booking, family, insurance) and EmptyState (health-records, billing) |
 | Feb 4 | **CtaBanner Enhancement**: Dismissible banners with onDismiss prop, image clipping at bottom (-72px offset) |

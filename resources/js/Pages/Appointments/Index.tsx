@@ -4,6 +4,7 @@ import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading, SheetSkeleton } from '@/Components/ui/skeleton';
 import { EmptyState } from '@/Components/ui/empty-state';
 import { CtaBanner } from '@/Components/ui/cta-banner';
+import { SupportFooter } from '@/Components/SupportFooter';
 import { Badge } from '@/Components/ui/badge';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { Button } from '@/Components/ui/button';
@@ -88,7 +89,7 @@ interface Props {
 
 function AppointmentsSkeleton() {
   return (
-    <div style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '40px' }}>
+    <div style={{ width: '100%', maxWidth: '960px' }}>
       <div className="flex items-center justify-between mb-8">
         <Pulse className="h-9 w-48" />
         <Pulse className="h-10 w-40 rounded-full" />
@@ -262,7 +263,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
       pageTitle="Appointments"
       pageIcon="/assets/icons/appointment.svg"
     >
-      <div className="min-h-full flex flex-col" style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '40px' }}>
+      <div className="min-h-full flex flex-col" style={{ width: '100%', maxWidth: '960px' }}>
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h1
@@ -335,10 +336,10 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
               {doctors.length > 0 && (
                 <Select value={doctorFilter} onValueChange={setDoctorFilter}>
                   <SelectTrigger className="w-[180px] h-9">
-                    <SelectValue placeholder="All Doctors" />
+                    <SelectValue placeholder="All doctors" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Doctors</SelectItem>
+                    <SelectItem value="all">All doctors</SelectItem>
                     {doctors.map((d) => (
                       <SelectItem key={d.id} value={String(d.id)}>
                         {d.name}
@@ -349,10 +350,10 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
               )}
               <Select value={memberFilter} onValueChange={setMemberFilter}>
                 <SelectTrigger className="w-[180px] h-9">
-                  <SelectValue placeholder="All Members" />
+                  <SelectValue placeholder="All members" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Members</SelectItem>
+                  <SelectItem value="all">All members</SelectItem>
                   {familyMembers.map((m) => (
                     <SelectItem key={m.id} value={String(m.id)}>
                       {m.name} ({m.relation})
@@ -396,15 +397,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
         </Tabs>
         )}
 
-        {/* Support CTA - always at bottom */}
-        <div className="mt-auto pt-8 py-6 text-center">
-          <p className="text-sm text-gray-600">
-            Need help with Appointments?{' '}
-            <a href="mailto:support@healthfirst.in?subject=Appointments Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
-              Contact support →
-            </a>
-          </p>
-        </div>
+        <SupportFooter pageName="Appointments" />
       </div>
 
       {/* Side Sheets */}
@@ -594,7 +587,7 @@ function PaymentStatusTag({ status }: { status: string }) {
   const config: Record<string, { label: string; color: string }> = {
     paid: { label: 'Paid', color: 'text-green-600' },
     pending: { label: 'Pending', color: 'text-amber-600' },
-    partially_refunded: { label: 'Partially Refunded', color: 'text-amber-600' },
+    partially_refunded: { label: 'Partially refunded', color: 'text-amber-600' },
     fully_refunded: { label: 'Refunded', color: 'text-red-600' },
   };
 

@@ -16,6 +16,7 @@ import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
 import { downloadAsHtml } from '@/Lib/download';
 import { FollowUpSheet, BookAgainSheet, Appointment as AppointmentBase } from '@/Components/Appointments/AppointmentSheets';
+import { SupportFooter } from '@/Components/SupportFooter';
 import { ShareSheet } from '@/Components/ui/share-sheet';
 import {
   DropdownMenu,
@@ -225,7 +226,7 @@ export default function Show({ user, appointment }: Props) {
   if (!appointment?.id) {
     return (
       <AppLayout user={user} pageTitle="Appointment Details" pageIcon="/assets/icons/appointment.svg">
-        <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
+        <div className="w-full max-w-[960px]">
           <SkeletonPage />
         </div>
       </AppLayout>
@@ -257,7 +258,7 @@ export default function Show({ user, appointment }: Props) {
 
   return (
     <AppLayout user={user} pageTitle="Appointment Details" pageIcon="/assets/icons/appointment.svg">
-      <div className="w-full max-w-[960px] min-h-full flex flex-col" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
+      <div className="w-full max-w-[960px] min-h-full flex flex-col">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-4">
           <Link href="/appointments" className="hover:text-foreground transition-colors">
@@ -374,15 +375,7 @@ export default function Show({ user, appointment }: Props) {
           </div>
         </div>
 
-        {/* Support CTA - always at bottom */}
-        <div className="mt-auto pt-8 py-6 text-center">
-          <p className="text-sm text-gray-600">
-            Need help with this appointment?{' '}
-            <a href="mailto:support@healthfirst.in?subject=Appointment Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
-              Contact support →
-            </a>
-          </p>
-        </div>
+        <SupportFooter pageName="this appointment" />
       </div>
 
       {/* PDF Preview Sheet */}
@@ -1117,7 +1110,7 @@ function LabTestsSection({ tests, onSelect }: { tests: LabTest[]; onSelect?: (te
         tests.some((t) => t.status === 'pending') ? (
           <Link href="/booking/lab/patient">
             <Button variant="outline" size="sm" className="text-xs">
-              Book Pending Tests
+              Book pending tests
             </Button>
           </Link>
         ) : undefined

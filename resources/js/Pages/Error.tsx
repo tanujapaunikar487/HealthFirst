@@ -74,7 +74,7 @@ export default function Error({ status, message }: Props) {
               <Link href="/dashboard">
                 <Button variant="outline">
                   <Icon icon={ArrowLeft} className="h-4 w-4" />
-                  Go Home
+                  Go home
                 </Button>
               </Link>
             </>
@@ -88,7 +88,7 @@ export default function Error({ status, message }: Props) {
               </Button>
               <Link href="/dashboard">
                 <Button variant="outline">
-                  Go Home
+                  Go home
                 </Button>
               </Link>
             </>

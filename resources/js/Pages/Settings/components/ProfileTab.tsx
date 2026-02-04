@@ -1,9 +1,10 @@
-import { useState, useRef, ChangeEvent } from 'react';
+import { useState, useRef, ChangeEvent, useMemo } from 'react';
 import { router } from '@inertiajs/react';
-import { Camera } from '@/Lib/icons';
+import { Camera, X } from '@/Lib/icons';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
+import { Badge } from '@/Components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import {
     Select,
@@ -13,6 +14,7 @@ import {
     SelectValue,
 } from '@/Components/ui/select';
 import { PhoneInput } from '@/Components/ui/phone-input';
+import { INDIAN_STATES, getCitiesForState } from '@/Lib/locations';
 import { toast } from 'sonner';
 
 interface FamilyMember {
@@ -22,6 +24,12 @@ interface FamilyMember {
     phone: string | null;
 }
 
+interface DoctorOption {
+    id: number;
+    name: string;
+    specialization: string;
+}
+
 interface User {
     id: string;
     name: string;
@@ -29,6 +37,7 @@ interface User {
     phone: string | null;
     date_of_birth: string | null;
     gender: string | null;
+    blood_group: string | null;
     avatar_url: string | null;
     address_line_1: string | null;
     address_line_2: string | null;
@@ -36,6 +45,9 @@ interface User {
     state: string | null;
     pincode: string | null;
     patient_id?: string;
+    primary_doctor_id: number | null;
+    medical_conditions: string[];
+    allergies: string[];
     emergency_contact_type: 'family_member' | 'custom' | null;
     emergency_contact_member_id: number | null;
     emergency_contact_name: string | null;
@@ -46,7 +58,10 @@ interface User {
 interface ProfileTabProps {
     user: User;
     familyMembers: FamilyMember[];
+    doctors: DoctorOption[];
 }
+
+const bloodGroupOptions = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as const;
 
 function getInitials(name: string): string {
     return name
@@ -68,7 +83,79 @@ function splitName(fullName: string): { firstName: string; lastName: string } {
     };
 }
 
-export function ProfileTab({ user, familyMembers: _familyMembers }: ProfileTabProps) {
+/* ─── Tag Input ─── */
+
+function TagInput({
+    tags,
+    onChange,
+    placeholder,
+    variant = 'default',
+}: {
+    tags: string[];
+    onChange: (tags: string[]) => void;
+    placeholder: string;
+    variant?: 'default' | 'destructive';
+}) {
+    const [inputValue, setInputValue] = useState('');
+
+    function addTag() {
+        const trimmed = inputValue.trim();
+        if (trimmed && !tags.includes(trimmed)) {
+            onChange([...tags, trimmed]);
+        }
+        setInputValue('');
+    }
+
+    function removeTag(index: number) {
+        onChange(tags.filter((_, i) => i !== index));
+    }
+
+    return (
+        <div>
+            {tags.length > 0 && (
+                <div className="mb-2 flex flex-wrap gap-1.5">
+                    {tags.map((tag, i) => (
+                        <Badge key={i} variant={variant} className="gap-1 pr-1">
+                            {tag}
+                            <button
+                                type="button"
+                                onClick={() => removeTag(i)}
+                                className="ml-0.5 rounded-full p-0.5 hover:bg-black/10"
+                            >
+                                <X className="h-3 w-3" />
+                            </button>
+                        </Badge>
+                    ))}
+                </div>
+            )}
+            <div className="flex gap-2">
+                <Input
+                    value={inputValue}
+                    onChange={e => setInputValue(e.target.value)}
+                    onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            addTag();
+                        }
+                    }}
+                    placeholder={placeholder}
+                    className="flex-1"
+                />
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addTag}
+                    disabled={!inputValue.trim()}
+                >
+                    Add
+                </Button>
+            </div>
+        </div>
+    );
+}
+
+export function ProfileTab({ user, familyMembers: _familyMembers, doctors = [] }: ProfileTabProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatar_url);
     const [uploading, setUploading] = useState(false);
@@ -84,15 +171,34 @@ export function ProfileTab({ user, familyMembers: _familyMembers }: ProfileTabPr
         phone: user.phone || '',
         date_of_birth: user.date_of_birth || '',
         gender: user.gender || '',
-        address: [user.address_line_1, user.address_line_2, user.city, user.state, user.pincode]
-            .filter(Boolean)
-            .join(', ') || '',
+        blood_group: user.blood_group || '',
+        address_line_1: user.address_line_1 || '',
+        address_line_2: user.address_line_2 || '',
+        state: user.state || '',
+        city: user.city || '',
+        pincode: user.pincode || '',
+        primary_doctor_id: user.primary_doctor_id?.toString() || '',
+        medical_conditions: user.medical_conditions || [],
+        allergies: user.allergies || [],
         emergency_contact_name: user.emergency_contact_name || '',
         emergency_contact_relation: user.emergency_contact_relation || '',
         emergency_contact_phone: user.emergency_contact_phone || '',
     });
 
-    const handleInputChange = (field: string, value: string) => {
+    // Get available cities based on selected state
+    const availableCities = useMemo(() => {
+        return formData.state ? getCitiesForState(formData.state) : [];
+    }, [formData.state]);
+
+    // Handle state change - clear city when state changes
+    const handleStateChange = (newState: string) => {
+        setFormData({ ...formData, state: newState, city: '' });
+        if (errors.state) {
+            setErrors({ ...errors, state: '' });
+        }
+    };
+
+    const handleInputChange = (field: string, value: string | string[]) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
         if (errors[field]) {
             setErrors((prev) => {
@@ -167,7 +273,15 @@ export function ProfileTab({ user, familyMembers: _familyMembers }: ProfileTabPr
                 phone: formData.phone,
                 date_of_birth: formData.date_of_birth,
                 gender: formData.gender,
-                address_line_1: formData.address,
+                blood_group: formData.blood_group,
+                address_line_1: formData.address_line_1,
+                address_line_2: formData.address_line_2,
+                state: formData.state,
+                city: formData.city,
+                pincode: formData.pincode,
+                primary_doctor_id: formData.primary_doctor_id ? Number(formData.primary_doctor_id) : null,
+                medical_conditions: formData.medical_conditions.length > 0 ? formData.medical_conditions : null,
+                allergies: formData.allergies.length > 0 ? formData.allergies : null,
                 emergency_contact_type: 'custom',
                 emergency_contact_name: formData.emergency_contact_name,
                 emergency_contact_relation: formData.emergency_contact_relation,
@@ -224,12 +338,12 @@ export function ProfileTab({ user, familyMembers: _familyMembers }: ProfileTabPr
 
             {/* Personal Information */}
             <div className="space-y-6">
-                <h3 className="text-lg font-semibold">Personal Information</h3>
+                <h3 className="text-lg font-semibold">Personal information</h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
                     {/* First Name */}
                     <div className="space-y-2">
-                        <Label htmlFor="first_name">First Name</Label>
+                        <Label htmlFor="first_name">First name</Label>
                         <Input
                             id="first_name"
                             value={formData.first_name}
@@ -240,7 +354,7 @@ export function ProfileTab({ user, familyMembers: _familyMembers }: ProfileTabPr
 
                     {/* Last Name */}
                     <div className="space-y-2">
-                        <Label htmlFor="last_name">Last Name</Label>
+                        <Label htmlFor="last_name">Last name</Label>
                         <Input
                             id="last_name"
                             value={formData.last_name}
@@ -250,7 +364,7 @@ export function ProfileTab({ user, familyMembers: _familyMembers }: ProfileTabPr
 
                     {/* Email Address */}
                     <div className="space-y-2">
-                        <Label htmlFor="email">Email Address</Label>
+                        <Label htmlFor="email">Email address</Label>
                         <Input
                             id="email"
                             type="email"
@@ -262,7 +376,7 @@ export function ProfileTab({ user, familyMembers: _familyMembers }: ProfileTabPr
 
                     {/* Phone Number */}
                     <div className="space-y-2">
-                        <Label htmlFor="phone">Phone Number</Label>
+                        <Label htmlFor="phone">Phone number</Label>
                         <PhoneInput
                             value={formData.phone}
                             onChange={(value) => handleInputChange('phone', value)}
@@ -272,7 +386,7 @@ export function ProfileTab({ user, familyMembers: _familyMembers }: ProfileTabPr
 
                     {/* Date of Birth */}
                     <div className="space-y-2">
-                        <Label htmlFor="dob">Date of Birth</Label>
+                        <Label htmlFor="dob">Date of birth</Label>
                         <Input
                             id="dob"
                             type="date"
@@ -299,31 +413,155 @@ export function ProfileTab({ user, familyMembers: _familyMembers }: ProfileTabPr
                             </SelectContent>
                         </Select>
                     </div>
-                </div>
 
-                {/* Address - Full Width */}
-                <div className="space-y-2">
-                    <Label htmlFor="address">Address</Label>
-                    <Input
-                        id="address"
-                        value={formData.address}
-                        onChange={(e) => handleInputChange('address', e.target.value)}
-                        placeholder="Enter your full address"
-                    />
+                    {/* Blood Group */}
+                    <div className="space-y-2">
+                        <Label>Blood group</Label>
+                        <Select
+                            value={formData.blood_group}
+                            onValueChange={(v) => handleInputChange('blood_group', v)}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select blood group" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {bloodGroupOptions.map((bg) => (
+                                    <SelectItem key={bg} value={bg}>{bg}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    {/* Primary Doctor */}
+                    {doctors.length > 0 && (
+                        <div className="space-y-2">
+                            <Label>Primary doctor</Label>
+                            <Select
+                                value={formData.primary_doctor_id}
+                                onValueChange={(v) => handleInputChange('primary_doctor_id', v)}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select doctor (optional)" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {doctors.map((d) => (
+                                        <SelectItem key={d.id} value={d.id.toString()}>
+                                            {d.name} — {d.specialization}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Address */}
+            <div className="space-y-6">
+                <h3 className="text-lg font-semibold">Address</h3>
+
+                <div className="space-y-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+                        <div className="space-y-2">
+                            <Label htmlFor="address_line_1">Address line 1</Label>
+                            <Input
+                                id="address_line_1"
+                                value={formData.address_line_1}
+                                onChange={(e) => handleInputChange('address_line_1', e.target.value)}
+                                placeholder="Street address"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="address_line_2">Address line 2</Label>
+                            <Input
+                                id="address_line_2"
+                                value={formData.address_line_2}
+                                onChange={(e) => handleInputChange('address_line_2', e.target.value)}
+                                placeholder="Landmark, area"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-5">
+                        <div className="space-y-2">
+                            <Label>State</Label>
+                            <Select value={formData.state} onValueChange={handleStateChange}>
+                                <SelectTrigger className={!formData.state ? 'text-muted-foreground' : ''}>
+                                    <SelectValue placeholder="Select state" />
+                                </SelectTrigger>
+                                <SelectContent className="max-h-[300px]">
+                                    {INDIAN_STATES.map((s) => (
+                                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>City</Label>
+                            <Select
+                                value={formData.city}
+                                onValueChange={(v) => handleInputChange('city', v)}
+                                disabled={!formData.state}
+                            >
+                                <SelectTrigger className={!formData.city && formData.state ? 'text-muted-foreground' : ''}>
+                                    <SelectValue placeholder={formData.state ? "Select city" : "Select state first"} />
+                                </SelectTrigger>
+                                <SelectContent className="max-h-[300px]">
+                                    {availableCities.map((c: string) => (
+                                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="pincode">Pincode</Label>
+                            <Input
+                                id="pincode"
+                                value={formData.pincode}
+                                onChange={(e) => handleInputChange('pincode', e.target.value)}
+                                placeholder="Pincode"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Medical Information */}
+            <div className="space-y-6">
+                <h3 className="text-lg font-semibold">Medical information</h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+                    <div className="space-y-2">
+                        <Label>Medical conditions</Label>
+                        <TagInput
+                            tags={formData.medical_conditions}
+                            onChange={(tags) => handleInputChange('medical_conditions', tags)}
+                            placeholder="e.g. Diabetes, Hypertension"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Allergies</Label>
+                        <TagInput
+                            tags={formData.allergies}
+                            onChange={(tags) => handleInputChange('allergies', tags)}
+                            placeholder="e.g. Penicillin, Peanuts"
+                            variant="destructive"
+                        />
+                    </div>
                 </div>
             </div>
 
             {/* Emergency Contact */}
             <div className="space-y-6">
                 <div>
-                    <h3 className="text-lg font-semibold">Emergency Contact</h3>
-                    <p className="text-sm text-muted-foreground">Required for procedure</p>
+                    <h3 className="text-lg font-semibold">Emergency contact</h3>
+                    <p className="text-sm text-muted-foreground">Required for procedures</p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-5">
                     {/* Contact Name */}
                     <div className="space-y-2">
-                        <Label htmlFor="emergency_name">Contact Name</Label>
+                        <Label htmlFor="emergency_name">Contact name</Label>
                         <Input
                             id="emergency_name"
                             value={formData.emergency_contact_name}
@@ -345,7 +583,7 @@ export function ProfileTab({ user, familyMembers: _familyMembers }: ProfileTabPr
 
                     {/* Phone Number */}
                     <div className="space-y-2">
-                        <Label htmlFor="emergency_phone">Phone Number</Label>
+                        <Label htmlFor="emergency_phone">Phone number</Label>
                         <PhoneInput
                             value={formData.emergency_contact_phone}
                             onChange={(v) => handleInputChange('emergency_contact_phone', v)}
@@ -358,7 +596,7 @@ export function ProfileTab({ user, familyMembers: _familyMembers }: ProfileTabPr
             {/* Save Button */}
             <div>
                 <Button onClick={handleSave} disabled={saving} className="px-8">
-                    {saving ? 'Saving...' : 'Save Changes'}
+                    {saving ? 'Saving...' : 'Save changes'}
                 </Button>
             </div>
         </div>

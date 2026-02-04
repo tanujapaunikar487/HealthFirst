@@ -15,7 +15,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import {
   Bell, Search, CheckCheck,
-  Receipt, Clock, CheckCircle2, XCircle,
+  Receipt, Clock, CheckCircle2, XCircle, X,
   ShieldCheck, ShieldAlert, MessageSquare, CreditCard,
   AlertTriangle,
   // Notification icons
@@ -210,6 +210,17 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifFilter, setNotifFilter] = useState<'all' | 'unread'>('all');
   const [searchOpen, setSearchOpen] = useState(false);
+  const [profileBannerDismissed, setProfileBannerDismissed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('profileBannerDismissed') === 'true';
+    }
+    return false;
+  });
+
+  const dismissProfileBanner = () => {
+    setProfileBannerDismissed(true);
+    localStorage.setItem('profileBannerDismissed', 'true');
+  };
 
   // Apply user preferences (text size and high contrast)
   useEffect(() => {
@@ -364,7 +375,7 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
         </header>
 
         {/* Profile Warning Banner */}
-        {profileWarnings.length > 0 && (
+        {profileWarnings.length > 0 && !profileBannerDismissed && (
           <div
             className="flex items-center gap-3"
             style={{ backgroundColor: '#FFF8E1', borderBottom: '1px solid #FFE082', padding: '12px 24px' }}
@@ -375,7 +386,7 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
             >
               <Icon icon={AlertTriangle} className="h-3.5 w-3.5" style={{ color: '#F57F17' }} />
             </div>
-            <p className="text-sm font-medium" style={{ color: '#5D4037' }}>
+            <p className="flex-1 text-sm font-medium" style={{ color: '#5D4037' }}>
               Your profile is incomplete. Add{' '}
               {profileWarnings.map((w, i) => (
                 <span key={w.key}>
@@ -392,6 +403,12 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
               ))}{' '}
               for hassle-free claims.
             </p>
+            <button
+              onClick={dismissProfileBanner}
+              className="flex h-6 w-6 items-center justify-center rounded-full flex-shrink-0 hover:bg-amber-200/50 transition-colors"
+            >
+              <Icon icon={X} className="h-4 w-4" style={{ color: '#5D4037' }} />
+            </button>
           </div>
         )}
 
@@ -400,7 +417,8 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
           className="flex-1 overflow-y-auto flex justify-center"
           style={{
             background: 'linear-gradient(180deg, rgba(211, 225, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 13.94%, rgba(255, 255, 255, 1) 30.77%)',
-            paddingTop: '60px'
+            paddingTop: '80px',
+            paddingBottom: '80px'
           }}
         >
           {children}

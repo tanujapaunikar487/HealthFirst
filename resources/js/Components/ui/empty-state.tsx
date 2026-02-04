@@ -24,7 +24,7 @@ export function EmptyState({ image, icon: EmptyIcon, message, description, actio
       ) : EmptyIcon ? (
         <Icon icon={EmptyIcon} className="h-12 w-12 text-muted-foreground/30 mb-4" />
       ) : null}
-      <h3 className="text-lg font-semibold" style={{ color: '#00184D' }}>{message}</h3>
+      <h3 className="text-lg font-semibold" style={{ color: '#171717' }}>{message}</h3>
       {description && (
         <p className="text-sm text-muted-foreground mt-2 max-w-sm">{description}</p>
       )}

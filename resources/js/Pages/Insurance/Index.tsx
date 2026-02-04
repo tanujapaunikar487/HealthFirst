@@ -4,6 +4,7 @@ import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { EmptyState } from '@/Components/ui/empty-state';
 import { CtaBanner } from '@/Components/ui/cta-banner';
+import { SupportFooter } from '@/Components/SupportFooter';
 import { Card } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
@@ -232,7 +233,7 @@ function formatFileSize(bytes: number): string {
 
 function InsuranceSkeleton() {
   return (
-    <div style={{ width: '100%', maxWidth: '960px', paddingTop: '40px', paddingBottom: '40px' }}>
+    <div style={{ width: '100%', maxWidth: '960px' }}>
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <Pulse className="h-9 w-36" />
@@ -654,7 +655,7 @@ export default function InsuranceIndex({
 
   return (
     <AppLayout pageTitle="Insurance" pageIcon="insurance">
-      <div className="w-full max-w-[960px] min-h-full flex flex-col" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
+      <div className="w-full max-w-[960px] min-h-full flex flex-col">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <h1
@@ -672,10 +673,10 @@ export default function InsuranceIndex({
             <div className="flex items-center gap-3">
               <Button variant="outline" size="lg" onClick={openAddPolicy}>
                 <Plus className="h-4 w-4" />
-                Add Policy
+                Add policy
               </Button>
               <Button size="lg" onClick={openPreAuth}>
-                Use for Admission
+                Use for admission
               </Button>
             </div>
           )}
@@ -776,16 +777,16 @@ export default function InsuranceIndex({
 
             {/* Past Claims Section */}
             <div>
-              <h2 className="mb-4 text-lg font-semibold text-gray-900">Past Claims</h2>
+              <h2 className="mb-4 text-lg font-semibold text-gray-900">Past claims</h2>
 
               {/* Filters */}
               <div className="mb-4 flex flex-wrap items-center gap-3">
                 <Select value={policyFilter} onValueChange={setPolicyFilter}>
                   <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="All Policies" />
+                    <SelectValue placeholder="All policies" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Policies</SelectItem>
+                    <SelectItem value="all">All policies</SelectItem>
                     {uniquePolicies.map((p) => (
                       <SelectItem key={p.policy_number} value={p.policy_number}>
                         {p.plan_name}
@@ -796,10 +797,10 @@ export default function InsuranceIndex({
 
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                   <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="All Status" />
+                    <SelectValue placeholder="All statuses" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="all">All statuses</SelectItem>
                     <SelectItem value="current">Current</SelectItem>
                     <SelectItem value="settled">Settled</SelectItem>
                     <SelectItem value="rejected">Rejected</SelectItem>
@@ -809,10 +810,10 @@ export default function InsuranceIndex({
 
                 <Select value={memberFilter} onValueChange={setMemberFilter}>
                   <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="All Family Members" />
+                    <SelectValue placeholder="All family members" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Family Members</SelectItem>
+                    <SelectItem value="all">All family members</SelectItem>
                     {familyMembers.map((m) => (
                       <SelectItem key={m.id} value={m.name}>
                         {m.name}
@@ -913,22 +914,14 @@ export default function InsuranceIndex({
           </>
         )}
 
-        {/* Support CTA - always at bottom */}
-        <div className="mt-auto pt-8 py-6 text-center">
-          <p className="text-sm text-gray-600">
-            Need help with Insurance?{' '}
-            <a href="mailto:support@healthfirst.in?subject=Insurance Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
-              Contact support →
-            </a>
-          </p>
-        </div>
+        <SupportFooter pageName="Insurance" />
       </div>
 
       {/* Add Policy Sheet */}
       <Sheet open={showAddPolicy} onOpenChange={handleSheetClose}>
         <SheetContent className="sm:max-w-md">
           <SheetHeader>
-            <SheetTitle>Add Policy</SheetTitle>
+            <SheetTitle>Add policy</SheetTitle>
             <SheetDescription>
               {addStep === 'upload' && 'Upload your policy document or enter details manually.'}
               {addStep === 'extracting' && 'Analyzing your document...'}
@@ -1311,7 +1304,7 @@ export default function InsuranceIndex({
                 onClick={handleSubmitPolicy}
                 disabled={submitting}
               >
-                {submitting ? 'Saving...' : 'Save Policy'}
+                {submitting ? 'Saving...' : 'Save policy'}
               </Button>
             </SheetFooter>
           )}
@@ -1323,8 +1316,8 @@ export default function InsuranceIndex({
         <SheetContent className="sm:max-w-md">
           <SheetHeader>
             <SheetTitle>
-              {preAuthStep === 'policy' && 'Select Policy'}
-              {preAuthStep === 'patient' && 'Select Patient'}
+              {preAuthStep === 'policy' && 'Select policy'}
+              {preAuthStep === 'patient' && 'Select patient'}
               {preAuthStep === 'details' && 'Admission Details'}
               {preAuthStep === 'review' && 'Review & Submit'}
             </SheetTitle>
@@ -1586,7 +1579,7 @@ export default function InsuranceIndex({
                   Back
                 </Button>
                 <Button className="flex-1" disabled={preAuthSubmitting} onClick={handlePreAuthSubmit}>
-                  {preAuthSubmitting ? 'Submitting...' : 'Submit Pre-Auth Request'}
+                  {preAuthSubmitting ? 'Submitting...' : 'Submit pre-auth request'}
                 </Button>
               </div>
             </SheetFooter>

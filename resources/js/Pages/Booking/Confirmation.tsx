@@ -63,7 +63,7 @@ export default function Confirmation({ booking }: Props) {
 
         {/* Title */}
         <div className="text-center">
-          <h1 className="text-2xl font-bold">Booking Confirmed!</h1>
+          <h1 className="text-2xl font-bold">Booking confirmed!</h1>
           <p className="text-muted-foreground mt-1">Booking ID: {booking.booking_id}</p>
         </div>
 

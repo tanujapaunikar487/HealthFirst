@@ -327,7 +327,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                                             Changing...
                                         </>
                                     ) : (
-                                        'Change Password'
+                                        'Change password'
                                     )}
                                 </Button>
                             </div>

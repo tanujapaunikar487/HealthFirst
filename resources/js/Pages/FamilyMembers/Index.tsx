@@ -3,6 +3,7 @@ import { router, usePage } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { CtaBanner } from '@/Components/ui/cta-banner';
+import { SupportFooter } from '@/Components/SupportFooter';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import {
@@ -64,7 +65,7 @@ function getInitials(name: string): string {
 
 function FamilyMembersSkeleton() {
   return (
-    <div className="w-full max-w-[800px]" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
+    <div className="w-full max-w-[960px]">
       <div className="flex items-center justify-between mb-8">
         <div className="space-y-2">
           <Pulse className="h-9 w-48" />
@@ -145,9 +146,9 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
       pageTitle="Family Members"
       pageIcon={AddTeam}
     >
-      <div className="w-full max-w-[800px]" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
+      <div className="w-full max-w-[960px] min-h-full flex flex-col">
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-8 flex items-center justify-between">
           <div>
             <h1
               className="font-bold"
@@ -172,7 +173,7 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
               size="lg"
             >
               <AddTeam className="h-4 w-4" />
-              Add Member
+              Add member
             </Button>
           )}
         </div>
@@ -216,7 +217,7 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
                       {member.name}
                     </span>
                     {member.alert_count > 0 && (
-                      <Badge variant="warning">Needs Attention</Badge>
+                      <Badge variant="warning">Needs attention</Badge>
                     )}
                   </div>
 
@@ -227,6 +228,8 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
             })}
           </div>
         )}
+
+        <SupportFooter pageName="Family Members" />
       </div>
 
       {/* Add Sheet */}

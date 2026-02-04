@@ -754,7 +754,7 @@ export function CancelSheet({
   return (
     <div className="flex flex-col h-full">
       <SheetHeader>
-        <SheetTitle>Cancel Appointment</SheetTitle>
+        <SheetTitle>Cancel appointment</SheetTitle>
         <SheetDescription>This action cannot be undone.</SheetDescription>
       </SheetHeader>
 
@@ -804,7 +804,7 @@ export function CancelSheet({
           onClick={handleCancel}
           disabled={submitting}
         >
-          {submitting ? 'Cancelling...' : 'Cancel Appointment'}
+          {submitting ? 'Cancelling...' : 'Cancel appointment'}
         </Button>
       </SheetFooter>
     </div>
@@ -1011,7 +1011,7 @@ export function RescheduleSheet({
           onClick={handleReschedule}
           disabled={!selectedDate || !selectedTime || submitting}
         >
-          {submitting ? 'Rescheduling...' : 'Confirm Reschedule'}
+          {submitting ? 'Rescheduling...' : 'Confirm reschedule'}
         </Button>
       </SheetFooter>
     </div>
@@ -1149,7 +1149,7 @@ export function FollowUpSheet({
   return (
     <div className="flex flex-col h-full">
       <SheetHeader>
-        <SheetTitle>Book Follow-up</SheetTitle>
+        <SheetTitle>Book follow-up</SheetTitle>
         <SheetDescription>
           {data?.doctor ? `with ${data.doctor.name}` : 'Loading...'}
         </SheetDescription>
@@ -1305,8 +1305,8 @@ export function FollowUpSheet({
               {submitting
                 ? 'Booking...'
                 : getSelectedPrice()
-                ? `Book Follow-up ₹${getSelectedPrice()?.toLocaleString()}`
-                : 'Book Follow-up'}
+                ? `Book follow-up ₹${getSelectedPrice()?.toLocaleString()}`
+                : 'Book follow-up'}
             </Button>
           </SheetFooter>
         </>
@@ -1615,8 +1615,8 @@ export function BookAgainSheet({
               {submitting
                 ? 'Booking...'
                 : getSelectedPrice()
-                ? `Book Appointment ₹${getSelectedPrice()?.toLocaleString()}`
-                : 'Book Appointment'}
+                ? `Book appointment ₹${getSelectedPrice()?.toLocaleString()}`
+                : 'Book appointment'}
             </Button>
           </SheetFooter>
         </>

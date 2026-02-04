@@ -9,6 +9,7 @@ import { Toast } from '@/Components/ui/toast';
 import { EmptyState } from '@/Components/ui/empty-state';
 import { Icon } from '@/Components/ui/icon';
 import { cn } from '@/Lib/utils';
+import { SupportFooter } from '@/Components/SupportFooter';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -401,7 +402,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
         subtitle: claim.claim_date_formatted
           ? `Submitted on ${claim.claim_date_formatted}. Usually approved within 4-6 hours.`
           : 'Usually approved within 4-6 hours.',
-        action: { label: 'Track Status', toastMsg: 'Viewing claim timeline...' },
+        action: { label: 'Track status', toastMsg: 'Viewing claim timeline...' },
       };
 
     case 'approved':
@@ -448,7 +449,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
           ? `Pre-authorisation rejected on ${claim.claim_date_formatted}`
           : 'Pre-authorisation rejected.',
         subtitle: claim.rejection_reason ?? undefined,
-        action: { label: 'File Appeal', toastMsg: 'Opening appeal flow...' },
+        action: { label: 'File appeal', toastMsg: 'Opening appeal flow...' },
       };
 
     case 'expired':
@@ -461,7 +462,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
           ? `Pre-authorization expired on ${claim.claim_date_formatted}`
           : 'Pre-authorization expired.',
         subtitle: 'This approval was valid for 30 days. Submit a new request to proceed.',
-        action: { label: 'Request New Pre-Auth', toastMsg: 'Submitting pre-auth request...' },
+        action: { label: 'Request new pre-auth', toastMsg: 'Submitting pre-auth request...' },
       };
 
     case 'enhancement_required':
@@ -479,7 +480,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
           f?.original_approved != null && f?.current_bill != null && f?.enhancement_requested != null
             ? `Originally approved: ${formatCurrency(f.original_approved)} · Current bill: ${formatCurrency(f.current_bill)} · Enhancement requested: ${formatCurrency(f.enhancement_requested)}`
             : undefined,
-        action: { label: 'Request Enhancement', toastMsg: 'Submitting enhancement request...' },
+        action: { label: 'Request enhancement', toastMsg: 'Submitting enhancement request...' },
       };
 
     case 'enhancement_in_progress':
@@ -496,7 +497,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
           f?.original_approved != null && f?.enhancement_requested != null
             ? `Original: ${formatCurrency(f.original_approved)} · Requested enhancement: ${formatCurrency(f.enhancement_requested)}`
             : undefined,
-        action: { label: 'Track Enhancement', toastMsg: 'Viewing enhancement timeline...' },
+        action: { label: 'Track enhancement', toastMsg: 'Viewing enhancement timeline...' },
       };
 
     case 'enhancement_approved':
@@ -521,7 +522,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
         textColor: 'text-red-800',
         title: 'Enhancement request rejected',
         subtitle: claim.rejection_reason ?? undefined,
-        action: { label: 'File Appeal', toastMsg: 'Opening appeal flow...' },
+        action: { label: 'File appeal', toastMsg: 'Opening appeal flow...' },
       };
 
     case 'current':
@@ -549,7 +550,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
           f?.insurance_covered != null && f?.patient_paid != null
             ? `Final settlement: ${formatCurrency(f.insurance_covered)} covered by insurance. You paid ${formatCurrency(f.patient_paid)}.`
             : undefined,
-        action: { label: 'Raise Dispute', toastMsg: 'Submitting dispute...' },
+        action: { label: 'Raise dispute', toastMsg: 'Submitting dispute...' },
       };
 
     case 'dispute_under_review':
@@ -560,7 +561,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
         textColor: 'text-amber-800',
         title: 'Settlement disputed under review',
         subtitle: (claim.rejection_reason ?? 'Your dispute is being reviewed.') + ' Expected resolution: 5-7 days.',
-        action: { label: 'Track Dispute', toastMsg: 'Viewing dispute timeline...' },
+        action: { label: 'Track dispute', toastMsg: 'Viewing dispute timeline...' },
       };
 
     case 'dispute_resolved':
@@ -575,7 +576,7 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
         subtitle: f?.refunded
           ? `${formatCurrency(f.refunded)} has been refunded to your account.`
           : undefined,
-        action: { label: 'View Resolution', toastMsg: 'Viewing resolution details...' },
+        action: { label: 'View resolution', toastMsg: 'Viewing resolution details...' },
       };
 
     default:
@@ -678,7 +679,7 @@ function TimelineEventRow({
 
 function ClaimDetailSkeleton() {
   return (
-    <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
+    <div className="w-full max-w-[960px]">
       <Pulse className="h-4 w-24 mb-6" />
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -872,7 +873,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         </div>
       </div>
 
-      <div className="w-full max-w-[960px] min-h-full flex flex-col" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
+      <div className="w-full max-w-[960px] min-h-full flex flex-col">
         {/* Breadcrumb */}
         <div className="mb-6 flex items-center gap-1.5 text-sm text-gray-500">
           <button
@@ -942,7 +943,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   }
                 }}>
                   <FileText className="h-4 w-4" />
-                  File Appeal
+                  File appeal
                 </Button>
               ) : claim.status === 'approved' || claim.status === 'enhancement_approved' ? (
                 <Button onClick={() => {
@@ -990,12 +991,12 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               ) : claim.status === 'dispute_resolved' ? (
                 <Button variant="outline" onClick={() => document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
                   <FileText className="h-4 w-4" />
-                  View Resolution
+                  View resolution
                 </Button>
               ) : (claim.status === 'pending' || claim.status === 'enhancement_in_progress' || claim.status === 'dispute_under_review') ? (
                 <Button variant="outline" onClick={() => document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
                   <Clock className="h-4 w-4" />
-                  Track Status
+                  Track status
                 </Button>
               ) : null}
               <ThreeDotMenu />
@@ -1038,26 +1039,26 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                         onError: () => toast('Failed to accept claim'),
                       });
                     }
-                  } else if (label === 'Try Different Policy') {
+                  } else if (label === 'Try different policy') {
                     router.visit('/insurance');
-                  } else if (label === 'Request New Pre-Auth') {
+                  } else if (label === 'Request new pre-auth') {
                     router.post(`/insurance/claims/${claim.id}/new-preauth`, {}, {
                       onSuccess: () => toast('New pre-authorization request submitted'),
                       onError: () => toast('Failed to submit request'),
                     });
-                  } else if (label === 'Request Enhancement') {
+                  } else if (label === 'Request enhancement') {
                     router.post(`/insurance/claims/${claim.id}/enhancement`, {}, {
                       onSuccess: () => toast('Enhancement request submitted'),
                       onError: () => toast('Failed to submit enhancement request'),
                     });
-                  } else if (label === 'Raise Dispute') {
+                  } else if (label === 'Raise dispute') {
                     if (confirm('Are you sure you want to raise a dispute for this settled claim?')) {
                       router.post(`/insurance/claims/${claim.id}/dispute`, {}, {
                         onSuccess: () => toast('Dispute submitted successfully'),
                         onError: () => toast('Failed to submit dispute'),
                       });
                     }
-                  } else if (label === 'File Appeal') {
+                  } else if (label === 'File appeal') {
                     if (confirm('Would you like to file an appeal for this claim?')) {
                       router.post(`/insurance/claims/${claim.id}/appeal`, {}, {
                         onSuccess: () => toast('Appeal request submitted'),
@@ -1081,7 +1082,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                       <p style="margin-top:24px;font-size:12px;color:#6b7280">Generated on ${new Date().toLocaleDateString()}</p>
                     `);
                     toast('EOB downloaded');
-                  } else if (label === 'Track Status' || label === 'Track Enhancement' || label === 'Track Dispute' || label === 'View Resolution') {
+                  } else if (label === 'Track status' || label === 'Track enhancement' || label === 'Track dispute' || label === 'View resolution') {
                     document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     toast(banner.action!.toastMsg);
                   } else {
@@ -1620,15 +1621,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           </div>{/* End of flex-1 content area */}
         </div>{/* End of flex container */}
 
-        {/* Support CTA */}
-        <div className="mt-auto pt-8 py-6 text-center">
-          <p className="text-sm text-gray-600">
-            Need help with this claim?{' '}
-            <a href="mailto:support@healthfirst.in?subject=Insurance Claim Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
-              Contact support →
-            </a>
-          </p>
-        </div>
+        <SupportFooter pageName="this claim" />
       </div>
 
       <Toast message={toastMessage} show={showToast} onHide={() => setShowToast(false)} />

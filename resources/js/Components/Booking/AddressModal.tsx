@@ -57,7 +57,7 @@ export function AddressModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Select or Add Address</DialogTitle>
+          <DialogTitle>Select or add address</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -94,14 +94,14 @@ export function AddressModal({
                 </div>
               )}
 
-              {/* Add New Address Button */}
+              {/* Add new address Button */}
               <Button
                 variant="outline"
                 className="w-full"
                 onClick={() => setShowAddForm(true)}
               >
                 <Icon icon={Plus} className="h-4 w-4 mr-2" />
-                Add New Address
+                Add new address
               </Button>
 
               {/* Action Buttons */}
@@ -114,13 +114,13 @@ export function AddressModal({
                   onClick={handleSelectAddress}
                   disabled={!selectedAddressId}
                 >
-                  Select Address
+                  Select address
                 </Button>
               </div>
             </>
           ) : (
             <>
-              {/* Add Address Form */}
+              {/* Add address Form */}
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="label">Address Label (e.g., Home, Office)</Label>
@@ -152,7 +152,7 @@ export function AddressModal({
                   onClick={handleAddAddress}
                   disabled={!newAddress.label || !newAddress.addressLine}
                 >
-                  Add Address
+                  Add address
                 </Button>
               </div>
             </>

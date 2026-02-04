@@ -408,7 +408,7 @@ function TagInput({
 
 function FamilyMemberShowSkeleton() {
   return (
-    <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
+    <div className="w-full max-w-[960px]">
       {/* Back link */}
       <Pulse className="h-4 w-32 mb-6" />
       {/* Profile header */}
@@ -671,7 +671,7 @@ export default function FamilyMemberShow({
       pageTitle="Family Members"
       pageIcon="/assets/icons/family.svg"
     >
-      <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
+      <div className="w-full max-w-[960px]">
         {/* Back Navigation */}
         <button
           onClick={() => router.visit('/family-members')}
@@ -1163,7 +1163,7 @@ export default function FamilyMemberShow({
               disabled={submitting}
               className="flex-1"
             >
-              {submitting ? 'Saving...' : 'Save Changes'}
+              {submitting ? 'Saving...' : 'Save changes'}
             </Button>
           </SheetFooter>
         </SheetContent>

@@ -16,6 +16,12 @@ interface FamilyMember {
     phone: string | null;
 }
 
+interface DoctorOption {
+    id: number;
+    name: string;
+    specialization: string;
+}
+
 interface User {
     id: string;
     name: string;
@@ -34,6 +40,11 @@ interface User {
     emergency_contact_name: string | null;
     emergency_contact_phone: string | null;
     emergency_contact_relation: string | null;
+    // Health fields (synced with self FamilyMember)
+    blood_group: string | null;
+    primary_doctor_id: number | null;
+    medical_conditions: string[];
+    allergies: string[];
 }
 
 interface NotificationSettings {
@@ -86,6 +97,7 @@ interface CalendarSettings {
 interface Props {
     user: User;
     familyMembers: FamilyMember[];
+    doctors: DoctorOption[];
     notifications: NotificationSettings;
     preferences: PreferenceSettings;
     bookingDefaults: BookingDefaults;
@@ -105,6 +117,7 @@ const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
 export default function SettingsIndex({
     user,
     familyMembers,
+    doctors,
     notifications,
     preferences,
     bookingDefaults,
@@ -124,7 +137,7 @@ export default function SettingsIndex({
         <AppLayout user={user}>
             <Head title="Settings" />
 
-            <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
+            <div className="w-full max-w-[960px]">
                 <h1 className="text-2xl font-bold mb-6">Settings</h1>
 
                 <div className="flex gap-8">
@@ -167,7 +180,7 @@ export default function SettingsIndex({
                     {/* Content Area */}
                     <div className="flex-1 min-w-0">
                         {activeTab === 'profile' && (
-                            <ProfileTab user={user} familyMembers={familyMembers} />
+                            <ProfileTab user={user} familyMembers={familyMembers} doctors={doctors} />
                         )}
 
                         {activeTab === 'notifications' && (

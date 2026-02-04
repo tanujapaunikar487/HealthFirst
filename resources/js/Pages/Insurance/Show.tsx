@@ -9,6 +9,7 @@ import { Input } from '@/Components/ui/input';
 import { Textarea } from '@/Components/ui/textarea';
 import { Icon } from '@/Components/ui/icon';
 import { cn } from '@/Lib/utils';
+import { SupportFooter } from '@/Components/SupportFooter';
 import {
   Select,
   SelectContent,
@@ -293,7 +294,7 @@ function getStatusBadge(status: string) {
 
 function InsuranceShowSkeleton() {
   return (
-    <div className="w-full max-w-[960px]" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
+    <div className="w-full max-w-[960px]">
       <Pulse className="h-4 w-24 mb-6" />
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
@@ -433,7 +434,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
 
   return (
     <AppLayout pageTitle="Insurance" pageIcon="insurance">
-      <div className="w-full max-w-[960px] min-h-full flex flex-col" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
+      <div className="w-full max-w-[960px] min-h-full flex flex-col">
         {/* Back link */}
         <button
           onClick={() => router.visit('/insurance')}
@@ -661,15 +662,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
           </div>{/* End flex-1 */}
         </div>{/* End flex container */}
 
-        {/* Support CTA - always at bottom */}
-        <div className="mt-auto pt-8 py-6 text-center">
-          <p className="text-sm text-gray-600">
-            Need help with Insurance?{' '}
-            <a href="mailto:support@healthfirst.in?subject=Insurance Support" className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
-              Contact support →
-            </a>
-          </p>
-        </div>
+        <SupportFooter pageName="Insurance" />
       </div>
 
       {/* Pre-Auth Sheet */}
@@ -677,7 +670,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
         <SheetContent className="sm:max-w-md">
           <SheetHeader>
             <SheetTitle>
-              {preAuthStep === 'patient' && 'Select Patient'}
+              {preAuthStep === 'patient' && 'Select patient'}
               {preAuthStep === 'details' && 'Admission Details'}
               {preAuthStep === 'review' && 'Review & Submit'}
             </SheetTitle>
@@ -908,7 +901,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                   Back
                 </Button>
                 <Button className="flex-1" disabled={preAuthSubmitting} onClick={handlePreAuthSubmit}>
-                  {preAuthSubmitting ? 'Submitting...' : 'Submit Pre-Auth Request'}
+                  {preAuthSubmitting ? 'Submitting...' : 'Submit pre-auth request'}
                 </Button>
               </div>
             </SheetFooter>

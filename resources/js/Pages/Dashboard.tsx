@@ -207,7 +207,7 @@ function Pulse({ className, style }: { className?: string; style?: React.CSSProp
 
 function DashboardSkeleton() {
   return (
-    <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ minHeight: '720px', paddingTop: '40px', paddingBottom: '40px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
+    <div className="w-full max-w-[800px] mx-auto" style={{ minHeight: '720px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
       <div style={{ display: 'flex', flexDirection: 'row', width: '100%', height: '68px', gap: '12px', alignItems: 'flex-start' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexGrow: 1 }}>
           <Pulse className="h-10 w-48" />
@@ -257,7 +257,7 @@ function DashboardSkeleton() {
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ minHeight: '720px', paddingTop: '40px', paddingBottom: '40px' }}>
+    <div className="w-full max-w-[800px] mx-auto" style={{ minHeight: '720px' }}>
       <div className="flex flex-col items-center justify-center gap-4 py-32">
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
           <Icon icon={AlertCircle} className="h-7 w-7 text-gray-400" />
@@ -793,7 +793,7 @@ export default function Dashboard({
               claim.claim_status === 'action_required' ? '#DC2626' :
               '#D97706'
             }
-            actionLabel="View Claim"
+            actionLabel="View claim"
             actionVariant="accent"
             onAction={() => router.visit(`/insurance/claims/${claim.claim_id}`)}
             menuItems={[
@@ -838,7 +838,7 @@ export default function Dashboard({
             patientInitials={followup.patient_initials}
             badge={followup.days_overdue >= 0 ? 'Overdue' : 'Due soon'}
             badgeColor={followup.days_overdue >= 0 ? '#DC2626' : '#D97706'}
-            actionLabel="Book Follow-up"
+            actionLabel="Book follow-up"
             actionVariant="accent"
             onAction={() => router.visit('/booking')}
             menuItems={[
@@ -861,7 +861,7 @@ export default function Dashboard({
             patientInitials={result.patient_initials}
             badge="New"
             badgeColor="#16A34A"
-            actionLabel="View Results"
+            actionLabel="View results"
             actionVariant="accent"
             onAction={() => router.visit(`/health-records?record=${result.record_id}`)}
             menuItems={[
@@ -919,7 +919,7 @@ export default function Dashboard({
             patientInitials={reminder.patient_initials}
             badge={reminder.hours_until < 24 ? 'Tomorrow' : `In ${reminder.hours_until}h`}
             badgeColor="#1E40AF"
-            actionLabel="View Details"
+            actionLabel="View details"
             actionVariant="secondary"
             onAction={() => router.visit(`/appointments/${reminder.appointment_id}`)}
             menuItems={[
@@ -968,7 +968,7 @@ export default function Dashboard({
             patientInitials={followup.patient_initials}
             badge="Due soon"
             badgeColor="#D97706"
-            actionLabel="Book Follow-up"
+            actionLabel="Book follow-up"
             actionVariant="secondary"
             onAction={() => router.visit('/booking')}
             menuItems={[
@@ -1018,7 +1018,7 @@ export default function Dashboard({
             patientInitials={care.patient_initials}
             badge={care.months_since !== null && care.months_since > 12 ? 'Overdue' : 'Due soon'}
             badgeColor={care.months_since !== null && care.months_since > 12 ? '#DC2626' : '#D97706'}
-            actionLabel="Book Now"
+            actionLabel="Book now"
             actionVariant="secondary"
             onAction={() => router.visit('/booking')}
             menuItems={[
@@ -1038,7 +1038,7 @@ export default function Dashboard({
     <AppLayout user={user}>
       <Head title="Dashboard" />
 
-      <div className="w-full max-w-[800px] px-4 sm:px-6" style={{ minHeight: '720px', paddingTop: '40px', paddingBottom: '40px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
+      <div className="w-full max-w-[800px] mx-auto" style={{ minHeight: '720px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
         {/* Page Header */}
         <div style={{ display: 'flex', flexDirection: 'row', width: '100%', height: '68px', gap: '12px', alignItems: 'flex-start' }}>
           <div style={{ display: 'flex', flexDirection: 'column', width: '485px', height: '68px', gap: '4px', flexGrow: 1 }}>
@@ -1051,17 +1051,10 @@ export default function Dashboard({
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
-            <Button
-              asChild
-              size="lg"
-              className="font-semibold"
-              style={{ width: '241px' }}
-            >
+            <Button asChild className="font-semibold">
               <Link href="/booking">
-                <span className="flex items-center gap-2 text-white">
-                  <img src="/assets/icons/appointment-2.svg" alt="Appointment" className="h-6 w-6" />
-                  Book Appointment
-                </span>
+                <img src="/assets/icons/appointment-2.svg" alt="" className="h-5 w-5" />
+                Book appointment
               </Link>
             </Button>
           </div>
@@ -1127,11 +1120,12 @@ export default function Dashboard({
         {/* ─── CTA BANNER FALLBACK (completed profile, no activity) ─── */}
         {allStepsCompleted && !hasAnyActivity && (
           <CtaBanner
-            title="Your health dashboard is ready"
+            heading="Your health dashboard is ready"
             description="Book your first appointment to start tracking your health journey"
-            buttonText="Book Appointment"
+            buttonText="Book appointment"
             buttonHref="/booking"
-            imageSrc="/assets/illustrations/cta-banner.svg"
+            imageSrc="/assets/images/booking.png"
+            imageAlt="Book appointment illustration"
           />
         )}
 
@@ -1388,11 +1382,11 @@ function ProfileStepItem({ step, isLast }: ProfileStepItemProps) {
         </div>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flexGrow: 1, height: '56px' }}>
-        <h3 className="font-semibold" style={{ fontSize: '18px', fontWeight: 600, lineHeight: '28px', color: '#171717', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flexGrow: 1 }}>
+        <h3 className="font-semibold" style={{ fontSize: '16px', fontWeight: 600, lineHeight: '24px', color: '#171717', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {step.title}
         </h3>
-        <p className="font-medium" style={{ fontSize: '16px', fontWeight: 500, lineHeight: '24px', color: '#737373', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        <p className="font-medium" style={{ fontSize: '14px', fontWeight: 500, lineHeight: '20px', color: '#737373', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {step.subtitle}
         </p>
       </div>

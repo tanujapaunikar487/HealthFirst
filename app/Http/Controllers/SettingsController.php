@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateNotificationsRequest;
 use App\Http\Requests\UpdateProfileRequest;
+use App\Models\Doctor;
+use App\Models\FamilyMember;
 use App\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -25,12 +27,25 @@ class SettingsController extends Controller
     {
         $user = Auth::user() ?? User::first();
 
+        // Get the self family member record for health data
+        $selfMember = FamilyMember::where('user_id', $user->id)
+            ->where('relation', 'self')
+            ->first();
+
         return Inertia::render('Settings/Index', [
             'user' => array_merge($user->toArray(), [
                 'avatar_url' => $user->avatar_url,
+                // Include health data from self family member
+                'blood_group' => $selfMember?->blood_group,
+                'primary_doctor_id' => $selfMember?->primary_doctor_id,
+                'medical_conditions' => $selfMember?->medical_conditions ?? [],
+                'allergies' => $selfMember?->allergies ?? [],
             ]),
             'familyMembers' => $user->familyMembers()
                 ->select('id', 'name', 'relation', 'phone')
+                ->get(),
+            'doctors' => Doctor::select('id', 'name', 'specialization')
+                ->orderBy('name')
                 ->get(),
             'notifications' => $user->getSetting('notifications', [
                 'channels' => ['email' => true, 'sms' => false, 'whatsapp' => false],
@@ -87,7 +102,58 @@ class SettingsController extends Controller
             $validated['emergency_contact_member_id'] = null;
         }
 
+        // Extract health-specific fields for family member sync
+        $healthFields = [
+            'blood_group' => $validated['blood_group'] ?? null,
+            'primary_doctor_id' => $validated['primary_doctor_id'] ?? null,
+            'medical_conditions' => $validated['medical_conditions'] ?? null,
+            'allergies' => $validated['allergies'] ?? null,
+        ];
+
+        // Remove health fields from user update (they go to FamilyMember)
+        unset($validated['blood_group'], $validated['primary_doctor_id'], $validated['medical_conditions'], $validated['allergies']);
+
         $user->update($validated);
+
+        // Sync health data to self family member record
+        $selfMember = FamilyMember::where('user_id', $user->id)
+            ->where('relation', 'self')
+            ->first();
+
+        if ($selfMember) {
+            $selfMember->update(array_merge($healthFields, [
+                'name' => $validated['name'],
+                'date_of_birth' => $validated['date_of_birth'] ?? null,
+                'gender' => $validated['gender'] ?? null,
+                'phone' => $validated['phone'] ?? null,
+                'address_line_1' => $validated['address_line_1'] ?? null,
+                'address_line_2' => $validated['address_line_2'] ?? null,
+                'city' => $validated['city'] ?? null,
+                'state' => $validated['state'] ?? null,
+                'pincode' => $validated['pincode'] ?? null,
+                'emergency_contact_name' => $validated['emergency_contact_name'] ?? null,
+                'emergency_contact_phone' => $validated['emergency_contact_phone'] ?? null,
+                'emergency_contact_relation' => $validated['emergency_contact_relation'] ?? null,
+            ]));
+        } else {
+            // Create self family member if it doesn't exist
+            FamilyMember::create(array_merge($healthFields, [
+                'user_id' => $user->id,
+                'relation' => 'self',
+                'name' => $validated['name'],
+                'date_of_birth' => $validated['date_of_birth'] ?? null,
+                'gender' => $validated['gender'] ?? null,
+                'phone' => $validated['phone'] ?? null,
+                'address_line_1' => $validated['address_line_1'] ?? null,
+                'address_line_2' => $validated['address_line_2'] ?? null,
+                'city' => $validated['city'] ?? null,
+                'state' => $validated['state'] ?? null,
+                'pincode' => $validated['pincode'] ?? null,
+                'emergency_contact_name' => $validated['emergency_contact_name'] ?? null,
+                'emergency_contact_phone' => $validated['emergency_contact_phone'] ?? null,
+                'emergency_contact_relation' => $validated['emergency_contact_relation'] ?? null,
+            ]));
+        }
 
         return back()->with('success', 'Profile updated successfully.');
     }

@@ -113,14 +113,14 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
         return patient ? patient.name : 'Patient selected';
 
       case 'appointment_type_selector':
-        if (value.appointment_type === 'followup') return 'Follow-up Appointment';
-        if (value.appointment_type === 'new') return 'New Appointment';
+        if (value.appointment_type === 'followup') return 'Follow-up appointment';
+        if (value.appointment_type === 'new') return 'New appointment';
         return 'Appointment type selected';
 
       case 'urgency_selector':
         const urgencyMap: Record<string, string> = {
-          'urgent': 'Urgent - Today/ASAP',
-          'this_week': 'This Week',
+          'urgent': 'Urgent - today/ASAP',
+          'this_week': 'This week',
           'specific_date': "I have a specific date in mind"
         };
         return urgencyMap[value.urgency] || 'Urgency level selected';
@@ -190,19 +190,19 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
       case 'mode_selector':
       case 'appointment_mode':
       case 'consultation_mode':
-        if (value.mode === 'video') return 'Video Appointment';
-        if (value.mode === 'in_person') return 'In-Person Visit';
+        if (value.mode === 'video') return 'Video appointment';
+        if (value.mode === 'in_person') return 'In-person visit';
         return 'Appointment mode selected';
 
       case 'booking_summary':
         // Handle change actions from summary
-        if (value.change_doctor) return 'Change Doctor';
-        if (value.change_patient) return 'Change Patient';
-        if (value.change_datetime) return 'Change Date & Time';
-        if (value.change_type) return 'Change Appointment Type';
-        if (value.change_mode) return 'Change Appointment Mode';
-        if (value.action === 'pay') return 'Proceed to Payment';
-        if (value.action === 'confirm') return 'Confirm Booking';
+        if (value.change_doctor) return 'Change doctor';
+        if (value.change_patient) return 'Change patient';
+        if (value.change_datetime) return 'Change date & time';
+        if (value.change_type) return 'Change appointment type';
+        if (value.change_mode) return 'Change appointment mode';
+        if (value.action === 'pay') return 'Proceed to payment';
+        if (value.action === 'confirm') return 'Confirm booking';
         return 'Selection made';
 
       case 'package_list':
