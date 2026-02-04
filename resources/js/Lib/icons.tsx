@@ -264,3 +264,45 @@ export const Lock = createIcon(LockKeyIcon, 'Lock');
 export const Settings2 = createIcon(Settings02Icon, 'Settings2');
 export const EyeOff = createIcon(ViewOffIcon, 'EyeOff');
 export const Unlink = createIcon(Unlink01Icon, 'Unlink');
+
+// ─── Brand Icons (Custom SVGs) ───
+
+export const GoogleMeet = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <path d="M15.5 7.5V10.5L19.5 7V17L15.5 13.5V16.5C15.5 17.05 15.05 17.5 14.5 17.5H5.5C4.95 17.5 4.5 17.05 4.5 16.5V7.5C4.5 6.95 4.95 6.5 5.5 6.5H14.5C15.05 6.5 15.5 6.95 15.5 7.5Z" fill="#00897B"/>
+    <path d="M10 10C10.83 10 11.5 10.67 11.5 11.5C11.5 12.33 10.83 13 10 13C9.17 13 8.5 12.33 8.5 11.5C8.5 10.67 9.17 10 10 10Z" fill="#00695C"/>
+  </svg>
+);
+GoogleMeet.displayName = 'GoogleMeet';
+
+export const ZoomIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <rect x="3" y="6" width="18" height="12" rx="2" fill="#2D8CFF"/>
+    <path d="M7 10H11V11H8V12H11V13H8V14H11V15H7V10Z" fill="white"/>
+    <path d="M12 12.5C12 11.12 13.12 10 14.5 10C15.88 10 17 11.12 17 12.5C17 13.88 15.88 15 14.5 15C13.12 15 12 13.88 12 12.5Z" fill="white"/>
+  </svg>
+);
+ZoomIcon.displayName = 'ZoomIcon';
+
+export const GoogleCalendar = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <path d="M18 4H17V3C17 2.45 16.55 2 16 2C15.45 2 15 2.45 15 3V4H9V3C9 2.45 8.55 2 8 2C7.45 2 7 2.45 7 3V4H6C4.9 4 4 4.9 4 6V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V6C20 4.9 19.1 4 18 4Z" fill="#4285F4"/>
+    <rect x="6" y="9" width="12" height="11" fill="white"/>
+    <path d="M8 11H10V13H8V11Z" fill="#EA4335"/>
+    <path d="M11 11H13V13H11V11Z" fill="#FBBC04"/>
+    <path d="M14 11H16V13H14V11Z" fill="#34A853"/>
+    <path d="M8 14H10V16H8V14Z" fill="#4285F4"/>
+    <path d="M11 14H13V16H11V14Z" fill="#EA4335"/>
+    <path d="M14 14H16V16H14V14Z" fill="#FBBC04"/>
+    <path d="M8 17H10V19H8V17Z" fill="#34A853"/>
+    <path d="M11 17H13V19H11V17Z" fill="#4285F4"/>
+  </svg>
+);
+GoogleCalendar.displayName = 'GoogleCalendar';
+
+export const AppleIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <path d="M17.05 20.28C16.07 21.23 15 21.08 13.97 20.63C12.88 20.17 11.88 20.15 10.73 20.63C9.29 21.25 8.53 21.07 7.67 20.28C2.79 15.25 3.51 7.59 9.05 7.31C10.4 7.38 11.34 8.05 12.13 8.11C13.31 7.87 14.44 7.18 15.71 7.28C17.22 7.41 18.36 8.05 19.12 9.18C15.98 11.04 16.72 15.3 19.58 16.45C19 17.89 18.26 19.32 17.04 20.29L17.05 20.28ZM12.03 7.25C11.88 5.02 13.69 3.18 15.77 3C16.06 5.58 13.43 7.5 12.03 7.25Z"/>
+  </svg>
+);
+AppleIcon.displayName = 'AppleIcon';
