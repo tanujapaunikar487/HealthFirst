@@ -309,7 +309,8 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
             placeholder={category !== 'all'
               ? `Search ${category === 'health_records' ? 'health records' : category}...`
               : "search reports, prescriptions.."}
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            className="flex-1 bg-transparent text-sm outline-none border-none focus:outline-none focus:ring-0 placeholder:text-muted-foreground"
+            style={{ boxShadow: 'none' }}
             autoComplete="off"
           />
           {loading && <Icon icon={Loader2} className="h-4 w-4 animate-spin text-muted-foreground flex-shrink-0" />}
