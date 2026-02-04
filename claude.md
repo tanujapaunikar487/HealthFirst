@@ -81,7 +81,7 @@ resources/js/
 ## Key Files
 
 ### Controllers
-- `Auth/*Controller` - Login, register, password reset (Laravel Breeze)
+- `Auth/*Controller` - Login, register, password reset (Laravel Breeze), social auth (Google/Apple OAuth)
 - `DashboardController` - Aggregated data
 - `BookingConversationController` - AI chat
 - `GuidedDoctorController` / `GuidedLabController` - Wizard flows
@@ -115,6 +115,8 @@ resources/js/
 - `PhoneInput.tsx` - +91 fixed prefix input
 - `DatePicker.tsx` - shadcn Calendar + Popover wrapper with calendar icon on right, dd/MM/yyyy display
 - `SearchModal.tsx` - Cmd+K search with category filters, Clear button, 24px close icon
+- `Auth/SocialLoginButtons.tsx` - Google and Apple OAuth buttons with branded icons
+- `Auth/SocialDivider.tsx` - "or continue with email" divider
 
 ### Utilities
 - `Lib/utils.ts` - `formatTableDate()`, `formatTableTime()` for consistent table date display
