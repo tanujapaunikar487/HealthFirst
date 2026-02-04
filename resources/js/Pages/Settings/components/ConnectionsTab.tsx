@@ -108,8 +108,8 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                             className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors text-left"
                         >
                             <div className="flex items-center gap-3">
-                                <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center">
-                                    <img src="/assets/icons/google-meet.svg" alt="Google Meet" className="h-6 w-6" />
+                                <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+                                    <img src="/assets/icons/google-meet.svg" alt="Google Meet" className="h-8 w-8" />
                                 </div>
                                 <div>
                                     <p className="text-sm font-semibold leading-5 text-[#171717]">Google Meet</p>
@@ -143,8 +143,8 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                             className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors text-left"
                         >
                             <div className="flex items-center gap-3">
-                                <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center">
-                                    <img src="/assets/icons/zoom.svg" alt="Zoom" className="h-6 w-6" />
+                                <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+                                    <img src="/assets/icons/zoom.svg" alt="Zoom" className="h-8 w-8" />
                                 </div>
                                 <div>
                                     <p className="text-sm font-semibold leading-5 text-[#171717]">Zoom</p>
@@ -188,8 +188,8 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                         {/* Google Calendar - Coming Soon */}
                         <div className="flex items-center justify-between p-4 opacity-60">
                             <div className="flex items-center gap-3">
-                                <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center">
-                                    <img src="/assets/icons/google-calendar.svg" alt="Google Calendar" className="h-6 w-6" />
+                                <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+                                    <img src="/assets/icons/google-calendar.svg" alt="Google Calendar" className="h-8 w-8" />
                                 </div>
                                 <div>
                                     <p className="text-sm font-semibold leading-5 text-[#171717]">Google Calendar</p>
@@ -204,8 +204,8 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                         {/* Apple Calendar / ICS Export */}
                         <div className="flex items-center justify-between p-4">
                             <div className="flex items-center gap-3">
-                                <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center">
-                                    <img src="/assets/icons/apple-calendar.svg" alt="Apple Calendar" className="h-6 w-6" />
+                                <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+                                    <img src="/assets/icons/apple-calendar.svg" alt="Apple Calendar" className="h-8 w-8" />
                                 </div>
                                 <div>
                                     <p className="text-sm font-semibold leading-5 text-[#171717]">Apple Calendar / Other</p>
