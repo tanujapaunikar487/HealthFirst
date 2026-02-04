@@ -238,6 +238,11 @@ All UI text uses **sentence case** (only first word capitalized):
 
 | Date | Feature |
 |------|---------|
+| Feb 5 | **Profile Photo Remove**: Added "Remove photo" text link below name in ProfileTab, DELETE /settings/avatar endpoint |
+| Feb 5 | **TagInput Local Component**: ProfileTab now has local TagInput with comma-separated tag support (splits "tag1, tag2" into separate tags) |
+| Feb 5 | **Profile Update Fix**: Changed from fetch() to router.put() for proper Inertia redirect handling |
+| Feb 5 | **Video Provider Clarification**: ConnectionsTab description updated to clarify no account linking needed - doctors generate meeting links |
+| Feb 5 | **Family Members Admin Badge**: Admin badge moved next to name, edit/delete buttons hidden for self (admin) user |
 | Feb 5 | **Fixed Pixel Fonts**: Replaced `text-sm` and `text-xs` with `text-[14px]` across 105+ files - prevents text scaling issues with accessibility settings |
 | Feb 5 | **Section Spacing**: Standardized to `space-y-16` (4rem/64px) gap between sections across all pages |
 | Feb 5 | **SideNav Width**: Set minimum width to 200px (`min-w-[200px]`) for consistent layout on 1440px screens |
