@@ -7,7 +7,14 @@ import { FormEventHandler } from 'react';
 import SocialLoginButtons from '@/Components/Auth/SocialLoginButtons';
 import SocialDivider from '@/Components/Auth/SocialDivider';
 
-export default function Register() {
+interface RegisterProps {
+    socialLoginEnabled?: {
+        google?: boolean;
+        apple?: boolean;
+    };
+}
+
+export default function Register({ socialLoginEnabled }: RegisterProps) {
     const { flash } = usePage().props as { flash?: { error?: string } };
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
@@ -42,11 +49,6 @@ export default function Register() {
                     {flash.error}
                 </div>
             )}
-
-            {/* Social Login Buttons */}
-            <SocialLoginButtons isProcessing={processing} />
-
-            <SocialDivider />
 
             <form onSubmit={submit} className="space-y-4">
                 <div className="space-y-2">
@@ -112,6 +114,13 @@ export default function Register() {
                 <Button type="submit" className="w-full" disabled={processing}>
                     {processing ? 'Creating account...' : 'Create account'}
                 </Button>
+
+                {(socialLoginEnabled?.google || socialLoginEnabled?.apple) && (
+                    <>
+                        <SocialDivider />
+                        <SocialLoginButtons isProcessing={processing} enabled={socialLoginEnabled} />
+                    </>
+                )}
 
                 <p className="text-center text-sm text-muted-foreground">
                     Already have an account?{' '}

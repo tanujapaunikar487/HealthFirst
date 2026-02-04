@@ -65,7 +65,7 @@ class HandleInertiaRequests extends Middleware
                 'language' => 'en',
                 'date_format' => 'DD/MM/YYYY',
                 'time_format' => '12h',
-                'accessibility' => ['text_size' => 16, 'high_contrast' => false],
+                'accessibility' => ['text_size' => 14, 'high_contrast' => false],
             ]) : null,
             'bookingDefaults' => $user ? $user->getSetting('booking_defaults', [
                 'default_patient_id' => null,

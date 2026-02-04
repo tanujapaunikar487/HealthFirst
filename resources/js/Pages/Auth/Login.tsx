@@ -11,9 +11,13 @@ import SocialDivider from '@/Components/Auth/SocialDivider';
 interface LoginProps {
     status?: string;
     canResetPassword: boolean;
+    socialLoginEnabled?: {
+        google?: boolean;
+        apple?: boolean;
+    };
 }
 
-export default function Login({ status, canResetPassword }: LoginProps) {
+export default function Login({ status, canResetPassword, socialLoginEnabled }: LoginProps) {
     const { flash } = usePage().props as { flash?: { error?: string } };
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
@@ -53,11 +57,6 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                     {flash.error}
                 </div>
             )}
-
-            {/* Social Login Buttons */}
-            <SocialLoginButtons isProcessing={processing} />
-
-            <SocialDivider />
 
             <form onSubmit={submit} className="space-y-4">
                 <div className="space-y-2">
@@ -118,6 +117,13 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                 <Button type="submit" className="w-full" disabled={processing}>
                     {processing ? 'Signing in...' : 'Sign in'}
                 </Button>
+
+                {(socialLoginEnabled?.google || socialLoginEnabled?.apple) && (
+                    <>
+                        <SocialDivider />
+                        <SocialLoginButtons isProcessing={processing} enabled={socialLoginEnabled} />
+                    </>
+                )}
 
                 <p className="text-center text-sm text-muted-foreground">
                     Don't have an account?{' '}

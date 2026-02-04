@@ -20,7 +20,12 @@ class RegisteredUserController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Auth/Register');
+        return Inertia::render('Auth/Register', [
+            'socialLoginEnabled' => [
+                'google' => !empty(config('services.google.client_id')),
+                'apple' => !empty(config('services.apple.client_id')),
+            ],
+        ]);
     }
 
     /**

@@ -66,7 +66,7 @@ class SettingsController extends Controller
                 'language' => 'en',
                 'date_format' => 'DD/MM/YYYY',
                 'time_format' => '12h',
-                'accessibility' => ['text_size' => 16, 'high_contrast' => false],
+                'accessibility' => ['text_size' => 14, 'high_contrast' => false],
             ]),
             'bookingDefaults' => $user->getSetting('booking_defaults', [
                 'default_patient_id' => null,
@@ -444,41 +444,43 @@ class SettingsController extends Controller
     }
 
     /**
-     * Download all user data as JSON.
+     * Download all user data as a printable HTML document (save as PDF).
      */
-    public function downloadMyData(): StreamedResponse
+    public function downloadMyData(): Response
     {
         $user = Auth::user() ?? User::first();
 
-        $data = [
-            'profile' => $user->only([
-                'name', 'email', 'phone', 'date_of_birth', 'gender',
-                'address_line_1', 'address_line_2', 'city', 'state', 'pincode',
-                'emergency_contact_type', 'emergency_contact_name',
-                'emergency_contact_phone', 'emergency_contact_relation',
-            ]),
-            'family_members' => $user->familyMembers->map(fn($m) => $m->only([
-                'name', 'relation', 'phone', 'email', 'date_of_birth', 'gender',
-            ])),
-            'appointments' => $user->familyMembers->pluck('appointments')->flatten()->map(fn($a) => [
-                'date' => $a->appointment_date?->format('Y-m-d'),
-                'time' => $a->appointment_time,
-                'doctor' => $a->doctor?->name,
-                'status' => $a->status,
-            ]),
-            'health_records' => $user->healthRecords->map(fn($r) => $r->only([
-                'category', 'title', 'date', 'status',
-            ])),
-            'settings' => $user->settings->pluck('settings', 'category'),
-            'exported_at' => now()->toISOString(),
-        ];
+        $profile = $user->only([
+            'name', 'email', 'phone', 'date_of_birth', 'gender',
+            'address_line_1', 'address_line_2', 'city', 'state', 'pincode',
+            'emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_relation',
+        ]);
 
-        $filename = 'healthcare-data-' . now()->format('Y-m-d') . '.json';
+        $familyMembers = $user->familyMembers->map(fn($m) => $m->only([
+            'name', 'relation', 'phone', 'email', 'date_of_birth', 'gender',
+        ]));
 
-        return response()->streamDownload(function () use ($data) {
-            echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        }, $filename, [
-            'Content-Type' => 'application/json',
+        $appointments = $user->familyMembers->pluck('appointments')->flatten()->map(fn($a) => [
+            'date' => $a->appointment_date?->format('d M Y'),
+            'time' => $a->appointment_time,
+            'doctor' => $a->doctor?->name ?? 'N/A',
+            'status' => ucfirst($a->status ?? 'N/A'),
+        ]);
+
+        $healthRecords = $user->healthRecords->map(fn($r) => [
+            'category' => ucfirst(str_replace('_', ' ', $r->category ?? '')),
+            'title' => $r->title,
+            'date' => $r->date?->format('d M Y') ?? 'N/A',
+        ]);
+
+        $exportDate = now()->format('d M Y, g:i A');
+
+        return Inertia::render('Settings/DataExport', [
+            'profile' => $profile,
+            'familyMembers' => $familyMembers,
+            'appointments' => $appointments,
+            'healthRecords' => $healthRecords,
+            'exportDate' => $exportDate,
         ]);
     }
 

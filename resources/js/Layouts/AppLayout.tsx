@@ -227,7 +227,7 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
     const prefs = props.userPreferences;
     if (prefs?.accessibility) {
       // Apply text size to root element
-      const textSize = prefs.accessibility.text_size || 16;
+      const textSize = prefs.accessibility.text_size || 14;
       document.documentElement.style.fontSize = `${textSize}px`;
 
       // Apply high contrast mode
