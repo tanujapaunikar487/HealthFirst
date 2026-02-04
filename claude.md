@@ -230,8 +230,10 @@ All UI text uses **sentence case** (only first word capitalized):
 
 | Date | Feature |
 |------|---------|
+| Feb 4 | **Calendar Upgrade (react-day-picker v9)**: Updated to v9 API with dropdown month/year selectors, 3-letter month format (MMM), proper styling (8px radius dropdowns, centered layout, nav arrows on edges) |
+| Feb 4 | **DatePicker Improvements**: Popover width matches trigger field, rounded-md styling to match inputs/selects |
 | Feb 4 | **DatePicker Component**: Replaced all native `<input type="date">` with shadcn DatePicker (Calendar + Popover) across 10 files (20+ fields) - consistent UI with calendar icon on right |
-| Feb 4 | **Search Modal UI**: Fixed duplicate close icons, added text-only "Clear" button, 24px close icon, category buttons always visible when no category selected |
+| Feb 4 | **Search Modal UI**: Fixed height 420px, category tag in search field with remove button, centered empty state with search.png image, scrollable results |
 | Feb 4 | **Settings UPI Payments**: Full UPI ID management in Settings > Payments (add, delete, set default) with backend routes |
 | Feb 4 | **Avatar Sync**: Profile photo upload now syncs to sidebar via `router.reload({ only: ['auth'] })` and User model `$appends` |
 | Feb 4 | **Search Modal Styling**: Frosted glass effect (714px width, 20px radius, backdrop blur, layered shadows) |
