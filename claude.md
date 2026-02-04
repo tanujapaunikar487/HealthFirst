@@ -155,6 +155,8 @@ OLLAMA_MODEL=qwen2.5:7b
 | EmptyState | #F5F5F5 bg, 24px/48px padding, content-based height, 20px radius, optional image |
 | CtaBanner | Dark radial gradient, white text, illustration, used for empty pages |
 | Page Container | 960px max-width, 40px top/bottom padding |
+| Card Title | #171717, 14px, font-weight 600, line-height 20px |
+| Card Subtext | #737373, 14px, font-weight 400, line-height 20px |
 
 ### Empty State Pattern
 
@@ -230,6 +232,8 @@ All UI text uses **sentence case** (only first word capitalized):
 
 | Date | Feature |
 |------|---------|
+| Feb 4 | **Card Typography**: Standardized title (#171717, 14px, 600) and subtext (#737373, 14px, 400) across card components |
+| Feb 4 | **TagInput Button**: Replaced "Add" text with Plus icon in 40px secondary button |
 | Feb 4 | **Calendar Upgrade (react-day-picker v9)**: Updated to v9 API with dropdown month/year selectors, 3-letter month format (MMM), proper styling (8px radius dropdowns, centered layout, nav arrows on edges) |
 | Feb 4 | **DatePicker Improvements**: Popover width matches trigger field, rounded-md styling to match inputs/selects |
 | Feb 4 | **DatePicker Component**: Replaced all native `<input type="date">` with shadcn DatePicker (Calendar + Popover) across 10 files (20+ fields) - consistent UI with calendar icon on right |
