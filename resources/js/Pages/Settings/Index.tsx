@@ -155,7 +155,17 @@ export default function SettingsIndex({
             <Head title="Settings" />
 
             <div className="w-full max-w-[960px] pb-20">
-                <h1 className="text-2xl font-bold mb-6">Settings</h1>
+                <h1
+                    className="font-bold mb-6"
+                    style={{
+                        fontSize: '36px',
+                        lineHeight: '44px',
+                        letterSpacing: '-1px',
+                        color: '#171717',
+                    }}
+                >
+                    Settings
+                </h1>
 
                 <div className="flex gap-8">
                     {/* Sidebar Navigation */}
