@@ -182,7 +182,7 @@ export default function SettingsIndex({
                     </div>
 
                     {/* Content Area */}
-                    <div className="flex-1 min-w-0 pb-10">
+                    <div className="flex-1 min-w-0 pb-20">
                         {activeTab === 'profile' && (
                             <ProfileTab user={user} familyMembers={familyMembers} doctors={doctors} />
                         )}
