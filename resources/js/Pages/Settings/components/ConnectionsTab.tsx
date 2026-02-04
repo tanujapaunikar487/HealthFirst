@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
-import { Download, Info, Check, GoogleMeet, ZoomIcon, GoogleCalendar, AppleIcon } from '@/Lib/icons';
+import { Download, Info, Check } from '@/Lib/icons';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
@@ -109,7 +109,7 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                         >
                             <div className="flex items-center gap-3">
                                 <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center">
-                                    <GoogleMeet className="h-6 w-6" />
+                                    <img src="/assets/icons/google-meet.svg" alt="Google Meet" className="h-6 w-6" />
                                 </div>
                                 <div>
                                     <p className="text-sm font-semibold leading-5 text-[#171717]">Google Meet</p>
@@ -144,7 +144,7 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                         >
                             <div className="flex items-center gap-3">
                                 <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center">
-                                    <ZoomIcon className="h-6 w-6" />
+                                    <img src="/assets/icons/zoom.svg" alt="Zoom" className="h-6 w-6" />
                                 </div>
                                 <div>
                                     <p className="text-sm font-semibold leading-5 text-[#171717]">Zoom</p>
@@ -189,7 +189,7 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                         <div className="flex items-center justify-between p-4 opacity-60">
                             <div className="flex items-center gap-3">
                                 <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center">
-                                    <GoogleCalendar className="h-6 w-6" />
+                                    <img src="/assets/icons/google-calendar.svg" alt="Google Calendar" className="h-6 w-6" />
                                 </div>
                                 <div>
                                     <p className="text-sm font-semibold leading-5 text-[#171717]">Google Calendar</p>
@@ -205,7 +205,7 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                         <div className="flex items-center justify-between p-4">
                             <div className="flex items-center gap-3">
                                 <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center">
-                                    <AppleIcon className="h-6 w-6 text-muted-foreground" />
+                                    <img src="/assets/icons/apple-calendar.svg" alt="Apple Calendar" className="h-6 w-6" />
                                 </div>
                                 <div>
                                     <p className="text-sm font-semibold leading-5 text-[#171717]">Apple Calendar / Other</p>
