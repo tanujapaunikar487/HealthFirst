@@ -292,6 +292,12 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
               <span className="font-medium text-gray-900">
                 @{category === 'health_records' ? 'health records' : category === 'appointments' ? 'appointment' : category}
               </span>
+              <button
+                onClick={() => setCategory('all')}
+                className="ml-0.5 text-gray-400 hover:text-gray-600"
+              >
+                <Icon icon={X} className="h-3 w-3" />
+              </button>
             </div>
           )}
 
@@ -308,20 +314,14 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
             autoComplete="off"
           />
           {loading && <Icon icon={Loader2} className="h-4 w-4 animate-spin text-muted-foreground flex-shrink-0" />}
-          {/* Clear Button - shows "Clear" text when query exists */}
-          {(query || category !== 'all') && !loading && (
+          {/* Clear Button - only shows when query exists */}
+          {query && !loading && (
             <button
-              onClick={() => {
-                if (query) {
-                  setQuery('');
-                } else {
-                  setCategory('all');
-                }
-              }}
+              onClick={() => setQuery('')}
               className="flex-shrink-0 flex items-center gap-1 text-muted-foreground hover:text-foreground"
             >
               <Icon icon={X} className="h-4 w-4" />
-              {query && <span className="text-sm">Clear</span>}
+              <span className="text-sm">Clear</span>
             </button>
           )}
         </div>
