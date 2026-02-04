@@ -577,7 +577,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
               description="Invoices and payment history will appear here after your appointments."
               action={
                 <Button asChild variant="secondary" size="md">
-                  <Link href="/settings">Add payment method</Link>
+                  <Link href="/settings?tab=payments">Add payment method</Link>
                 </Button>
               }
             />

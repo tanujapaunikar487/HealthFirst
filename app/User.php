@@ -42,6 +42,13 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    /**
+     * The accessors to append to the model's array form.
+     */
+    protected $appends = [
+        'avatar_url',
+    ];
+
     protected function casts(): array
     {
         return [

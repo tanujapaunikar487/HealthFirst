@@ -1,12 +1,15 @@
 import { Head, router } from '@inertiajs/react';
-import { useState } from 'react';
-import { User, Bell, Settings2, Link2, LogOut } from '@/Lib/icons';
+import { useState, useEffect } from 'react';
+import { User, Bell, Settings2, Link2, LogOut, CreditCard } from '@/Lib/icons';
 import AppLayout from '@/Layouts/AppLayout';
 import { Button } from '@/Components/ui/button';
+import { Icon } from '@/Components/ui/icon';
+import { SideNav, SideNavItem } from '@/Components/SideNav';
 import { ProfileTab } from './components/ProfileTab';
 import { NotificationsTab } from './components/NotificationsTab';
 import { PreferencesTab } from './components/PreferencesTab';
 import { ConnectionsTab } from './components/ConnectionsTab';
+import { PaymentsTab, PaymentMethod, UpiId } from './components/PaymentsTab';
 import { PasswordModal } from './components/PasswordModal';
 
 interface FamilyMember {
@@ -103,14 +106,17 @@ interface Props {
     bookingDefaults: BookingDefaults;
     videoSettings: VideoSettings;
     calendarSettings: CalendarSettings;
+    paymentMethods?: PaymentMethod[];
+    upiIds?: UpiId[];
 }
 
-type Tab = 'profile' | 'notifications' | 'preferences' | 'connections';
+type Tab = 'profile' | 'notifications' | 'preferences' | 'payments' | 'connections';
 
-const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
+const NAV_ITEMS: SideNavItem[] = [
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'preferences', label: 'Preferences', icon: Settings2 },
+    { id: 'payments', label: 'Payments', icon: CreditCard },
     { id: 'connections', label: 'Connections', icon: Link2 },
 ];
 
@@ -123,10 +129,21 @@ export default function SettingsIndex({
     bookingDefaults,
     videoSettings,
     calendarSettings,
+    paymentMethods,
+    upiIds,
 }: Props) {
     const [activeTab, setActiveTab] = useState<Tab>('profile');
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [loggingOut, setLoggingOut] = useState(false);
+
+    // Handle URL parameter for direct tab navigation
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const tab = params.get('tab');
+        if (tab && ['profile', 'notifications', 'preferences', 'payments', 'connections'].includes(tab)) {
+            setActiveTab(tab as Tab);
+        }
+    }, []);
 
     const handleLogout = () => {
         setLoggingOut(true);
@@ -137,48 +154,35 @@ export default function SettingsIndex({
         <AppLayout user={user}>
             <Head title="Settings" />
 
-            <div className="w-full max-w-[960px]">
+            <div className="w-full max-w-[960px] pb-20">
                 <h1 className="text-2xl font-bold mb-6">Settings</h1>
 
                 <div className="flex gap-8">
                     {/* Sidebar Navigation */}
                     <div className="w-48 flex-shrink-0">
-                        <nav className="space-y-1">
-                            {tabs.map((tab) => {
-                                const Icon = tab.icon;
-                                return (
-                                    <button
-                                        key={tab.id}
-                                        onClick={() => setActiveTab(tab.id)}
-                                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                                            activeTab === tab.id
-                                                ? 'bg-primary/10 text-primary font-medium'
-                                                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                                        }`}
-                                    >
-                                        <Icon className="h-5 w-5" />
-                                        {tab.label}
-                                    </button>
-                                );
-                            })}
-                        </nav>
+                        <SideNav
+                            items={NAV_ITEMS}
+                            activeId={activeTab}
+                            onSelect={(id) => setActiveTab(id as Tab)}
+                            sticky={false}
+                        />
 
                         {/* Logout Button */}
                         <div className="mt-6 pt-6 border-t">
-                            <Button
-                                variant="outline"
+                            <button
+                                type="button"
                                 onClick={handleLogout}
                                 disabled={loggingOut}
-                                className="w-full justify-start text-muted-foreground hover:text-destructive hover:border-destructive"
+                                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium transition-all text-left rounded-full cursor-pointer text-neutral-900 hover:bg-red-50 hover:text-red-600"
                             >
-                                <LogOut className="h-5 w-5 mr-3" />
-                                {loggingOut ? 'Logging out...' : 'Logout'}
-                            </Button>
+                                <Icon icon={LogOut} className="h-4 w-4 flex-shrink-0" />
+                                <span className="truncate">{loggingOut ? 'Logging out...' : 'Logout'}</span>
+                            </button>
                         </div>
                     </div>
 
                     {/* Content Area */}
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 pb-10">
                         {activeTab === 'profile' && (
                             <ProfileTab user={user} familyMembers={familyMembers} doctors={doctors} />
                         )}
@@ -194,6 +198,10 @@ export default function SettingsIndex({
                                 familyMembers={familyMembers}
                                 onOpenPasswordModal={() => setShowPasswordModal(true)}
                             />
+                        )}
+
+                        {activeTab === 'payments' && (
+                            <PaymentsTab paymentMethods={paymentMethods} upiIds={upiIds} />
                         )}
 
                         {activeTab === 'connections' && (

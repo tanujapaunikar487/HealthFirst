@@ -4,6 +4,7 @@ import AppLayout from '@/Layouts/AppLayout';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Card } from '@/Components/ui/card';
+import { SideNav } from '@/Components/SideNav';
 import {
   Sheet,
   SheetContent,
@@ -258,7 +259,7 @@ export default function Show({ user, appointment }: Props) {
 
   return (
     <AppLayout user={user} pageTitle="Appointment Details" pageIcon="/assets/icons/appointment.svg">
-      <div className="w-full max-w-[960px] min-h-full flex flex-col">
+      <div className="w-full max-w-[960px] min-h-full flex flex-col pb-10">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-4">
           <Link href="/appointments" className="hover:text-foreground transition-colors">
@@ -350,7 +351,7 @@ export default function Show({ user, appointment }: Props) {
 
         {/* Main content: Side nav + sections */}
         <div className="flex gap-8">
-          <SideNav />
+          <AppointmentSideNav />
           <div className="flex-1 min-w-0 space-y-8 pb-12">
             <OverviewSection appointment={appointment} />
             {(appointment.vitals?.length ?? 0) > 0
@@ -642,7 +643,7 @@ function DocumentPreview({ doc }: { doc: AppDocument }) {
 
 /* ─── Side Navigation ─── */
 
-function SideNav() {
+function AppointmentSideNav() {
   const [activeSection, setActiveSection] = useState('overview');
   const isScrollingRef = useRef(false);
 
@@ -682,29 +683,11 @@ function SideNav() {
   };
 
   return (
-    <div className="w-48 flex-shrink-0">
-      <div className="sticky top-6 space-y-1">
-        {SECTIONS.map(({ id, label, icon: SectionIcon }) => {
-          const isActive = activeSection === id;
-          return (
-            <button
-              type="button"
-              key={id}
-              onClick={() => scrollTo(id)}
-              className={cn(
-                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full cursor-pointer',
-                isActive
-                  ? 'bg-[#F5F8FF] text-[#0052FF]'
-                  : 'text-[#0A0B0D] hover:bg-muted'
-              )}
-            >
-              <Icon icon={SectionIcon} className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">{label}</span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <SideNav
+      items={SECTIONS.map(s => ({ id: s.id, label: s.label, icon: s.icon }))}
+      activeId={activeSection}
+      onSelect={scrollTo}
+    />
   );
 }
 

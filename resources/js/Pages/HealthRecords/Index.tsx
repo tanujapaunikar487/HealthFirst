@@ -35,7 +35,6 @@ import {
   ScanLine,
   UserPlus,
   FileText,
-  Receipt,
   Download,
   FolderOpen,
   HeartPulse,
@@ -46,7 +45,6 @@ import {
   ClipboardList,
   ClipboardCheck,
   Award,
-  Archive,
   Ambulance,
   BrainCircuit,
   Share2,
@@ -348,21 +346,18 @@ const categoryConfig: Record<string, { label: string; icon: React.ComponentType<
   er_visit:           { label: 'ER Visit',     icon: Ambulance,      color: '#1E40AF', bg: '#BFDBFE' },
   referral:           { label: 'Referral',     icon: UserPlus,       color: '#1E40AF', bg: '#BFDBFE' },
   other_visit:        { label: 'Other Visit',  icon: ClipboardCheck, color: '#1E40AF', bg: '#BFDBFE' },
-  // Medications
+  // Prescriptions
   prescription:       { label: 'Prescription', icon: Pill,           color: '#1E40AF', bg: '#BFDBFE' },
-  medication_active:  { label: 'Active Med',   icon: Pill,           color: '#1E40AF', bg: '#BFDBFE' },
-  medication_past:    { label: 'Past Med',     icon: Archive,        color: '#1E40AF', bg: '#BFDBFE' },
   // Documents
   vaccination:        { label: 'Vaccination',  icon: Syringe,        color: '#1E40AF', bg: '#BFDBFE' },
   medical_certificate:{ label: 'Certificate',  icon: Award,          color: '#1E40AF', bg: '#BFDBFE' },
-  invoice:            { label: 'Invoice',      icon: Receipt,        color: '#1E40AF', bg: '#BFDBFE' },
 };
 
 const typeGroups: Record<string, string[]> = {
-  reports:      ['lab_report', 'xray_report', 'mri_report', 'ultrasound_report', 'ecg_report', 'pathology_report', 'pft_report', 'other_report'],
-  visits:       ['consultation_notes', 'procedure_notes', 'discharge_summary', 'er_visit', 'referral', 'other_visit'],
-  medications:  ['prescription', 'medication_active', 'medication_past'],
-  documents:    ['vaccination', 'medical_certificate', 'invoice'],
+  reports:       ['lab_report', 'xray_report', 'mri_report', 'ultrasound_report', 'ecg_report', 'pathology_report', 'pft_report', 'other_report'],
+  visits:        ['consultation_notes', 'procedure_notes', 'discharge_summary', 'er_visit', 'referral', 'other_visit'],
+  prescriptions: ['prescription'],
+  documents:     ['vaccination', 'medical_certificate'],
 };
 
 const RECORDS_PER_PAGE = 10;
@@ -498,22 +493,17 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
       }
     }
 
-    // Read category filter (can be comma-separated)
+    // Read category filter
     const category = params.get('category');
     if (category) {
-      // For medications: "medication_active,medication_past"
-      // For single category: just the category name
-      // Note: subCategoryFilter expects a single value, but we can set the first one
-      const firstCategory = category.split(',')[0];
-
       // Validate against categoryConfig keys
       const validCategories = Object.keys(categoryConfig);
-      if (validCategories.includes(firstCategory)) {
-        setSubCategoryFilter(firstCategory);
+      if (validCategories.includes(category)) {
+        setSubCategoryFilter(category);
 
-        // If it's a medication category, switch to medications tab
-        if (firstCategory.startsWith('medication_')) {
-          setActiveTab('medications');
+        // If it's prescription category, switch to prescriptions tab
+        if (category === 'prescription') {
+          setActiveTab('prescriptions');
         }
       }
     }
@@ -526,7 +516,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
   }, [familyMembers]);
 
   const groupCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: records.length, reports: 0, visits: 0, medications: 0, documents: 0 };
+    const counts: Record<string, number> = { all: records.length, reports: 0, visits: 0, prescriptions: 0, documents: 0 };
     for (const r of records) {
       for (const [group, cats] of Object.entries(typeGroups)) {
         if (cats.includes(r.category)) { counts[group]++; break; }
@@ -727,7 +717,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
               { value: 'all', label: 'All' },
               { value: 'reports', label: 'Reports' },
               { value: 'visits', label: 'Visits' },
-              { value: 'medications', label: 'Prescriptions' },
+              { value: 'prescriptions', label: 'Prescriptions' },
               { value: 'documents', label: 'Documents' },
             ].map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value} className="gap-1.5">
@@ -757,19 +747,29 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-[150px] h-9">
-                <SelectValue placeholder="All statuses" />
+                <SelectValue placeholder={activeTab === 'prescriptions' ? 'All prescriptions' : 'All statuses'} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All statuses</SelectItem>
-                <SelectItem value="normal">Normal</SelectItem>
-                <SelectItem value="needs_attention">Needs attention</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="follow_up_required">Follow-up required</SelectItem>
-                <SelectItem value="valid">Valid</SelectItem>
-                <SelectItem value="expired">Expired</SelectItem>
-                <SelectItem value="discontinued">Discontinued</SelectItem>
+                {activeTab === 'prescriptions' ? (
+                  <>
+                    <SelectItem value="all">All prescriptions</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="past">Past</SelectItem>
+                  </>
+                ) : (
+                  <>
+                    <SelectItem value="all">All statuses</SelectItem>
+                    <SelectItem value="normal">Normal</SelectItem>
+                    <SelectItem value="needs_attention">Needs attention</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="follow_up_required">Follow-up required</SelectItem>
+                    <SelectItem value="valid">Valid</SelectItem>
+                    <SelectItem value="expired">Expired</SelectItem>
+                    <SelectItem value="discontinued">Discontinued</SelectItem>
+                  </>
+                )}
               </SelectContent>
             </Select>
 
@@ -977,7 +977,6 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
               </div>
             </div>
 
-            <SupportFooter pageName="Health Records" />
           </div>
         ) : (
           <div className="mt-6">
@@ -996,6 +995,8 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
             )}
           </div>
         )}
+
+        <SupportFooter pageName="Health Records" />
       </div>
 
       <Toast show={!!toastMessage} message={toastMessage} onHide={() => setToastMessage('')} />

@@ -10,6 +10,7 @@ import { Textarea } from '@/Components/ui/textarea';
 import { Icon } from '@/Components/ui/icon';
 import { cn } from '@/Lib/utils';
 import { SupportFooter } from '@/Components/SupportFooter';
+import { SideNav } from '@/Components/SideNav';
 import {
   Select,
   SelectContent,
@@ -62,7 +63,7 @@ const SECTIONS = [
 
 /* ─── Side Navigation ─── */
 
-function SideNav() {
+function PolicySideNav() {
   const [activeSection, setActiveSection] = useState('details');
   const isScrollingRef = useRef(false);
 
@@ -102,29 +103,12 @@ function SideNav() {
   };
 
   return (
-    <div className="w-48 flex-shrink-0 hidden lg:block">
-      <div className="sticky top-6 space-y-1">
-        {SECTIONS.map(({ id, label, icon: SectionIcon }) => {
-          const isActive = activeSection === id;
-          return (
-            <button
-              type="button"
-              key={id}
-              onClick={() => scrollTo(id)}
-              className={cn(
-                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full cursor-pointer',
-                isActive
-                  ? 'bg-[#F5F8FF] text-[#0052FF]'
-                  : 'text-[#0A0B0D] hover:bg-muted'
-              )}
-            >
-              <Icon icon={SectionIcon} className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">{label}</span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <SideNav
+      items={SECTIONS.map(s => ({ id: s.id, label: s.label, icon: s.icon }))}
+      activeId={activeSection}
+      onSelect={scrollTo}
+      hiddenOnMobile
+    />
   );
 }
 
@@ -434,7 +418,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
 
   return (
     <AppLayout pageTitle="Insurance" pageIcon="insurance">
-      <div className="w-full max-w-[960px] min-h-full flex flex-col">
+      <div className="w-full max-w-[960px] min-h-full flex flex-col pb-10">
         {/* Back link */}
         <button
           onClick={() => router.visit('/insurance')}
@@ -541,7 +525,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
 
         {/* Main Content with Side Nav */}
         <div className="flex gap-8">
-          <SideNav />
+          <PolicySideNav />
           <div className="flex-1 min-w-0 space-y-8 pb-12">
 
         {/* Policy Details */}

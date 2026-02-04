@@ -32,6 +32,22 @@ interface NotificationsTabProps {
     settings: NotificationSettings;
 }
 
+function SectionTitle({ children }: { children: React.ReactNode }) {
+    return (
+        <h3
+            className="font-semibold"
+            style={{
+                color: '#171717',
+                fontSize: '20px',
+                lineHeight: '28px',
+                letterSpacing: '0',
+            }}
+        >
+            {children}
+        </h3>
+    );
+}
+
 export function NotificationsTab({ settings }: NotificationsTabProps) {
     const [channels, setChannels] = useState(settings.channels);
     const [categories, setCategories] = useState(settings.categories);
@@ -79,8 +95,8 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
         <div className="space-y-8">
             {/* Notification Channels */}
             <div>
-                <h3 className="text-lg font-semibold mb-4">Notification Channels</h3>
-                <Card>
+                <SectionTitle>Notification channels</SectionTitle>
+                <Card className="mt-4">
                     <CardContent className="p-0 divide-y">
                         {/* Email */}
                         <div className="flex items-center justify-between p-4">
@@ -144,8 +160,8 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
 
             {/* Appointments */}
             <div>
-                <h3 className="text-lg font-semibold mb-4">Appointments</h3>
-                <Card>
+                <SectionTitle>Appointments</SectionTitle>
+                <Card className="mt-4">
                     <CardContent className="p-0">
                         <div className="flex items-center justify-between p-4">
                             <div>
@@ -165,8 +181,8 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
 
             {/* Health Alerts */}
             <div>
-                <h3 className="text-lg font-semibold mb-4">Health Alerts</h3>
-                <Card>
+                <SectionTitle>Health alerts</SectionTitle>
+                <Card className="mt-4">
                     <CardContent className="p-0 divide-y">
                         {/* Lab Results */}
                         <div className="flex items-center justify-between p-4">
@@ -215,8 +231,8 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
 
             {/* Billing & Payments */}
             <div>
-                <h3 className="text-lg font-semibold mb-4">Billing & Payments</h3>
-                <Card>
+                <SectionTitle>Billing & payments</SectionTitle>
+                <Card className="mt-4">
                     <CardContent className="p-0">
                         <div className="flex items-center justify-between p-4">
                             <div>
@@ -236,8 +252,8 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
 
             {/* Updates & Offers */}
             <div>
-                <h3 className="text-lg font-semibold mb-4">Updates & Offers</h3>
-                <Card>
+                <SectionTitle>Updates & offers</SectionTitle>
+                <Card className="mt-4">
                     <CardContent className="p-0">
                         <div className="flex items-center justify-between p-4">
                             <div>

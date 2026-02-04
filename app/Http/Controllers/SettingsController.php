@@ -82,6 +82,7 @@ class SettingsController extends Controller
                 'google' => ['enabled' => false],
                 'apple' => ['enabled' => false],
             ]),
+            'upiIds' => $user->getSetting('upi_ids', []),
         ]);
     }
 
@@ -505,5 +506,97 @@ class SettingsController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/')->with('success', 'Your account has been deleted.');
+    }
+
+    /**
+     * Add a new UPI ID.
+     */
+    public function storeUpi(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'upi_id' => [
+                'required',
+                'string',
+                'max:100',
+                'regex:/^[a-zA-Z0-9._-]+@[a-zA-Z0-9]+$/',
+            ],
+        ], [
+            'upi_id.regex' => 'Please enter a valid UPI ID (e.g., name@upi)',
+        ]);
+
+        $user = Auth::user() ?? User::first();
+        $upiIds = $user->getSetting('upi_ids', []);
+
+        // Check if UPI ID already exists
+        foreach ($upiIds as $upi) {
+            if (strtolower($upi['upi_id']) === strtolower($validated['upi_id'])) {
+                return back()->withErrors(['upi_id' => 'This UPI ID is already saved.']);
+            }
+        }
+
+        // Generate a unique ID
+        $newId = count($upiIds) > 0 ? max(array_column($upiIds, 'id')) + 1 : 1;
+
+        // Set as default if first UPI ID
+        $isDefault = count($upiIds) === 0;
+
+        $upiIds[] = [
+            'id' => $newId,
+            'upi_id' => $validated['upi_id'],
+            'is_default' => $isDefault,
+        ];
+
+        $user->setSetting('upi_ids', $upiIds);
+
+        return back()->with('success', 'UPI ID added successfully.');
+    }
+
+    /**
+     * Delete a UPI ID.
+     */
+    public function deleteUpi(int $id): RedirectResponse
+    {
+        $user = Auth::user() ?? User::first();
+        $upiIds = $user->getSetting('upi_ids', []);
+
+        $wasDefault = false;
+        $upiIds = array_filter($upiIds, function ($upi) use ($id, &$wasDefault) {
+            if ($upi['id'] === $id) {
+                $wasDefault = $upi['is_default'] ?? false;
+                return false;
+            }
+            return true;
+        });
+
+        // Re-index array
+        $upiIds = array_values($upiIds);
+
+        // If deleted UPI was default and there are others, set first as default
+        if ($wasDefault && count($upiIds) > 0) {
+            $upiIds[0]['is_default'] = true;
+        }
+
+        $user->setSetting('upi_ids', $upiIds);
+
+        return back()->with('success', 'UPI ID removed.');
+    }
+
+    /**
+     * Set a UPI ID as default.
+     */
+    public function setDefaultUpi(int $id): RedirectResponse
+    {
+        $user = Auth::user() ?? User::first();
+        $upiIds = $user->getSetting('upi_ids', []);
+
+        // Reset all defaults and set the selected one
+        $upiIds = array_map(function ($upi) use ($id) {
+            $upi['is_default'] = $upi['id'] === $id;
+            return $upi;
+        }, $upiIds);
+
+        $user->setSetting('upi_ids', $upiIds);
+
+        return back()->with('success', 'Default UPI ID updated.');
     }
 }

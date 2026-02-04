@@ -134,7 +134,12 @@ export default function BookingIndex() {
     <>
       <Head title="Booking an appointment" />
 
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      <div
+        className="min-h-screen"
+        style={{
+          background: 'linear-gradient(180deg, rgba(211, 225, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 13.94%, rgba(255, 255, 255, 1) 30.77%)'
+        }}
+      >
         {/* Header */}
         <header className="bg-white border-b">
           <div className="flex items-center justify-between px-6 py-4">

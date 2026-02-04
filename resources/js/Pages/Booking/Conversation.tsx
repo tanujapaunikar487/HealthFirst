@@ -319,7 +319,12 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
     <>
       <Head title="Booking Appointment" />
 
-      <div className="flex flex-col h-screen bg-white">
+      <div
+        className="flex flex-col h-screen"
+        style={{
+          background: 'linear-gradient(180deg, rgba(211, 225, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 13.94%, rgba(255, 255, 255, 1) 30.77%)'
+        }}
+      >
         {/* Header */}
         <header className="bg-white border-b">
           <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">

@@ -7,7 +7,12 @@ interface GuestLayoutProps {
 
 export default function GuestLayout({ children }: GuestLayoutProps) {
     return (
-        <div className="flex min-h-screen flex-col items-center bg-gradient-to-b from-[#D3E1FF80] to-white pt-6 sm:justify-center sm:pt-0">
+        <div
+            className="flex min-h-screen flex-col items-center pt-6 sm:justify-center sm:pt-0"
+            style={{
+                background: 'linear-gradient(180deg, rgba(211, 225, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 13.94%, rgba(255, 255, 255, 1) 30.77%)'
+            }}
+        >
             <div>
                 <Link href="/">
                     <img

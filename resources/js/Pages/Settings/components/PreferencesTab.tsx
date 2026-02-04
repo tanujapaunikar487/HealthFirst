@@ -52,6 +52,22 @@ interface PreferencesTabProps {
     onOpenPasswordModal: () => void;
 }
 
+function SectionTitle({ children }: { children: React.ReactNode }) {
+    return (
+        <h3
+            className="font-semibold"
+            style={{
+                color: '#171717',
+                fontSize: '20px',
+                lineHeight: '28px',
+                letterSpacing: '0',
+            }}
+        >
+            {children}
+        </h3>
+    );
+}
+
 export function PreferencesTab({
     settings,
     bookingDefaults,
@@ -147,8 +163,8 @@ export function PreferencesTab({
         <div className="space-y-8">
             {/* Language & Region */}
             <div>
-                <h3 className="text-lg font-semibold mb-4">Language & Region</h3>
-                <Card>
+                <SectionTitle>Language & region</SectionTitle>
+                <Card className="mt-4">
                     <CardContent className="p-0 divide-y">
                         {/* Language Row */}
                         <div className="flex items-center justify-between p-4">
@@ -233,8 +249,8 @@ export function PreferencesTab({
 
             {/* Accessibility */}
             <div>
-                <h3 className="text-lg font-semibold mb-4">Accessibility</h3>
-                <Card>
+                <SectionTitle>Accessibility</SectionTitle>
+                <Card className="mt-4">
                     <CardContent className="p-0 divide-y">
                         {/* Text Size Row */}
                         <div className="flex items-center justify-between p-4">
@@ -297,8 +313,8 @@ export function PreferencesTab({
 
             {/* Default Settings */}
             <div>
-                <h3 className="text-lg font-semibold mb-4">Default Settings</h3>
-                <Card>
+                <SectionTitle>Default settings</SectionTitle>
+                <Card className="mt-4">
                     <CardContent className="p-0 divide-y">
                         {/* Default Family Member Row */}
                         <div className="flex items-center justify-between p-4">
@@ -354,8 +370,8 @@ export function PreferencesTab({
 
             {/* Account */}
             <div>
-                <h3 className="text-lg font-semibold mb-4">Account</h3>
-                <Card>
+                <SectionTitle>Account</SectionTitle>
+                <Card className="mt-4">
                     <CardContent className="p-0 divide-y">
                         {/* Change password Row */}
                         <button

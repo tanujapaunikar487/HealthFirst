@@ -577,7 +577,8 @@ function Sidebar({ user }: { user: User | null }) {
         <div className="px-6 py-4 border-t" style={{ borderColor: '#E5E5E5' }}>
           <Link
             href="/settings"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors"
+            className="flex items-center gap-3 px-3 py-2.5 hover:bg-muted transition-colors"
+            style={{ borderRadius: '20px' }}
           >
             <Avatar className="h-10 w-10 flex-shrink-0">
               <AvatarImage src={user.avatar_url} />

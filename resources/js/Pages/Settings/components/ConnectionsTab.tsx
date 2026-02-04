@@ -27,6 +27,22 @@ interface ConnectionsTabProps {
     calendarSettings: CalendarSettings;
 }
 
+function SectionTitle({ children }: { children: React.ReactNode }) {
+    return (
+        <h3
+            className="font-semibold"
+            style={{
+                color: '#171717',
+                fontSize: '20px',
+                lineHeight: '28px',
+                letterSpacing: '0',
+            }}
+        >
+            {children}
+        </h3>
+    );
+}
+
 export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSettings }: ConnectionsTabProps) {
     const [selectedProvider, setSelectedProvider] = useState<'google_meet' | 'zoom'>(
         videoSettings.provider || 'google_meet'
@@ -74,12 +90,14 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
 
     return (
         <div className="space-y-8">
-            {/* Video Consultation Section */}
+            {/* Video Appointment Section */}
             <div>
-                <h3 className="text-lg font-semibold mb-1">Video Appointment</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                    Choose your preferred video platform for online appointments
-                </p>
+                <div className="mb-4">
+                    <SectionTitle>Video appointment</SectionTitle>
+                    <p className="text-sm text-muted-foreground mt-1">
+                        Choose your preferred video platform for online appointments
+                    </p>
+                </div>
 
                 <Card>
                     <CardContent className="p-0 divide-y">
@@ -158,10 +176,12 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
 
             {/* Calendar Section */}
             <div>
-                <h3 className="text-lg font-semibold mb-1">Calendar</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                    Export appointments to your personal calendar
-                </p>
+                <div className="mb-4">
+                    <SectionTitle>Calendar</SectionTitle>
+                    <p className="text-sm text-muted-foreground mt-1">
+                        Export appointments to your personal calendar
+                    </p>
+                </div>
 
                 <Card>
                     <CardContent className="p-0 divide-y">

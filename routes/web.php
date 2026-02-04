@@ -154,6 +154,11 @@ Route::middleware('auth')->group(function () {
         Route::put('/password', [\App\Http\Controllers\SettingsController::class, 'changePassword'])->name('password.update');
         Route::get('/download-data', [\App\Http\Controllers\SettingsController::class, 'downloadMyData'])->name('download-data');
         Route::delete('/account', [\App\Http\Controllers\SettingsController::class, 'deleteAccount'])->name('account.delete');
+
+        // UPI
+        Route::post('/upi', [\App\Http\Controllers\SettingsController::class, 'storeUpi'])->name('upi.store');
+        Route::delete('/upi/{id}', [\App\Http\Controllers\SettingsController::class, 'deleteUpi'])->name('upi.delete');
+        Route::put('/upi/{id}/default', [\App\Http\Controllers\SettingsController::class, 'setDefaultUpi'])->name('upi.default');
     });
 
     // Family Members

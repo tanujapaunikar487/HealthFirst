@@ -13,6 +13,7 @@ import {
 } from '@/Components/ui/dropdown-menu';
 import { cn } from '@/Lib/utils';
 import { SupportFooter } from '@/Components/SupportFooter';
+import { SideNav } from '@/Components/SideNav';
 import {
   ArrowLeft,
   Download,
@@ -190,7 +191,7 @@ const SECTIONS = [
 
 /* ─── SideNav Component ─── */
 
-function SideNav({ hasEmi, hasDispute, hasPayment }: { hasEmi: boolean; hasDispute: boolean; hasPayment: boolean }) {
+function BillingSideNav({ hasEmi, hasDispute, hasPayment }: { hasEmi: boolean; hasDispute: boolean; hasPayment: boolean }) {
   const [activeSection, setActiveSection] = useState(SECTIONS[0].id);
   const isScrollingRef = useRef(false);
 
@@ -238,29 +239,11 @@ function SideNav({ hasEmi, hasDispute, hasPayment }: { hasEmi: boolean; hasDispu
   };
 
   return (
-    <div className="w-48 flex-shrink-0">
-      <div className="sticky top-6 space-y-1">
-        {visibleSections.map(({ id, label, icon: SectionIcon }) => {
-          const isActive = activeSection === id;
-          return (
-            <button
-              type="button"
-              key={id}
-              onClick={() => scrollTo(id)}
-              className={cn(
-                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full cursor-pointer',
-                isActive
-                  ? 'bg-[#F5F8FF] text-[#0052FF]'
-                  : 'text-[#0A0B0D] hover:bg-muted'
-              )}
-            >
-              <Icon icon={SectionIcon} className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">{label}</span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <SideNav
+      items={visibleSections.map(s => ({ id: s.id, label: s.label, icon: s.icon }))}
+      activeId={activeSection}
+      onSelect={scrollTo}
+    />
   );
 }
 
@@ -577,7 +560,7 @@ export default function Show({ user, bill }: Props) {
 
   return (
     <AppLayout user={user} pageTitle="Billing" pageIcon="/assets/icons/billing.svg">
-      <div className="w-full max-w-[960px] min-h-full flex flex-col">
+      <div className="w-full max-w-[960px] min-h-full flex flex-col pb-10">
 
         {/* ─── Back Link ─── */}
         <button
@@ -793,7 +776,7 @@ export default function Show({ user, bill }: Props) {
 
         {/* ─── Main Content with Side Nav ─── */}
         <div className="flex gap-8">
-          <SideNav
+          <BillingSideNav
             hasEmi={!!bill.emi_details}
             hasDispute={!!bill.dispute_details}
             hasPayment={!!(bill.payment_info || bill.insurance_details)}

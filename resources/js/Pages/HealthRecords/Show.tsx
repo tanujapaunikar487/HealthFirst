@@ -5,6 +5,7 @@ import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
 import { Toast } from '@/Components/ui/toast';
 import { Icon } from '@/Components/ui/icon';
+import { SideNav } from '@/Components/SideNav';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { cn } from '@/Lib/utils';
 import { SupportFooter } from '@/Components/SupportFooter';
@@ -428,7 +429,7 @@ const fmtDate = (d?: string) => d ? new Date(d).toLocaleDateString('en-IN', { da
 
 /* ─── Side Navigation ─── */
 
-function SideNav({ hasProvider }: { hasProvider: boolean }) {
+function RecordSideNav({ hasProvider }: { hasProvider: boolean }) {
   const [activeSection, setActiveSection] = useState('summary');
   const isScrollingRef = useRef(false);
 
@@ -473,29 +474,12 @@ function SideNav({ hasProvider }: { hasProvider: boolean }) {
   };
 
   return (
-    <div className="w-48 flex-shrink-0">
-      <div className="sticky top-6 space-y-1">
-        {visibleSections.map(({ id, label, icon: SectionIcon }) => {
-          const isActive = activeSection === id;
-          return (
-            <button
-              type="button"
-              key={id}
-              onClick={() => scrollTo(id)}
-              className={cn(
-                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full cursor-pointer',
-                isActive
-                  ? 'bg-[#F5F8FF] text-[#0052FF]'
-                  : 'text-[#0A0B0D] hover:bg-muted'
-              )}
-            >
-              <Icon icon={SectionIcon} className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">{label}</span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <SideNav
+      items={visibleSections.map(s => ({ id: s.id, label: s.label, icon: s.icon }))}
+      activeId={activeSection}
+      onSelect={scrollTo}
+      hiddenOnMobile
+    />
   );
 }
 
@@ -730,7 +714,7 @@ export default function Show({ user, record, familyMember }: Props) {
 
   return (
     <AppLayout user={user} pageTitle="Health Records" pageIcon="/assets/icons/records.svg">
-      <div className="w-full max-w-[960px] min-h-full flex flex-col">
+      <div className="w-full max-w-[960px] min-h-full flex flex-col pb-10">
         {/* Header */}
         <div className="mb-8">
           <Link
@@ -832,7 +816,7 @@ export default function Show({ user, record, familyMember }: Props) {
 
         {/* Main Content with Side Nav */}
         <div className="flex gap-8">
-          <SideNav hasProvider={hasProvider} />
+          <RecordSideNav hasProvider={hasProvider} />
           <div className="flex-1 min-w-0 space-y-8 pb-12">
             {/* Summary Section */}
             <Section id="summary" title="Summary" icon={FileText}>

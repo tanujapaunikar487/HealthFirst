@@ -8,6 +8,7 @@ import { Badge } from '@/Components/ui/badge';
 import { Card, CardContent } from '@/Components/ui/card';
 import { Input } from '@/Components/ui/input';
 import { PhoneInput } from '@/Components/ui/phone-input';
+import { SideNav } from '@/Components/SideNav';
 import {
   Select,
   SelectContent,
@@ -137,7 +138,7 @@ const SECTIONS = [
 
 /* ─── SideNav Component ─── */
 
-function SideNav({ isGuest }: { isGuest: boolean }) {
+function MemberSideNav({ isGuest }: { isGuest: boolean }) {
   const [activeSection, setActiveSection] = useState(SECTIONS[0].id);
   const isScrollingRef = useRef(false);
 
@@ -182,29 +183,11 @@ function SideNav({ isGuest }: { isGuest: boolean }) {
   };
 
   return (
-    <div className="w-48 flex-shrink-0">
-      <div className="sticky top-6 space-y-1">
-        {visibleSections.map(({ id, label, icon: SectionIcon }) => {
-          const isActive = activeSection === id;
-          return (
-            <button
-              type="button"
-              key={id}
-              onClick={() => scrollTo(id)}
-              className={cn(
-                'w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold transition-all text-left rounded-full cursor-pointer',
-                isActive
-                  ? 'bg-[#F5F8FF] text-[#0052FF]'
-                  : 'text-[#0A0B0D] hover:bg-muted'
-              )}
-            >
-              <Icon icon={SectionIcon} className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">{label}</span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <SideNav
+      items={visibleSections.map(s => ({ id: s.id, label: s.label, icon: s.icon }))}
+      activeId={activeSection}
+      onSelect={scrollTo}
+    />
   );
 }
 
@@ -361,22 +344,6 @@ function TagInput({
 
   return (
     <div>
-      {tags.length > 0 && (
-        <div className="mb-2 flex flex-wrap gap-1.5">
-          {tags.map((tag, i) => (
-            <Badge key={i} variant={variant} className="gap-1 pr-1">
-              {tag}
-              <button
-                type="button"
-                onClick={() => removeTag(i)}
-                className="ml-0.5 rounded-full p-0.5 hover:bg-black/10"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-        </div>
-      )}
       <div className="flex gap-2">
         <Input
           value={inputValue}
@@ -400,6 +367,22 @@ function TagInput({
           Add
         </Button>
       </div>
+      {tags.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {tags.map((tag, i) => (
+            <Badge key={i} variant={variant} className="gap-1 pr-1">
+              {tag}
+              <button
+                type="button"
+                onClick={() => removeTag(i)}
+                className="ml-0.5 rounded-full p-0.5 hover:bg-black/10"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -671,7 +654,7 @@ export default function FamilyMemberShow({
       pageTitle="Family Members"
       pageIcon="/assets/icons/family.svg"
     >
-      <div className="w-full max-w-[960px]">
+      <div className="w-full max-w-[960px] pb-10">
         {/* Back Navigation */}
         <button
           onClick={() => router.visit('/family-members')}
@@ -752,7 +735,7 @@ export default function FamilyMemberShow({
 
         {/* Main Content with Side Nav */}
         <div className="flex gap-8">
-          <SideNav isGuest={!!member.is_guest} />
+          <MemberSideNav isGuest={!!member.is_guest} />
           <div className="flex-1 min-w-0 space-y-8 pb-12">
             {/* Personal Information Section */}
             <Section id="personal" title="Personal Information" icon={User}>

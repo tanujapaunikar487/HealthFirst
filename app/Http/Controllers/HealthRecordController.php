@@ -24,7 +24,7 @@ class HealthRecordController extends Controller
             ->orderByDesc('record_date')
             ->get()
             ->map(function ($r) use (&$abnormalCount) {
-                $status = $this->computeStatus($r->category, $r->metadata);
+                $status = $this->computeStatus($r->category, $r->metadata, $r->record_date);
 
                 if ($status && $status['label'] === 'Needs Attention') {
                     $abnormalCount++;
@@ -69,19 +69,16 @@ class HealthRecordController extends Controller
         ]);
     }
 
-    private function computeStatus(string $category, ?array $metadata): ?array
+    private function computeStatus(string $category, ?array $metadata, ?Carbon $recordDate = null): ?array
     {
         return match ($category) {
             'lab_report' => $this->labReportStatus($metadata),
-            'prescription' => $this->prescriptionStatus($metadata),
-            'medication_active' => ['label' => 'Active', 'variant' => 'info'],
-            'medication_past' => $this->pastMedicationStatus($metadata),
+            'prescription' => $this->prescriptionStatus($metadata, $recordDate),
             'consultation_notes', 'procedure_notes', 'er_visit', 'other_visit' => $this->visitStatus($metadata),
             'discharge_summary' => ['label' => 'Completed', 'variant' => 'success'],
             'referral' => $this->referralStatus($metadata),
             'vaccination' => $this->vaccinationStatus($metadata),
             'medical_certificate' => $this->certificateStatus($metadata),
-            'invoice' => $this->invoiceStatus($metadata),
             default => null,
         };
     }
@@ -111,24 +108,47 @@ class HealthRecordController extends Controller
         return ['label' => 'Normal', 'variant' => 'success'];
     }
 
-    private function prescriptionStatus(?array $metadata): array
+    private function prescriptionStatus(?array $metadata, ?Carbon $recordDate = null): array
     {
+        // Check if any medication in the prescription is still active based on duration
+        $drugs = $metadata['drugs'] ?? [];
+        $startDate = $recordDate ?? ($metadata['date'] ? Carbon::parse($metadata['date']) : null);
+
+        if ($startDate && !empty($drugs)) {
+            foreach ($drugs as $drug) {
+                $duration = $this->parseDuration($drug['duration'] ?? '');
+                if ($duration > 0) {
+                    $endDate = $startDate->copy()->addDays($duration);
+                    if ($endDate->isFuture() || $endDate->isToday()) {
+                        return ['label' => 'Active', 'variant' => 'info'];
+                    }
+                }
+            }
+        }
+
+        // Also check valid_until if set (fallback)
         $validUntil = $metadata['valid_until'] ?? null;
         if ($validUntil && Carbon::parse($validUntil)->isFuture()) {
             return ['label' => 'Active', 'variant' => 'info'];
         }
 
-        return ['label' => 'Completed', 'variant' => 'secondary'];
+        return ['label' => 'Past', 'variant' => 'secondary'];
     }
 
-    private function pastMedicationStatus(?array $metadata): array
+    private function parseDuration(string $duration): int
     {
-        $reason = strtolower($metadata['reason_stopped'] ?? '');
-        if (str_contains($reason, 'discontinu')) {
-            return ['label' => 'Discontinued', 'variant' => 'destructive'];
+        // Parse strings like "30 days", "2 weeks", "1 month"
+        if (preg_match('/(\d+)\s*(day|week|month)/i', $duration, $matches)) {
+            $num = (int) $matches[1];
+            $unit = strtolower($matches[2]);
+            return match ($unit) {
+                'day', 'days' => $num,
+                'week', 'weeks' => $num * 7,
+                'month', 'months' => $num * 30,
+                default => 0,
+            };
         }
-
-        return ['label' => 'Completed', 'variant' => 'secondary'];
+        return 0;
     }
 
     private function visitStatus(?array $metadata): array
@@ -196,7 +216,7 @@ class HealthRecordController extends Controller
             abort(403);
         }
 
-        $status = $this->computeStatus($record->category, $record->metadata);
+        $status = $this->computeStatus($record->category, $record->metadata, $record->record_date);
 
         $recordData = [
             'id' => $record->id,
@@ -269,7 +289,7 @@ class HealthRecordController extends Controller
             }
 
             // Compute status for context
-            $status = $this->computeStatus($record->category, $record->metadata);
+            $status = $this->computeStatus($record->category, $record->metadata, $record->record_date);
 
             // Generate new summary
             $summary = $aiService->generateHealthRecordSummary(

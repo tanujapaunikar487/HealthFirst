@@ -63,6 +63,22 @@ interface ProfileTabProps {
 
 const bloodGroupOptions = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as const;
 
+function SectionTitle({ children }: { children: React.ReactNode }) {
+    return (
+        <h3
+            className="font-semibold"
+            style={{
+                color: '#171717',
+                fontSize: '20px',
+                lineHeight: '28px',
+                letterSpacing: '0',
+            }}
+        >
+            {children}
+        </h3>
+    );
+}
+
 function getInitials(name: string): string {
     return name
         .split(' ')
@@ -112,22 +128,6 @@ function TagInput({
 
     return (
         <div>
-            {tags.length > 0 && (
-                <div className="mb-2 flex flex-wrap gap-1.5">
-                    {tags.map((tag, i) => (
-                        <Badge key={i} variant={variant} className="gap-1 pr-1">
-                            {tag}
-                            <button
-                                type="button"
-                                onClick={() => removeTag(i)}
-                                className="ml-0.5 rounded-full p-0.5 hover:bg-black/10"
-                            >
-                                <X className="h-3 w-3" />
-                            </button>
-                        </Badge>
-                    ))}
-                </div>
-            )}
             <div className="flex gap-2">
                 <Input
                     value={inputValue}
@@ -151,6 +151,22 @@ function TagInput({
                     Add
                 </Button>
             </div>
+            {tags.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                    {tags.map((tag, i) => (
+                        <Badge key={i} variant={variant} className="gap-1 pr-1">
+                            {tag}
+                            <button
+                                type="button"
+                                onClick={() => removeTag(i)}
+                                className="ml-0.5 rounded-full p-0.5 hover:bg-black/10"
+                            >
+                                <X className="h-3 w-3" />
+                            </button>
+                        </Badge>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
@@ -247,6 +263,8 @@ export function ProfileTab({ user, familyMembers: _familyMembers, doctors = [] }
                 const data = await response.json();
                 setAvatarPreview(data.avatar_url);
                 toast.success('Avatar uploaded successfully');
+                // Refresh Inertia shared data so sidebar avatar updates
+                router.reload({ only: ['auth'] });
             } else {
                 toast.error('Failed to upload avatar');
                 setAvatarPreview(user.avatar_url);
@@ -338,7 +356,7 @@ export function ProfileTab({ user, familyMembers: _familyMembers, doctors = [] }
 
             {/* Personal Information */}
             <div className="space-y-6">
-                <h3 className="text-lg font-semibold">Personal information</h3>
+                <SectionTitle>Personal information</SectionTitle>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
                     {/* First Name */}
@@ -458,7 +476,7 @@ export function ProfileTab({ user, familyMembers: _familyMembers, doctors = [] }
 
             {/* Address */}
             <div className="space-y-6">
-                <h3 className="text-lg font-semibold">Address</h3>
+                <SectionTitle>Address</SectionTitle>
 
                 <div className="space-y-5">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
@@ -528,7 +546,7 @@ export function ProfileTab({ user, familyMembers: _familyMembers, doctors = [] }
 
             {/* Medical Information */}
             <div className="space-y-6">
-                <h3 className="text-lg font-semibold">Medical information</h3>
+                <SectionTitle>Medical information</SectionTitle>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
                     <div className="space-y-2">
@@ -554,8 +572,8 @@ export function ProfileTab({ user, familyMembers: _familyMembers, doctors = [] }
             {/* Emergency Contact */}
             <div className="space-y-6">
                 <div>
-                    <h3 className="text-lg font-semibold">Emergency contact</h3>
-                    <p className="text-sm text-muted-foreground">Required for procedures</p>
+                    <SectionTitle>Emergency contact</SectionTitle>
+                    <p className="text-sm text-muted-foreground mt-1">Required for procedures</p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-5">

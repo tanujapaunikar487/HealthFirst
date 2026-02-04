@@ -268,6 +268,15 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="p-0 gap-0 overflow-hidden max-h-[480px] flex flex-col"
+        style={{
+          width: '714px',
+          maxWidth: '90vw',
+          borderRadius: '20px',
+          border: '1px solid #E5E5E5',
+          background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.97) 0%, rgba(255, 255, 255, 0.85) 100%)',
+          boxShadow: '0 5px 10px 0 rgba(0, 0, 0, 0.10), 0 15px 30px 0 rgba(0, 0, 0, 0.10), 0 20px 40px 0 rgba(0, 0, 0, 0.15)',
+          backdropFilter: 'blur(10px)',
+        }}
         onKeyDown={handleKeyDown}
       >
         <DialogTitle className="sr-only">Search</DialogTitle>
