@@ -282,14 +282,33 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
         <DialogTitle className="sr-only">Search</DialogTitle>
 
         {/* Search Input */}
-        <div className="flex items-center gap-3 px-4" style={{ borderBottom: '1px solid #E5E5E5', height: '56px' }}>
+        <div className="flex items-center gap-2 px-4" style={{ borderBottom: '1px solid #E5E5E5', height: '56px' }}>
           <Icon icon={Search} className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+
+          {/* Category Tag (when not 'all') */}
+          {category !== 'all' && (
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-gray-100 text-sm flex-shrink-0">
+              <span className="text-gray-500">in:</span>
+              <span className="font-medium text-gray-900">
+                @{category === 'health_records' ? 'health records' : category === 'appointments' ? 'appointment' : category}
+              </span>
+              <button
+                onClick={() => setCategory('all')}
+                className="ml-0.5 text-gray-400 hover:text-gray-600"
+              >
+                <Icon icon={X} className="h-3 w-3" />
+              </button>
+            </div>
+          )}
+
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="search reports, prescriptions.."
+            placeholder={category !== 'all'
+              ? `Search ${category === 'health_records' ? 'health records' : category}...`
+              : "search reports, prescriptions.."}
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             autoComplete="off"
           />
@@ -299,35 +318,12 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
               <Icon icon={X} className="h-4 w-4" />
             </button>
           )}
-          <kbd className="hidden sm:inline-flex h-6 items-center rounded border px-1.5 text-[10px] font-medium text-muted-foreground">
-            ESC
-          </kbd>
         </div>
-
-        {/* Category Filter Chips */}
-        {hasQuery && (
-          <div className="flex items-center gap-2 px-4 py-2.5" style={{ borderBottom: '1px solid #F0F0F0' }}>
-            {categories.map((cat) => (
-              <button
-                key={cat.value}
-                onClick={() => setCategory(cat.value)}
-                className="text-xs font-medium px-3 py-1.5 rounded-full transition-colors"
-                style={
-                  category === cat.value
-                    ? { backgroundColor: '#00184D', color: '#FFFFFF' }
-                    : { backgroundColor: '#F5F5F5', color: '#6B7280' }
-                }
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
-        )}
 
         {/* Results Area */}
         <div ref={resultsRef} className="flex-1 overflow-y-auto">
           {/* Initial State (no query) - Category Search Buttons */}
-          {!hasQuery && (
+          {!hasQuery && category === 'all' && (
             <div className="px-4 py-5">
               <div className="flex flex-wrap gap-3">
                 <button
