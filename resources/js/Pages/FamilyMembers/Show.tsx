@@ -6,6 +6,7 @@ import { EmptyState } from '@/Components/ui/empty-state';
 import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
 import { Card, CardContent } from '@/Components/ui/card';
+import { InfoCard } from '@/Components/ui/info-card';
 import { Input } from '@/Components/ui/input';
 import { PhoneInput } from '@/Components/ui/phone-input';
 import { DatePicker } from '@/Components/ui/date-picker';
@@ -63,6 +64,7 @@ interface Member {
   gender: string | null;
   blood_group: string | null;
   phone: string | null;
+  email: string | null;
   full_address: string | null;
   address_line_1: string | null;
   address_line_2: string | null;
@@ -132,7 +134,8 @@ const relationColors: Record<string, { bg: string; text: string }> = {
 
 const SECTIONS = [
   { id: 'personal', label: 'Personal', icon: User },
-  { id: 'medical', label: 'Medical', icon: Heart },
+  { id: 'contact', label: 'Contact & Address', icon: Phone },
+  { id: 'health-info', label: 'Health', icon: Heart },
   { id: 'emergency', label: 'Emergency', icon: Phone },
   { id: 'health', label: 'Health Data', icon: Activity },
 ] as const;
@@ -143,9 +146,9 @@ function MemberSideNav({ isGuest }: { isGuest: boolean }) {
   const [activeSection, setActiveSection] = useState(SECTIONS[0].id);
   const isScrollingRef = useRef(false);
 
-  // Filter sections for guests (only show personal)
+  // Filter sections for guests (show personal and contact)
   const visibleSections = isGuest
-    ? SECTIONS.filter((s) => s.id === 'personal')
+    ? SECTIONS.filter((s) => s.id === 'personal' || s.id === 'contact')
     : SECTIONS;
 
   useEffect(() => {
@@ -474,7 +477,7 @@ export default function FamilyMemberShow({
     gender: member?.gender ?? '',
     blood_group: member?.blood_group ?? '',
     phone: member?.phone ?? '',
-    email: (member as any)?.email ?? '',
+    email: member?.email ?? '',
     address_line_1: member?.address_line_1 ?? '',
     address_line_2: member?.address_line_2 ?? '',
     city: member?.city ?? '',
@@ -619,15 +622,6 @@ export default function FamilyMemberShow({
 
   const colors = relationColors[member.relation] || relationColors.other;
 
-  const personalInfoFields = [
-    { label: 'Date of Birth', value: member.date_of_birth_formatted },
-    { label: 'Blood Group', value: member.blood_group },
-    { label: 'Phone', value: member.phone },
-    { label: 'Address', value: member.full_address },
-    { label: 'Primary Doctor', value: member.primary_doctor_name },
-    { label: 'Relationship', value: member.relation ? capitalize(member.relation) : null },
-  ];
-
   const healthDataLinks = [
     {
       title: 'Appointments',
@@ -739,100 +733,160 @@ export default function FamilyMemberShow({
           <MemberSideNav isGuest={!!member.is_guest} />
           <div className="flex-1 min-w-0 space-y-8 pb-12">
             {/* Personal Information Section */}
-            <Section id="personal" title="Personal Information" icon={User}>
-              <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-                {personalInfoFields.map((field, i) => (
-                  <div key={i} className={field.label === 'Address' ? 'col-span-2' : ''}>
-                    <p className="text-xs font-medium text-gray-500">{field.label}</p>
-                    <p className="mt-1 text-sm font-semibold text-gray-900">
-                      {field.value ?? '--'}
-                    </p>
-                  </div>
-                ))}
+            <div id="personal" className="scroll-mt-24">
+              <div className="flex items-center gap-2.5 mb-4">
+                <Icon icon={User} className="h-5 w-5 text-muted-foreground" />
+                <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+                  Personal Information
+                </h2>
               </div>
-            </Section>
+              <InfoCard
+                items={[
+                  {
+                    label: 'Name',
+                    value: member.name,
+                    avatar: {
+                      url: member.avatar_url ?? undefined,
+                      initials: getInitials(member.name),
+                      bgColor: colors.bg,
+                      textColor: colors.text,
+                    },
+                  },
+                  {
+                    label: 'Relationship',
+                    value: member.relation ? capitalize(member.relation) : undefined,
+                  },
+                  {
+                    label: 'Date of Birth',
+                    value: member.date_of_birth_formatted ?? undefined,
+                    subtitle: member.age ? `${member.age} years old` : undefined,
+                  },
+                  {
+                    label: 'Gender',
+                    value: member.gender ? capitalize(member.gender) : undefined,
+                  },
+                ]}
+              />
+            </div>
 
-            {/* Medical Information Section - Hidden for guests */}
+            {/* Contact & Address Section */}
+            <div id="contact" className="scroll-mt-24">
+              <div className="flex items-center gap-2.5 mb-4">
+                <Icon icon={Phone} className="h-5 w-5 text-muted-foreground" />
+                <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+                  Contact & Address
+                </h2>
+              </div>
+              <InfoCard
+                items={[
+                  {
+                    label: 'Phone',
+                    value: member.phone ?? undefined,
+                  },
+                  {
+                    label: 'Email',
+                    value: member.email ?? undefined,
+                  },
+                  {
+                    label: 'Address',
+                    value: member.full_address ?? undefined,
+                  },
+                ]}
+              />
+            </div>
+
+            {/* Health Information Section - Hidden for guests */}
             {!member.is_guest && (
-              <Section id="medical" title="Medical Information" icon={Heart}>
-                <div className="space-y-4">
-                  <div>
-                    <p className="mb-2 text-xs font-medium text-gray-500">Conditions</p>
-                    {member.medical_conditions.length > 0 ? (
-                      <div className="flex flex-wrap gap-1.5">
-                        {member.medical_conditions.map((c, i) => (
-                          <Badge key={i} variant="secondary">{c}</Badge>
-                        ))}
-                      </div>
-                    ) : (
-                      <EmptyState
-                        icon={Stethoscope}
-                        message="No conditions recorded"
-                        description="Add any medical conditions for better care coordination"
-                        action={
-                          <Button variant="outline" size="sm" onClick={() => setShowEditForm(true)}>
-                            Add Conditions
-                          </Button>
-                        }
-                      />
-                    )}
-                  </div>
-                  <div>
-                    <p className="mb-2 text-xs font-medium text-gray-500">Allergies</p>
-                    {member.allergies.length > 0 ? (
-                      <div className="flex flex-wrap gap-1.5">
-                        {member.allergies.map((a, i) => (
-                          <Badge key={i} variant="destructive">{a}</Badge>
-                        ))}
-                      </div>
-                    ) : (
-                      <EmptyState
-                        icon={AlertTriangle}
-                        message="No known allergies"
-                        description="Recording allergies helps prevent adverse reactions"
-                        action={
-                          <Button variant="outline" size="sm" onClick={() => setShowEditForm(true)}>
-                            Add Allergies
-                          </Button>
-                        }
-                      />
-                    )}
-                  </div>
+              <div id="health-info" className="scroll-mt-24">
+                <div className="flex items-center gap-2.5 mb-4">
+                  <Icon icon={Heart} className="h-5 w-5 text-muted-foreground" />
+                  <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+                    Health Information
+                  </h2>
                 </div>
-              </Section>
+                <InfoCard
+                  items={[
+                    {
+                      label: 'Blood Group',
+                      value: member.blood_group ?? undefined,
+                    },
+                    {
+                      label: 'Primary Doctor',
+                      value: member.primary_doctor_name ?? undefined,
+                    },
+                    {
+                      label: 'Conditions',
+                      value: member.medical_conditions.length > 0 ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {member.medical_conditions.map((c, i) => (
+                            <Badge key={i} variant="secondary">{c}</Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-sm text-neutral-500">None recorded</span>
+                      ),
+                    },
+                    {
+                      label: 'Allergies',
+                      value: member.allergies.length > 0 ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {member.allergies.map((a, i) => (
+                            <Badge key={i} variant="destructive">{a}</Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-sm text-neutral-500">None recorded</span>
+                      ),
+                    },
+                  ]}
+                />
+              </div>
             )}
 
             {/* Emergency Contact Section - Hidden for guests */}
             {!member.is_guest && (
-              <Section id="emergency" title="Emergency Contact" icon={Phone}>
+              <div id="emergency" className="scroll-mt-24">
+                <div className="flex items-center gap-2.5 mb-4">
+                  <Icon icon={Phone} className="h-5 w-5 text-muted-foreground" />
+                  <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+                    Emergency Contact
+                  </h2>
+                </div>
                 {member.emergency_contact_name ? (
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold text-gray-600"
-                    >
-                      {getInitials(member.emergency_contact_name)}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-gray-900">{member.emergency_contact_name}</p>
-                      <p className="text-xs text-gray-500">
-                        {member.emergency_contact_relation}
-                        {member.emergency_contact_phone ? ` · ${member.emergency_contact_phone}` : ''}
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <EmptyState
-                    icon={Phone}
-                    message="No emergency contact added"
-                    description="Add someone to contact in case of emergencies"
-                    action={
-                      <Button variant="outline" size="sm" onClick={() => setShowEditForm(true)}>
-                        Add Contact
-                      </Button>
-                    }
+                  <InfoCard
+                    items={[
+                      {
+                        label: 'Name',
+                        value: member.emergency_contact_name,
+                        avatar: {
+                          initials: getInitials(member.emergency_contact_name),
+                        },
+                      },
+                      {
+                        label: 'Relationship',
+                        value: member.emergency_contact_relation ?? undefined,
+                      },
+                      {
+                        label: 'Phone',
+                        value: member.emergency_contact_phone ?? undefined,
+                      },
+                    ]}
                   />
+                ) : (
+                  <Card className="p-6">
+                    <EmptyState
+                      icon={Phone}
+                      message="No emergency contact added"
+                      description="Add someone to contact in case of emergencies"
+                      action={
+                        <Button variant="outline" size="sm" onClick={() => setShowEditForm(true)}>
+                          Add contact
+                        </Button>
+                      }
+                    />
+                  </Card>
                 )}
-              </Section>
+              </div>
             )}
 
             {/* Health Data Links Section - Hidden for guests */}
@@ -852,8 +906,8 @@ export default function FamilyMemberShow({
                         <link.icon className="h-5 w-5" style={{ color: '#1E40AF' }} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900">{link.title}</p>
-                        <p className="text-xs text-gray-500">{link.subtitle}</p>
+                        <p className="text-sm font-medium text-[#0A0B0D]">{link.title}</p>
+                        <p className="text-sm font-medium text-[#737373]">{link.subtitle}</p>
                       </div>
                       <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0" />
                     </button>
@@ -876,9 +930,9 @@ export default function FamilyMemberShow({
           </SheetHeader>
 
           <div className="flex-1 overflow-y-auto -mx-6 px-6">
-            {/* Basic Info */}
+            {/* Personal Details */}
             <div>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Basic Info</p>
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Personal Details</p>
               <div className="space-y-4">
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700">
@@ -949,31 +1003,14 @@ export default function FamilyMemberShow({
                     </SelectContent>
                   </Select>
                 </div>
-
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Blood Group</label>
-                  <Select
-                    value={formData.blood_group}
-                    onValueChange={val => setFormData({ ...formData, blood_group: val })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select blood group" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {bloodGroupOptions.map(bg => (
-                        <SelectItem key={bg} value={bg}>{bg}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
             </div>
 
             <SheetDivider className="my-6" />
 
-            {/* Contact */}
+            {/* Contact & Address */}
             <div>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Contact</p>
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Contact & Address</p>
               <div className="space-y-4">
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700">Phone</label>
@@ -991,15 +1028,6 @@ export default function FamilyMemberShow({
                     placeholder="email@example.com"
                   />
                 </div>
-              </div>
-            </div>
-
-            <SheetDivider className="my-6" />
-
-            {/* Address */}
-            <div>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Address</p>
-              <div className="space-y-4">
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700">Address Line 1</label>
                   <Input
@@ -1061,32 +1089,44 @@ export default function FamilyMemberShow({
 
             <SheetDivider className="my-6" />
 
-            {/* Primary Doctor */}
+            {/* Health Information */}
             <div>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Primary Doctor</p>
-              <Select
-                value={formData.primary_doctor_id}
-                onValueChange={val => setFormData({ ...formData, primary_doctor_id: val })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select doctor" />
-                </SelectTrigger>
-                <SelectContent>
-                  {doctors.map(d => (
-                    <SelectItem key={d.id} value={d.id.toString()}>
-                      {d.name} — {d.specialization}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <SheetDivider className="my-6" />
-
-            {/* Medical */}
-            <div>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Medical</p>
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Health Information</p>
               <div className="space-y-4">
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Blood Group</label>
+                  <Select
+                    value={formData.blood_group}
+                    onValueChange={val => setFormData({ ...formData, blood_group: val })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select blood group" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {bloodGroupOptions.map(bg => (
+                        <SelectItem key={bg} value={bg}>{bg}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Primary Doctor</label>
+                  <Select
+                    value={formData.primary_doctor_id}
+                    onValueChange={val => setFormData({ ...formData, primary_doctor_id: val })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select doctor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {doctors.map(d => (
+                        <SelectItem key={d.id} value={d.id.toString()}>
+                          {d.name} — {d.specialization}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700">Conditions</label>
                   <TagInput

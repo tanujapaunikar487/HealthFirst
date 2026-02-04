@@ -363,12 +363,12 @@ function DashboardCard({
         </div>
         {/* Title */}
         <h3
-          className="text-sm font-semibold leading-5 text-[#171717] truncate"
+          className="text-sm font-medium leading-5 text-[#0A0B0D] truncate"
         >
           {title}
         </h3>
         {/* Subtitle */}
-        <p className="text-sm font-normal leading-5 text-[#737373]">{subtitle}</p>
+        <p className="text-sm font-medium leading-5 text-[#737373]">{subtitle}</p>
       </div>
 
       {/* Action button */}
@@ -1382,10 +1382,10 @@ function ProfileStepItem({ step, isLast }: ProfileStepItemProps) {
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flexGrow: 1 }}>
-        <h3 className="text-sm font-semibold leading-5 text-[#171717] truncate">
+        <h3 className="text-sm font-medium leading-5 text-[#0A0B0D] truncate">
           {step.title}
         </h3>
-        <p className="text-sm font-normal leading-5 text-[#737373] truncate">
+        <p className="text-sm font-medium leading-5 text-[#737373] truncate">
           {step.subtitle}
         </p>
       </div>

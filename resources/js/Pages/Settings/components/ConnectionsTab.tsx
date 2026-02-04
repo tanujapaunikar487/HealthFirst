@@ -128,8 +128,8 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                                     <img src="/assets/icons/google-meet.svg" alt="Google Meet" className="h-8 w-8" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-semibold leading-5 text-[#171717]">Google Meet</p>
-                                    <p className="text-sm font-normal leading-5 text-[#737373]">
+                                    <p className="text-sm font-medium leading-5 text-[#0A0B0D]">Google Meet</p>
+                                    <p className="text-sm font-medium leading-5 text-[#737373]">
                                         Free video calls, no download required
                                     </p>
                                 </div>
@@ -163,8 +163,8 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                                     <img src="/assets/icons/zoom.svg" alt="Zoom" className="h-8 w-8" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-semibold leading-5 text-[#171717]">Zoom</p>
-                                    <p className="text-sm font-normal leading-5 text-[#737373]">
+                                    <p className="text-sm font-medium leading-5 text-[#0A0B0D]">Zoom</p>
+                                    <p className="text-sm font-medium leading-5 text-[#737373]">
                                         Popular video conferencing platform
                                     </p>
                                 </div>
@@ -208,8 +208,8 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                                     <img src="/assets/icons/google-calendar.svg" alt="Google Calendar" className="h-8 w-8" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-semibold leading-5 text-[#171717]">Google Calendar</p>
-                                    <p className="text-sm font-normal leading-5 text-[#737373]">
+                                    <p className="text-sm font-medium leading-5 text-[#0A0B0D]">Google Calendar</p>
+                                    <p className="text-sm font-medium leading-5 text-[#737373]">
                                         Auto-sync appointments to Google Calendar
                                     </p>
                                 </div>
@@ -224,8 +224,8 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                                     <img src="/assets/icons/apple-calendar.svg" alt="Apple Calendar" className="h-8 w-8" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-semibold leading-5 text-[#171717]">Apple Calendar / Other</p>
-                                    <p className="text-sm font-normal leading-5 text-[#737373]">
+                                    <p className="text-sm font-medium leading-5 text-[#0A0B0D]">Apple Calendar / Other</p>
+                                    <p className="text-sm font-medium leading-5 text-[#737373]">
                                         Download .ics file for any calendar app
                                     </p>
                                 </div>
@@ -252,8 +252,8 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                         </div>
                     </div>
                     <div>
-                        <p className="text-sm font-semibold leading-5 text-[#171717]">Your data is secure</p>
-                        <p className="text-sm font-normal leading-5 text-[#737373] mt-0.5">
+                        <p className="text-sm font-medium leading-5 text-[#0A0B0D]">Your data is secure</p>
+                        <p className="text-sm font-medium leading-5 text-[#737373] mt-0.5">
                             Video calls are generated on-demand for each appointment. No third-party account linking is required.
                         </p>
                     </div>

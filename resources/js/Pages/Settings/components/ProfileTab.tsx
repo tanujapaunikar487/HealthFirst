@@ -1,6 +1,6 @@
 import { useState, useRef, ChangeEvent, useMemo } from 'react';
 import { router } from '@inertiajs/react';
-import { Camera, X, Plus } from '@/Lib/icons';
+import { Camera, X } from '@/Lib/icons';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
@@ -17,6 +17,7 @@ import { PhoneInput } from '@/Components/ui/phone-input';
 import { DatePicker } from '@/Components/ui/date-picker';
 import { INDIAN_STATES, getCitiesForState } from '@/Lib/locations';
 import { toast } from 'sonner';
+import { cn } from '@/Lib/utils';
 
 interface FamilyMember {
     id: number;
@@ -80,6 +81,14 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
     );
 }
 
+function FormCard({ children, className }: { children: React.ReactNode; className?: string }) {
+    return (
+        <div className={cn('rounded-[20px] border border-border bg-white p-6', className)}>
+            {children}
+        </div>
+    );
+}
+
 function getInitials(name: string): string {
     return name
         .split(' ')
@@ -127,9 +136,11 @@ function TagInput({
         onChange(tags.filter((_, i) => i !== index));
     }
 
+    const hasValue = inputValue.trim().length > 0;
+
     return (
         <div>
-            <div className="flex gap-2">
+            <div className="relative">
                 <Input
                     value={inputValue}
                     onChange={e => setInputValue(e.target.value)}
@@ -140,18 +151,17 @@ function TagInput({
                         }
                     }}
                     placeholder={placeholder}
-                    className="flex-1"
+                    className="pr-12"
                 />
-                <Button
+                <button
                     type="button"
-                    variant="secondary"
-                    size="icon"
                     onClick={addTag}
-                    disabled={!inputValue.trim()}
-                    className="h-10 w-10 shrink-0"
+                    disabled={!hasValue}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium transition-colors disabled:cursor-default"
+                    style={{ color: hasValue ? '#2563EB' : '#737373' }}
                 >
-                    <Plus className="h-4 w-4" />
-                </Button>
+                    Add
+                </button>
             </div>
             {tags.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1.5">
@@ -357,260 +367,264 @@ export function ProfileTab({ user, familyMembers: _familyMembers, doctors = [] }
             </div>
 
             {/* Personal Information */}
-            <div className="space-y-6">
+            <div className="space-y-4">
                 <SectionTitle>Personal information</SectionTitle>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
-                    {/* First Name */}
-                    <div className="space-y-2">
-                        <Label htmlFor="first_name">First name</Label>
-                        <Input
-                            id="first_name"
-                            value={formData.first_name}
-                            onChange={(e) => handleInputChange('first_name', e.target.value)}
-                            className={errors.name ? 'border-destructive' : ''}
-                        />
-                    </div>
-
-                    {/* Last Name */}
-                    <div className="space-y-2">
-                        <Label htmlFor="last_name">Last name</Label>
-                        <Input
-                            id="last_name"
-                            value={formData.last_name}
-                            onChange={(e) => handleInputChange('last_name', e.target.value)}
-                        />
-                    </div>
-
-                    {/* Email Address */}
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Email address</Label>
-                        <Input
-                            id="email"
-                            type="email"
-                            value={formData.email}
-                            onChange={(e) => handleInputChange('email', e.target.value)}
-                            className={errors.email ? 'border-destructive' : ''}
-                        />
-                    </div>
-
-                    {/* Phone Number */}
-                    <div className="space-y-2">
-                        <Label htmlFor="phone">Phone number</Label>
-                        <PhoneInput
-                            value={formData.phone}
-                            onChange={(value) => handleInputChange('phone', value)}
-                            error={!!errors.phone}
-                        />
-                    </div>
-
-                    {/* Date of Birth */}
-                    <div className="space-y-2">
-                        <Label htmlFor="dob">Date of birth</Label>
-                        <DatePicker
-                            id="dob"
-                            value={formData.date_of_birth}
-                            onChange={(value) => handleInputChange('date_of_birth', value)}
-                            max={new Date()}
-                            placeholder="Select date of birth"
-                        />
-                    </div>
-
-                    {/* Gender */}
-                    <div className="space-y-2">
-                        <Label>Gender</Label>
-                        <Select
-                            value={formData.gender}
-                            onValueChange={(v) => handleInputChange('gender', v)}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select gender" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="male">Male</SelectItem>
-                                <SelectItem value="female">Female</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    {/* Blood Group */}
-                    <div className="space-y-2">
-                        <Label>Blood group</Label>
-                        <Select
-                            value={formData.blood_group}
-                            onValueChange={(v) => handleInputChange('blood_group', v)}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select blood group" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {bloodGroupOptions.map((bg) => (
-                                    <SelectItem key={bg} value={bg}>{bg}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    {/* Primary Doctor */}
-                    {doctors.length > 0 && (
+                <FormCard>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+                        {/* First Name */}
                         <div className="space-y-2">
-                            <Label>Primary doctor</Label>
+                            <Label htmlFor="first_name">First name</Label>
+                            <Input
+                                id="first_name"
+                                value={formData.first_name}
+                                onChange={(e) => handleInputChange('first_name', e.target.value)}
+                                className={errors.name ? 'border-destructive' : ''}
+                            />
+                        </div>
+
+                        {/* Last Name */}
+                        <div className="space-y-2">
+                            <Label htmlFor="last_name">Last name</Label>
+                            <Input
+                                id="last_name"
+                                value={formData.last_name}
+                                onChange={(e) => handleInputChange('last_name', e.target.value)}
+                            />
+                        </div>
+
+                        {/* Email Address */}
+                        <div className="space-y-2">
+                            <Label htmlFor="email">Email address</Label>
+                            <Input
+                                id="email"
+                                type="email"
+                                value={formData.email}
+                                onChange={(e) => handleInputChange('email', e.target.value)}
+                                className={errors.email ? 'border-destructive' : ''}
+                            />
+                        </div>
+
+                        {/* Phone Number */}
+                        <div className="space-y-2">
+                            <Label htmlFor="phone">Phone number</Label>
+                            <PhoneInput
+                                value={formData.phone}
+                                onChange={(value) => handleInputChange('phone', value)}
+                                error={!!errors.phone}
+                            />
+                        </div>
+
+                        {/* Date of Birth */}
+                        <div className="space-y-2">
+                            <Label htmlFor="dob">Date of birth</Label>
+                            <DatePicker
+                                id="dob"
+                                value={formData.date_of_birth}
+                                onChange={(value) => handleInputChange('date_of_birth', value)}
+                                max={new Date()}
+                                placeholder="Select date of birth"
+                            />
+                        </div>
+
+                        {/* Gender */}
+                        <div className="space-y-2">
+                            <Label>Gender</Label>
                             <Select
-                                value={formData.primary_doctor_id}
-                                onValueChange={(v) => handleInputChange('primary_doctor_id', v)}
+                                value={formData.gender}
+                                onValueChange={(v) => handleInputChange('gender', v)}
                             >
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Select doctor (optional)" />
+                                    <SelectValue placeholder="Select gender" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {doctors.map((d) => (
-                                        <SelectItem key={d.id} value={d.id.toString()}>
-                                            {d.name} — {d.specialization}
-                                        </SelectItem>
-                                    ))}
+                                    <SelectItem value="male">Male</SelectItem>
+                                    <SelectItem value="female">Female</SelectItem>
+                                    <SelectItem value="other">Other</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
-                    )}
-                </div>
+                    </div>
+                </FormCard>
             </div>
 
-            {/* Address */}
-            <div className="space-y-6">
-                <SectionTitle>Address</SectionTitle>
+            {/* Contact & Address */}
+            <div className="space-y-4">
+                <SectionTitle>Contact & address</SectionTitle>
+                <FormCard>
+                    <div className="space-y-5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+                            <div className="space-y-2">
+                                <Label htmlFor="address_line_1">Address line 1</Label>
+                                <Input
+                                    id="address_line_1"
+                                    value={formData.address_line_1}
+                                    onChange={(e) => handleInputChange('address_line_1', e.target.value)}
+                                    placeholder="Street address"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="address_line_2">Address line 2</Label>
+                                <Input
+                                    id="address_line_2"
+                                    value={formData.address_line_2}
+                                    onChange={(e) => handleInputChange('address_line_2', e.target.value)}
+                                    placeholder="Landmark, area"
+                                />
+                            </div>
+                        </div>
 
-                <div className="space-y-5">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-5">
+                            <div className="space-y-2">
+                                <Label>State</Label>
+                                <Select value={formData.state} onValueChange={handleStateChange}>
+                                    <SelectTrigger className={!formData.state ? 'text-muted-foreground' : ''}>
+                                        <SelectValue placeholder="Select state" />
+                                    </SelectTrigger>
+                                    <SelectContent className="max-h-[300px]">
+                                        {INDIAN_STATES.map((s) => (
+                                            <SelectItem key={s} value={s}>{s}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label>City</Label>
+                                <Select
+                                    value={formData.city}
+                                    onValueChange={(v) => handleInputChange('city', v)}
+                                    disabled={!formData.state}
+                                >
+                                    <SelectTrigger className={!formData.city && formData.state ? 'text-muted-foreground' : ''}>
+                                        <SelectValue placeholder={formData.state ? "Select city" : "Select state first"} />
+                                    </SelectTrigger>
+                                    <SelectContent className="max-h-[300px]">
+                                        {availableCities.map((c: string) => (
+                                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="pincode">Pincode</Label>
+                                <Input
+                                    id="pincode"
+                                    value={formData.pincode}
+                                    onChange={(e) => handleInputChange('pincode', e.target.value)}
+                                    placeholder="Pincode"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </FormCard>
+            </div>
+
+            {/* Health Information */}
+            <div className="space-y-4">
+                <SectionTitle>Health information</SectionTitle>
+                <FormCard>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+                        {/* Blood Group */}
                         <div className="space-y-2">
-                            <Label htmlFor="address_line_1">Address line 1</Label>
-                            <Input
-                                id="address_line_1"
-                                value={formData.address_line_1}
-                                onChange={(e) => handleInputChange('address_line_1', e.target.value)}
-                                placeholder="Street address"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="address_line_2">Address line 2</Label>
-                            <Input
-                                id="address_line_2"
-                                value={formData.address_line_2}
-                                onChange={(e) => handleInputChange('address_line_2', e.target.value)}
-                                placeholder="Landmark, area"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-5">
-                        <div className="space-y-2">
-                            <Label>State</Label>
-                            <Select value={formData.state} onValueChange={handleStateChange}>
-                                <SelectTrigger className={!formData.state ? 'text-muted-foreground' : ''}>
-                                    <SelectValue placeholder="Select state" />
-                                </SelectTrigger>
-                                <SelectContent className="max-h-[300px]">
-                                    {INDIAN_STATES.map((s) => (
-                                        <SelectItem key={s} value={s}>{s}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-2">
-                            <Label>City</Label>
+                            <Label>Blood group</Label>
                             <Select
-                                value={formData.city}
-                                onValueChange={(v) => handleInputChange('city', v)}
-                                disabled={!formData.state}
+                                value={formData.blood_group}
+                                onValueChange={(v) => handleInputChange('blood_group', v)}
                             >
-                                <SelectTrigger className={!formData.city && formData.state ? 'text-muted-foreground' : ''}>
-                                    <SelectValue placeholder={formData.state ? "Select city" : "Select state first"} />
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select blood group" />
                                 </SelectTrigger>
-                                <SelectContent className="max-h-[300px]">
-                                    {availableCities.map((c: string) => (
-                                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                                <SelectContent>
+                                    {bloodGroupOptions.map((bg) => (
+                                        <SelectItem key={bg} value={bg}>{bg}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
                         </div>
+
+                        {/* Primary Doctor */}
+                        {doctors.length > 0 && (
+                            <div className="space-y-2">
+                                <Label>Primary doctor</Label>
+                                <Select
+                                    value={formData.primary_doctor_id}
+                                    onValueChange={(v) => handleInputChange('primary_doctor_id', v)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select doctor (optional)" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {doctors.map((d) => (
+                                            <SelectItem key={d.id} value={d.id.toString()}>
+                                                {d.name} — {d.specialization}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
+
                         <div className="space-y-2">
-                            <Label htmlFor="pincode">Pincode</Label>
-                            <Input
-                                id="pincode"
-                                value={formData.pincode}
-                                onChange={(e) => handleInputChange('pincode', e.target.value)}
-                                placeholder="Pincode"
+                            <Label>Medical conditions</Label>
+                            <TagInput
+                                tags={formData.medical_conditions}
+                                onChange={(tags) => handleInputChange('medical_conditions', tags)}
+                                placeholder="e.g. Diabetes, Hypertension"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Allergies</Label>
+                            <TagInput
+                                tags={formData.allergies}
+                                onChange={(tags) => handleInputChange('allergies', tags)}
+                                placeholder="e.g. Penicillin, Peanuts"
+                                variant="destructive"
                             />
                         </div>
                     </div>
-                </div>
-            </div>
-
-            {/* Medical Information */}
-            <div className="space-y-6">
-                <SectionTitle>Medical information</SectionTitle>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
-                    <div className="space-y-2">
-                        <Label>Medical conditions</Label>
-                        <TagInput
-                            tags={formData.medical_conditions}
-                            onChange={(tags) => handleInputChange('medical_conditions', tags)}
-                            placeholder="e.g. Diabetes, Hypertension"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Allergies</Label>
-                        <TagInput
-                            tags={formData.allergies}
-                            onChange={(tags) => handleInputChange('allergies', tags)}
-                            placeholder="e.g. Penicillin, Peanuts"
-                            variant="destructive"
-                        />
-                    </div>
-                </div>
+                </FormCard>
             </div>
 
             {/* Emergency Contact */}
-            <div className="space-y-6">
+            <div className="space-y-4">
                 <div>
                     <SectionTitle>Emergency contact</SectionTitle>
                     <p className="text-sm text-muted-foreground mt-1">Required for procedures</p>
                 </div>
+                <FormCard>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-5">
+                        {/* Contact Name */}
+                        <div className="space-y-2">
+                            <Label htmlFor="emergency_name">Contact name</Label>
+                            <Input
+                                id="emergency_name"
+                                value={formData.emergency_contact_name}
+                                onChange={(e) => handleInputChange('emergency_contact_name', e.target.value)}
+                                placeholder="Enter name"
+                            />
+                        </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-5">
-                    {/* Contact Name */}
-                    <div className="space-y-2">
-                        <Label htmlFor="emergency_name">Contact name</Label>
-                        <Input
-                            id="emergency_name"
-                            value={formData.emergency_contact_name}
-                            onChange={(e) => handleInputChange('emergency_contact_name', e.target.value)}
-                            placeholder="Enter name"
-                        />
-                    </div>
+                        {/* Relationship */}
+                        <div className="space-y-2">
+                            <Label htmlFor="emergency_relation">Relationship</Label>
+                            <Input
+                                id="emergency_relation"
+                                value={formData.emergency_contact_relation}
+                                onChange={(e) => handleInputChange('emergency_contact_relation', e.target.value)}
+                                placeholder="e.g., Spouse, Parent"
+                            />
+                        </div>
 
-                    {/* Relationship */}
-                    <div className="space-y-2">
-                        <Label htmlFor="emergency_relation">Relationship</Label>
-                        <Input
-                            id="emergency_relation"
-                            value={formData.emergency_contact_relation}
-                            onChange={(e) => handleInputChange('emergency_contact_relation', e.target.value)}
-                            placeholder="e.g., Spouse, Parent"
-                        />
+                        {/* Phone Number */}
+                        <div className="space-y-2">
+                            <Label htmlFor="emergency_phone">Phone number</Label>
+                            <PhoneInput
+                                value={formData.emergency_contact_phone}
+                                onChange={(v) => handleInputChange('emergency_contact_phone', v)}
+                                error={!!errors.emergency_contact_phone}
+                            />
+                        </div>
                     </div>
-
-                    {/* Phone Number */}
-                    <div className="space-y-2">
-                        <Label htmlFor="emergency_phone">Phone number</Label>
-                        <PhoneInput
-                            value={formData.emergency_contact_phone}
-                            onChange={(v) => handleInputChange('emergency_contact_phone', v)}
-                            error={!!errors.emergency_contact_phone}
-                        />
-                    </div>
-                </div>
+                </FormCard>
             </div>
 
             {/* Save Button */}

@@ -4,6 +4,7 @@ import { Mail, MessageSquare, Phone } from '@/Lib/icons';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
 import { Switch } from '@/Components/ui/switch';
+import { CardTitle, CardSubtext } from '@/Components/ui/card-typography';
 import { toast } from 'sonner';
 
 interface HealthAlertSettings {
@@ -105,10 +106,8 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                                     <Mail className="h-5 w-5 text-muted-foreground" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-semibold leading-5 text-[#171717]">Email</p>
-                                    <p className="text-sm font-normal leading-5 text-[#737373]">
-                                        Receive notifications via email
-                                    </p>
+                                    <CardTitle>Email</CardTitle>
+                                    <CardSubtext>Receive notifications via email</CardSubtext>
                                 </div>
                             </div>
                             <Switch
@@ -124,10 +123,8 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                                     <MessageSquare className="h-5 w-5 text-muted-foreground" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-semibold leading-5 text-[#171717]">WhatsApp</p>
-                                    <p className="text-sm font-normal leading-5 text-[#737373]">
-                                        Receive notifications via WhatsApp
-                                    </p>
+                                    <CardTitle>WhatsApp</CardTitle>
+                                    <CardSubtext>Receive notifications via WhatsApp</CardSubtext>
                                 </div>
                             </div>
                             <Switch
@@ -143,10 +140,8 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                                     <Phone className="h-5 w-5 text-muted-foreground" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-semibold leading-5 text-[#171717]">SMS</p>
-                                    <p className="text-sm font-normal leading-5 text-[#737373]">
-                                        Receive notifications via SMS
-                                    </p>
+                                    <CardTitle>SMS</CardTitle>
+                                    <CardSubtext>Receive notifications via SMS</CardSubtext>
                                 </div>
                             </div>
                             <Switch
@@ -165,10 +160,8 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                     <CardContent className="p-0">
                         <div className="flex items-center justify-between p-4">
                             <div>
-                                <p className="text-sm font-semibold leading-5 text-[#171717]">Appointment Reminders</p>
-                                <p className="text-sm font-normal leading-5 text-[#737373]">
-                                    Get reminded before your scheduled appointments
-                                </p>
+                                <CardTitle>Appointment Reminders</CardTitle>
+                                <CardSubtext>Get reminded before your scheduled appointments</CardSubtext>
                             </div>
                             <Switch
                                 checked={categories.appointments}
@@ -184,45 +177,54 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                 <SectionTitle>Health alerts</SectionTitle>
                 <Card className="mt-4">
                     <CardContent className="p-0 divide-y">
+                        {/* Master Health Alerts Toggle */}
+                        <div className="flex items-center justify-between p-4">
+                            <div>
+                                <CardTitle>Health Alerts</CardTitle>
+                                <CardSubtext>Enable all health-related notifications</CardSubtext>
+                            </div>
+                            <Switch
+                                checked={categories.health_alerts}
+                                onCheckedChange={(v) => handleCategoryToggle('health_alerts', v)}
+                            />
+                        </div>
+
                         {/* Lab Results */}
                         <div className="flex items-center justify-between p-4">
                             <div>
-                                <p className="text-sm font-semibold leading-5 text-[#171717]">Lab Results Available</p>
-                                <p className="text-sm font-normal leading-5 text-[#737373]">
-                                    Get notified when new lab results are ready
-                                </p>
+                                <CardTitle>Lab Results Available</CardTitle>
+                                <CardSubtext>Get notified when new lab results are ready</CardSubtext>
                             </div>
                             <Switch
                                 checked={healthAlerts.lab_results}
                                 onCheckedChange={(v) => handleHealthAlertToggle('lab_results', v)}
+                                disabled={!categories.health_alerts}
                             />
                         </div>
 
                         {/* Prescription Reminders */}
                         <div className="flex items-center justify-between p-4">
                             <div>
-                                <p className="text-sm font-semibold leading-5 text-[#171717]">Prescription Reminders</p>
-                                <p className="text-sm font-normal leading-5 text-[#737373]">
-                                    Daily reminders for your prescriptions
-                                </p>
+                                <CardTitle>Prescription Reminders</CardTitle>
+                                <CardSubtext>Daily reminders for your prescriptions</CardSubtext>
                             </div>
                             <Switch
                                 checked={healthAlerts.medication_reminders}
                                 onCheckedChange={(v) => handleHealthAlertToggle('medication_reminders', v)}
+                                disabled={!categories.health_alerts}
                             />
                         </div>
 
                         {/* Doctor Messages */}
                         <div className="flex items-center justify-between p-4">
                             <div>
-                                <p className="text-sm font-semibold leading-5 text-[#171717]">Doctor Messages</p>
-                                <p className="text-sm font-normal leading-5 text-[#737373]">
-                                    Notifications when your doctor sends a message
-                                </p>
+                                <CardTitle>Doctor Messages</CardTitle>
+                                <CardSubtext>Notifications when your doctor sends a message</CardSubtext>
                             </div>
                             <Switch
                                 checked={healthAlerts.doctor_messages}
                                 onCheckedChange={(v) => handleHealthAlertToggle('doctor_messages', v)}
+                                disabled={!categories.health_alerts}
                             />
                         </div>
                     </CardContent>
@@ -236,14 +238,31 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                     <CardContent className="p-0">
                         <div className="flex items-center justify-between p-4">
                             <div>
-                                <p className="text-sm font-semibold leading-5 text-[#171717]">Bill Payment Reminders</p>
-                                <p className="text-sm font-normal leading-5 text-[#737373]">
-                                    Reminders for pending and upcoming bills
-                                </p>
+                                <CardTitle>Bill Payment Reminders</CardTitle>
+                                <CardSubtext>Reminders for pending and upcoming bills</CardSubtext>
                             </div>
                             <Switch
                                 checked={categories.billing}
                                 onCheckedChange={(v) => handleCategoryToggle('billing', v)}
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Insurance */}
+            <div>
+                <SectionTitle>Insurance</SectionTitle>
+                <Card className="mt-4">
+                    <CardContent className="p-0">
+                        <div className="flex items-center justify-between p-4">
+                            <div>
+                                <CardTitle>Insurance Claim Updates</CardTitle>
+                                <CardSubtext>Get notified about claim status changes and approvals</CardSubtext>
+                            </div>
+                            <Switch
+                                checked={categories.insurance}
+                                onCheckedChange={(v) => handleCategoryToggle('insurance', v)}
                             />
                         </div>
                     </CardContent>
@@ -257,10 +276,8 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                     <CardContent className="p-0">
                         <div className="flex items-center justify-between p-4">
                             <div>
-                                <p className="text-sm font-semibold leading-5 text-[#171717]">Health Tips & Promotions</p>
-                                <p className="text-sm font-normal leading-5 text-[#737373]">
-                                    Occasional emails about health camps and special offers
-                                </p>
+                                <CardTitle>Health Tips & Promotions</CardTitle>
+                                <CardSubtext>Occasional emails about health camps and special offers</CardSubtext>
                             </div>
                             <Switch
                                 checked={categories.promotions}
