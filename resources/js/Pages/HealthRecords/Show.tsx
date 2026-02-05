@@ -1529,7 +1529,7 @@ function MriDetail({ meta }: { meta: RecordMetadata }) {
       {meta.contrast && <DetailRow label="Contrast">{meta.contrast}</DetailRow>}
       {meta.sequences && <DetailRow label="Sequences">{meta.sequences}</DetailRow>}
       {meta.radiologist && <DetailRow label="Radiologist">{meta.radiologist}</DetailRow>}
-      <FindingsImpression findings={meta.findings} impression={meta.impression} impressionColor="#6D28D9" impressionBg="bg-purple-50" />
+      <FindingsImpression findings={meta.findings} impression={meta.impression} impressionColor="hsl(var(--primary))" impressionBg="bg-primary/10" />
     </div>
   );
 }
@@ -1540,7 +1540,7 @@ function UltrasoundDetail({ meta }: { meta: RecordMetadata }) {
       {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
       {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
       {meta.sonographer && <DetailRow label="Sonographer">{meta.sonographer}</DetailRow>}
-      <FindingsImpression findings={meta.findings} impression={meta.impression} impressionColor="#0F766E" impressionBg="bg-teal-50" />
+      <FindingsImpression findings={meta.findings} impression={meta.impression} impressionColor="hsl(var(--primary))" impressionBg="bg-primary/10" />
     </div>
   );
 }
@@ -1577,7 +1577,7 @@ function EcgDetail({ meta }: { meta: RecordMetadata }) {
           </div>
         </div>
       )}
-      <FindingsImpression findings={meta.findings} impression={meta.impression} impressionColor="#DC2626" impressionBg="bg-red-50" />
+      <FindingsImpression findings={meta.findings} impression={meta.impression} impressionColor="hsl(var(--destructive))" impressionBg="bg-destructive/10" />
     </div>
   );
 }
