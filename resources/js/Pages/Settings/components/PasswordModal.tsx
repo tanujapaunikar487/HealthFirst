@@ -7,6 +7,8 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
+    DialogBody,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
 } from '@/Components/ui/dialog';
@@ -156,49 +158,53 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                 {step === 'verify' && (
                     <>
                         <DialogHeader>
-                            <DialogTitle>Verify Your Identity</DialogTitle>
+                            <DialogTitle>Verify your identity</DialogTitle>
                             <DialogDescription>
                                 Enter your current password to continue
                             </DialogDescription>
                         </DialogHeader>
 
-                        <div className="space-y-4">
-                            {error && (
-                                <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-[14px]">
-                                    <AlertCircle className="h-4 w-4" />
-                                    {error}
-                                </div>
-                            )}
+                        <DialogBody>
+                            <div className="space-y-4">
+                                {error && (
+                                    <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-[14px]">
+                                        <AlertCircle className="h-4 w-4" />
+                                        {error}
+                                    </div>
+                                )}
 
-                            <div className="space-y-2">
-                                <Label htmlFor="current-password">Current Password</Label>
-                                <div className="relative">
-                                    <Input
-                                        id="current-password"
-                                        type={showCurrentPassword ? 'text' : 'password'}
-                                        value={currentPassword}
-                                        onChange={(e) => setCurrentPassword(e.target.value)}
-                                        placeholder="Enter your current password"
-                                        className="pr-10"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                                    >
-                                        {showCurrentPassword ? (
-                                            <EyeOff className="h-4 w-4" />
-                                        ) : (
-                                            <Eye className="h-4 w-4" />
-                                        )}
-                                    </button>
+                                <div className="space-y-2">
+                                    <Label htmlFor="current-password">Current Password</Label>
+                                    <div className="relative">
+                                        <Input
+                                            id="current-password"
+                                            type={showCurrentPassword ? 'text' : 'password'}
+                                            value={currentPassword}
+                                            onChange={(e) => setCurrentPassword(e.target.value)}
+                                            placeholder="Enter your current password"
+                                            className="pr-10"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                        >
+                                            {showCurrentPassword ? (
+                                                <EyeOff className="h-4 w-4" />
+                                            ) : (
+                                                <Eye className="h-4 w-4" />
+                                            )}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
+                        </DialogBody>
 
+                        <DialogFooter>
                             <Button
                                 onClick={handleVerify}
                                 disabled={!currentPassword || loading}
-                                className="w-full"
+                                className="flex-1"
                             >
                                 {loading ? (
                                     <>
@@ -209,144 +215,151 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                                     'Continue'
                                 )}
                             </Button>
-                        </div>
+                        </DialogFooter>
                     </>
                 )}
 
                 {step === 'create' && (
                     <>
                         <DialogHeader>
-                            <DialogTitle>Create New Password</DialogTitle>
+                            <DialogTitle>Create new password</DialogTitle>
                             <DialogDescription>
                                 Choose a strong password with at least 8 characters
                             </DialogDescription>
                         </DialogHeader>
 
-                        <div className="space-y-4">
-                            {error && (
-                                <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-[14px]">
-                                    <AlertCircle className="h-4 w-4" />
-                                    {error}
-                                </div>
-                            )}
-
-                            <div className="space-y-2">
-                                <Label htmlFor="new-password">New Password</Label>
-                                <div className="relative">
-                                    <Input
-                                        id="new-password"
-                                        type={showNewPassword ? 'text' : 'password'}
-                                        value={newPassword}
-                                        onChange={(e) => setNewPassword(e.target.value)}
-                                        placeholder="Enter new password"
-                                        className="pr-10"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowNewPassword(!showNewPassword)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                                    >
-                                        {showNewPassword ? (
-                                            <EyeOff className="h-4 w-4" />
-                                        ) : (
-                                            <Eye className="h-4 w-4" />
-                                        )}
-                                    </button>
-                                </div>
-
-                                {/* Strength Meter */}
-                                {newPassword && (
-                                    <div className="space-y-2">
-                                        <div className="flex gap-1">
-                                            {[0, 1, 2, 3, 4].map((i) => (
-                                                <div
-                                                    key={i}
-                                                    className={`h-1.5 flex-1 rounded-full transition-colors ${
-                                                        i < strength.score
-                                                            ? strength.color
-                                                            : 'bg-muted'
-                                                    }`}
-                                                />
-                                            ))}
-                                        </div>
-                                        <p className="text-[14px] text-muted-foreground">
-                                            Password strength: <span className="font-medium">{strength.label}</span>
-                                        </p>
+                        <DialogBody>
+                            <div className="space-y-4">
+                                {error && (
+                                    <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-[14px]">
+                                        <AlertCircle className="h-4 w-4" />
+                                        {error}
                                     </div>
                                 )}
-                            </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="confirm-password">Confirm Password</Label>
-                                <div className="relative">
-                                    <Input
-                                        id="confirm-password"
-                                        type={showConfirmPassword ? 'text' : 'password'}
-                                        value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        placeholder="Confirm new password"
-                                        className={`pr-10 ${
-                                            confirmPassword && !passwordsMatch
-                                                ? 'border-destructive'
-                                                : ''
-                                        }`}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                                    >
-                                        {showConfirmPassword ? (
-                                            <EyeOff className="h-4 w-4" />
-                                        ) : (
-                                            <Eye className="h-4 w-4" />
-                                        )}
-                                    </button>
-                                </div>
-                                {confirmPassword && !passwordsMatch && (
-                                    <p className="text-[14px] text-destructive">Passwords do not match</p>
-                                )}
-                            </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="new-password">New Password</Label>
+                                    <div className="relative">
+                                        <Input
+                                            id="new-password"
+                                            type={showNewPassword ? 'text' : 'password'}
+                                            value={newPassword}
+                                            onChange={(e) => setNewPassword(e.target.value)}
+                                            placeholder="Enter new password"
+                                            className="pr-10"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowNewPassword(!showNewPassword)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                        >
+                                            {showNewPassword ? (
+                                                <EyeOff className="h-4 w-4" />
+                                            ) : (
+                                                <Eye className="h-4 w-4" />
+                                            )}
+                                        </button>
+                                    </div>
 
-                            <div className="flex gap-3 pt-2">
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setStep('verify')}
-                                    className="flex-1"
-                                >
-                                    Back
-                                </Button>
-                                <Button
-                                    onClick={handleChangePassword}
-                                    disabled={!canCreate || loading}
-                                    className="flex-1"
-                                >
-                                    {loading ? (
-                                        <>
-                                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                            Changing...
-                                        </>
-                                    ) : (
-                                        'Change password'
+                                    {/* Strength Meter */}
+                                    {newPassword && (
+                                        <div className="space-y-2">
+                                            <div className="flex gap-1">
+                                                {[0, 1, 2, 3, 4].map((i) => (
+                                                    <div
+                                                        key={i}
+                                                        className={`h-1.5 flex-1 rounded-full transition-colors ${
+                                                            i < strength.score
+                                                                ? strength.color
+                                                                : 'bg-muted'
+                                                        }`}
+                                                    />
+                                                ))}
+                                            </div>
+                                            <p className="text-[14px] text-muted-foreground">
+                                                Password strength: <span className="font-medium">{strength.label}</span>
+                                            </p>
+                                        </div>
                                     )}
-                                </Button>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="confirm-password">Confirm Password</Label>
+                                    <div className="relative">
+                                        <Input
+                                            id="confirm-password"
+                                            type={showConfirmPassword ? 'text' : 'password'}
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            placeholder="Confirm new password"
+                                            className={`pr-10 ${
+                                                confirmPassword && !passwordsMatch
+                                                    ? 'border-destructive'
+                                                    : ''
+                                            }`}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                        >
+                                            {showConfirmPassword ? (
+                                                <EyeOff className="h-4 w-4" />
+                                            ) : (
+                                                <Eye className="h-4 w-4" />
+                                            )}
+                                        </button>
+                                    </div>
+                                    {confirmPassword && !passwordsMatch && (
+                                        <p className="text-[14px] text-destructive">Passwords do not match</p>
+                                    )}
+                                </div>
                             </div>
-                        </div>
+                        </DialogBody>
+
+                        <DialogFooter>
+                            <Button
+                                variant="outline"
+                                onClick={() => setStep('verify')}
+                                className="flex-1"
+                            >
+                                Back
+                            </Button>
+                            <Button
+                                onClick={handleChangePassword}
+                                disabled={!canCreate || loading}
+                                className="flex-1"
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                        Changing...
+                                    </>
+                                ) : (
+                                    'Change password'
+                                )}
+                            </Button>
+                        </DialogFooter>
                     </>
                 )}
 
                 {step === 'success' && (
-                    <div className="py-8 text-center space-y-4">
-                        <div className="mx-auto h-16 w-16 rounded-full bg-success/10 flex items-center justify-center">
-                            <Check className="h-8 w-8 text-success" />
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-semibold">Password Changed!</h3>
-                            <p className="text-[14px] text-muted-foreground mt-1">
-                                Your password has been updated successfully
-                            </p>
-                        </div>
-                    </div>
+                    <>
+                        <DialogTitle className="sr-only">Password changed</DialogTitle>
+                        <DialogBody>
+                            <div className="py-8 text-center space-y-4">
+                                <div className="mx-auto h-16 w-16 rounded-full bg-success/10 flex items-center justify-center">
+                                    <Check className="h-8 w-8 text-success" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold">Password changed!</h3>
+                                    <p className="text-[14px] text-muted-foreground mt-1">
+                                        Your password has been updated successfully
+                                    </p>
+                                </div>
+                            </div>
+                        </DialogBody>
+                    </>
                 )}
             </DialogContent>
         </Dialog>

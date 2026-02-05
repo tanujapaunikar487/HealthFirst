@@ -136,10 +136,12 @@
 }
 
 @layer components {
-    .sheet-body > * {
+    .sheet-body > *,
+    .dialog-body > * {
         padding: 20px;
     }
-    .sheet-body > * + * {
+    .sheet-body > * + *,
+    .dialog-body > * + * {
         border-top: 1px solid hsl(var(--border));
     }
 }

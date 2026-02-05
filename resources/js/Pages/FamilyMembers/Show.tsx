@@ -50,6 +50,15 @@ import {
   Activity,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from '@/Components/ui/dialog';
 
 /* ─── Types ─── */
 
@@ -1185,107 +1194,103 @@ export default function FamilyMemberShow({
         </SheetContent>
       </Sheet>
 
-      {/* Upgrade Confirmation Overlay */}
-      {showUpgradeConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => !upgrading && setShowUpgradeConfirm(false)}
-          />
-          <div className="relative z-10 w-full max-w-sm rounded-2xl bg-card p-6 shadow-xl">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-              <UserPlus className="h-5 w-5 text-primary" />
-            </div>
-            <h3 className="mb-1 text-lg font-semibold text-foreground">Upgrade {member.name}?</h3>
-            <p className="mb-6 text-[14px] text-muted-foreground">
+      {/* Upgrade Confirmation Dialog */}
+      <Dialog
+        open={showUpgradeConfirm}
+        onOpenChange={(open) => { if (!upgrading) setShowUpgradeConfirm(open); }}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Upgrade {member.name}?</DialogTitle>
+            <DialogDescription>
               This will convert this guest to a full family member with access to health records, billing, and all other features.
-            </p>
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => setShowUpgradeConfirm(false)}
-                disabled={upgrading}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="default"
-                className="flex-1"
-                onClick={handleUpgrade}
-                disabled={upgrading}
-              >
-                {upgrading ? 'Upgrading...' : 'Upgrade'}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setShowUpgradeConfirm(false)}
+              disabled={upgrading}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="default"
+              className="flex-1"
+              onClick={handleUpgrade}
+              disabled={upgrading}
+            >
+              {upgrading ? 'Upgrading...' : 'Upgrade'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-      {/* Delete Confirmation Overlay */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => {
-              setShowDeleteConfirm(false);
-              setDeleteConfirmName('');
-            }}
-          />
-          <div className="relative z-10 w-full max-w-md rounded-2xl bg-card p-6 shadow-xl">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
-              <AlertTriangle className="h-6 w-6 text-destructive" />
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={showDeleteConfirm}
+        onOpenChange={(open) => {
+          if (!open) { setShowDeleteConfirm(false); setDeleteConfirmName(''); }
+          else setShowDeleteConfirm(true);
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle style={{ color: 'hsl(var(--destructive))' }}>Remove {member.name}?</DialogTitle>
+          </DialogHeader>
+          <DialogBody>
+            <div className="space-y-4">
+              <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3">
+                <p className="text-[14px] text-destructive font-medium mb-2">
+                  This action cannot be undone
+                </p>
+                <p className="text-[14px] text-destructive">
+                  This will permanently delete:
+                </p>
+                <ul className="mt-2 text-[14px] text-destructive space-y-1 ml-4 list-disc">
+                  <li>All health records and medical history</li>
+                  <li>Past appointments and consultation notes</li>
+                  <li>Billing and insurance claim records</li>
+                  <li>Prescriptions and lab reports</li>
+                </ul>
+              </div>
+              <div>
+                <label className="block text-[14px] font-medium text-foreground mb-2">
+                  Type <span className="font-semibold">{member.name}</span> to confirm
+                </label>
+                <Input
+                  type="text"
+                  value={deleteConfirmName}
+                  onChange={(e) => setDeleteConfirmName(e.target.value)}
+                  placeholder={`Type "${member.name}" to confirm`}
+                  className="w-full"
+                />
+              </div>
             </div>
-            <h3 className="mb-2 text-lg font-semibold text-foreground">Remove {member.name}?</h3>
-            <div className="mb-4 rounded-lg bg-destructive/10 border border-destructive/20 p-3">
-              <p className="text-[14px] text-destructive font-medium mb-2">
-                ⚠️ This action cannot be undone
-              </p>
-              <p className="text-[14px] text-destructive">
-                This will permanently delete:
-              </p>
-              <ul className="mt-2 text-[14px] text-destructive space-y-1 ml-4 list-disc">
-                <li>All health records and medical history</li>
-                <li>Past appointments and consultation notes</li>
-                <li>Billing and insurance claim records</li>
-                <li>Prescriptions and lab reports</li>
-              </ul>
-            </div>
-            <div className="mb-4">
-              <label className="block text-[14px] font-medium text-foreground mb-2">
-                Type <span className="font-semibold">{member.name}</span> to confirm
-              </label>
-              <Input
-                type="text"
-                value={deleteConfirmName}
-                onChange={(e) => setDeleteConfirmName(e.target.value)}
-                placeholder={`Type "${member.name}" to confirm`}
-                className="w-full"
-              />
-            </div>
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => {
-                  setShowDeleteConfirm(false);
-                  setDeleteConfirmName('');
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                className="flex-1"
-                onClick={handleDelete}
-                disabled={deleteConfirmName !== member.name}
-              >
-                Remove
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+          </DialogBody>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => {
+                setShowDeleteConfirm(false);
+                setDeleteConfirmName('');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              onClick={handleDelete}
+              disabled={deleteConfirmName !== member.name}
+            >
+              Remove
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Toast */}
       <Toast

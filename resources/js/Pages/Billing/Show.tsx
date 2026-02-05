@@ -42,6 +42,15 @@ import { Icon } from '@/Components/ui/icon';
 import { downloadAsHtml } from '@/Lib/download';
 import { Textarea } from '@/Components/ui/textarea';
 import { ShareSheet } from '@/Components/ui/share-sheet';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from '@/Components/ui/dialog';
 
 /* ─── Types ─── */
 
@@ -1055,26 +1064,25 @@ export default function Show({ user, bill }: Props) {
       </div>
 
       {/* Dispute Dialog */}
-      {showDisputeDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => {
-              if (!disputeLoading) {
-                setShowDisputeDialog(false);
-                setDisputeReason('');
-              }
-            }}
-          />
-          <div className="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-warning/10">
-              <AlertTriangle className="h-6 w-6 text-warning" />
-            </div>
-            <h3 className="mb-2 text-lg font-semibold text-foreground">Raise a dispute?</h3>
-            <p className="mb-4 text-[14px] text-muted-foreground">
+      <Dialog
+        open={showDisputeDialog}
+        onOpenChange={(open) => {
+          if (!disputeLoading) {
+            setShowDisputeDialog(open);
+            if (!open) setDisputeReason('');
+          }
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Raise a dispute?</DialogTitle>
+            <DialogDescription>
               Our team will review your dispute within 3–5 business days. Payment will be paused during review.
-            </p>
-            <div className="mb-4">
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogBody>
+            <div>
               <label className="block text-[14px] font-medium text-foreground mb-2">
                 Reason for dispute
               </label>
@@ -1088,44 +1096,45 @@ export default function Show({ user, bill }: Props) {
               />
               <p className="mt-1 text-[14px] text-muted-foreground text-right">{disputeReason.length}/1000</p>
             </div>
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                className="flex-1"
-                disabled={disputeLoading}
-                onClick={() => {
-                  setShowDisputeDialog(false);
-                  setDisputeReason('');
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                className="flex-1"
-                disabled={!disputeReason.trim() || disputeLoading}
-                onClick={() => {
-                  setDisputeLoading(true);
-                  router.post(`/billing/${bill.id}/dispute`, { reason: disputeReason.trim() }, {
-                    onSuccess: () => {
-                      setShowDisputeDialog(false);
-                      setDisputeReason('');
-                      setDisputeLoading(false);
-                      showToast('Dispute submitted. You will hear from us within 3–5 business days.');
-                    },
-                    onError: () => {
-                      setDisputeLoading(false);
-                      showToast('Failed to submit dispute. Please try again.');
-                    },
-                  });
-                }}
-              >
-                {disputeLoading ? 'Submitting...' : 'Submit dispute'}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+          </DialogBody>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              className="flex-1"
+              disabled={disputeLoading}
+              onClick={() => {
+                setShowDisputeDialog(false);
+                setDisputeReason('');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              disabled={!disputeReason.trim() || disputeLoading}
+              onClick={() => {
+                setDisputeLoading(true);
+                router.post(`/billing/${bill.id}/dispute`, { reason: disputeReason.trim() }, {
+                  onSuccess: () => {
+                    setShowDisputeDialog(false);
+                    setDisputeReason('');
+                    setDisputeLoading(false);
+                    showToast('Dispute submitted. You will hear from us within 3–5 business days.');
+                  },
+                  onError: () => {
+                    setDisputeLoading(false);
+                    showToast('Failed to submit dispute. Please try again.');
+                  },
+                });
+              }}
+            >
+              {disputeLoading ? 'Submitting...' : 'Submit dispute'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Toast */}
       {toastMessage && (

@@ -267,7 +267,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="p-0 gap-0 overflow-hidden flex flex-col [&>button]:hidden"
+        className="overflow-hidden"
         style={{
           width: '714px',
           maxWidth: '90vw',

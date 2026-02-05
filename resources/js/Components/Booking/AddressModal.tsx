@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogBody, DialogFooter, DialogTitle } from '@/Components/ui/dialog';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/Components/ui/radio-group';
 import { cn } from '@/Lib/utils';
-import { MapPin, Plus, Home } from '@/Lib/icons';
+import { Plus, Home } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 
 interface Address {
@@ -57,12 +57,12 @@ export function AddressModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Select or add address</DialogTitle>
+          <DialogTitle>{showAddForm ? 'Add new address' : 'Select or add address'}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <DialogBody>
           {!showAddForm ? (
-            <>
+            <div className="space-y-4">
               {/* Saved Addresses */}
               {savedAddresses.length > 0 && (
                 <div className="space-y-3">
@@ -103,61 +103,60 @@ export function AddressModal({
                 <Icon icon={Plus} className="h-4 w-4 mr-2" />
                 Add new address
               </Button>
-
-              {/* Action Buttons */}
-              <div className="flex gap-2 pt-2">
-                <Button variant="outline" className="flex-1" onClick={onClose}>
-                  Cancel
-                </Button>
-                <Button
-                  className="flex-1"
-                  onClick={handleSelectAddress}
-                  disabled={!selectedAddressId}
-                >
-                  Select address
-                </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="label">Address Label (e.g., Home, Office)</Label>
+                <Input
+                  id="label"
+                  placeholder="Home"
+                  value={newAddress.label}
+                  onChange={(e) => setNewAddress({ ...newAddress, label: e.target.value })}
+                />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="address">Full Address</Label>
+                <Input
+                  id="address"
+                  placeholder="123, Palm Grove, Koregaon Park"
+                  value={newAddress.addressLine}
+                  onChange={(e) => setNewAddress({ ...newAddress, addressLine: e.target.value })}
+                />
+              </div>
+            </div>
+          )}
+        </DialogBody>
+
+        <DialogFooter>
+          {!showAddForm ? (
+            <>
+              <Button variant="outline" className="flex-1" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={handleSelectAddress}
+                disabled={!selectedAddressId}
+              >
+                Select address
+              </Button>
             </>
           ) : (
             <>
-              {/* Add address Form */}
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="label">Address Label (e.g., Home, Office)</Label>
-                  <Input
-                    id="label"
-                    placeholder="Home"
-                    value={newAddress.label}
-                    onChange={(e) => setNewAddress({ ...newAddress, label: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="address">Full Address</Label>
-                  <Input
-                    id="address"
-                    placeholder="123, Palm Grove, Koregaon Park"
-                    value={newAddress.addressLine}
-                    onChange={(e) => setNewAddress({ ...newAddress, addressLine: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-2 pt-2">
-                <Button variant="outline" className="flex-1" onClick={() => setShowAddForm(false)}>
-                  Back
-                </Button>
-                <Button
-                  className="flex-1"
-                  onClick={handleAddAddress}
-                  disabled={!newAddress.label || !newAddress.addressLine}
-                >
-                  Add address
-                </Button>
-              </div>
+              <Button variant="outline" className="flex-1" onClick={() => setShowAddForm(false)}>
+                Back
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={handleAddAddress}
+                disabled={!newAddress.label || !newAddress.addressLine}
+              >
+                Add address
+              </Button>
             </>
           )}
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

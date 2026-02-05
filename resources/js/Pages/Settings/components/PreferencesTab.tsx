@@ -17,6 +17,7 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
+    DialogBody,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -392,7 +393,7 @@ export function PreferencesTab({
             <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2 text-destructive">
+                        <DialogTitle className="flex items-center gap-2" style={{ color: 'hsl(var(--destructive))' }}>
                             <AlertTriangle className="h-5 w-5" />
                             Delete account
                         </DialogTitle>
@@ -402,37 +403,40 @@ export function PreferencesTab({
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="space-y-4">
-                        <div className="rounded-lg bg-destructive/10 p-4 text-[14px] text-destructive">
-                            <p className="font-medium mb-2">The following data will be deleted:</p>
-                            <ul className="list-disc list-inside space-y-1">
-                                <li>Your profile and personal information</li>
-                                <li>All family member records</li>
-                                <li>Appointment history</li>
-                                <li>Health records and prescriptions</li>
-                                <li>Insurance policies and claims</li>
-                                <li>Billing history</li>
-                            </ul>
-                        </div>
+                    <DialogBody>
+                        <div className="space-y-4">
+                            <div className="rounded-lg bg-destructive/10 p-4 text-[14px] text-destructive">
+                                <p className="font-medium mb-2">The following data will be deleted:</p>
+                                <ul className="list-disc list-inside space-y-1">
+                                    <li>Your profile and personal information</li>
+                                    <li>All family member records</li>
+                                    <li>Appointment history</li>
+                                    <li>Health records and prescriptions</li>
+                                    <li>Insurance policies and claims</li>
+                                    <li>Billing history</li>
+                                </ul>
+                            </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="delete-password">Enter your password to confirm</Label>
-                            <Input
-                                id="delete-password"
-                                type="password"
-                                value={deletePassword}
-                                onChange={(e) => setDeletePassword(e.target.value)}
-                                placeholder="Your password"
-                            />
+                            <div className="space-y-2">
+                                <Label htmlFor="delete-password">Enter your password to confirm</Label>
+                                <Input
+                                    id="delete-password"
+                                    type="password"
+                                    value={deletePassword}
+                                    onChange={(e) => setDeletePassword(e.target.value)}
+                                    placeholder="Your password"
+                                />
+                            </div>
                         </div>
-                    </div>
+                    </DialogBody>
 
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+                        <Button variant="outline" className="flex-1" onClick={() => setShowDeleteDialog(false)}>
                             Cancel
                         </Button>
                         <Button
                             variant="destructive"
+                            className="flex-1"
                             onClick={handleDeleteAccount}
                             disabled={!deletePassword || deleting}
                         >
