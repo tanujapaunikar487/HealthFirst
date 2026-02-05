@@ -258,7 +258,7 @@ export function PaymentsTab({ paymentMethods = [], upiIds = [] }: PaymentsTabPro
     };
 
     return (
-        <div className="space-y-16">
+        <div className="space-y-12">
             {/* Cards Section */}
             <div>
                 <div className="flex items-center justify-between mb-4">

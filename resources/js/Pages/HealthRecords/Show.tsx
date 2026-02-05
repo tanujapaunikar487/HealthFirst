@@ -46,6 +46,7 @@ import {
   X,
   Phone,
   ArrowRight,
+  ChevronRight,
   Calendar,
   ShieldCheck,
   FileDown,
@@ -499,8 +500,8 @@ function Section({
   return (
     <div id={id} className="scroll-mt-24">
       <div className="flex items-center gap-2.5 mb-4">
-        <Icon icon={SectionIcon} className="h-5 w-5 text-muted-foreground" />
-        <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+        <Icon icon={SectionIcon} className="h-5 w-5 text-neutral-900" />
+        <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
           {title}
         </h2>
       </div>
@@ -573,11 +574,11 @@ function LinkedRecordsList({ records, onView }: { records: LinkedRecord[]; onVie
               </div>
             ) : (
               <div className="h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-100">
-                <FileText className="h-4 w-4 text-gray-500" />
+                <FileText className="h-4 w-4 text-neutral-900" />
               </div>
             )}
             <span className="text-[14px] font-medium flex-1 truncate">{rec.title}</span>
-            <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <Button size="icon" icon={ChevronRight} />
           </button>
         );
       })}
@@ -817,7 +818,7 @@ export default function Show({ user, record, familyMember }: Props) {
         {/* Main Content with Side Nav */}
         <div className="flex gap-24">
           <RecordSideNav hasProvider={hasProvider} />
-          <div className="flex-1 min-w-0 space-y-16 pb-12">
+          <div className="flex-1 min-w-0 space-y-12 pb-12">
             {/* Summary Section */}
             <Section id="summary" title="Summary" icon={FileText}>
               {record.description ? (
@@ -2017,7 +2018,7 @@ function VaccinationDetail({ meta, onAction, familyMember }: { meta: RecordMetad
           <div className="space-y-2">
             {meta.attached_certificates.map((file, i) => (
               <div key={i} className="flex items-center gap-4 rounded-lg border px-4 py-3">
-                <div className="h-10 w-10 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
+                <div className="h-10 w-10 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
                   <FileDown className="h-5 w-5 text-red-500" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -2081,7 +2082,7 @@ function MedicalCertificateDetail({ meta, onAction }: { meta: RecordMetadata; on
                 </>
               ) : (
                 <>
-                  <ShieldCheck className="h-5 w-5 text-gray-400" />
+                  <ShieldCheck className="h-5 w-5 text-neutral-900" />
                   <span className="text-[14px] font-medium text-muted-foreground">Not digitally signed</span>
                 </>
               )}

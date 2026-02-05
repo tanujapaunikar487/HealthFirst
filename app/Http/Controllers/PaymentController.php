@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\BookingConversation;
+use App\Models\Appointment;
+use App\Models\Doctor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Razorpay\Api\Api;
 use Illuminate\Support\Facades\Log;
 
@@ -173,15 +176,44 @@ class PaymentController extends Controller
      */
     protected function createBooking(BookingConversation $conversation): string
     {
-        // Generate booking ID
-        $bookingId = 'HF' . strtoupper(substr(md5($conversation->id . time()), 0, 8));
+        $data = $conversation->collected_data;
+        $user = Auth::user() ?? \App\User::first();
+        $isDoctor = ($data['booking_type'] ?? 'doctor') === 'doctor';
 
-        // Store booking ID in conversation
+        $appointmentData = [
+            'user_id' => $user->id,
+            'family_member_id' => $data['selectedPatientId'] ?? null,
+            'appointment_type' => $isDoctor ? 'doctor' : 'lab_test',
+            'appointment_date' => $data['selectedDate'] ?? now()->toDateString(),
+            'appointment_time' => $data['selectedTime'] ?? '09:00 AM',
+            'status' => 'confirmed',
+            'payment_status' => 'paid',
+            'fee' => $data['fee'] ?? $this->getBookingAmount($conversation),
+        ];
+
+        if ($isDoctor) {
+            $doctorId = $data['selectedDoctorId'] ?? null;
+            $doctor = $doctorId ? Doctor::find($doctorId) : null;
+            $appointmentData['doctor_id'] = $doctorId;
+            $appointmentData['department_id'] = $doctor?->department_id;
+            $appointmentData['consultation_mode'] = $data['consultationMode'] ?? 'video';
+            $appointmentData['symptoms'] = $data['symptoms'] ?? [];
+        } else {
+            $appointmentData['lab_package_id'] = $data['selectedPackageId'] ?? null;
+            $appointmentData['lab_test_ids'] = $data['selectedTestIds'] ?? null;
+            $appointmentData['collection_type'] = $data['collectionType'] ?? null;
+            $appointmentData['lab_center_id'] = $data['selectedCenterId'] ?? null;
+            $appointmentData['user_address_id'] = $data['selectedAddressId'] ?? null;
+        }
+
+        $appointment = Appointment::create($appointmentData);
+
+        // Store appointment ID in conversation for reference
         $conversation->collected_data = array_merge($conversation->collected_data, [
-            'booking_id' => $bookingId,
+            'booking_id' => (string) $appointment->id,
         ]);
         $conversation->save();
 
-        return $bookingId;
+        return (string) $appointment->id;
     }
 }

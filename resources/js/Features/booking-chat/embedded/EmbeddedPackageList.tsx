@@ -193,7 +193,7 @@ export function EmbeddedPackageList({
                             {isChecked ? (
                               <CheckSquare className="h-5 w-5 text-primary" />
                             ) : (
-                              <Square className="h-5 w-5 text-muted-foreground/50" />
+                              <Square className="h-5 w-5 text-neutral-900/50" />
                             )}
                           </div>
 
@@ -339,7 +339,7 @@ export function EmbeddedPackageList({
                           {isSelected ? (
                             <CheckSquare className="h-5 w-5 text-primary" />
                           ) : (
-                            <Square className="h-5 w-5 text-muted-foreground/50" />
+                            <Square className="h-5 w-5 text-neutral-900/50" />
                           )}
                         </div>
 
@@ -428,7 +428,7 @@ export function EmbeddedPackageList({
                       {pkg.included_test_names && pkg.included_test_names.length > 0 && (
                         <div>
                           <div className="flex items-center gap-1.5 mb-2">
-                            <TestTube className="h-3.5 w-3.5 text-muted-foreground" />
+                            <TestTube className="h-3.5 w-3.5 text-neutral-900" />
                             <span className="text-[14px] font-semibold text-muted-foreground uppercase tracking-wide">
                               Included Tests
                             </span>
@@ -448,7 +448,7 @@ export function EmbeddedPackageList({
                       {pkg.preparation_notes && (
                         <div>
                           <div className="flex items-center gap-1.5 mb-2">
-                            <ClipboardList className="h-3.5 w-3.5 text-muted-foreground" />
+                            <ClipboardList className="h-3.5 w-3.5 text-neutral-900" />
                             <span className="text-[14px] font-semibold text-muted-foreground uppercase tracking-wide">
                               Preparation
                             </span>

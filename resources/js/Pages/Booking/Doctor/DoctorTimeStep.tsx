@@ -216,7 +216,7 @@ export default function DoctorTimeStep({
       continueDisabled={!selectedDoctorId || !selectedTime || !appointmentMode}
       priceEstimate={getPriceEstimate()}
     >
-      <div className="space-y-16">
+      <div className="space-y-12">
         {/* Date Selection - 14 date pills */}
         <section>
           <h2 className="text-xl font-semibold mb-4">Available {selectedDateLabel}</h2>
@@ -281,7 +281,7 @@ export default function DoctorTimeStep({
               </Select>
 
               <div className="relative">
-                <Icon icon={Search} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Icon icon={Search} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-900" />
                 <Input
                   placeholder="Search patient, doctor, date"
                   value={searchQuery}

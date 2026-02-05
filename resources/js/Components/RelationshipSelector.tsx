@@ -35,7 +35,7 @@ export function RelationshipSelector({ value, onChange }: RelationshipSelectorPr
                     type="button"
                     onClick={() => onChange(option.value)}
                     className={cn(
-                        'flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all',
+                        'flex items-center gap-3 px-4 py-3 rounded-xl border transition-all',
                         'hover:bg-muted/50',
                         value === option.value
                             ? 'border-primary bg-primary/5'

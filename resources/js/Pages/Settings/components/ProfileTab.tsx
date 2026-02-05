@@ -328,7 +328,7 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
     const availableCities = formData.state ? (STATE_CITIES[formData.state] || []) : [];
 
     return (
-        <div className="space-y-16">
+        <div className="space-y-12">
             {/* Profile Header with Avatar */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-6">
@@ -379,8 +379,8 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
             {/* Personal Information - InfoCard Style */}
             <div>
                 <div className="flex items-center gap-2.5 mb-4">
-                    <Icon icon={User} className="h-5 w-5 text-muted-foreground" />
-                    <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+                    <Icon icon={User} className="h-5 w-5 text-neutral-900" />
+                    <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                         Personal information
                     </h2>
                 </div>
@@ -417,8 +417,8 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
             {/* Contact & Address - InfoCard Style */}
             <div>
                 <div className="flex items-center gap-2.5 mb-4">
-                    <Icon icon={Phone} className="h-5 w-5 text-muted-foreground" />
-                    <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+                    <Icon icon={Phone} className="h-5 w-5 text-neutral-900" />
+                    <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                         Contact & address
                     </h2>
                 </div>
@@ -443,8 +443,8 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
             {/* Health Information - InfoCard Style */}
             <div>
                 <div className="flex items-center gap-2.5 mb-4">
-                    <Icon icon={Heart} className="h-5 w-5 text-muted-foreground" />
-                    <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+                    <Icon icon={Heart} className="h-5 w-5 text-neutral-900" />
+                    <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                         Health information
                     </h2>
                 </div>
@@ -485,8 +485,8 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
             {/* Emergency Contact - InfoCard Style */}
             <div>
                 <div className="flex items-center gap-2.5 mb-4">
-                    <Icon icon={Phone} className="h-5 w-5 text-muted-foreground" />
-                    <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+                    <Icon icon={Phone} className="h-5 w-5 text-neutral-900" />
+                    <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                         Emergency contact
                     </h2>
                 </div>

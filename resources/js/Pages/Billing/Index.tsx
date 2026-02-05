@@ -38,7 +38,6 @@ import {
   Search,
   Stethoscope,
   TestTube2,
-  FileText,
   CreditCard,
   AlertCircle,
   ChevronLeft,
@@ -533,7 +532,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
           </Select>
 
           <div className="relative ml-auto">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-900" />
             <Input
               placeholder="Search invoices..."
               value={searchQuery}
@@ -583,7 +582,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
             />
           ) : (
             <EmptyState
-              icon={FileText}
+              image="/assets/images/billing.png"
               message="No bills match your filters"
               description="Try adjusting your filters to find what you're looking for."
             />
@@ -701,7 +700,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
 
                         {/* Visual indicator - click row for details */}
                         <TableCell className="align-top">
-                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                          <Button size="icon" icon={ChevronRight} />
                         </TableCell>
                       </TableRow>
                     );
@@ -907,12 +906,12 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                 >
                   {paymentState === 'processing' ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-[20px] w-[20px] animate-spin" />
                       Processing...
                     </>
                   ) : (
                     <>
-                      <CreditCard className="h-4 w-4" />
+                      <CreditCard className="h-[20px] w-[20px]" />
                       Pay ₹{activePayTotal.toLocaleString()}
                     </>
                   )}

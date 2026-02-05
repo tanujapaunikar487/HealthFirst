@@ -106,7 +106,7 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
     };
 
     return (
-        <div className="space-y-16">
+        <div className="space-y-12">
             {/* Video Appointment Section */}
             <div>
                 <div className="mb-4">
@@ -141,7 +141,7 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                                         <Check className="h-3 w-3 mr-1" /> Active
                                     </Badge>
                                 )}
-                                <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
+                                <div className={`h-5 w-5 rounded-full border flex items-center justify-center ${
                                     selectedProvider === 'google_meet'
                                         ? 'border-primary bg-primary'
                                         : 'border-muted-foreground/30'
@@ -176,7 +176,7 @@ export function ConnectionsTab({ videoSettings, calendarSettings: _calendarSetti
                                         <Check className="h-3 w-3 mr-1" /> Active
                                     </Badge>
                                 )}
-                                <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
+                                <div className={`h-5 w-5 rounded-full border flex items-center justify-center ${
                                     selectedProvider === 'zoom'
                                         ? 'border-primary bg-primary'
                                         : 'border-muted-foreground/30'

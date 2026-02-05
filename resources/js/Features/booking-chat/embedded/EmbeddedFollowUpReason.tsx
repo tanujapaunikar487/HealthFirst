@@ -39,7 +39,7 @@ export function EmbeddedFollowUpReason({ selectedReason, onSelect, disabled }: P
             onClick={() => !disabled && onSelect(reason.value)}
             disabled={disabled}
             className={cn(
-              "w-full flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all",
+              "w-full flex items-center gap-3 p-4 rounded-xl border text-left transition-all",
               "hover:border-primary/50 hover:bg-primary/5 disabled:cursor-not-allowed",
               isSelected
                 ? "border-primary bg-primary/5"

@@ -73,7 +73,7 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
       onContinue={handleContinue}
       continueDisabled={!patientId}
     >
-      <div className="space-y-16">
+      <div className="space-y-12">
         <section>
           <h2 className="text-xl font-semibold mb-2">Who is this for?</h2>
           <p className="text-[14px] text-muted-foreground mb-4">

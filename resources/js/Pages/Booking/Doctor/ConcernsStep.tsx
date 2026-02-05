@@ -142,7 +142,7 @@ export default function ConcernsStep({
       onContinue={handleContinue}
       continueDisabled={!urgency}
     >
-      <div className="space-y-16">
+      <div className="space-y-12">
         {/* Follow-up Banner */}
         {followUp && (
           <FollowUpBanner

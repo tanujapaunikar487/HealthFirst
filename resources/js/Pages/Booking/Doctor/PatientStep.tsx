@@ -365,7 +365,7 @@ export default function PatientStep({
       onContinue={handleContinue}
       continueDisabled={continueDisabled}
     >
-      <div className="space-y-16">
+      <div className="space-y-12">
         {/* 1. Patient Selection - Always visible */}
         <section>
           <h2 className="text-xl font-semibold mb-2">Who is this appointment for?</h2>
@@ -633,7 +633,7 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: D
     <div
       className={cn(
         'p-4 bg-white transition-all',
-        isSelected && 'bg-primary/5 border-2 border-primary'
+        isSelected && 'bg-primary/5 border border-primary'
       )}
     >
       {/* Doctor Info */}

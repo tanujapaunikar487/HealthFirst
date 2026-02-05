@@ -445,7 +445,7 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
                 <button
                   onClick={handleMarkAllAsRead}
                   className="flex items-center gap-1 text-[14px] font-medium hover:underline"
-                  style={{ color: '#0052FF' }}
+                  style={{ color: '#2563EB' }}
                 >
                   <Icon icon={CheckCheck} className="h-3.5 w-3.5" />
                   Mark all read
@@ -631,7 +631,7 @@ function NavLink({ href, iconName, label, active = false }: NavLinkProps) {
     : `/assets/icons/${iconName}.svg`;
 
   const activeStyle = active
-    ? { backgroundColor: '#F5F8FF', color: '#0052FF' }
+    ? { backgroundColor: '#F5F8FF', color: '#2563EB' }
     : {};
 
   return (

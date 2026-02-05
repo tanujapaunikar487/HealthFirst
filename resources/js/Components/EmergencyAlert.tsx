@@ -18,7 +18,7 @@ export function EmergencyAlert({
     showNearbyHospitals = true,
 }: EmergencyAlertProps) {
     return (
-        <div className="bg-red-50 border-2 border-red-500 rounded-xl p-6 my-4 shadow-lg">
+        <div className="bg-red-50 border border-red-500 rounded-xl p-6 my-4 shadow-lg">
             {/* Header */}
             <div className="flex items-center gap-3 text-red-700 font-bold text-xl mb-4">
                 <Icon icon={AlertTriangle} className="w-8 h-8 animate-pulse" />
@@ -79,7 +79,7 @@ export function EmergencyAlert({
                                 '_blank'
                             );
                         }}
-                        className="w-full flex items-center justify-center gap-2 bg-white border-2 border-red-500 text-red-700 py-3 px-4 rounded-lg font-semibold hover:bg-red-50 transition-colors"
+                        className="w-full flex items-center justify-center gap-2 bg-white border border-red-500 text-red-700 py-3 px-4 rounded-lg font-semibold hover:bg-red-50 transition-colors"
                     >
                         <svg
                             className="w-5 h-5"

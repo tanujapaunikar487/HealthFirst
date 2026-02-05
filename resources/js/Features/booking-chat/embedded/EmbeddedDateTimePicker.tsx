@@ -75,7 +75,7 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
                 onClick={() => !disabled && selectedTime && onSelect(dateValue, selectedTime)}
                 disabled={disabled}
                 className={cn(
-                  'flex flex-col items-center flex-shrink-0 px-6 py-3 rounded-2xl border-2 transition-all min-w-[120px]',
+                  'flex flex-col items-center flex-shrink-0 px-6 py-3 rounded-2xl border transition-all min-w-[120px]',
                   'hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60',
                   isSelected
                     ? 'border-[#0A0B0D] bg-[#0A0B0D] text-white'
@@ -109,7 +109,7 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
                 onClick={() => !disabled && selectedDate && onSelect(selectedDate, slot.time)}
                 disabled={disabled || !slot.available}
                 className={cn(
-                  'px-3.5 py-1.5 rounded-full border-2 text-[14px] font-medium transition-all inline-flex items-center gap-1',
+                  'px-3.5 py-1.5 rounded-full border text-[14px] font-medium transition-all inline-flex items-center gap-1',
                   'hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60',
                   isSelected
                     ? 'border-[#0A0B0D] bg-[#0A0B0D] text-white'

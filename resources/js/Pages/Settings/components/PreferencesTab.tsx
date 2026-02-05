@@ -159,7 +159,7 @@ export function PreferencesTab({
     };
 
     return (
-        <div className="space-y-16">
+        <div className="space-y-12">
             {/* Language & Region */}
             <div>
                 <SectionTitle>Language & region</SectionTitle>
@@ -357,11 +357,11 @@ export function PreferencesTab({
                         >
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Lock className="h-5 w-5 text-muted-foreground" />
+                                    <Lock className="h-5 w-5 text-neutral-900" />
                                 </div>
                                 <span className="text-[14px] font-semibold leading-5 text-[#171717]">Change password</span>
                             </div>
-                            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                            <Button size="icon" icon={ChevronRight} />
                         </button>
 
                         {/* Download My Data Row */}
@@ -371,11 +371,11 @@ export function PreferencesTab({
                         >
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Download className="h-5 w-5 text-muted-foreground" />
+                                    <Download className="h-5 w-5 text-neutral-900" />
                                 </div>
                                 <span className="text-[14px] font-semibold leading-5 text-[#171717]">Download My Data</span>
                             </div>
-                            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                            <Button size="icon" icon={ChevronRight} />
                         </button>
 
                         {/* Delete account Row */}
@@ -385,11 +385,11 @@ export function PreferencesTab({
                         >
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Trash2 className="h-5 w-5 text-muted-foreground" />
+                                    <Trash2 className="h-5 w-5 text-neutral-900" />
                                 </div>
                                 <span className="text-[14px] font-semibold leading-5 text-[#171717]">Delete account</span>
                             </div>
-                            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                            <Button size="icon" icon={ChevronRight} />
                         </button>
                     </CardContent>
                 </Card>

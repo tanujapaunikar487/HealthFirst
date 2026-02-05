@@ -150,21 +150,33 @@ OLLAMA_MODEL=qwen2.5:7b
 
 | Element | Specification |
 |---------|---------------|
-| Cards | 20px border-radius |
+| Cards | 20px border-radius, 16px padding |
 | Primary | Blue (#1E40AF bg, #BFDBFE icons) |
 | Success/Warning/Error | Green/Amber/Red |
-| Sheets | 500px width, 24px radius, 20px padding (header/body/footer), 24px close icon, edge-to-edge dividers, right-side |
+| Sheets | 500px width, 24px radius, 20px header/body padding, 16px footer padding, 24px close icon, edge-to-edge dividers, right-side |
 | Badges | Pastel backgrounds, colored text |
 | Skeleton | 300ms min, 10s timeout |
-| EmptyState | #F5F5F5 bg, 24px/48px padding, content-based height, 20px radius, optional image |
-| CtaBanner | Dark radial gradient, white text, illustration, used for empty pages |
+| EmptyState | #F5F5F5 bg, 24px/48px padding, content-based height, 20px radius, optional image, always include message + description |
+| CtaBanner | Dark radial gradient, white text, illustration, primary large button style |
 | Page Container | 960px max-width, 40px top/bottom padding |
 | Card Title | #0A0B0D, 14px, font-weight 500, line-height 20px, truncate |
-| Card Subtext | #737373, 14px, font-weight 500, line-height 20px |
-| SideNav | 14px font, 20px icons, 6px gap, pill buttons with blue active state, 200px min-width |
-| Section Spacing | `space-y-16` (4rem/64px) between major sections |
+| Card Subtext | #737373, 14px, font-weight 400, line-height 20px |
+| Section Title | #171717, 20px, font-weight 600, line-height 28px (consistent across detail pages and Settings) |
+| Icon Colors | Light bg: `#171717` (`text-neutral-900`), dark bg: `#fff` (`text-white`), nav active: `#2563EB` |
+| SideNav | 14px font, 20px icons, 6px gap, pill buttons with #2563EB active state, 200px min-width |
+| Section Spacing | `space-y-12` (3rem/48px) between major sections |
 | Font Sizes | Use fixed pixels (`text-[14px]`) not rem (`text-sm`) to prevent accessibility scaling issues |
-| Card Padding | 16px all sides (`p-4` or `padding: '16px'`) |
+| Borders | Always 1px (except spinner/Switch components which use 2px) |
+| Icon Backgrounds | Always `rounded-full` (never `rounded-lg`) |
+
+### Button Specs
+
+| Variant | Specification |
+|---------|---------------|
+| Primary Large (`size="lg"`) | 48px height, 16px font, 8px gap, flex display, `icon` prop renders at 20px |
+| Secondary Icon (`size="icon"`) | 40x40, 8px padding, 1px #E5E5E5 border, #F5F5F5 bg, #171717 icon, full rounded, icon at 16px |
+| Default | 48px height, 14px font, pill rounded |
+| CTA | White bg on dark, inherits primary large sizing |
 
 ### Empty State Pattern
 
@@ -238,107 +250,48 @@ All UI text uses **sentence case** (only first word capitalized):
 
 ## Recent Changes (Feb 2026)
 
-| Date | Feature |
-|------|---------|
-| Feb 5 | **Sheet Redesign**: 500px width, 24px radius, no container padding, 20px fixed padding on header/body/footer, 24px close icon in 40px button, edge-to-edge dividers. New components: SheetBody, SheetSection, SheetSectionRow |
-| Feb 5 | **SheetTitle**: Color #0A0B0D, 20px fixed font, 600 weight, 28px line-height, -0.05px letter-spacing |
-| Feb 5 | **Notifications Sheet**: Empty state uses notification.png at 120px, 16px title, tabs hug content instead of full-width |
-| Feb 5 | **Alert Component**: Standardized inline alerts across app using Alert component with CVA variants (info, warning, success, error) - blue/amber/green/red styling with 20px radius, 2px bottom border |
-| Feb 5 | **SideNav Padding**: Consistent 8px vertical, 12px horizontal padding (`padding: 8px 12px`), gap-3 between icon and text |
-| Feb 5 | **PaymentsTab UPI Empty State**: UPI section now matches Cards empty state style (centered icon, title, description, button in rounded card) |
-| Feb 5 | **Family Members Listing**: Member name font size fixed to 16px (`text-[16px]`) |
-| Feb 5 | **EmptyState Title**: Fixed title size to `text-[16px]` (was `text-lg` rem-based) |
-| Feb 5 | **Page Widths**: FamilyMembers/Index at 800px (matches Dashboard), FamilyMembers/Show at 960px (detail page) |
-| Feb 5 | **Profile Photo Remove**: Added "Remove photo" text link below name in ProfileTab, DELETE /settings/avatar endpoint |
-| Feb 5 | **TagInput Local Component**: ProfileTab now has local TagInput with comma-separated tag support (splits "tag1, tag2" into separate tags) |
-| Feb 5 | **Profile Update Fix**: Changed from fetch() to router.put() for proper Inertia redirect handling |
-| Feb 5 | **Video Provider Clarification**: ConnectionsTab description updated to clarify no account linking needed - doctors generate meeting links |
-| Feb 5 | **Family Members Admin Badge**: Admin badge moved next to name, edit/delete buttons hidden for self (admin) user |
-| Feb 5 | **Fixed Pixel Fonts**: Replaced `text-sm` and `text-xs` with `text-[14px]` across 105+ files - prevents text scaling issues with accessibility settings |
-| Feb 5 | **Section Spacing**: Standardized to `space-y-16` (4rem/64px) gap between sections across all pages |
-| Feb 5 | **SideNav Width**: Set minimum width to 200px (`min-w-[200px]`) for consistent layout on 1440px screens |
-| Feb 5 | **Card Padding**: Standardized Dashboard cards to 16px padding, removed fixed 96px heights for natural content sizing |
-| Feb 5 | **ProfileTab Cleanup**: Removed duplicate form sections, consolidated to InfoCard-based read-only display with all fields shown |
-| Feb 5 | **Accessibility Settings**: Text size (14/18/22px) and high contrast mode apply globally via AppLayout useEffect and CSS variables in app.css |
-| Feb 5 | **Data Export (PDF)**: Download My Data renders Settings/DataExport page with auto-print dialog for PDF save, removed JSON/CSV format options |
-| Feb 5 | **Notifications Tab**: Added Insurance Claim Updates toggle, Health Alerts master toggle with disabled sub-toggles when off |
-| Feb 5 | **Social Login UI**: Google/Apple OAuth buttons moved to end of auth forms, side-by-side layout, conditional rendering based on config |
-| Feb 5 | **Settings Labels**: "Language" renamed to "Doctor's language" with description "Preferred language for doctor communication" |
-| Feb 5 | **TagInput Redesign**: "Add" text inside field changes from #737373 to #2563EB when user types |
-| Feb 5 | **Card Typography Update**: Updated to #0A0B0D title, #737373 subtext, both 14px/500 weight/20px line-height across card.tsx, card-typography.tsx, info-card.tsx, Settings tabs, Dashboard, FamilyMembers |
-| Feb 5 | **SideNav Refinement**: 20px icons (h-5 w-5), 6px gap, 14px font with truncate |
-| Feb 5 | **Family Members Profile Sections**: Consolidated edit sidesheet from 6 to 4 sections (Personal Details, Contact & Address, Health Information, Emergency Contact), FormCard wrapper matching InfoCard style |
-| Feb 4 | **Social Login (OAuth)**: Google and Apple Sign-In/Sign-Up via Laravel Socialite, social_accounts table, account linking (existing user email match), SocialLoginButtons component |
-| Feb 4 | **Card Typography**: Standardized title (#171717, 14px, 600) and subtext (#737373, 14px, 400) across card components |
-| Feb 4 | **TagInput Button**: Replaced "Add" text with Plus icon in 40px secondary button |
-| Feb 4 | **Calendar Upgrade (react-day-picker v9)**: Updated to v9 API with dropdown month/year selectors, 3-letter month format (MMM), proper styling (8px radius dropdowns, centered layout, nav arrows on edges) |
-| Feb 4 | **DatePicker Improvements**: Popover width matches trigger field, rounded-md styling to match inputs/selects |
-| Feb 4 | **DatePicker Component**: Replaced all native `<input type="date">` with shadcn DatePicker (Calendar + Popover) across 10 files (20+ fields) - consistent UI with calendar icon on right |
-| Feb 4 | **Search Modal UI**: Fixed height 420px, category tag in search field with remove button, centered empty state with search.png image, scrollable results |
-| Feb 4 | **Settings UPI Payments**: Full UPI ID management in Settings > Payments (add, delete, set default) with backend routes |
-| Feb 4 | **Avatar Sync**: Profile photo upload now syncs to sidebar via `router.reload({ only: ['auth'] })` and User model `$appends` |
-| Feb 4 | **Search Modal Styling**: Frosted glass effect (714px width, 20px radius, backdrop blur, layered shadows) |
-| Feb 4 | **SideNav Component**: Reusable navigation component with pill-shaped buttons and blue active state |
-| Feb 4 | **Section Title Styling**: Consistent 20px/600 weight/#171717 titles across all Settings tabs |
-| Feb 4 | **Tag Input UX**: Tags now appear below input field instead of above |
-| Feb 4 | **Page Padding**: Added pb-10 to all detail pages and Settings content area for consistent bottom spacing |
-| Feb 4 | **Prescriptions Filter**: Health Records prescriptions tab now filters by Active/Past based on medication duration |
-| Feb 4 | **Sentence Case Standardization**: All buttons and headings converted to sentence case (e.g., "Book Appointment" → "Book appointment", "Save Changes" → "Save changes") for better UX and modern design alignment |
-| Feb 4 | **Terminology Consistency**: "Consultation" → "Appointment", "Medication" → "Prescription", "Member" → "Family member" across all pages |
-| Feb 4 | **Empty State Images**: Custom images for CtaBanner (booking, family, insurance) and EmptyState (health-records, billing) |
-| Feb 4 | **CtaBanner Enhancement**: Dismissible banners with onDismiss prop, image clipping at bottom (-72px offset) |
-| Feb 4 | **Button Styling**: Primary CTA large updated to 48px height, 8px/32px padding, full pill radius, #2563EB background |
-| Feb 4 | Dashboard promotional banner converted to use CtaBanner component |
-| Feb 4 | **Empty Page CTA Pattern**: CtaBanner for fully empty pages, header button hidden when empty |
-| Feb 4 | CtaBanner: Added `onButtonClick` prop for sheet-based actions (FamilyMembers, Insurance) |
-| Feb 4 | Profile step links: "Complete your health profile" now goes to /settings |
-| Feb 4 | EmptyState height reduced to 400px |
-| Feb 4 | EmptyState redesign: #F5F5F5 background, 60px padding, 20px radius |
-| Feb 4 | Page container padding reduced from 80px to 40px bottom |
-| Feb 4 | Sticky support footer: `mt-auto pt-8` pattern for bottom-anchored CTAs |
-| Feb 4 | **Extended Notifications**: 14 new notification types (appointments, health records, family members, insurance policies) with category-specific icons and navigation |
-| Feb 4 | **Authentication**: Complete auth system with sign in/up, logout, forgot/reset password, route protection, rate limiting |
-| Feb 4 | Auth pages converted to TypeScript + shadcn/ui (Login, Register, ForgotPassword, ResetPassword, VerifyEmail, ConfirmPassword) |
-| Feb 4 | AppLayout updated with auth-aware sidebar: logout button when authenticated, sign in/up buttons for guests |
-| Feb 4 | Route protection: All app routes wrapped in `auth` middleware, smart root redirect based on auth state |
-| Feb 4 | Auth feature tests: 25 tests covering login, registration, password reset, route protection |
-| Feb 4 | Context-aware breadcrumbs: ClaimDetail shows policy in breadcrumb only when navigated from policy page (uses `?from=policy` query param) |
-| Feb 4 | Status-based primary actions: Billing/Claims detail pages show contextual buttons (File Appeal, Download EOB, Track Claim, etc.) instead of generic "Check Status" |
-| Feb 4 | Table consistency: Unified column order (Date→Details→Member→Amount→Status→Actions), date format helpers |
-| Feb 4 | Insurance Policies converted from cards to table layout |
-| Feb 4 | Date/time split: Date on line 1, time as subtext on line 2 (Appointments, Billing) |
-| Feb 4 | "Book Lab Test" button for lab test appointments (instead of "Book Again") |
-| Feb 4 | Removed support CTAs from side sheets (now only in page footers) |
-| Feb 4 | Sidebar cleanup: Removed Sign Out button (available in Settings/Profile instead) |
-| Feb 3 | PDF formatting overhaul: Category-specific formatters, tables for lab results, AI summary callouts, status dots |
-| Feb 3 | Health Records table: Category badges replaced with plain text (Lab Report • Dr. Name) |
-| Feb 3 | Backend routes: Set Primary, Edit, Appeal (Insurance), Cancel Dispute (Billing) |
-| Feb 3 | QA_ACTION_CONSISTENCY.md - Full test script for action audit |
-| Feb 3 | Persistent support CTA at bottom of all table pages and detail views (mailto link with border-t separator) |
-| Feb 3 | Removed Contact Support from all 3-dot menus (now only via footer CTA) |
-| Feb 3 | Button consistency: 1 Primary + 3-dot menu across all detail views |
-| Feb 3 | Appointments: Check-in button (within 24-48h), Add to Calendar, Get Directions |
-| Feb 3 | Health Records: Add to Apple/Google Health (platform-based), Request Amendment |
-| Feb 3 | Past appointments: Book Again primary + Share menu on detail page |
-| Feb 3 | AI-generated summaries on health records (plain language explanations with next steps) |
-| Feb 3 | Table row click opens details; 3-dot menu for actions only (Appointments, Billing, Insurance) |
-| Feb 3 | Consistent ShareSheet across app (Billing, Insurance, Health Records, Appointments) |
-| Feb 3 | Fix OTP send in Link Existing Patient flow (event handler bug) |
-| Feb 3 | Family Members card 20px border-radius |
-| Feb 3 | Settings page 960px width alignment with detail pages |
-| Feb 3 | Unified "Add Member" across all booking flows (3 modes) |
-| Feb 3 | Insurance pages 960px width fix |
-| Feb 3 | Settings 4-tab redesign with full functionality |
-| Feb 3 | Page container standardization (960px, 40px bottom) |
-| Feb 3 | Book Again side sheet |
-| Feb 3 | Follow-up booking sheet |
-| Feb 3 | Secure OTP flow with masked contacts |
-| Feb 3 | Empty states and loading skeletons |
-| Feb 3 | Insurance pre-auth admission flow |
-| Feb 2 | Family member 3-option flow (Guest/New/Link) |
-| Feb 2 | PhoneInput component (+91 fixed) |
-| Feb 2 | Side sheet footer standardization |
-| Feb 2 | OTP verification (phone + email) |
+### Feb 5 - Design System Enforcement & UI Polish
+- **Sheet Redesign**: 500px width, 24px radius, 20px header/body padding, 16px footer padding, 24px close icon, edge-to-edge dividers. New: SheetBody, SheetSection, SheetSectionRow
+- **Button Component**: Primary large enforced at component level (48px height, 16px font, 8px gap, `icon` prop at 20px). Secondary icon enforced (40x40, 8px padding, border/bg). CTA buttons use primary large style
+- **Global UI Consistency**: All borders 1px (except spinners/Switch), all icon backgrounds `rounded-full`, section spacing `space-y-12` (3rem), fixed pixel fonts (`text-[14px]`) across 105+ files
+- **Section Titles**: Consistent 20px/600 weight/#171717 across all detail pages and Settings tabs
+- **Card Typography**: #0A0B0D title, #737373 subtext, 14px/20px line-height across all card components
+- **Alert Component**: CVA variants (info/warning/success/error), 20px radius, 2px bottom border
+- **SideNav**: 20px icons, 6px gap, 14px font, 200px min-width, pill buttons with blue active state
+- **Settings**: Profile photo remove, TagInput with comma support, accessibility text size/contrast, data export PDF, notifications toggles, "Doctor's language" label
+- **Family Members**: Admin badge next to name, edit/delete hidden for self, 4 consolidated profile sections, 16px member name font
+- **EmptyState/CtaBanner**: 16px title, custom images, dismissible banners, primary large button on CtaBanner. All EmptyState must have message + description
+- **Icon Colors**: Standardized to #171717 (`text-neutral-900`) on light backgrounds, #fff on dark backgrounds across ~70 instances in 23 files. SideNav/AppLayout active state: #2563EB
+- **Secondary Icon Button**: Added `color: '#171717'` to `iconStyle` — fixes invisible white-on-gray icons in `<Button size="icon">`
+- **Empty State Images**: Table tab empty states now use images from /assets/images/ instead of generic icons (Appointments, Billing, HealthRecords, Insurance)
+- **AI Chat Booking Fix**: PaymentController `createBooking()` now creates actual Appointment records (was only storing in conversation data)
+- **Social Login UI**: Google/Apple OAuth at end of auth forms, side-by-side layout
+
+### Feb 4 - Authentication, Tables & Components
+- **Authentication**: Complete auth system (sign in/up, logout, forgot/reset password, Google/Apple OAuth, route protection, rate limiting, 25 tests)
+- **Table Consistency**: Unified column order, date format helpers, Insurance Policies in table layout, date/time split display
+- **DatePicker**: Replaced native inputs with shadcn Calendar + Popover across 10 files, react-day-picker v9 with dropdowns
+- **Search Modal**: 714px frosted glass, category tags, 420px height, centered empty state
+- **Notifications**: 14 new types with category-specific icons and navigation
+- **Empty State Pattern**: CtaBanner for empty action pages, standard EmptyState for info pages
+- **Sentence Case**: All UI text standardized to sentence case
+- **Terminology**: "Consultation" → "Appointment", "Medication" → "Prescription"
+- **Status-Based Actions**: Contextual primary buttons on detail pages (File Appeal, Download EOB, etc.)
+- **Settings UPI**: Full UPI ID management with backend routes
+
+### Feb 3 - Actions, Sharing & Content
+- **Action Consistency**: 1 Primary + 3-dot menu on all detail views, support CTA in page footers only
+- **ShareSheet**: Consistent share UI (Copy Link, WhatsApp, Email) across all detail pages
+- **Health Records**: AI-generated summaries, PDF category-specific formatters, Apple/Google Health integration
+- **Appointments**: Check-in (24-48h window), Add to Calendar, Get Directions, Book Again, Follow-up booking
+- **Insurance**: Pre-auth admission flow, backend routes for appeal/edit/set primary
+- **Family Members**: Unified 3-mode add member flow, OTP verification, 20px card radius
+- **Page Layout**: 960px standardization, 40px bottom padding, skeleton loading
+
+### Feb 2 - Foundation
+- Family member 3-option flow (Guest/New/Link)
+- PhoneInput component (+91 fixed), OTP verification (phone + email)
+- Side sheet footer standardization
 
 ---
 

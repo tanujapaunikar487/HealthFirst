@@ -116,11 +116,11 @@ const CtaBanner = React.forwardRef<HTMLDivElement, CtaBannerProps>(
           </div>
 
           {buttonHref ? (
-            <Button asChild variant="cta" size="cta">
+            <Button asChild variant="cta" size="lg">
               <Link href={buttonHref}>{buttonText}</Link>
             </Button>
           ) : (
-            <Button variant="cta" size="cta" onClick={onButtonClick}>
+            <Button variant="cta" size="lg" onClick={onButtonClick}>
               {buttonText}
             </Button>
           )}

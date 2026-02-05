@@ -918,16 +918,16 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     {state.step === 'choice' && (
                         <div className="space-y-4">
                             <div className="grid gap-3">
-                                <button onClick={() => handleInitialChoice('add_new_family')} className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
-                                    <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center"><Users className="h-6 w-6" /></div>
+                                <button onClick={() => handleInitialChoice('add_new_family')} className="flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
+                                    <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center"><Users className="h-6 w-6" /></div>
                                     <div><h4 className="font-semibold">Add New Family Member</h4><p className="text-[14px] text-muted-foreground">Create a full family member profile</p></div>
                                 </button>
-                                <button onClick={() => handleInitialChoice('link_existing')} className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
-                                    <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center"><Users className="h-6 w-6" /></div>
+                                <button onClick={() => handleInitialChoice('link_existing')} className="flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
+                                    <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center"><Users className="h-6 w-6" /></div>
                                     <div><h4 className="font-semibold">Link Existing Patient</h4><p className="text-[14px] text-muted-foreground">Connect to an existing hospital patient record</p></div>
                                 </button>
-                                <button onClick={() => handleInitialChoice('guest')} className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
-                                    <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center"><User className="h-6 w-6" /></div>
+                                <button onClick={() => handleInitialChoice('guest')} className="flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
+                                    <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center"><User className="h-6 w-6" /></div>
                                     <div><h4 className="font-semibold">Guest</h4><p className="text-[14px] text-muted-foreground">One-time booking only</p></div>
                                 </button>
                             </div>
@@ -1434,9 +1434,9 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             role="radio"
                             aria-checked={state.flowType === 'guest'}
                             onClick={() => handleInitialChoice('guest')}
-                            className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
+                            className="flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
                         >
-                            <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
+                            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
                                 <User className="h-6 w-6" />
                             </div>
                             <div>
@@ -1452,9 +1452,9 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             role="radio"
                             aria-checked={state.flowType === 'add_new_family'}
                             onClick={() => handleInitialChoice('add_new_family')}
-                            className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
+                            className="flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
                         >
-                            <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
+                            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
                                 <Users className="h-6 w-6" />
                             </div>
                             <div>
@@ -1468,9 +1468,9 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         {/* Link Existing Patient */}
                         <button
                             onClick={() => handleInitialChoice('link_existing')}
-                            className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
+                            className="flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
                         >
-                            <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
+                            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
                                 <Users className="h-6 w-6" />
                             </div>
                             <div>

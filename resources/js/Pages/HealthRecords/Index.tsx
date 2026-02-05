@@ -37,7 +37,6 @@ import {
   UserPlus,
   FileText,
   Download,
-  FolderOpen,
   HeartPulse,
   Microscope,
   Wind,
@@ -811,7 +810,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
             )}
 
             <div className="relative ml-auto">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-900" />
               <Input
                 placeholder="Search records..."
                 value={searchQuery}
@@ -929,7 +928,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                           {record.status ? <StatusBadge status={record.status} /> : <span className="text-[14px] text-muted-foreground">—</span>}
                         </TableCell>
                         <TableCell>
-                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                          <Button size="icon" icon={ChevronRight} />
                         </TableCell>
                       </TableRow>
                     );
@@ -989,7 +988,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
               />
             ) : (
               <EmptyState
-                icon={FolderOpen}
+                image="/assets/images/health-records.png"
                 message="No records match your filters"
                 description="Try adjusting your filters to find what you're looking for."
               />

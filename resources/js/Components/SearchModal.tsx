@@ -284,7 +284,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
 
         {/* Search Input */}
         <div className="flex items-center gap-2 px-4" style={{ borderBottom: '1px solid #E5E5E5', height: '56px' }}>
-          <Icon icon={Search} className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+          <Icon icon={Search} className="h-5 w-5 flex-shrink-0 text-neutral-900" />
 
           {/* Category Tag */}
           {category !== 'all' && (
@@ -311,7 +311,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
             style={{ boxShadow: 'none' }}
             autoComplete="off"
           />
-          {loading && <Icon icon={Loader2} className="h-4 w-4 animate-spin text-muted-foreground flex-shrink-0" />}
+          {loading && <Icon icon={Loader2} className="h-4 w-4 animate-spin text-neutral-900 flex-shrink-0" />}
           {/* Clear and Close buttons */}
           <div className="flex items-center gap-3 flex-shrink-0">
             {/* Clear Button - text only, clears query */}
@@ -346,7 +346,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                   }}
                   className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-gray-200 bg-white text-[14px] font-medium text-gray-900 hover:bg-gray-50 transition-colors"
                 >
-                  <Icon icon={Calendar} className="h-4 w-4 text-gray-500" />
+                  <Icon icon={Calendar} className="h-4 w-4 text-neutral-900" />
                   Search in <span className="font-semibold">appointment</span>
                 </button>
                 <button
@@ -356,7 +356,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                   }}
                   className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-gray-200 bg-white text-[14px] font-medium text-gray-900 hover:bg-gray-50 transition-colors"
                 >
-                  <Icon icon={ClipboardList} className="h-4 w-4 text-gray-500" />
+                  <Icon icon={ClipboardList} className="h-4 w-4 text-neutral-900" />
                   Search in <span className="font-semibold">health records</span>
                 </button>
                 <button
@@ -366,7 +366,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                   }}
                   className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-gray-200 bg-white text-[14px] font-medium text-gray-900 hover:bg-gray-50 transition-colors"
                 >
-                  <Icon icon={FileText} className="h-4 w-4 text-gray-500" />
+                  <Icon icon={FileText} className="h-4 w-4 text-neutral-900" />
                   Search in <span className="font-semibold">bills</span>
                 </button>
               </div>

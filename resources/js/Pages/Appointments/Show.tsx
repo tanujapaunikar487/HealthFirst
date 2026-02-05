@@ -352,19 +352,19 @@ export default function Show({ user, appointment }: Props) {
         {/* Main content: Side nav + sections */}
         <div className="flex gap-24">
           <AppointmentSideNav />
-          <div className="flex-1 min-w-0 space-y-16 pb-12">
+          <div className="flex-1 min-w-0 space-y-12 pb-12">
             <OverviewSection appointment={appointment} />
             {(appointment.vitals?.length ?? 0) > 0
               ? <VitalsSection vitals={appointment.vitals} />
-              : <Section id="vitals" title="Vitals" icon={Heart}><EmptyState icon={Heart} message="No vitals recorded for this appointment" /></Section>
+              : <Section id="vitals" title="Vitals" icon={Heart}><EmptyState icon={Heart} message="No vitals recorded for this appointment" description="Vitals will be recorded during your appointment." /></Section>
             }
             {appointment.clinical_summary
               ? <ClinicalSummarySection summary={appointment.clinical_summary} />
-              : <Section id="clinical" title="Clinical Summary" icon={FileText}><EmptyState icon={FileText} message="No clinical summary available" /></Section>
+              : <Section id="clinical" title="Clinical Summary" icon={FileText}><EmptyState icon={FileText} message="No clinical summary available" description="Your doctor will add clinical notes after the consultation." /></Section>
             }
             {(appointment.prescriptions?.length ?? 0) > 0
               ? <PrescriptionsSection prescriptions={appointment.prescriptions} appointmentId={appointment.appointment_id} appointmentTitle={appointment.title} appointmentDate={appointment.date_formatted} appointmentTime={appointment.time} />
-              : <Section id="prescriptions" title="Prescriptions" icon={Pill}><EmptyState icon={Pill} message="No prescriptions for this appointment" /></Section>
+              : <Section id="prescriptions" title="Prescriptions" icon={Pill}><EmptyState icon={Pill} message="No prescriptions for this appointment" description="Prescriptions will appear here if prescribed by your doctor." /></Section>
             }
             <LabTestsSection tests={appointment.lab_tests ?? []} onSelect={(test) => test.status === 'completed' && setSelectedLabTest(test)} />
             {appointment.billing && (
@@ -477,7 +477,7 @@ export default function Show({ user, appointment }: Props) {
 
 function SkeletonPage() {
   return (
-    <div className="space-y-16">
+    <div className="space-y-12">
       {/* Header skeleton */}
       <div>
         <Pulse className="h-4 w-48 mb-4" />
@@ -712,8 +712,8 @@ function Section({
     <div id={id} className="scroll-mt-24">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
-          <Icon icon={SectionIcon} className="h-5 w-5 text-muted-foreground" />
-          <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+          <Icon icon={SectionIcon} className="h-5 w-5 text-neutral-900" />
+          <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
             {title}
           </h2>
         </div>
@@ -739,7 +739,7 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
           <p className="text-[14px] font-medium text-muted-foreground uppercase tracking-wider">Patient</p>
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-              <UserIcon className="h-5 w-5 text-muted-foreground" />
+              <UserIcon className="h-5 w-5 text-neutral-900" />
             </div>
             <div>
               <p className="font-medium text-[14px]">{appointment.patient?.name ?? appointment.patient_name}</p>
@@ -784,15 +784,15 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
           <p className="text-[14px] font-medium text-muted-foreground uppercase tracking-wider">Appointment</p>
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-[14px]">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <Calendar className="h-4 w-4 text-neutral-900" />
               <span>{appointment.date_formatted}</span>
             </div>
             <div className="flex items-center gap-2 text-[14px]">
-              <Clock className="h-4 w-4 text-muted-foreground" />
+              <Clock className="h-4 w-4 text-neutral-900" />
               <span>{appointment.time} · {appointment.duration}</span>
             </div>
             <div className="flex items-center gap-2 text-[14px]">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
+              <MapPin className="h-4 w-4 text-neutral-900" />
               <span>{appointment.mode}</span>
             </div>
           </div>
@@ -952,9 +952,9 @@ function CollapsibleRow({
       >
         <span className="text-[14px] font-medium text-foreground">{label}</span>
         {open ? (
-          <ChevronUp className="h-4 w-4 text-muted-foreground" />
+          <ChevronUp className="h-4 w-4 text-neutral-900" />
         ) : (
-          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          <ChevronDown className="h-4 w-4 text-neutral-900" />
         )}
       </button>
       <div className={open ? 'block' : 'hidden'}>
@@ -1029,7 +1029,7 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                className="h-8 w-8 text-neutral-900 hover:text-foreground"
                 onClick={() => {
                   downloadAsHtml(`prescription-${rx.drug.toLowerCase().replace(/\s+/g, '-')}.pdf`, `
                     <h1>Prescription</h1>
@@ -1079,7 +1079,7 @@ function LabTestsSection({ tests, onSelect }: { tests: LabTest[]; onSelect?: (te
   if (tests.length === 0) {
     return (
       <Section id="lab-tests" title="Lab Tests" icon={FlaskConical}>
-        <EmptyState icon={FlaskConical} message="No lab tests ordered for this appointment" />
+        <EmptyState icon={FlaskConical} message="No lab tests ordered for this appointment" description="Lab tests will appear here if ordered by your doctor." />
       </Section>
     );
   }
@@ -1121,7 +1121,7 @@ function LabTestsSection({ tests, onSelect }: { tests: LabTest[]; onSelect?: (te
                   <span className="flex items-center gap-2">
                     {t.name}
                     {t.status === 'completed' && onSelect && (
-                      <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                      <ChevronRight className="h-3.5 w-3.5 text-neutral-900" />
                     )}
                   </span>
                 </td>
@@ -1254,7 +1254,7 @@ function DocumentsSection({ documents, onPreview }: { documents: AppDocument[]; 
   if (documents.length === 0) {
     return (
       <Section id="documents" title="Documents" icon={FolderOpen}>
-        <EmptyState icon={FolderOpen} message="No documents available for this appointment" />
+        <EmptyState icon={FolderOpen} message="No documents available for this appointment" description="Reports and documents will appear here after your visit." />
       </Section>
     );
   }
@@ -1289,7 +1289,7 @@ function DocumentsSection({ documents, onPreview }: { documents: AppDocument[]; 
             className="w-full flex items-center justify-between px-6 py-4 hover:bg-muted/30 transition-colors text-left"
           >
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-lg bg-red-50 flex items-center justify-center">
+              <div className="h-9 w-9 rounded-full bg-red-50 flex items-center justify-center">
                 <FileText className="h-4 w-4 text-red-600" />
               </div>
               <div>
@@ -1299,7 +1299,7 @@ function DocumentsSection({ documents, onPreview }: { documents: AppDocument[]; 
                 </p>
               </div>
             </div>
-            <Eye className="h-4 w-4 text-muted-foreground" />
+            <Eye className="h-4 w-4 text-neutral-900" />
           </button>
         ))}
       </div>
@@ -1313,7 +1313,7 @@ function ActivitySection({ activity }: { activity: ActivityItem[] }) {
   if (activity.length === 0) {
     return (
       <Section id="activity" title="Activity Log" icon={Activity}>
-        <EmptyState icon={Activity} message="No activity recorded" />
+        <EmptyState icon={Activity} message="No activity recorded" description="Status updates and actions will appear here." />
       </Section>
     );
   }

@@ -93,7 +93,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
     };
 
     return (
-        <div className="space-y-16">
+        <div className="space-y-12">
             {/* Notification Channels */}
             <div>
                 <SectionTitle>Notification channels</SectionTitle>
@@ -103,7 +103,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                         <div className="flex items-center justify-between px-6 py-4">
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Mail className="h-5 w-5 text-muted-foreground" />
+                                    <Mail className="h-5 w-5 text-neutral-900" />
                                 </div>
                                 <div>
                                     <CardTitle>Email</CardTitle>
@@ -120,7 +120,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                         <div className="flex items-center justify-between px-6 py-4">
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <MessageSquare className="h-5 w-5 text-muted-foreground" />
+                                    <MessageSquare className="h-5 w-5 text-neutral-900" />
                                 </div>
                                 <div>
                                     <CardTitle>WhatsApp</CardTitle>
@@ -137,7 +137,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                         <div className="flex items-center justify-between px-6 py-4">
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Phone className="h-5 w-5 text-muted-foreground" />
+                                    <Phone className="h-5 w-5 text-neutral-900" />
                                 </div>
                                 <div>
                                     <CardTitle>SMS</CardTitle>

@@ -37,7 +37,7 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled }: TypeSe
             onClick={onClick}
             disabled={disabled}
             className={cn(
-                'flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left w-full',
+                'flex items-center gap-4 p-4 rounded-xl border transition-all text-left w-full',
                 isExpanded
                     ? 'border-primary bg-primary/5'
                     : 'border-border hover:border-primary/50 hover:bg-primary/5',
@@ -56,7 +56,7 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled }: TypeSe
             </div>
             <ChevronDown
                 className={cn(
-                    'h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200',
+                    'h-5 w-5 shrink-0 text-neutral-900 transition-transform duration-200',
                     isExpanded && 'rotate-180 text-primary'
                 )}
             />

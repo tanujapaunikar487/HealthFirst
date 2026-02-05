@@ -130,8 +130,8 @@ function Section({
     <div id={id} className="scroll-mt-24">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
-          <Icon icon={SectionIcon} className="h-5 w-5 text-muted-foreground" />
-          <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+          <Icon icon={SectionIcon} className="h-5 w-5 text-neutral-900" />
+          <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
             {title}
           </h2>
         </div>
@@ -632,7 +632,7 @@ function TimelineEventRow({
           </p>
           {hasDetails && (
             <ChevronDown
-              className={`h-3.5 w-3.5 text-gray-400 transition-transform ${
+              className={`h-3.5 w-3.5 text-neutral-900 transition-transform ${
                 isExpanded ? 'rotate-180' : ''
               }`}
             />
@@ -779,7 +779,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
   const ThreeDotMenu = () => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400">
+        <Button variant="ghost" size="icon" className="h-8 w-8 text-neutral-900">
           <MoreVertical className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
@@ -1083,7 +1083,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         {/* Main Content with Side Nav */}
         <div className="flex gap-24">
           <ClaimSideNav hasFinancial={!!fin} />
-          <div className="flex-1 min-w-0 space-y-16 pb-12">
+          <div className="flex-1 min-w-0 space-y-12 pb-12">
 
         {/* Overview Section */}
         <Section id="overview" title="Overview" icon={ClipboardList} noPadding>
@@ -1208,8 +1208,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           {/* Original Policy (if transferred) */}
           {claim.original_policy_id && claim.original_policy_plan_name && (
             <div className="flex items-center gap-3 px-6 py-4">
-              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
-                <Shield className="h-4 w-4 text-gray-400" />
+              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-100">
+                <Shield className="h-4 w-4 text-neutral-900" />
               </div>
               <div className="flex-1">
                 <p className="text-[14px] font-medium text-gray-500">Insurance Plan (Original)</p>
@@ -1235,7 +1235,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               onClick={() => router.visit(`/insurance/${claim.policy_id}`)}
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-blue-50">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-50">
                   <Shield className="h-4 w-4 text-blue-600" />
                 </div>
                 <div>
@@ -1253,7 +1253,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   )}
                 </div>
               </div>
-              <ChevronRight className="h-4 w-4 flex-shrink-0 text-gray-400" />
+              <Button size="icon" icon={ChevronRight} />
             </button>
           )}
 
@@ -1264,7 +1264,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               onClick={() => router.visit(`/appointments/${claim.appointment_id}`)}
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-green-50">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-50">
                   <Calendar className="h-4 w-4 text-green-600" />
                 </div>
                 <div>
@@ -1281,7 +1281,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   )}
                 </div>
               </div>
-              <ChevronRight className="h-4 w-4 flex-shrink-0 text-gray-400" />
+              <Button size="icon" icon={ChevronRight} />
             </button>
           )}
           </div>
@@ -1507,15 +1507,15 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
-                      <FileText className="h-4 w-4 text-gray-500" />
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-100">
+                      <FileText className="h-4 w-4 text-neutral-900" />
                     </div>
                     <div>
                       <p className="text-[14px] font-medium text-gray-900">{doc.type}</p>
                       <p className="text-[14px] text-gray-500">{doc.date}</p>
                     </div>
                   </div>
-                  <Download className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                  <Download className="h-4 w-4 flex-shrink-0 text-neutral-900" />
                 </button>
               ))}
             </div>
@@ -1535,7 +1535,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         >
           {claim.timeline.length === 0 ? (
             <div className="p-6">
-              <EmptyState icon={Clock} message="No timeline events" />
+              <EmptyState icon={Clock} message="No timeline events" description="Timeline updates will appear here as your claim progresses." />
             </div>
             ) : (
               <div className="px-6 py-4">

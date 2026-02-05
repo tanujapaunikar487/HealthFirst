@@ -255,13 +255,13 @@ export function DetailsSheet({
         <Collapsible open={detailsOpen} onOpenChange={setDetailsOpen}>
           <CollapsibleTrigger className="flex items-center justify-between w-full py-3 hover:bg-muted/50 transition-colors">
             <div className="flex items-center gap-2">
-              <Icon icon={Calendar} className="h-4 w-4 text-muted-foreground" />
+              <Icon icon={Calendar} className="h-4 w-4 text-neutral-900" />
               <span className="text-[14px] font-medium">Details</span>
             </div>
             <Icon
               icon={ChevronDown}
               className={cn(
-                "h-4 w-4 text-muted-foreground transition-transform",
+                "h-4 w-4 text-neutral-900 transition-transform",
                 detailsOpen && "transform rotate-180"
               )}
             />
@@ -286,7 +286,7 @@ export function DetailsSheet({
         <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
           <CollapsibleTrigger className="flex items-center justify-between w-full py-3 hover:bg-muted/50 transition-colors">
             <div className="flex items-center gap-2">
-              <Icon icon={FileText} className="h-4 w-4 text-muted-foreground" />
+              <Icon icon={FileText} className="h-4 w-4 text-neutral-900" />
               <span className="text-[14px] font-medium">Notes</span>
             </div>
             <div className="flex items-center gap-2">
@@ -312,7 +312,7 @@ export function DetailsSheet({
               <Icon
                 icon={ChevronDown}
                 className={cn(
-                  "h-4 w-4 text-muted-foreground transition-transform",
+                  "h-4 w-4 text-neutral-900 transition-transform",
                   notesOpen && "transform rotate-180"
                 )}
               />
@@ -368,13 +368,13 @@ export function DetailsSheet({
         <Collapsible open={preparationOpen} onOpenChange={setPreparationOpen}>
           <CollapsibleTrigger className="flex items-center justify-between w-full py-3 hover:bg-muted/50 transition-colors">
             <div className="flex items-center gap-2">
-              <Icon icon={ClipboardCheck} className="h-4 w-4 text-muted-foreground" />
+              <Icon icon={ClipboardCheck} className="h-4 w-4 text-neutral-900" />
               <span className="text-[14px] font-medium">Preparation</span>
             </div>
             <Icon
               icon={ChevronDown}
               className={cn(
-                "h-4 w-4 text-muted-foreground transition-transform",
+                "h-4 w-4 text-neutral-900 transition-transform",
                 preparationOpen && "transform rotate-180"
               )}
             />
@@ -410,7 +410,7 @@ export function DetailsSheet({
                 onClick={handleCheckIn}
                 disabled={isCheckingIn}
               >
-                <Icon icon={ClipboardCheck} className="h-4 w-4 mr-2" />
+                <Icon icon={ClipboardCheck} className="h-[20px] w-[20px]" />
                 {isCheckingIn ? 'Checking in...' : 'Check-in'}
               </Button>
             ) : isVideoAppointment ? (
@@ -425,7 +425,7 @@ export function DetailsSheet({
                     }
                   }}
                 >
-                  <Icon icon={Video} className="h-4 w-4 mr-2" />
+                  <Icon icon={Video} className="h-[20px] w-[20px]" />
                   Join Video Call
                 </Button>
               ) : (
@@ -435,7 +435,7 @@ export function DetailsSheet({
                   variant="outline"
                   disabled
                 >
-                  <Icon icon={Video} className="h-4 w-4 mr-2" />
+                  <Icon icon={Video} className="h-[20px] w-[20px]" />
                   Video link will be shared
                 </Button>
               )
@@ -445,7 +445,7 @@ export function DetailsSheet({
                 size="lg"
                 onClick={() => onAction({ type: 'reschedule', appointment })}
               >
-                <Icon icon={CalendarClock} className="h-4 w-4 mr-2" />
+                <Icon icon={CalendarClock} className="h-[20px] w-[20px]" />
                 Reschedule
               </Button>
             )}
@@ -509,7 +509,7 @@ export function DetailsSheet({
                 size="lg"
                 onClick={() => onAction({ type: 'book_again', appointment })}
               >
-                <Icon icon={RotateCcw} className="h-4 w-4 mr-2" />
+                <Icon icon={RotateCcw} className="h-[20px] w-[20px]" />
                 Book Again
               </Button>
             ) : (
@@ -518,7 +518,7 @@ export function DetailsSheet({
                 size="lg"
                 onClick={() => router.visit('/booking?type=lab')}
               >
-                <Icon icon={TestTube2} className="h-4 w-4 mr-2" />
+                <Icon icon={TestTube2} className="h-[20px] w-[20px]" />
                 Book Lab Test
               </Button>
             )}
@@ -548,7 +548,7 @@ export function DetailsSheet({
               size="lg"
               onClick={() => onAction({ type: 'book_again', appointment })}
             >
-              <Icon icon={RotateCcw} className="h-4 w-4 mr-2" />
+              <Icon icon={RotateCcw} className="h-[20px] w-[20px]" />
               Book Again
             </Button>
           ) : (
@@ -557,7 +557,7 @@ export function DetailsSheet({
               size="lg"
               onClick={() => router.visit('/booking?type=lab')}
             >
-              <Icon icon={TestTube2} className="h-4 w-4 mr-2" />
+              <Icon icon={TestTube2} className="h-[20px] w-[20px]" />
               Book Lab Test
             </Button>
           )
@@ -644,7 +644,7 @@ export function CancelledDetailsSheet({
             size="lg"
             onClick={() => onAction({ type: 'book_again', appointment })}
           >
-            <Icon icon={RotateCcw} className="h-4 w-4 mr-2" />
+            <Icon icon={RotateCcw} className="h-[20px] w-[20px]" />
             Book Again
           </Button>
         ) : (
@@ -653,7 +653,7 @@ export function CancelledDetailsSheet({
             size="lg"
             onClick={() => router.visit('/booking?type=lab')}
           >
-            <Icon icon={TestTube2} className="h-4 w-4 mr-2" />
+            <Icon icon={TestTube2} className="h-[20px] w-[20px]" />
             Book Lab Test
           </Button>
         )}
@@ -1273,7 +1273,7 @@ export function FollowUpSheet({
                       <div className="flex items-center gap-3">
                         <div
                           className={cn(
-                            'h-4 w-4 rounded-full border-2 flex items-center justify-center',
+                            'h-4 w-4 rounded-full border flex items-center justify-center',
                             selectedMode === mode.type ? 'border-blue-500' : 'border-gray-300'
                           )}
                         >
@@ -1583,7 +1583,7 @@ export function BookAgainSheet({
                       <div className="flex items-center gap-3">
                         <div
                           className={cn(
-                            'h-4 w-4 rounded-full border-2 flex items-center justify-center',
+                            'h-4 w-4 rounded-full border flex items-center justify-center',
                             selectedMode === mode.type ? 'border-blue-500' : 'border-gray-300'
                           )}
                         >

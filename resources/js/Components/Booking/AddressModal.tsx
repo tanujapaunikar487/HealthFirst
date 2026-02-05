@@ -80,7 +80,7 @@ export function AddressModal({
                         <RadioGroupItem value={address.id} className="mt-1" />
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <Icon icon={Home} className="h-4 w-4 text-muted-foreground" />
+                            <Icon icon={Home} className="h-4 w-4 text-neutral-900" />
                             <p className="font-medium text-[14px]">{address.label}</p>
                           </div>
                           <p className="text-[14px] text-muted-foreground mt-1">{address.addressLine}</p>

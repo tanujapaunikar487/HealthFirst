@@ -119,7 +119,7 @@ export function EmbeddedComponent({
                 display_message: option.label
               })}
               disabled={disabled || isSelected}
-              className="flex-1 px-6 py-4 border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-6 py-4 border border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="font-semibold text-gray-900">{option.label}</div>
               {option.description && (
@@ -144,7 +144,7 @@ export function EmbeddedComponent({
                 })
               }
               disabled={disabled || isSelected}
-              className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-left"
+              className="w-full px-6 py-4 border border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-left"
             >
               <div className="font-semibold text-gray-900">{option.label}</div>
               {option.description && (
@@ -399,7 +399,7 @@ export function EmbeddedComponent({
             <button
               onClick={() => onSelect({ show_all_doctors: true })}
               disabled={disabled || isSelected}
-              className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-left"
+              className="w-full px-6 py-4 border border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-left"
             >
               <div className="font-semibold text-gray-900">See all available doctors</div>
               <div className="text-[14px] text-gray-500 mt-1">Browse our full list of doctors</div>
@@ -428,7 +428,7 @@ export function EmbeddedComponent({
                   }
                   disabled={disabled || isSelected}
                 className={cn(
-                  'w-full px-6 py-4 border-2 border-gray-200 rounded-xl text-left transition-all',
+                  'w-full px-6 py-4 border border-gray-200 rounded-xl text-left transition-all',
                   'hover:border-blue-500 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed',
                   selection?.doctor_id === doctor.id && 'border-blue-500 bg-blue-50'
                 )}
@@ -456,7 +456,7 @@ export function EmbeddedComponent({
             <button
               onClick={() => onSelect({ show_all_doctors: true })}
               disabled={disabled || isSelected}
-              className="w-full px-6 py-3 border-2 border-gray-300 rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-6 py-3 border border-gray-300 rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="text-[14px] font-semibold text-gray-700">Or see all other doctors</div>
             </button>
@@ -856,7 +856,7 @@ function OptionSelector({ options, selected, onSelect, disabled }: any) {
           onClick={() => !disabled && onSelect(option.id)}
           disabled={disabled}
           className={cn(
-            'px-5 py-2.5 rounded-full border-2 text-[14px] font-medium transition-all',
+            'px-5 py-2.5 rounded-full border text-[14px] font-medium transition-all',
             'hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60',
             selected === option.id
               ? 'border-[#0052FF] bg-blue-50 text-[#0A0B0D]'
@@ -893,7 +893,7 @@ function UrgencySelector({ levels, selected, onSelect, disabled }: any) {
           onClick={() => !disabled && onSelect(level.id)}
           disabled={disabled}
           className={cn(
-            'w-full flex items-start gap-3 p-4 rounded-2xl border-2 transition-all text-left',
+            'w-full flex items-start gap-3 p-4 rounded-2xl border transition-all text-left',
             'hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60',
             selected === level.id
               ? 'border-[#0052FF] bg-blue-50'
@@ -925,7 +925,7 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
           Recommended <ChevronDown className="w-4 h-4" />
         </button>
         <div className="flex-1 flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg">
-          <Search className="w-4 h-4 text-gray-400" />
+          <Search className="w-4 h-4 text-neutral-900" />
           <input
             type="text"
             placeholder="Search patient, doctor, date"
@@ -942,7 +942,7 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
           <div
             key={doctor.id}
             className={cn(
-              'p-4 rounded-2xl border-2 transition-all',
+              'p-4 rounded-2xl border transition-all',
               selectedDoctorId === doctor.id
                 ? 'border-[#0052FF] bg-blue-50'
                 : 'border-gray-200 bg-white'
@@ -1017,7 +1017,7 @@ function ConsultationModeSelector({ modes, selected, onSelect, disabled }: any) 
           onClick={() => !disabled && onSelect(mode.id)}
           disabled={disabled}
           className={cn(
-            'w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all text-left',
+            'w-full flex items-center justify-between p-4 rounded-2xl border transition-all text-left',
             'hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60',
             selected === mode.id
               ? 'border-[#0052FF] bg-blue-50'
@@ -1048,7 +1048,7 @@ function ConsultationModeSelector({ modes, selected, onSelect, disabled }: any) 
 function BookingSummary({ summary, onPay, disabled }: any) {
   return (
     <div className="space-y-6 max-w-2xl">
-      <div className="bg-white border-2 border-gray-200 rounded-2xl p-5">
+      <div className="bg-white border border-gray-200 rounded-2xl p-5">
         <div className="space-y-4">
           {Object.entries(summary || {}).map(([key, value]: [string, any]) => {
             if (key === 'consultation_fee' || key === 'total') return null;
@@ -1103,7 +1103,7 @@ function PackageList({ packages, selected, onSelect, disabled }: any) {
           onClick={() => !disabled && onSelect(pkg.id)}
           disabled={disabled}
           className={cn(
-            'w-full p-4 rounded-2xl border-2 transition-all text-left',
+            'w-full p-4 rounded-2xl border transition-all text-left',
             'hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60',
             selected === pkg.id
               ? 'border-[#0052FF] bg-blue-50'
@@ -1138,7 +1138,7 @@ function LocationSelector({ locations, selected, onSelect, disabled }: any) {
           onClick={() => !disabled && onSelect(location.id)}
           disabled={disabled}
           className={cn(
-            'w-full p-3 rounded-xl border-2 transition-all text-left',
+            'w-full p-3 rounded-xl border transition-all text-left',
             'hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60',
             selected === location.id
               ? 'border-[#0052FF] bg-blue-50'
@@ -1369,7 +1369,7 @@ function ActionList({ actions, onSelect, disabled }: any) {
               <div className="text-[14px] text-muted-foreground">{action.description}</div>
             )}
           </div>
-          <svg className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-neutral-900 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>
@@ -1410,7 +1410,7 @@ function InfoLinks({ links, onSelect, disabled }: any) {
             <div className="font-semibold text-foreground mb-1">{link.title}</div>
             <div className="text-[14px] text-muted-foreground">{link.description}</div>
           </div>
-          <svg className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-neutral-900 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>
@@ -1493,7 +1493,7 @@ function ScheduleConflict({ existing, newAppointment, onSelect, disabled }: any)
         </div>
       </div>
 
-      <div className="bg-blue-50 rounded-2xl p-4 border-2 border-blue-400">
+      <div className="bg-blue-50 rounded-2xl p-4 border border-blue-400">
         <p className="text-[14px] font-semibold text-blue-700 uppercase mb-2">New Appointment</p>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
@@ -1538,7 +1538,7 @@ function ScheduleConflict({ existing, newAppointment, onSelect, disabled }: any)
 // Emergency Warning Component (CRITICAL - for medical emergencies)
 function EmergencyWarning({ emergencyNumbers, category, disabled }: any) {
   return (
-    <div className="bg-red-50 border-2 border-red-500 rounded-2xl p-6 space-y-4">
+    <div className="bg-red-50 border border-red-500 rounded-2xl p-6 space-y-4">
       <div className="flex items-start gap-4">
         <div className="flex-shrink-0 w-12 h-12 rounded-full bg-red-500 flex items-center justify-center animate-pulse">
           <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1630,7 +1630,7 @@ function TextInputComponent({
           }}
           placeholder={placeholder}
           disabled={disabled}
-          className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
         />
         <button
           onClick={handleSubmit}

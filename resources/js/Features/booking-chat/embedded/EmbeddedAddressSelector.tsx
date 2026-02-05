@@ -81,8 +81,8 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
         )}
         onClick={() => !disabled && onAddAddress?.()}
       >
-        <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-          <Plus className="h-4 w-4 text-muted-foreground" />
+        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+          <Plus className="h-4 w-4 text-neutral-900" />
         </div>
         <span className="text-[14px] text-muted-foreground">Add new address</span>
       </button>

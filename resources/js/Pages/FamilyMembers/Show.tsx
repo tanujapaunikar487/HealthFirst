@@ -214,8 +214,8 @@ function Section({
   return (
     <div id={id} className="scroll-mt-24">
       <div className="flex items-center gap-2.5 mb-4">
-        <Icon icon={SectionIcon} className="h-5 w-5 text-muted-foreground" />
-        <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+        <Icon icon={SectionIcon} className="h-5 w-5 text-neutral-900" />
+        <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
           {title}
         </h2>
       </div>
@@ -735,12 +735,12 @@ export default function FamilyMemberShow({
         {/* Main Content with Side Nav */}
         <div className="flex gap-24">
           <MemberSideNav isGuest={!!member.is_guest} />
-          <div className="flex-1 min-w-0 space-y-16 pb-12">
+          <div className="flex-1 min-w-0 space-y-12 pb-12">
             {/* Personal Information Section */}
             <div id="personal" className="scroll-mt-24">
               <div className="flex items-center gap-2.5 mb-4">
-                <Icon icon={User} className="h-5 w-5 text-muted-foreground" />
-                <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+                <Icon icon={User} className="h-5 w-5 text-neutral-900" />
+                <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                   Personal Information
                 </h2>
               </div>
@@ -776,8 +776,8 @@ export default function FamilyMemberShow({
             {/* Contact & Address Section */}
             <div id="contact" className="scroll-mt-24">
               <div className="flex items-center gap-2.5 mb-4">
-                <Icon icon={Phone} className="h-5 w-5 text-muted-foreground" />
-                <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+                <Icon icon={Phone} className="h-5 w-5 text-neutral-900" />
+                <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                   Contact & Address
                 </h2>
               </div>
@@ -803,8 +803,8 @@ export default function FamilyMemberShow({
             {!member.is_guest && (
               <div id="health-info" className="scroll-mt-24">
                 <div className="flex items-center gap-2.5 mb-4">
-                  <Icon icon={Heart} className="h-5 w-5 text-muted-foreground" />
-                  <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+                  <Icon icon={Heart} className="h-5 w-5 text-neutral-900" />
+                  <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                     Health Information
                   </h2>
                 </div>
@@ -851,8 +851,8 @@ export default function FamilyMemberShow({
             {!member.is_guest && (
               <div id="emergency" className="scroll-mt-24">
                 <div className="flex items-center gap-2.5 mb-4">
-                  <Icon icon={Phone} className="h-5 w-5 text-muted-foreground" />
-                  <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+                  <Icon icon={Phone} className="h-5 w-5 text-neutral-900" />
+                  <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                     Emergency Contact
                   </h2>
                 </div>
@@ -913,7 +913,7 @@ export default function FamilyMemberShow({
                         <p className="text-[14px] font-semibold text-[#171717]">{link.title}</p>
                         <p className="text-[14px] font-normal text-[#737373]">{link.subtitle}</p>
                       </div>
-                      <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                      <ChevronRight className="h-5 w-5 text-neutral-900 flex-shrink-0" />
                     </button>
                   ))}
                 </div>

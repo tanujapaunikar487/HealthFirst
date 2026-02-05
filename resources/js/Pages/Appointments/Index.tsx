@@ -284,7 +284,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
               className="font-semibold"
             >
               <Link href="/booking" className="flex items-center gap-2">
-                <Icon icon={CalendarPlus} className="h-5 w-5" />
+                <Icon icon={CalendarPlus} className="h-[20px] w-[20px]" />
                 Book appointment
               </Link>
             </Button>
@@ -363,7 +363,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
               </Select>
             </div>
             <div className="relative">
-              <Icon icon={Search} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Icon icon={Search} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-900" />
               <Input
                 placeholder="Search appointments..."
                 value={searchQuery}
@@ -482,10 +482,14 @@ function AppointmentsTable({
     const message = tab === 'upcoming' ? 'No upcoming appointments'
       : tab === 'past' ? 'No past appointments'
       : 'No cancelled appointments';
+    const description = tab === 'upcoming' ? 'Book an appointment to get started.'
+      : tab === 'past' ? 'Your completed appointments will appear here.'
+      : 'Cancelled appointments will appear here.';
     return (
       <EmptyState
-        icon={Calendar}
+        image="/assets/images/booking.png"
         message={message}
+        description={description}
         action={tab === 'upcoming' ? (
           <Button asChild variant="outline" size="sm">
             <Link href="/booking">Book an appointment</Link>
@@ -561,7 +565,7 @@ function AppointmentsTable({
                 <PaymentStatusTag status={appt.payment_status} />
               </TableCell>
               <TableCell className="align-top">
-                <Icon icon={ChevronRight} className="h-4 w-4 text-muted-foreground" />
+                <Button size="icon" icon={ChevronRight} />
               </TableCell>
             </TableRow>
             );

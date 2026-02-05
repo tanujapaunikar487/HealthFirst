@@ -44,7 +44,7 @@ export function SideNav({
               className={cn(
                 'w-full flex items-center gap-3 font-medium transition-all text-left rounded-full cursor-pointer',
                 isActive
-                  ? 'bg-[#F5F8FF] text-[#0052FF]'
+                  ? 'bg-[#F5F8FF] text-[#2563EB]'
                   : 'text-neutral-900 hover:bg-muted'
               )}
               style={{ fontSize: '14px', lineHeight: '20px', padding: '8px 12px' }}

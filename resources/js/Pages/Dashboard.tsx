@@ -1049,9 +1049,9 @@ export default function Dashboard({
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
-            <Button asChild className="font-semibold">
+            <Button asChild size="lg" className="font-semibold">
               <Link href="/booking">
-                <img src="/assets/icons/appointment-2.svg" alt="" className="h-5 w-5" />
+                <img src="/assets/icons/appointment-2.svg" alt="" style={{ width: '20px', height: '20px' }} />
                 Book appointment
               </Link>
             </Button>

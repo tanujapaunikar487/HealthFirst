@@ -172,7 +172,7 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
               onClick={openAddForm}
               size="lg"
             >
-              <AddTeam className="h-4 w-4" />
+              <AddTeam className="h-[20px] w-[20px]" />
               Add member
             </Button>
           )}
@@ -222,7 +222,7 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
                   </div>
 
                   {/* Chevron */}
-                  <ChevronRight className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                  <Button size="icon" icon={ChevronRight} />
                 </div>
               );
             })}

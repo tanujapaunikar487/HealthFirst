@@ -131,8 +131,8 @@ function Section({
   return (
     <div id={id} className="scroll-mt-24">
       <div className="flex items-center gap-2.5 mb-4">
-        <Icon icon={SectionIcon} className="h-5 w-5 text-muted-foreground" />
-        <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+        <Icon icon={SectionIcon} className="h-5 w-5 text-neutral-900" />
+        <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
           {title}
         </h2>
       </div>
@@ -527,7 +527,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
         {/* Main Content with Side Nav */}
         <div className="flex gap-24">
           <PolicySideNav />
-          <div className="flex-1 min-w-0 space-y-16 pb-12">
+          <div className="flex-1 min-w-0 space-y-12 pb-12">
 
         {/* Policy Details */}
         <Section id="details" title="Policy Details" icon={ClipboardList}>
@@ -637,7 +637,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                       {claim.claim_date_formatted && ` \u00B7 ${claim.claim_date_formatted}`}
                     </p>
                   </div>
-                  <ChevronRight className="ml-3 h-4 w-4 flex-shrink-0 text-gray-400" />
+                  <Button size="icon" icon={ChevronRight} />
                 </button>
               ))}
             </div>
@@ -695,7 +695,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                           <p className="text-[14px] font-semibold text-gray-900">{member.name}</p>
                           <p className="text-[14px] text-gray-500 capitalize">{member.relation}</p>
                         </div>
-                        <ChevronRight className="h-4 w-4 text-gray-400" />
+                        <ChevronRight className="h-4 w-4 text-neutral-900" />
                       </button>
                     );
                   })

@@ -28,7 +28,7 @@ const buttonVariants = cva(
         default: 'h-12 py-2 px-8 text-[14px]',
         sm: 'h-8 px-4 text-[14px]',
         md: 'h-10 px-6 text-[14px]',
-        lg: 'h-12 py-2 px-8 text-[14px]',
+        lg: 'flex h-12 py-2 px-8 text-[14px]',
         xl: 'h-14 px-8 text-[14px]',
         cta: 'h-12 py-2 px-8 text-[14px]',
         icon: 'h-10 w-10',
@@ -51,17 +51,59 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  icon?: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
 }
 
+const lgStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  height: '48px',
+  fontSize: '16px',
+};
+
+const iconStyle: React.CSSProperties = {
+  display: 'flex',
+  width: '40px',
+  height: '40px',
+  padding: '8px',
+  justifyContent: 'center',
+  alignItems: 'center',
+  gap: '8px',
+  flexShrink: 0,
+  borderRadius: '10000px',
+  border: '1px solid #E5E5E5',
+  background: '#F5F5F5',
+  color: '#171717',
+};
+
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, rounded, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : 'button';
+  ({ className, variant, size, rounded, asChild = false, icon: IconComp, children, style, ...props }, ref) => {
+    let mergedStyle = style;
+    if (size === 'lg') mergedStyle = { ...lgStyle, ...style };
+    if (size === 'icon') mergedStyle = { ...iconStyle, ...style };
+    if (asChild) {
+      return (
+        <Slot
+          className={cn(buttonVariants({ variant, size, rounded, className }))}
+          ref={ref}
+          style={mergedStyle}
+          {...props}
+        >
+          {children}
+        </Slot>
+      );
+    }
     return (
-      <Comp
+      <button
         className={cn(buttonVariants({ variant, size, rounded, className }))}
         ref={ref}
+        style={mergedStyle}
         {...props}
-      />
+      >
+        {IconComp && <IconComp className={size === 'lg' ? 'h-[20px] w-[20px]' : 'h-[16px] w-[16px]'} />}
+        {children}
+      </button>
     );
   }
 );

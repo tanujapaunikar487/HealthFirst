@@ -131,7 +131,7 @@ export default function Confirmation({ booking }: Props) {
             className="w-full"
           >
             <Link href="/booking" className="flex items-center gap-2">
-              <Icon icon={Plus} className="h-4 w-4" />
+              <Icon icon={Plus} className="h-[20px] w-[20px]" />
               Book Another Appointment
             </Link>
           </Button>

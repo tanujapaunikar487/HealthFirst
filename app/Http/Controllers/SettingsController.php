@@ -83,6 +83,7 @@ class SettingsController extends Controller
                 'apple' => ['enabled' => false],
             ]),
             'upiIds' => $user->getSetting('upi_ids', []),
+            'paymentMethods' => $user->getSetting('payment_methods', []),
         ]);
     }
 
@@ -600,5 +601,131 @@ class SettingsController extends Controller
         $user->setSetting('upi_ids', $upiIds);
 
         return back()->with('success', 'Default UPI ID updated.');
+    }
+
+    /**
+     * Add a new payment method (card).
+     */
+    public function storePaymentMethod(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'card_number' => ['required', 'string', 'size:16', 'regex:/^\d+$/'],
+            'expiry_month' => ['required', 'integer', 'min:1', 'max:12'],
+            'expiry_year' => ['required', 'integer', 'min:2024', 'max:2099'],
+            'cvv' => ['required', 'string', 'size:3', 'regex:/^\d+$/'],
+            'holder_name' => ['required', 'string', 'max:100'],
+        ], [
+            'card_number.size' => 'Card number must be 16 digits.',
+            'card_number.regex' => 'Card number must contain only digits.',
+            'expiry_month.min' => 'Invalid expiry month.',
+            'expiry_month.max' => 'Invalid expiry month.',
+            'expiry_year.min' => 'Invalid expiry year.',
+            'cvv.size' => 'CVV must be 3 digits.',
+        ]);
+
+        $user = Auth::user() ?? User::first();
+        $paymentMethods = $user->getSetting('payment_methods', []);
+
+        // Detect card brand from first digit(s)
+        $firstDigit = $validated['card_number'][0];
+        $firstTwo = substr($validated['card_number'], 0, 2);
+        $brand = 'Unknown';
+        if ($firstDigit === '4') {
+            $brand = 'Visa';
+        } elseif (in_array($firstTwo, ['51', '52', '53', '54', '55'])) {
+            $brand = 'Mastercard';
+        } elseif (in_array($firstTwo, ['34', '37'])) {
+            $brand = 'Amex';
+        } elseif ($firstDigit === '6') {
+            $brand = 'RuPay';
+        }
+
+        // Get last 4 digits
+        $lastFour = substr($validated['card_number'], -4);
+
+        // Format expiry for storage (month as 2-digit string, year as 2-digit string)
+        $expiryMonth = str_pad((string) $validated['expiry_month'], 2, '0', STR_PAD_LEFT);
+        $expiryYear = substr((string) $validated['expiry_year'], -2);
+
+        // Check if card already exists (same last4 + brand + expiry)
+        foreach ($paymentMethods as $method) {
+            if ($method['last_four'] === $lastFour &&
+                $method['brand'] === $brand &&
+                $method['expiry_month'] === $expiryMonth &&
+                $method['expiry_year'] === $expiryYear) {
+                return back()->withErrors(['card_number' => 'This card is already saved.']);
+            }
+        }
+
+        // Generate a unique ID
+        $newId = count($paymentMethods) > 0 ? max(array_column($paymentMethods, 'id')) + 1 : 1;
+
+        // Set as default if first payment method
+        $isDefault = count($paymentMethods) === 0;
+
+        // Store only non-sensitive data (simulating tokenization)
+        $paymentMethods[] = [
+            'id' => $newId,
+            'type' => 'card',
+            'last_four' => $lastFour,
+            'brand' => $brand,
+            'expiry_month' => $expiryMonth,
+            'expiry_year' => $expiryYear,
+            'holder_name' => $validated['holder_name'],
+            'is_default' => $isDefault,
+        ];
+
+        $user->setSetting('payment_methods', $paymentMethods);
+
+        return back()->with('success', 'Card added successfully.');
+    }
+
+    /**
+     * Delete a payment method.
+     */
+    public function deletePaymentMethod(int $id): RedirectResponse
+    {
+        $user = Auth::user() ?? User::first();
+        $paymentMethods = $user->getSetting('payment_methods', []);
+
+        $wasDefault = false;
+        $paymentMethods = array_filter($paymentMethods, function ($method) use ($id, &$wasDefault) {
+            if ($method['id'] === $id) {
+                $wasDefault = $method['is_default'] ?? false;
+                return false;
+            }
+            return true;
+        });
+
+        // Re-index array
+        $paymentMethods = array_values($paymentMethods);
+
+        // If deleted method was default and there are others, set first as default
+        if ($wasDefault && count($paymentMethods) > 0) {
+            $paymentMethods[0]['is_default'] = true;
+        }
+
+        $user->setSetting('payment_methods', $paymentMethods);
+
+        return back()->with('success', 'Card removed.');
+    }
+
+    /**
+     * Set a payment method as default.
+     */
+    public function setDefaultPaymentMethod(int $id): RedirectResponse
+    {
+        $user = Auth::user() ?? User::first();
+        $paymentMethods = $user->getSetting('payment_methods', []);
+
+        // Reset all defaults and set the selected one
+        $paymentMethods = array_map(function ($method) use ($id) {
+            $method['is_default'] = $method['id'] === $id;
+            return $method;
+        }, $paymentMethods);
+
+        $user->setSetting('payment_methods', $paymentMethods);
+
+        return back()->with('success', 'Default payment method updated.');
     }
 }

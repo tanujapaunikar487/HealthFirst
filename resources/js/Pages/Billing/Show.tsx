@@ -265,8 +265,8 @@ function Section({
   return (
     <div id={id} className="scroll-mt-24">
       <div className="flex items-center gap-2.5 mb-4">
-        <Icon icon={SectionIcon} className="h-5 w-5 text-muted-foreground" />
-        <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+        <Icon icon={SectionIcon} className="h-5 w-5 text-neutral-900" />
+        <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
           {title}
         </h2>
       </div>
@@ -781,7 +781,7 @@ export default function Show({ user, bill }: Props) {
             hasDispute={!!bill.dispute_details}
             hasPayment={!!(bill.payment_info || bill.insurance_details)}
           />
-          <div className="flex-1 min-w-0 space-y-16 pb-12">
+          <div className="flex-1 min-w-0 space-y-12 pb-12">
 
             {/* ─── Invoice Section ─── */}
             <Section id="invoice" title="Invoice" icon={FileText}>
@@ -1020,8 +1020,8 @@ export default function Show({ user, bill }: Props) {
             {bill.dispute_details && (
               <div id="dispute" className="scroll-mt-24">
                 <div className="flex items-center gap-2.5 mb-4">
-                  <Icon icon={AlertTriangle} className="h-5 w-5 text-muted-foreground" />
-                  <h2 className="text-lg font-semibold" style={{ color: '#00184D' }}>
+                  <Icon icon={AlertTriangle} className="h-5 w-5 text-neutral-900" />
+                  <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                     Dispute
                   </h2>
                 </div>

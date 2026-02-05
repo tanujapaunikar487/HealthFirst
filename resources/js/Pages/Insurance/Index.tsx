@@ -673,7 +673,7 @@ export default function InsuranceIndex({
           {hasPolicies && (
             <div className="flex items-center gap-3">
               <Button variant="outline" size="lg" onClick={openAddPolicy}>
-                <Plus className="h-4 w-4" />
+                <Plus className="h-[20px] w-[20px]" />
                 Add policy
               </Button>
               <Button size="lg" onClick={openPreAuth}>
@@ -737,7 +737,7 @@ export default function InsuranceIndex({
                         </TableCell>
                         <TableCell className="align-top">
                           <span className="text-[14px] flex items-center gap-1">
-                            <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                            <Users className="h-3.5 w-3.5 text-neutral-900" />
                             {policy.member_count}
                           </span>
                         </TableCell>
@@ -760,7 +760,7 @@ export default function InsuranceIndex({
                           )}
                         </TableCell>
                         <TableCell className="align-top">
-                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                          <Button size="icon" icon={ChevronRight} />
                         </TableCell>
                       </TableRow>
                     ))}
@@ -824,7 +824,7 @@ export default function InsuranceIndex({
                 </Select>
 
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-900" />
                   <Input
                     placeholder="Search"
                     value={search}
@@ -836,9 +836,11 @@ export default function InsuranceIndex({
 
               {/* Claims Table */}
               {filteredClaims.length === 0 ? (
-                <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-200 py-12">
-                  <p className="text-[14px] text-gray-500">No claims found</p>
-                </div>
+                <EmptyState
+                  image="/assets/images/insurance.png"
+                  message="No claims found"
+                  description="Claims filed against your policies will appear here."
+                />
               ) : (
                 <div className="border" style={{ borderRadius: '20px' }}>
                   <Table>
@@ -894,7 +896,7 @@ export default function InsuranceIndex({
                             {getStatusBadge(claim.status)}
                           </TableCell>
                           <TableCell className="align-top">
-                            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                            <Button size="icon" icon={ChevronRight} />
                           </TableCell>
                         </TableRow>
                       ))}
@@ -937,7 +939,7 @@ export default function InsuranceIndex({
               <div className="space-y-6">
                 <div
                   className={cn(
-                    'flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 py-12 transition-colors',
+                    'flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-6 py-12 transition-colors',
                     isDragOver
                       ? 'border-blue-400 bg-blue-50'
                       : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-gray-100'
@@ -1001,7 +1003,7 @@ export default function InsuranceIndex({
                 <p className="mb-6 text-[14px] text-gray-500">This may take a few moments</p>
                 {uploadedFile && (
                   <div className="flex items-center gap-2 rounded-lg bg-gray-50 px-4 py-2">
-                    <FileText className="h-4 w-4 text-gray-400" />
+                    <FileText className="h-4 w-4 text-neutral-900" />
                     <span className="text-[14px] text-gray-600">{uploadedFile.name}</span>
                     <span className="text-[14px] text-gray-400">
                       ({formatFileSize(uploadedFile.size)})
@@ -1027,7 +1029,7 @@ export default function InsuranceIndex({
                 </p>
                 {uploadedFile && (
                   <div className="mb-6 flex items-center gap-2 rounded-lg bg-gray-50 px-4 py-2">
-                    <FileText className="h-4 w-4 text-gray-400" />
+                    <FileText className="h-4 w-4 text-neutral-900" />
                     <span className="text-[14px] text-gray-600">{uploadedFile.name}</span>
                     <span className="text-[14px] text-gray-400">
                       ({formatFileSize(uploadedFile.size)})
@@ -1350,7 +1352,7 @@ export default function InsuranceIndex({
                       <p className="text-[14px] font-semibold text-gray-900 truncate">{p.plan_name}</p>
                       <p className="text-[14px] text-gray-500">{p.provider_name} &middot; {formatCurrency(p.sum_insured)}</p>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                    <ChevronRight className="h-4 w-4 text-neutral-900 flex-shrink-0" />
                   </button>
                 ))}
               </div>
@@ -1384,7 +1386,7 @@ export default function InsuranceIndex({
                           <p className="text-[14px] font-semibold text-gray-900">{member.name}</p>
                           <p className="text-[14px] text-gray-500 capitalize">{member.relation}</p>
                         </div>
-                        <ChevronRight className="h-4 w-4 text-gray-400" />
+                        <ChevronRight className="h-4 w-4 text-neutral-900" />
                       </button>
                     );
                   })

@@ -20,7 +20,7 @@ interface MemberSearchCardProps {
 
 export function MemberSearchCard({ member, alreadyLinked }: MemberSearchCardProps) {
     return (
-        <div className="border-2 border-primary rounded-xl p-4 bg-primary/5">
+        <div className="border border-primary rounded-xl p-4 bg-primary/5">
             <div className="flex items-start gap-4">
                 {/* Avatar */}
                 <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">

@@ -40,7 +40,7 @@ export function AppointmentModeSelector({
             className={cn(
               'w-full flex items-center gap-4 p-4 text-left transition-all',
               'hover:bg-muted/50',
-              isSelected && 'bg-primary/5 border-2 border-primary'
+              isSelected && 'bg-primary/5 border border-primary'
             )}
           >
             {/* Icon */}

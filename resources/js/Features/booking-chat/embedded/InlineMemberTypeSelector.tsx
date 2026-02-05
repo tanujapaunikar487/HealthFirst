@@ -1107,7 +1107,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                                         className="sr-only"
                                     />
                                     <div className={cn(
-                                        'h-4 w-4 rounded-full border-2 flex items-center justify-center',
+                                        'h-4 w-4 rounded-full border flex items-center justify-center',
                                         selectedContactMethod === 'phone' ? 'border-primary' : 'border-muted-foreground'
                                     )}>
                                         {selectedContactMethod === 'phone' && (
@@ -1134,7 +1134,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                                         className="sr-only"
                                     />
                                     <div className={cn(
-                                        'h-4 w-4 rounded-full border-2 flex items-center justify-center',
+                                        'h-4 w-4 rounded-full border flex items-center justify-center',
                                         selectedContactMethod === 'email' ? 'border-primary' : 'border-muted-foreground'
                                     )}>
                                         {selectedContactMethod === 'email' && (

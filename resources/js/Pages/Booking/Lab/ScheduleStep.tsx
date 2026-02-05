@@ -255,7 +255,7 @@ export default function ScheduleStep({
       onContinue={handleContinue}
       continueDisabled={!selectedTime || !isCollectionComplete()}
     >
-      <div className="space-y-16">
+      <div className="space-y-12">
         {/* Date Selection */}
         <section>
           <h2 className="text-xl font-semibold mb-4">Select Date</h2>

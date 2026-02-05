@@ -122,7 +122,7 @@ const SheetFooter = ({
       'flex items-center gap-2 border-t mt-auto',
       className
     )}
-    style={{ padding: '20px' }}
+    style={{ padding: '16px' }}
     {...props}
   />
 );
