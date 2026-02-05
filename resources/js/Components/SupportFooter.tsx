@@ -21,7 +21,7 @@ export function SupportFooter({ pageName }: SupportFooterProps) {
                     href={gmailUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                    className="font-medium text-primary hover:text-primary/80 hover:underline"
                 >
                     Contact support →
                 </a>

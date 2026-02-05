@@ -34,12 +34,12 @@ function calculateStrength(password: string): PasswordStrength {
     if (/[^a-zA-Z0-9]/.test(password)) score++;
 
     const labels: Record<number, { label: string; color: string }> = {
-        0: { label: 'Very Weak', color: 'bg-red-500' },
-        1: { label: 'Weak', color: 'bg-orange-500' },
-        2: { label: 'Fair', color: 'bg-yellow-500' },
-        3: { label: 'Good', color: 'bg-lime-500' },
-        4: { label: 'Strong', color: 'bg-green-500' },
-        5: { label: 'Very Strong', color: 'bg-emerald-500' },
+        0: { label: 'Very Weak', color: 'bg-destructive' },
+        1: { label: 'Weak', color: 'bg-warning' },
+        2: { label: 'Fair', color: 'bg-warning' },
+        3: { label: 'Good', color: 'bg-success' },
+        4: { label: 'Strong', color: 'bg-success' },
+        5: { label: 'Very Strong', color: 'bg-success' },
     };
 
     return {
@@ -337,8 +337,8 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
 
                 {step === 'success' && (
                     <div className="py-8 text-center space-y-4">
-                        <div className="mx-auto h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
-                            <Check className="h-8 w-8 text-green-600" />
+                        <div className="mx-auto h-16 w-16 rounded-full bg-success/10 flex items-center justify-center">
+                            <Check className="h-8 w-8 text-success" />
                         </div>
                         <div>
                             <h3 className="text-lg font-semibold">Password Changed!</h3>

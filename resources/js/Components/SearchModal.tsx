@@ -273,8 +273,8 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
           maxWidth: '90vw',
           height: '420px',
           borderRadius: '20px',
-          border: '1px solid #E5E5E5',
-          background: '#FFFFFF',
+          border: '1px solid hsl(var(--border))',
+          background: 'hsl(var(--background))',
           boxShadow: '0 5px 10px 0 rgba(0, 0, 0, 0.10), 0 15px 30px 0 rgba(0, 0, 0, 0.10), 0 20px 40px 0 rgba(0, 0, 0, 0.15)',
           backdropFilter: 'blur(10px)',
         }}
@@ -283,18 +283,18 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
         <DialogTitle className="sr-only">Search</DialogTitle>
 
         {/* Search Input */}
-        <div className="flex items-center gap-2 px-4" style={{ borderBottom: '1px solid #E5E5E5', height: '56px' }}>
+        <div className="flex items-center gap-2 px-4" style={{ borderBottom: '1px solid hsl(var(--border))', height: '56px' }}>
           <Icon icon={Search} className="h-5 w-5 flex-shrink-0 text-neutral-900" />
 
           {/* Category Tag */}
           {category !== 'all' && (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[14px] font-medium flex-shrink-0">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-[14px] font-medium flex-shrink-0">
               <span>
                 {category === 'health_records' ? 'Health records' : category.charAt(0).toUpperCase() + category.slice(1)}
               </span>
               <button
                 onClick={() => setCategory('all')}
-                className="text-blue-500 hover:text-blue-700"
+                className="text-primary hover:text-primary/80"
               >
                 <Icon icon={X} className="h-3.5 w-3.5" />
               </button>
@@ -344,7 +344,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                     setCategory('appointments');
                     inputRef.current?.focus();
                   }}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-gray-200 bg-white text-[14px] font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-border bg-background text-[14px] font-medium text-foreground hover:bg-muted transition-colors"
                 >
                   <Icon icon={Calendar} className="h-4 w-4 text-neutral-900" />
                   Search in <span className="font-semibold">appointment</span>
@@ -354,7 +354,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                     setCategory('health_records');
                     inputRef.current?.focus();
                   }}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-gray-200 bg-white text-[14px] font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-border bg-background text-[14px] font-medium text-foreground hover:bg-muted transition-colors"
                 >
                   <Icon icon={ClipboardList} className="h-4 w-4 text-neutral-900" />
                   Search in <span className="font-semibold">health records</span>
@@ -364,7 +364,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                     setCategory('bills');
                     inputRef.current?.focus();
                   }}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-gray-200 bg-white text-[14px] font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-border bg-background text-[14px] font-medium text-foreground hover:bg-muted transition-colors"
                 >
                   <Icon icon={FileText} className="h-4 w-4 text-neutral-900" />
                   Search in <span className="font-semibold">bills</span>
@@ -376,14 +376,14 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
           {/* Error State */}
           {error && !loading && (
             <div className="text-center py-10 px-4">
-              <Icon icon={AlertTriangle} className="h-8 w-8 text-amber-500 mx-auto mb-3" />
-              <p className="text-[14px] font-medium" style={{ color: '#00184D' }}>
+              <Icon icon={AlertTriangle} className="h-8 w-8 text-warning mx-auto mb-3" />
+              <p className="text-[14px] font-medium" style={{ color: 'hsl(var(--foreground))' }}>
                 {error}
               </p>
               <button
                 onClick={performSearch}
-                className="mt-3 text-[14px] font-medium px-4 py-2 rounded-lg transition-colors hover:bg-gray-100"
-                style={{ backgroundColor: '#F5F5F5', color: '#00184D' }}
+                className="mt-3 text-[14px] font-medium px-4 py-2 rounded-lg transition-colors hover:bg-accent"
+                style={{ backgroundColor: 'hsl(var(--muted))', color: 'hsl(var(--foreground))' }}
               >
                 Retry
               </button>
@@ -398,7 +398,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                 alt="No results"
                 className="w-24 h-24 mb-3"
               />
-              <p className="text-[14px] font-medium" style={{ color: '#00184D' }}>
+              <p className="text-[14px] font-medium" style={{ color: 'hsl(var(--foreground))' }}>
                 No results for "{query}"
               </p>
               <p className="text-[14px] text-muted-foreground mt-1">
@@ -426,11 +426,11 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                         active={activeIndex === idx}
                         onClick={() => navigateToResult('doctor', doctor)}
                       >
-                        <ResultIcon color="#1E40AF" bg="#BFDBFE">
+                        <ResultIcon color="hsl(var(--primary))" bg="hsl(var(--primary) / 0.25)">
                           <Icon icon={Stethoscope} className="h-4 w-4" />
                         </ResultIcon>
                         <div className="min-w-0 flex-1">
-                          <p className="text-[14px] font-medium truncate" style={{ color: '#00184D' }}>{doctor.name}</p>
+                          <p className="text-[14px] font-medium truncate" style={{ color: 'hsl(var(--foreground))' }}>{doctor.name}</p>
                           <p className="text-[14px] text-muted-foreground truncate">
                             {doctor.specialization} &middot; {doctor.experience_years} years
                           </p>
@@ -458,11 +458,11 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                         active={activeIndex === idx}
                         onClick={() => navigateToResult('appointment', appt)}
                       >
-                        <ResultIcon color="#1E40AF" bg="#BFDBFE">
+                        <ResultIcon color="hsl(var(--primary))" bg="hsl(var(--primary) / 0.25)">
                           <Icon icon={apptIcon} className="h-4 w-4" />
                         </ResultIcon>
                         <div className="min-w-0 flex-1">
-                          <p className="text-[14px] font-medium truncate" style={{ color: '#00184D' }}>{appt.title}</p>
+                          <p className="text-[14px] font-medium truncate" style={{ color: 'hsl(var(--foreground))' }}>{appt.title}</p>
                           <p className="text-[14px] text-muted-foreground truncate">
                             {appt.subtitle} &middot; {appt.date_formatted} &middot; {appt.patient_name}
                           </p>
@@ -489,11 +489,11 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                         active={activeIndex === idx}
                         onClick={() => navigateToResult('health_record', record)}
                       >
-                        <ResultIcon color="#1E40AF" bg="#BFDBFE">
+                        <ResultIcon color="hsl(var(--primary))" bg="hsl(var(--primary) / 0.25)">
                           <Icon icon={FileText} className="h-4 w-4" />
                         </ResultIcon>
                         <div className="min-w-0 flex-1">
-                          <p className="text-[14px] font-medium truncate" style={{ color: '#00184D' }}>{record.title}</p>
+                          <p className="text-[14px] font-medium truncate" style={{ color: 'hsl(var(--foreground))' }}>{record.title}</p>
                           <p className="text-[14px] text-muted-foreground truncate">
                             {record.doctor_name || record.category} &middot; {record.record_date_formatted} &middot; {record.patient_name}
                           </p>
@@ -520,11 +520,11 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                         active={activeIndex === idx}
                         onClick={() => navigateToResult('bill', bill)}
                       >
-                        <ResultIcon color="#1E40AF" bg="#BFDBFE">
+                        <ResultIcon color="hsl(var(--primary))" bg="hsl(var(--primary) / 0.25)">
                           <Icon icon={Receipt} className="h-4 w-4" />
                         </ResultIcon>
                         <div className="min-w-0 flex-1">
-                          <p className="text-[14px] font-medium truncate" style={{ color: '#00184D' }}>
+                          <p className="text-[14px] font-medium truncate" style={{ color: 'hsl(var(--foreground))' }}>
                             {bill.title} &middot; {bill.invoice_number}
                           </p>
                           <p className="text-[14px] text-muted-foreground truncate">
@@ -569,7 +569,7 @@ function ResultSection({
         <button
           onClick={onViewAll}
           className="flex items-center gap-1.5 w-full px-4 py-2 text-[14px] font-medium transition-colors hover:bg-muted"
-          style={{ color: '#1E40AF' }}
+          style={{ color: 'hsl(var(--primary))' }}
         >
           <span>View all {total} results</span>
           <Icon icon={ArrowRight} className="h-3 w-3" />
@@ -593,9 +593,9 @@ function ResultItem({
       data-result-item
       onClick={onClick}
       className="flex items-center gap-3 w-full px-4 py-2.5 text-left transition-colors"
-      style={{ backgroundColor: active ? '#F5F8FF' : 'transparent' }}
-      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = active ? '#F5F8FF' : '#FAFAFA')}
-      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = active ? '#F5F8FF' : 'transparent')}
+      style={{ backgroundColor: active ? 'hsl(var(--accent))' : 'transparent' }}
+      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = active ? 'hsl(var(--accent))' : 'hsl(var(--muted))')}
+      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = active ? 'hsl(var(--accent))' : 'transparent')}
     >
       {children}
     </button>

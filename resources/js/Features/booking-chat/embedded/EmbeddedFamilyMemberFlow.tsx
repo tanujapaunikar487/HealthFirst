@@ -1284,8 +1284,8 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                             {/* Lockout Warning */}
                             {state.lockedOut && (
-                                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                                    <p className="text-[14px] text-amber-800">
+                                <div className="p-3 bg-warning/10 border border-warning/20 rounded-lg">
+                                    <p className="text-[14px] text-warning">
                                         <AlertCircle className="inline h-4 w-4 mr-1" />
                                         Too many OTP attempts. Please try again after 15 minutes.
                                     </p>
@@ -1320,7 +1320,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     {/* Contact Update Modal */}
                     {state.showContactUpdateModal && (
                         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                            <div className="bg-white rounded-xl p-6 max-w-sm w-full space-y-4">
+                            <div className="bg-background rounded-xl p-6 max-w-sm w-full space-y-4">
                                 <h3 className="text-lg font-semibold">Request Contact Update</h3>
                                 <p className="text-[14px] text-muted-foreground">
                                     For security, contact information can only be updated by visiting the hospital or calling our helpline.
@@ -1343,8 +1343,8 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         <div className="space-y-4">
                             {/* Show where OTP was sent */}
                             {state.otpSentTo && (
-                                <div className="text-center p-3 bg-blue-50 border border-blue-100 rounded-lg">
-                                    <p className="text-[14px] text-blue-800">
+                                <div className="text-center p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                                    <p className="text-[14px] text-primary">
                                         OTP sent to <strong>{state.otpSentTo}</strong>
                                     </p>
                                 </div>
@@ -1385,7 +1385,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     {state.step === 'success' && (
                         <div className="space-y-4 text-center py-8">
-                            <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center mx-auto"><CheckCircle2 className="h-8 w-8 text-green-600" /></div>
+                            <div className="h-16 w-16 rounded-full bg-success/10 flex items-center justify-center mx-auto"><CheckCircle2 className="h-8 w-8 text-success" /></div>
                             <h3 className="text-lg font-semibold">Successfully Linked!</h3>
                             <p className="text-[14px] text-muted-foreground">{state.foundMember?.name} has been added to your family members</p>
                         </div>
@@ -1978,8 +1978,8 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     {/* Lockout Warning */}
                     {state.lockedOut && (
-                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                            <p className="text-[14px] text-amber-800">
+                        <div className="p-3 bg-warning/10 border border-warning/20 rounded-lg">
+                            <p className="text-[14px] text-warning">
                                 <AlertCircle className="inline h-4 w-4 mr-1" />
                                 Too many OTP attempts. Please try again after 15 minutes.
                             </p>
@@ -2014,7 +2014,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             {/* Contact Update Modal */}
             {state.showContactUpdateModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl p-6 max-w-sm w-full space-y-4">
+                    <div className="bg-background rounded-xl p-6 max-w-sm w-full space-y-4">
                         <h3 className="text-lg font-semibold">Request Contact Update</h3>
                         <p className="text-[14px] text-muted-foreground">
                             For security, contact information can only be updated by visiting the hospital or calling our helpline.
@@ -2039,8 +2039,8 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     {/* Show where OTP was sent */}
                     {state.otpSentTo && (
-                        <div className="text-center p-3 bg-blue-50 border border-blue-100 rounded-lg">
-                            <p className="text-[14px] text-blue-800">
+                        <div className="text-center p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                            <p className="text-[14px] text-primary">
                                 OTP sent to <strong>{state.otpSentTo}</strong>
                             </p>
                         </div>
@@ -2085,8 +2085,8 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
             {state.step === 'success' && (
                 <div className="space-y-4 text-center py-8">
-                    <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center mx-auto">
-                        <CheckCircle2 className="h-8 w-8 text-green-600" />
+                    <div className="h-16 w-16 rounded-full bg-success/10 flex items-center justify-center mx-auto">
+                        <CheckCircle2 className="h-8 w-8 text-success" />
                     </div>
                     <h3 className="text-lg font-semibold">Successfully Linked!</h3>
                     <p className="text-[14px] text-muted-foreground">

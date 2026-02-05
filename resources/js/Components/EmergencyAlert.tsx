@@ -18,9 +18,9 @@ export function EmergencyAlert({
     showNearbyHospitals = true,
 }: EmergencyAlertProps) {
     return (
-        <div className="bg-red-50 border border-red-500 rounded-xl p-6 my-4 shadow-lg">
+        <div className="bg-destructive/10 border border-destructive rounded-xl p-6 my-4 shadow-lg">
             {/* Header */}
-            <div className="flex items-center gap-3 text-red-700 font-bold text-xl mb-4">
+            <div className="flex items-center gap-3 text-destructive font-bold text-xl mb-4">
                 <Icon icon={AlertTriangle} className="w-8 h-8 animate-pulse" />
                 <span>Medical Emergency Detected</span>
             </div>
@@ -30,7 +30,7 @@ export function EmergencyAlert({
                 {/* Primary Emergency */}
                 <a
                     href={`tel:${emergencyNumber}`}
-                    className="flex items-center justify-center gap-3 bg-red-600 hover:bg-red-700 text-white py-4 px-6 rounded-lg font-bold text-lg shadow-md transition-colors"
+                    className="flex items-center justify-center gap-3 bg-destructive hover:bg-destructive/90 text-destructive-foreground py-4 px-6 rounded-lg font-bold text-lg shadow-md transition-colors"
                 >
                     <Icon icon={Phone} className="w-6 h-6" />
                     <span>Call {emergencyNumber} (Emergency Services)</span>
@@ -39,7 +39,7 @@ export function EmergencyAlert({
                 {/* Ambulance */}
                 <a
                     href={`tel:${ambulanceNumber}`}
-                    className="flex items-center justify-center gap-3 bg-orange-500 hover:bg-orange-600 text-white py-4 px-6 rounded-lg font-bold text-lg shadow-md transition-colors"
+                    className="flex items-center justify-center gap-3 bg-warning hover:bg-warning/90 text-warning-foreground py-4 px-6 rounded-lg font-bold text-lg shadow-md transition-colors"
                 >
                     <Icon icon={Ambulance} className="w-6 h-6" />
                     <span>Call {ambulanceNumber} (Ambulance)</span>
@@ -50,7 +50,7 @@ export function EmergencyAlert({
                     {policeNumber && (
                         <a
                             href={`tel:${policeNumber}`}
-                            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold text-[14px] shadow-sm transition-colors"
+                            className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground py-3 px-4 rounded-lg font-semibold text-[14px] shadow-sm transition-colors"
                         >
                             <Icon icon={Shield} className="w-4 h-4" />
                             <span>Police {policeNumber}</span>
@@ -59,7 +59,7 @@ export function EmergencyAlert({
                     {fireNumber && (
                         <a
                             href={`tel:${fireNumber}`}
-                            className="flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white py-3 px-4 rounded-lg font-semibold text-[14px] shadow-sm transition-colors"
+                            className="flex items-center justify-center gap-2 bg-warning hover:bg-warning/90 text-warning-foreground py-3 px-4 rounded-lg font-semibold text-[14px] shadow-sm transition-colors"
                         >
                             <Icon icon={Flame} className="w-4 h-4" />
                             <span>Fire {fireNumber}</span>
@@ -79,7 +79,7 @@ export function EmergencyAlert({
                                 '_blank'
                             );
                         }}
-                        className="w-full flex items-center justify-center gap-2 bg-white border border-red-500 text-red-700 py-3 px-4 rounded-lg font-semibold hover:bg-red-50 transition-colors"
+                        className="w-full flex items-center justify-center gap-2 bg-background border border-destructive text-destructive py-3 px-4 rounded-lg font-semibold hover:bg-destructive/10 transition-colors"
                     >
                         <svg
                             className="w-5 h-5"
@@ -94,8 +94,8 @@ export function EmergencyAlert({
             )}
 
             {/* Warning Text */}
-            <div className="mt-4 p-4 bg-white rounded-lg border border-red-300">
-                <p className="text-[14px] text-red-800 leading-relaxed">
+            <div className="mt-4 p-4 bg-background rounded-lg border border-destructive/30">
+                <p className="text-[14px] text-destructive leading-relaxed">
                     <strong>Important:</strong> This booking system cannot handle
                     medical emergencies. If you're experiencing a life-threatening
                     situation, please call the emergency numbers above or go
@@ -105,7 +105,7 @@ export function EmergencyAlert({
 
             {/* Disclaimer for Non-Emergency */}
             <div className="mt-3 text-center">
-                <p className="text-[14px] text-gray-600">
+                <p className="text-[14px] text-muted-foreground">
                     If this is not an emergency and I misunderstood, please start a
                     new chat and describe your needs differently.
                 </p>

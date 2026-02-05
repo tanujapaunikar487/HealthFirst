@@ -48,14 +48,14 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
     <div className="space-y-4">
       {/* Warning message (e.g., fasting required) */}
       {warning && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+        <div className="bg-warning/10 border border-warning/20 rounded-xl p-4">
           <div className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
+            <div className="w-6 h-6 rounded-full bg-warning flex items-center justify-center flex-shrink-0">
               <span className="text-white text-[14px] font-bold">!</span>
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-[14px] text-amber-900 mb-1">{warning.title}</p>
-              <p className="text-[14px] text-amber-800">{warning.description}</p>
+              <p className="font-semibold text-[14px] text-warning mb-1">{warning.title}</p>
+              <p className="text-[14px] text-warning">{warning.description}</p>
             </div>
           </div>
         </div>
@@ -76,16 +76,16 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
                 disabled={disabled}
                 className={cn(
                   'flex flex-col items-center flex-shrink-0 px-6 py-3 rounded-2xl border transition-all min-w-[120px]',
-                  'hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60',
+                  'hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-60',
                   isSelected
                     ? 'border-[#0A0B0D] bg-[#0A0B0D] text-white'
-                    : 'border-gray-200 bg-white text-[#0A0B0D]'
+                    : 'border-border bg-background text-foreground'
                 )}
               >
                 <div className={cn('font-semibold text-[14px]', isSelected && 'text-white')}>
                   {formatDateLabel(date, index)}
                 </div>
-                <div className={cn('text-[14px]', isSelected ? 'text-gray-300' : 'text-gray-500')}>
+                <div className={cn('text-[14px]', isSelected ? 'text-muted-foreground/50' : 'text-muted-foreground')}>
                   {formatDateDisplay(date)}
                 </div>
               </button>
@@ -97,7 +97,7 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
       {/* Time selection */}
       <div>
         <h4 className="font-semibold text-[14px] mb-3">
-          Time {warning && <span className="text-[14px] font-normal text-gray-500">(morning recommended)</span>}
+          Time {warning && <span className="text-[14px] font-normal text-muted-foreground">(morning recommended)</span>}
         </h4>
         <div className="flex flex-wrap gap-2">
           {timeSlots.map((slot) => {
@@ -110,10 +110,10 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
                 disabled={disabled || !slot.available}
                 className={cn(
                   'px-3.5 py-1.5 rounded-full border text-[14px] font-medium transition-all inline-flex items-center gap-1',
-                  'hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60',
+                  'hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-60',
                   isSelected
                     ? 'border-[#0A0B0D] bg-[#0A0B0D] text-white'
-                    : 'border-gray-200 bg-white text-[#0A0B0D]'
+                    : 'border-border bg-background text-foreground'
                 )}
               >
                 {slot.time}

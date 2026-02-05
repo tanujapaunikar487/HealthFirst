@@ -240,11 +240,11 @@ function DoctorCard({
               "hover:bg-accent hover:border-primary",
               selectedTime === slot.time && "bg-primary text-primary-foreground border-primary",
               !slot.available && "opacity-50 cursor-not-allowed",
-              slot.preferred && selectedTime !== slot.time && "border-amber-400 bg-amber-50"
+              slot.preferred && selectedTime !== slot.time && "border-warning bg-warning/10"
             )}
           >
             {formatTime(slot.time)}
-            {slot.preferred && <Star className="h-3 w-3 fill-amber-500 text-amber-500" />}
+            {slot.preferred && <Star className="h-3 w-3 fill-warning text-warning" />}
           </button>
         ))}
       </div>

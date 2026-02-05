@@ -143,7 +143,7 @@ function PreviousDoctorCard({
         <div className="flex items-start gap-3 flex-1">
           <Avatar className="h-12 w-12">
             <AvatarImage src={doctor.avatar || undefined} />
-            <AvatarFallback className="bg-amber-500 text-white">
+            <AvatarFallback className="bg-warning text-warning-foreground">
               {getInitial(doctor.name)}
             </AvatarFallback>
           </Avatar>
@@ -154,7 +154,7 @@ function PreviousDoctorCard({
             </p>
             {doctor.rating && (
               <div className="flex items-center gap-1">
-                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                <Star className="h-3.5 w-3.5 fill-warning text-warning" />
                 <span className="text-[14px] font-medium">{doctor.rating}</span>
                 {doctor.reviewCount && (
                   <span className="text-[14px] text-muted-foreground">

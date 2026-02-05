@@ -405,7 +405,7 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
             </p>
             <button
               onClick={dismissProfileBanner}
-              className="flex h-6 w-6 items-center justify-center rounded-full flex-shrink-0 hover:bg-amber-200/50 transition-colors"
+              className="flex h-6 w-6 items-center justify-center rounded-full flex-shrink-0 hover:bg-warning/20 transition-colors"
             >
               <Icon icon={X} className="h-4 w-4 text-foreground" />
             </button>
@@ -416,7 +416,7 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
         <main
           className="flex-1 overflow-y-auto flex justify-center"
           style={{
-            background: 'linear-gradient(180deg, rgba(211, 225, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 13.94%, rgba(255, 255, 255, 1) 30.77%)',
+            background: 'linear-gradient(180deg, hsl(var(--primary) / 0.1) 0%, hsl(var(--background) / 0.5) 13.94%, hsl(var(--background)) 30.77%)',
             paddingTop: '80px',
             paddingBottom: '80px'
           }}

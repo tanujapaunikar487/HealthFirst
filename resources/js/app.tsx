@@ -24,10 +24,10 @@ createInertiaApp({
                     position="bottom-center"
                     toastOptions={{
                         style: {
-                            color: '#171717',
+                            color: 'hsl(var(--foreground))',
                             fontSize: '14px',
-                            background: '#fff',
-                            border: '1px solid #E5E5E5',
+                            background: 'hsl(var(--background))',
+                            border: '1px solid hsl(var(--border))',
                             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                             width: 'fit-content',
                             maxWidth: '420px',
@@ -39,6 +39,6 @@ createInertiaApp({
         );
     },
     progress: {
-        color: '#4B5563',
+        color: 'hsl(var(--primary))',
     },
 });

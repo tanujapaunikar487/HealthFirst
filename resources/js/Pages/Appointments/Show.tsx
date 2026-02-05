@@ -767,7 +767,7 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
                   {[appointment.doctor.specialization, appointment.doctor.qualification].filter(Boolean).join(' · ')}
                 </p>
                 <div className="flex items-center gap-1 mt-0.5">
-                  <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                  <Star className="h-3 w-3 fill-warning text-warning" />
                   <span className="text-[14px] text-muted-foreground">
                     {appointment.doctor.rating ?? '—'} · {appointment.doctor.experience_years ?? '—'} yrs exp
                   </span>
@@ -1379,7 +1379,7 @@ function FooterActions({ appointment }: { appointment: DetailedAppointment }) {
             <Star className={cn(
               'h-5 w-5 transition-colors',
               n <= (hoverRating || rating)
-                ? 'text-amber-400 fill-amber-400'
+                ? 'text-warning fill-warning'
                 : 'text-muted-foreground/30'
             )} />
           </button>

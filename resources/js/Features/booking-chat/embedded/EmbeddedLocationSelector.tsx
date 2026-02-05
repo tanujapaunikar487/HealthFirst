@@ -104,7 +104,7 @@ export function EmbeddedLocationSelector({ locations, selectedLocationId, onSele
 
               {/* Fee */}
               {isFree ? (
-                <span className="font-semibold text-[14px] text-green-600 flex-shrink-0">Free</span>
+                <span className="font-semibold text-[14px] text-success flex-shrink-0">Free</span>
               ) : (
                 <span className="font-semibold text-[14px] flex-shrink-0">₹{typeof location.fee === 'number' ? location.fee.toLocaleString() : location.fee}</span>
               )}

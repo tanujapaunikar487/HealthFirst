@@ -37,10 +37,10 @@ const PromptInputContainer = React.forwardRef<HTMLDivElement, PromptInputContain
       children,
       className,
       borderWidth = 2,
-      gradient = 'linear-gradient(265deg, #BFDBFE 24.67%, #FFF 144.07%)',
+      gradient = 'linear-gradient(265deg, hsl(var(--primary) / 0.2) 24.67%, hsl(var(--background)) 144.07%)',
       borderRadius = '20px',
       boxShadow = '0 4px 6px -4px rgba(0, 0, 0, 0.10), 0 10px 15px -3px rgba(0, 0, 0, 0.10)',
-      innerBackground = '#FFFFFF',
+      innerBackground = 'hsl(var(--background))',
       style,
       ...props
     },

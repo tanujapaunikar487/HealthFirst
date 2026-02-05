@@ -36,9 +36,9 @@ export function GuidedBookingLayout({
   className,
 }: GuidedBookingLayoutProps) {
   return (
-    <div className="h-screen flex flex-col bg-white overflow-hidden">
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
       {/* Header */}
-      <header className="sticky top-0 z-10 flex-none border-b bg-white">
+      <header className="sticky top-0 z-10 flex-none border-b bg-background">
         <div className="flex items-center justify-between gap-8 px-6 py-4">
           <div className="flex items-center gap-2 flex-shrink-0">
             <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-5 h-5" />
@@ -51,10 +51,10 @@ export function GuidedBookingLayout({
           </div>
 
           <div className="flex items-center gap-3 flex-shrink-0">
-            <div className="flex items-center gap-1 border rounded-full p-1 bg-gray-50">
+            <div className="flex items-center gap-1 border rounded-full p-1 bg-muted">
             <Link
               href="/booking?mode=ai"
-              className="p-1.5 rounded-full hover:bg-gray-100 transition-all"
+              className="p-1.5 rounded-full hover:bg-accent transition-all"
             >
               <img
                 src="/assets/icons/hugeicons/ai-magic-1.svg"
@@ -62,7 +62,7 @@ export function GuidedBookingLayout({
                 className="w-4 h-4"
               />
             </Link>
-            <div className="p-1.5 rounded-full bg-white shadow-md">
+            <div className="p-1.5 rounded-full bg-background shadow-md">
               <img
                 src="/assets/icons/hugeicons/stairs-01-1.svg"
                 alt=""
@@ -73,10 +73,10 @@ export function GuidedBookingLayout({
             {/* Cancel button */}
             <button
               onClick={() => router.visit('/')}
-              className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition-colors"
+              className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-accent transition-colors"
               title="Cancel booking"
             >
-              <Icon icon={X} className="w-4 h-4 text-gray-600" />
+              <Icon icon={X} className="w-4 h-4 text-muted-foreground" />
             </button>
             </div>
           </div>
@@ -89,7 +89,7 @@ export function GuidedBookingLayout({
         <div
           className="min-h-full px-6 py-8"
           style={{
-            background: 'linear-gradient(180deg, rgba(211, 225, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 13.94%, rgba(255, 255, 255, 1) 30.77%)'
+            background: 'linear-gradient(180deg, hsl(var(--primary) / 0.1) 0%, hsl(var(--background) / 0.5) 13.94%, hsl(var(--background)) 30.77%)'
           }}
         >
           <div className={cn("max-w-[800px] mx-auto", className)}>
@@ -99,7 +99,7 @@ export function GuidedBookingLayout({
       </main>
 
       {/* Footer */}
-      <footer className="sticky bottom-0 z-10 flex-none border-t bg-white px-6 py-4">
+      <footer className="sticky bottom-0 z-10 flex-none border-t bg-background px-6 py-4">
         <div className="max-w-[800px] mx-auto flex items-center justify-between">
           <Button
             variant="outline"

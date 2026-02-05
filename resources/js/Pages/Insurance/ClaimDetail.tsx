@@ -10,6 +10,7 @@ import { EmptyState } from '@/Components/ui/empty-state';
 import { Icon } from '@/Components/ui/icon';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { cn } from '@/Lib/utils';
+import { getAvatarColor } from '@/Lib/avatar-colors';
 import { SupportFooter } from '@/Components/SupportFooter';
 import { SideNav, SideNavItem } from '@/Components/SideNav';
 import {
@@ -274,20 +275,12 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-const avatarColors = [
-  { bg: '#DBEAFE', text: '#1E40AF' },
-  { bg: '#FCE7F3', text: '#9D174D' },
-  { bg: '#D1FAE5', text: '#065F46' },
-  { bg: '#FEF3C7', text: '#92400E' },
-  { bg: '#EDE9FE', text: '#5B21B6' },
-];
-
-function getAvatarColor(name: string) {
+function getAvatarColorByName(name: string) {
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
-  return avatarColors[Math.abs(hash) % avatarColors.length];
+  return getAvatarColor(Math.abs(hash));
 }
 
 function getTreatmentIcon(procedureType: string | null) {
@@ -379,10 +372,10 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
   switch (s) {
     case 'pending':
       return {
-        dotColor: 'bg-yellow-500',
-        bg: 'bg-yellow-50',
-        border: 'border-yellow-200',
-        textColor: 'text-yellow-800',
+        dotColor: 'bg-warning',
+        bg: 'bg-warning/10',
+        border: 'border-warning/20',
+        textColor: 'text-warning',
         title: f?.preauth_requested
           ? `Pre-authorization for ${formatCurrency(f.preauth_requested)} is in progress`
           : 'Claim submitted. Under review.',
@@ -394,10 +387,10 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'approved':
       return {
-        dotColor: 'bg-green-500',
-        bg: 'bg-green-50',
-        border: 'border-green-200',
-        textColor: 'text-green-800',
+        dotColor: 'bg-success',
+        bg: 'bg-success/10',
+        border: 'border-success/20',
+        textColor: 'text-success',
         title: f?.preauth_approved
           ? `Pre-authorization approved for ${formatCurrency(f.preauth_approved)}`
           : 'Pre-authorization approved.',
@@ -409,10 +402,10 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'partially_approved':
       return {
-        dotColor: 'bg-amber-500',
-        bg: 'bg-amber-50',
-        border: 'border-amber-200',
-        textColor: 'text-amber-800',
+        dotColor: 'bg-warning',
+        bg: 'bg-warning/10',
+        border: 'border-warning/20',
+        textColor: 'text-warning',
         title: f?.not_covered
           ? `Partially approved — ${formatCurrency(f.not_covered)} not covered`
           : 'Partially approved.',
@@ -428,10 +421,10 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'rejected':
       return {
-        dotColor: 'bg-red-500',
-        bg: 'bg-red-50',
-        border: 'border-red-200',
-        textColor: 'text-red-800',
+        dotColor: 'bg-destructive',
+        bg: 'bg-destructive/10',
+        border: 'border-destructive/20',
+        textColor: 'text-destructive',
         title: claim.claim_date
           ? `Pre-authorisation rejected on ${formatDate(claim.claim_date)}`
           : 'Pre-authorisation rejected.',
@@ -441,10 +434,10 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'expired':
       return {
-        dotColor: 'bg-red-500',
-        bg: 'bg-red-50',
-        border: 'border-red-200',
-        textColor: 'text-red-800',
+        dotColor: 'bg-destructive',
+        bg: 'bg-destructive/10',
+        border: 'border-destructive/20',
+        textColor: 'text-destructive',
         title: claim.claim_date
           ? `Pre-authorization expired on ${formatDate(claim.claim_date)}`
           : 'Pre-authorization expired.',
@@ -454,10 +447,10 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'enhancement_required':
       return {
-        dotColor: 'bg-amber-500',
-        bg: 'bg-amber-50',
-        border: 'border-amber-200',
-        textColor: 'text-amber-800',
+        dotColor: 'bg-warning',
+        bg: 'bg-warning/10',
+        border: 'border-warning/20',
+        textColor: 'text-warning',
         title: 'Enhancement required',
         subtitle:
           f?.current_bill && f?.original_approved
@@ -472,10 +465,10 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'enhancement_in_progress':
       return {
-        dotColor: 'bg-amber-500',
-        bg: 'bg-amber-50',
-        border: 'border-amber-200',
-        textColor: 'text-amber-800',
+        dotColor: 'bg-warning',
+        bg: 'bg-warning/10',
+        border: 'border-warning/20',
+        textColor: 'text-warning',
         title: 'Enhancement request in progress',
         subtitle: f?.enhancement_requested
           ? `Requested ${formatCurrency(f.enhancement_requested)} additional coverage.`
@@ -489,10 +482,10 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'enhancement_approved':
       return {
-        dotColor: 'bg-green-500',
-        bg: 'bg-green-50',
-        border: 'border-green-200',
-        textColor: 'text-green-800',
+        dotColor: 'bg-success',
+        bg: 'bg-success/10',
+        border: 'border-success/20',
+        textColor: 'text-success',
         title: 'Enhancement approved!',
         subtitle:
           f?.enhancement_approved != null && f?.original_approved != null
@@ -503,10 +496,10 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'enhancement_rejected':
       return {
-        dotColor: 'bg-red-500',
-        bg: 'bg-red-50',
-        border: 'border-red-200',
-        textColor: 'text-red-800',
+        dotColor: 'bg-destructive',
+        bg: 'bg-destructive/10',
+        border: 'border-destructive/20',
+        textColor: 'text-destructive',
         title: 'Enhancement request rejected',
         subtitle: claim.rejection_reason ?? undefined,
         action: { label: 'File appeal', toastMsg: 'Opening appeal flow...' },
@@ -515,10 +508,10 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
     case 'current':
     case 'processing':
       return {
-        dotColor: 'bg-blue-500',
-        bg: 'bg-blue-50',
-        border: 'border-blue-200',
-        textColor: 'text-blue-800',
+        dotColor: 'bg-primary',
+        bg: 'bg-primary/10',
+        border: 'border-primary/20',
+        textColor: 'text-primary',
         title: f?.preauth_approved
           ? `${formatCurrency(f.preauth_approved)} pre-auth approved. Treatment in progress.`
           : 'Treatment in progress.',
@@ -526,10 +519,10 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'settled':
       return {
-        dotColor: 'bg-green-500',
-        bg: 'bg-green-50',
-        border: 'border-green-200',
-        textColor: 'text-green-800',
+        dotColor: 'bg-success',
+        bg: 'bg-success/10',
+        border: 'border-success/20',
+        textColor: 'text-success',
         title: claim.claim_date
           ? `Claim settled on ${formatDate(claim.claim_date)}`
           : 'Claim settled.',
@@ -542,10 +535,10 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'dispute_under_review':
       return {
-        dotColor: 'bg-amber-500',
-        bg: 'bg-amber-50',
-        border: 'border-amber-200',
-        textColor: 'text-amber-800',
+        dotColor: 'bg-warning',
+        bg: 'bg-warning/10',
+        border: 'border-warning/20',
+        textColor: 'text-warning',
         title: 'Settlement disputed under review',
         subtitle: (claim.rejection_reason ?? 'Your dispute is being reviewed.') + ' Expected resolution: 5-7 days.',
         action: { label: 'Track dispute', toastMsg: 'Viewing dispute timeline...' },
@@ -553,10 +546,10 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'dispute_resolved':
       return {
-        dotColor: 'bg-green-500',
-        bg: 'bg-green-50',
-        border: 'border-green-200',
-        textColor: 'text-green-800',
+        dotColor: 'bg-success',
+        bg: 'bg-success/10',
+        border: 'border-success/20',
+        textColor: 'text-success',
         title: claim.claim_date
           ? `Dispute resolved on ${formatDate(claim.claim_date)}`
           : 'Dispute resolved.',
@@ -568,10 +561,10 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     default:
       return {
-        dotColor: 'bg-yellow-500',
-        bg: 'bg-yellow-50',
-        border: 'border-yellow-200',
-        textColor: 'text-yellow-800',
+        dotColor: 'bg-warning',
+        bg: 'bg-warning/10',
+        border: 'border-warning/20',
+        textColor: 'text-warning',
         title: 'Claim submitted. Under review.',
       };
   }
@@ -596,17 +589,17 @@ function TimelineEventRow({
   let dotExtra = '';
   switch (event.status) {
     case 'completed':
-      dotClass = 'bg-green-500';
+      dotClass = 'bg-success';
       break;
     case 'current':
-      dotClass = 'bg-blue-500';
-      dotExtra = 'ring-4 ring-blue-100';
+      dotClass = 'bg-primary';
+      dotExtra = 'ring-4 ring-primary/20';
       break;
     case 'warning':
-      dotClass = 'bg-yellow-500';
+      dotClass = 'bg-warning';
       break;
     case 'rejected':
-      dotClass = 'bg-red-500';
+      dotClass = 'bg-destructive';
       break;
     default:
       dotClass = 'bg-border';
@@ -851,7 +844,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
   return (
     <AppLayout pageTitle="Insurance" pageIcon="insurance">
       {/* Mobile sticky header */}
-      <div className="sticky top-0 z-10 border-b bg-white/95 backdrop-blur px-6 py-3 md:hidden">
+      <div className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur px-6 py-3 md:hidden">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-[14px] font-medium text-muted-foreground">{claim.claim_reference}</span>
@@ -1110,8 +1103,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 <div
                   className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-semibold"
                   style={{
-                    backgroundColor: getAvatarColor(patient.name).bg,
-                    color: getAvatarColor(patient.name).text,
+                    backgroundColor: getAvatarColorByName(patient.name).bg,
+                    color: getAvatarColorByName(patient.name).text,
                   }}
                 >
                   {getInitials(patient.name)}
@@ -1134,8 +1127,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   <div
                     className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-semibold"
                     style={{
-                      backgroundColor: getAvatarColor(doctor.name).bg,
-                      color: getAvatarColor(doctor.name).text,
+                      backgroundColor: getAvatarColorByName(doctor.name).bg,
+                      color: getAvatarColorByName(doctor.name).text,
                     }}
                   >
                     {getInitials(doctor.name)}
@@ -1306,9 +1299,9 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   </div>
                 )}
                 {fin.preauth_approved != null && !hasEnhancements && (
-                  <div className="flex items-center justify-between bg-green-50 px-5 py-3.5">
-                    <span className="text-[14px] font-medium text-green-700">Pre-auth approved</span>
-                    <span className="text-[14px] font-bold text-green-700">
+                  <div className="flex items-center justify-between bg-success/10 px-5 py-3.5">
+                    <span className="text-[14px] font-medium text-success">Pre-auth approved</span>
+                    <span className="text-[14px] font-bold text-success">
                       {formatCurrency(fin.preauth_approved)}
                     </span>
                   </div>
@@ -1319,38 +1312,38 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   <div
                     key={enh.id}
                     className={`flex items-center justify-between px-5 py-3.5 ${
-                      enh.status === 'approved' ? 'bg-green-50' : enh.status === 'rejected' ? 'bg-red-50' : ''
+                      enh.status === 'approved' ? 'bg-success/10' : enh.status === 'rejected' ? 'bg-destructive/10' : ''
                     }`}
                   >
                     <span className={`text-[14px] ${
-                      enh.status === 'approved' ? 'font-medium text-green-700'
-                        : enh.status === 'rejected' ? 'font-medium text-red-600'
+                      enh.status === 'approved' ? 'font-medium text-success'
+                        : enh.status === 'rejected' ? 'font-medium text-destructive'
                           : 'text-muted-foreground'
                     }`}>
                       Enhancement {idx + 1} ({enh.status})
                     </span>
                     <span className={`text-[14px] font-bold ${
-                      enh.status === 'approved' ? 'text-green-700'
-                        : enh.status === 'rejected' ? 'text-red-600'
-                          : 'text-amber-700'
+                      enh.status === 'approved' ? 'text-success'
+                        : enh.status === 'rejected' ? 'text-destructive'
+                          : 'text-warning'
                     }`}>
                       {formatCurrency(enh.amount)}
                     </span>
                   </div>
                 ))}
                 {hasEnhancements && fin.total_approved != null && (
-                  <div className="flex items-center justify-between bg-green-50 px-5 py-3.5">
-                    <span className="text-[14px] font-medium text-green-700">Total approved</span>
-                    <span className="text-[14px] font-bold text-green-700">
+                  <div className="flex items-center justify-between bg-success/10 px-5 py-3.5">
+                    <span className="text-[14px] font-medium text-success">Total approved</span>
+                    <span className="text-[14px] font-bold text-success">
                       {formatCurrency(fin.total_approved)}
                     </span>
                   </div>
                 )}
 
                 {fin.not_covered != null && fin.not_covered > 0 && (
-                  <div className="flex items-center justify-between bg-red-50 px-5 py-3.5">
-                    <span className="text-[14px] font-medium text-red-600">Not covered</span>
-                    <span className="text-[14px] font-bold text-red-600">
+                  <div className="flex items-center justify-between bg-destructive/10 px-5 py-3.5">
+                    <span className="text-[14px] font-medium text-destructive">Not covered</span>
+                    <span className="text-[14px] font-bold text-destructive">
                       {formatCurrency(fin.not_covered)}
                     </span>
                   </div>
@@ -1360,15 +1353,15 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 {!hasEnhancements && fin.enhancement_requested != null && (
                   <div className="flex items-center justify-between px-5 py-3.5">
                     <span className="text-[14px] text-muted-foreground">Enhancement requested</span>
-                    <span className="text-[14px] font-semibold text-amber-700">
+                    <span className="text-[14px] font-semibold text-warning">
                       {formatCurrency(fin.enhancement_requested)}
                     </span>
                   </div>
                 )}
                 {!hasEnhancements && fin.enhancement_approved != null && (
-                  <div className="flex items-center justify-between bg-green-50 px-5 py-3.5">
-                    <span className="text-[14px] font-medium text-green-700">Enhancement approved</span>
-                    <span className="text-[14px] font-bold text-green-700">
+                  <div className="flex items-center justify-between bg-success/10 px-5 py-3.5">
+                    <span className="text-[14px] font-medium text-success">Enhancement approved</span>
+                    <span className="text-[14px] font-bold text-success">
                       {formatCurrency(fin.enhancement_approved)}
                     </span>
                   </div>
@@ -1395,16 +1388,16 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 {/* Deductions */}
                 {fin.deductions && fin.deductions.length > 0 && (
                   <>
-                    <div className="flex items-center justify-between bg-red-50 px-5 py-3.5">
-                      <span className="text-[14px] font-medium text-red-600">Deductions</span>
-                      <span className="text-[14px] font-bold text-red-600">
+                    <div className="flex items-center justify-between bg-destructive/10 px-5 py-3.5">
+                      <span className="text-[14px] font-medium text-destructive">Deductions</span>
+                      <span className="text-[14px] font-bold text-destructive">
                         -{formatCurrency(fin.deductions.reduce((sum, d) => sum + d.amount, 0))}
                       </span>
                     </div>
                     {fin.deductions.map((d, idx) => (
                       <div key={idx} className="flex items-center justify-between px-5 py-2.5 pl-9">
                         <span className="text-[14px] text-muted-foreground">{d.label}</span>
-                        <span className="text-[14px] font-medium text-red-500">{formatCurrency(d.amount)}</span>
+                        <span className="text-[14px] font-medium text-destructive">{formatCurrency(d.amount)}</span>
                       </div>
                     ))}
                   </>
@@ -1422,7 +1415,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
                 {/* You Paid — bold dark row */}
                 {fin.patient_paid != null && (
-                  <div className="flex items-center justify-between bg-gray-900 px-6 py-4">
+                  <div className="flex items-center justify-between bg-foreground px-6 py-4">
                     <span className="text-[14px] font-semibold text-white">You paid</span>
                     <span className="text-base font-bold text-white">
                       {formatCurrency(fin.patient_paid)}
@@ -1451,9 +1444,9 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 )}
 
                 {fin.refunded != null && fin.refunded > 0 && (
-                  <div className="flex items-center justify-between bg-green-50 px-5 py-3.5">
-                    <span className="text-[14px] font-medium text-green-700">Refunded</span>
-                    <span className="text-[14px] font-bold text-green-700">
+                  <div className="flex items-center justify-between bg-success/10 px-5 py-3.5">
+                    <span className="text-[14px] font-medium text-success">Refunded</span>
+                    <span className="text-[14px] font-bold text-success">
                       {formatCurrency(fin.refunded)}
                     </span>
                   </div>

@@ -830,15 +830,15 @@ export default function Show({ user, record, familyMember }: Props) {
               {/* AI Summary */}
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
-                  <Sparkles className="h-4 w-4 text-purple-500" />
+                  <Sparkles className="h-4 w-4 text-primary" />
                   <span className="text-[14px] font-semibold text-muted-foreground uppercase tracking-wide">AI Summary</span>
                 </div>
 
                 {aiSummaryLoading ? (
-                  <div className="rounded-lg bg-purple-50 border border-purple-100 px-6 py-4">
+                  <div className="rounded-lg bg-primary/10 border border-primary/20 px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <Loader2 className="h-5 w-5 text-purple-500 animate-spin" />
-                      <p className="text-[14px] text-purple-700">Generating AI summary...</p>
+                      <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                      <p className="text-[14px] text-primary">Generating AI summary...</p>
                     </div>
                   </div>
                 ) : aiSummaryError ? (
@@ -854,10 +854,10 @@ export default function Show({ user, record, familyMember }: Props) {
                     </Button>
                   </div>
                 ) : aiSummary ? (
-                  <div className="rounded-lg bg-purple-50 border border-purple-100 px-6 py-4">
+                  <div className="rounded-lg bg-primary/10 border border-primary/20 px-6 py-4">
                     <p className="text-[14px] leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{aiSummary}</p>
                     {summaryGeneratedAt && (
-                      <p className="text-[14px] text-purple-400 mt-3">
+                      <p className="text-[14px] text-primary/60 mt-3">
                         Generated {new Date(summaryGeneratedAt).toLocaleDateString('en-IN', {
                           day: 'numeric',
                           month: 'short',
@@ -869,10 +869,10 @@ export default function Show({ user, record, familyMember }: Props) {
                     )}
                   </div>
                 ) : (
-                  <div className="rounded-lg bg-purple-50 border border-purple-100 px-6 py-4">
+                  <div className="rounded-lg bg-primary/10 border border-primary/20 px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <Loader2 className="h-5 w-5 text-purple-500 animate-spin" />
-                      <p className="text-[14px] text-purple-700">Generating AI summary...</p>
+                      <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                      <p className="text-[14px] text-primary">Generating AI summary...</p>
                     </div>
                   </div>
                 )}

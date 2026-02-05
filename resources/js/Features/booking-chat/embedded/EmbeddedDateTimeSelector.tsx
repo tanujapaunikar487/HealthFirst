@@ -65,14 +65,14 @@ export function EmbeddedDateTimeSelector({
     <div className="space-y-4">
       {/* Fasting alert */}
       {fastingRequired && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+        <div className="bg-warning/10 border border-warning/20 rounded-xl p-4">
           <div className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
+            <div className="w-6 h-6 rounded-full bg-warning flex items-center justify-center flex-shrink-0">
               <span className="text-white text-[14px] font-bold">!</span>
             </div>
             <div>
-              <p className="font-semibold text-amber-900">Fasting required</p>
-              <p className="text-[14px] text-amber-700">
+              <p className="font-semibold text-warning">Fasting required</p>
+              <p className="text-[14px] text-warning">
                 {fastingHours || 12} hours before. Morning recommended.
               </p>
             </div>
@@ -146,7 +146,7 @@ export function EmbeddedDateTimeSelector({
               >
                 {slot.time}
                 {slot.preferred && !isTimeSelected && (
-                  <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
+                  <Star className="h-3 w-3 fill-warning text-warning" />
                 )}
               </button>
             );

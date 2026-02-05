@@ -417,8 +417,8 @@ export function EmbeddedPackageList({
                       {/* Savings highlight */}
                       {savings > 0 && (
                         <div className="flex items-center gap-2 text-[14px]">
-                          <Sparkles className="h-4 w-4 text-green-600" />
-                          <span className="font-medium text-green-700">
+                          <Sparkles className="h-4 w-4 text-success" />
+                          <span className="font-medium text-success">
                             You save ₹{savings.toLocaleString()}
                           </span>
                         </div>

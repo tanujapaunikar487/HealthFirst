@@ -83,7 +83,7 @@ export default function Confirmation({ booking, calendarPreference }: Props) {
       <div className="w-full max-w-md space-y-6">
         {/* Success icon */}
         <div className="flex justify-center">
-          <div className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-success flex items-center justify-center">
             <Icon icon={Check} className="w-8 h-8 text-white" strokeWidth={3} />
           </div>
         </div>
@@ -140,7 +140,7 @@ export default function Confirmation({ booking, calendarPreference }: Props) {
         {/* Action buttons */}
         <div className="space-y-3">
           {googleSynced ? (
-            <div className="w-full px-6 py-3 rounded-full font-medium text-base bg-green-500 text-white flex items-center justify-center gap-2">
+            <div className="w-full px-6 py-3 rounded-full font-medium text-base bg-success text-white flex items-center justify-center gap-2">
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
@@ -154,7 +154,7 @@ export default function Confirmation({ booking, calendarPreference }: Props) {
                 w-full px-6 py-3 rounded-full font-medium text-base
                 flex items-center justify-center gap-2 transition-all duration-200
                 ${icsDownloaded
-                  ? 'bg-green-500 text-white cursor-default'
+                  ? 'bg-success text-white cursor-default'
                   : 'bg-primary text-white hover:bg-primary/90'}
               `}
             >

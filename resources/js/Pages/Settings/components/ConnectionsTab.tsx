@@ -27,7 +27,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
         <h3
             className="font-semibold"
             style={{
-                color: '#171717',
+                color: 'hsl(var(--foreground))',
                 fontSize: '20px',
                 lineHeight: '28px',
                 letterSpacing: '0',
@@ -46,7 +46,7 @@ function RadioIndicator({ selected }: { selected: boolean }) {
                 width: '20px',
                 height: '20px',
                 borderRadius: '50%',
-                border: selected ? '2px solid #2563EB' : '2px solid #D4D4D4',
+                border: selected ? '2px solid hsl(var(--primary))' : '2px solid hsl(var(--border))',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -58,7 +58,7 @@ function RadioIndicator({ selected }: { selected: boolean }) {
                         width: '10px',
                         height: '10px',
                         borderRadius: '50%',
-                        backgroundColor: '#2563EB',
+                        backgroundColor: 'hsl(var(--primary))',
                     }}
                 />
             )}
@@ -132,8 +132,8 @@ export function ConnectionsTab({ calendarSettings }: ConnectionsTabProps) {
                                     <img src="/assets/icons/google-calendar.svg" alt="Google Calendar" className="h-8 w-8" />
                                 </div>
                                 <div>
-                                    <p className="text-[14px] font-semibold leading-5 text-[#171717]">Google Calendar</p>
-                                    <p className="text-[14px] font-normal leading-5 text-[#737373]">
+                                    <p className="text-[14px] font-semibold leading-5 text-foreground">Google Calendar</p>
+                                    <p className="text-[14px] font-normal leading-5 text-muted-foreground">
                                         {isGoogleConnected && googleEmail
                                             ? googleEmail
                                             : 'Auto-sync appointments to Google Calendar'}
@@ -143,7 +143,7 @@ export function ConnectionsTab({ calendarSettings }: ConnectionsTabProps) {
                             <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
                                 {isGoogleConnected ? (
                                     <>
-                                        <Badge variant="outline" className="border-green-200 bg-green-50 text-green-700">
+                                        <Badge variant="outline" className="border-success/20 bg-success/10 text-success">
                                             <Check className="h-3 w-3 mr-1" /> Connected
                                         </Badge>
                                         <Button
@@ -178,8 +178,8 @@ export function ConnectionsTab({ calendarSettings }: ConnectionsTabProps) {
                                     <img src="/assets/icons/apple-calendar.svg" alt="Apple Calendar" className="h-8 w-8" />
                                 </div>
                                 <div>
-                                    <p className="text-[14px] font-semibold leading-5 text-[#171717]">Apple Calendar</p>
-                                    <p className="text-[14px] font-normal leading-5 text-[#737373]">
+                                    <p className="text-[14px] font-semibold leading-5 text-foreground">Apple Calendar</p>
+                                    <p className="text-[14px] font-normal leading-5 text-muted-foreground">
                                         Download .ics file after each booking
                                     </p>
                                 </div>

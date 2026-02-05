@@ -10,6 +10,7 @@ import {
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { Toast } from '@/Components/ui/toast';
+import { getAvatarColor } from '@/Lib/avatar-colors';
 import { CtaBanner } from '@/Components/ui/cta-banner';
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator,
@@ -288,6 +289,7 @@ interface DashboardCardProps {
   patientInitials: string;
   badge?: string;
   badgeColor?: string;
+  badgeBg?: string;
   actionLabel: string;
   actionVariant?: 'accent' | 'outline' | 'secondary';
   onAction: () => void;
@@ -312,7 +314,7 @@ const cardConfig: Record<CardType, { icon: typeof Receipt; iconColor: string; ic
 };
 
 function DashboardCard({
-  type, title, subtitle, patientName, patientInitials, badge, badgeColor,
+  type, title, subtitle, patientName, patientInitials, badge, badgeColor, badgeBg,
   actionLabel, actionVariant = 'accent', onAction, menuItems, isLast, iconOverride,
 }: DashboardCardProps) {
   const config = cardConfig[type];
@@ -345,7 +347,7 @@ function DashboardCard({
             className="flex items-center justify-center flex-shrink-0 text-[14px] font-semibold"
             style={{
               width: '24px', height: '24px', borderRadius: '9999px',
-              backgroundColor: '#EEF0F3', color: '#525252', fontSize: '10px',
+              backgroundColor: 'hsl(var(--muted))', color: 'hsl(var(--muted-foreground))', fontSize: '10px',
             }}
           >
             {patientInitials}
@@ -354,7 +356,7 @@ function DashboardCard({
           {badge && (
             <span
               className="text-[14px] font-medium px-2 py-0.5 rounded-full"
-              style={{ backgroundColor: badgeColor ? `${badgeColor}15` : '#FEE2E2', color: badgeColor || '#DC2626', fontSize: '11px' }}
+              style={{ backgroundColor: badgeBg || 'hsl(var(--destructive) / 0.1)', color: badgeColor || 'hsl(var(--destructive))', fontSize: '11px' }}
             >
               {badge}
             </span>
@@ -715,7 +717,8 @@ export default function Dashboard({
             patientName={bill.patient_name}
             patientInitials={bill.patient_initials}
             badge={`${bill.days_overdue}d overdue`}
-            badgeColor="#DC2626"
+            badgeColor="hsl(var(--destructive))"
+            badgeBg="hsl(var(--destructive) / 0.1)"
             actionLabel={payingBillId === bill.id ? 'Paying...' : 'Pay'}
             onAction={() => handleBillPayment(bill)}
             menuItems={[
@@ -738,7 +741,8 @@ export default function Dashboard({
             patientName={payment.patient_name}
             patientInitials={payment.patient_initials}
             badge={`Due in ${payment.days_until_due}d`}
-            badgeColor="#1E40AF"
+            badgeColor="hsl(var(--primary))"
+            badgeBg="hsl(var(--primary) / 0.1)"
             actionLabel={payingBillId === payment.id ? 'Paying...' : 'Pay'}
             onAction={() => handleBillPayment(payment)}
             menuItems={[
@@ -760,7 +764,8 @@ export default function Dashboard({
             patientName={emi.patient_name}
             patientInitials={emi.patient_initials}
             badge={`EMI ${emi.current_installment}/${emi.total_installments}`}
-            badgeColor="#1E40AF"
+            badgeColor="hsl(var(--primary))"
+            badgeBg="hsl(var(--primary) / 0.1)"
             actionLabel={payingBillId === emi.id ? 'Paying...' : 'Pay EMI'}
             onAction={() => handleBillPayment(emi)}
             menuItems={[
@@ -787,9 +792,14 @@ export default function Dashboard({
               'Pending'
             }
             badgeColor={
-              claim.claim_status === 'rejected' ? '#DC2626' :
-              claim.claim_status === 'action_required' ? '#DC2626' :
-              '#D97706'
+              claim.claim_status === 'rejected' ? 'hsl(var(--destructive))' :
+              claim.claim_status === 'action_required' ? 'hsl(var(--destructive))' :
+              'hsl(var(--warning))'
+            }
+            badgeBg={
+              claim.claim_status === 'rejected' ? 'hsl(var(--destructive) / 0.1)' :
+              claim.claim_status === 'action_required' ? 'hsl(var(--destructive) / 0.1)' :
+              'hsl(var(--warning) / 0.1)'
             }
             actionLabel="View claim"
             actionVariant="accent"
@@ -813,7 +823,8 @@ export default function Dashboard({
             patientName={alert.patient_name}
             patientInitials={alert.patient_initials}
             badge="Needs attention"
-            badgeColor="#D97706"
+            badgeColor="hsl(var(--warning))"
+            badgeBg="hsl(var(--warning) / 0.1)"
             actionLabel="Book"
             onAction={() => router.visit('/booking')}
             menuItems={[
@@ -835,7 +846,8 @@ export default function Dashboard({
             patientName={followup.patient_name}
             patientInitials={followup.patient_initials}
             badge={followup.days_overdue >= 0 ? 'Overdue' : 'Due soon'}
-            badgeColor={followup.days_overdue >= 0 ? '#DC2626' : '#D97706'}
+            badgeColor={followup.days_overdue >= 0 ? 'hsl(var(--destructive))' : 'hsl(var(--warning))'}
+            badgeBg={followup.days_overdue >= 0 ? 'hsl(var(--destructive) / 0.1)' : 'hsl(var(--warning) / 0.1)'}
             actionLabel="Book follow-up"
             actionVariant="accent"
             onAction={() => router.visit('/booking')}
@@ -858,7 +870,8 @@ export default function Dashboard({
             patientName={result.patient_name}
             patientInitials={result.patient_initials}
             badge="New"
-            badgeColor="#16A34A"
+            badgeColor="hsl(var(--success))"
+            badgeBg="hsl(var(--success) / 0.1)"
             actionLabel="View results"
             actionVariant="accent"
             onAction={() => router.visit(`/health-records?record=${result.record_id}`)}
@@ -882,7 +895,8 @@ export default function Dashboard({
             patientName={appt.patient_name}
             patientInitials={appt.patient_initials}
             badge={appt.mode === 'video' ? 'Video' : appt.type === 'lab_test' ? 'Lab Test' : undefined}
-            badgeColor={appt.mode === 'video' ? '#1E40AF' : appt.type === 'lab_test' ? '#D97706' : undefined}
+            badgeColor={appt.mode === 'video' ? 'hsl(var(--primary))' : appt.type === 'lab_test' ? 'hsl(var(--warning))' : undefined}
+            badgeBg={appt.mode === 'video' ? 'hsl(var(--primary) / 0.1)' : appt.type === 'lab_test' ? 'hsl(var(--warning) / 0.1)' : undefined}
             actionLabel="View"
             actionVariant="accent"
             onAction={() => setSheetView({ type: 'details', appointment: appt })}
@@ -916,7 +930,8 @@ export default function Dashboard({
             patientName={reminder.patient_name}
             patientInitials={reminder.patient_initials}
             badge={reminder.hours_until < 24 ? 'Tomorrow' : `In ${reminder.hours_until}h`}
-            badgeColor="#1E40AF"
+            badgeColor="hsl(var(--primary))"
+            badgeBg="hsl(var(--primary) / 0.1)"
             actionLabel="View details"
             actionVariant="secondary"
             onAction={() => router.visit(`/appointments/${reminder.appointment_id}`)}
@@ -941,7 +956,8 @@ export default function Dashboard({
             patientName={appt.patient_name}
             patientInitials={appt.patient_initials}
             badge={appt.type === 'lab_test' ? 'Lab Test' : appt.mode === 'video' ? 'Video' : undefined}
-            badgeColor={appt.type === 'lab_test' ? '#D97706' : appt.mode === 'video' ? '#1E40AF' : undefined}
+            badgeColor={appt.type === 'lab_test' ? 'hsl(var(--warning))' : appt.mode === 'video' ? 'hsl(var(--primary))' : undefined}
+            badgeBg={appt.type === 'lab_test' ? 'hsl(var(--warning) / 0.1)' : appt.mode === 'video' ? 'hsl(var(--primary) / 0.1)' : undefined}
             actionLabel="Reschedule"
             actionVariant="secondary"
             onAction={() => setSheetView({ type: 'reschedule', appointment: appt })}
@@ -965,7 +981,8 @@ export default function Dashboard({
             patientName={followup.patient_name}
             patientInitials={followup.patient_initials}
             badge="Due soon"
-            badgeColor="#D97706"
+            badgeColor="hsl(var(--warning))"
+            badgeBg="hsl(var(--warning) / 0.1)"
             actionLabel="Book follow-up"
             actionVariant="secondary"
             onAction={() => router.visit('/booking')}
@@ -991,7 +1008,8 @@ export default function Dashboard({
             patientName={vaccination.patient_name}
             patientInitials={vaccination.patient_initials}
             badge={isPast ? 'Overdue' : `Due ${daysUntil}d`}
-            badgeColor={isPast ? '#DC2626' : '#D97706'}
+            badgeColor={isPast ? 'hsl(var(--destructive))' : 'hsl(var(--warning))'}
+            badgeBg={isPast ? 'hsl(var(--destructive) / 0.1)' : 'hsl(var(--warning) / 0.1)'}
             actionLabel="Schedule"
             actionVariant="secondary"
             onAction={() => router.visit('/booking')}
@@ -1015,7 +1033,8 @@ export default function Dashboard({
             patientName={care.patient_name}
             patientInitials={care.patient_initials}
             badge={care.months_since !== null && care.months_since > 12 ? 'Overdue' : 'Due soon'}
-            badgeColor={care.months_since !== null && care.months_since > 12 ? '#DC2626' : '#D97706'}
+            badgeColor={care.months_since !== null && care.months_since > 12 ? 'hsl(var(--destructive))' : 'hsl(var(--warning))'}
+            badgeBg={care.months_since !== null && care.months_since > 12 ? 'hsl(var(--destructive) / 0.1)' : 'hsl(var(--warning) / 0.1)'}
             actionLabel="Book now"
             actionVariant="secondary"
             onAction={() => router.visit('/booking')}
@@ -1167,7 +1186,7 @@ export default function Dashboard({
                 <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: 'hsl(var(--foreground))' }}>
                   Complete your profile
                 </h2>
-                <span className="text-[14px] font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: '#EEF0F3', color: '#525252' }}>
+                <span className="text-[14px] font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: 'hsl(var(--muted))', color: 'hsl(var(--muted-foreground))' }}>
                   {profileSteps.filter(s => s.completed).length} of {profileSteps.length} done
                 </span>
               </div>
@@ -1363,7 +1382,7 @@ function ProfileStepItem({ step, isLast }: ProfileStepItemProps) {
           className="flex items-center justify-center flex-shrink-0"
           style={{
             width: '40px', height: '40px', borderRadius: '9999px',
-            backgroundColor: '#DCFCE7', animation: 'checkmark-pop 0.3s ease-out',
+            backgroundColor: 'hsl(var(--success) / 0.15)', animation: 'checkmark-pop 0.3s ease-out',
           }}
         >
           <Icon icon={Check} className="h-5 w-5" style={{ color: 'hsl(var(--success))' }} />
@@ -1371,7 +1390,7 @@ function ProfileStepItem({ step, isLast }: ProfileStepItemProps) {
       ) : (
         <div
           className="flex items-center justify-center flex-shrink-0"
-          style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: '#EEF0F3' }}
+          style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: 'hsl(var(--muted))' }}
         >
           <span className="font-semibold" style={{ fontSize: '14px', fontWeight: 600, lineHeight: '22px', color: 'hsl(var(--muted-foreground))' }}>
             {step.number}

@@ -11,19 +11,19 @@ const reasons = [
     value: 'scheduled',
     label: 'Scheduled follow-up',
     description: 'Doctor asked me to come back',
-    dotColor: 'bg-blue-500',
+    dotColor: 'bg-primary',
   },
   {
     value: 'new_concern',
     label: 'New concern',
     description: 'Something changed since last visit',
-    dotColor: 'bg-amber-500',
+    dotColor: 'bg-warning',
   },
   {
     value: 'ongoing_issue',
     label: 'Ongoing issue',
     description: "Symptoms haven't improved",
-    dotColor: 'bg-red-500',
+    dotColor: 'bg-destructive',
   },
 ];
 
@@ -43,7 +43,7 @@ export function EmbeddedFollowUpReason({ selectedReason, onSelect, disabled }: P
               "hover:border-primary/50 hover:bg-primary/5 disabled:cursor-not-allowed",
               isSelected
                 ? "border-primary bg-primary/5"
-                : "border-border bg-white",
+                : "border-border bg-background",
               disabled && !isSelected && "opacity-60"
             )}
           >

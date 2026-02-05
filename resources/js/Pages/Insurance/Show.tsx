@@ -11,6 +11,7 @@ import { Textarea } from '@/Components/ui/textarea';
 import { Icon } from '@/Components/ui/icon';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { cn } from '@/Lib/utils';
+import { getAvatarColor } from '@/Lib/avatar-colors';
 import { SupportFooter } from '@/Components/SupportFooter';
 import { SideNav } from '@/Components/SideNav';
 import {
@@ -215,20 +216,12 @@ function getMemberInitials(name: string): string {
     .toUpperCase();
 }
 
-const avatarColors = [
-  { bg: '#DBEAFE', text: '#1E40AF' },
-  { bg: '#FCE7F3', text: '#9D174D' },
-  { bg: '#D1FAE5', text: '#065F46' },
-  { bg: '#FEF3C7', text: '#92400E' },
-  { bg: '#EDE9FE', text: '#5B21B6' },
-];
-
-function getAvatarColor(name: string) {
+function getAvatarColorByName(name: string) {
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
-  return avatarColors[Math.abs(hash) % avatarColors.length];
+  return getAvatarColor(Math.abs(hash));
 }
 
 const ROOM_TYPES = [
@@ -503,7 +496,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  className="text-red-600 focus:text-red-600"
+                  className="text-destructive focus:text-destructive"
                   onClick={handleDelete}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
@@ -516,13 +509,13 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
 
         {/* Expiry warning */}
         {policy.is_expiring_soon && (
-          <div className="mb-8 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-            <AlertTriangle className="h-4 w-4 flex-shrink-0 text-amber-600" />
+          <div className="mb-8 flex items-center gap-2 rounded-xl border border-warning/20 bg-warning/10 px-4 py-3">
+            <AlertTriangle className="h-4 w-4 flex-shrink-0 text-warning" />
             <div>
-              <p className="text-[14px] font-semibold text-amber-800">
+              <p className="text-[14px] font-semibold text-warning">
                 Policy expires in {policy.days_until_expiry} days
               </p>
-              <p className="text-[14px] text-amber-600">
+              <p className="text-[14px] text-warning opacity-80">
                 Valid until {formatDate(policy.end_date)}. Consider renewing soon.
               </p>
             </div>
@@ -593,7 +586,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
           {coveredMembers.length > 0 ? (
             <div className="flex flex-wrap gap-3">
               {coveredMembers.map((member) => {
-                const color = getAvatarColor(member.name);
+                const color = getAvatarColorByName(member.name);
                 return (
                   <div
                     key={member.id}
@@ -682,7 +675,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                   />
                 ) : (
                   coveredMembers.map(member => {
-                    const color = getAvatarColor(member.name);
+                    const color = getAvatarColorByName(member.name);
                     return (
                       <button
                         key={member.id}
@@ -712,7 +705,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
               <div className="space-y-4">
                 <div>
                   <label className="block text-[14px] font-medium text-foreground mb-1.5">
-                    Treatment / Reason <span className="text-red-500">*</span>
+                    Treatment / Reason <span className="text-destructive">*</span>
                   </label>
                   <Input
                     value={preAuthForm.treatment_name}
@@ -722,7 +715,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                 </div>
                 <div>
                   <label className="block text-[14px] font-medium text-foreground mb-1.5">
-                    Expected Admission Date <span className="text-red-500">*</span>
+                    Expected Admission Date <span className="text-destructive">*</span>
                   </label>
                   <DatePicker
                     value={preAuthForm.admission_date}
@@ -744,7 +737,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                 </div>
                 <div>
                   <label className="block text-[14px] font-medium text-foreground mb-1.5">
-                    Room Type <span className="text-red-500">*</span>
+                    Room Type <span className="text-destructive">*</span>
                   </label>
                   <Select
                     value={preAuthForm.room_type}

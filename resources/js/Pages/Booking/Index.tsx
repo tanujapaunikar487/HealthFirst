@@ -255,8 +255,8 @@ export default function BookingIndex() {
               style={{ maxWidth: '720px', width: '100%' }}
               gradient={
                 isFocused || input.length > 0
-                  ? 'linear-gradient(265deg, #93C5FD 24.67%, #BFDBFE 144.07%)'
-                  : 'linear-gradient(265deg, #BFDBFE 24.67%, #FFF 144.07%)'
+                  ? 'linear-gradient(265deg, hsl(var(--primary) / 0.4) 24.67%, hsl(var(--primary) / 0.25) 144.07%)'
+                  : 'linear-gradient(265deg, hsl(var(--primary) / 0.25) 24.67%, hsl(var(--background)) 144.07%)'
               }
             >
               <PromptInput
@@ -271,7 +271,7 @@ export default function BookingIndex() {
                   <div className="px-6 py-4 min-h-[140px] flex items-center justify-between">
                     <div className="flex items-center gap-3 flex-1">
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                        <div className="w-3 h-3 bg-destructive rounded-full animate-pulse"></div>
                         <span className="text-[14px] font-medium text-muted-foreground">
                           {formatRecordingTime(recordingTime)}
                         </span>
@@ -283,7 +283,7 @@ export default function BookingIndex() {
                   // Normal mode - show textarea
                   <PromptInputTextarea
                     placeholder="Type your symptom's"
-                    className="text-base text-foreground placeholder:text-[#9CA3AF] min-h-[140px]"
+                    className="text-base text-foreground placeholder:text-muted-foreground min-h-[140px]"
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                   />
@@ -297,8 +297,8 @@ export default function BookingIndex() {
                           style={{
                             width: '40px',
                             height: '40px',
-                            backgroundColor: '#FFFFFF',
-                            border: '1px solid #E5E7EB',
+                            backgroundColor: 'hsl(var(--background))',
+                            border: '1px solid hsl(var(--border))',
                             borderRadius: '50%',
                             display: 'flex',
                             alignItems: 'center',
@@ -310,7 +310,7 @@ export default function BookingIndex() {
                             e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#FFFFFF';
+                            e.currentTarget.style.backgroundColor = 'hsl(var(--background))';
                           }}
                         >
                           <Icon icon={Plus} className="w-[18px] h-[18px]" />
@@ -332,8 +332,8 @@ export default function BookingIndex() {
                             style={{
                               width: '40px',
                               height: '40px',
-                              backgroundColor: '#FFFFFF',
-                              border: '1px solid #E5E7EB',
+                              backgroundColor: 'hsl(var(--background))',
+                              border: '1px solid hsl(var(--border))',
                               borderRadius: '50%',
                               display: 'flex',
                               alignItems: 'center',
@@ -342,10 +342,10 @@ export default function BookingIndex() {
                               transition: 'all 0.2s ease',
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#FEE2E2';
+                              e.currentTarget.style.backgroundColor = 'hsl(var(--destructive) / 0.1)';
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = '#FFFFFF';
+                              e.currentTarget.style.backgroundColor = 'hsl(var(--background))';
                             }}
                           >
                             <Icon icon={X} className="w-[18px] h-[18px] text-destructive" />
@@ -358,7 +358,7 @@ export default function BookingIndex() {
                             style={{
                               width: '40px',
                               height: '40px',
-                              backgroundColor: '#0052FF',
+                              backgroundColor: 'hsl(var(--primary))',
                               border: 'none',
                               borderRadius: '50%',
                               display: 'flex',
@@ -368,10 +368,10 @@ export default function BookingIndex() {
                               transition: 'all 0.2s ease',
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#0041CC';
+                              e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = '#0052FF';
+                              e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
                             }}
                           >
                             <Icon icon={Check} className="w-5 h-5 text-white" />
@@ -388,8 +388,8 @@ export default function BookingIndex() {
                             style={{
                               width: '40px',
                               height: '40px',
-                              backgroundColor: '#FFFFFF',
-                              border: '1px solid #E5E7EB',
+                              backgroundColor: 'hsl(var(--background))',
+                              border: '1px solid hsl(var(--border))',
                               borderRadius: '50%',
                               display: 'flex',
                               alignItems: 'center',
@@ -401,7 +401,7 @@ export default function BookingIndex() {
                               e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = '#FFFFFF';
+                              e.currentTarget.style.backgroundColor = 'hsl(var(--background))';
                             }}
                           >
                             <Icon icon={Mic} className={cn(
@@ -418,7 +418,7 @@ export default function BookingIndex() {
                             style={{
                               width: '40px',
                               height: '40px',
-                              backgroundColor: isLoading || !input.trim() ? '#E5E7EB' : '#0052FF',
+                              backgroundColor: isLoading || !input.trim() ? 'hsl(var(--muted))' : 'hsl(var(--primary))',
                               border: 'none',
                               borderRadius: '50%',
                               display: 'flex',
@@ -429,12 +429,12 @@ export default function BookingIndex() {
                             }}
                             onMouseEnter={(e) => {
                               if (!isLoading && input.trim()) {
-                                e.currentTarget.style.backgroundColor = '#0041CC';
+                                e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
                               }
                             }}
                             onMouseLeave={(e) => {
                               if (!isLoading && input.trim()) {
-                                e.currentTarget.style.backgroundColor = '#0052FF';
+                                e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
                               }
                             }}
                           >

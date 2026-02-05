@@ -10,7 +10,7 @@ export default function GuestLayout({ children }: GuestLayoutProps) {
         <div
             className="flex min-h-screen flex-col items-center pt-6 sm:justify-center sm:pt-0"
             style={{
-                background: 'linear-gradient(180deg, rgba(211, 225, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 13.94%, rgba(255, 255, 255, 1) 30.77%)'
+                background: 'linear-gradient(180deg, hsl(var(--primary) / 0.1) 0%, hsl(var(--background) / 0.5) 13.94%, hsl(var(--background)) 30.77%)'
             }}
         >
             <div>

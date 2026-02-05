@@ -29,6 +29,7 @@ import {
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
+import { getAvatarColor } from '@/Lib/avatar-colors';
 import { INDIAN_STATES, getCitiesForState } from '@/Lib/locations';
 import {
   ArrowLeft,
@@ -116,19 +117,15 @@ const genderOptions = ['male', 'female', 'other'] as const;
 
 const bloodGroupOptions = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as const;
 
-const relationColors: Record<string, { bg: string; text: string }> = {
-  self:        { bg: '#DBEAFE', text: '#1E40AF' },
-  mother:      { bg: '#FCE7F3', text: '#9D174D' },
-  father:      { bg: '#E0E7FF', text: '#3730A3' },
-  brother:     { bg: '#DCFCE7', text: '#166534' },
-  sister:      { bg: '#F3E8FF', text: '#6B21A8' },
-  spouse:      { bg: '#FFE4E6', text: '#9F1239' },
-  son:         { bg: '#CCFBF1', text: '#115E59' },
-  daughter:    { bg: '#FEF3C7', text: '#92400E' },
-  grandmother: { bg: '#FFEDD5', text: '#9A3412' },
-  grandfather: { bg: '#E2E8F0', text: '#334155' },
-  other:       { bg: '#F3F4F6', text: '#374151' },
+const relationColorIndices: Record<string, number> = {
+  self: 0, mother: 1, father: 2, brother: 3, sister: 4,
+  spouse: 1, son: 2, daughter: 3, grandmother: 4, grandfather: 0, other: 2,
 };
+
+function getRelationColor(relation: string) {
+  const idx = relationColorIndices[relation] ?? 2;
+  return getAvatarColor(idx);
+}
 
 /* ─── Sections Config ─── */
 
@@ -620,7 +617,7 @@ export default function FamilyMemberShow({
     });
   }
 
-  const colors = relationColors[member.relation] || relationColors.other;
+  const colors = getRelationColor(member.relation);
 
   const healthDataLinks = [
     {
@@ -1195,7 +1192,7 @@ export default function FamilyMemberShow({
             className="absolute inset-0 bg-black/40"
             onClick={() => !upgrading && setShowUpgradeConfirm(false)}
           />
-          <div className="relative z-10 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+          <div className="relative z-10 w-full max-w-sm rounded-2xl bg-card p-6 shadow-xl">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
               <UserPlus className="h-5 w-5 text-primary" />
             </div>
@@ -1235,7 +1232,7 @@ export default function FamilyMemberShow({
               setDeleteConfirmName('');
             }}
           />
-          <div className="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+          <div className="relative z-10 w-full max-w-md rounded-2xl bg-card p-6 shadow-xl">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
               <AlertTriangle className="h-6 w-6 text-destructive" />
             </div>

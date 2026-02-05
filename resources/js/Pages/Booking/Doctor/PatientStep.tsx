@@ -343,11 +343,11 @@ export default function PatientStep({
   const getReasonIcon = (value: string) => {
     switch (value) {
       case 'scheduled':
-        return <Icon icon={Calendar} className="h-5 w-5 text-blue-500" />;
+        return <Icon icon={Calendar} className="h-5 w-5 text-primary" />;
       case 'new_concern':
-        return <Icon icon={AlertCircle} className="h-5 w-5 text-amber-500" />;
+        return <Icon icon={AlertCircle} className="h-5 w-5 text-warning" />;
       case 'ongoing_issue':
-        return <Icon icon={MessageSquare} className="h-5 w-5 text-red-400" />;
+        return <Icon icon={MessageSquare} className="h-5 w-5 text-destructive" />;
       default:
         return null;
     }
@@ -386,7 +386,7 @@ export default function PatientStep({
               >
                 <Avatar className="w-10 h-10">
                   <AvatarImage src={member.avatar || undefined} />
-                  <AvatarFallback className="bg-orange-400 text-white text-[14px] font-medium">
+                  <AvatarFallback className="bg-warning text-warning-foreground text-[14px] font-medium">
                     {member.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
@@ -640,7 +640,7 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: D
       <div className="flex items-start gap-3 mb-4">
         <Avatar className="h-12 w-12">
           <AvatarImage src={doctor.avatar || undefined} />
-          <AvatarFallback className="bg-orange-400 text-white font-medium">
+          <AvatarFallback className="bg-warning text-warning-foreground font-medium">
             {getInitial(doctor.name)}
           </AvatarFallback>
         </Avatar>

@@ -62,7 +62,7 @@ export function EmbeddedCollectionMethod({ methods, selectedMethod, onSelect, di
 
             {/* Price */}
             {isFree ? (
-              <span className="font-semibold text-green-600">Free</span>
+              <span className="font-semibold text-success">Free</span>
             ) : (
               <span className="font-semibold">₹{typeof method.price === 'number' ? method.price.toLocaleString() : method.price}</span>
             )}

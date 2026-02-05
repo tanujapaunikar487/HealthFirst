@@ -36,7 +36,7 @@ const CtaBanner = React.forwardRef<HTMLDivElement, CtaBannerProps>(
       onButtonClick,
       imageSrc,
       imageAlt,
-      gradient = 'radial-gradient(circle at center, #003EC1 0%, #00184D 100%)',
+      gradient = 'radial-gradient(circle at center, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.6) 100%)',
       minWidth = '800px',
       borderRadius = '20px',
       onDismiss,
@@ -95,7 +95,7 @@ const CtaBanner = React.forwardRef<HTMLDivElement, CtaBannerProps>(
                 fontWeight: 600,
                 lineHeight: '32px',
                 letterSpacing: '-0.48px',
-                color: '#FFFFFF',
+                color: 'hsl(var(--primary-foreground))',
                 margin: 0,
               }}
             >

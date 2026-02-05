@@ -27,23 +27,23 @@ export function StepIndicator({ steps, currentStepId, className }: StepIndicator
   const progressPercentage = dotPercentage;
 
   return (
-    <div className={cn('px-6 py-3 bg-white', className)}>
+    <div className={cn('px-6 py-3 bg-background', className)}>
       <div className="w-full max-w-[800px] mx-auto">
         {/* Progress line container */}
         <div className="relative mb-2 h-1">
           {/* Background line */}
-          <div className="absolute inset-0 bg-gray-200 rounded-full" />
+          <div className="absolute inset-0 bg-muted rounded-full" />
 
           {/* Single continuous gradient overlay */}
           <div
-            className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full transition-all duration-300"
+            className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary/70 to-primary rounded-full transition-all duration-300"
             style={{ width: `${progressPercentage}%` }}
           />
 
           {/* Current step circle indicator - positioned at current step label */}
           {currentIndex < steps.length && (
             <div
-              className="absolute top-1/2 w-3.5 h-3.5 bg-blue-600 rounded-full z-10 transition-all duration-300"
+              className="absolute top-1/2 w-3.5 h-3.5 bg-primary rounded-full z-10 transition-all duration-300"
               style={{
                 left: `${dotPercentage}%`,
                 transform: 'translate(-50%, -50%)',

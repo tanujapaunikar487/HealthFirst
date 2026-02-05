@@ -997,7 +997,7 @@ export default function Show({ user, bill }: Props) {
                   </div>
                   <div className="h-2 rounded-full bg-muted overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-blue-500 transition-all"
+                      className="h-full rounded-full bg-primary transition-all"
                       style={{ width: `${(bill.emi_details.paid_installments / bill.emi_details.total_installments) * 100}%` }}
                     />
                   </div>
@@ -1067,7 +1067,7 @@ export default function Show({ user, bill }: Props) {
             }}
           />
           <div className="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-warning/10">
               <AlertTriangle className="h-6 w-6 text-warning" />
             </div>
             <h3 className="mb-2 text-lg font-semibold text-foreground">Raise a dispute?</h3>
@@ -1130,8 +1130,8 @@ export default function Show({ user, bill }: Props) {
       {/* Toast */}
       {toastMessage && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-          <div className="flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-[14px] text-white shadow-lg">
-            <CheckCircle2 className="h-4 w-4 text-green-400" />
+          <div className="flex items-center gap-2 rounded-lg bg-foreground px-4 py-2.5 text-[14px] text-background shadow-lg">
+            <CheckCircle2 className="h-4 w-4 text-success" />
             {toastMessage}
           </div>
         </div>

@@ -970,8 +970,8 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
         if (subStep === 'success') {
             return (
                 <div className="space-y-4 text-center py-8">
-                    <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center mx-auto">
-                        <CheckCircle2 className="h-8 w-8 text-green-600" />
+                    <div className="h-16 w-16 rounded-full bg-success/10 flex items-center justify-center mx-auto">
+                        <CheckCircle2 className="h-8 w-8 text-success" />
                     </div>
                     <h3 className="text-lg font-semibold">Successfully Linked!</h3>
                     <p className="text-[14px] text-muted-foreground">
@@ -987,7 +987,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                     {renderError()}
 
                     {otpSentTo && (
-                        <div className="text-center p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                        <div className="text-center p-3 bg-primary/10 border border-primary/20 rounded-lg">
                             <p className="text-[14px] text-blue-800">
                                 OTP sent to <strong>{otpSentTo}</strong>
                             </p>

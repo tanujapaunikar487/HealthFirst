@@ -91,10 +91,10 @@ export type SheetView =
 
 function PaymentStatusTag({ status }: { status: string }) {
   const colors = {
-    paid: 'text-green-600',
-    pending: 'text-amber-600',
-    partially_refunded: 'text-amber-600',
-    fully_refunded: 'text-red-600',
+    paid: 'text-success',
+    pending: 'text-warning',
+    partially_refunded: 'text-warning',
+    fully_refunded: 'text-destructive',
   };
 
   const labels = {
@@ -105,7 +105,7 @@ function PaymentStatusTag({ status }: { status: string }) {
   };
 
   return (
-    <span className={cn('text-[14px] font-medium', colors[status as keyof typeof colors] || 'text-gray-600')}>
+    <span className={cn('text-[14px] font-medium', colors[status as keyof typeof colors] || 'text-muted-foreground')}>
       {labels[status as keyof typeof labels] || status}
     </span>
   );
@@ -269,7 +269,7 @@ export function DetailsSheet({
               <KeyValueRow
                 label="Calendar"
                 value={
-                  <span className="flex items-center gap-1 text-green-600">
+                  <span className="flex items-center gap-1 text-success">
                     <Icon icon={Check} className="h-3 w-3" />
                     Synced
                   </span>
@@ -552,9 +552,9 @@ export function CancelledDetailsSheet({
       </SheetHeader>
 
       {/* Cancelled Banner */}
-      <div className="mb-4 flex items-center gap-2 rounded-lg bg-red-50 border border-red-200 px-3 py-2.5">
-        <Icon icon={XCircle} className="h-4 w-4 text-red-600 flex-shrink-0" />
-        <span className="text-[14px] text-red-800">This appointment was cancelled</span>
+      <div className="mb-4 flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/20 px-3 py-2.5">
+        <Icon icon={XCircle} className="h-4 w-4 text-destructive flex-shrink-0" />
+        <span className="text-[14px] text-destructive">This appointment was cancelled</span>
       </div>
 
       {/* People Rows */}
@@ -657,7 +657,7 @@ function PeopleRow({ label, name }: { label: string; name: string }) {
     <div className="flex items-center gap-3">
       <span className="text-[14px] text-muted-foreground w-[70px] flex-shrink-0">{label}</span>
       <Avatar className="h-6 w-6">
-        <AvatarFallback className="bg-orange-400 text-white text-[14px] font-medium">
+        <AvatarFallback className="bg-warning text-warning-foreground text-[14px] font-medium">
           {getInitials(name)}
         </AvatarFallback>
       </Avatar>
@@ -723,11 +723,11 @@ export function CancelSheet({
       <SheetBody>
         <div className="space-y-6">
         {/* Warning */}
-        <div className="flex gap-3 p-4 rounded-lg bg-amber-50 border border-amber-200">
-          <Icon icon={AlertTriangle} className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+        <div className="flex gap-3 p-4 rounded-lg bg-warning/10 border border-warning/20">
+          <Icon icon={AlertTriangle} className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
           <div className="text-[14px]">
-            <p className="font-medium text-amber-800">Are you sure?</p>
-            <p className="text-amber-700 mt-1">
+            <p className="font-medium text-warning">Are you sure?</p>
+            <p className="text-warning mt-1">
               Cancelling your appointment with{' '}
               <span className="font-medium">{appointment.title}</span> on{' '}
               <span className="font-medium">{appointment.date_formatted}</span> will initiate a
@@ -748,8 +748,8 @@ export function CancelSheet({
                 className={cn(
                   'w-full text-left px-4 py-2.5 rounded-lg border text-[14px] transition-colors',
                   reason === r
-                    ? 'border-blue-500 bg-blue-50 text-blue-700'
-                    : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border hover:border-border text-muted-foreground'
                 )}
               >
                 {r}
@@ -855,11 +855,11 @@ export function RescheduleSheet({
         {/* Booking Summary */}
         <div className="rounded-lg bg-muted/50 p-4 space-y-3">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ backgroundColor: '#BFDBFE' }}>
+            <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'hsl(var(--primary) / 0.25)' }}>
               {appointment.type === 'doctor' ? (
-                <Icon icon={Stethoscope} className="h-5 w-5" style={{ color: '#1E40AF' }} />
+                <Icon icon={Stethoscope} className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />
               ) : (
-                <Icon icon={TestTube2} className="h-5 w-5" style={{ color: '#1E40AF' }} />
+                <Icon icon={TestTube2} className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />
               )}
             </div>
             <div>
@@ -889,7 +889,7 @@ export function RescheduleSheet({
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full" />
+            <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
           </div>
         ) : (
           <>
@@ -906,7 +906,7 @@ export function RescheduleSheet({
                       'flex flex-col items-center justify-center min-w-[100px] px-4 py-3 rounded-xl border text-[14px] transition-all flex-shrink-0',
                       selectedDate === d.date
                         ? 'bg-foreground text-background border-foreground'
-                        : 'bg-background hover:border-primary/50 border-gray-200'
+                        : 'bg-background hover:border-primary/50 border-border'
                     )}
                   >
                     <span className="font-medium">{d.display}</span>
@@ -931,7 +931,7 @@ export function RescheduleSheet({
                 <p className="text-[14px] font-medium mb-3">Select a time</p>
                 {slotsLoading ? (
                   <div className="flex items-center justify-center py-8">
-                    <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full" />
+                    <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full" />
                   </div>
                 ) : slots.length === 0 ? (
                   <div className="text-center py-8 px-4 rounded-lg border border-dashed">
@@ -950,7 +950,7 @@ export function RescheduleSheet({
                           'px-4 py-2 rounded-full border text-[14px] transition-all',
                           selectedTime === s.time
                             ? 'bg-foreground text-background border-foreground'
-                            : 'bg-background hover:border-primary/50 border-gray-200'
+                            : 'bg-background hover:border-primary/50 border-border'
                         )}
                       >
                         {s.display}
@@ -1116,7 +1116,7 @@ export function FollowUpSheet({
 
       {loading ? (
         <div className="flex-1 flex items-center justify-center">
-          <div className="animate-spin h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full" />
+          <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
         </div>
       ) : data ? (
         <>
@@ -1129,7 +1129,7 @@ export function FollowUpSheet({
                   {data.doctor.avatar_url ? (
                     <AvatarImage src={data.doctor.avatar_url} alt={data.doctor.name} />
                   ) : null}
-                  <AvatarFallback className="bg-orange-400 text-white font-medium">
+                  <AvatarFallback className="bg-warning text-warning-foreground font-medium">
                     {getInitials(data.doctor.name)}
                   </AvatarFallback>
                 </Avatar>
@@ -1157,7 +1157,7 @@ export function FollowUpSheet({
                       'flex flex-col items-center justify-center min-w-[100px] px-4 py-3 rounded-xl border text-[14px] transition-all flex-shrink-0',
                       selectedDate === d.date
                         ? 'bg-foreground text-background border-foreground'
-                        : 'bg-background hover:border-primary/50 border-gray-200'
+                        : 'bg-background hover:border-primary/50 border-border'
                     )}
                   >
                     <span className="font-medium">{d.display}</span>
@@ -1180,7 +1180,7 @@ export function FollowUpSheet({
                 <p className="text-[14px] font-medium mb-3">Select a time</p>
                 {slotsLoading ? (
                   <div className="flex items-center justify-center py-8">
-                    <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full" />
+                    <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full" />
                   </div>
                 ) : data.slots.length === 0 ? (
                   <div className="text-center py-8 px-4 rounded-lg border border-dashed">
@@ -1199,8 +1199,8 @@ export function FollowUpSheet({
                           selectedTime === s.time
                             ? 'bg-foreground text-background border-foreground'
                             : s.available
-                            ? 'bg-background hover:border-primary/50 border-gray-200'
-                            : 'bg-muted text-muted-foreground border-gray-200 cursor-not-allowed opacity-50'
+                            ? 'bg-background hover:border-primary/50 border-border'
+                            : 'bg-muted text-muted-foreground border-border cursor-not-allowed opacity-50'
                         )}
                       >
                         {s.time}
@@ -1224,19 +1224,19 @@ export function FollowUpSheet({
                       className={cn(
                         'w-full flex items-center justify-between p-4 rounded-lg border text-left transition-all',
                         selectedMode === mode.type
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300'
+                          ? 'border-primary bg-primary/10'
+                          : 'border-border hover:border-border'
                       )}
                     >
                       <div className="flex items-center gap-3">
                         <div
                           className={cn(
                             'h-4 w-4 rounded-full border flex items-center justify-center',
-                            selectedMode === mode.type ? 'border-blue-500' : 'border-gray-300'
+                            selectedMode === mode.type ? 'border-primary' : 'border-border'
                           )}
                         >
                           {selectedMode === mode.type && (
-                            <div className="h-2 w-2 rounded-full bg-blue-500" />
+                            <div className="h-2 w-2 rounded-full bg-primary" />
                           )}
                         </div>
                         <div>
@@ -1423,7 +1423,7 @@ export function BookAgainSheet({
 
       {loading ? (
         <div className="flex-1 flex items-center justify-center">
-          <div className="animate-spin h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full" />
+          <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
         </div>
       ) : data ? (
         <>
@@ -1436,7 +1436,7 @@ export function BookAgainSheet({
                   {data.doctor.avatar_url ? (
                     <AvatarImage src={data.doctor.avatar_url} alt={data.doctor.name} />
                   ) : null}
-                  <AvatarFallback className="bg-orange-400 text-white font-medium">
+                  <AvatarFallback className="bg-warning text-warning-foreground font-medium">
                     {getInitials(data.doctor.name)}
                   </AvatarFallback>
                 </Avatar>
@@ -1464,7 +1464,7 @@ export function BookAgainSheet({
                       'flex flex-col items-center justify-center min-w-[100px] px-4 py-3 rounded-xl border text-[14px] transition-all flex-shrink-0',
                       selectedDate === d.date
                         ? 'bg-foreground text-background border-foreground'
-                        : 'bg-background hover:border-primary/50 border-gray-200'
+                        : 'bg-background hover:border-primary/50 border-border'
                     )}
                   >
                     <span className="font-medium">{d.display}</span>
@@ -1487,7 +1487,7 @@ export function BookAgainSheet({
                 <p className="text-[14px] font-medium mb-3">Select a time</p>
                 {slotsLoading ? (
                   <div className="flex items-center justify-center py-8">
-                    <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full" />
+                    <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full" />
                   </div>
                 ) : data.slots.length === 0 ? (
                   <div className="text-center py-8 px-4 rounded-lg border border-dashed">
@@ -1506,8 +1506,8 @@ export function BookAgainSheet({
                           selectedTime === s.time
                             ? 'bg-foreground text-background border-foreground'
                             : s.available
-                            ? 'bg-background hover:border-primary/50 border-gray-200'
-                            : 'bg-muted text-muted-foreground border-gray-200 cursor-not-allowed opacity-50'
+                            ? 'bg-background hover:border-primary/50 border-border'
+                            : 'bg-muted text-muted-foreground border-border cursor-not-allowed opacity-50'
                         )}
                       >
                         {s.time}
@@ -1531,19 +1531,19 @@ export function BookAgainSheet({
                       className={cn(
                         'w-full flex items-center justify-between p-4 rounded-lg border text-left transition-all',
                         selectedMode === mode.type
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300'
+                          ? 'border-primary bg-primary/10'
+                          : 'border-border hover:border-border'
                       )}
                     >
                       <div className="flex items-center gap-3">
                         <div
                           className={cn(
                             'h-4 w-4 rounded-full border flex items-center justify-center',
-                            selectedMode === mode.type ? 'border-blue-500' : 'border-gray-300'
+                            selectedMode === mode.type ? 'border-primary' : 'border-border'
                           )}
                         >
                           {selectedMode === mode.type && (
-                            <div className="h-2 w-2 rounded-full bg-blue-500" />
+                            <div className="h-2 w-2 rounded-full bg-primary" />
                           )}
                         </div>
                         <div>

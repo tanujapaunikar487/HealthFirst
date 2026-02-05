@@ -390,7 +390,7 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: D
       <div className="flex items-start gap-3 mb-4">
         <Avatar className="h-12 w-12">
           <AvatarImage src={doctor.avatar || undefined} />
-          <AvatarFallback className="bg-orange-400 text-white font-medium">
+          <AvatarFallback className="bg-warning text-warning-foreground font-medium">
             {getInitial(doctor.name)}
           </AvatarFallback>
         </Avatar>

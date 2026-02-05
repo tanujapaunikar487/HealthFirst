@@ -32,7 +32,7 @@ export function MemberSearchCard({ member, alreadyLinked }: MemberSearchCardProp
                     <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-semibold text-lg">{member.name}</h3>
                         {member.verified_phone && (
-                            <ShieldCheck className="h-4 w-4 text-green-600" title="Verified" />
+                            <ShieldCheck className="h-4 w-4 text-success" title="Verified" />
                         )}
                     </div>
 

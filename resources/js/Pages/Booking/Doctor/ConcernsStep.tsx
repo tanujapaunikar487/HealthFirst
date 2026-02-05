@@ -129,9 +129,9 @@ export default function ConcernsStep({
   };
 
   const dotColors: Record<string, string> = {
-    urgent: 'bg-red-500',
-    this_week: 'bg-amber-500',
-    specific_date: 'bg-amber-500',
+    urgent: 'bg-destructive',
+    this_week: 'bg-warning',
+    specific_date: 'bg-warning',
   };
 
   return (

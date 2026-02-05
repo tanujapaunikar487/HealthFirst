@@ -12,6 +12,7 @@ import {
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
 import EmbeddedFamilyMemberFlow from '@/Features/booking-chat/embedded/EmbeddedFamilyMemberFlow';
+import { getAvatarColor } from '@/Lib/avatar-colors';
 import { AddTeam, Users, AlertTriangle, ChevronRight } from '@/Lib/icons';
 
 /* ─── Types ─── */
@@ -37,19 +38,15 @@ interface Props {
 /* ─── Constants ─── */
 
 
-const relationColors: Record<string, { bg: string; text: string }> = {
-  self:        { bg: '#DBEAFE', text: '#1E40AF' },
-  mother:      { bg: '#FCE7F3', text: '#9D174D' },
-  father:      { bg: '#E0E7FF', text: '#3730A3' },
-  brother:     { bg: '#DCFCE7', text: '#166534' },
-  sister:      { bg: '#F3E8FF', text: '#6B21A8' },
-  spouse:      { bg: '#FFE4E6', text: '#9F1239' },
-  son:         { bg: '#CCFBF1', text: '#115E59' },
-  daughter:    { bg: '#FEF3C7', text: '#92400E' },
-  grandmother: { bg: '#FFEDD5', text: '#9A3412' },
-  grandfather: { bg: '#E2E8F0', text: '#334155' },
-  other:       { bg: '#F3F4F6', text: '#374151' },
+const relationColorIndices: Record<string, number> = {
+  self: 0, mother: 1, father: 2, brother: 3, sister: 4,
+  spouse: 1, son: 2, daughter: 3, grandmother: 4, grandfather: 0, other: 2,
 };
+
+function getRelationColor(relation: string) {
+  const idx = relationColorIndices[relation] ?? 2;
+  return getAvatarColor(idx);
+}
 
 function getInitials(name: string): string {
   return name
@@ -189,9 +186,9 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
             imageAlt="Family members illustration"
           />
         ) : (
-          <div className="divide-y divide-border rounded-[20px] border border-border bg-white overflow-hidden">
+          <div className="divide-y divide-border rounded-[20px] border border-border bg-card overflow-hidden">
             {members.map(member => {
-              const colors = relationColors[member.relation] || relationColors.other;
+              const colors = getRelationColor(member.relation);
 
               return (
                 <div

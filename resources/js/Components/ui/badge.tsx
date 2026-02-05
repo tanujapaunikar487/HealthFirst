@@ -22,7 +22,7 @@ const badgeVariants = cva(
         info: 'bg-info/10 text-info border-info/20',
         outline: 'text-foreground',
         orange: 'bg-warning/10 text-warning border-warning/20',
-        purple: 'bg-purple-50 text-purple-700 border-purple-200',
+        purple: 'bg-primary/10 text-primary border-primary/20',
       },
     },
     defaultVariants: {

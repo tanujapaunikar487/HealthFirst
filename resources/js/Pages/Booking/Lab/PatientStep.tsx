@@ -93,7 +93,7 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
               >
                 <Avatar className="w-10 h-10">
                   <AvatarImage src={member.avatar || undefined} />
-                  <AvatarFallback className="bg-orange-400 text-white text-[14px] font-medium">
+                  <AvatarFallback className="bg-warning text-warning-foreground text-[14px] font-medium">
                     {member.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>

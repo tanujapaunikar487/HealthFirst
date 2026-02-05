@@ -81,7 +81,7 @@ export default function ConfirmStep({ summary }: Props) {
               <div className="flex items-center gap-2">
                 <Avatar className="w-6 h-6">
                   <AvatarImage src={summary.doctor.avatar || undefined} />
-                  <AvatarFallback className="bg-orange-400 text-white text-[14px] font-medium">
+                  <AvatarFallback className="bg-warning text-warning-foreground text-[14px] font-medium">
                     {getInitial(summary.doctor.name)}
                   </AvatarFallback>
                 </Avatar>
@@ -98,7 +98,7 @@ export default function ConfirmStep({ summary }: Props) {
               <div className="flex items-center gap-2">
                 <Avatar className="w-6 h-6">
                   <AvatarImage src={summary.patient.avatar || undefined} />
-                  <AvatarFallback className="bg-orange-400 text-white text-[14px] font-medium">
+                  <AvatarFallback className="bg-warning text-warning-foreground text-[14px] font-medium">
                     {getInitial(summary.patient.name)}
                   </AvatarFallback>
                 </Avatar>

@@ -52,7 +52,7 @@ export default function Error({ status, message }: Props) {
         </div>
 
         {/* Title */}
-        <h1 className="text-2xl font-bold tracking-tight mb-2" style={{ color: '#00184D' }}>
+        <h1 className="text-2xl font-bold tracking-tight mb-2" style={{ color: 'hsl(var(--foreground))' }}>
           {error.title}
         </h1>
 

@@ -437,8 +437,8 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
               style={{ width: '100%' }}
               gradient={
                 isFocused || input.length > 0
-                  ? 'linear-gradient(265deg, #93C5FD 24.67%, #BFDBFE 144.07%)'
-                  : 'linear-gradient(265deg, #BFDBFE 24.67%, #FFF 144.07%)'
+                  ? 'linear-gradient(265deg, hsl(var(--primary) / 0.4) 24.67%, hsl(var(--primary) / 0.25) 144.07%)'
+                  : 'linear-gradient(265deg, hsl(var(--primary) / 0.25) 24.67%, hsl(var(--background)) 144.07%)'
               }
             >
               <PromptInput
@@ -453,7 +453,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                   <div className="px-6 py-4 min-h-[80px] flex items-center justify-between">
                     <div className="flex items-center gap-3 flex-1">
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                        <div className="w-3 h-3 bg-destructive rounded-full animate-pulse"></div>
                         <span className="text-[14px] font-medium text-muted-foreground">
                           {formatRecordingTime(recordingTime)}
                         </span>
@@ -465,7 +465,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                   // Normal mode - show textarea
                   <PromptInputTextarea
                     placeholder={isCancelled ? "Booking cancelled" : getPlaceholder(conversation.current_step)}
-                    className="text-[14px] text-foreground placeholder:text-[#9CA3AF] min-h-[80px] px-4 pt-4 pb-16 font-normal"
+                    className="text-[14px] text-foreground placeholder:text-muted-foreground min-h-[80px] px-4 pt-4 pb-16 font-normal"
                     style={{ fontSize: '14px', lineHeight: '20px' }}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
@@ -481,8 +481,8 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                           style={{
                             width: '40px',
                             height: '40px',
-                            backgroundColor: '#FFFFFF',
-                            border: '1px solid #E5E7EB',
+                            backgroundColor: 'hsl(var(--background))',
+                            border: '1px solid hsl(var(--border))',
                             borderRadius: '50%',
                             display: 'flex',
                             alignItems: 'center',
@@ -494,7 +494,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                             e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#FFFFFF';
+                            e.currentTarget.style.backgroundColor = 'hsl(var(--background))';
                           }}
                         >
                           <Icon icon={Plus} className="w-[18px] h-[18px]" />
@@ -516,8 +516,8 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                             style={{
                               width: '40px',
                               height: '40px',
-                              backgroundColor: '#FFFFFF',
-                              border: '1px solid #E5E7EB',
+                              backgroundColor: 'hsl(var(--background))',
+                              border: '1px solid hsl(var(--border))',
                               borderRadius: '50%',
                               display: 'flex',
                               alignItems: 'center',
@@ -526,10 +526,10 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                               transition: 'all 0.2s ease',
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#FEE2E2';
+                              e.currentTarget.style.backgroundColor = 'hsl(var(--destructive) / 0.1)';
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = '#FFFFFF';
+                              e.currentTarget.style.backgroundColor = 'hsl(var(--background))';
                             }}
                           >
                             <Icon icon={X} className="w-[18px] h-[18px] text-destructive" />
@@ -542,7 +542,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                             style={{
                               width: '40px',
                               height: '40px',
-                              backgroundColor: '#0052FF',
+                              backgroundColor: 'hsl(var(--primary))',
                               border: 'none',
                               borderRadius: '50%',
                               display: 'flex',
@@ -552,10 +552,10 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                               transition: 'all 0.2s ease',
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#0041CC';
+                              e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = '#0052FF';
+                              e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
                             }}
                           >
                             <Icon icon={Check} className="w-5 h-5 text-white" />
@@ -572,8 +572,8 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                             style={{
                               width: '40px',
                               height: '40px',
-                              backgroundColor: '#FFFFFF',
-                              border: '1px solid #E5E7EB',
+                              backgroundColor: 'hsl(var(--background))',
+                              border: '1px solid hsl(var(--border))',
                               borderRadius: '50%',
                               display: 'flex',
                               alignItems: 'center',
@@ -585,7 +585,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                               e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = '#FFFFFF';
+                              e.currentTarget.style.backgroundColor = 'hsl(var(--background))';
                             }}
                           >
                             <Icon icon={Mic} className={cn(
@@ -602,7 +602,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                             style={{
                               width: '40px',
                               height: '40px',
-                              backgroundColor: isLoading || !input.trim() || isCancelled ? '#E5E7EB' : '#0052FF',
+                              backgroundColor: isLoading || !input.trim() || isCancelled ? 'hsl(var(--muted))' : 'hsl(var(--primary))',
                               border: 'none',
                               borderRadius: '50%',
                               display: 'flex',
@@ -613,12 +613,12 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                             }}
                             onMouseEnter={(e) => {
                               if (!isLoading && input.trim() && !isCancelled) {
-                                e.currentTarget.style.backgroundColor = '#0041CC';
+                                e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
                               }
                             }}
                             onMouseLeave={(e) => {
                               if (!isLoading && input.trim() && !isCancelled) {
-                                e.currentTarget.style.backgroundColor = '#0052FF';
+                                e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
                               }
                             }}
                           >

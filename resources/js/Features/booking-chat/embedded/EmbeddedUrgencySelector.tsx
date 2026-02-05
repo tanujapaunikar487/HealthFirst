@@ -11,19 +11,19 @@ const options = [
     value: 'urgent',
     label: 'Urgent (Today/ASAP)',
     description: 'Need to see someone ASAP',
-    dotColor: 'bg-red-500',
+    dotColor: 'bg-destructive',
   },
   {
     value: 'this_week',
     label: 'This Week',
     description: 'Within a few days',
-    dotColor: 'bg-amber-500',
+    dotColor: 'bg-warning',
   },
   {
     value: 'specific_date',
     label: "I've a specific date",
     description: 'Select a particular date',
-    dotColor: 'bg-blue-500',
+    dotColor: 'bg-primary',
   },
 ];
 

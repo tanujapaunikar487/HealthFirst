@@ -127,16 +127,16 @@ const OUTSTANDING_STATUSES: BillingStatus[] = [
 const PAID_STATUSES: BillingStatus[] = ['paid', 'covered', 'reimbursed'];
 
 const STATUS_CONFIG: Record<BillingStatus, { label: string; color: string; bg: string }> = {
-  due: { label: 'Due', color: 'text-red-600', bg: 'bg-red-50' },
-  paid: { label: 'Paid', color: 'text-green-600', bg: 'bg-green-50' },
+  due: { label: 'Due', color: 'text-destructive', bg: 'bg-destructive/10' },
+  paid: { label: 'Paid', color: 'text-success', bg: 'bg-success/10' },
   refunded: { label: 'Refunded', color: 'text-muted-foreground', bg: 'bg-muted' },
-  awaiting_approval: { label: 'Awaiting approval', color: 'text-amber-600', bg: 'bg-amber-50' },
-  claim_pending: { label: 'Claim pending', color: 'text-amber-600', bg: 'bg-amber-50' },
-  copay_due: { label: 'Co-pay due', color: 'text-red-600', bg: 'bg-red-50' },
-  emi: { label: 'EMI', color: 'text-blue-600', bg: 'bg-blue-50' },
-  disputed: { label: 'Disputed', color: 'text-red-600', bg: 'bg-red-50' },
-  covered: { label: 'Covered', color: 'text-green-600', bg: 'bg-green-50' },
-  reimbursed: { label: 'Reimbursed', color: 'text-green-600', bg: 'bg-green-50' },
+  awaiting_approval: { label: 'Awaiting approval', color: 'text-warning', bg: 'bg-warning/10' },
+  claim_pending: { label: 'Claim pending', color: 'text-warning', bg: 'bg-warning/10' },
+  copay_due: { label: 'Co-pay due', color: 'text-destructive', bg: 'bg-destructive/10' },
+  emi: { label: 'EMI', color: 'text-primary', bg: 'bg-primary/10' },
+  disputed: { label: 'Disputed', color: 'text-destructive', bg: 'bg-destructive/10' },
+  covered: { label: 'Covered', color: 'text-success', bg: 'bg-success/10' },
+  reimbursed: { label: 'Reimbursed', color: 'text-success', bg: 'bg-success/10' },
 };
 
 const PAYABLE_STATUSES: BillingStatus[] = ['due', 'copay_due'];
@@ -459,8 +459,8 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
         {stats.outstanding_count > 0 && (
           <div className="flex items-center justify-between border rounded-lg px-6 py-4 mb-6" style={{ backgroundColor: 'hsl(var(--warning) / 0.1)' }}>
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-full bg-amber-100 flex items-center justify-center">
-                <AlertCircle className="h-4.5 w-4.5 text-amber-600" />
+              <div className="h-9 w-9 rounded-full flex items-center justify-center" style={{ backgroundColor: 'hsl(var(--warning) / 0.15)' }}>
+                <AlertCircle className="h-4.5 w-4.5 text-warning" />
               </div>
               <div>
                 <p className="text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
@@ -599,7 +599,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                           type="checkbox"
                           checked={payableBills.length > 0 && payableBills.every((b) => selectedIds.has(b.id))}
                           onChange={toggleSelectAll}
-                          className="h-4 w-4 rounded border-gray-300 accent-blue-600"
+                          className="h-4 w-4 rounded border-border accent-primary"
                         />
                       )}
                     </TableHead>
@@ -633,7 +633,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                             disabled={!isPayable}
                             onChange={() => toggleSelect(bill.id)}
                             className={cn(
-                              'h-4 w-4 rounded border-gray-300 accent-blue-600',
+                              'h-4 w-4 rounded border-border accent-primary',
                               !isPayable && 'opacity-30 cursor-not-allowed'
                             )}
                           />
@@ -694,7 +694,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                             {statusLabel}
                           </span>
                           {bill.is_overdue && (
-                            <p className="text-[10px] text-red-500 mt-0.5">Overdue {bill.days_overdue}d</p>
+                            <p className="text-[10px] text-destructive mt-0.5">Overdue {bill.days_overdue}d</p>
                           )}
                         </TableCell>
 
@@ -771,8 +771,8 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
           {payBills.length > 0 && paymentState === 'success' && (
             <>
               <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
-                <div className="h-16 w-16 rounded-full bg-green-50 flex items-center justify-center mb-4">
-                  <CheckCircle2 className="h-8 w-8 text-green-600" />
+                <div className="h-16 w-16 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: 'hsl(var(--success) / 0.1)' }}>
+                  <CheckCircle2 className="h-8 w-8 text-success" />
                 </div>
                 <h3 className="text-lg font-semibold mb-1" style={{ color: 'hsl(var(--foreground))' }}>Payment successful</h3>
                 <p className="text-[14px] text-muted-foreground">
@@ -819,7 +819,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                             disabled={isLastActive || paymentState === 'processing'}
                             onChange={() => togglePayBillExclusion(bill.id)}
                             className={cn(
-                              'h-4 w-4 rounded border-gray-300 accent-blue-600',
+                              'h-4 w-4 rounded border-border accent-primary',
                               (isLastActive || paymentState === 'processing') && 'opacity-40 cursor-not-allowed'
                             )}
                           />
@@ -863,8 +863,8 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                       {/* Overdue warning */}
                       {bill.is_overdue && (
                         <div className="flex items-start gap-2 rounded-lg px-3 py-2" style={{ backgroundColor: 'hsl(var(--destructive) / 0.1)' }}>
-                          <AlertCircle className="h-3.5 w-3.5 text-red-500 mt-0.5 flex-shrink-0" />
-                          <p className="text-[14px] text-red-600">
+                          <AlertCircle className="h-3.5 w-3.5 text-destructive mt-0.5 flex-shrink-0" />
+                          <p className="text-[14px] text-destructive">
                             Overdue by {bill.days_overdue} days. Please pay immediately.
                           </p>
                         </div>
@@ -940,16 +940,16 @@ function PaymentWarnings({ bills }: { bills: Bill[] }) {
     <div className="space-y-2 mt-3">
       {disputedCount > 0 && (
         <div className="flex items-start gap-2 rounded-lg px-3 py-2.5" style={{ backgroundColor: 'hsl(var(--warning) / 0.1)' }}>
-          <AlertCircle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-          <p className="text-[14px] text-amber-700">
+          <AlertCircle className="h-4 w-4 text-warning mt-0.5 flex-shrink-0" />
+          <p className="text-[14px] text-warning">
             {disputedCount} {disputedCount === 1 ? 'bill is' : 'bills are'} under dispute. Payment may be held for review.
           </p>
         </div>
       )}
       {hasMultiplePatients && (
         <div className="flex items-start gap-2 rounded-lg px-3 py-2.5" style={{ backgroundColor: 'hsl(var(--primary) / 0.1)' }}>
-          <AlertCircle className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
-          <p className="text-[14px] text-blue-700">
+          <AlertCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+          <p className="text-[14px] text-primary">
             Bills for multiple family members selected.
           </p>
         </div>

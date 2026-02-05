@@ -38,6 +38,7 @@ import {
 import { Toast } from '@/Components/ui/toast';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { cn } from '@/Lib/utils';
+import { getAvatarColor } from '@/Lib/avatar-colors';
 import {
   ShieldCheck,
   Plus,
@@ -210,20 +211,12 @@ function getPatientInitials(name: string): string {
     .toUpperCase();
 }
 
-const avatarColors = [
-  { bg: '#DBEAFE', text: '#1E40AF' },
-  { bg: '#FCE7F3', text: '#9D174D' },
-  { bg: '#D1FAE5', text: '#065F46' },
-  { bg: '#FEF3C7', text: '#92400E' },
-  { bg: '#EDE9FE', text: '#5B21B6' },
-];
-
-function getAvatarColor(name: string) {
+function getAvatarColorByName(name: string) {
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
-  return avatarColors[Math.abs(hash) % avatarColors.length];
+  return getAvatarColor(Math.abs(hash));
 }
 
 function formatFileSize(bytes: number): string {
@@ -1014,7 +1007,7 @@ export default function InsuranceIndex({
                 <div
                   className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10"
                 >
-                  <XCircle className="h-6 w-6 text-red-500" />
+                  <XCircle className="h-6 w-6 text-destructive" />
                 </div>
                 <p className="mb-1 text-[14px] font-semibold text-foreground">
                   Couldn't extract policy details
@@ -1082,9 +1075,9 @@ export default function InsuranceIndex({
                         <SelectTrigger
                           className={cn(
                             formErrors.insurance_provider_id &&
-                              'border-red-300 focus-visible:ring-red-400',
+                              'border-destructive/30 focus-visible:ring-destructive/40',
                             isPartialEmpty('insurance_provider_id') &&
-                              'ring-2 ring-amber-300 border-amber-300'
+                              'ring-2 ring-warning/30 border-warning/30'
                           )}
                         >
                           <SelectValue placeholder="Select provider" />
@@ -1098,7 +1091,7 @@ export default function InsuranceIndex({
                         </SelectContent>
                       </Select>
                       {formErrors.insurance_provider_id && (
-                        <p className="mt-1 text-[14px] text-red-500">
+                        <p className="mt-1 text-[14px] text-destructive">
                           {formErrors.insurance_provider_id}
                         </p>
                       )}
@@ -1121,11 +1114,11 @@ export default function InsuranceIndex({
                         onChange={(e) => updateForm('policy_number', e.target.value)}
                         placeholder="e.g. SH-2026-123456"
                         className={cn(
-                          formErrors.policy_number && 'border-red-300 focus-visible:ring-red-400'
+                          formErrors.policy_number && 'border-destructive/30 focus-visible:ring-destructive/40'
                         )}
                       />
                       {formErrors.policy_number && (
-                        <p className="mt-1 text-[14px] text-red-500">{formErrors.policy_number}</p>
+                        <p className="mt-1 text-[14px] text-destructive">{formErrors.policy_number}</p>
                       )}
                     </div>
                     <div>
@@ -1137,11 +1130,11 @@ export default function InsuranceIndex({
                         onChange={(e) => updateForm('plan_name', e.target.value)}
                         placeholder="e.g. Family Floater Plan"
                         className={cn(
-                          formErrors.plan_name && 'border-red-300 focus-visible:ring-red-400'
+                          formErrors.plan_name && 'border-destructive/30 focus-visible:ring-destructive/40'
                         )}
                       />
                       {formErrors.plan_name && (
-                        <p className="mt-1 text-[14px] text-red-500">{formErrors.plan_name}</p>
+                        <p className="mt-1 text-[14px] text-destructive">{formErrors.plan_name}</p>
                       )}
                     </div>
                     <div>
@@ -1154,9 +1147,9 @@ export default function InsuranceIndex({
                       >
                         <SelectTrigger
                           className={cn(
-                            formErrors.plan_type && 'border-red-300 focus-visible:ring-red-400',
+                            formErrors.plan_type && 'border-destructive/30 focus-visible:ring-destructive/40',
                             isPartialEmpty('plan_type') &&
-                              'ring-2 ring-amber-300 border-amber-300'
+                              'ring-2 ring-warning/30 border-warning/30'
                           )}
                         >
                           <SelectValue placeholder="Select plan type" />
@@ -1169,7 +1162,7 @@ export default function InsuranceIndex({
                         </SelectContent>
                       </Select>
                       {formErrors.plan_type && (
-                        <p className="mt-1 text-[14px] text-red-500">{formErrors.plan_type}</p>
+                        <p className="mt-1 text-[14px] text-destructive">{formErrors.plan_type}</p>
                       )}
                     </div>
                   </div>
@@ -1191,13 +1184,13 @@ export default function InsuranceIndex({
                         onChange={(e) => updateForm('sum_insured', e.target.value)}
                         placeholder="500000"
                         className={cn(
-                          formErrors.sum_insured && 'border-red-300 focus-visible:ring-red-400',
+                          formErrors.sum_insured && 'border-destructive/30 focus-visible:ring-destructive/40',
                           isPartialEmpty('sum_insured') &&
-                            'ring-2 ring-amber-300 border-amber-300'
+                            'ring-2 ring-warning/30 border-warning/30'
                         )}
                       />
                       {formErrors.sum_insured && (
-                        <p className="mt-1 text-[14px] text-red-500">{formErrors.sum_insured}</p>
+                        <p className="mt-1 text-[14px] text-destructive">{formErrors.sum_insured}</p>
                       )}
                     </div>
                     <div>
@@ -1230,12 +1223,12 @@ export default function InsuranceIndex({
                         error={!!formErrors.start_date}
                         className={cn(
                           isPartialEmpty('start_date') &&
-                            'ring-2 ring-amber-300 border-amber-300'
+                            'ring-2 ring-warning/30 border-warning/30'
                         )}
                         placeholder="Select start date"
                       />
                       {formErrors.start_date && (
-                        <p className="mt-1 text-[14px] text-red-500">{formErrors.start_date}</p>
+                        <p className="mt-1 text-[14px] text-destructive">{formErrors.start_date}</p>
                       )}
                     </div>
                     <div>
@@ -1248,12 +1241,12 @@ export default function InsuranceIndex({
                         error={!!formErrors.end_date}
                         className={cn(
                           isPartialEmpty('end_date') &&
-                            'ring-2 ring-amber-300 border-amber-300'
+                            'ring-2 ring-warning/30 border-warning/30'
                         )}
                         placeholder="Select end date"
                       />
                       {formErrors.end_date && (
-                        <p className="mt-1 text-[14px] text-red-500">{formErrors.end_date}</p>
+                        <p className="mt-1 text-[14px] text-destructive">{formErrors.end_date}</p>
                       )}
                     </div>
                   </div>
@@ -1356,7 +1349,7 @@ export default function InsuranceIndex({
                   />
                 ) : (
                   preAuthCoveredMembers.map(member => {
-                    const color = getAvatarColor(member.name);
+                    const color = getAvatarColorByName(member.name);
                     return (
                       <button
                         key={member.id}
@@ -1386,7 +1379,7 @@ export default function InsuranceIndex({
               <div className="space-y-4">
                 <div>
                   <label className="block text-[14px] font-medium text-foreground mb-1.5">
-                    Treatment / Reason <span className="text-red-500">*</span>
+                    Treatment / Reason <span className="text-destructive">*</span>
                   </label>
                   <Input
                     value={preAuthForm.treatment_name}
@@ -1396,7 +1389,7 @@ export default function InsuranceIndex({
                 </div>
                 <div>
                   <label className="block text-[14px] font-medium text-foreground mb-1.5">
-                    Expected Admission Date <span className="text-red-500">*</span>
+                    Expected Admission Date <span className="text-destructive">*</span>
                   </label>
                   <DatePicker
                     value={preAuthForm.admission_date}
@@ -1418,7 +1411,7 @@ export default function InsuranceIndex({
                 </div>
                 <div>
                   <label className="block text-[14px] font-medium text-foreground mb-1.5">
-                    Room Type <span className="text-red-500">*</span>
+                    Room Type <span className="text-destructive">*</span>
                   </label>
                   <Select
                     value={preAuthForm.room_type}

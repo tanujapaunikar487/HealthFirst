@@ -51,7 +51,7 @@ export function EmbeddedCenterList({ centers, selectedCenterId, onSelect, disabl
               </div>
               <div className="flex items-center gap-3 mt-1.5">
                 <span className="inline-flex items-center gap-1 text-[14px] text-muted-foreground">
-                  <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                  <Star className="h-3 w-3 fill-warning text-warning" />
                   {center.rating}
                 </span>
                 <span className="text-[14px] text-muted-foreground">
