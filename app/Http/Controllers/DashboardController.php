@@ -159,6 +159,8 @@ class DashboardController extends Controller
         $newResultsReady = [];
         $vaccinationsDue = [];
 
+        $prescriptionsExpiring = [];
+
         if ($allCompleted) {
             $paymentsDueSoon = $this->getPaymentsDueSoon($user);
             $emisDue = $this->getEmisDue($user);
@@ -168,6 +170,7 @@ class DashboardController extends Controller
             $preAppointmentReminders = $this->getPreAppointmentReminders($user);
             $newResultsReady = $this->getNewResultsReady($user);
             $vaccinationsDue = $this->getVaccinationsDue($user);
+            $prescriptionsExpiring = $this->getPrescriptionsExpiring($user);
         }
 
         return Inertia::render('Dashboard', [
@@ -187,6 +190,7 @@ class DashboardController extends Controller
             'preAppointmentReminders' => $preAppointmentReminders,
             'newResultsReady' => $newResultsReady,
             'vaccinationsDue' => $vaccinationsDue,
+            'prescriptionsExpiring' => $prescriptionsExpiring,
         ]);
     }
 
@@ -420,6 +424,67 @@ class DashboardController extends Controller
             })
             ->values()
             ->toArray();
+    }
+
+    private function getPrescriptionsExpiring($user): array
+    {
+        return HealthRecord::where('user_id', $user->id)
+            ->where('category', 'prescription')
+            ->whereNotNull('metadata')
+            ->with('familyMember')
+            ->get()
+            ->map(function ($r) {
+                $drugs = $r->metadata['drugs'] ?? [];
+                $startDate = $r->record_date;
+                if (!$startDate || empty($drugs)) return null;
+
+                $now = Carbon::now();
+                $threshold = $now->copy()->addDays(7);
+                $expiringDrugs = [];
+
+                foreach ($drugs as $drug) {
+                    $duration = $this->parseDuration($drug['duration'] ?? '');
+                    if ($duration <= 0) continue;
+                    $endDate = $startDate->copy()->addDays($duration);
+
+                    if ($endDate->isAfter($now) && $endDate->lte($threshold)) {
+                        $expiringDrugs[] = [
+                            'name' => $drug['name'] ?? 'Medication',
+                            'days_remaining' => max(0, (int) $now->diffInDays($endDate, false)),
+                        ];
+                    }
+                }
+
+                if (empty($expiringDrugs)) return null;
+
+                return [
+                    'id' => $r->id,
+                    'title' => $r->title,
+                    'doctor_name' => $r->doctor_name,
+                    'patient_name' => $r->familyMember?->name ?? 'Self',
+                    'patient_initials' => $this->getInitials($r->familyMember?->name ?? 'Self'),
+                    'drugs' => $expiringDrugs,
+                    'record_date_formatted' => $r->record_date->format('d M Y'),
+                ];
+            })
+            ->filter()
+            ->values()
+            ->toArray();
+    }
+
+    private function parseDuration(string $duration): int
+    {
+        if (preg_match('/(\d+)\s*(day|week|month)/i', $duration, $matches)) {
+            $num = (int) $matches[1];
+            $unit = strtolower($matches[2]);
+            return match ($unit) {
+                'day', 'days' => $num,
+                'week', 'weeks' => $num * 7,
+                'month', 'months' => $num * 30,
+                default => 0,
+            };
+        }
+        return 0;
     }
 
     private function getInitials(string $name): string

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import { Download, Lock, Trash2, AlertTriangle, ChevronRight } from '@/Lib/icons';
 import { Button } from '@/Components/ui/button';
@@ -76,10 +76,36 @@ export function PreferencesTab({
 }: PreferencesTabProps) {
     const [prefs, setPrefs] = useState(settings);
     const [defaults, setDefaults] = useState(bookingDefaults);
-    const [saving, setSaving] = useState(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [deletePassword, setDeletePassword] = useState('');
     const [deleting, setDeleting] = useState(false);
+
+    // Debounced auto-save
+    const isFirstRender = useRef(true);
+
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        const timeout = setTimeout(() => {
+            router.put('/settings/preferences', prefs, {
+                preserveState: true,
+                preserveScroll: true,
+                onSuccess: () => {
+                    router.put('/settings/booking-defaults', defaults, {
+                        preserveState: true,
+                        preserveScroll: true,
+                        onError: () => toast.error('Failed to save settings'),
+                    });
+                },
+                onError: () => toast.error('Failed to save settings'),
+            });
+        }, 1000);
+
+        return () => clearTimeout(timeout);
+    }, [prefs, defaults]);
 
     const handlePrefChange = <K extends keyof PreferenceSettings>(
         key: K,
@@ -113,30 +139,6 @@ export function PreferencesTab({
 
     const handleDefaultChange = <K extends keyof BookingDefaults>(key: K, value: string | null) => {
         setDefaults((prev) => ({ ...prev, [key]: value === 'none' ? null : (value || null) }));
-    };
-
-    const handleSaveAll = () => {
-        setSaving(true);
-
-        // Save preferences
-        router.put('/settings/preferences', prefs, {
-            preserveState: true,
-            onSuccess: () => {
-                // Save booking defaults
-                router.put('/settings/booking-defaults', defaults, {
-                    preserveState: true,
-                    onSuccess: () => {
-                        toast.success('Settings saved');
-                    },
-                    onError: () => toast.error('Failed to save settings'),
-                    onFinish: () => setSaving(false),
-                });
-            },
-            onError: () => {
-                toast.error('Failed to save settings');
-                setSaving(false);
-            },
-        });
     };
 
     const handleDownloadData = () => {
@@ -173,34 +175,11 @@ export function PreferencesTab({
 
     return (
         <div className="space-y-12">
-            {/* Language & Region */}
+            {/* Date & Time */}
             <div>
-                <SectionTitle>Language & region</SectionTitle>
+                <SectionTitle>Date & time</SectionTitle>
                 <Card className="mt-4">
                     <CardContent className="p-0 divide-y">
-                        {/* Language Row */}
-                        <div className="flex items-center justify-between px-6 py-4">
-                            <div>
-                                <p className="text-[14px] font-semibold leading-5 text-foreground">Doctor's language</p>
-                                <p className="text-[14px] font-normal leading-5 text-muted-foreground">
-                                    Preferred language for doctor communication
-                                </p>
-                            </div>
-                            <Select
-                                value={prefs.language}
-                                onValueChange={(v) => handlePrefChange('language', v)}
-                            >
-                                <SelectTrigger className="w-[140px]">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="en">English</SelectItem>
-                                    <SelectItem value="hi">Hindi</SelectItem>
-                                    <SelectItem value="mr">Marathi</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-
                         {/* Date Format Row */}
                         <div className="flex items-center justify-between px-6 py-4">
                             <div>
@@ -407,13 +386,6 @@ export function PreferencesTab({
                         </button>
                     </CardContent>
                 </Card>
-            </div>
-
-            {/* Save Changes Button */}
-            <div>
-                <Button onClick={handleSaveAll} disabled={saving} className="px-8">
-                    {saving ? 'Saving...' : 'Save changes'}
-                </Button>
             </div>
 
             {/* Delete account Dialog */}

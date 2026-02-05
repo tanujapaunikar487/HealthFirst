@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/Components/ui/card';
 import {
   ChevronRight, AlertCircle, RefreshCw, Check, Stethoscope, FlaskConical,
   Receipt, MoreHorizontal, Calendar, X, FileText, Clock, CreditCard, Loader2,
-  Shield, RotateCcw, CheckCircle2, Syringe,
+  Shield, RotateCcw, CheckCircle2, Syringe, Pill,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { Toast } from '@/Components/ui/toast';
@@ -171,6 +171,16 @@ interface VaccinationDue {
   age_requirement: string;
 }
 
+interface PrescriptionExpiring {
+  id: number;
+  title: string;
+  doctor_name: string;
+  patient_name: string;
+  patient_initials: string;
+  drugs: { name: string; days_remaining: number }[];
+  record_date_formatted: string;
+}
+
 interface Promotion {
   id: number;
   title: string;
@@ -198,6 +208,7 @@ interface DashboardProps {
   preAppointmentReminders?: PreAppointmentReminder[];
   newResultsReady?: NewResultsReady[];
   vaccinationsDue?: VaccinationDue[];
+  prescriptionsExpiring?: PrescriptionExpiring[];
 }
 
 // --- Skeleton Components ---
@@ -279,7 +290,7 @@ type CardType =
   | 'overdue_bill' | 'health_alert' | 'appointment_today' | 'appointment_upcoming'
   | 'payment_due_soon' | 'emi_due' | 'insurance_claim_update'
   | 'followup_due' | 'pre_appointment_reminder'
-  | 'new_results_ready' | 'vaccination_due';
+  | 'new_results_ready' | 'vaccination_due' | 'prescription_expiring';
 
 interface DashboardCardProps {
   type: CardType;
@@ -311,6 +322,7 @@ const cardConfig: Record<CardType, { icon: typeof Receipt; iconColor: string; ic
   pre_appointment_reminder: { icon: Calendar, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
   new_results_ready: { icon: CheckCircle2, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
   vaccination_due: { icon: Syringe, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
+  prescription_expiring: { icon: Pill, iconColor: 'hsl(var(--warning))', iconBg: 'hsl(var(--warning) / 0.2)' },
 };
 
 function DashboardCard({
@@ -427,6 +439,7 @@ export default function Dashboard({
   preAppointmentReminders = [],
   newResultsReady = [],
   vaccinationsDue = [],
+  prescriptionsExpiring = [],
 }: DashboardProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -662,7 +675,7 @@ export default function Dashboard({
     emisDue.length > 0 ||
     insuranceClaimUpdates.filter(c => c.claim_status !== 'approved').length > 0 ||
     visibleHealthAlerts.length > 0 ||
-
+    prescriptionsExpiring.length > 0 ||
     overdueFollowUps.length > 0 ||
     newResultsReady.length > 0 ||
     todayAppointments.length > 0;
@@ -684,7 +697,7 @@ export default function Dashboard({
     ...emisDue.map((emi, i) => ({ type: 'emi_due' as const, data: emi, index: i })),
     ...insuranceClaimUpdates.filter(c => c.claim_status !== 'approved').map((claim, i) => ({ type: 'insurance_claim_update' as const, data: claim, index: i })),
     ...visibleHealthAlerts.map((alert, i) => ({ type: 'health_alert' as const, data: alert, index: i })),
-
+    ...prescriptionsExpiring.map((rx, i) => ({ type: 'prescription_expiring' as const, data: rx, index: i })),
     ...overdueFollowUps.map((followup, i) => ({ type: 'followup_due' as const, data: followup, index: i })),
     ...newResultsReady.map((result, i) => ({ type: 'new_results_ready' as const, data: result, index: i })),
     ...todayAppointments.map((appt, i) => ({ type: 'appointment_today' as const, data: appt, index: i })),
@@ -830,6 +843,29 @@ export default function Dashboard({
             menuItems={[
               { label: 'View full report', onClick: () => router.visit(`/health-records?record=${alert.id}`) },
               { label: 'Dismiss alert', onClick: () => handleDismissAlert(alert.id) },
+            ]}
+            isLast={isLast}
+          />
+        );
+      }
+      case 'prescription_expiring': {
+        const rx = card.data as PrescriptionExpiring;
+        const minDays = Math.min(...rx.drugs.map(d => d.days_remaining));
+        return (
+          <DashboardCard
+            key={`rx-${rx.id}`}
+            type="prescription_expiring"
+            title={`Refill needed · ${rx.drugs.map(d => d.name).join(', ')}`}
+            subtitle={`Prescribed by ${rx.doctor_name} · ${rx.record_date_formatted}`}
+            patientName={rx.patient_name}
+            patientInitials={rx.patient_initials}
+            badge={minDays <= 1 ? 'Expires today' : `${minDays} days left`}
+            badgeColor={minDays <= 1 ? 'hsl(var(--destructive))' : 'hsl(var(--warning))'}
+            badgeBg={minDays <= 1 ? 'hsl(var(--destructive) / 0.1)' : 'hsl(var(--warning) / 0.1)'}
+            actionLabel="Book appointment"
+            onAction={() => router.visit('/booking')}
+            menuItems={[
+              { label: 'View prescription', onClick: () => router.visit(`/health-records?record=${rx.id}`) },
             ]}
             isLast={isLast}
           />

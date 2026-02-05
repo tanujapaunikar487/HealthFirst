@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import { Mail, MessageSquare, Phone } from '@/Lib/icons';
-import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
 import { Switch } from '@/Components/ui/switch';
 import { CardTitle, CardSubtext } from '@/Components/ui/card-typography';
@@ -10,7 +9,6 @@ import { toast } from 'sonner';
 interface HealthAlertSettings {
     lab_results: boolean;
     medication_reminders: boolean;
-    doctor_messages: boolean;
 }
 
 interface NotificationSettings {
@@ -52,16 +50,38 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 export function NotificationsTab({ settings }: NotificationsTabProps) {
     const [channels, setChannels] = useState(settings.channels);
     const [categories, setCategories] = useState(settings.categories);
-    const [saving, setSaving] = useState(false);
 
     // Initialize from settings prop with defaults
     const [healthAlerts, setHealthAlerts] = useState<HealthAlertSettings>(
         settings.health_alerts ?? {
             lab_results: true,
             medication_reminders: true,
-            doctor_messages: true,
         }
     );
+
+    // Debounced auto-save
+    const isFirstRender = useRef(true);
+
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        const timeout = setTimeout(() => {
+            router.put(
+                '/settings/notifications',
+                { channels, categories, health_alerts: healthAlerts },
+                {
+                    preserveState: true,
+                    preserveScroll: true,
+                    onError: () => toast.error('Failed to save notification preferences'),
+                }
+            );
+        }, 1000);
+
+        return () => clearTimeout(timeout);
+    }, [channels, categories, healthAlerts]);
 
     const handleChannelToggle = (channel: keyof typeof channels, value: boolean) => {
         setChannels((prev) => ({ ...prev, [channel]: value }));
@@ -73,23 +93,6 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
 
     const handleHealthAlertToggle = (key: keyof HealthAlertSettings, value: boolean) => {
         setHealthAlerts((prev) => ({ ...prev, [key]: value }));
-    };
-
-    const handleSave = () => {
-        setSaving(true);
-        router.put(
-            '/settings/notifications',
-            { channels, categories, health_alerts: healthAlerts },
-            {
-                onSuccess: () => {
-                    toast.success('Notification preferences updated');
-                },
-                onError: () => {
-                    toast.error('Failed to update preferences');
-                },
-                onFinish: () => setSaving(false),
-            }
-        );
     };
 
     return (
@@ -206,24 +209,11 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                         <div className="flex items-center justify-between px-6 py-4">
                             <div>
                                 <CardTitle>Prescription Reminders</CardTitle>
-                                <CardSubtext>Daily reminders for your prescriptions</CardSubtext>
+                                <CardSubtext>Get notified when medications are expiring and may need a refill</CardSubtext>
                             </div>
                             <Switch
                                 checked={healthAlerts.medication_reminders}
                                 onCheckedChange={(v) => handleHealthAlertToggle('medication_reminders', v)}
-                                disabled={!categories.health_alerts}
-                            />
-                        </div>
-
-                        {/* Doctor Messages */}
-                        <div className="flex items-center justify-between px-6 py-4">
-                            <div>
-                                <CardTitle>Doctor Messages</CardTitle>
-                                <CardSubtext>Notifications when your doctor sends a message</CardSubtext>
-                            </div>
-                            <Switch
-                                checked={healthAlerts.doctor_messages}
-                                onCheckedChange={(v) => handleHealthAlertToggle('doctor_messages', v)}
                                 disabled={!categories.health_alerts}
                             />
                         </div>
@@ -286,13 +276,6 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                         </div>
                     </CardContent>
                 </Card>
-            </div>
-
-            {/* Save Button */}
-            <div>
-                <Button onClick={handleSave} disabled={saving} className="px-8">
-                    {saving ? 'Saving...' : 'Save changes'}
-                </Button>
             </div>
         </div>
     );

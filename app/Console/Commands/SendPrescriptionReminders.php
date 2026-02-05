@@ -60,7 +60,9 @@ class SendPrescriptionReminders extends Command
 
             // Drug is expiring within 3 days (still active but ending soon)
             if ($endDate->isAfter($now) && $endDate->lte($threshold)) {
-                $expiring[] = $drug;
+                $expiring[] = array_merge($drug, [
+                    'days_remaining' => max(0, (int) $now->diffInDays($endDate, false)),
+                ]);
             }
         }
 

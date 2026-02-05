@@ -62,7 +62,6 @@ class SettingsController extends Controller
                 'health_alerts' => [
                     'lab_results' => true,
                     'medication_reminders' => true,
-                    'doctor_messages' => true,
                 ],
             ]),
             'preferences' => $user->getSetting('preferences', [

@@ -48,10 +48,10 @@ Tests: `php artisan test` (92 tests, 265 assertions)
 10. **Status-Based Actions**: Detail page primary button varies by status
 11. **Breadcrumbs**: Navigation-path-aware via `?from=` params
 12. **Auth**: Laravel Breeze, session guard, CSRF, rate limit (5 attempts)
-13. **Notifications**: `NotificationService` → email/SMS/WhatsApp (Twilio). 15 types, 5 categories, sub-prefs for health_alerts. 5 scheduled commands in `routes/console.php`
+13. **Notifications**: `NotificationService` → email/SMS/WhatsApp (Twilio). 15 types, 5 categories, sub-prefs for health_alerts (lab_results, medication_reminders). 5 scheduled commands in `routes/console.php`. Prescription reminders show per-drug days remaining + surface on Dashboard as "Up Next" cards
 14. **SheetBody CSS**: `.sheet-body > *` = 20px pad; `> * + *` = auto dividers. NO `SheetDivider` inside SheetBody
 15. **Razorpay**: Checkout modal only, no saved methods. Settings = 4 tabs: Profile, Notifications, Preferences, Connections
-16. **User Preferences**: Text size (CSS zoom), high contrast, date/time format, default family member — all end-to-end. Use `useFormatPreferences()` hook, never `formatTableDate()`/`formatTableTime()`
+16. **User Preferences**: Text size (CSS zoom), high contrast, date/time format, default family member — all end-to-end. Use `useFormatPreferences()` hook, never `formatTableDate()`/`formatTableTime()`. Notifications + Preferences tabs **auto-save** with 1s debounce (no save button). Language preference hidden from UI (backend keeps `'en'` default)
 17. **Google Calendar**: OAuth + mock mode. Auto sync on book/reschedule/cancel. `calendar_sync` in user_settings. Privacy-safe events. 7 controller hooks in try/catch
 18. **Calendar Preference**: `preferred` field (`'google'`|`'apple'`|`null`). Connect auto-sets; disconnect clears. Confirmation page adapts per preference
 19. **Toast**: #171717 text, status-colored icons, `fit-content` width. No `richColors`

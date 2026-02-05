@@ -40,7 +40,6 @@ class UpdateNotificationsRequest extends FormRequest
             'health_alerts' => ['sometimes', 'array'],
             'health_alerts.lab_results' => ['sometimes', 'boolean'],
             'health_alerts.medication_reminders' => ['sometimes', 'boolean'],
-            'health_alerts.doctor_messages' => ['sometimes', 'boolean'],
         ];
     }
 }
