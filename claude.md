@@ -55,4 +55,4 @@ Tests: `php artisan test` (92 tests, 265 assertions)
 17. **Google Calendar**: OAuth + mock mode. Auto sync on book/reschedule/cancel. `calendar_sync` in user_settings. Privacy-safe events. 7 controller hooks in try/catch
 18. **Calendar Preference**: `preferred` field (`'google'`|`'apple'`|`null`). Connect auto-sets; disconnect clears. Confirmation page adapts per preference
 19. **Toast**: #171717 text, status-colored icons, `fit-content` width. No `richColors`
-20. **High Contrast**: CSS vars in `app.css` (`:root` defaults, `.high-contrast` overrides). Tailwind `hsl(var(--*) / <alpha-value>)`. All files use semantic classes (`text-foreground`, `bg-primary`, etc.). Exception: Razorpay `theme.color` stays hex
+20. **High Contrast**: CSS vars in `app.css` (`:root` defaults, `.high-contrast` overrides). Tailwind `hsl(var(--*) / <alpha-value>)`. All 55 files use semantic classes (`text-foreground`, `bg-primary`, etc.). Shared avatar palette in `Lib/avatar-colors.ts`. Exceptions: Razorpay `theme.color` stays hex; print/download template HTML keeps hex (CSS vars unavailable)
