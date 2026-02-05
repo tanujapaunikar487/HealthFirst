@@ -2018,8 +2018,8 @@ function VaccinationDetail({ meta, onAction, familyMember }: { meta: RecordMetad
           <div className="space-y-2">
             {meta.attached_certificates.map((file, i) => (
               <div key={i} className="flex items-center gap-4 rounded-lg border px-4 py-3">
-                <div className="h-10 w-10 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
-                  <FileDown className="h-5 w-5 text-red-500" />
+                <div className="h-10 w-10 rounded-full bg-destructive/10 flex items-center justify-center flex-shrink-0">
+                  <FileDown className="h-5 w-5 text-destructive" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[14px] font-medium truncate">{file.name}</p>
@@ -2041,8 +2041,8 @@ function MedicalCertificateDetail({ meta, onAction }: { meta: RecordMetadata; on
   return (
     <div className="space-y-6">
       {meta.certificate_type && (
-        <div className="rounded-lg bg-blue-50 border border-blue-200 px-4 py-3">
-          <p className="text-base font-semibold" style={{ color: '#1E40AF' }}>{meta.certificate_type}</p>
+        <div className="rounded-lg bg-primary/10 border border-primary/20 px-4 py-3">
+          <p className="text-base font-semibold text-primary">{meta.certificate_type}</p>
         </div>
       )}
 
@@ -2082,7 +2082,7 @@ function MedicalCertificateDetail({ meta, onAction }: { meta: RecordMetadata; on
                 </>
               ) : (
                 <>
-                  <ShieldCheck className="h-5 w-5 text-neutral-900" />
+                  <ShieldCheck className="h-5 w-5 text-foreground" />
                   <span className="text-[14px] font-medium text-muted-foreground">Not digitally signed</span>
                 </>
               )}
