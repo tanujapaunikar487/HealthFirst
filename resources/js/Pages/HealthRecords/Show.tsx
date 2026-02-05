@@ -411,14 +411,14 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 function StatusDot({ status }: { status: string }) {
   const colors: Record<string, { bg: string; text: string; label: string }> = {
-    normal:     { bg: '#F0FDF4', text: '#22C55E', label: 'Normal' },
-    borderline: { bg: '#FFFBEB', text: '#F59E0B', label: 'Borderline' },
-    abnormal:   { bg: '#FEF2F2', text: '#EF4444', label: 'Abnormal' },
-    high:       { bg: '#FEF2F2', text: '#EF4444', label: 'High' },
-    low:        { bg: '#FFFBEB', text: '#F59E0B', label: 'Low' },
-    elevated:   { bg: '#FFFBEB', text: '#F59E0B', label: 'Elevated' },
+    normal:     { bg: 'hsl(var(--success) / 0.1)', text: 'hsl(var(--success))', label: 'Normal' },
+    borderline: { bg: 'hsl(var(--warning) / 0.1)', text: 'hsl(var(--warning))', label: 'Borderline' },
+    abnormal:   { bg: 'hsl(var(--destructive) / 0.1)', text: 'hsl(var(--destructive))', label: 'Abnormal' },
+    high:       { bg: 'hsl(var(--destructive) / 0.1)', text: 'hsl(var(--destructive))', label: 'High' },
+    low:        { bg: 'hsl(var(--warning) / 0.1)', text: 'hsl(var(--warning))', label: 'Low' },
+    elevated:   { bg: 'hsl(var(--warning) / 0.1)', text: 'hsl(var(--warning))', label: 'Elevated' },
   };
-  const c = colors[status] || { bg: '#F3F4F6', text: '#6B7280', label: status };
+  const c = colors[status] || { bg: 'hsl(var(--secondary))', text: 'hsl(var(--muted-foreground))', label: status };
   return (
     <span className="text-[10px] font-medium px-2 py-0.5 rounded" style={{ backgroundColor: c.bg, color: c.text }}>
       {c.label}
@@ -537,9 +537,9 @@ function VitalsGrid({ vitals, statuses, painScore }: { vitals: Record<string, st
 
 function NumberedList({ items, variant = 'default' }: { items: string[]; variant?: 'default' | 'check' | 'x' | 'warning' }) {
   const iconMap = {
-    check: <Check className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />,
-    x: <X className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5" />,
-    warning: <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />,
+    check: <Check className="h-4 w-4 text-success flex-shrink-0 mt-0.5" />,
+    x: <X className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />,
+    warning: <AlertTriangle className="h-4 w-4 text-warning flex-shrink-0 mt-0.5" />,
   };
   return (
     <ol className="space-y-2">
@@ -586,7 +586,7 @@ function LinkedRecordsList({ records, onView }: { records: LinkedRecord[]; onVie
   );
 }
 
-function FindingsImpression({ findings, impression, impressionColor = '#0E7490', impressionBg = 'bg-cyan-50' }: { findings?: string; impression?: string; impressionColor?: string; impressionBg?: string }) {
+function FindingsImpression({ findings, impression, impressionColor = 'hsl(var(--primary))', impressionBg = 'bg-primary/10' }: { findings?: string; impression?: string; impressionColor?: string; impressionBg?: string }) {
   return (
     <>
       {findings && (
@@ -842,13 +842,13 @@ export default function Show({ user, record, familyMember }: Props) {
                     </div>
                   </div>
                 ) : aiSummaryError ? (
-                  <div className="rounded-lg bg-red-50 border border-red-100 px-6 py-4">
-                    <p className="text-[14px] text-red-600 mb-3">{aiSummaryError}</p>
+                  <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-6 py-4">
+                    <p className="text-[14px] text-destructive mb-3">{aiSummaryError}</p>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => generateAiSummary()}
-                      className="text-red-600 border-red-200 hover:bg-red-50"
+                      className="text-destructive border-destructive/20 hover:bg-destructive/10"
                     >
                       Try Again
                     </Button>
@@ -1758,10 +1758,10 @@ function MedicationActiveDetail({ meta, onAction }: { meta: RecordMetadata; onAc
             ))}
           </ul>
           {meta.side_effects_warning && (
-            <div className="mt-3 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3">
+            <div className="mt-3 rounded-lg bg-warning/10 border border-warning/20 px-4 py-3">
               <div className="flex items-start gap-3">
-                <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                <p className="text-[14px] text-amber-800">{meta.side_effects_warning}</p>
+                <AlertTriangle className="h-4 w-4 text-warning flex-shrink-0 mt-0.5" />
+                <p className="text-[14px] text-warning">{meta.side_effects_warning}</p>
               </div>
             </div>
           )}
@@ -1893,10 +1893,10 @@ function MedicationPastDetail({ meta, onAction }: { meta: RecordMetadata; onActi
             ))}
           </ul>
           {meta.side_effects_warning && (
-            <div className="mt-3 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3">
+            <div className="mt-3 rounded-lg bg-warning/10 border border-warning/20 px-4 py-3">
               <div className="flex items-start gap-3">
-                <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                <p className="text-[14px] text-amber-800">{meta.side_effects_warning}</p>
+                <AlertTriangle className="h-4 w-4 text-warning flex-shrink-0 mt-0.5" />
+                <p className="text-[14px] text-warning">{meta.side_effects_warning}</p>
               </div>
             </div>
           )}
@@ -2077,8 +2077,8 @@ function MedicalCertificateDetail({ meta, onAction }: { meta: RecordMetadata; on
             <div className="flex items-center gap-2 mb-2">
               {meta.digitally_signed ? (
                 <>
-                  <ShieldCheck className="h-5 w-5 text-green-600" />
-                  <span className="text-[14px] font-medium text-green-700">Digitally Signed & Verified</span>
+                  <ShieldCheck className="h-5 w-5 text-success" />
+                  <span className="text-[14px] font-medium text-success">Digitally Signed & Verified</span>
                 </>
               ) : (
                 <>
