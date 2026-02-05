@@ -214,7 +214,7 @@ function Section({
     <div id={id} className="scroll-mt-24">
       <div className="flex items-center gap-2.5 mb-4">
         <Icon icon={SectionIcon} className="h-5 w-5 text-foreground" />
-        <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+        <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
           {title}
         </h2>
       </div>
@@ -242,11 +242,11 @@ function capitalize(s: string): string {
 function getAlertIcon(type: Alert['type']) {
   switch (type) {
     case 'health_record':
-      return <AlertTriangle className="h-4 w-4 text-amber-600" />;
+      return <AlertTriangle className="h-4 w-4 text-warning" />;
     case 'billing':
-      return <Receipt className="h-4 w-4 text-red-600" />;
+      return <Receipt className="h-4 w-4 text-destructive" />;
     case 'insurance':
-      return <ShieldAlert className="h-4 w-4 text-orange-600" />;
+      return <ShieldAlert className="h-4 w-4 text-warning" />;
   }
 }
 
@@ -255,27 +255,27 @@ function getAlertColors(type: Alert['type']) {
   switch (type) {
     case 'health_record':
       return {
-        border: 'border-amber-200',
-        bg: 'bg-amber-50',
-        iconBg: 'bg-amber-100',
-        text: 'text-amber-800',
-        button: 'text-amber-700 hover:text-amber-900',
+        border: 'border-warning/20',
+        bg: 'bg-warning/10',
+        iconBg: 'bg-warning/20',
+        text: 'text-warning',
+        button: 'text-warning hover:text-warning',
       };
     case 'billing':
       return {
-        border: 'border-red-200',
-        bg: 'bg-red-50',
-        iconBg: 'bg-red-100',
-        text: 'text-red-800',
-        button: 'text-red-700 hover:text-red-900',
+        border: 'border-destructive/20',
+        bg: 'bg-destructive/10',
+        iconBg: 'bg-destructive/20',
+        text: 'text-destructive',
+        button: 'text-destructive hover:text-destructive',
       };
     case 'insurance':
       return {
-        border: 'border-orange-200',
-        bg: 'bg-orange-50',
-        iconBg: 'bg-orange-100',
-        text: 'text-orange-800',
-        button: 'text-orange-700 hover:text-orange-900',
+        border: 'border-warning/20',
+        bg: 'bg-warning/10',
+        iconBg: 'bg-warning/20',
+        text: 'text-warning',
+        button: 'text-warning hover:text-warning',
       };
   }
 }
@@ -679,7 +679,7 @@ export default function FamilyMemberShow({
                   fontSize: '28px',
                   lineHeight: '36px',
                   letterSpacing: '-0.5px',
-                  color: '#171717',
+                  color: 'hsl(var(--foreground))',
                 }}
               >
                 {member.name}
@@ -739,7 +739,7 @@ export default function FamilyMemberShow({
             <div id="personal" className="scroll-mt-24">
               <div className="flex items-center gap-2.5 mb-4">
                 <Icon icon={User} className="h-5 w-5 text-foreground" />
-                <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+                <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                   Personal Information
                 </h2>
               </div>
@@ -776,7 +776,7 @@ export default function FamilyMemberShow({
             <div id="contact" className="scroll-mt-24">
               <div className="flex items-center gap-2.5 mb-4">
                 <Icon icon={Phone} className="h-5 w-5 text-foreground" />
-                <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+                <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                   Contact & Address
                 </h2>
               </div>
@@ -803,7 +803,7 @@ export default function FamilyMemberShow({
               <div id="health-info" className="scroll-mt-24">
                 <div className="flex items-center gap-2.5 mb-4">
                   <Icon icon={Heart} className="h-5 w-5 text-foreground" />
-                  <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+                  <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                     Health Information
                   </h2>
                 </div>
@@ -851,7 +851,7 @@ export default function FamilyMemberShow({
               <div id="emergency" className="scroll-mt-24">
                 <div className="flex items-center gap-2.5 mb-4">
                   <Icon icon={Phone} className="h-5 w-5 text-foreground" />
-                  <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+                  <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                     Emergency Contact
                   </h2>
                 </div>
@@ -904,13 +904,13 @@ export default function FamilyMemberShow({
                     >
                       <div
                         className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full"
-                        style={{ backgroundColor: '#BFDBFE' }}
+                        style={{ backgroundColor: 'hsl(var(--primary) / 0.2)' }}
                       >
-                        <link.icon className="h-5 w-5" style={{ color: '#1E40AF' }} />
+                        <link.icon className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[14px] font-semibold text-[#171717]">{link.title}</p>
-                        <p className="text-[14px] font-normal text-[#737373]">{link.subtitle}</p>
+                        <p className="text-[14px] font-semibold text-foreground">{link.title}</p>
+                        <p className="text-[14px] font-normal text-muted-foreground">{link.subtitle}</p>
                       </div>
                       <ChevronRight className="h-5 w-5 text-foreground flex-shrink-0" />
                     </button>
@@ -932,11 +932,11 @@ export default function FamilyMemberShow({
           <SheetBody>
             {/* Personal Details */}
             <div>
-              <p className="mb-3 text-[14px] font-medium text-[#737373]">Personal details</p>
+              <p className="mb-3 text-[14px] font-medium text-muted-foreground">Personal details</p>
               <div className="space-y-4">
                 <div>
                   <label className="mb-1.5 block text-[14px] font-medium text-foreground">
-                    Name <span className="text-red-500">*</span>
+                    Name <span className="text-destructive">*</span>
                   </label>
                   <Input
                     value={formData.name}
@@ -945,16 +945,16 @@ export default function FamilyMemberShow({
                       if (formErrors.name) setFormErrors({ ...formErrors, name: '' });
                     }}
                     placeholder="Full name"
-                    className={cn(formErrors.name && 'border-red-300 focus-visible:ring-red-400')}
+                    className={cn(formErrors.name && 'border-destructive/30 focus-visible:ring-destructive/40')}
                   />
                   {formErrors.name && (
-                    <p className="mt-1 text-[14px] text-red-500">{formErrors.name}</p>
+                    <p className="mt-1 text-[14px] text-destructive">{formErrors.name}</p>
                   )}
                 </div>
 
                 <div>
                   <label className="mb-1.5 block text-[14px] font-medium text-foreground">
-                    Relation <span className="text-red-500">*</span>
+                    Relation <span className="text-destructive">*</span>
                   </label>
                   <Select
                     value={formData.relation}
@@ -963,7 +963,7 @@ export default function FamilyMemberShow({
                       if (formErrors.relation) setFormErrors({ ...formErrors, relation: '' });
                     }}
                   >
-                    <SelectTrigger className={cn(formErrors.relation && 'border-red-300')}>
+                    <SelectTrigger className={cn(formErrors.relation && 'border-destructive/30')}>
                       <SelectValue placeholder="Select relation" />
                     </SelectTrigger>
                     <SelectContent>
@@ -973,7 +973,7 @@ export default function FamilyMemberShow({
                     </SelectContent>
                   </Select>
                   {formErrors.relation && (
-                    <p className="mt-1 text-[14px] text-red-500">{formErrors.relation}</p>
+                    <p className="mt-1 text-[14px] text-destructive">{formErrors.relation}</p>
                   )}
                 </div>
 
@@ -1008,7 +1008,7 @@ export default function FamilyMemberShow({
 
             {/* Contact & Address */}
             <div>
-              <p className="mb-3 text-[14px] font-medium text-[#737373]">Contact & address</p>
+              <p className="mb-3 text-[14px] font-medium text-muted-foreground">Contact & address</p>
               <div className="space-y-4">
                 <div>
                   <label className="mb-1.5 block text-[14px] font-medium text-foreground">Phone</label>
@@ -1087,7 +1087,7 @@ export default function FamilyMemberShow({
 
             {/* Health Information */}
             <div>
-              <p className="mb-3 text-[14px] font-medium text-[#737373]">Health information</p>
+              <p className="mb-3 text-[14px] font-medium text-muted-foreground">Health information</p>
               <div className="space-y-4">
                 <div>
                   <label className="mb-1.5 block text-[14px] font-medium text-foreground">Blood Group</label>
@@ -1145,7 +1145,7 @@ export default function FamilyMemberShow({
 
             {/* Emergency Contact */}
             <div>
-              <p className="mb-3 text-[14px] font-medium text-[#737373]">Emergency contact</p>
+              <p className="mb-3 text-[14px] font-medium text-muted-foreground">Emergency contact</p>
               <div className="space-y-4">
                 <div>
                   <label className="mb-1.5 block text-[14px] font-medium text-foreground">Contact Name</label>
@@ -1196,8 +1196,8 @@ export default function FamilyMemberShow({
             onClick={() => !upgrading && setShowUpgradeConfirm(false)}
           />
           <div className="relative z-10 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-              <UserPlus className="h-5 w-5 text-blue-600" />
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <UserPlus className="h-5 w-5 text-primary" />
             </div>
             <h3 className="mb-1 text-lg font-semibold text-foreground">Upgrade {member.name}?</h3>
             <p className="mb-6 text-[14px] text-muted-foreground">
@@ -1236,18 +1236,18 @@ export default function FamilyMemberShow({
             }}
           />
           <div className="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-              <AlertTriangle className="h-6 w-6 text-red-600" />
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+              <AlertTriangle className="h-6 w-6 text-destructive" />
             </div>
             <h3 className="mb-2 text-lg font-semibold text-foreground">Remove {member.name}?</h3>
-            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3">
-              <p className="text-[14px] text-red-800 font-medium mb-2">
+            <div className="mb-4 rounded-lg bg-destructive/10 border border-destructive/20 p-3">
+              <p className="text-[14px] text-destructive font-medium mb-2">
                 ⚠️ This action cannot be undone
               </p>
-              <p className="text-[14px] text-red-700">
+              <p className="text-[14px] text-destructive">
                 This will permanently delete:
               </p>
-              <ul className="mt-2 text-[14px] text-red-700 space-y-1 ml-4 list-disc">
+              <ul className="mt-2 text-[14px] text-destructive space-y-1 ml-4 list-disc">
                 <li>All health records and medical history</li>
                 <li>Past appointments and consultation notes</li>
                 <li>Billing and insurance claim records</li>
