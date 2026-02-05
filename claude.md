@@ -83,7 +83,7 @@ Use CtaBanner (dark gradient, prominent CTA) only for action-first pages where u
 | **Insurance** | CtaBanner | "Add insurance" |
 | **Family Members** | CtaBanner | "Add family member" |
 | **Health Records** | EmptyState | None (records appear after visits/tests) |
-| **Billing** | EmptyState | "Add payment method" |
+| **Billing** | EmptyState | None (bills appear after payments) |
 
 For filtered results that are empty, always use EmptyState with no CTA.
 
@@ -92,8 +92,8 @@ For filtered results that are empty, always use EmptyState with no CTA.
 | Rule | Specification |
 |------|---------------|
 | Column Order | Date → Details → Member → Amount → Status → Actions |
-| Date Format | `03 Feb 2026` via `formatTableDate()` |
-| Time (Appointments) | Subtext line below date via `formatTableTime()` |
+| Date Format | User-preferred format via `useFormatPreferences()` hook → `formatDate()` |
+| Time (Appointments) | Subtext line below date via `useFormatPreferences()` hook → `formatTime()` |
 | Details Cell | Icon + Title + Subtitle (what + meta) |
 | Status | Dedicated column; pill badge only |
 | Actions | Row clickable + ChevronRight indicator |
@@ -142,3 +142,5 @@ All UI text uses **sentence case** (only first word capitalized):
 12. **Session-Based Auth**: Laravel Breeze with session guard, CSRF protection, rate limiting (5 attempts)
 13. **Notification System**: Preference-aware delivery via `NotificationService`. Supports email, SMS (Twilio), WhatsApp (Twilio). 15 notification types across 5 categories. Sub-preferences for health_alerts (medication_reminders, lab_results, doctor_messages). 5 scheduled commands in `routes/console.php`.
 14. **SheetBody CSS**: `.sheet-body > *` adds 20px padding; `.sheet-body > * + *` adds auto dividers. Do NOT use `SheetDivider` inside `SheetBody`.
+15. **Razorpay Payments**: Razorpay checkout modal handles all payment entry directly. No saved payment methods — Settings has 4 tabs: Profile, Notifications, Preferences, Connections.
+16. **User Preferences**: Text size (CSS zoom), high contrast, date/time format, default family member are all integrated end-to-end. Use `useFormatPreferences()` hook for date/time formatting, never hardcoded `formatTableDate()`/`formatTableTime()`.
