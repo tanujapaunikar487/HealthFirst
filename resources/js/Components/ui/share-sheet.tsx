@@ -41,20 +41,20 @@ export function ShareSheet({ open, onOpenChange, title, description, url }: Shar
             name: 'Copy link',
             icon: copied ? Check : Copy,
             onClick: handleCopyLink,
-            className: copied ? 'text-green-600 bg-green-50 border-green-200' : '',
+            className: copied ? 'text-success bg-success/10 border-success/20' : '',
             label: copied ? 'Copied!' : 'Copy link',
         },
         {
             name: 'WhatsApp',
             icon: MessageSquare,
             href: `https://wa.me/?text=${encodedText}%0A${encodedUrl}`,
-            color: 'hover:bg-green-50 hover:border-green-200 hover:text-green-700',
+            color: 'hover:bg-success/10 hover:border-success/20 hover:text-success',
         },
         {
             name: 'Email',
             icon: Mail,
             href: `mailto:?subject=${encodeURIComponent(title)}&body=${encodedText}%0A%0A${encodedUrl}`,
-            color: 'hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700',
+            color: 'hover:bg-primary/10 hover:border-primary/20 hover:text-primary',
         },
     ];
 

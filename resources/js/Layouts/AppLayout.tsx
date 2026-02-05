@@ -57,43 +57,43 @@ interface AppLayoutProps {
 
 const notificationIconMap: Record<string, { icon: React.ComponentType<any>; color: string; bg: string }> = {
   // Billing Notifications
-  bill_generated:           { icon: Receipt,        color: '#3B82F6', bg: '#EFF6FF' },
-  payment_due_reminder:     { icon: Clock,          color: '#F59E0B', bg: '#FFFBEB' },
-  payment_successful:       { icon: CheckCircle2,   color: '#22C55E', bg: '#F0FDF4' },
-  payment_failed:           { icon: XCircle,        color: '#EF4444', bg: '#FEF2F2' },
-  dispute_update:           { icon: MessageSquare,  color: '#F59E0B', bg: '#FFFBEB' },
-  emi_due_reminder:         { icon: CreditCard,     color: '#3B82F6', bg: '#EFF6FF' },
+  bill_generated:           { icon: Receipt,        color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.1)' },
+  payment_due_reminder:     { icon: Clock,          color: 'hsl(var(--warning))', bg: 'hsl(var(--warning) / 0.1)' },
+  payment_successful:       { icon: CheckCircle2,   color: 'hsl(var(--success))', bg: 'hsl(var(--success) / 0.1)' },
+  payment_failed:           { icon: XCircle,        color: 'hsl(var(--destructive))', bg: 'hsl(var(--destructive) / 0.1)' },
+  dispute_update:           { icon: MessageSquare,  color: 'hsl(var(--warning))', bg: 'hsl(var(--warning) / 0.1)' },
+  emi_due_reminder:         { icon: CreditCard,     color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.1)' },
 
   // Insurance Claims Notifications
-  insurance_claim_approved:       { icon: ShieldCheck,    color: '#22C55E', bg: '#F0FDF4' },
-  insurance_claim_rejected:       { icon: ShieldAlert,    color: '#EF4444', bg: '#FEF2F2' },
-  insurance_preauth_approved:     { icon: ShieldCheck,    color: '#22C55E', bg: '#F0FDF4' },
-  insurance_preauth_rejected:     { icon: ShieldAlert,    color: '#EF4444', bg: '#FEF2F2' },
-  insurance_enhancement_required: { icon: ShieldAlert,    color: '#F59E0B', bg: '#FFFBEB' },
-  insurance_enhancement_approved: { icon: ShieldCheck,    color: '#22C55E', bg: '#F0FDF4' },
-  insurance_claim_settled:        { icon: ShieldCheck,    color: '#22C55E', bg: '#F0FDF4' },
+  insurance_claim_approved:       { icon: ShieldCheck,    color: 'hsl(var(--success))', bg: 'hsl(var(--success) / 0.1)' },
+  insurance_claim_rejected:       { icon: ShieldAlert,    color: 'hsl(var(--destructive))', bg: 'hsl(var(--destructive) / 0.1)' },
+  insurance_preauth_approved:     { icon: ShieldCheck,    color: 'hsl(var(--success))', bg: 'hsl(var(--success) / 0.1)' },
+  insurance_preauth_rejected:     { icon: ShieldAlert,    color: 'hsl(var(--destructive))', bg: 'hsl(var(--destructive) / 0.1)' },
+  insurance_enhancement_required: { icon: ShieldAlert,    color: 'hsl(var(--warning))', bg: 'hsl(var(--warning) / 0.1)' },
+  insurance_enhancement_approved: { icon: ShieldCheck,    color: 'hsl(var(--success))', bg: 'hsl(var(--success) / 0.1)' },
+  insurance_claim_settled:        { icon: ShieldCheck,    color: 'hsl(var(--success))', bg: 'hsl(var(--success) / 0.1)' },
 
   // Appointment Notifications
-  appointment_reminder:     { icon: Calendar,       color: '#3B82F6', bg: '#EFF6FF' },
-  appointment_confirmed:    { icon: CheckCircle2,   color: '#22C55E', bg: '#F0FDF4' },
-  appointment_cancelled:    { icon: XCircle,        color: '#EF4444', bg: '#FEF2F2' },
-  appointment_rescheduled:  { icon: Calendar,       color: '#F59E0B', bg: '#FFFBEB' },
-  checkin_available:        { icon: Clock,          color: '#22C55E', bg: '#F0FDF4' },
-  video_link_ready:         { icon: Video,          color: '#3B82F6', bg: '#EFF6FF' },
+  appointment_reminder:     { icon: Calendar,       color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.1)' },
+  appointment_confirmed:    { icon: CheckCircle2,   color: 'hsl(var(--success))', bg: 'hsl(var(--success) / 0.1)' },
+  appointment_cancelled:    { icon: XCircle,        color: 'hsl(var(--destructive))', bg: 'hsl(var(--destructive) / 0.1)' },
+  appointment_rescheduled:  { icon: Calendar,       color: 'hsl(var(--warning))', bg: 'hsl(var(--warning) / 0.1)' },
+  checkin_available:        { icon: Clock,          color: 'hsl(var(--success))', bg: 'hsl(var(--success) / 0.1)' },
+  video_link_ready:         { icon: Video,          color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.1)' },
 
   // Health Records Notifications
-  lab_results_ready:        { icon: TestTube,       color: '#22C55E', bg: '#F0FDF4' },
-  abnormal_results:         { icon: AlertCircle,    color: '#EF4444', bg: '#FEF2F2' },
-  prescription_expiring:    { icon: Pill,           color: '#F59E0B', bg: '#FFFBEB' },
-  followup_required:        { icon: Stethoscope,    color: '#F59E0B', bg: '#FFFBEB' },
+  lab_results_ready:        { icon: TestTube,       color: 'hsl(var(--success))', bg: 'hsl(var(--success) / 0.1)' },
+  abnormal_results:         { icon: AlertCircle,    color: 'hsl(var(--destructive))', bg: 'hsl(var(--destructive) / 0.1)' },
+  prescription_expiring:    { icon: Pill,           color: 'hsl(var(--warning))', bg: 'hsl(var(--warning) / 0.1)' },
+  followup_required:        { icon: Stethoscope,    color: 'hsl(var(--warning))', bg: 'hsl(var(--warning) / 0.1)' },
 
   // Family Members Notifications
-  member_verification_pending: { icon: User,        color: '#F59E0B', bg: '#FFFBEB' },
-  member_added:                { icon: UserPlus,    color: '#22C55E', bg: '#F0FDF4' },
+  member_verification_pending: { icon: User,        color: 'hsl(var(--warning))', bg: 'hsl(var(--warning) / 0.1)' },
+  member_added:                { icon: UserPlus,    color: 'hsl(var(--success))', bg: 'hsl(var(--success) / 0.1)' },
 
   // Insurance Policy Notifications
-  policy_expiring_soon:     { icon: ShieldAlert,    color: '#F59E0B', bg: '#FFFBEB' },
-  policy_expired:           { icon: ShieldAlert,    color: '#EF4444', bg: '#FEF2F2' },
+  policy_expiring_soon:     { icon: ShieldAlert,    color: 'hsl(var(--warning))', bg: 'hsl(var(--warning) / 0.1)' },
+  policy_expired:           { icon: ShieldAlert,    color: 'hsl(var(--destructive))', bg: 'hsl(var(--destructive) / 0.1)' },
 };
 
 const channelLabels: Record<string, string> = {
@@ -119,7 +119,7 @@ function timeAgo(dateStr: string): string {
 }
 
 function NotificationIcon({ type }: { type: string }) {
-  const config = notificationIconMap[type] || { icon: Bell, color: '#6B7280', bg: '#F3F4F6' };
+  const config = notificationIconMap[type] || { icon: Bell, color: 'hsl(var(--muted-foreground))', bg: 'hsl(var(--secondary))' };
   return (
     <div
       className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0"
@@ -142,17 +142,17 @@ function NotificationCard({
   return (
     <button
       onClick={onClick}
-      className="w-full text-left rounded-xl p-4 transition-colors hover:bg-gray-50"
+      className="w-full text-left rounded-xl p-4 transition-colors hover:bg-accent"
       style={{
-        backgroundColor: isUnread ? '#F8FAFF' : '#FFFFFF',
-        border: `1px solid ${isUnread ? '#DBEAFE' : '#F0F0F0'}`,
+        backgroundColor: isUnread ? 'hsl(var(--primary) / 0.05)' : 'hsl(var(--background))',
+        border: `1px solid ${isUnread ? 'hsl(var(--primary) / 0.15)' : 'hsl(var(--border))'}`,
       }}
     >
       <div className="flex gap-3">
         <NotificationIcon type={notification.type} />
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <p className="text-[13px] font-semibold truncate" style={{ color: '#00184D' }}>
+            <p className="text-[13px] font-semibold truncate text-foreground">
               {notification.title}
             </p>
             <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -160,7 +160,7 @@ function NotificationCard({
                 {timeAgo(notification.created_at)}
               </span>
               {isUnread && (
-                <span className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0" />
+                <span className="h-2 w-2 rounded-full bg-primary flex-shrink-0" />
               )}
             </div>
           </div>
@@ -331,18 +331,18 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
       {/* Main Content Area */}
       <div className="flex flex-col flex-1 overflow-hidden">
         {/* Top Header */}
-        <header className="bg-white" style={{ height: '80px', borderBottom: '1px solid #E5E5E5' }}>
+        <header className="bg-background" style={{ height: '80px', borderBottom: '1px solid hsl(var(--border))' }}>
           <div className="h-full flex items-center justify-between px-6">
             {/* Page Title */}
             <div className="flex items-center gap-3">
               {typeof pageIcon === 'string' ? (
                 <img src={pageIcon.startsWith('/') ? pageIcon : `/assets/icons/${pageIcon}.svg`} alt={pageTitle || 'Home'} className="h-6 w-6" />
               ) : pageIcon ? (
-                <Icon icon={pageIcon} className="h-6 w-6" style={{ color: '#00184D' }} />
+                <Icon icon={pageIcon} className="h-6 w-6 text-foreground" />
               ) : (
                 <img src="/assets/icons/home.svg" alt={pageTitle || 'Home'} className="h-6 w-6" />
               )}
-              <h2 className="text-base font-semibold" style={{ color: '#00184D' }}>{pageTitle || 'Home'}</h2>
+              <h2 className="text-base font-semibold text-foreground">{pageTitle || 'Home'}</h2>
             </div>
 
             {/* Right Side Actions */}
@@ -351,24 +351,24 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-12 w-12 hover:bg-gray-100"
-                style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5' }}
+                className="h-12 w-12 hover:bg-accent"
+                style={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }}
                 onClick={() => setSearchOpen(true)}
               >
-                <Icon icon={Search} className="h-5 w-5" style={{ color: '#171717' }} />
+                <Icon icon={Search} className="h-5 w-5 text-foreground" />
               </Button>
 
               {/* Notifications Bell → Opens Sheet */}
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-12 w-12 hover:bg-gray-100 relative"
-                style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E5E5' }}
+                className="h-12 w-12 hover:bg-accent relative"
+                style={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }}
                 onClick={() => setNotifOpen(true)}
               >
-                <Icon icon={Bell} className="h-5 w-5" style={{ color: '#171717' }} />
+                <Icon icon={Bell} className="h-5 w-5 text-foreground" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-2.5 right-2.5 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" />
+                  <span className="absolute top-2.5 right-2.5 h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-background" />
                 )}
               </Button>
             </div>
@@ -379,15 +379,15 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
         {profileWarnings.length > 0 && !profileBannerDismissed && (
           <div
             className="flex items-center gap-3"
-            style={{ backgroundColor: '#FFF8E1', borderBottom: '1px solid #FFE082', padding: '12px 24px' }}
+            style={{ backgroundColor: 'hsl(var(--warning) / 0.1)', borderBottom: '1px solid hsl(var(--warning) / 0.3)', padding: '12px 24px' }}
           >
             <div
               className="flex h-6 w-6 items-center justify-center rounded-full flex-shrink-0"
-              style={{ backgroundColor: '#FFE082' }}
+              style={{ backgroundColor: 'hsl(var(--warning) / 0.3)' }}
             >
-              <Icon icon={AlertTriangle} className="h-3.5 w-3.5" style={{ color: '#F57F17' }} />
+              <Icon icon={AlertTriangle} className="h-3.5 w-3.5 text-warning" />
             </div>
-            <p className="flex-1 text-[14px] font-medium" style={{ color: '#5D4037' }}>
+            <p className="flex-1 text-[14px] font-medium text-foreground">
               Your profile is incomplete. Add{' '}
               {profileWarnings.map((w, i) => (
                 <span key={w.key}>
@@ -395,8 +395,7 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
                   {i > 0 && i === profileWarnings.length - 1 && ' and '}
                   <Link
                     href={w.href}
-                    className="underline font-semibold hover:text-amber-900"
-                    style={{ color: '#5D4037' }}
+                    className="underline font-semibold text-foreground hover:text-foreground/80"
                   >
                     {w.label}
                   </Link>
@@ -408,7 +407,7 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
               onClick={dismissProfileBanner}
               className="flex h-6 w-6 items-center justify-center rounded-full flex-shrink-0 hover:bg-amber-200/50 transition-colors"
             >
-              <Icon icon={X} className="h-4 w-4" style={{ color: '#5D4037' }} />
+              <Icon icon={X} className="h-4 w-4 text-foreground" />
             </button>
           </div>
         )}
@@ -436,7 +435,7 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
                   Notifications
                 </SheetTitle>
                 {unreadCount > 0 && (
-                  <span className="text-[11px] font-semibold text-white bg-red-500 rounded-full px-2 py-0.5 leading-none">
+                  <span className="text-[11px] font-semibold text-destructive-foreground bg-destructive rounded-full px-2 py-0.5 leading-none">
                     {unreadCount}
                   </span>
                 )}
@@ -444,8 +443,7 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
               {unreadCount > 0 && (
                 <button
                   onClick={handleMarkAllAsRead}
-                  className="flex items-center gap-1 text-[14px] font-medium hover:underline"
-                  style={{ color: '#2563EB' }}
+                  className="flex items-center gap-1 text-[14px] font-medium text-primary hover:underline"
                 >
                   <Icon icon={CheckCheck} className="h-3.5 w-3.5" />
                   Mark all read
@@ -480,7 +478,7 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
                   alt=""
                   className="h-[120px] w-[120px] mx-auto mb-4"
                 />
-                <p className="text-[16px] font-medium" style={{ color: '#0A0B0D' }}>
+                <p className="text-[16px] font-medium text-foreground">
                   {notifFilter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
                 </p>
                 <p className="text-[14px] text-muted-foreground mt-1">
@@ -530,7 +528,7 @@ function Sidebar({ user }: { user: User | null }) {
       .slice(0, 2);
 
   return (
-    <aside className="w-80 bg-background flex flex-col" style={{ borderRight: '1px solid #E5E5E5' }}>
+    <aside className="w-80 bg-background flex flex-col" style={{ borderRight: '1px solid hsl(var(--border))' }}>
       {/* Logo */}
       <div className="px-6 py-8">
         <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-3">
@@ -574,7 +572,7 @@ function Sidebar({ user }: { user: User | null }) {
 
       {/* User Profile Section - authenticated */}
       {user && (
-        <div className="px-6 py-4 border-t" style={{ borderColor: '#E5E5E5' }}>
+        <div className="px-6 py-4 border-t" style={{ borderColor: 'hsl(var(--border))' }}>
           <Link
             href="/settings"
             className="flex items-center gap-3 px-3 py-2.5 hover:bg-muted transition-colors"
@@ -585,10 +583,10 @@ function Sidebar({ user }: { user: User | null }) {
               <AvatarFallback className="text-[14px]">{getInitials(user.name)}</AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-[14px] font-semibold leading-5 truncate" style={{ color: '#00184D' }}>
+              <p className="text-[14px] font-semibold leading-5 truncate text-foreground">
                 {user.name}
               </p>
-              <p className="text-[14px] leading-5 text-[#737373] truncate">{user.email}</p>
+              <p className="text-[14px] leading-5 text-muted-foreground truncate">{user.email}</p>
             </div>
           </Link>
         </div>
@@ -596,7 +594,7 @@ function Sidebar({ user }: { user: User | null }) {
 
       {/* Guest actions - not authenticated */}
       {!user && (
-        <div className="px-6 py-4 border-t space-y-2" style={{ borderColor: '#E5E5E5' }}>
+        <div className="px-6 py-4 border-t space-y-2" style={{ borderColor: 'hsl(var(--border))' }}>
           <Button asChild className="w-full">
             <Link href={route('login')}>Sign In</Link>
           </Button>
@@ -624,14 +622,14 @@ function NavLink({ href, iconName, label, active = false }: NavLinkProps) {
     'flex items-center gap-3 px-4 py-3 font-semibold transition-all h-[50px]';
 
   const shapeClasses = 'rounded-full';
-  const restClasses = !active ? 'text-[#0A0B0D] hover:bg-muted' : '';
+  const restClasses = !active ? 'text-foreground hover:bg-muted' : '';
 
   const iconSrc = active
     ? `/assets/icons/${iconName}-selected.svg`
     : `/assets/icons/${iconName}.svg`;
 
   const activeStyle = active
-    ? { backgroundColor: '#F5F8FF', color: '#2563EB' }
+    ? { backgroundColor: 'hsl(var(--primary) / 0.05)', color: 'hsl(var(--primary))' }
     : {};
 
   return (

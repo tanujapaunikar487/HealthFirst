@@ -60,8 +60,8 @@ const SheetContent = React.forwardRef<
       style={{
         width: '500px',
         borderRadius: '24px',
-        border: '1px solid #E5E5E5',
-        background: '#FFF',
+        border: '1px solid hsl(var(--border))',
+        background: 'hsl(var(--card))',
         boxShadow: '0 32px 32px 0 rgba(23, 23, 23, 0.12), 0 50px 60px 0 rgba(23, 23, 23, 0.12)',
         display: 'flex',
         flexDirection: 'column',
@@ -89,7 +89,7 @@ const SheetHeader = ({
 }: React.HTMLAttributes<HTMLDivElement> & { onBack?: () => void }) => (
   <div
     className={cn('flex items-center gap-3', className)}
-    style={{ padding: '16px 20px', borderBottom: '1px solid #E5E5E5', ...style }}
+    style={{ padding: '16px 20px', borderBottom: '1px solid hsl(var(--border))', ...style }}
     {...props}
   >
     {onBack && (
@@ -118,7 +118,7 @@ const SheetFooter = ({
       'flex items-center gap-2 mt-auto',
       className
     )}
-    style={{ padding: '16px 20px', borderTop: '1px solid #E5E5E5' }}
+    style={{ padding: '16px 20px', borderTop: '1px solid hsl(var(--border))' }}
     {...props}
   />
 );
@@ -166,7 +166,7 @@ const SheetSection = ({
 }: SheetSectionProps) => (
   <div className={cn('space-y-0', className)} {...props}>
     {title && (
-      <h4 className="text-[14px] font-medium text-[#171717] mb-3">{title}</h4>
+      <h4 className="text-[14px] font-medium text-foreground mb-3">{title}</h4>
     )}
     <div className="divide-y divide-border">
       {children}
@@ -194,8 +194,8 @@ const SheetSectionRow = ({
     className={cn('flex items-center justify-between py-3', className)}
     {...props}
   >
-    <span className="text-[14px] font-normal text-[#737373]">{label}</span>
-    <span className="text-[14px] font-medium text-[#171717] text-right">
+    <span className="text-[14px] font-normal text-muted-foreground">{label}</span>
+    <span className="text-[14px] font-medium text-foreground text-right">
       {value ?? children ?? '—'}
     </span>
   </div>
@@ -210,7 +210,7 @@ const SheetTitle = React.forwardRef<
     ref={ref}
     className={cn('font-semibold', className)}
     style={{
-      color: '#171717',
+      color: 'hsl(var(--foreground))',
       fontSize: '20px',
       lineHeight: '28px',
       letterSpacing: '0',

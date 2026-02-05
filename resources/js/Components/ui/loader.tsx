@@ -26,7 +26,7 @@ export function Loader({
       >
         <div
           className={cn(
-            'rounded-full bg-gray-400 animate-bounce',
+            'rounded-full bg-muted-foreground animate-bounce',
             size === 'sm' && 'w-1.5 h-1.5',
             size === 'md' && 'w-2 h-2',
             size === 'lg' && 'w-3 h-3'
@@ -35,7 +35,7 @@ export function Loader({
         />
         <div
           className={cn(
-            'rounded-full bg-gray-400 animate-bounce',
+            'rounded-full bg-muted-foreground animate-bounce',
             size === 'sm' && 'w-1.5 h-1.5',
             size === 'md' && 'w-2 h-2',
             size === 'lg' && 'w-3 h-3'
@@ -44,7 +44,7 @@ export function Loader({
         />
         <div
           className={cn(
-            'rounded-full bg-gray-400 animate-bounce',
+            'rounded-full bg-muted-foreground animate-bounce',
             size === 'sm' && 'w-1.5 h-1.5',
             size === 'md' && 'w-2 h-2',
             size === 'lg' && 'w-3 h-3'
@@ -59,7 +59,7 @@ export function Loader({
     return (
       <div
         className={cn(
-          'border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin',
+          'border-2 border-muted border-t-primary rounded-full animate-spin',
           size === 'sm' && 'w-4 h-4',
           size === 'md' && 'w-6 h-6',
           size === 'lg' && 'w-8 h-8',
@@ -74,7 +74,7 @@ export function Loader({
   return (
     <div
       className={cn(
-        'rounded-full bg-blue-500 animate-pulse',
+        'rounded-full bg-primary animate-pulse',
         size === 'sm' && 'w-2 h-2',
         size === 'md' && 'w-3 h-3',
         size === 'lg' && 'w-4 h-4',

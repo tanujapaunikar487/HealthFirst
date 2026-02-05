@@ -15,13 +15,13 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-[#2563EB] text-white hover:bg-[#2563EB]/90',
+        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
         destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-        outline: 'border border-[#E5E5E5] bg-background hover:bg-accent hover:text-accent-foreground',
-        secondary: 'border border-[#E5E5E5] bg-[#F5F5F5] text-foreground hover:bg-[#E5E5E5]',
+        outline: 'border border-border bg-background hover:bg-accent hover:text-accent-foreground',
+        secondary: 'border border-border bg-secondary text-foreground hover:bg-muted',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
-        accent: 'bg-[#171717] text-white hover:bg-[#171717]/90',
+        accent: 'bg-foreground text-background hover:bg-foreground/90',
         cta: 'bg-white text-[#00184D] hover:bg-white/95',
       },
       size: {
@@ -72,9 +72,9 @@ const iconStyle: React.CSSProperties = {
   gap: '8px',
   flexShrink: 0,
   borderRadius: '10000px',
-  border: '1px solid #E5E5E5',
-  background: '#F5F5F5',
-  color: '#171717',
+  border: '1px solid hsl(var(--border))',
+  background: 'hsl(var(--secondary))',
+  color: 'hsl(var(--foreground))',
 };
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(

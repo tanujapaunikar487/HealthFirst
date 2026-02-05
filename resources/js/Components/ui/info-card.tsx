@@ -55,7 +55,7 @@ export function InfoCard({ items, className }: InfoCardProps) {
         >
           {/* Label */}
           <div className="w-[140px] flex-shrink-0">
-            <span className="text-[14px] font-normal leading-5 text-[#737373]">{item.label}</span>
+            <span className="text-[14px] font-normal leading-5 text-muted-foreground">{item.label}</span>
           </div>
 
           {/* Content */}
@@ -65,8 +65,8 @@ export function InfoCard({ items, className }: InfoCardProps) {
               <div
                 className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-[14px] font-semibold overflow-hidden"
                 style={{
-                  backgroundColor: item.avatar.bgColor || '#F3F4F6',
-                  color: item.avatar.textColor || '#374151',
+                  backgroundColor: item.avatar.bgColor || 'hsl(var(--secondary))',
+                  color: item.avatar.textColor || 'hsl(var(--foreground))',
                 }}
               >
                 {item.avatar.url ? (
@@ -85,16 +85,16 @@ export function InfoCard({ items, className }: InfoCardProps) {
             {/* Text content */}
             <div className="flex-1 min-w-0">
               {item.value === null || item.value === undefined ? (
-                <p className="text-[14px] font-semibold truncate" style={{ color: '#171717', lineHeight: '20px' }}>—</p>
+                <p className="text-[14px] font-semibold truncate" style={{ color: 'hsl(var(--foreground))', lineHeight: '20px' }}>—</p>
               ) : typeof item.value === 'string' ? (
-                <p className="text-[14px] font-semibold truncate" style={{ color: '#171717', lineHeight: '20px' }}>
+                <p className="text-[14px] font-semibold truncate" style={{ color: 'hsl(var(--foreground))', lineHeight: '20px' }}>
                   {item.value || '—'}
                 </p>
               ) : (
                 item.value
               )}
               {item.subtitle && (
-                <p className="text-[14px] font-normal text-neutral-500 mt-0.5" style={{ lineHeight: '20px' }}>{item.subtitle}</p>
+                <p className="text-[14px] font-normal text-muted-foreground mt-0.5" style={{ lineHeight: '20px' }}>{item.subtitle}</p>
               )}
             </div>
           </div>

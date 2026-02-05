@@ -81,7 +81,7 @@ export function DatePicker({
           className={cn(
             'flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-[14px] ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
             !dateValue && 'text-muted-foreground',
-            error && 'border-red-300 focus:ring-red-500',
+            error && 'border-destructive focus:ring-destructive',
             className
           )}
         >

@@ -12,7 +12,7 @@ export function AudioWaveform({ className, isRecording = true }: AudioWaveformPr
         <div
           key={i}
           className={cn(
-            'w-0.5 bg-gray-400 rounded-full transition-all',
+            'w-0.5 bg-muted-foreground rounded-full transition-all',
             isRecording && 'animate-wave'
           )}
           style={{

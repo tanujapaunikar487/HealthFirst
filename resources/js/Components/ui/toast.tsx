@@ -72,8 +72,8 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
           cx="10"
           cy="10"
           r="9"
-          fill="#16A34A"
-          stroke="#16A34A"
+          fill="hsl(var(--success))"
+          stroke="hsl(var(--success))"
           strokeWidth="2"
         />
         <path
@@ -97,8 +97,8 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
             left: '50%',
             marginLeft: leftOffset,
             transform: 'translateX(-50%)',
-            backgroundColor: '#0A0B0D',
-            color: '#FFFFFF',
+            backgroundColor: 'hsl(var(--foreground))',
+            color: 'hsl(var(--background))',
             padding: '16px 24px',
             borderRadius: '12px',
             fontSize: '14px',

@@ -16,10 +16,10 @@ const alertVariants = cva(
   {
     variants: {
       variant: {
-        info: 'bg-[#EFF6FF] border-b-[#BAE6FD]',
-        success: 'bg-green-50 border-b-green-200',
-        warning: 'bg-amber-50 border-b-amber-200',
-        error: 'bg-red-50 border-b-red-200',
+        info: 'bg-info/10 border-b-info/30',
+        success: 'bg-success/10 border-b-success/20',
+        warning: 'bg-warning/10 border-b-warning/20',
+        error: 'bg-destructive/10 border-b-destructive/20',
       },
     },
     defaultVariants: {
@@ -29,10 +29,10 @@ const alertVariants = cva(
 );
 
 const alertIconVariants = {
-  info: { icon: Info, className: 'text-[#0EA5E9]' },
-  success: { icon: CheckCircle2, className: 'text-green-600' },
-  warning: { icon: AlertTriangle, className: 'text-amber-600' },
-  error: { icon: XCircle, className: 'text-red-600' },
+  info: { icon: Info, className: 'text-info' },
+  success: { icon: CheckCircle2, className: 'text-success' },
+  warning: { icon: AlertTriangle, className: 'text-warning' },
+  error: { icon: XCircle, className: 'text-destructive' },
 };
 
 export interface AlertProps
@@ -63,11 +63,11 @@ function Alert({
       )}
       <div className="flex-1 space-y-1">
         {title && (
-          <p className="text-[14px] font-semibold leading-5 text-[#171717]">
+          <p className="text-[14px] font-semibold leading-5 text-foreground">
             {title}
           </p>
         )}
-        <div className="text-[14px] font-normal leading-5 text-[#737373]">
+        <div className="text-[14px] font-normal leading-5 text-muted-foreground">
           {children}
         </div>
       </div>

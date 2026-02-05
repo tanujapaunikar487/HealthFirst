@@ -45,14 +45,14 @@ export function ScrollButton({ className, ...props }: ScrollButtonProps) {
       className={cn(
         'flex items-center justify-center',
         'w-10 h-10 rounded-full',
-        'bg-white border border-gray-300 shadow-lg',
-        'hover:bg-gray-50 transition-colors',
-        'focus:outline-none focus:ring-2 focus:ring-blue-500',
+        'bg-background border border-border shadow-lg',
+        'hover:bg-muted transition-colors',
+        'focus:outline-none focus:ring-2 focus:ring-primary',
         className
       )}
       {...props}
     >
-      <ArrowDown className="w-5 h-5 text-gray-700" />
+      <ArrowDown className="w-5 h-5 text-foreground" />
     </button>
   );
 }
