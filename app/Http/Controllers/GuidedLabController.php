@@ -12,9 +12,11 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use App\Services\Calendar\GoogleCalendarService;
 use App\Services\NotificationService;
 use App\Notifications\AppointmentConfirmed;
 use App\Notifications\PaymentSuccessful;
+use Illuminate\Support\Facades\Log;
 
 class GuidedLabController extends Controller
 {
@@ -537,6 +539,15 @@ class GuidedLabController extends Controller
 
         app(NotificationService::class)->send($user, new AppointmentConfirmed($appointment), 'appointments');
         app(NotificationService::class)->send($user, new PaymentSuccessful($appointment), 'billing');
+
+        try {
+            $eventId = app(GoogleCalendarService::class)->createEvent($user, $appointment);
+            if ($eventId) {
+                $appointment->update(['google_calendar_event_id' => $eventId]);
+            }
+        } catch (\Exception $e) {
+            Log::warning('Calendar sync failed on lab booking: ' . $e->getMessage());
+        }
 
         session()->forget('guided_lab_booking');
 

@@ -24,7 +24,7 @@ class Appointment extends Model
         'status',
         'symptoms',
         'notes',
-        'video_meeting_url',
+        'google_calendar_event_id',
         'fee',
         'payment_status',
         'cancellation_reason',

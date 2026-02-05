@@ -80,15 +80,10 @@ interface BookingDefaults {
     default_lab_collection_method: string | null;
 }
 
-interface VideoSettings {
-    provider: 'google_meet' | 'zoom';
-    google_meet: { enabled: boolean };
-    zoom: { enabled: boolean };
-}
-
 interface CalendarSettings {
     google: {
         connected: boolean;
+        enabled: boolean;
         email?: string;
     };
     apple: {
@@ -103,7 +98,6 @@ interface Props {
     notifications: NotificationSettings;
     preferences: PreferenceSettings;
     bookingDefaults: BookingDefaults;
-    videoSettings: VideoSettings;
     calendarSettings: CalendarSettings;
 }
 
@@ -123,7 +117,6 @@ export default function SettingsIndex({
     notifications,
     preferences,
     bookingDefaults,
-    videoSettings,
     calendarSettings,
 }: Props) {
     const [activeTab, setActiveTab] = useState<Tab>('profile');
@@ -209,7 +202,6 @@ export default function SettingsIndex({
 
                         {activeTab === 'connections' && (
                             <ConnectionsTab
-                                videoSettings={videoSettings}
                                 calendarSettings={calendarSettings}
                             />
                         )}

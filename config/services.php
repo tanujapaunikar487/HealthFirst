@@ -45,18 +45,13 @@ return [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI'),
-        'calendar_token' => env('GOOGLE_CALENDAR_TOKEN'),
+        'calendar_redirect' => env('GOOGLE_CALENDAR_REDIRECT_URI', env('APP_URL') . '/settings/calendar/google/callback'),
     ],
 
     'apple' => [
         'client_id' => env('APPLE_CLIENT_ID'),
         'client_secret' => env('APPLE_CLIENT_SECRET'),
         'redirect' => env('APPLE_REDIRECT_URI'),
-    ],
-
-    'zoom' => [
-        'client_id' => env('ZOOM_CLIENT_ID'),
-        'client_secret' => env('ZOOM_CLIENT_SECRET'),
     ],
 
     'twilio' => [

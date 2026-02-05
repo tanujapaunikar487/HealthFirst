@@ -37,7 +37,6 @@ import {
   TestTube2,
   Check,
   ChevronDown,
-  Video,
   FileText,
   ClipboardCheck,
   MapPin,
@@ -64,7 +63,7 @@ export interface Appointment {
   mode: string;
   is_upcoming: boolean;
   notes?: string | null;
-  video_meeting_url?: string | null;
+  google_calendar_event_id?: string | null;
 }
 
 interface DateOption {
@@ -124,8 +123,6 @@ export function DetailsSheet({
   onAction: (view: SheetView) => void;
 }) {
   const isDoctor = appointment.type === 'doctor';
-  const isVideoAppointment = appointment.mode.toLowerCase().includes('video');
-  const isDoctorOnline = tab === 'upcoming' && isVideoAppointment; // Simulated - would come from backend
 
   const [detailsOpen, setDetailsOpen] = useState(true);
   const [notesOpen, setNotesOpen] = useState(false);
@@ -227,14 +224,6 @@ export function DetailsSheet({
         <SheetTitle className="text-base">Upcoming Appointment</SheetTitle>
       </SheetHeader>
 
-      {/* Status Banner - only for video appointments when doctor is online */}
-      {isDoctorOnline && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg bg-green-50 border border-green-200 px-3 py-2.5">
-          <Icon icon={Check} className="h-4 w-4 text-green-600 flex-shrink-0" />
-          <span className="text-[14px] text-green-800">Doctor is online. You can join now</span>
-        </div>
-      )}
-
       {/* People Rows */}
       <div className="space-y-3 pb-4">
         {/* Patient Row */}
@@ -276,6 +265,17 @@ export function DetailsSheet({
               label="Type"
               value={`${appointment.subtitle || 'New'} • ${appointment.mode}`}
             />
+            {appointment.google_calendar_event_id && (
+              <KeyValueRow
+                label="Calendar"
+                value={
+                  <span className="flex items-center gap-1 text-green-600">
+                    <Icon icon={Check} className="h-3 w-3" />
+                    Synced
+                  </span>
+                }
+              />
+            )}
           </CollapsibleContent>
         </Collapsible>
 
@@ -396,7 +396,7 @@ export function DetailsSheet({
       <SheetFooter>
         {tab === 'upcoming' && (
           <>
-            {/* Primary Button: Check-in (if within 24-48h) else Reschedule/Join Video */}
+            {/* Primary Button: Check-in (if within 24-48h) else Reschedule */}
             {canCheckIn ? (
               <Button
                 className="flex-1"
@@ -407,32 +407,6 @@ export function DetailsSheet({
                 <Icon icon={ClipboardCheck} className="h-[20px] w-[20px]" />
                 {isCheckingIn ? 'Checking in...' : 'Check-in'}
               </Button>
-            ) : isVideoAppointment ? (
-              appointment.video_meeting_url ? (
-                <Button
-                  className="flex-1"
-                  size="lg"
-                  style={{ backgroundColor: '#0052FF' }}
-                  onClick={() => {
-                    if (appointment.video_meeting_url) {
-                      window.open(appointment.video_meeting_url, '_blank');
-                    }
-                  }}
-                >
-                  <Icon icon={Video} className="h-[20px] w-[20px]" />
-                  Join Video Call
-                </Button>
-              ) : (
-                <Button
-                  className="flex-1"
-                  size="lg"
-                  variant="outline"
-                  disabled
-                >
-                  <Icon icon={Video} className="h-[20px] w-[20px]" />
-                  Video link will be shared
-                </Button>
-              )
             ) : (
               <Button
                 className="flex-1"
@@ -459,15 +433,13 @@ export function DetailsSheet({
                   <Icon icon={CalendarPlus} className="h-4 w-4" />
                   Add to Calendar
                 </DropdownMenuItem>
-                {!isVideoAppointment && (
-                  <DropdownMenuItem
-                    className="gap-2 cursor-pointer"
-                    onClick={handleGetDirections}
-                  >
-                    <Icon icon={MapPin} className="h-4 w-4" />
-                    Get Directions
-                  </DropdownMenuItem>
-                )}
+                <DropdownMenuItem
+                  className="gap-2 cursor-pointer"
+                  onClick={handleGetDirections}
+                >
+                  <Icon icon={MapPin} className="h-4 w-4" />
+                  Get Directions
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   className="gap-2 cursor-pointer"
                   onClick={() => onAction({ type: 'share', appointment })}

@@ -11,8 +11,7 @@ app/
   Services/
     AI/                AIService, providers
     Booking/           Orchestrator, StateMachine, DoctorService, LabService
-    Calendar/          Google Calendar, ICS
-    VideoMeeting/      Google Meet, Zoom
+    Calendar/          Google Calendar OAuth sync, ICS export
 
 resources/js/
   Pages/               Inertia pages
@@ -144,3 +143,4 @@ All UI text uses **sentence case** (only first word capitalized):
 14. **SheetBody CSS**: `.sheet-body > *` adds 20px padding; `.sheet-body > * + *` adds auto dividers. Do NOT use `SheetDivider` inside `SheetBody`.
 15. **Razorpay Payments**: Razorpay checkout modal handles all payment entry directly. No saved payment methods — Settings has 4 tabs: Profile, Notifications, Preferences, Connections.
 16. **User Preferences**: Text size (CSS zoom), high contrast, date/time format, default family member are all integrated end-to-end. Use `useFormatPreferences()` hook for date/time formatting, never hardcoded `formatTableDate()`/`formatTableTime()`.
+17. **Google Calendar Sync**: OAuth flow with mock mode (when `GOOGLE_CLIENT_ID` is empty/placeholder). Auto-creates/updates/deletes calendar events on booking/reschedule/cancel. Tokens stored in `calendar_sync` user setting. Privacy-safe events (generic titles, no symptoms). Sync hooks in 7 controller locations wrapped in try/catch.

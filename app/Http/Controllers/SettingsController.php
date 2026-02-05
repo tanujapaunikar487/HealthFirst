@@ -10,9 +10,12 @@ use App\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use App\Services\Calendar\GoogleCalendarService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -73,13 +76,8 @@ class SettingsController extends Controller
                 'default_consultation_mode' => null,
                 'default_lab_collection_method' => null,
             ]),
-            'videoSettings' => $user->getSetting('video_conferencing', [
-                'provider' => 'google_meet',
-                'google_meet' => ['enabled' => true],
-                'zoom' => ['enabled' => false],
-            ]),
             'calendarSettings' => $user->getSetting('calendar_sync', [
-                'google' => ['enabled' => false],
+                'google' => ['connected' => false, 'enabled' => false],
                 'apple' => ['enabled' => false],
             ]),
         ]);
@@ -251,86 +249,17 @@ class SettingsController extends Controller
     }
 
     /**
-     * Update video conferencing settings.
-     */
-    public function updateVideoSettings(Request $request): RedirectResponse
-    {
-        $user = Auth::user() ?? User::first();
-
-        $validated = $request->validate([
-            'provider' => 'required|in:google_meet,zoom',
-        ]);
-
-        $currentSettings = $user->getSetting('video_conferencing', [
-            'provider' => 'google_meet',
-            'google_meet' => ['enabled' => true],
-            'zoom' => ['enabled' => false],
-        ]);
-
-        $currentSettings['provider'] = $validated['provider'];
-
-        $user->setSetting('video_conferencing', $currentSettings);
-
-        return back()->with('success', 'Video provider updated successfully.');
-    }
-
-    /**
-     * Disconnect Google Meet.
-     */
-    public function disconnectGoogleMeet(): RedirectResponse
-    {
-        $user = Auth::user() ?? User::first();
-        $settings = $user->getSetting('video_conferencing', [
-            'provider' => 'google_meet',
-            'google_meet' => ['enabled' => true],
-            'zoom' => ['enabled' => false],
-        ]);
-
-        $settings['google_meet'] = ['enabled' => false];
-
-        // If Google Meet was the active provider, switch to Zoom
-        if ($settings['provider'] === 'google_meet') {
-            $settings['provider'] = 'zoom';
-            $settings['zoom'] = ['enabled' => true];
-        }
-
-        $user->setSetting('video_conferencing', $settings);
-
-        return back()->with('success', 'Google Meet disconnected.');
-    }
-
-    /**
-     * Disconnect Zoom.
-     */
-    public function disconnectZoom(): RedirectResponse
-    {
-        $user = Auth::user() ?? User::first();
-        $settings = $user->getSetting('video_conferencing', [
-            'provider' => 'google_meet',
-            'google_meet' => ['enabled' => true],
-            'zoom' => ['enabled' => false],
-        ]);
-
-        $settings['zoom'] = ['enabled' => false];
-
-        // If Zoom was the active provider, switch to Google Meet
-        if ($settings['provider'] === 'zoom') {
-            $settings['provider'] = 'google_meet';
-            $settings['google_meet'] = ['enabled' => true];
-        }
-
-        $user->setSetting('video_conferencing', $settings);
-
-        return back()->with('success', 'Zoom disconnected.');
-    }
-
-    /**
      * Initiate Google Calendar OAuth flow.
      */
     public function initiateGoogleCalendarOAuth(): RedirectResponse
     {
-        // For now, return a placeholder - OAuth implementation requires Google API credentials
-        return back()->with('info', 'Google Calendar OAuth not yet configured. Please add Google API credentials.');
+        $state = Str::random(40);
+        session(['google_calendar_oauth_state' => $state]);
+
+        $service = app(GoogleCalendarService::class);
+        $authUrl = $service->getAuthUrl($state);
+
+        return redirect()->away($authUrl);
     }
 
     /**
@@ -338,8 +267,50 @@ class SettingsController extends Controller
      */
     public function handleGoogleCalendarCallback(Request $request): RedirectResponse
     {
-        // Placeholder for OAuth callback handling
-        return redirect()->route('settings.index')->with('success', 'Google Calendar connected.');
+        $service = app(GoogleCalendarService::class);
+
+        // Validate state parameter (skip in mock mode since redirect is immediate)
+        if (!$service->isMockMode()) {
+            $expectedState = session('google_calendar_oauth_state');
+            if (!$expectedState || $request->input('state') !== $expectedState) {
+                return redirect()->route('settings.index', ['tab' => 'connections'])
+                    ->with('error', 'Invalid OAuth state. Please try again.');
+            }
+        }
+        session()->forget('google_calendar_oauth_state');
+
+        $code = $request->input('code');
+        if (!$code) {
+            return redirect()->route('settings.index', ['tab' => 'connections'])
+                ->with('error', 'Authorization was cancelled.');
+        }
+
+        try {
+            $tokens = $service->exchangeCode($code);
+        } catch (\Exception $e) {
+            Log::warning('[Google Calendar] OAuth exchange failed: ' . $e->getMessage());
+            return redirect()->route('settings.index', ['tab' => 'connections'])
+                ->with('error', 'Failed to connect Google Calendar. Please try again.');
+        }
+
+        $user = Auth::user() ?? User::first();
+        $currentSettings = $user->getSetting('calendar_sync', []);
+
+        $user->setSetting('calendar_sync', [
+            'google' => [
+                'connected' => true,
+                'enabled' => true,
+                'email' => $tokens['email'] ?? null,
+                'access_token' => $tokens['access_token'],
+                'refresh_token' => $tokens['refresh_token'],
+                'token_expires_at' => now()->addSeconds($tokens['expires_in'] ?? 3600)->toIso8601String(),
+                'calendar_id' => 'primary',
+            ],
+            'apple' => $currentSettings['apple'] ?? ['enabled' => false],
+        ]);
+
+        return redirect()->route('settings.index', ['tab' => 'connections'])
+            ->with('success', 'Google Calendar connected successfully.');
     }
 
     /**
@@ -351,7 +322,10 @@ class SettingsController extends Controller
         $currentSettings = $user->getSetting('calendar_sync', []);
 
         $user->setSetting('calendar_sync', [
-            'google' => ['enabled' => false],
+            'google' => [
+                'connected' => false,
+                'enabled' => false,
+            ],
             'apple' => $currentSettings['apple'] ?? ['enabled' => false],
         ]);
 

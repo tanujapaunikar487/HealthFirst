@@ -12,20 +12,17 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
-use App\Services\VideoMeeting\VideoMeetingService;
+use App\Services\Calendar\GoogleCalendarService;
 use App\Services\NotificationService;
 use App\Notifications\AppointmentCancelled;
 use App\Notifications\RefundInitiated;
 use App\Notifications\AppointmentRescheduled;
 use App\Notifications\AppointmentCheckedIn;
 use App\Notifications\AppointmentConfirmed;
+use Illuminate\Support\Facades\Log;
 
 class AppointmentsController extends Controller
 {
-    public function __construct(
-        private VideoMeetingService $videoMeetingService
-    ) {}
-
     public function index()
     {
         $user = Auth::user() ?? \App\User::first();
@@ -99,6 +96,13 @@ class AppointmentsController extends Controller
         app(NotificationService::class)->send($user, new AppointmentCancelled($appointment), 'appointments');
         app(NotificationService::class)->send($user, new RefundInitiated($appointment, $appointment->fee), 'billing');
 
+        try {
+            app(GoogleCalendarService::class)->deleteEvent($user, $appointment);
+            $appointment->update(['google_calendar_event_id' => null]);
+        } catch (\Exception $e) {
+            Log::warning('Calendar sync failed on cancel: ' . $e->getMessage());
+        }
+
         return back()->with('success', 'Appointment cancelled successfully. A full refund has been initiated.');
     }
 
@@ -129,6 +133,12 @@ class AppointmentsController extends Controller
         ]);
 
         app(NotificationService::class)->send($user, new AppointmentRescheduled($appointment, $oldDate, $oldTime), 'appointments');
+
+        try {
+            app(GoogleCalendarService::class)->updateEvent($user, $appointment);
+        } catch (\Exception $e) {
+            Log::warning('Calendar sync failed on reschedule: ' . $e->getMessage());
+        }
 
         return back()->with('success', 'Appointment rescheduled successfully.');
     }
@@ -177,32 +187,6 @@ class AppointmentsController extends Controller
         $appointment->update(['notes' => $validated['notes']]);
 
         return back()->with('success', 'Notes updated successfully.');
-    }
-
-    public function generateVideoLink(Appointment $appointment)
-    {
-        $user = Auth::user() ?? \App\User::first();
-
-        if ($appointment->user_id !== $user->id) {
-            abort(403);
-        }
-
-        if ($appointment->consultation_mode !== 'video') {
-            return back()->with('error', 'This appointment is not a video appointment.');
-        }
-
-        if ($appointment->video_meeting_url) {
-            return back()->with('info', 'Video link already exists.');
-        }
-
-        $videoUrl = $this->videoMeetingService->generateMeetingLink($appointment);
-
-        if ($videoUrl) {
-            $appointment->update(['video_meeting_url' => $videoUrl]);
-            return back()->with('success', 'Video link generated successfully.');
-        }
-
-        return back()->with('error', 'Failed to generate video link.');
     }
 
     public function availableSlots(Appointment $appointment, Request $request)
@@ -349,8 +333,13 @@ class AppointmentsController extends Controller
             $bookingData['mode'] = $appointment->collection_type === 'home' ? 'Home Collection' : 'Visit Center';
         }
 
+        $user = Auth::user() ?? \App\User::first();
+        $calendarSync = $user->getSetting('calendar_sync', []);
+        $calendarConnected = ($calendarSync['google']['connected'] ?? false) && ($calendarSync['google']['enabled'] ?? false);
+
         return Inertia::render('Booking/Confirmation', [
             'booking' => $bookingData,
+            'calendarConnected' => $calendarConnected,
         ]);
     }
 
@@ -383,8 +372,13 @@ class AppointmentsController extends Controller
             $bookingData['mode'] = $collectionType === 'home' ? 'Home Collection' : 'Visit Center';
         }
 
+        $user = Auth::user() ?? \App\User::first();
+        $calendarSync = $user->getSetting('calendar_sync', []);
+        $calendarConnected = ($calendarSync['google']['connected'] ?? false) && ($calendarSync['google']['enabled'] ?? false);
+
         return Inertia::render('Booking/Confirmation', [
             'booking' => $bookingData,
+            'calendarConnected' => $calendarConnected,
         ]);
     }
 
@@ -551,6 +545,15 @@ class AppointmentsController extends Controller
 
         app(NotificationService::class)->send($user, new AppointmentConfirmed($newAppointment), 'appointments');
 
+        try {
+            $eventId = app(GoogleCalendarService::class)->createEvent($user, $newAppointment);
+            if ($eventId) {
+                $newAppointment->update(['google_calendar_event_id' => $eventId]);
+            }
+        } catch (\Exception $e) {
+            Log::warning('Calendar sync failed on book again: ' . $e->getMessage());
+        }
+
         return back()->with('success', 'Appointment booked successfully.');
     }
 
@@ -694,6 +697,15 @@ class AppointmentsController extends Controller
         ]);
 
         app(NotificationService::class)->send($user, new AppointmentConfirmed($followUp), 'appointments');
+
+        try {
+            $eventId = app(GoogleCalendarService::class)->createEvent($user, $followUp);
+            if ($eventId) {
+                $followUp->update(['google_calendar_event_id' => $eventId]);
+            }
+        } catch (\Exception $e) {
+            Log::warning('Calendar sync failed on follow-up: ' . $e->getMessage());
+        }
 
         return back()->with('success', 'Follow-up appointment booked successfully.');
     }
@@ -858,7 +870,6 @@ class AppointmentsController extends Controller
             'department' => $appt->department?->name,
             'duration' => '30 min',
             'notes' => $appt->notes,
-            'video_meeting_url' => $appt->video_meeting_url,
             'symptoms' => $symptoms,
             'vitals' => $vitals,
             'clinical_summary' => $clinicalSummary,
@@ -889,6 +900,7 @@ class AppointmentsController extends Controller
             'fee' => $appt->fee,
             'payment_status' => $appt->payment_status ?? 'paid',
             'is_upcoming' => $isUpcoming,
+            'google_calendar_event_id' => $appt->google_calendar_event_id,
         ];
 
         if ($appt->appointment_type === 'doctor') {

@@ -114,8 +114,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/appointments/{appointment}/available-slots', [AppointmentsController::class, 'availableSlots'])->name('appointments.available-slots');
     Route::get('/appointments/{appointment}/book-again', [AppointmentsController::class, 'bookAgain'])->name('appointments.book-again');
     Route::put('/appointments/{appointment}/notes', [AppointmentsController::class, 'updateNotes'])->name('appointments.update-notes');
-    Route::post('/appointments/{appointment}/generate-video-link', [AppointmentsController::class, 'generateVideoLink'])->name('appointments.generate-video-link');
-    Route::post('/appointments/{appointment}/rate', [AppointmentsController::class, 'rate'])->name('appointments.rate');
+Route::post('/appointments/{appointment}/rate', [AppointmentsController::class, 'rate'])->name('appointments.rate');
     Route::get('/appointments/{appointment}/followup-slots', [AppointmentsController::class, 'followUpSlots'])->name('appointments.followup-slots');
     Route::post('/appointments/{appointment}/followup', [AppointmentsController::class, 'createFollowUp'])->name('appointments.followup');
     Route::get('/appointments/{appointment}/book-again-slots', [AppointmentsController::class, 'bookAgainSlots'])->name('appointments.book-again-slots');
@@ -137,11 +136,6 @@ Route::middleware('auth')->group(function () {
         // Preferences
         Route::put('/preferences', [\App\Http\Controllers\SettingsController::class, 'updatePreferences'])->name('preferences.update');
         Route::put('/booking-defaults', [\App\Http\Controllers\SettingsController::class, 'updateBookingDefaults'])->name('booking-defaults.update');
-
-        // Video (existing)
-        Route::put('/video', [\App\Http\Controllers\SettingsController::class, 'updateVideoSettings'])->name('video.update');
-        Route::delete('/video/google', [\App\Http\Controllers\SettingsController::class, 'disconnectGoogleMeet'])->name('video.google.disconnect');
-        Route::delete('/video/zoom', [\App\Http\Controllers\SettingsController::class, 'disconnectZoom'])->name('video.zoom.disconnect');
 
         // Calendar OAuth
         Route::get('/calendar/google/connect', [\App\Http\Controllers\SettingsController::class, 'initiateGoogleCalendarOAuth'])->name('calendar.google.connect');

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Razorpay\Api\Api;
 use Illuminate\Support\Facades\Log;
+use App\Services\Calendar\GoogleCalendarService;
 use App\Services\NotificationService;
 use App\Notifications\AppointmentConfirmed;
 use App\Notifications\PaymentSuccessful;
@@ -136,6 +137,15 @@ class PaymentController extends Controller
             if ($appointment) {
                 app(NotificationService::class)->send($user, new AppointmentConfirmed($appointment), 'appointments');
                 app(NotificationService::class)->send($user, new PaymentSuccessful($appointment), 'billing');
+
+                try {
+                    $eventId = app(GoogleCalendarService::class)->createEvent($user, $appointment);
+                    if ($eventId) {
+                        $appointment->update(['google_calendar_event_id' => $eventId]);
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('Calendar sync failed on payment: ' . $e->getMessage());
+                }
             }
 
             return response()->json([
