@@ -41,7 +41,7 @@ import {
 import { Icon } from '@/Components/ui/icon';
 import { downloadAsHtml } from '@/Lib/download';
 import { Textarea } from '@/Components/ui/textarea';
-import { ShareSheet } from '@/Components/ui/share-sheet';
+import { ShareDialog } from '@/Components/ui/share-dialog';
 import {
   Dialog,
   DialogContent,
@@ -419,7 +419,7 @@ export default function Show({ user, bill }: Props) {
   const [showDisputeDialog, setShowDisputeDialog] = useState(false);
   const [disputeReason, setDisputeReason] = useState('');
   const [disputeLoading, setDisputeLoading] = useState(false);
-  const [showShareSheet, setShowShareSheet] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const isDoctor = bill.appointment_type === 'doctor';
   const isPayable = PAYABLE_STATUSES.includes(bill.billing_status);
   const isEmi = bill.billing_status === 'emi';
@@ -770,7 +770,7 @@ export default function Show({ user, bill }: Props) {
                 )}
 
                 {/* Common: Share */}
-                <DropdownMenuItem onClick={() => setShowShareSheet(true)}>
+                <DropdownMenuItem onClick={() => setShowShareDialog(true)}>
                   <Share2 className="mr-2 h-4 w-4" />
                   Share
                 </DropdownMenuItem>
@@ -1147,9 +1147,9 @@ export default function Show({ user, bill }: Props) {
       )}
 
       {/* Share Sheet */}
-      <ShareSheet
-        open={showShareSheet}
-        onOpenChange={setShowShareSheet}
+      <ShareDialog
+        open={showShareDialog}
+        onOpenChange={setShowShareDialog}
         title={`Invoice ${bill.invoice_number}`}
         description={`${bill.appointment_title} · ₹${bill.total.toLocaleString()}`}
         url={window.location.href}

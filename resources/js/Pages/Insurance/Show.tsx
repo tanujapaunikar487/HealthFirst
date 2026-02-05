@@ -54,7 +54,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/Components/ui/dropdown-menu';
-import { ShareSheet } from '@/Components/ui/share-sheet';
+import { ShareDialog } from '@/Components/ui/share-dialog';
 
 /* ─── Section Config ─── */
 
@@ -336,7 +336,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
   const { formatDate } = useFormatPreferences();
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
-  const [showShareSheet, setShowShareSheet] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const [showPreAuth, setShowPreAuth] = useState(false);
   const [preAuthStep, setPreAuthStep] = useState<PreAuthStep>('patient');
   const [preAuthForm, setPreAuthForm] = useState<PreAuthForm>(EMPTY_PREAUTH_FORM);
@@ -490,7 +490,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                   <Pencil className="mr-2 h-4 w-4" />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setShowShareSheet(true)}>
+                <DropdownMenuItem onClick={() => setShowShareDialog(true)}>
                   <Share2 className="mr-2 h-4 w-4" />
                   Share
                 </DropdownMenuItem>
@@ -883,9 +883,9 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
 
       <Toast message={toastMessage} show={showToast} onHide={() => setShowToast(false)} />
 
-      <ShareSheet
-        open={showShareSheet}
-        onOpenChange={setShowShareSheet}
+      <ShareDialog
+        open={showShareDialog}
+        onOpenChange={setShowShareDialog}
         title={`${policy.plan_name} Insurance Policy`}
         description={`${policy.provider_name} · ${policy.policy_number}`}
         url={window.location.href}

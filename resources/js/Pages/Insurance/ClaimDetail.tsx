@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/Components/ui/dropdown-menu';
 import { downloadAsHtml } from '@/Lib/download';
-import { ShareSheet } from '@/Components/ui/share-sheet';
+import { ShareDialog } from '@/Components/ui/share-dialog';
 import {
   ChevronRight,
   Share2,
@@ -706,7 +706,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
   const { formatDate } = useFormatPreferences();
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
-  const [showShareSheet, setShowShareSheet] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const [expandedTimeline, setExpandedTimeline] = useState<number[]>([]);
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
   const [showAllTimeline, setShowAllTimeline] = useState(false);
@@ -817,7 +817,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         )}
 
         {/* Share */}
-        <DropdownMenuItem onClick={() => setShowShareSheet(true)}>
+        <DropdownMenuItem onClick={() => setShowShareDialog(true)}>
           <Share2 className="mr-2 h-4 w-4" />
           Share
         </DropdownMenuItem>
@@ -1607,9 +1607,9 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
       <Toast message={toastMessage} show={showToast} onHide={() => setShowToast(false)} />
 
-      <ShareSheet
-        open={showShareSheet}
-        onOpenChange={setShowShareSheet}
+      <ShareDialog
+        open={showShareDialog}
+        onOpenChange={setShowShareDialog}
         title={`${claim.treatment_name} - ${claim.claim_reference}`}
         description={`${claim.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} · ${formatCurrency(claim.claim_amount)}${claim.claim_date ? ` · ${formatDate(claim.claim_date)}` : ''}`}
         url={window.location.href}

@@ -4,16 +4,16 @@ import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogBody,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/Components/ui/dialog';
+    Sheet,
+    SheetContent,
+    SheetBody,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+    SheetDescription,
+} from '@/Components/ui/sheet';
 
-interface PasswordModalProps {
+interface PasswordSheetProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
@@ -50,7 +50,7 @@ function calculateStrength(password: string): PasswordStrength {
     };
 }
 
-export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
+export function PasswordSheet({ open, onOpenChange }: PasswordSheetProps) {
     const [step, setStep] = useState<Step>('verify');
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
@@ -65,7 +65,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
     const passwordsMatch = newPassword === confirmPassword && newPassword.length > 0;
     const canCreate = strength.score >= 2 && passwordsMatch;
 
-    // Reset state when modal closes
+    // Reset state when sheet closes
     useEffect(() => {
         if (!open) {
             setTimeout(() => {
@@ -77,7 +77,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                 setShowCurrentPassword(false);
                 setShowNewPassword(false);
                 setShowConfirmPassword(false);
-            }, 200);
+            }, 300);
         }
     }, [open]);
 
@@ -153,19 +153,21 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md">
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent>
                 {step === 'verify' && (
                     <>
-                        <DialogHeader>
-                            <DialogTitle>Verify your identity</DialogTitle>
-                            <DialogDescription>
-                                Enter your current password to continue
-                            </DialogDescription>
-                        </DialogHeader>
+                        <SheetHeader>
+                            <SheetTitle>Verify your identity</SheetTitle>
+                            <SheetDescription className="sr-only">Verify your identity to change password</SheetDescription>
+                        </SheetHeader>
 
-                        <DialogBody>
+                        <SheetBody>
                             <div className="space-y-4">
+                                <p className="text-[14px] text-muted-foreground">
+                                    Enter your current password to continue
+                                </p>
+
                                 {error && (
                                     <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-[14px]">
                                         <AlertCircle className="h-4 w-4" />
@@ -198,9 +200,9 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                                     </div>
                                 </div>
                             </div>
-                        </DialogBody>
+                        </SheetBody>
 
-                        <DialogFooter>
+                        <SheetFooter>
                             <Button
                                 onClick={handleVerify}
                                 disabled={!currentPassword || loading}
@@ -215,21 +217,23 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                                     'Continue'
                                 )}
                             </Button>
-                        </DialogFooter>
+                        </SheetFooter>
                     </>
                 )}
 
                 {step === 'create' && (
                     <>
-                        <DialogHeader>
-                            <DialogTitle>Create new password</DialogTitle>
-                            <DialogDescription>
-                                Choose a strong password with at least 8 characters
-                            </DialogDescription>
-                        </DialogHeader>
+                        <SheetHeader onBack={() => setStep('verify')}>
+                            <SheetTitle>Create new password</SheetTitle>
+                            <SheetDescription className="sr-only">Create a new password for your account</SheetDescription>
+                        </SheetHeader>
 
-                        <DialogBody>
+                        <SheetBody>
                             <div className="space-y-4">
+                                <p className="text-[14px] text-muted-foreground">
+                                    Choose a strong password with at least 8 characters
+                                </p>
+
                                 {error && (
                                     <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-[14px]">
                                         <AlertCircle className="h-4 w-4" />
@@ -315,16 +319,9 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                                     )}
                                 </div>
                             </div>
-                        </DialogBody>
+                        </SheetBody>
 
-                        <DialogFooter>
-                            <Button
-                                variant="outline"
-                                onClick={() => setStep('verify')}
-                                className="flex-1"
-                            >
-                                Back
-                            </Button>
+                        <SheetFooter>
                             <Button
                                 onClick={handleChangePassword}
                                 disabled={!canCreate || loading}
@@ -339,14 +336,17 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                                     'Change password'
                                 )}
                             </Button>
-                        </DialogFooter>
+                        </SheetFooter>
                     </>
                 )}
 
                 {step === 'success' && (
                     <>
-                        <DialogTitle className="sr-only">Password changed</DialogTitle>
-                        <DialogBody>
+                        <SheetHeader>
+                            <SheetTitle>Password changed</SheetTitle>
+                            <SheetDescription className="sr-only">Password changed successfully</SheetDescription>
+                        </SheetHeader>
+                        <SheetBody>
                             <div className="py-8 text-center space-y-4">
                                 <div className="mx-auto h-16 w-16 rounded-full bg-success/10 flex items-center justify-center">
                                     <Check className="h-8 w-8 text-success" />
@@ -358,10 +358,10 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                                     </p>
                                 </div>
                             </div>
-                        </DialogBody>
+                        </SheetBody>
                     </>
                 )}
-            </DialogContent>
-        </Dialog>
+            </SheetContent>
+        </Sheet>
     );
 }

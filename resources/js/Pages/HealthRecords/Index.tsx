@@ -54,7 +54,7 @@ import {
 } from '@/Lib/icons';
 import { downloadAsHtml } from '@/Lib/download';
 import { generateBulkRecordsPdfContent } from '@/Lib/pdf-content';
-import { ShareSheet } from '@/Components/ui/share-sheet';
+import { ShareDialog } from '@/Components/ui/share-dialog';
 
 /* ─── Types ─── */
 
@@ -1003,7 +1003,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
 
       {/* Individual Record Share Sheet */}
       {shareRecord && (
-        <ShareSheet
+        <ShareDialog
           open={!!shareRecord}
           onOpenChange={(open) => !open && setShareRecord(null)}
           title={shareRecord.title}
@@ -1013,7 +1013,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
       )}
 
       {/* Bulk Share Sheet */}
-      <ShareSheet
+      <ShareDialog
         open={bulkShareOpen}
         onOpenChange={setBulkShareOpen}
         title={`${selectedIds.size} Health Records`}

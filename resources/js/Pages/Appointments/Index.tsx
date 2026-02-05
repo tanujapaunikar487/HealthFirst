@@ -55,7 +55,7 @@ import {
   type Appointment,
   type SheetView,
 } from '@/Components/Appointments/AppointmentSheets';
-import { ShareSheet } from '@/Components/ui/share-sheet';
+import { ShareDialog } from '@/Components/ui/share-dialog';
 
 /* ─── Types ─── */
 
@@ -445,7 +445,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
 
       {/* Share Sheet */}
       {shareAppointment && (
-        <ShareSheet
+        <ShareDialog
           open={!!shareAppointment}
           onOpenChange={(open) => !open && setShareAppointment(null)}
           title={shareAppointment.title}

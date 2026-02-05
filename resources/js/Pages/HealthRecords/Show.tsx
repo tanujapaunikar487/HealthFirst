@@ -59,7 +59,7 @@ import {
 } from '@/Lib/icons';
 import { downloadAsHtml } from '@/Lib/download';
 import { generateHealthRecordPdfContent, escapeHtml } from '@/Lib/pdf-content';
-import { ShareSheet } from '@/Components/ui/share-sheet';
+import { ShareDialog } from '@/Components/ui/share-dialog';
 
 /* ─── Types ─── */
 
@@ -612,7 +612,7 @@ function FindingsImpression({ findings, impression, impressionColor = 'hsl(var(-
 export default function Show({ user, record, familyMember }: Props) {
   const { formatDate } = useFormatPreferences();
   const [toastMessage, setToastMessage] = useState('');
-  const [showShareSheet, setShowShareSheet] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const toast = (msg: string) => setToastMessage(msg);
 
   // AI Summary state
@@ -678,7 +678,7 @@ export default function Show({ user, record, familyMember }: Props) {
   };
 
   const handleShare = () => {
-    setShowShareSheet(true);
+    setShowShareDialog(true);
   };
 
   // Platform detection for health sync
@@ -987,9 +987,9 @@ export default function Show({ user, record, familyMember }: Props) {
 
       <Toast show={!!toastMessage} message={toastMessage} onHide={() => setToastMessage('')} />
 
-      <ShareSheet
-        open={showShareSheet}
-        onOpenChange={setShowShareSheet}
+      <ShareDialog
+        open={showShareDialog}
+        onOpenChange={setShowShareDialog}
         title={record.title}
         description={`${config.label} — ${record.record_date_formatted}${record.doctor_name ? ` — ${record.doctor_name}` : ''}`}
         url={window.location.href}

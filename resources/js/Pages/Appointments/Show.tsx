@@ -18,7 +18,7 @@ import { cn } from '@/Lib/utils';
 import { downloadAsHtml } from '@/Lib/download';
 import { FollowUpSheet, BookAgainSheet, Appointment as AppointmentBase } from '@/Components/Appointments/AppointmentSheets';
 import { SupportFooter } from '@/Components/SupportFooter';
-import { ShareSheet } from '@/Components/ui/share-sheet';
+import { ShareDialog } from '@/Components/ui/share-dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -217,7 +217,7 @@ export default function Show({ user, appointment }: Props) {
   const [toastMessage, setToastMessage] = useState('');
   const [previewDoc, setPreviewDoc] = useState<AppDocument | null>(null);
   const [showFollowUpSheet, setShowFollowUpSheet] = useState(false);
-  const [showShareSheet, setShowShareSheet] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const [showBookAgainSheet, setShowBookAgainSheet] = useState(false);
   const [selectedLabTest, setSelectedLabTest] = useState<LabTest | null>(null);
 
@@ -305,7 +305,7 @@ export default function Show({ user, appointment }: Props) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-[140px]">
-                    <DropdownMenuItem onClick={() => setShowShareSheet(true)}>
+                    <DropdownMenuItem onClick={() => setShowShareDialog(true)}>
                       <Share2 className="h-4 w-4 mr-2" />
                       Share
                     </DropdownMenuItem>
@@ -320,7 +320,7 @@ export default function Show({ user, appointment }: Props) {
                     Book Follow-up
                   </Button>
                 )}
-                <Button variant="outline" size="icon" onClick={() => setShowShareSheet(true)}>
+                <Button variant="outline" size="icon" onClick={() => setShowShareDialog(true)}>
                   <Share2 className="h-4 w-4" />
                 </Button>
               </>
@@ -456,9 +456,9 @@ export default function Show({ user, appointment }: Props) {
       </Sheet>
 
       {/* Share Sheet */}
-      <ShareSheet
-        open={showShareSheet}
-        onOpenChange={setShowShareSheet}
+      <ShareDialog
+        open={showShareDialog}
+        onOpenChange={setShowShareDialog}
         title={appointment.title}
         description={`${appointment.date_formatted} at ${appointment.time}`}
         url={typeof window !== 'undefined' ? window.location.href : ''}
