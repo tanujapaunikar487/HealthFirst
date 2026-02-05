@@ -155,15 +155,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/download-data', [\App\Http\Controllers\SettingsController::class, 'downloadMyData'])->name('download-data');
         Route::delete('/account', [\App\Http\Controllers\SettingsController::class, 'deleteAccount'])->name('account.delete');
 
-        // UPI
-        Route::post('/upi', [\App\Http\Controllers\SettingsController::class, 'storeUpi'])->name('upi.store');
-        Route::delete('/upi/{id}', [\App\Http\Controllers\SettingsController::class, 'deleteUpi'])->name('upi.delete');
-        Route::put('/upi/{id}/default', [\App\Http\Controllers\SettingsController::class, 'setDefaultUpi'])->name('upi.default');
-
-        // Payment Methods (Cards)
-        Route::post('/payment-methods', [\App\Http\Controllers\SettingsController::class, 'storePaymentMethod'])->name('payment-methods.store');
-        Route::delete('/payment-methods/{id}', [\App\Http\Controllers\SettingsController::class, 'deletePaymentMethod'])->name('payment-methods.delete');
-        Route::put('/payment-methods/{id}/default', [\App\Http\Controllers\SettingsController::class, 'setDefaultPaymentMethod'])->name('payment-methods.default');
     });
 
     // Family Members

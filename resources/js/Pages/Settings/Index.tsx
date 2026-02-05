@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
-import { User, Bell, Settings2, Link2, LogOut, CreditCard } from '@/Lib/icons';
+import { User, Bell, Settings2, Link2, LogOut } from '@/Lib/icons';
 import AppLayout from '@/Layouts/AppLayout';
 import { Button } from '@/Components/ui/button';
 import { Icon } from '@/Components/ui/icon';
@@ -9,7 +9,6 @@ import { ProfileTab } from './components/ProfileTab';
 import { NotificationsTab } from './components/NotificationsTab';
 import { PreferencesTab } from './components/PreferencesTab';
 import { ConnectionsTab } from './components/ConnectionsTab';
-import { PaymentsTab, PaymentMethod, UpiId } from './components/PaymentsTab';
 import { PasswordModal } from './components/PasswordModal';
 
 interface FamilyMember {
@@ -106,17 +105,14 @@ interface Props {
     bookingDefaults: BookingDefaults;
     videoSettings: VideoSettings;
     calendarSettings: CalendarSettings;
-    paymentMethods?: PaymentMethod[];
-    upiIds?: UpiId[];
 }
 
-type Tab = 'profile' | 'notifications' | 'preferences' | 'payments' | 'connections';
+type Tab = 'profile' | 'notifications' | 'preferences' | 'connections';
 
 const NAV_ITEMS: SideNavItem[] = [
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'preferences', label: 'Preferences', icon: Settings2 },
-    { id: 'payments', label: 'Payments', icon: CreditCard },
     { id: 'connections', label: 'Connections', icon: Link2 },
 ];
 
@@ -129,8 +125,6 @@ export default function SettingsIndex({
     bookingDefaults,
     videoSettings,
     calendarSettings,
-    paymentMethods,
-    upiIds,
 }: Props) {
     const [activeTab, setActiveTab] = useState<Tab>('profile');
     const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -140,7 +134,7 @@ export default function SettingsIndex({
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const tab = params.get('tab');
-        if (tab && ['profile', 'notifications', 'preferences', 'payments', 'connections'].includes(tab)) {
+        if (tab && ['profile', 'notifications', 'preferences', 'connections'].includes(tab)) {
             setActiveTab(tab as Tab);
         }
     }, []);
@@ -211,10 +205,6 @@ export default function SettingsIndex({
                                 familyMembers={familyMembers}
                                 onOpenPasswordModal={() => setShowPasswordModal(true)}
                             />
-                        )}
-
-                        {activeTab === 'payments' && (
-                            <PaymentsTab paymentMethods={paymentMethods} upiIds={upiIds} />
                         )}
 
                         {activeTab === 'connections' && (
