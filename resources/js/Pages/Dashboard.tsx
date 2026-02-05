@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { useState, useEffect, useRef } from 'react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Button } from '@/Components/ui/button';
@@ -24,7 +24,7 @@ import {
   type Appointment,
   type SheetView,
 } from '@/Components/Appointments/AppointmentSheets';
-import { HealthProfileSheet } from './components/HealthProfileSheet';
+import { HealthProfileSheet } from './Dashboard/components/HealthProfileSheet';
 import { AddInsuranceSheet } from '@/Components/Insurance/AddInsuranceSheet';
 import EmbeddedFamilyMemberFlow from '@/Features/booking-chat/embedded/EmbeddedFamilyMemberFlow';
 
@@ -466,6 +466,10 @@ export default function Dashboard({
   const [upNextExpanded, setUpNextExpanded] = useState(false);
   const [laterExpanded, setLaterExpanded] = useState(false);
   const mountTime = useRef(Date.now());
+
+  // Profile checklist sheets
+  type ProfileSheetType = 'health' | 'insurance' | 'family' | null;
+  const [profileSheet, setProfileSheet] = useState<ProfileSheetType>(null);
 
   // Promotion banner dismissal with 30-day reshow (per promotion ID)
   const [dismissedPromoIds, setDismissedPromoIds] = useState<Set<number>>(() => {
@@ -1246,7 +1250,20 @@ export default function Dashboard({
               <Card className="overflow-hidden w-full">
                 <CardContent className="p-0">
                   {profileSteps.map((step, i) => (
-                    <ProfileStepItem key={step.id} step={step} isLast={i === profileSteps.length - 1} />
+                    <ProfileStepItem
+                      key={step.id}
+                      step={step}
+                      isLast={i === profileSteps.length - 1}
+                      onClick={
+                        !step.completed
+                          ? () => {
+                              if (step.id === 1) setProfileSheet('health');
+                              else if (step.id === 2) setProfileSheet('insurance');
+                              else if (step.id === 3) setProfileSheet('family');
+                            }
+                          : undefined
+                      }
+                    />
                   ))}
                 </CardContent>
               </Card>
@@ -1327,6 +1344,37 @@ export default function Dashboard({
             />
           )}
           {!sheetView && <SheetSkeleton />}
+        </SheetContent>
+      </Sheet>
+
+      {/* Health Profile Sheet */}
+      <Sheet open={profileSheet === 'health'} onOpenChange={(open) => !open && setProfileSheet(null)}>
+        <SheetContent>
+          <HealthProfileSheet
+            selfMember={selfMember ?? null}
+            onSuccess={() => { setProfileSheet(null); router.reload(); }}
+          />
+        </SheetContent>
+      </Sheet>
+
+      {/* Add Insurance Sheet */}
+      <AddInsuranceSheet
+        open={profileSheet === 'insurance'}
+        onOpenChange={(open) => !open && setProfileSheet(null)}
+        insuranceProviders={insuranceProviders}
+        familyMembers={onboardingFamilyMembers}
+        fromDashboard
+        onSuccess={() => { setProfileSheet(null); router.reload(); }}
+      />
+
+      {/* Add Family Member Sheet */}
+      <Sheet open={profileSheet === 'family'} onOpenChange={(open) => !open && setProfileSheet(null)}>
+        <SheetContent>
+          <EmbeddedFamilyMemberFlow
+            mode="standalone"
+            onComplete={() => { setProfileSheet(null); router.reload(); }}
+            onCancel={() => { setProfileSheet(null); router.reload(); }}
+          />
         </SheetContent>
       </Sheet>
     </AppLayout>
@@ -1414,9 +1462,10 @@ function generateICSFile(appt: UpcomingAppointment): void {
 interface ProfileStepItemProps {
   step: ProfileStep;
   isLast: boolean;
+  onClick?: () => void;
 }
 
-function ProfileStepItem({ step, isLast }: ProfileStepItemProps) {
+function ProfileStepItem({ step, isLast, onClick }: ProfileStepItemProps) {
   const content = (
     <div
       className={`transition-colors duration-300 w-full ${step.completed ? '' : 'hover:bg-accent'}`}
@@ -1471,11 +1520,11 @@ function ProfileStepItem({ step, isLast }: ProfileStepItemProps) {
     </div>
   );
 
-  if (step.href && !step.completed) {
+  if (!step.completed && onClick) {
     return (
-      <Link href={step.href} className="block">
+      <button type="button" onClick={onClick} className="block w-full text-left">
         {content}
-      </Link>
+      </button>
     );
   }
 
