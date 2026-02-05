@@ -55,7 +55,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
         style={{
           width: '100%',
           height: '72px',
-          backgroundColor: '#FFFFFF',
+          backgroundColor: 'hsl(var(--background))',
           borderBottom: '1px solid hsl(var(--border))',
           display: 'flex',
           alignItems: 'center',
@@ -134,7 +134,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
               transition: 'all 0.2s ease',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#F5F8FF';
+              e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'transparent';
@@ -177,7 +177,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
               transition: 'all 0.2s ease',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#F5F8FF';
+              e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'transparent';
@@ -225,7 +225,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#F5F8FF',
+          backgroundColor: 'hsl(var(--muted))',
           padding: '48px 20px',
           marginTop: '72px',
         }}
@@ -298,7 +298,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                     style={{
                       width: '40px',
                       height: '40px',
-                      backgroundColor: '#FFFFFF',
+                      backgroundColor: 'hsl(var(--background))',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '50%',
                       display: 'flex',
@@ -308,10 +308,10 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                       transition: 'all 0.2s ease',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#F9FAFB';
+                      e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#FFFFFF';
+                      e.currentTarget.style.backgroundColor = 'hsl(var(--background))';
                     }}
                   >
                     <svg
@@ -338,7 +338,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                     style={{
                       height: '40px',
                       padding: '0 16px',
-                      backgroundColor: '#FFFFFF',
+                      backgroundColor: 'hsl(var(--background))',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '20px',
                       display: 'flex',
@@ -352,10 +352,10 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                       color: 'hsl(var(--foreground))',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#F9FAFB';
+                      e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#FFFFFF';
+                      e.currentTarget.style.backgroundColor = 'hsl(var(--background))';
                     }}
                   >
                     <svg
@@ -390,7 +390,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                     style={{
                       width: '40px',
                       height: '40px',
-                      backgroundColor: '#FFFFFF',
+                      backgroundColor: 'hsl(var(--background))',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '50%',
                       display: 'flex',
@@ -400,10 +400,10 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                       transition: 'all 0.2s ease',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#F9FAFB';
+                      e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#FFFFFF';
+                      e.currentTarget.style.backgroundColor = 'hsl(var(--background))';
                     }}
                   >
                     <svg
@@ -429,7 +429,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                   style={{
                     width: '40px',
                     height: '40px',
-                    backgroundColor: isLoading || !query.trim() ? '#E5E7EB' : '#0052FF',
+                    backgroundColor: isLoading || !query.trim() ? 'hsl(var(--muted))' : 'hsl(var(--primary))',
                     border: 'none',
                     borderRadius: '50%',
                     display: 'flex',
@@ -440,12 +440,12 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                   }}
                   onMouseEnter={(e) => {
                     if (!isLoading && query.trim()) {
-                      e.currentTarget.style.backgroundColor = '#0041CC';
+                      e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isLoading && query.trim()) {
-                      e.currentTarget.style.backgroundColor = '#0052FF';
+                      e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
                     }
                   }}
                 >

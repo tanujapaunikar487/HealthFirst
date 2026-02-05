@@ -156,7 +156,7 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
                 fontSize: '36px',
                 lineHeight: '44px',
                 letterSpacing: '-1px',
-                color: '#171717',
+                color: 'hsl(var(--foreground))',
               }}
             >
               Family Members
@@ -189,7 +189,7 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
             imageAlt="Family members illustration"
           />
         ) : (
-          <div className="divide-y divide-gray-100 rounded-[20px] border border-gray-200 bg-white overflow-hidden">
+          <div className="divide-y divide-border rounded-[20px] border border-border bg-white overflow-hidden">
             {members.map(member => {
               const colors = relationColors[member.relation] || relationColors.other;
 
@@ -197,7 +197,7 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
                 <div
                   key={member.id}
                   onClick={() => router.visit(`/family-members/${member.id}`)}
-                  className="flex items-center gap-4 px-4 py-3.5 cursor-pointer transition-colors hover:bg-gray-50"
+                  className="flex items-center gap-4 px-4 py-3.5 cursor-pointer transition-colors hover:bg-accent"
                 >
                   {/* Avatar */}
                   <div
@@ -213,7 +213,7 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
 
                   {/* Name + Badge */}
                   <div className="flex flex-1 items-center gap-2">
-                    <span className="truncate text-[16px] font-medium text-gray-900">
+                    <span className="truncate text-[16px] font-medium text-foreground">
                       {member.name}
                     </span>
                     {member.alert_count > 0 && (

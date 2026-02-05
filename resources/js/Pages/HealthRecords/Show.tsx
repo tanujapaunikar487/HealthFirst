@@ -855,7 +855,7 @@ export default function Show({ user, record, familyMember }: Props) {
                   </div>
                 ) : aiSummary ? (
                   <div className="rounded-lg bg-purple-50 border border-purple-100 px-6 py-4">
-                    <p className="text-[14px] leading-relaxed" style={{ color: '#581C87' }}>{aiSummary}</p>
+                    <p className="text-[14px] leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{aiSummary}</p>
                     {summaryGeneratedAt && (
                       <p className="text-[14px] text-purple-400 mt-3">
                         Generated {new Date(summaryGeneratedAt).toLocaleDateString('en-IN', {

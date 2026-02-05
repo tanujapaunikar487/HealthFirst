@@ -213,7 +213,7 @@ function Section({
   return (
     <div id={id} className="scroll-mt-24">
       <div className="flex items-center gap-2.5 mb-4">
-        <Icon icon={SectionIcon} className="h-5 w-5 text-neutral-900" />
+        <Icon icon={SectionIcon} className="h-5 w-5 text-foreground" />
         <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
           {title}
         </h2>
@@ -653,7 +653,7 @@ export default function FamilyMemberShow({
         {/* Back Navigation */}
         <button
           onClick={() => router.visit('/family-members')}
-          className="mb-6 flex items-center gap-1.5 text-[14px] font-medium text-gray-500 transition-colors hover:text-gray-900"
+          className="mb-6 flex items-center gap-1.5 text-[14px] font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Family Members
@@ -689,7 +689,7 @@ export default function FamilyMemberShow({
               )}
             </div>
             {member.patient_id && (
-              <p className="mt-0.5 text-[14px] text-gray-500">{member.patient_id}</p>
+              <p className="mt-0.5 text-[14px] text-muted-foreground">{member.patient_id}</p>
             )}
           </div>
           {member.relation !== 'self' && (
@@ -738,7 +738,7 @@ export default function FamilyMemberShow({
             {/* Personal Information Section */}
             <div id="personal" className="scroll-mt-24">
               <div className="flex items-center gap-2.5 mb-4">
-                <Icon icon={User} className="h-5 w-5 text-neutral-900" />
+                <Icon icon={User} className="h-5 w-5 text-foreground" />
                 <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                   Personal Information
                 </h2>
@@ -775,7 +775,7 @@ export default function FamilyMemberShow({
             {/* Contact & Address Section */}
             <div id="contact" className="scroll-mt-24">
               <div className="flex items-center gap-2.5 mb-4">
-                <Icon icon={Phone} className="h-5 w-5 text-neutral-900" />
+                <Icon icon={Phone} className="h-5 w-5 text-foreground" />
                 <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                   Contact & Address
                 </h2>
@@ -802,7 +802,7 @@ export default function FamilyMemberShow({
             {!member.is_guest && (
               <div id="health-info" className="scroll-mt-24">
                 <div className="flex items-center gap-2.5 mb-4">
-                  <Icon icon={Heart} className="h-5 w-5 text-neutral-900" />
+                  <Icon icon={Heart} className="h-5 w-5 text-foreground" />
                   <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                     Health Information
                   </h2>
@@ -826,7 +826,7 @@ export default function FamilyMemberShow({
                           ))}
                         </div>
                       ) : (
-                        <span className="text-[14px] text-neutral-500">None recorded</span>
+                        <span className="text-[14px] text-muted-foreground">None recorded</span>
                       ),
                     },
                     {
@@ -838,7 +838,7 @@ export default function FamilyMemberShow({
                           ))}
                         </div>
                       ) : (
-                        <span className="text-[14px] text-neutral-500">None recorded</span>
+                        <span className="text-[14px] text-muted-foreground">None recorded</span>
                       ),
                     },
                   ]}
@@ -850,7 +850,7 @@ export default function FamilyMemberShow({
             {!member.is_guest && (
               <div id="emergency" className="scroll-mt-24">
                 <div className="flex items-center gap-2.5 mb-4">
-                  <Icon icon={Phone} className="h-5 w-5 text-neutral-900" />
+                  <Icon icon={Phone} className="h-5 w-5 text-foreground" />
                   <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                     Emergency Contact
                   </h2>
@@ -912,7 +912,7 @@ export default function FamilyMemberShow({
                         <p className="text-[14px] font-semibold text-[#171717]">{link.title}</p>
                         <p className="text-[14px] font-normal text-[#737373]">{link.subtitle}</p>
                       </div>
-                      <ChevronRight className="h-5 w-5 text-neutral-900 flex-shrink-0" />
+                      <ChevronRight className="h-5 w-5 text-foreground flex-shrink-0" />
                     </button>
                   ))}
                 </div>
@@ -935,7 +935,7 @@ export default function FamilyMemberShow({
               <p className="mb-3 text-[14px] font-medium text-[#737373]">Personal details</p>
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">
+                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">
                     Name <span className="text-red-500">*</span>
                   </label>
                   <Input
@@ -953,7 +953,7 @@ export default function FamilyMemberShow({
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">
+                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">
                     Relation <span className="text-red-500">*</span>
                   </label>
                   <Select
@@ -978,7 +978,7 @@ export default function FamilyMemberShow({
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Date of Birth</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Date of Birth</label>
                   <DatePicker
                     value={formData.date_of_birth}
                     onChange={(value) => setFormData({ ...formData, date_of_birth: value })}
@@ -988,7 +988,7 @@ export default function FamilyMemberShow({
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Gender</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Gender</label>
                   <Select
                     value={formData.gender}
                     onValueChange={val => setFormData({ ...formData, gender: val })}
@@ -1011,14 +1011,14 @@ export default function FamilyMemberShow({
               <p className="mb-3 text-[14px] font-medium text-[#737373]">Contact & address</p>
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Phone</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Phone</label>
                   <PhoneInput
                     value={formData.phone || ''}
                     onChange={value => setFormData({ ...formData, phone: value })}
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Email</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Email</label>
                   <Input
                     type="email"
                     value={formData.email}
@@ -1027,7 +1027,7 @@ export default function FamilyMemberShow({
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Address Line 1</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Address Line 1</label>
                   <Input
                     value={formData.address_line_1}
                     onChange={e => setFormData({ ...formData, address_line_1: e.target.value })}
@@ -1035,7 +1035,7 @@ export default function FamilyMemberShow({
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Address Line 2</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Address Line 2</label>
                   <Input
                     value={formData.address_line_2}
                     onChange={e => setFormData({ ...formData, address_line_2: e.target.value })}
@@ -1044,7 +1044,7 @@ export default function FamilyMemberShow({
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="mb-1.5 block text-[14px] font-medium text-gray-700">State</label>
+                    <label className="mb-1.5 block text-[14px] font-medium text-foreground">State</label>
                     <Select value={formData.state} onValueChange={handleStateChange}>
                       <SelectTrigger className={!formData.state ? 'text-muted-foreground' : ''}>
                         <SelectValue placeholder="Select state" />
@@ -1057,7 +1057,7 @@ export default function FamilyMemberShow({
                     </Select>
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-[14px] font-medium text-gray-700">City</label>
+                    <label className="mb-1.5 block text-[14px] font-medium text-foreground">City</label>
                     <Select
                       value={formData.city}
                       onValueChange={(value: string) => setFormData({ ...formData, city: value })}
@@ -1074,7 +1074,7 @@ export default function FamilyMemberShow({
                     </Select>
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Pincode</label>
+                    <label className="mb-1.5 block text-[14px] font-medium text-foreground">Pincode</label>
                     <Input
                       value={formData.pincode}
                       onChange={e => setFormData({ ...formData, pincode: e.target.value })}
@@ -1090,7 +1090,7 @@ export default function FamilyMemberShow({
               <p className="mb-3 text-[14px] font-medium text-[#737373]">Health information</p>
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Blood Group</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Blood Group</label>
                   <Select
                     value={formData.blood_group}
                     onValueChange={val => setFormData({ ...formData, blood_group: val })}
@@ -1106,7 +1106,7 @@ export default function FamilyMemberShow({
                   </Select>
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Primary Doctor</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Primary Doctor</label>
                   <Select
                     value={formData.primary_doctor_id}
                     onValueChange={val => setFormData({ ...formData, primary_doctor_id: val })}
@@ -1124,7 +1124,7 @@ export default function FamilyMemberShow({
                   </Select>
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Conditions</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Conditions</label>
                   <TagInput
                     tags={formData.medical_conditions}
                     onChange={tags => setFormData({ ...formData, medical_conditions: tags })}
@@ -1132,7 +1132,7 @@ export default function FamilyMemberShow({
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Allergies</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Allergies</label>
                   <TagInput
                     tags={formData.allergies}
                     onChange={tags => setFormData({ ...formData, allergies: tags })}
@@ -1148,7 +1148,7 @@ export default function FamilyMemberShow({
               <p className="mb-3 text-[14px] font-medium text-[#737373]">Emergency contact</p>
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Contact Name</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Contact Name</label>
                   <Input
                     value={formData.emergency_contact_name}
                     onChange={e => setFormData({ ...formData, emergency_contact_name: e.target.value })}
@@ -1156,7 +1156,7 @@ export default function FamilyMemberShow({
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Contact Relation</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Contact Relation</label>
                   <Input
                     value={formData.emergency_contact_relation}
                     onChange={e => setFormData({ ...formData, emergency_contact_relation: e.target.value })}
@@ -1164,7 +1164,7 @@ export default function FamilyMemberShow({
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Contact Phone</label>
+                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Contact Phone</label>
                   <PhoneInput
                     value={formData.emergency_contact_phone || ''}
                     onChange={value => setFormData({ ...formData, emergency_contact_phone: value })}
@@ -1199,8 +1199,8 @@ export default function FamilyMemberShow({
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
               <UserPlus className="h-5 w-5 text-blue-600" />
             </div>
-            <h3 className="mb-1 text-lg font-semibold text-gray-900">Upgrade {member.name}?</h3>
-            <p className="mb-6 text-[14px] text-gray-500">
+            <h3 className="mb-1 text-lg font-semibold text-foreground">Upgrade {member.name}?</h3>
+            <p className="mb-6 text-[14px] text-muted-foreground">
               This will convert this guest to a full family member with access to health records, billing, and all other features.
             </p>
             <div className="flex gap-3">
@@ -1239,7 +1239,7 @@ export default function FamilyMemberShow({
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
               <AlertTriangle className="h-6 w-6 text-red-600" />
             </div>
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">Remove {member.name}?</h3>
+            <h3 className="mb-2 text-lg font-semibold text-foreground">Remove {member.name}?</h3>
             <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3">
               <p className="text-[14px] text-red-800 font-medium mb-2">
                 ⚠️ This action cannot be undone
@@ -1255,7 +1255,7 @@ export default function FamilyMemberShow({
               </ul>
             </div>
             <div className="mb-4">
-              <label className="block text-[14px] font-medium text-gray-700 mb-2">
+              <label className="block text-[14px] font-medium text-foreground mb-2">
                 Type <span className="font-semibold">{member.name}</span> to confirm
               </label>
               <Input
