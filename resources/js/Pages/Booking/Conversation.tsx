@@ -405,6 +405,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                     message={message}
                     familyMembers={familyMembers}
                     conversationId={conversation.id}
+                    defaultPatientId={defaultPatientId}
                     onSelection={sendSelection}
                     disabled={isLoading}
                     hasNextMessage={index < conversation.messages.length - 1}
@@ -657,6 +658,7 @@ function MessageBubble({
   message,
   familyMembers,
   conversationId,
+  defaultPatientId,
   onSelection,
   disabled,
   hasNextMessage,
@@ -665,6 +667,7 @@ function MessageBubble({
   message: ConversationMessage;
   familyMembers: any[];
   conversationId: string;
+  defaultPatientId: string | null;
   onSelection: (type: string, value: any) => void;
   disabled: boolean;
   hasNextMessage: boolean;

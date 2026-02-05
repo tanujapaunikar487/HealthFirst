@@ -123,7 +123,7 @@ export default function BookingIndex() {
 
   const handlePromptClick = (suggestion: typeof PROMPT_SUGGESTIONS[number]) => {
     setInput(suggestion.text);
-    setTimeout(() => startConversation(suggestion.type, suggestion.text), 150);
+    setSelectedType(suggestion.type);
   };
 
   // Format recording time as MM:SS
@@ -454,7 +454,7 @@ export default function BookingIndex() {
 
           {/* AI mode — prompt suggestions */}
           {mode === 'ai' && (
-            <div className="flex flex-wrap justify-center gap-3 mt-6" style={{ maxWidth: '720px', width: '100%' }}>
+            <div className="flex flex-col items-start gap-3 mt-6" style={{ maxWidth: '720px', width: '100%' }}>
               {PROMPT_SUGGESTIONS.map((suggestion, i) => (
                 <PromptSuggestion
                   key={i}

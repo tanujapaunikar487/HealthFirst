@@ -327,7 +327,7 @@ class IntelligentBookingOrchestrator
         }
 
         // Merge extracted entities with existing data (smart merge)
-        $updatedData = $this->mergeEntities($conversation->collected_data, $parsed['entities'] ?? [], $parsed);
+        $updatedData = $this->mergeEntities($conversation->collected_data, $parsed['entities'] ?? [], $parsed, $conversation->user_id);
 
         Log::info('IntelligentOrchestrator: Merging entities', [
             'intent' => $parsed['intent'] ?? 'unknown',
@@ -450,7 +450,7 @@ class IntelligentBookingOrchestrator
      * Delegates normalization/validation to EntityNormalizer, then handles
      * merge logic: field updates, cascade clearing, and textMentionedFields tracking.
      */
-    protected function mergeEntities(array $currentData, array $newEntities, array $parsed): array
+    protected function mergeEntities(array $currentData, array $newEntities, array $parsed, string $userId): array
     {
         $updated = $currentData;
 
@@ -514,17 +514,28 @@ class IntelligentBookingOrchestrator
 
             // Patient relation → resolve to patient data
             if ($dataKey === 'patientRelation') {
-                if ($entityValue === 'self') {
-                    $updated['selectedPatientId'] = 1;
-                    $updated['selectedPatientName'] = 'Yourself';
-                    $updated['selectedPatientAvatar'] = '/assets/avatars/self.png';
+                // Look up family member by relation
+                $matchingMember = \App\Models\FamilyMember::where('user_id', $userId)
+                    ->where('relation', strtolower($entityValue))
+                    ->first();
+
+                if ($matchingMember) {
+                    // Auto-select — skip patient_selection step
+                    $updated['selectedPatientId'] = $matchingMember->id;
+                    $updated['selectedPatientName'] = $matchingMember->name;
+                    $updated['selectedPatientAvatar'] = $matchingMember->avatar_url ?? '';
+                    if (!in_array('patient', $updated['completedSteps'] ?? [])) {
+                        $updated['completedSteps'][] = 'patient';
+                    }
                 } else {
+                    // No match — flag it for a contextual message
                     unset($updated['selectedPatientId']);
                     $updated['selectedPatientName'] = $entityValue;
                     unset($updated['selectedPatientAvatar']);
                     $updated['completedSteps'] = array_values(array_diff(
                         $updated['completedSteps'] ?? [], ['patient']
                     ));
+                    $updated['missingRelation'] = ucfirst($entityValue);
                 }
             }
 
@@ -1135,6 +1146,17 @@ class IntelligentBookingOrchestrator
             $component['type'] = 'address_form';
             $componentData = [];
             $message = "You don't have any saved addresses yet. Please add one for home collection.";
+        }
+
+        // Contextual message when mentioned family relation doesn't exist
+        if ($component['type'] === 'patient_selector' && !empty($data['missingRelation'])) {
+            $relation = $data['missingRelation'];
+            $message = "I don't see a family member listed as \"{$relation}\" in your profile. You can add them below, or select someone else.";
+
+            // Clear the flag so it doesn't repeat
+            unset($data['missingRelation']);
+            $conversation->collected_data = $data;
+            $conversation->save();
         }
 
         // Check for doctor-date conflict (requested doctor unavailable on selected date)
