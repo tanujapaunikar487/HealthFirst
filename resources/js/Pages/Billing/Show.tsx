@@ -804,10 +804,10 @@ export default function Show({ user, bill }: Props) {
                 {bill.due_date && (
                   <div>
                     <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Due Date</p>
-                    <p className={cn('mt-1 text-[14px] font-semibold', bill.is_overdue ? 'text-red-600' : '')} style={bill.is_overdue ? {} : { color: '#171717' }}>
+                    <p className={cn('mt-1 text-[14px] font-semibold', bill.is_overdue ? 'text-destructive' : '')} style={bill.is_overdue ? {} : { color: 'hsl(var(--foreground))' }}>
                       {bill.due_date}
                       {bill.is_overdue && (
-                        <span className="ml-2 text-[10px] font-semibold text-red-600 bg-red-50 px-1.5 py-0.5 rounded-full">
+                        <span className="ml-2 text-[10px] font-semibold text-destructive bg-destructive/10 px-1.5 py-0.5 rounded-full">
                           {bill.days_overdue}d overdue
                         </span>
                       )}
@@ -886,7 +886,7 @@ export default function Show({ user, bill }: Props) {
                   {bill.discount > 0 && (
                     <div className="flex justify-between text-[14px]">
                       <span className="text-muted-foreground">Discount</span>
-                      <span className="text-green-600">-₹{bill.discount.toLocaleString()}</span>
+                      <span className="text-success">-₹{bill.discount.toLocaleString()}</span>
                     </div>
                   )}
                   {bill.tax > 0 && (
@@ -898,7 +898,7 @@ export default function Show({ user, bill }: Props) {
                   {bill.insurance_deduction > 0 && (
                     <div className="flex justify-between text-[14px]">
                       <span className="text-muted-foreground">Insurance Coverage</span>
-                      <span className="text-green-600">-₹{bill.insurance_deduction.toLocaleString()}</span>
+                      <span className="text-success">-₹{bill.insurance_deduction.toLocaleString()}</span>
                     </div>
                   )}
                   <div className="flex justify-between pt-2 border-t">
@@ -948,8 +948,8 @@ export default function Show({ user, bill }: Props) {
                           <span className="font-mono text-[14px]">{bill.insurance_details.claim_id}</span>
                           <span className="ml-1.5">
                             {bill.insurance_details.claim_status === 'Approved' || bill.insurance_details.claim_status === 'Reimbursed'
-                              ? <span className="text-green-600 text-[14px] font-medium">{bill.insurance_details.claim_status}</span>
-                              : <span className="text-amber-600 text-[14px] font-medium">{bill.insurance_details.claim_status}</span>
+                              ? <span className="text-success text-[14px] font-medium">{bill.insurance_details.claim_status}</span>
+                              : <span className="text-warning text-[14px] font-medium">{bill.insurance_details.claim_status}</span>
                             }
                           </span>
                         </span>
@@ -957,12 +957,12 @@ export default function Show({ user, bill }: Props) {
                       <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-[14px]">
                         <span>
                           <span className="text-muted-foreground">Covered:</span>{' '}
-                          <span className="text-green-600 font-medium">₹{bill.insurance_details.covered_amount.toLocaleString()}</span>
+                          <span className="text-success font-medium">₹{bill.insurance_details.covered_amount.toLocaleString()}</span>
                         </span>
                         {bill.insurance_details.copay_amount > 0 && (
                           <span>
                             <span className="text-muted-foreground">Co-pay:</span>{' '}
-                            <span className="text-red-600 font-medium">₹{bill.insurance_details.copay_amount.toLocaleString()}</span>
+                            <span className="text-destructive font-medium">₹{bill.insurance_details.copay_amount.toLocaleString()}</span>
                           </span>
                         )}
                       </div>
@@ -1006,11 +1006,11 @@ export default function Show({ user, bill }: Props) {
                 <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-[14px]">
                   <span>
                     <span className="text-muted-foreground">Next due:</span>{' '}
-                    <span className="text-amber-600 font-medium">{bill.emi_details.next_due_date}</span>
+                    <span className="text-warning font-medium">{bill.emi_details.next_due_date}</span>
                   </span>
                   <span>
                     <span className="text-muted-foreground">Remaining:</span>{' '}
-                    <span className="text-red-600 font-medium">₹{bill.emi_details.remaining_balance.toLocaleString()}</span>
+                    <span className="text-destructive font-medium">₹{bill.emi_details.remaining_balance.toLocaleString()}</span>
                   </span>
                 </div>
               </Section>
@@ -1027,20 +1027,20 @@ export default function Show({ user, bill }: Props) {
                 </div>
                 <Card className="p-5" style={{ backgroundColor: 'hsl(var(--destructive) / 0.1)', borderColor: 'hsl(var(--destructive) / 0.2)' }}>
                   <div className="flex items-center gap-2 mb-2">
-                    <AlertTriangle className="h-4 w-4 text-red-600" />
-                    <p className="text-[14px] font-semibold text-red-800">
+                    <AlertTriangle className="h-4 w-4 text-destructive" />
+                    <p className="text-[14px] font-semibold text-destructive">
                       {bill.dispute_details.dispute_id} &middot; Raised {bill.dispute_details.raised_on}
                     </p>
                   </div>
-                  <p className="text-[14px] text-red-700">
+                  <p className="text-[14px] text-destructive">
                     <span className="text-muted-foreground">Reason:</span> {bill.dispute_details.reason}
                   </p>
-                  <p className="text-[14px] text-red-700 mt-1">
+                  <p className="text-[14px] text-destructive mt-1">
                     <span className="text-muted-foreground">Status:</span>{' '}
                     <span className="font-medium">{bill.dispute_details.status}</span>
                   </p>
                   {bill.dispute_details.resolution_notes && (
-                    <p className="text-[14px] text-red-700 mt-1">
+                    <p className="text-[14px] text-destructive mt-1">
                       <span className="text-muted-foreground">Resolution:</span> {bill.dispute_details.resolution_notes}
                     </p>
                   )}
@@ -1068,7 +1068,7 @@ export default function Show({ user, bill }: Props) {
           />
           <div className="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
-              <AlertTriangle className="h-6 w-6 text-amber-600" />
+              <AlertTriangle className="h-6 w-6 text-warning" />
             </div>
             <h3 className="mb-2 text-lg font-semibold text-foreground">Raise a dispute?</h3>
             <p className="mb-4 text-[14px] text-muted-foreground">
