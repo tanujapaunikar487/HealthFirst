@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { router } from '@inertiajs/react';
-import { Download, Lock, Trash2, AlertTriangle, ChevronRight } from '@/Lib/icons';
+import { Download, Lock, Trash2, ChevronRight } from '@/Lib/icons';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
 import { Label } from '@/Components/ui/label';
@@ -16,7 +16,6 @@ import {
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogBody,
     DialogFooter,
     DialogHeader,
@@ -393,21 +392,19 @@ export function PreferencesTab({
             <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2" style={{ color: 'hsl(var(--destructive))' }}>
-                            <AlertTriangle className="h-5 w-5" />
-                            Delete account
-                        </DialogTitle>
-                        <DialogDescription>
-                            This action cannot be undone. This will permanently delete your account and
-                            remove all your data from our servers.
-                        </DialogDescription>
+                        <DialogTitle>Delete account</DialogTitle>
                     </DialogHeader>
 
                     <DialogBody>
                         <div className="space-y-4">
-                            <div className="rounded-lg bg-destructive/10 p-4 text-[14px] text-destructive">
-                                <p className="font-medium mb-2">The following data will be deleted:</p>
-                                <ul className="list-disc list-inside space-y-1">
+                            <p className="text-[14px] text-muted-foreground">
+                                This action cannot be undone. This will permanently delete your account and
+                                remove all your data from our servers.
+                            </p>
+
+                            <div className="rounded-lg border bg-muted/50 p-4 text-[14px]">
+                                <p className="font-medium text-foreground mb-2">The following data will be deleted:</p>
+                                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                                     <li>Your profile and personal information</li>
                                     <li>All family member records</li>
                                     <li>Appointment history</li>

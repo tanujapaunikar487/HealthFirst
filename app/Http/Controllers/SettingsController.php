@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -443,9 +444,9 @@ class SettingsController extends Controller
     }
 
     /**
-     * Download all user data as a printable HTML document (save as PDF).
+     * Download all user data as a PDF.
      */
-    public function downloadMyData(): Response
+    public function downloadMyData()
     {
         $user = Auth::user() ?? User::first();
 
@@ -474,13 +475,17 @@ class SettingsController extends Controller
 
         $exportDate = now()->format('d M Y, g:i A');
 
-        return Inertia::render('Settings/DataExport', [
+        $pdf = Pdf::loadView('pdf.data-export', [
             'profile' => $profile,
             'familyMembers' => $familyMembers,
             'appointments' => $appointments,
             'healthRecords' => $healthRecords,
             'exportDate' => $exportDate,
         ]);
+
+        $filename = 'healthcare-data-' . now()->format('Y-m-d') . '.pdf';
+
+        return $pdf->download($filename);
     }
 
     /**
