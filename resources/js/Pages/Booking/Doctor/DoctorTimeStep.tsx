@@ -300,8 +300,8 @@ export default function DoctorTimeStep({
               </p>
             </Card>
           ) : (
-            <Card className="overflow-hidden divide-y">
-              {filteredDoctors.map((doctor) => (
+            <Card className="overflow-hidden">
+              {filteredDoctors.map((doctor, index) => (
                 <DoctorCard
                   key={doctor.id}
                   doctor={doctor}
@@ -309,6 +309,7 @@ export default function DoctorTimeStep({
                   selectedTime={selectedDoctorId === doctor.id ? selectedTime : null}
                   isSelected={selectedDoctorId === doctor.id}
                   onSelectTime={(time) => handleDoctorTimeSelect(doctor.id, time)}
+                  isLast={index === filteredDoctors.length - 1}
                 />
               ))}
             </Card>
@@ -343,9 +344,10 @@ interface DoctorCardProps {
   selectedTime: string | null;
   isSelected: boolean;
   onSelectTime: (time: string) => void;
+  isLast: boolean;
 }
 
-function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: DoctorCardProps) {
+function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime, isLast }: DoctorCardProps) {
   const getInitial = (name: string) => {
     return name.charAt(0).toUpperCase();
   };
@@ -382,9 +384,13 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: D
   return (
     <div
       className={cn(
-        'p-4 bg-white transition-all',
-        isSelected && 'bg-primary/5 ring-2 ring-primary ring-inset'
+        'p-4 transition-all',
+        'hover:bg-muted/50',
+        isSelected && 'bg-primary/5'
       )}
+      style={{
+        borderBottom: !isLast ? '1px solid hsl(var(--border))' : 'none'
+      }}
     >
       {/* Doctor Info */}
       <div className="flex items-start gap-3 mb-4">

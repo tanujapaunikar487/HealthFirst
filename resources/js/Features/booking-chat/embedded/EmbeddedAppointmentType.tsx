@@ -7,7 +7,7 @@ interface Props {
 }
 
 const options = [
-  { value: 'new' as const, label: 'New Appointment' },
+  { value: 'new' as const, label: 'New Consultation' },
   { value: 'followup' as const, label: 'Follow-up' },
 ];
 
@@ -23,9 +23,11 @@ export function EmbeddedAppointmentType({ selectedType, onSelect, disabled }: Pr
             onClick={() => !disabled && onSelect(option.value)}
             disabled={disabled}
             className={cn(
-              "p-4 rounded-xl border text-left transition-all",
-              "hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60",
-              isSelected ? "border-primary bg-accent" : "border-border bg-background"
+              "px-5 py-3 rounded-full border text-left transition-all",
+              "hover:border-primary/50 hover:bg-primary/5 disabled:cursor-not-allowed",
+              isSelected
+                ? disabled ? "border-primary bg-primary/5 opacity-60" : "border-primary bg-primary/5"
+                : disabled ? "border-border bg-background opacity-30" : "border-border bg-background"
             )}
           >
             <span className="font-medium text-[14px]">{option.label}</span>

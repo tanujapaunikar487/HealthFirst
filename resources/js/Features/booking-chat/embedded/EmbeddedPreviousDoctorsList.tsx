@@ -58,9 +58,9 @@ export function EmbeddedPreviousDoctorsList({
   return (
     <div className="space-y-4">
       {/* Doctor cards */}
-      <Card>
-        <CardContent className="p-0 divide-y">
-          {allDoctors.map((doctor) => (
+      <Card className="overflow-hidden">
+        <CardContent className="p-0">
+          {allDoctors.map((doctor, index) => (
             <PreviousDoctorCard
               key={doctor.id}
               doctor={doctor}
@@ -68,6 +68,7 @@ export function EmbeddedPreviousDoctorsList({
               selectedTime={selectedDoctorId === doctor.id ? selectedTime : null}
               onSelectTime={(time) => onSelect(doctor.id, time)}
               disabled={disabled}
+              isLast={index === allDoctors.length - 1}
             />
           ))}
         </CardContent>
@@ -93,12 +94,14 @@ function PreviousDoctorCard({
   selectedTime,
   onSelectTime,
   disabled,
+  isLast,
 }: {
   doctor: PreviousDoctor;
   isSelected: boolean;
   selectedTime: string | null;
   onSelectTime: (time: string) => void;
   disabled: boolean;
+  isLast: boolean;
 }) {
   const formatLastVisit = (dateStr?: string) => {
     if (!dateStr) return 'N/A';
@@ -134,10 +137,18 @@ function PreviousDoctorCard({
   };
 
   return (
-    <div className={cn(
-      "px-6 py-4 transition-colors hover:bg-accent",
-      isSelected && "bg-accent border-l-4 border-l-primary"
-    )}>
+    <div
+      className={cn(
+        "px-6 py-4 transition-all",
+        "hover:bg-muted/50",
+        isSelected
+          ? disabled ? "bg-primary/5 opacity-60" : "bg-primary/5"
+          : disabled ? "opacity-30" : ""
+      )}
+      style={{
+        borderBottom: !isLast ? '1px solid hsl(var(--border))' : 'none'
+      }}
+    >
       {/* Header row */}
       <div className="flex items-start justify-between gap-4 mb-3">
         <div className="flex items-start gap-3 flex-1">
@@ -231,8 +242,10 @@ function PreviousDoctorCard({
                     disabled={disabled}
                     className={cn(
                       "px-3 py-1.5 rounded-full text-[14px] border transition-colors",
-                      "hover:bg-accent hover:border-primary",
-                      selectedTime === time && "bg-primary text-primary-foreground border-primary"
+                      "hover:border-primary/50 hover:bg-primary/5",
+                      selectedTime === time
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "border-border bg-background"
                     )}
                   >
                     {formatTime(time)}
@@ -250,8 +263,10 @@ function PreviousDoctorCard({
                   disabled={disabled || !slot.available}
                   className={cn(
                     "px-3 py-1.5 rounded-full text-[14px] border transition-colors",
-                    "hover:bg-accent hover:border-primary disabled:cursor-not-allowed disabled:opacity-50",
-                    selectedTime === slot.time && "bg-primary text-primary-foreground border-primary"
+                    "hover:border-primary/50 hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50",
+                    selectedTime === slot.time
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "border-border bg-background"
                   )}
                 >
                   {formatTime(slot.time)}

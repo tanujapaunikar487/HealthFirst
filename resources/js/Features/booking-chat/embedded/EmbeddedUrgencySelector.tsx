@@ -1,4 +1,5 @@
 import { cn } from '@/Lib/utils';
+import { Card } from '@/Components/ui/card';
 
 interface Props {
   selectedUrgency: string | null;
@@ -29,8 +30,8 @@ const options = [
 
 export function EmbeddedUrgencySelector({ selectedUrgency, onSelect, disabled }: Props) {
   return (
-    <div className="border rounded-xl overflow-hidden divide-y bg-background">
-      {options.map((option) => {
+    <Card className="overflow-hidden">
+      {options.map((option, index) => {
         const isSelected = selectedUrgency === option.value;
 
         return (
@@ -40,9 +41,14 @@ export function EmbeddedUrgencySelector({ selectedUrgency, onSelect, disabled }:
             disabled={disabled}
             className={cn(
               "w-full flex items-center gap-3 p-4 text-left transition-all",
-              "hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60",
-              isSelected && "bg-accent border-l-2 border-l-primary"
+              "hover:bg-muted/50 disabled:cursor-not-allowed",
+              isSelected
+                ? disabled ? "bg-primary/5 opacity-60" : "bg-primary/5"
+                : disabled ? "opacity-30" : ""
             )}
+            style={{
+              borderBottom: index < options.length - 1 ? '1px solid hsl(var(--border))' : 'none'
+            }}
           >
             {/* Colored dot */}
             <div className={cn("w-2 h-2 rounded-full flex-shrink-0", option.dotColor)} />
@@ -54,6 +60,6 @@ export function EmbeddedUrgencySelector({ selectedUrgency, onSelect, disabled }:
           </button>
         );
       })}
-    </div>
+    </Card>
   );
 }

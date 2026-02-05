@@ -1,4 +1,5 @@
 import { Button } from '@/Components/ui/button';
+import { Card } from '@/Components/ui/card';
 import { format, parseISO } from 'date-fns';
 import { useState } from 'react';
 
@@ -162,82 +163,65 @@ export function EmbeddedBookingSummary({ summary, onPay, onSelect, disabled, con
     }
   };
 
+  // Build rows array for proper divider handling
+  const rows: { label: string; value: React.ReactNode; showChange?: boolean; onChange?: () => void }[] = [];
+
+  if (summary.doctor) {
+    rows.push({ label: 'Doctor', value: summary.doctor.name, showChange: true, onChange: () => onSelect?.({ change_doctor: true }) });
+  }
+  if (summary.package) {
+    rows.push({ label: 'Package', value: summary.package, showChange: true, onChange: () => onSelect?.({ change_package: true }) });
+  }
+  rows.push({ label: 'Patient', value: summary.patient.name, showChange: true, onChange: () => onSelect?.({ change_patient: true }) });
+  rows.push({ label: 'Date & Time', value: formatDateTime(summary.datetime), showChange: true, onChange: () => onSelect?.({ change_datetime: true }) });
+  if (summary.type && !summary.collection) {
+    rows.push({ label: 'Type', value: summary.type, showChange: true, onChange: () => onSelect?.({ change_type: true }) });
+  }
+  if (summary.mode) {
+    rows.push({
+      label: 'Mode',
+      value: summary.mode === 'video' ? 'Video Appointment' : 'In-Person Visit',
+      showChange: (summary.supported_modes?.length ?? 0) > 1,
+      onChange: () => onSelect?.({ change_mode: true }),
+    });
+  }
+  if (summary.collection) {
+    rows.push({ label: 'Collection', value: summary.collection, showChange: true, onChange: () => onSelect?.({ change_location: true }) });
+  }
+  if (summary.address) {
+    rows.push({ label: 'Address', value: summary.address, showChange: true, onChange: () => onSelect?.({ change_address: true, display_message: 'Change Address' }) });
+  }
+  // Fee row - no Change link
+  rows.push({ label: 'Appointment Fee', value: `₹${summary.fee.toLocaleString()}`, showChange: false });
+
   return (
     <div className="space-y-4">
-      {/* Summary table */}
-      <div className="border rounded-xl overflow-hidden divide-y">
-        {/* Doctor row */}
-        {summary.doctor && (
-          <SummaryRow
-            label="Doctor"
-            value={summary.doctor.name}
-            showChange
-            onChange={() => onSelect?.({ change_doctor: true })}
-          />
-        )}
-
-        {/* Package row (for lab) */}
-        {summary.package && (
-          <SummaryRow
-            label="Package"
-            value={summary.package}
-            showChange
-            onChange={() => onSelect?.({ change_package: true })}
-          />
-        )}
-
-        {/* Patient row */}
-        <SummaryRow
-          label="Patient"
-          value={summary.patient.name}
-          showChange
-          onChange={() => onSelect?.({ change_patient: true })}
-        />
-
-        {/* Date & Time row */}
-        <SummaryRow
-          label="Date & Time"
-          value={formatDateTime(summary.datetime)}
-          showChange
-          onChange={() => onSelect?.({ change_datetime: true })}
-        />
-
-        {/* Type row (for doctor) */}
-        {summary.type && !summary.collection && (
-          <SummaryRow
-            label="Type"
-            value={summary.type}
-            showChange
-            onChange={() => onSelect?.({ change_type: true })}
-          />
-        )}
-
-        {/* Mode row (appointment mode) - only show Change if doctor supports multiple modes */}
-        {summary.mode && (
-          <SummaryRow
-            label="Mode"
-            value={summary.mode === 'video' ? 'Video Appointment' : 'In-Person Visit'}
-            showChange={(summary.supported_modes?.length ?? 0) > 1}
-            onChange={() => onSelect?.({ change_mode: true })}
-          />
-        )}
-
-        {/* Collection row (for lab) */}
-        {summary.collection && (
-          <SummaryRow label="Collection" value={summary.collection} showChange onChange={() => onSelect?.({ change_location: true })} />
-        )}
-
-        {/* Address row (for lab home collection) */}
-        {summary.address && (
-          <SummaryRow label="Address" value={summary.address} showChange onChange={() => onSelect?.({ change_address: true, display_message: 'Change Address' })} />
-        )}
-
-        {/* Fee row - no Change link */}
-        <div className="flex items-center justify-between px-4 py-3">
-          <span className="text-[14px] text-muted-foreground">Appointment Fee</span>
-          <span className="text-[14px] font-medium">₹{summary.fee.toLocaleString()}</span>
-        </div>
-      </div>
+      {/* Summary card */}
+      <Card className="overflow-hidden">
+        {rows.map((row, index) => (
+          <div
+            key={row.label}
+            className="flex items-center justify-between px-4 py-4"
+            style={{
+              borderBottom: index < rows.length - 1 ? '1px solid hsl(var(--border))' : 'none'
+            }}
+          >
+            <span className="text-[14px] text-muted-foreground">{row.label}</span>
+            <div className="flex items-center gap-3">
+              <span className="text-[14px] font-medium text-right">{row.value}</span>
+              {row.showChange && (
+                <button
+                  onClick={row.onChange}
+                  className="text-primary text-[14px] hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!row.onChange}
+                >
+                  Change
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+      </Card>
 
       {/* Preparation Instructions (for lab) */}
       {summary.prepInstructions && summary.prepInstructions.length > 0 && (
@@ -275,32 +259,3 @@ export function EmbeddedBookingSummary({ summary, onPay, onSelect, disabled, con
   );
 }
 
-function SummaryRow({
-  label,
-  value,
-  showChange = false,
-  onChange,
-}: {
-  label: string;
-  value: React.ReactNode;
-  showChange?: boolean;
-  onChange?: () => void;
-}) {
-  return (
-    <div className="flex items-center justify-between px-4 py-3">
-      <span className="text-[14px] text-muted-foreground">{label}</span>
-      <div className="flex items-center gap-3">
-        <span className="text-[14px] text-right">{value}</span>
-        {showChange && (
-          <button
-            onClick={onChange}
-            className="text-primary text-[14px] hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={!onChange}
-          >
-            Change
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}

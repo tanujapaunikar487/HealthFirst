@@ -379,7 +379,7 @@ export default function PatientStep({
                 key={member.id}
                 onClick={() => handlePatientSelect(member.id)}
                 className={cn(
-                  'flex items-center gap-3 p-3 rounded-xl border text-left transition-all',
+                  'flex items-center gap-3 p-3 rounded-full border text-left transition-all',
                   'hover:border-primary/50 hover:bg-primary/5',
                   patientId === member.id && 'border-primary bg-primary/5'
                 )}
@@ -398,7 +398,7 @@ export default function PatientStep({
           {!showAddMemberInline && (
             <button
               onClick={() => setShowAddMemberInline(true)}
-              className="mt-3 inline-flex items-center gap-1 text-[14px] text-foreground hover:text-primary transition-colors"
+              className="mt-3 inline-flex items-center gap-1 px-4 py-2.5 rounded-full border text-[14px] text-foreground hover:border-primary/50 hover:bg-primary/5 transition-all"
             >
               Add family member or guest
               <Icon icon={ArrowRight} className="h-4 w-4" />
@@ -425,7 +425,7 @@ export default function PatientStep({
         {patientId && showAppointmentType && (
           <section ref={appointmentTypeSectionRef}>
             <h2 className="text-xl font-semibold mb-2">
-              Is this a new appointment or a follow-up?
+              Is this a new consultation or a follow-up?
             </h2>
             <p className="text-[14px] text-muted-foreground mb-4">
               Follow-ups will show your previous doctors
@@ -435,17 +435,17 @@ export default function PatientStep({
               <button
                 onClick={() => handleAppointmentTypeSelect('new')}
                 className={cn(
-                  'p-4 rounded-xl border text-left transition-all',
+                  'px-5 py-3 rounded-full border text-left transition-all',
                   'hover:border-primary/50 hover:bg-primary/5',
                   appointmentType === 'new' && 'border-primary bg-primary/5'
                 )}
               >
-                <span className="font-medium">New Appointment</span>
+                <span className="font-medium">New Consultation</span>
               </button>
               <button
                 onClick={() => handleAppointmentTypeSelect('followup')}
                 className={cn(
-                  'p-4 rounded-xl border text-left transition-all',
+                  'px-5 py-3 rounded-full border text-left transition-all',
                   'hover:border-primary/50 hover:bg-primary/5',
                   appointmentType === 'followup' && 'border-primary bg-primary/5'
                 )}
@@ -468,24 +468,22 @@ export default function PatientStep({
               This helps us prepare for your visit
             </p>
 
-            <Card className="overflow-hidden divide-y">
-              {followUpReasonOptions.map((option) => (
+            <Card className="overflow-hidden">
+              {followUpReasonOptions.map((option, index) => (
                 <button
                   key={option.value}
                   onClick={() => handleFollowupReasonSelect(option.value)}
                   className={cn(
-                    'w-full flex items-center gap-3 p-4 text-left transition-all',
+                    'w-full p-4 text-left transition-all',
                     'hover:bg-muted/50',
                     followupReason === option.value && 'bg-primary/5'
                   )}
+                  style={{
+                    borderBottom: index < followUpReasonOptions.length - 1 ? '1px solid hsl(var(--border))' : 'none'
+                  }}
                 >
-                  <div className="flex-shrink-0">
-                    {getReasonIcon(option.value)}
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium">{option.label}</p>
-                    <p className="text-[14px] text-muted-foreground">{option.description}</p>
-                  </div>
+                  <p className="font-medium text-[14px]">{option.label}</p>
+                  <p className="text-[14px] text-muted-foreground">{option.description}</p>
                 </button>
               ))}
             </Card>

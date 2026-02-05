@@ -1,4 +1,5 @@
 import { cn } from '@/Lib/utils';
+import { Card } from '@/Components/ui/card';
 import { Video, User } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 
@@ -28,8 +29,8 @@ export function AppointmentModeSelector({
   className,
 }: AppointmentModeSelectorProps) {
   return (
-    <div className={cn('border rounded-xl overflow-hidden divide-y', className)}>
-      {modes.map((mode) => {
+    <Card className={cn('overflow-hidden', className)}>
+      {modes.map((mode, index) => {
         const modeIcon = modeIcons[mode.type];
         const isSelected = selectedMode === mode.type;
 
@@ -40,32 +41,30 @@ export function AppointmentModeSelector({
             className={cn(
               'w-full flex items-center gap-4 p-4 text-left transition-all',
               'hover:bg-muted/50',
-              isSelected && 'bg-primary/5 border border-primary'
+              isSelected && 'bg-primary/5'
             )}
+            style={{
+              borderBottom: index < modes.length - 1 ? '1px solid hsl(var(--border))' : 'none'
+            }}
           >
-            {/* Icon */}
-            <div
-              className={cn(
-                'w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0',
-                isSelected ? 'bg-primary/10' : 'bg-muted'
-              )}
-            >
-              <Icon icon={modeIcon} className={cn('h-5 w-5', isSelected ? 'text-primary' : 'text-foreground')} />
+            {/* Icon with rounded background */}
+            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+              <Icon icon={modeIcon} className="h-5 w-5 text-foreground" />
             </div>
 
             {/* Text */}
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-[14px]">{mode.label}</p>
-              <p className="text-[14px] text-muted-foreground">{mode.description}</p>
+              <p className="font-medium text-[14px] leading-tight mb-0.5">{mode.label}</p>
+              <p className="text-[14px] text-muted-foreground leading-tight">{mode.description}</p>
             </div>
 
             {/* Price */}
-            <span className="font-semibold text-[14px] flex-shrink-0">
+            <span className="font-medium text-[14px] flex-shrink-0">
               ₹{mode.price.toLocaleString()}
             </span>
           </button>
         );
       })}
-    </div>
+    </Card>
   );
 }

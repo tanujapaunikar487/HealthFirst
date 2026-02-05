@@ -1,6 +1,5 @@
 import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
-import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
 import { Card } from '@/Components/ui/card';
 import { format, parseISO } from 'date-fns';
 
@@ -57,9 +56,13 @@ export default function ConfirmStep({ summary }: Props) {
     }
   };
 
-  const getInitial = (name: string) => {
-    return name.charAt(0).toUpperCase();
-  };
+  // Build rows array for proper divider handling
+  const rows = [
+    { label: 'Doctor', value: summary.doctor.name, step: 'doctor-time' },
+    { label: 'Patient', value: summary.patient.name, step: 'patient' },
+    { label: 'Date & Time', value: formatDateTime(summary.datetime), step: 'doctor-time' },
+    { label: 'Type', value: summary.appointmentType, step: 'doctor-time' },
+  ];
 
   return (
     <GuidedBookingLayout
@@ -73,59 +76,31 @@ export default function ConfirmStep({ summary }: Props) {
       <div>
         <h2 className="text-xl font-semibold mb-6">Booking Summary</h2>
 
-        <Card className="overflow-hidden divide-y bg-white">
-          {/* Doctor */}
-          <SummaryRow
-            label="Doctor"
-            value={
-              <div className="flex items-center gap-2">
-                <Avatar className="w-6 h-6">
-                  <AvatarImage src={summary.doctor.avatar || undefined} />
-                  <AvatarFallback className="bg-warning text-warning-foreground text-[14px] font-medium">
-                    {getInitial(summary.doctor.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="font-medium">{summary.doctor.name}</span>
+        <Card className="overflow-hidden">
+          {rows.map((row, index) => (
+            <div
+              key={row.label}
+              className="flex items-center justify-between px-4 py-4"
+              style={{
+                borderBottom: '1px solid hsl(var(--border))'
+              }}
+            >
+              <span className="text-[14px] text-muted-foreground">{row.label}</span>
+              <div className="flex items-center gap-3">
+                <span className="text-[14px] font-medium">{row.value}</span>
+                <button
+                  onClick={() => handleChange(row.step)}
+                  className="text-primary text-[14px] hover:underline"
+                >
+                  Change
+                </button>
               </div>
-            }
-            onChangeClick={() => handleChange('doctor-time')}
-          />
-
-          {/* Patient */}
-          <SummaryRow
-            label="Patient"
-            value={
-              <div className="flex items-center gap-2">
-                <Avatar className="w-6 h-6">
-                  <AvatarImage src={summary.patient.avatar || undefined} />
-                  <AvatarFallback className="bg-warning text-warning-foreground text-[14px] font-medium">
-                    {getInitial(summary.patient.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="font-medium">{summary.patient.name}</span>
-              </div>
-            }
-            onChangeClick={() => handleChange('patient')}
-          />
-
-          {/* Date & Time */}
-          <SummaryRow
-            label="Date & Time"
-            value={<span className="font-medium">{formatDateTime(summary.datetime)}</span>}
-            onChangeClick={() => handleChange('doctor-time')}
-          />
-
-          {/* Type */}
-          <SummaryRow
-            label="Type"
-            value={<span className="font-medium">{summary.appointmentType}</span>}
-            onChangeClick={() => handleChange('doctor-time')}
-          />
-
+            </div>
+          ))}
           {/* Fee - no Change button */}
-          <div className="flex items-center justify-between px-6 py-4">
-            <span className="text-muted-foreground">Appointment Fee</span>
-            <span className="font-semibold">₹{summary.fee.toLocaleString()}</span>
+          <div className="flex items-center justify-between px-4 py-4">
+            <span className="text-[14px] text-muted-foreground">Appointment Fee</span>
+            <span className="text-[14px] font-medium">₹{summary.fee.toLocaleString()}</span>
           </div>
         </Card>
       </div>
@@ -133,23 +108,3 @@ export default function ConfirmStep({ summary }: Props) {
   );
 }
 
-// SummaryRow component
-interface SummaryRowProps {
-  label: string;
-  value: React.ReactNode;
-  onChangeClick: () => void;
-}
-
-function SummaryRow({ label, value, onChangeClick }: SummaryRowProps) {
-  return (
-    <div className="flex items-center justify-between px-6 py-4">
-      <span className="text-muted-foreground">{label}</span>
-      <div className="flex items-center gap-3">
-        <div>{value}</div>
-        <button onClick={onChangeClick} className="text-primary text-[14px] hover:underline">
-          Change
-        </button>
-      </div>
-    </div>
-  );
-}

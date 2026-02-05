@@ -2,6 +2,7 @@ import * as React from 'react';
 import { cn } from '@/Lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
+import { Card } from '@/Components/ui/card';
 import { Check, Star, Video, User, Search, ChevronDown } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { EmbeddedDoctorList } from './embedded/EmbeddedDoctorList';
@@ -135,27 +136,40 @@ export function EmbeddedComponent({
 
     case 'followup_reason':
     case 'followup_reason_selector':
+      const options = data?.options || [];
       return (
-        <div className="flex flex-col gap-3 mt-3">
-          {data?.options?.map((option: any) => (
-            <button
-              key={option.id || option.value}
-              onClick={() =>
-                onSelect({
-                  followup_reason: option.value || option.id,
-                  display_message: option.label, // ✅ Send human-readable label
-                })
-              }
-              disabled={disabled || isSelected}
-              className="w-full px-6 py-4 border border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-left"
-            >
-              <div className="font-semibold text-gray-900">{option.label}</div>
-              {option.description && (
-                <div className="text-[14px] text-gray-500 mt-1">{option.description}</div>
-              )}
-            </button>
-          ))}
-        </div>
+        <Card className="overflow-hidden">
+          {options.map((option: any, index: number) => {
+            const optionSelected = isSelected && data?.selected === (option.value || option.id);
+            return (
+              <button
+                key={option.id || option.value}
+                onClick={() =>
+                  onSelect({
+                    followup_reason: option.value || option.id,
+                    display_message: option.label,
+                  })
+                }
+                disabled={disabled || isSelected}
+                className={cn(
+                  "w-full p-4 text-left transition-all disabled:cursor-not-allowed",
+                  "hover:bg-muted/50",
+                  optionSelected
+                    ? "bg-primary/5 opacity-60"
+                    : isSelected ? "opacity-30" : ""
+                )}
+                style={{
+                  borderBottom: index < options.length - 1 ? '1px solid hsl(var(--border))' : 'none'
+                }}
+              >
+                <p className="font-medium text-[14px] text-foreground leading-tight mb-0.5">{option.label}</p>
+                {option.description && (
+                  <p className="text-[14px] text-muted-foreground leading-tight">{option.description}</p>
+                )}
+              </button>
+            );
+          })}
+        </Card>
       );
 
     case 'urgency_selector':
@@ -413,10 +427,11 @@ export function EmbeddedComponent({
 
       return (
         <div className="space-y-3 mt-3">
-          <div className="flex flex-col gap-3">
-            {previousDoctors.map((doctor: any) => {
+          <Card className="overflow-hidden">
+            {previousDoctors.map((doctor: any, index: number) => {
               // Check if name already starts with "Dr."
               const displayName = doctor.name?.startsWith('Dr.') ? doctor.name : `Dr. ${doctor.name}`;
+              const doctorSelected = selection?.doctor_id === doctor.id;
 
               return (
                 <button
@@ -430,40 +445,51 @@ export function EmbeddedComponent({
                     })
                   }
                   disabled={disabled || isSelected}
-                className={cn(
-                  'w-full px-6 py-4 border border-gray-200 rounded-xl text-left transition-all',
-                  'hover:border-blue-500 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed',
-                  selection?.doctor_id === doctor.id && 'border-blue-500 bg-blue-50'
-                )}
-              >
-                <div className="flex items-start gap-3">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={doctor.avatar || undefined} />
-                    <AvatarFallback className="bg-amber-500 text-white">
-                      {doctor.name?.charAt(0) || 'D'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="font-semibold text-gray-900">{doctor.name}</div>
-                    <div className="text-[14px] text-gray-500">{doctor.specialization}</div>
-                    {doctor.last_visit && (
-                      <div className="text-[14px] text-blue-600 mt-1">Last visit: {doctor.last_visit}</div>
-                    )}
+                  className={cn(
+                    'w-full px-6 py-4 text-left transition-all',
+                    'hover:bg-muted/50 disabled:cursor-not-allowed',
+                    doctorSelected
+                      ? isSelected ? 'bg-primary/5 opacity-60' : 'bg-primary/5'
+                      : isSelected ? 'opacity-30' : ''
+                  )}
+                  style={{
+                    borderBottom: (index < previousDoctors.length - 1 || showAllDoctorsOption)
+                      ? '1px solid hsl(var(--border))'
+                      : 'none'
+                  }}
+                >
+                  <div className="flex items-start gap-3">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={doctor.avatar || undefined} />
+                      <AvatarFallback className="bg-warning text-warning-foreground">
+                        {doctor.name?.charAt(0) || 'D'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <div className="font-medium text-[14px] text-foreground">{doctor.name}</div>
+                      <div className="text-[14px] text-muted-foreground">{doctor.specialization}</div>
+                      {doctor.last_visit && (
+                        <div className="text-[14px] text-primary mt-1">Last visit: {doctor.last_visit}</div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </button>
+                </button>
               );
             })}
-          </div>
-          {showAllDoctorsOption && (
-            <button
-              onClick={() => onSelect({ show_all_doctors: true })}
-              disabled={disabled || isSelected}
-              className="w-full px-6 py-3 border border-gray-300 rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <div className="text-[14px] font-semibold text-gray-700">Or see all other doctors</div>
-            </button>
-          )}
+            {showAllDoctorsOption && (
+              <button
+                onClick={() => onSelect({ show_all_doctors: true })}
+                disabled={disabled || isSelected}
+                className={cn(
+                  'w-full px-6 py-4 text-left transition-all',
+                  'hover:bg-muted/50 disabled:cursor-not-allowed',
+                  isSelected ? 'opacity-30' : ''
+                )}
+              >
+                <div className="text-[14px] font-medium text-primary text-center">Or see all other doctors</div>
+              </button>
+            )}
+          </Card>
         </div>
       );
 
@@ -829,11 +855,11 @@ function PatientSelector({ patients, selected, defaultPatientId, onSelect, onAdd
             onClick={() => !disabled && onSelect(patient.id)}
             disabled={disabled}
             className={cn(
-              'flex items-center gap-2.5 p-3 rounded-xl border transition-all text-left',
-              'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
+              'flex items-center gap-3 p-3 rounded-full border transition-all text-left',
+              'hover:border-primary/50 hover:bg-primary/5 disabled:cursor-not-allowed',
               highlightedId === patient.id
-                ? 'border-primary bg-accent'
-                : 'border-border bg-background'
+                ? disabled ? 'border-primary bg-primary/5 opacity-60' : 'border-primary bg-primary/5'
+                : disabled ? 'border-border bg-background opacity-30' : 'border-border bg-background'
             )}
           >
             <Avatar className="w-9 h-9 flex-shrink-0">
@@ -855,7 +881,7 @@ function PatientSelector({ patients, selected, defaultPatientId, onSelect, onAdd
       <button
         onClick={() => !disabled && onAddMember?.()}
         disabled={disabled}
-        className="text-[14px] text-foreground hover:text-primary transition-colors flex items-center gap-1 mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="text-[14px] text-foreground flex items-center gap-1 mt-2 px-4 py-2.5 rounded-full border hover:border-primary/50 hover:bg-primary/5 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
       >
         Add family member or guest &rarr;
       </button>
@@ -874,10 +900,10 @@ function OptionSelector({ options, selected, onSelect, disabled }: any) {
           disabled={disabled}
           className={cn(
             'px-5 py-2.5 rounded-full border text-[14px] font-medium transition-all',
-            'hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60',
+            'hover:border-primary/50 hover:bg-primary/5 disabled:cursor-not-allowed',
             selected === option.id
-              ? 'border-[#0052FF] bg-blue-50 text-[#0A0B0D]'
-              : 'border-gray-200 bg-white text-[#0A0B0D]'
+              ? disabled ? 'border-primary bg-primary/5 opacity-60' : 'border-primary bg-primary/5'
+              : disabled ? 'border-border bg-background opacity-30' : 'border-border bg-background'
           )}
         >
           {option.label}

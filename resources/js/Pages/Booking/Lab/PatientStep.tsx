@@ -86,7 +86,7 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
                 key={member.id}
                 onClick={() => setPatientId(member.id)}
                 className={cn(
-                  'flex items-center gap-3 p-3 rounded-xl border text-left transition-all',
+                  'flex items-center gap-3 p-3 rounded-full border text-left transition-all',
                   'hover:border-primary/50 hover:bg-primary/5',
                   patientId === member.id && 'border-primary bg-primary/5'
                 )}
@@ -105,7 +105,7 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
           {!showAddMemberInline && (
             <button
               onClick={() => setShowAddMemberInline(true)}
-              className="mt-3 inline-flex items-center gap-1 text-[14px] text-foreground hover:text-primary transition-colors"
+              className="mt-3 inline-flex items-center gap-1 px-4 py-2.5 rounded-full border text-[14px] text-foreground hover:border-primary/50 hover:bg-primary/5 transition-all"
             >
               Add family member or guest
               <Icon icon={ArrowRight} className="h-4 w-4" />

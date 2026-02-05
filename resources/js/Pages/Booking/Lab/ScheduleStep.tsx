@@ -7,8 +7,9 @@ import { EmbeddedAddressSelector } from '@/Features/booking-chat/embedded/Embedd
 import { EmbeddedAddressForm } from '@/Features/booking-chat/embedded/EmbeddedAddressForm';
 import { EmbeddedCenterList } from '@/Features/booking-chat/embedded/EmbeddedCenterList';
 import { Button } from '@/Components/ui/button';
+import { Card } from '@/Components/ui/card';
 import { cn } from '@/Lib/utils';
-import { Home, Building2, Check } from '@/Lib/icons';
+import { Home, Building2 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 
 const labSteps = [
@@ -312,48 +313,43 @@ export default function ScheduleStep({
           <section ref={collectionSectionRef}>
             <h2 className="text-xl font-semibold mb-4">Where should we collect the sample?</h2>
 
-            <div className="space-y-3">
-              {locations.map((loc) => {
+            <Card className="overflow-hidden">
+              {locations.map((loc, index) => {
                 const isSelected = selectedLocation === loc.type;
                 return (
                   <button
                     key={loc.type}
                     onClick={() => handleLocationChange(loc.type)}
                     className={cn(
-                      'w-full flex items-start gap-3 p-4 rounded-xl border transition-all text-left',
-                      isSelected
-                        ? 'bg-primary/5 border-primary'
-                        : 'bg-background hover:border-primary/50'
+                      'w-full flex items-center gap-4 p-4 text-left transition-all',
+                      'hover:bg-muted/50',
+                      isSelected && 'bg-primary/5'
                     )}
+                    style={{
+                      borderBottom: index < locations.length - 1 ? '1px solid hsl(var(--border))' : 'none'
+                    }}
                   >
-                    <div
-                      className={cn(
-                        'w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0',
-                        isSelected ? 'bg-primary/10' : 'bg-muted'
-                      )}
-                    >
+                    {/* Icon with rounded background */}
+                    <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
                       {loc.type === 'home' ? (
-                        <Icon icon={Home} className={cn('h-5 w-5', isSelected && 'text-primary')} />
+                        <Icon icon={Home} className="h-5 w-5 text-foreground" />
                       ) : (
-                        <Icon icon={Building2} className={cn('h-5 w-5', isSelected && 'text-primary')} />
+                        <Icon icon={Building2} className="h-5 w-5 text-foreground" />
                       )}
                     </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-[14px]">{loc.label}</p>
-                      <p className="text-[14px] text-muted-foreground">{loc.description}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-[14px] leading-tight mb-0.5">{loc.label}</p>
+                      <p className="text-[14px] text-muted-foreground leading-tight">{loc.description}</p>
                       {loc.fee > 0 && (
                         <p className="text-[14px] text-muted-foreground mt-1">
                           +₹{loc.fee} collection fee
                         </p>
                       )}
                     </div>
-                    {isSelected && (
-                      <Icon icon={Check} className="h-5 w-5 text-primary flex-shrink-0 mt-1" />
-                    )}
                   </button>
                 );
               })}
-            </div>
+            </Card>
 
             {errors.location && (
               <p className="text-[14px] text-destructive mt-2">{errors.location}</p>

@@ -1,4 +1,5 @@
 import { cn } from '@/Lib/utils';
+import { Card } from '@/Components/ui/card';
 
 interface Props {
   selectedReason: string | null;
@@ -11,26 +12,23 @@ const reasons = [
     value: 'scheduled',
     label: 'Scheduled follow-up',
     description: 'Doctor asked me to come back',
-    dotColor: 'bg-primary',
   },
   {
     value: 'new_concern',
     label: 'New concern',
     description: 'Something changed since last visit',
-    dotColor: 'bg-warning',
   },
   {
     value: 'ongoing_issue',
     label: 'Ongoing issue',
     description: "Symptoms haven't improved",
-    dotColor: 'bg-destructive',
   },
 ];
 
 export function EmbeddedFollowUpReason({ selectedReason, onSelect, disabled }: Props) {
   return (
-    <div className="space-y-3">
-      {reasons.map((reason) => {
+    <Card className="overflow-hidden">
+      {reasons.map((reason, index) => {
         const isSelected = selectedReason === reason.value;
 
         return (
@@ -39,32 +37,25 @@ export function EmbeddedFollowUpReason({ selectedReason, onSelect, disabled }: P
             onClick={() => !disabled && onSelect(reason.value)}
             disabled={disabled}
             className={cn(
-              "w-full flex items-center gap-3 p-4 rounded-xl border text-left transition-all",
-              "hover:border-primary/50 hover:bg-primary/5 disabled:cursor-not-allowed",
+              "w-full p-4 text-left transition-all disabled:cursor-not-allowed",
+              "hover:bg-muted/50",
               isSelected
-                ? "border-primary bg-primary/5"
-                : "border-border bg-background",
-              disabled && !isSelected && "opacity-60"
+                ? disabled ? "bg-primary/5 opacity-60" : "bg-primary/5"
+                : disabled ? "opacity-30" : ""
             )}
+            style={{
+              borderBottom: index < reasons.length - 1 ? '1px solid hsl(var(--border))' : 'none'
+            }}
           >
-            {/* Colored dot */}
-            <div className={cn(
-              "w-2 h-2 rounded-full flex-shrink-0",
-              reason.dotColor
-            )} />
-
-            {/* Text content */}
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-[14px] text-foreground leading-tight mb-0.5">
-                {reason.label}
-              </p>
-              <p className="text-[14px] text-muted-foreground leading-tight">
-                {reason.description}
-              </p>
-            </div>
+            <p className="font-medium text-[14px] text-foreground leading-tight mb-0.5">
+              {reason.label}
+            </p>
+            <p className="text-[14px] text-muted-foreground leading-tight">
+              {reason.description}
+            </p>
           </button>
         );
       })}
-    </div>
+    </Card>
   );
 }

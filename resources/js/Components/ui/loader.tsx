@@ -12,6 +12,12 @@ interface LoaderProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: 'sm' | 'md' | 'lg';
 }
 
+const dotSizes = {
+  sm: 'w-1.5 h-1.5',
+  md: 'w-2 h-2',
+  lg: 'w-2.5 h-2.5',
+};
+
 export function Loader({
   variant = 'dots',
   size = 'md',
@@ -24,33 +30,16 @@ export function Loader({
         className={cn('flex items-center gap-1', className)}
         {...props}
       >
-        <div
-          className={cn(
-            'rounded-full bg-muted-foreground animate-bounce',
-            size === 'sm' && 'w-1.5 h-1.5',
-            size === 'md' && 'w-2 h-2',
-            size === 'lg' && 'w-3 h-3'
-          )}
-          style={{ animationDelay: '0ms' }}
-        />
-        <div
-          className={cn(
-            'rounded-full bg-muted-foreground animate-bounce',
-            size === 'sm' && 'w-1.5 h-1.5',
-            size === 'md' && 'w-2 h-2',
-            size === 'lg' && 'w-3 h-3'
-          )}
-          style={{ animationDelay: '150ms' }}
-        />
-        <div
-          className={cn(
-            'rounded-full bg-muted-foreground animate-bounce',
-            size === 'sm' && 'w-1.5 h-1.5',
-            size === 'md' && 'w-2 h-2',
-            size === 'lg' && 'w-3 h-3'
-          )}
-          style={{ animationDelay: '300ms' }}
-        />
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className={cn(
+              'rounded-full bg-muted-foreground/70 animate-pulse-dot',
+              dotSizes[size]
+            )}
+            style={{ animationDelay: `${i * 200}ms` }}
+          />
+        ))}
       </div>
     );
   }

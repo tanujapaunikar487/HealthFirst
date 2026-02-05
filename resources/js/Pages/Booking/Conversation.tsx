@@ -696,9 +696,7 @@ function MessageBubble({
 
         {/* Text content */}
         {message.content && (
-          <div className="rounded-2xl px-4 py-2.5 bg-muted text-foreground mb-2.5">
-            <p className="text-[14px] leading-relaxed whitespace-pre-line">{message.content}</p>
-          </div>
+          <p className="text-[14px] leading-relaxed whitespace-pre-line text-foreground mb-2.5">{message.content}</p>
         )}
 
         {/* Embedded component - show if it's the last message OR if a selection was made */}

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
-import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
 import { Card } from '@/Components/ui/card';
 import { Alert } from '@/Components/ui/alert';
 import { format, parseISO } from 'date-fns';
@@ -51,9 +50,14 @@ export default function ConfirmStep({ summary }: Props) {
     }
   };
 
-  const getInitial = (name: string) => {
-    return name.charAt(0).toUpperCase();
-  };
+  // Build rows array for proper divider handling
+  const rows = [
+    { label: summary.package.isTests ? 'Tests' : 'Package', value: summary.package.name, step: 'test-search' },
+    { label: 'Patient', value: summary.patient.name, step: 'patient' },
+    { label: 'Date & Time', value: formatDateTime(summary.datetime), step: 'schedule' },
+    { label: 'Collection', value: summary.collection, step: 'schedule' },
+    { label: 'Address', value: summary.address, step: 'schedule' },
+  ];
 
   return (
     <GuidedBookingLayout
@@ -68,51 +72,29 @@ export default function ConfirmStep({ summary }: Props) {
         <h2 className="text-xl font-semibold">Booking Summary</h2>
 
         {/* Summary Table */}
-        <Card className="overflow-hidden divide-y bg-white">
-          <SummaryRow
-            label={summary.package.isTests ? 'Tests' : 'Package'}
-            value={<span className="font-medium">{summary.package.name}</span>}
-            onChangeClick={() => handleChange('test-search')}
-          />
-
-          <SummaryRow
-            label="Patient"
-            value={
-              <div className="flex items-center gap-2">
-                <Avatar className="w-6 h-6">
-                  <AvatarImage src={summary.patient.avatar || undefined} />
-                  <AvatarFallback className="bg-warning text-warning-foreground text-[14px] font-medium">
-                    {getInitial(summary.patient.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="font-medium">{summary.patient.name}</span>
+        <Card className="overflow-hidden">
+          {rows.map((row) => (
+            <div
+              key={row.label}
+              className="flex items-center justify-between px-4 py-4"
+              style={{ borderBottom: '1px solid hsl(var(--border))' }}
+            >
+              <span className="text-[14px] text-muted-foreground">{row.label}</span>
+              <div className="flex items-center gap-3">
+                <span className="text-[14px] font-medium">{row.value}</span>
+                <button
+                  onClick={() => handleChange(row.step)}
+                  className="text-primary text-[14px] hover:underline"
+                >
+                  Change
+                </button>
               </div>
-            }
-            onChangeClick={() => handleChange('patient')}
-          />
-
-          <SummaryRow
-            label="Date & Time"
-            value={<span className="font-medium">{formatDateTime(summary.datetime)}</span>}
-            onChangeClick={() => handleChange('schedule')}
-          />
-
-          <SummaryRow
-            label="Collection"
-            value={<span className="font-medium">{summary.collection}</span>}
-            onChangeClick={() => handleChange('schedule')}
-          />
-
-          <SummaryRow
-            label="Address"
-            value={<span className="font-medium">{summary.address}</span>}
-            onChangeClick={() => handleChange('schedule')}
-          />
-
+            </div>
+          ))}
           {/* Fee - no Change button */}
-          <div className="flex items-center justify-between px-6 py-4">
-            <span className="text-muted-foreground">Consultation Fee</span>
-            <span className="font-semibold">₹{summary.fee.toLocaleString()}</span>
+          <div className="flex items-center justify-between px-4 py-4">
+            <span className="text-[14px] text-muted-foreground">Consultation Fee</span>
+            <span className="text-[14px] font-medium">₹{summary.fee.toLocaleString()}</span>
           </div>
         </Card>
 
@@ -134,23 +116,3 @@ export default function ConfirmStep({ summary }: Props) {
   );
 }
 
-// SummaryRow component
-interface SummaryRowProps {
-  label: string;
-  value: React.ReactNode;
-  onChangeClick: () => void;
-}
-
-function SummaryRow({ label, value, onChangeClick }: SummaryRowProps) {
-  return (
-    <div className="flex items-center justify-between px-6 py-4">
-      <span className="text-muted-foreground">{label}</span>
-      <div className="flex items-center gap-3">
-        <div>{value}</div>
-        <button onClick={onChangeClick} className="text-primary text-[14px] hover:underline">
-          Change
-        </button>
-      </div>
-    </div>
-  );
-}
