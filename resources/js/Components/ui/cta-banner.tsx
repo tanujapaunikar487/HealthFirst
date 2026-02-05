@@ -48,7 +48,7 @@ const CtaBanner = React.forwardRef<HTMLDivElement, CtaBannerProps>(
     return (
       <div
         ref={ref}
-        className={cn('cta-banner', !gradient && 'bg-gradient-to-r from-neutral-800 to-primary', className)}
+        className={cn('cta-banner', !gradient && 'bg-gradient-to-r from-blue-950 to-primary', className)}
         style={{
           minWidth,
           width: '100%',
