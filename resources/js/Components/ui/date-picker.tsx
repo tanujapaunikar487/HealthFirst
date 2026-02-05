@@ -92,9 +92,8 @@ export function DatePicker({
         </button>
       </PopoverTrigger>
       <PopoverContent
-        className="p-0"
+        className="w-auto p-0"
         align="start"
-        style={{ width: 'var(--radix-popover-trigger-width)' }}
       >
         <Calendar
           mode="single"
