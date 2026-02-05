@@ -50,4 +50,21 @@ class PolicyExpiring extends BaseNotification
             'message' => 'Your insurance policy #' . $this->policy->policy_number . ' is expiring in ' . $daysRemaining . ' days.',
         ];
     }
+
+    public function toBillingNotification(object $notifiable): array
+    {
+        $daysRemaining = Carbon::parse($this->policy->end_date)->diffInDays(now());
+
+        return [
+            'type' => 'policy_expiring_soon',
+            'title' => 'Policy Expiring Soon',
+            'message' => 'Your ' . $this->policy->plan_name . ' policy expires in ' . $daysRemaining . ' days. Renew to avoid coverage gaps.',
+            'appointment_id' => null,
+            'data' => [
+                'insurance_policy_id' => $this->policy->id,
+                'policy_name' => $this->policy->plan_name,
+                'expiry_date' => $this->policy->end_date,
+            ],
+        ];
+    }
 }

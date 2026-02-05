@@ -38,4 +38,19 @@ class FamilyMemberAdded extends BaseNotification
             'message' => $this->member->name . ' has been added to your family members.',
         ];
     }
+
+    public function toBillingNotification(object $notifiable): array
+    {
+        return [
+            'type' => 'member_added',
+            'title' => 'Family Member Added',
+            'message' => $this->member->name . ' (' . ucfirst($this->member->relation) . ') has been added to your family members.',
+            'appointment_id' => null,
+            'data' => [
+                'family_member_id' => $this->member->id,
+                'member_name' => $this->member->name,
+                'relation' => $this->member->relation,
+            ],
+        ];
+    }
 }

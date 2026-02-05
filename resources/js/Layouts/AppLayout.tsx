@@ -17,7 +17,7 @@ import {
   Bell, Search, CheckCheck,
   Receipt, Clock, CheckCircle2, XCircle, X,
   ShieldCheck, ShieldAlert, MessageSquare, CreditCard,
-  AlertTriangle,
+  AlertTriangle, Sparkles,
   // Notification icons
   Calendar, Video, TestTube, AlertCircle, Pill, User, UserPlus, Stethoscope,
 } from '@/Lib/icons';
@@ -94,12 +94,16 @@ const notificationIconMap: Record<string, { icon: React.ComponentType<any>; colo
   // Insurance Policy Notifications
   policy_expiring_soon:     { icon: ShieldAlert,    color: 'hsl(var(--warning))', bg: 'hsl(var(--warning) / 0.1)' },
   policy_expired:           { icon: ShieldAlert,    color: 'hsl(var(--destructive))', bg: 'hsl(var(--destructive) / 0.1)' },
+
+  // Promotions
+  promotion:                { icon: Sparkles,       color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.1)' },
 };
 
 const channelLabels: Record<string, string> = {
   push: 'Push',
   email: 'Email',
   sms: 'SMS',
+  whatsapp: 'WhatsApp',
 };
 
 function timeAgo(dateStr: string): string {

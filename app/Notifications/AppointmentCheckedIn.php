@@ -52,4 +52,17 @@ class AppointmentCheckedIn extends BaseNotification
             'message' => "You have successfully checked in for your appointment with {$this->appointment->doctor_name} on {$this->appointment->date_formatted} at {$this->appointment->time_formatted}.",
         ];
     }
+
+    public function toBillingNotification(object $notifiable): array
+    {
+        return [
+            'type' => 'checkin_available',
+            'title' => 'Check-in Available',
+            'message' => "You have successfully checked in for your appointment with {$this->appointment->doctor_name} on {$this->appointment->date_formatted} at {$this->appointment->time_formatted}.",
+            'appointment_id' => $this->appointment->id,
+            'data' => [
+                'doctor_name' => $this->appointment->doctor_name,
+            ],
+        ];
+    }
 }

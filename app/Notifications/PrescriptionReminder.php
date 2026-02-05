@@ -71,4 +71,21 @@ class PrescriptionReminder extends BaseNotification
             'message' => "Your medication ({$drugNames}) is expiring soon. Please consult your doctor for a refill.",
         ];
     }
+
+    public function toBillingNotification(object $notifiable): array
+    {
+        $drugNames = implode(', ', array_column($this->expiringDrugs, 'name'));
+
+        return [
+            'type' => 'prescription_expiring',
+            'title' => 'Prescription Expiring Soon',
+            'message' => "Your medication ({$drugNames}) is expiring soon. Please consult your doctor for a refill.",
+            'appointment_id' => null,
+            'data' => [
+                'health_record_id' => $this->record->id,
+                'medication' => $drugNames,
+                'doctor_name' => $this->record->doctor_name,
+            ],
+        ];
+    }
 }

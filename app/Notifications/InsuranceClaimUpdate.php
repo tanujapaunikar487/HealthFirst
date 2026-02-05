@@ -59,6 +59,33 @@ class InsuranceClaimUpdate extends BaseNotification
         ];
     }
 
+    public function toBillingNotification(object $notifiable): array
+    {
+        $typeMap = [
+            'approved' => 'insurance_claim_approved',
+            'rejected' => 'insurance_claim_rejected',
+            'settled' => 'insurance_claim_settled',
+            'enhancement_required' => 'insurance_enhancement_required',
+            'enhancement_approved' => 'insurance_enhancement_approved',
+            'partially_approved' => 'insurance_claim_approved',
+        ];
+
+        $type = $typeMap[$this->newStatus] ?? 'insurance_claim_approved';
+        $statusLabel = ucwords(str_replace('_', ' ', $this->newStatus));
+
+        return [
+            'type' => $type,
+            'title' => "Insurance Claim {$statusLabel}",
+            'message' => 'Your insurance claim #' . $this->claim->claim_number . ' has been updated to: ' . $statusLabel . '.',
+            'appointment_id' => $this->claim->appointment_id ?? null,
+            'data' => [
+                'insurance_claim_id' => $this->claim->id,
+                'claim_number' => $this->claim->claim_number,
+                'amount' => $this->claim->amount,
+            ],
+        ];
+    }
+
     protected function getNextSteps(string $status): ?string
     {
         return match ($status) {

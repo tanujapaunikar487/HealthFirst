@@ -40,4 +40,19 @@ class LabResultsAvailable extends BaseNotification
             'message' => 'Your lab results for ' . $this->record->title . ' are now available.',
         ];
     }
+
+    public function toBillingNotification(object $notifiable): array
+    {
+        return [
+            'type' => 'lab_results_ready',
+            'title' => 'Lab Results Ready',
+            'message' => 'Your lab results for ' . $this->record->title . ' are now available.',
+            'appointment_id' => null,
+            'data' => [
+                'health_record_id' => $this->record->id,
+                'test_name' => $this->record->title,
+                'doctor_name' => $this->record->doctor_name,
+            ],
+        ];
+    }
 }

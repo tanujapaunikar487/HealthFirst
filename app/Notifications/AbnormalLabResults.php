@@ -47,4 +47,19 @@ class AbnormalLabResults extends BaseNotification
             'message' => 'Your lab results for ' . $this->record->title . ' show some abnormal values that require attention.',
         ];
     }
+
+    public function toBillingNotification(object $notifiable): array
+    {
+        return [
+            'type' => 'abnormal_results',
+            'title' => 'Abnormal Results Detected',
+            'message' => 'Your lab results for ' . $this->record->title . ' show some abnormal values that require attention.',
+            'appointment_id' => null,
+            'data' => [
+                'health_record_id' => $this->record->id,
+                'test_name' => $this->record->title,
+                'doctor_name' => $this->record->doctor_name,
+            ],
+        ];
+    }
 }

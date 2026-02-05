@@ -54,4 +54,18 @@ class PaymentDue extends BaseNotification
             'url' => route('billing.show', $this->appointment->id ?? 1),
         ];
     }
+
+    public function toBillingNotification(object $notifiable): array
+    {
+        return [
+            'type' => 'payment_due_reminder',
+            'title' => 'Payment Due Reminder',
+            'message' => "Payment of ₹{$this->appointment->fee} is pending.",
+            'appointment_id' => $this->appointment->id ?? null,
+            'data' => [
+                'amount' => $this->appointment->fee,
+                'days_overdue' => $this->appointment->days_overdue ?? 0,
+            ],
+        ];
+    }
 }

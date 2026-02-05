@@ -18,7 +18,7 @@ Tests: `php artisan test` (92 tests, 265 assertions)
 
 ## Design System
 
-**Layout**: Cards 20px radius/16px pad | Sheets 500px/24px radius/20px pad/right-side | Page 960px max/40px pad | Sections `space-y-12`
+**Layout**: Cards 20px radius/16px pad | Sheets 500px/24px radius/20px pad/right-side | Dialogs max-w-lg/20px radius/flex-col | Page 960px max/40px pad | Sections `space-y-12`
 
 **Typography**: Fixed pixels (`text-[14px]` not `text-sm`) | Card title: #0A0B0D/14px/500 | Card sub: #737373/14px/400 | Section title (page): #171717/20px/600 | Section title (sheet): #737373/14px/500 | Sentence case everywhere (exceptions: acronyms, proper nouns)
 
@@ -37,7 +37,7 @@ Tests: `php artisan test` (92 tests, 265 assertions)
 ## Technical Decisions
 
 1. **User Model**: UUIDs, `App\User` (not Models)
-2. **Sheets over Modals** platform-wide
+2. **Overlay patterns**: Sheets for forms/wizards/content (right-side 500px). Dialogs for destructive confirmations (delete account), security gates, search (Cmd+K), and share. AlertDialog for simple "are you sure?" with no fields. Legacy Breeze profile pages removed
 3. **Flexible JSON** `metadata` fields for category-specific data
 4. **Server-Side Status**: Controllers compute all badges
 5. **AI Optional**: System works without AI
@@ -48,8 +48,8 @@ Tests: `php artisan test` (92 tests, 265 assertions)
 10. **Status-Based Actions**: Detail page primary button varies by status
 11. **Breadcrumbs**: Navigation-path-aware via `?from=` params
 12. **Auth**: Laravel Breeze, session guard, CSRF, rate limit (5 attempts)
-13. **Notifications**: `NotificationService` → email/SMS/WhatsApp (Twilio). 15 types, 5 categories, sub-prefs for health_alerts (lab_results, medication_reminders). 5 scheduled commands in `routes/console.php`. Prescription reminders show per-drug days remaining + surface on Dashboard as "Up Next" cards
-14. **SheetBody CSS**: `.sheet-body > *` = 20px pad; `> * + *` = auto dividers. NO `SheetDivider` inside SheetBody
+13. **Notifications**: `NotificationService` → email/SMS/WhatsApp (Twilio) + in-app bell via `billing_notifications` table. 16 types, 5 categories, sub-prefs for health_alerts (lab_results, medication_reminders). `toBillingNotification()` on each notification class bridges to bell UI (type/key remapping for frontend contract). 5 scheduled commands in `routes/console.php`. Prescription reminders show per-drug days remaining + surface on Dashboard as "Up Next" cards
+14. **Sheet/Dialog Body CSS**: `.sheet-body`/`.dialog-body` `> *` = 20px pad; `> * + *` = auto dividers. NO `SheetDivider` inside SheetBody. Dialog header/footer match Sheet: `16px 20px` pad, 1px border, integrated close button, 20px/semibold title
 15. **Razorpay**: Checkout modal only, no saved methods. Settings = 4 tabs: Profile, Notifications, Preferences, Connections
 16. **User Preferences**: Text size (CSS zoom), high contrast, date/time format, default family member — all end-to-end. Use `useFormatPreferences()` hook, never `formatTableDate()`/`formatTableTime()`. Notifications + Preferences tabs **auto-save** with 1s debounce (no save button). Language preference hidden from UI (backend keeps `'en'` default)
 17. **Google Calendar**: OAuth + mock mode. Auto sync on book/reschedule/cancel. `calendar_sync` in user_settings. Privacy-safe events. 7 controller hooks in try/catch
