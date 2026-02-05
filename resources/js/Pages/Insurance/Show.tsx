@@ -9,6 +9,7 @@ import { Input } from '@/Components/ui/input';
 import { DatePicker } from '@/Components/ui/date-picker';
 import { Textarea } from '@/Components/ui/textarea';
 import { Icon } from '@/Components/ui/icon';
+import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { cn } from '@/Lib/utils';
 import { SupportFooter } from '@/Components/SupportFooter';
 import { SideNav } from '@/Components/SideNav';
@@ -152,7 +153,9 @@ interface PolicyDetail {
   plan_type: string;
   sum_insured: number;
   premium_amount: number | null;
+  start_date: string;
   start_date_formatted: string;
+  end_date: string;
   end_date_formatted: string;
   is_expiring_soon: boolean;
   days_until_expiry: number;
@@ -172,6 +175,7 @@ interface CoveredMember {
 
 interface PolicyClaim {
   id: number;
+  claim_date: string | null;
   claim_date_formatted: string | null;
   treatment_name: string;
   patient_name: string;
@@ -336,6 +340,7 @@ function InsuranceShowSkeleton() {
 
 export default function InsuranceShow({ policy, coveredMembers, claims }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(policy);
+  const { formatDate } = useFormatPreferences();
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [showShareSheet, setShowShareSheet] = useState(false);
@@ -463,7 +468,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                     <div class="row"><span class="row-label">Plan</span><span class="row-value">${policy.plan_name}</span></div>
                     <div class="row"><span class="row-label">Policy Number</span><span class="row-value">${policy.policy_number}</span></div>
                     <div class="row"><span class="row-label">Sum Insured</span><span class="row-value">${formatCurrency(policy.sum_insured)}</span></div>
-                    <div class="row"><span class="row-label">Valid</span><span class="row-value">${policy.start_date_formatted} to ${policy.end_date_formatted}</span></div>
+                    <div class="row"><span class="row-label">Valid</span><span class="row-value">${formatDate(policy.start_date)} to ${formatDate(policy.end_date)}</span></div>
                     <h2>Covered Members</h2>
                     ${coveredMembers.map(m => `<div class="row"><span class="row-label">${m.relation}</span><span class="row-value">${m.name}</span></div>`).join('')}
                   `;
@@ -518,7 +523,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                 Policy expires in {policy.days_until_expiry} days
               </p>
               <p className="text-[14px] text-amber-600">
-                Valid until {policy.end_date_formatted}. Consider renewing soon.
+                Valid until {formatDate(policy.end_date)}. Consider renewing soon.
               </p>
             </div>
           </div>
@@ -539,7 +544,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
               <div>
                 <p className="text-[14px] font-medium text-gray-500">Valid</p>
                 <p className="mt-1 text-[14px] font-semibold text-gray-900">
-                  {policy.start_date_formatted} &rarr; {policy.end_date_formatted}
+                  {formatDate(policy.start_date)} &rarr; {formatDate(policy.end_date)}
                 </p>
               </div>
               {meta.icu_limit && (
@@ -634,7 +639,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                     <p className="text-[14px] font-semibold text-gray-900">{claim.treatment_name}</p>
                     <p className="mt-0.5 text-[14px] text-gray-500">
                       {claim.patient_name}
-                      {claim.claim_date_formatted && ` \u00B7 ${claim.claim_date_formatted}`}
+                      {claim.claim_date && ` \u00B7 ${formatDate(claim.claim_date)}`}
                     </p>
                   </div>
                   <Button size="icon" icon={ChevronRight} />

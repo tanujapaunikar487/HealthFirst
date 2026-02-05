@@ -226,9 +226,10 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
   useEffect(() => {
     const prefs = props.userPreferences;
     if (prefs?.accessibility) {
-      // Apply text size to root element
+      // Apply text size via CSS zoom (fixed pixel sizes don't respond to root fontSize)
       const textSize = prefs.accessibility.text_size || 14;
-      document.documentElement.style.fontSize = `${textSize}px`;
+      const scale = textSize / 14;
+      document.documentElement.style.zoom = String(scale);
 
       // Apply high contrast mode
       if (prefs.accessibility.high_contrast) {
@@ -240,7 +241,7 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
 
     // Cleanup on unmount
     return () => {
-      document.documentElement.style.fontSize = '';
+      document.documentElement.style.zoom = '';
       document.documentElement.classList.remove('high-contrast');
     };
   }, [props.userPreferences]);

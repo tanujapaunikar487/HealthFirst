@@ -7,6 +7,7 @@ const dateFormatMap: Record<string, string> = {
     'DD/MM/YYYY': 'dd/MM/yyyy',
     'MM/DD/YYYY': 'MM/dd/yyyy',
     'YYYY-MM-DD': 'yyyy-MM-dd',
+    'DD Mon YYYY': 'dd MMM yyyy',
 };
 
 /**

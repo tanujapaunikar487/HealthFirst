@@ -32,7 +32,7 @@ import {
   SheetFooter,
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
-import { cn, formatTableDate, formatTableTime } from '@/Lib/utils';
+import { cn } from '@/Lib/utils';
 import {
   MoreHorizontal,
   Search,
@@ -641,8 +641,8 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
 
                         {/* Date */}
                         <TableCell className="align-top">
-                          <p className="text-[14px] font-medium whitespace-nowrap">{formatTableDate(bill.date)}</p>
-                          <p className="text-[14px] text-muted-foreground">{formatTableTime(bill.date)}</p>
+                          <p className="text-[14px] font-medium whitespace-nowrap">{formatDate(bill.date) || '—'}</p>
+                          <p className="text-[14px] text-muted-foreground">{formatTime(bill.date) || '—'}</p>
                         </TableCell>
 
                         {/* Details */}

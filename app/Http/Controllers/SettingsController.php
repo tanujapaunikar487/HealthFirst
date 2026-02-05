@@ -222,7 +222,7 @@ class SettingsController extends Controller
     {
         $validated = $request->validate([
             'language' => 'required|string|in:en,hi,mr',
-            'date_format' => 'required|string|in:DD/MM/YYYY,MM/DD/YYYY,YYYY-MM-DD',
+            'date_format' => 'required|string|in:DD/MM/YYYY,MM/DD/YYYY,YYYY-MM-DD,DD Mon YYYY',
             'time_format' => 'required|string|in:12h,24h',
             'accessibility' => 'required|array',
             'accessibility.text_size' => 'required|integer|min:14|max:24',

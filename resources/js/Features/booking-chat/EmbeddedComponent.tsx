@@ -35,6 +35,7 @@ interface EmbeddedComponentProps {
   selection: any;
   familyMembers?: any[];
   conversationId?: string;
+  defaultPatientId?: string | null;
   onSelect: (value: any) => void;
   disabled?: boolean;
 }
@@ -65,6 +66,7 @@ export function EmbeddedComponent({
   selection,
   familyMembers = [],
   conversationId,
+  defaultPatientId,
   onSelect,
   disabled = false,
 }: EmbeddedComponentProps) {
@@ -81,6 +83,7 @@ export function EmbeddedComponent({
         <PatientSelector
           patients={patients}
           selected={selection?.patient_id}
+          defaultPatientId={defaultPatientId}
           onSelect={(id) => {
             const patient = patients.find((p: any) => p.id === id);
             onSelect({
@@ -802,7 +805,21 @@ export function EmbeddedComponent({
 }
 
 // Patient Selector Component - 2 column grid
-function PatientSelector({ patients, selected, onSelect, onAddMember, disabled }: any) {
+function PatientSelector({ patients, selected, defaultPatientId, onSelect, onAddMember, disabled }: any) {
+  // Resolve default patient ID: "self" maps to the patient with relation "Self"
+  const resolvedDefaultId = React.useMemo(() => {
+    if (!defaultPatientId) return null;
+    if (defaultPatientId === 'self') {
+      const selfPatient = patients.find((p: any) => p.relation?.toLowerCase() === 'self');
+      return selfPatient?.id ?? null;
+    }
+    const numId = Number(defaultPatientId);
+    return isNaN(numId) ? null : numId;
+  }, [defaultPatientId, patients]);
+
+  // Pre-highlight: show default when no selection has been made yet
+  const highlightedId = selected ?? resolvedDefaultId;
+
   return (
     <div className="space-y-2">
       <div className="grid grid-cols-2 gap-2 max-w-2xl">
@@ -814,7 +831,7 @@ function PatientSelector({ patients, selected, onSelect, onAddMember, disabled }
             className={cn(
               'flex items-center gap-2.5 p-3 rounded-xl border transition-all text-left',
               'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
-              selected === patient.id
+              highlightedId === patient.id
                 ? 'border-primary bg-accent'
                 : 'border-border bg-background'
             )}

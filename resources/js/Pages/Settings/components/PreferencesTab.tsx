@@ -96,6 +96,19 @@ export function PreferencesTab({
             ...prev,
             accessibility: { ...prev.accessibility, [key]: value },
         }));
+
+        // Live preview: apply immediately before saving
+        if (key === 'text_size') {
+            const scale = (value as number) / 14;
+            document.documentElement.style.zoom = String(scale);
+        }
+        if (key === 'high_contrast') {
+            if (value) {
+                document.documentElement.classList.add('high-contrast');
+            } else {
+                document.documentElement.classList.remove('high-contrast');
+            }
+        }
     };
 
     const handleDefaultChange = <K extends keyof BookingDefaults>(key: K, value: string | null) => {
@@ -207,6 +220,7 @@ export function PreferencesTab({
                                     <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
                                     <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
                                     <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
+                                    <SelectItem value="DD Mon YYYY">DD Mon YYYY</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

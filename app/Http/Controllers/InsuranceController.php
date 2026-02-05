@@ -118,6 +118,7 @@ class InsuranceController extends Controller
             ->get()
             ->map(fn ($c) => [
                 'id' => $c->id,
+                'claim_date' => $c->claim_date?->format('Y-m-d'),
                 'claim_date_formatted' => $c->claim_date?->format('d M Y'),
                 'treatment_name' => $c->treatment_name ?? $c->description,
                 'patient_name' => $c->familyMember?->name ?? 'Self',
@@ -135,7 +136,9 @@ class InsuranceController extends Controller
                 'plan_type' => $policy->plan_type,
                 'sum_insured' => $policy->sum_insured,
                 'premium_amount' => $policy->premium_amount,
+                'start_date' => $policy->start_date->format('Y-m-d'),
                 'start_date_formatted' => $policy->start_date->format('d M Y'),
+                'end_date' => $policy->end_date->format('Y-m-d'),
                 'end_date_formatted' => $policy->end_date->format('d M Y'),
                 'is_expiring_soon' => $policy->is_expiring_soon,
                 'days_until_expiry' => $policy->end_date->isFuture()
@@ -188,13 +191,14 @@ class InsuranceController extends Controller
                 'status' => $claim->status,
                 'rejection_reason' => $claim->rejection_reason,
                 'claim_amount' => $claim->claim_amount,
+                'claim_date' => $claim->claim_date?->format('Y-m-d'),
                 'claim_date_formatted' => $claim->claim_date?->format('d M Y'),
                 'provider_name' => $claim->insuranceProvider?->name,
                 'policy_id' => $claim->insurance_policy_id,
                 'policy_plan_name' => $claim->insurancePolicy?->plan_name,
                 'original_policy_id' => $originalPolicy?->id,
                 'original_policy_plan_name' => $originalPolicy?->plan_name,
-                'original_policy_expired_date' => $originalPolicy?->end_date?->format('d M Y'),
+                'original_policy_expired_date' => $originalPolicy?->end_date?->format('Y-m-d'),
                 'transfer_date' => $claim->financial['transfer_date'] ?? null,
                 'appointment_id' => $claim->appointment_id,
                 'family_member_id' => $claim->family_member_id,
@@ -207,6 +211,7 @@ class InsuranceController extends Controller
             'doctor' => $doctor,
             'appointment' => $claim->appointment ? [
                 'id' => $claim->appointment->id,
+                'date' => $claim->appointment->appointment_date?->format('Y-m-d'),
                 'date_formatted' => $claim->appointment->appointment_date?->format('d M Y'),
                 'time' => $claim->appointment->appointment_time,
                 'type' => $claim->appointment->appointment_type,

@@ -36,7 +36,8 @@ import {
   SheetBody,
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
-import { cn, formatTableDate } from '@/Lib/utils';
+import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
+import { cn } from '@/Lib/utils';
 import {
   ShieldCheck,
   Plus,
@@ -308,6 +309,7 @@ export default function InsuranceIndex({
 }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(policies);
   const { props } = usePage<{ toast?: string }>();
+  const { formatDate } = useFormatPreferences();
 
   // List filters
   const [policyFilter, setPolicyFilter] = useState('all');
@@ -717,7 +719,7 @@ export default function InsuranceIndex({
                       >
                         <TableCell className="align-top">
                           <p className="text-[14px] text-gray-600 whitespace-nowrap">
-                            {policy.end_date_formatted ? `Valid until ${policy.end_date_formatted}` : '—'}
+                            {policy.end_date ? `Valid until ${formatDate(policy.end_date)}` : '—'}
                           </p>
                         </TableCell>
                         <TableCell className="align-top">
@@ -862,7 +864,7 @@ export default function InsuranceIndex({
                         >
                           <TableCell className="align-top">
                             <p className="text-[14px] text-gray-600 whitespace-nowrap">
-                              {claim.claim_date_formatted ?? '—'}
+                              {formatDate(claim.claim_date) || '—'}
                             </p>
                           </TableCell>
                           <TableCell className="align-top">

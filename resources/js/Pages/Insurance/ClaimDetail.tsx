@@ -8,6 +8,7 @@ import { Button } from '@/Components/ui/button';
 import { Toast } from '@/Components/ui/toast';
 import { EmptyState } from '@/Components/ui/empty-state';
 import { Icon } from '@/Components/ui/icon';
+import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { cn } from '@/Lib/utils';
 import { SupportFooter } from '@/Components/SupportFooter';
 import { SideNav, SideNavItem } from '@/Components/SideNav';
@@ -209,6 +210,7 @@ interface ClaimData {
   status: string;
   rejection_reason: string | null;
   claim_amount: number;
+  claim_date: string | null;
   claim_date_formatted: string | null;
   provider_name: string | null;
   policy_id: number | null;
@@ -239,6 +241,7 @@ interface Doctor {
 
 interface AppointmentData {
   id: number;
+  date: string | null;
   date_formatted: string | null;
   time: string | null;
   type: string | null;
@@ -369,7 +372,7 @@ interface BannerConfig {
   action?: { label: string; toastMsg: string };
 }
 
-function getBannerConfig(claim: ClaimData): BannerConfig {
+function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null | undefined) => string): BannerConfig {
   const f = claim.financial;
   const s = claim.status;
 
@@ -383,8 +386,8 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
         title: f?.preauth_requested
           ? `Pre-authorization for ${formatCurrency(f.preauth_requested)} is in progress`
           : 'Claim submitted. Under review.',
-        subtitle: claim.claim_date_formatted
-          ? `Submitted on ${claim.claim_date_formatted}. Usually approved within 4-6 hours.`
+        subtitle: claim.claim_date
+          ? `Submitted on ${formatDate(claim.claim_date)}. Usually approved within 4-6 hours.`
           : 'Usually approved within 4-6 hours.',
         action: { label: 'Track status', toastMsg: 'Viewing claim timeline...' },
       };
@@ -398,8 +401,8 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
         title: f?.preauth_approved
           ? `Pre-authorization approved for ${formatCurrency(f.preauth_approved)}`
           : 'Pre-authorization approved.',
-        subtitle: claim.claim_date_formatted
-          ? `Approved on ${claim.claim_date_formatted}. You can proceed with cashless treatment.`
+        subtitle: claim.claim_date
+          ? `Approved on ${formatDate(claim.claim_date)}. You can proceed with cashless treatment.`
           : 'You can proceed with cashless treatment.',
         action: { label: 'Download EOB', toastMsg: 'Downloading Explanation of Benefits...' },
       };
@@ -429,8 +432,8 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
         bg: 'bg-red-50',
         border: 'border-red-200',
         textColor: 'text-red-800',
-        title: claim.claim_date_formatted
-          ? `Pre-authorisation rejected on ${claim.claim_date_formatted}`
+        title: claim.claim_date
+          ? `Pre-authorisation rejected on ${formatDate(claim.claim_date)}`
           : 'Pre-authorisation rejected.',
         subtitle: claim.rejection_reason ?? undefined,
         action: { label: 'File appeal', toastMsg: 'Opening appeal flow...' },
@@ -442,8 +445,8 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
         bg: 'bg-red-50',
         border: 'border-red-200',
         textColor: 'text-red-800',
-        title: claim.claim_date_formatted
-          ? `Pre-authorization expired on ${claim.claim_date_formatted}`
+        title: claim.claim_date
+          ? `Pre-authorization expired on ${formatDate(claim.claim_date)}`
           : 'Pre-authorization expired.',
         subtitle: 'This approval was valid for 30 days. Submit a new request to proceed.',
         action: { label: 'Request new pre-auth', toastMsg: 'Submitting pre-auth request...' },
@@ -527,8 +530,8 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
         bg: 'bg-green-50',
         border: 'border-green-200',
         textColor: 'text-green-800',
-        title: claim.claim_date_formatted
-          ? `Claim settled on ${claim.claim_date_formatted}`
+        title: claim.claim_date
+          ? `Claim settled on ${formatDate(claim.claim_date)}`
           : 'Claim settled.',
         subtitle:
           f?.insurance_covered != null && f?.patient_paid != null
@@ -554,8 +557,8 @@ function getBannerConfig(claim: ClaimData): BannerConfig {
         bg: 'bg-green-50',
         border: 'border-green-200',
         textColor: 'text-green-800',
-        title: claim.claim_date_formatted
-          ? `Dispute resolved on ${claim.claim_date_formatted}`
+        title: claim.claim_date
+          ? `Dispute resolved on ${formatDate(claim.claim_date)}`
           : 'Dispute resolved.',
         subtitle: f?.refunded
           ? `${formatCurrency(f.refunded)} has been refunded to your account.`
@@ -707,6 +710,7 @@ function ClaimDetailSkeleton() {
 
 export default function ClaimDetail({ claim, patient, doctor, appointment }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(claim);
+  const { formatDate } = useFormatPreferences();
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [showShareSheet, setShowShareSheet] = useState(false);
@@ -746,7 +750,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
     });
   };
 
-  const banner = getBannerConfig(claim);
+  const banner = getBannerConfig(claim, formatDate);
   const stay = claim.stay_details;
   const fin = claim.financial;
   const isOutpatient = !stay || !stay.days;
@@ -906,10 +910,10 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               </div>
               <div className="mt-1 flex items-center gap-2 text-[14px] text-gray-500">
                 {claim.provider_name && <span>{claim.provider_name}</span>}
-                {claim.claim_date_formatted && (
+                {claim.claim_date && (
                   <>
                     <span>&middot;</span>
-                    <span>{claim.claim_date_formatted}</span>
+                    <span>{formatDate(claim.claim_date)}</span>
                   </>
                 )}
               </div>
@@ -939,7 +943,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                     <div class="row"><span class="row-label">Treatment</span><span class="row-value">${claim.treatment_name}</span></div>
                     <div class="row"><span class="row-label">Provider</span><span class="row-value">${claim.provider_name ?? 'N/A'}</span></div>
                     <div class="row"><span class="row-label">Patient</span><span class="row-value">${patient.name}</span></div>
-                    <div class="row"><span class="row-label">Claim Date</span><span class="row-value">${claim.claim_date_formatted ?? 'N/A'}</span></div>
+                    <div class="row"><span class="row-label">Claim Date</span><span class="row-value">${formatDate(claim.claim_date) || 'N/A'}</span></div>
                     <h2>Financial Summary</h2>
                     ${f?.preauth_approved ? `<div class="row"><span class="row-label">Approved Amount</span><span class="row-value">₹${f.preauth_approved.toLocaleString()}</span></div>` : ''}
                     ${f?.total_approved ? `<div class="row"><span class="row-label">Total Approved</span><span class="row-value">₹${f.total_approved.toLocaleString()}</span></div>` : ''}
@@ -961,7 +965,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                     <div class="row"><span class="row-label">Treatment</span><span class="row-value">${claim.treatment_name}</span></div>
                     <div class="row"><span class="row-label">Provider</span><span class="row-value">${claim.provider_name ?? 'N/A'}</span></div>
                     <div class="row"><span class="row-label">Patient</span><span class="row-value">${patient.name}</span></div>
-                    <div class="row"><span class="row-label">Settlement Date</span><span class="row-value">${claim.claim_date_formatted ?? 'N/A'}</span></div>
+                    <div class="row"><span class="row-label">Settlement Date</span><span class="row-value">${formatDate(claim.claim_date) || 'N/A'}</span></div>
                     <h2>Settlement Summary</h2>
                     ${f?.insurance_covered ? `<div class="row"><span class="row-label">Insurance Covered</span><span class="row-value">₹${f.insurance_covered.toLocaleString()}</span></div>` : ''}
                     ${f?.patient_paid ? `<div class="row"><span class="row-label">Patient Paid</span><span class="row-value">₹${f.patient_paid.toLocaleString()}</span></div>` : ''}
@@ -1058,7 +1062,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                       <div class="row"><span class="row-label">Treatment</span><span class="row-value">${claim.treatment_name}</span></div>
                       <div class="row"><span class="row-label">Provider</span><span class="row-value">${claim.provider_name ?? 'N/A'}</span></div>
                       <div class="row"><span class="row-label">Patient</span><span class="row-value">${patient.name}</span></div>
-                      <div class="row"><span class="row-label">Claim Date</span><span class="row-value">${claim.claim_date_formatted ?? 'N/A'}</span></div>
+                      <div class="row"><span class="row-label">Claim Date</span><span class="row-value">${formatDate(claim.claim_date) || 'N/A'}</span></div>
                       <h2>Financial Summary</h2>
                       ${f?.preauth_approved ? `<div class="row"><span class="row-label">Approved Amount</span><span class="row-value">₹${f.preauth_approved.toLocaleString()}</span></div>` : ''}
                       ${f?.total_approved ? `<div class="row"><span class="row-label">Total Approved</span><span class="row-value">₹${f.total_approved.toLocaleString()}</span></div>` : ''}
@@ -1222,7 +1226,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   </Badge>
                 </div>
                 {claim.original_policy_expired_date && (
-                  <p className="text-[14px] text-gray-400">Expired {claim.original_policy_expired_date}</p>
+                  <p className="text-[14px] text-gray-400">Expired {formatDate(claim.original_policy_expired_date)}</p>
                 )}
               </div>
             </div>
@@ -1272,11 +1276,11 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   <p className="mt-0.5 text-[14px] font-semibold text-gray-900">
                     {claim.treatment_name}
                   </p>
-                  {(doctor || appointment?.date_formatted) && (
+                  {(doctor || appointment?.date) && (
                     <p className="text-[14px] text-gray-500">
                       {doctor?.name}
-                      {doctor && appointment?.date_formatted && ' \u00B7 '}
-                      {appointment?.date_formatted}
+                      {doctor && appointment?.date && ' \u00B7 '}
+                      {appointment?.date && formatDate(appointment.date)}
                     </p>
                   )}
                 </div>
@@ -1614,7 +1618,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         open={showShareSheet}
         onOpenChange={setShowShareSheet}
         title={`${claim.treatment_name} - ${claim.claim_reference}`}
-        description={`${claim.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} · ${formatCurrency(claim.claim_amount)}${claim.claim_date_formatted ? ` · ${claim.claim_date_formatted}` : ''}`}
+        description={`${claim.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} · ${formatCurrency(claim.claim_amount)}${claim.claim_date ? ` · ${formatDate(claim.claim_date)}` : ''}`}
         url={window.location.href}
       />
     </AppLayout>

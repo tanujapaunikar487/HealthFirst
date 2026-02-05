@@ -32,7 +32,7 @@ import {
   SheetTitle,
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
-import { cn, formatTableDate, formatTableTime } from '@/Lib/utils';
+import { cn } from '@/Lib/utils';
 import {
   CalendarPlus,
   Copy,
@@ -530,8 +530,8 @@ function AppointmentsTable({
               onClick={handleRowClick}
             >
               <TableCell className="align-top">
-                <p className="text-[14px] font-medium whitespace-nowrap">{formatTableDate(appt.date)}</p>
-                <p className="text-[14px] text-muted-foreground">{formatTableTime(appt.date)}</p>
+                <p className="text-[14px] font-medium whitespace-nowrap">{formatDate(appt.date) || '—'}</p>
+                <p className="text-[14px] text-muted-foreground">{formatTime(appt.date) || '—'}</p>
               </TableCell>
               <TableCell className="align-top">
                 <div className="flex items-center gap-2.5">

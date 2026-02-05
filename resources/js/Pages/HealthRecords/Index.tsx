@@ -27,7 +27,7 @@ import {
 } from '@/Components/ui/table';
 import { Tabs, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import { Toast } from '@/Components/ui/toast';
-import { cn, formatTableDate } from '@/Lib/utils';
+import { cn } from '@/Lib/utils';
 import {
   Search,
   Stethoscope,
@@ -906,7 +906,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                           />
                         </TableCell>
                         <TableCell>
-                          <p className="text-[14px] font-medium whitespace-nowrap">{formatTableDate(record.record_date)}</p>
+                          <p className="text-[14px] font-medium whitespace-nowrap">{formatDate(record.record_date) || '—'}</p>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-3">

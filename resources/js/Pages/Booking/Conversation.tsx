@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import {
   ChatContainerRoot,
@@ -72,6 +72,10 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
 
   // Family members from database (passed via props)
   const familyMembers = propFamilyMembers || [];
+
+  // Read default patient preference from shared Inertia props
+  const { bookingDefaults } = usePage<{ bookingDefaults?: { default_patient_id: string | null } }>().props;
+  const defaultPatientId = bookingDefaults?.default_patient_id || null;
 
   const sendTextMessage = (content: string) => {
     if (!content.trim() || isLoading) return;
@@ -703,6 +707,7 @@ function MessageBubble({
               selection={message.user_selection}
               familyMembers={familyMembers}
               conversationId={conversationId}
+              defaultPatientId={defaultPatientId}
               onSelect={(value) => onSelection(message.component_type!, value)}
               disabled={disabled || hasNextMessage || message.user_selection !== null}
             />
