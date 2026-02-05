@@ -335,11 +335,13 @@ class AppointmentsController extends Controller
 
         $user = Auth::user() ?? \App\User::first();
         $calendarSync = $user->getSetting('calendar_sync', []);
-        $calendarConnected = ($calendarSync['google']['connected'] ?? false) && ($calendarSync['google']['enabled'] ?? false);
 
         return Inertia::render('Booking/Confirmation', [
             'booking' => $bookingData,
-            'calendarConnected' => $calendarConnected,
+            'calendarPreference' => [
+                'preferred' => $calendarSync['preferred'] ?? null,
+                'googleConnected' => ($calendarSync['google']['connected'] ?? false) && ($calendarSync['google']['enabled'] ?? false),
+            ],
         ]);
     }
 
@@ -374,11 +376,13 @@ class AppointmentsController extends Controller
 
         $user = Auth::user() ?? \App\User::first();
         $calendarSync = $user->getSetting('calendar_sync', []);
-        $calendarConnected = ($calendarSync['google']['connected'] ?? false) && ($calendarSync['google']['enabled'] ?? false);
 
         return Inertia::render('Booking/Confirmation', [
             'booking' => $bookingData,
-            'calendarConnected' => $calendarConnected,
+            'calendarPreference' => [
+                'preferred' => $calendarSync['preferred'] ?? null,
+                'googleConnected' => ($calendarSync['google']['connected'] ?? false) && ($calendarSync['google']['enabled'] ?? false),
+            ],
         ]);
     }
 

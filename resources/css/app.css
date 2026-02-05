@@ -141,6 +141,26 @@
     }
 }
 
+/* Toast: content-hugging width */
+[data-sonner-toaster] [data-sonner-toast] {
+    width: fit-content !important;
+    min-width: 0 !important;
+}
+
+/* Toast icon colors by status */
+[data-sonner-toast][data-type='success'] [data-icon] {
+    color: #16A34A;
+}
+[data-sonner-toast][data-type='error'] [data-icon] {
+    color: #DC2626;
+}
+[data-sonner-toast][data-type='info'] [data-icon] {
+    color: #2563EB;
+}
+[data-sonner-toast][data-type='warning'] [data-icon] {
+    color: #D97706;
+}
+
 @layer utilities {
     @keyframes wave {
         0%, 100% {

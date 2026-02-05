@@ -81,6 +81,7 @@ interface BookingDefaults {
 }
 
 interface CalendarSettings {
+    preferred?: 'google' | 'apple' | null;
     google: {
         connected: boolean;
         enabled: boolean;

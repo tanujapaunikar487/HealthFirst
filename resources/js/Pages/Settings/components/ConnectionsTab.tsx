@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
-import { Download, Check } from '@/Lib/icons';
+import { Check } from '@/Lib/icons';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { toast } from 'sonner';
 
 interface CalendarSettings {
+    preferred?: 'google' | 'apple' | null;
     google: {
         connected: boolean;
         enabled: boolean;
@@ -37,42 +38,56 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
     );
 }
 
+function RadioIndicator({ selected }: { selected: boolean }) {
+    return (
+        <div
+            className="flex-shrink-0"
+            style={{
+                width: '20px',
+                height: '20px',
+                borderRadius: '50%',
+                border: selected ? '2px solid #2563EB' : '2px solid #D4D4D4',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}
+        >
+            {selected && (
+                <div
+                    style={{
+                        width: '10px',
+                        height: '10px',
+                        borderRadius: '50%',
+                        backgroundColor: '#2563EB',
+                    }}
+                />
+            )}
+        </div>
+    );
+}
+
 export function ConnectionsTab({ calendarSettings }: ConnectionsTabProps) {
-    const [exporting, setExporting] = useState(false);
     const [disconnecting, setDisconnecting] = useState(false);
 
-    const handleExportCalendar = () => {
-        setExporting(true);
+    const preferred = calendarSettings?.preferred ?? null;
+    const isGoogleConnected = calendarSettings?.google?.connected ?? false;
+    const googleEmail = calendarSettings?.google?.email;
 
-        fetch('/settings/calendar/apple/export', {
-            credentials: 'same-origin',
-            headers: {
-                'Accept': 'application/json',
-            },
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Export failed');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.download_url) {
-                    const link = document.createElement('a');
-                    link.href = data.download_url;
-                    link.download = `appointments-${new Date().toISOString().split('T')[0]}.ics`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    toast.success('Calendar exported successfully');
+    const handleSetPreferred = (calendar: 'google' | 'apple') => {
+        const newPreferred = preferred === calendar ? null : calendar;
+        router.put('/settings/calendar/preferred', { preferred: newPreferred }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                if (newPreferred) {
+                    toast.success(`${newPreferred === 'google' ? 'Google Calendar' : 'Apple Calendar'} set as preferred`);
                 } else {
-                    toast.error('Failed to export calendar');
+                    toast.success('Calendar preference cleared');
                 }
-            })
-            .catch(() => {
-                toast.error('Failed to export calendar');
-            })
-            .finally(() => setExporting(false));
+            },
+            onError: () => {
+                toast.error('Failed to update calendar preference');
+            },
+        });
     };
 
     const handleConnectGoogle = () => {
@@ -93,9 +108,6 @@ export function ConnectionsTab({ calendarSettings }: ConnectionsTabProps) {
         });
     };
 
-    const isGoogleConnected = calendarSettings?.google?.connected ?? false;
-    const googleEmail = calendarSettings?.google?.email;
-
     return (
         <div className="space-y-12">
             {/* Calendar Section */}
@@ -103,15 +115,19 @@ export function ConnectionsTab({ calendarSettings }: ConnectionsTabProps) {
                 <div className="mb-4">
                     <SectionTitle>Calendar</SectionTitle>
                     <p className="text-[14px] text-muted-foreground mt-1">
-                        Sync appointments to your personal calendar
+                        Sync appointments to your preferred calendar
                     </p>
                 </div>
 
                 <Card>
                     <CardContent className="p-0 divide-y">
                         {/* Google Calendar */}
-                        <div className="flex items-center justify-between px-6 py-4">
+                        <div
+                            className="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-neutral-50 transition-colors"
+                            onClick={() => handleSetPreferred('google')}
+                        >
                             <div className="flex items-center gap-3">
+                                <RadioIndicator selected={preferred === 'google'} />
                                 <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
                                     <img src="/assets/icons/google-calendar.svg" alt="Google Calendar" className="h-8 w-8" />
                                 </div>
@@ -124,7 +140,7 @@ export function ConnectionsTab({ calendarSettings }: ConnectionsTabProps) {
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
                                 {isGoogleConnected ? (
                                     <>
                                         <Badge variant="outline" className="border-green-200 bg-green-50 text-green-700">
@@ -151,27 +167,23 @@ export function ConnectionsTab({ calendarSettings }: ConnectionsTabProps) {
                             </div>
                         </div>
 
-                        {/* Apple Calendar / ICS Export */}
-                        <div className="flex items-center justify-between px-6 py-4">
+                        {/* Apple Calendar */}
+                        <div
+                            className="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-neutral-50 transition-colors"
+                            onClick={() => handleSetPreferred('apple')}
+                        >
                             <div className="flex items-center gap-3">
+                                <RadioIndicator selected={preferred === 'apple'} />
                                 <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
                                     <img src="/assets/icons/apple-calendar.svg" alt="Apple Calendar" className="h-8 w-8" />
                                 </div>
                                 <div>
-                                    <p className="text-[14px] font-semibold leading-5 text-[#171717]">Apple Calendar / Other</p>
+                                    <p className="text-[14px] font-semibold leading-5 text-[#171717]">Apple Calendar</p>
                                     <p className="text-[14px] font-normal leading-5 text-[#737373]">
-                                        Download .ics file for any calendar app
+                                        Download .ics file after each booking
                                     </p>
                                 </div>
                             </div>
-                            <Button
-                                variant="outline"
-                                onClick={handleExportCalendar}
-                                disabled={exporting}
-                            >
-                                <Download className="h-4 w-4 mr-2" />
-                                {exporting ? 'Exporting...' : 'Export'}
-                            </Button>
                         </div>
                     </CardContent>
                 </Card>

@@ -142,6 +142,7 @@ Route::post('/appointments/{appointment}/rate', [AppointmentsController::class, 
         Route::get('/calendar/google/callback', [\App\Http\Controllers\SettingsController::class, 'handleGoogleCalendarCallback'])->name('calendar.google.callback');
         Route::delete('/calendar/google', [\App\Http\Controllers\SettingsController::class, 'disconnectGoogleCalendar'])->name('calendar.google.disconnect');
         Route::get('/calendar/apple/export', [\App\Http\Controllers\SettingsController::class, 'generateAppleCalendarExport'])->name('calendar.apple.export');
+        Route::put('/calendar/preferred', [\App\Http\Controllers\SettingsController::class, 'updateCalendarPreference'])->name('calendar.preferred.update');
 
         // Account Actions
         Route::post('/verify-password', [\App\Http\Controllers\SettingsController::class, 'verifyCurrentPassword'])->name('verify-password');

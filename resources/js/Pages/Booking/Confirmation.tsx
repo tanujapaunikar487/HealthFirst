@@ -1,8 +1,9 @@
+import { useState } from 'react';
 import { Link } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
 import { Card } from '@/Components/ui/card';
 import { AddToCalendarButton } from '@/Components/AddToCalendarButton';
-import { Check, Info, Plus } from '@/Lib/icons';
+import { Check, Info, Plus, Download } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 
 interface Booking {
@@ -19,12 +20,23 @@ interface Booking {
   fee: number;
 }
 
-interface Props {
-  booking: Booking;
-  calendarConnected?: boolean;
+interface CalendarPreference {
+  preferred: 'google' | 'apple' | null;
+  googleConnected: boolean;
 }
 
-export default function Confirmation({ booking, calendarConnected = false }: Props) {
+interface Props {
+  booking: Booking;
+  calendarPreference?: CalendarPreference;
+}
+
+export default function Confirmation({ booking, calendarPreference }: Props) {
+  const [icsDownloaded, setIcsDownloaded] = useState(false);
+
+  const pref = calendarPreference?.preferred ?? null;
+  const googleSynced = pref === 'google' && (calendarPreference?.googleConnected ?? false);
+  const applePreferred = pref === 'apple';
+
   const formatDateTime = (date: string, time: string) => {
     try {
       const dateObj = new Date(date);
@@ -46,10 +58,24 @@ export default function Confirmation({ booking, calendarConnected = false }: Pro
       'Confirmation sent to email & phone',
       'Reminders 24 hrs and 1 hr before',
     ];
-    if (calendarConnected) {
+    if (googleSynced) {
       items.push('Synced to your Google Calendar');
+    } else if (applePreferred) {
+      items.push('Download calendar file on this page');
+    } else {
+      items.push('Add to your calendar on this page');
     }
     return items;
+  };
+
+  const handleDownloadIcs = () => {
+    const link = document.createElement('a');
+    link.href = `/booking/${booking.id}/calendar/download`;
+    link.download = `appointment-${booking.id}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setIcsDownloaded(true);
   };
 
   return (
@@ -113,13 +139,39 @@ export default function Confirmation({ booking, calendarConnected = false }: Pro
 
         {/* Action buttons */}
         <div className="space-y-3">
-          {calendarConnected ? (
+          {googleSynced ? (
             <div className="w-full px-6 py-3 rounded-full font-medium text-base bg-green-500 text-white flex items-center justify-center gap-2">
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
               <span>Synced to Google Calendar</span>
             </div>
+          ) : applePreferred ? (
+            <button
+              onClick={handleDownloadIcs}
+              disabled={icsDownloaded}
+              className={`
+                w-full px-6 py-3 rounded-full font-medium text-base
+                flex items-center justify-center gap-2 transition-all duration-200
+                ${icsDownloaded
+                  ? 'bg-green-500 text-white cursor-default'
+                  : 'bg-primary text-white hover:bg-primary/90'}
+              `}
+            >
+              {icsDownloaded ? (
+                <>
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <span>Downloaded</span>
+                </>
+              ) : (
+                <>
+                  <Icon icon={Download} className="w-5 h-5" />
+                  <span>Add to Apple Calendar</span>
+                </>
+              )}
+            </button>
           ) : (
             <AddToCalendarButton
               conversationId={booking.id}

@@ -77,6 +77,7 @@ class SettingsController extends Controller
                 'default_lab_collection_method' => null,
             ]),
             'calendarSettings' => $user->getSetting('calendar_sync', [
+                'preferred' => null,
                 'google' => ['connected' => false, 'enabled' => false],
                 'apple' => ['enabled' => false],
             ]),
@@ -296,7 +297,13 @@ class SettingsController extends Controller
         $user = Auth::user() ?? User::first();
         $currentSettings = $user->getSetting('calendar_sync', []);
 
+        // In mock mode, use the authenticated user's real email
+        if ($service->isMockMode()) {
+            $tokens['email'] = $user->email;
+        }
+
         $user->setSetting('calendar_sync', [
+            'preferred' => 'google',
             'google' => [
                 'connected' => true,
                 'enabled' => true,
@@ -321,7 +328,10 @@ class SettingsController extends Controller
         $user = Auth::user() ?? User::first();
         $currentSettings = $user->getSetting('calendar_sync', []);
 
+        $preferred = ($currentSettings['preferred'] ?? null) === 'google' ? null : ($currentSettings['preferred'] ?? null);
+
         $user->setSetting('calendar_sync', [
+            'preferred' => $preferred,
             'google' => [
                 'connected' => false,
                 'enabled' => false,
@@ -330,6 +340,23 @@ class SettingsController extends Controller
         ]);
 
         return back()->with('success', 'Google Calendar disconnected.');
+    }
+
+    /**
+     * Update preferred calendar.
+     */
+    public function updateCalendarPreference(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'preferred' => 'nullable|string|in:google,apple',
+        ]);
+
+        $user = Auth::user() ?? User::first();
+        $current = $user->getSetting('calendar_sync', []);
+        $current['preferred'] = $validated['preferred'];
+        $user->setSetting('calendar_sync', $current);
+
+        return back()->with('success', 'Calendar preference updated.');
     }
 
     /**
