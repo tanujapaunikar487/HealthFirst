@@ -12,6 +12,9 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use App\Services\NotificationService;
+use App\Notifications\AppointmentConfirmed;
+use App\Notifications\PaymentSuccessful;
 
 class GuidedLabController extends Controller
 {
@@ -531,6 +534,9 @@ class GuidedLabController extends Controller
             'payment_status' => 'paid',
             'fee' => $itemPrice + $locationFee,
         ]);
+
+        app(NotificationService::class)->send($user, new AppointmentConfirmed($appointment), 'appointments');
+        app(NotificationService::class)->send($user, new PaymentSuccessful($appointment), 'billing');
 
         session()->forget('guided_lab_booking');
 

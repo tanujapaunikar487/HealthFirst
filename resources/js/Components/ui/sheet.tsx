@@ -26,7 +26,7 @@ const SheetOverlay = React.forwardRef<
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
 
 const sheetVariants = cva(
-  'fixed z-50 gap-4 bg-background shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out',
+  'fixed z-50 bg-background shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out',
   {
     variants: {
       side: {
@@ -74,10 +74,6 @@ const SheetContent = React.forwardRef<
       }}
       {...props}
     >
-      <SheetPrimitive.Close className="absolute h-10 w-10 rounded-full border border-border bg-background flex items-center justify-center transition-colors hover:bg-muted focus:outline-none disabled:pointer-events-none data-[state=open]:bg-secondary" style={{ right: '20px', top: '20px' }}>
-        <X className="h-6 w-6" />
-        <span className="sr-only">Close</span>
-      </SheetPrimitive.Close>
       {children}
     </SheetPrimitive.Content>
   </SheetPortal>
@@ -92,23 +88,23 @@ const SheetHeader = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & { onBack?: () => void }) => (
   <div
-    className={cn('flex flex-col space-y-2 text-center sm:text-left', className)}
-    style={{ padding: '20px', ...style }}
+    className={cn('flex items-center gap-3', className)}
+    style={{ padding: '16px 20px', borderBottom: '1px solid #E5E5E5', ...style }}
     {...props}
   >
-    {onBack ? (
-      <div className="flex items-start gap-3">
-        <button
-          onClick={onBack}
-          className="h-10 w-10 rounded-full border border-border bg-background flex items-center justify-center transition-colors hover:bg-muted flex-shrink-0 mt-0.5"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-        <div className="flex-1 flex flex-col space-y-1">{children}</div>
-      </div>
-    ) : (
-      children
+    {onBack && (
+      <button
+        onClick={onBack}
+        className="h-10 w-10 rounded-full flex items-center justify-center transition-colors hover:bg-muted flex-shrink-0"
+      >
+        <ArrowLeft className="h-6 w-6" />
+      </button>
     )}
+    <div className="flex-1">{children}</div>
+    <SheetPrimitive.Close className="h-10 w-10 rounded-full flex items-center justify-center transition-colors hover:bg-muted flex-shrink-0 focus:outline-none disabled:pointer-events-none">
+      <X className="h-6 w-6" />
+      <span className="sr-only">Close</span>
+    </SheetPrimitive.Close>
   </div>
 );
 SheetHeader.displayName = 'SheetHeader';
@@ -119,10 +115,10 @@ const SheetFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'flex items-center gap-2 border-t mt-auto',
+      'flex items-center gap-2 mt-auto',
       className
     )}
-    style={{ padding: '16px' }}
+    style={{ padding: '16px 20px', borderTop: '1px solid #E5E5E5' }}
     {...props}
   />
 );
@@ -140,15 +136,15 @@ const SheetDivider = ({
 SheetDivider.displayName = 'SheetDivider';
 
 /**
- * SheetBody - Scrollable content area with horizontal padding.
+ * SheetBody - Scrollable content area.
+ * Sections (direct children) get 20px padding and are separated by 1px #E5E5E5 dividers.
  */
 const SheetBody = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn('flex-1 overflow-y-auto', className)}
-    style={{ padding: '20px' }}
+    className={cn('sheet-body flex-1 overflow-y-auto', className)}
     {...props}
   />
 );
@@ -170,7 +166,7 @@ const SheetSection = ({
 }: SheetSectionProps) => (
   <div className={cn('space-y-0', className)} {...props}>
     {title && (
-      <h4 className="text-[14px] font-semibold text-[#171717] mb-3">{title}</h4>
+      <h4 className="text-[14px] font-medium text-[#171717] mb-3">{title}</h4>
     )}
     <div className="divide-y divide-border">
       {children}
@@ -214,10 +210,10 @@ const SheetTitle = React.forwardRef<
     ref={ref}
     className={cn('font-semibold', className)}
     style={{
-      color: '#0A0B0D',
+      color: '#171717',
       fontSize: '20px',
       lineHeight: '28px',
-      letterSpacing: '-0.05px',
+      letterSpacing: '0',
     }}
     {...props}
   />

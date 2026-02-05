@@ -28,7 +28,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
+  SheetBody,
   SheetFooter,
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
@@ -766,14 +766,6 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
         <SheetContent side="right" className="w-full sm:max-w-md flex flex-col">
           <SheetHeader>
             <SheetTitle>Payment Summary</SheetTitle>
-            <SheetDescription>
-              {paymentState === 'success'
-                ? 'Payment complete'
-                : excludedPayBillIds.size > 0
-                  ? `${activePayBills.length} of ${payBills.length} bills selected`
-                  : `${payBills.length} ${payBills.length === 1 ? 'bill' : 'bills'} selected`
-              }
-            </SheetDescription>
           </SheetHeader>
 
           {payBills.length > 0 && paymentState === 'success' && (
@@ -802,7 +794,8 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
           {payBills.length > 0 && paymentState !== 'success' && (
             <>
               {/* Scrollable bill list */}
-              <div className="flex-1 overflow-y-auto space-y-3 pr-1" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+              <SheetBody>
+              <div className="space-y-3">
                 {payBills.map((bill) => {
                   const isExcluded = excludedPayBillIds.has(bill.id);
                   const isLastActive = activePayBills.length === 1 && !isExcluded;
@@ -880,6 +873,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                   );
                 })}
               </div>
+              </SheetBody>
 
               {/* Warnings */}
               <PaymentWarnings bills={activePayBills} />

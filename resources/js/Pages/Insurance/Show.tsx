@@ -24,8 +24,8 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
   SheetFooter,
+  SheetBody,
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
 import { EmptyState } from '@/Components/ui/empty-state';
@@ -653,20 +653,19 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
       {/* Pre-Auth Sheet */}
       <Sheet open={showPreAuth} onOpenChange={setShowPreAuth}>
         <SheetContent className="sm:max-w-md">
-          <SheetHeader>
+          <SheetHeader onBack={
+            preAuthStep === 'details' ? () => setPreAuthStep('patient') :
+            preAuthStep === 'review' ? () => setPreAuthStep('details') :
+            undefined
+          }>
             <SheetTitle>
               {preAuthStep === 'patient' && 'Select patient'}
-              {preAuthStep === 'details' && 'Admission Details'}
-              {preAuthStep === 'review' && 'Review & Submit'}
+              {preAuthStep === 'details' && 'Admission details'}
+              {preAuthStep === 'review' && 'Review & submit'}
             </SheetTitle>
-            <SheetDescription>
-              {preAuthStep === 'patient' && 'Who is this admission for?'}
-              {preAuthStep === 'details' && 'Provide details about the planned admission.'}
-              {preAuthStep === 'review' && 'Confirm the details before submitting.'}
-            </SheetDescription>
           </SheetHeader>
 
-          <div className="flex-1 overflow-y-auto -mx-6 px-6">
+          <SheetBody>
             {/* Step 1: Patient Selection */}
             {preAuthStep === 'patient' && (
               <div className="space-y-3">
@@ -864,31 +863,21 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                 </div>
               </div>
             )}
-          </div>
+          </SheetBody>
 
           {/* Footer */}
           {preAuthStep === 'details' && (
             <SheetFooter>
-              <div className="flex gap-3 w-full">
-                <Button variant="outline" className="flex-1" onClick={() => setPreAuthStep('patient')}>
-                  Back
-                </Button>
-                <Button className="flex-1" disabled={!isDetailsValid} onClick={handlePreAuthDetailsNext}>
-                  Review
-                </Button>
-              </div>
+              <Button className="flex-1" size="lg" disabled={!isDetailsValid} onClick={handlePreAuthDetailsNext}>
+                Review
+              </Button>
             </SheetFooter>
           )}
           {preAuthStep === 'review' && (
             <SheetFooter>
-              <div className="flex gap-3 w-full">
-                <Button variant="outline" className="flex-1" disabled={preAuthSubmitting} onClick={() => setPreAuthStep('details')}>
-                  Back
-                </Button>
-                <Button className="flex-1" disabled={preAuthSubmitting} onClick={handlePreAuthSubmit}>
-                  {preAuthSubmitting ? 'Submitting...' : 'Submit pre-auth request'}
-                </Button>
-              </div>
+              <Button className="flex-1" size="lg" disabled={preAuthSubmitting} onClick={handlePreAuthSubmit}>
+                {preAuthSubmitting ? 'Submitting...' : 'Submit pre-auth request'}
+              </Button>
             </SheetFooter>
           )}
         </SheetContent>

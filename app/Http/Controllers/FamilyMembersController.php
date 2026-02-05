@@ -7,6 +7,7 @@ use App\Models\Doctor;
 use App\Models\FamilyMember;
 use App\Models\HealthRecord;
 use App\Models\InsuranceClaim;
+use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -366,6 +367,8 @@ class FamilyMembersController extends Controller
         try {
             // Create family member with user_id and relation
             $member = FamilyMember::create($validated);
+
+            app(NotificationService::class)->send($user, new \App\Notifications\FamilyMemberAdded($member), 'appointments');
 
             return response()->json([
                 'success' => true,

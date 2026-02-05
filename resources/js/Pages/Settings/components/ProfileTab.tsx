@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { InfoCard } from '@/Components/ui/info-card';
 import { Input } from '@/Components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
-import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetDivider } from '@/Components/ui/sheet';
+import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetBody } from '@/Components/ui/sheet';
 import { PhoneInput } from '@/Components/ui/phone-input';
 import { DatePicker } from '@/Components/ui/date-picker';
 import { toast } from 'sonner';
@@ -513,15 +513,12 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                 <SheetContent>
                     <SheetHeader>
                         <SheetTitle>Edit profile</SheetTitle>
-                        <SheetDescription>
-                            Update your profile information.
-                        </SheetDescription>
                     </SheetHeader>
 
-                    <div className="flex-1 overflow-y-auto -mx-6 px-6">
+                    <SheetBody>
                         {/* Personal Details */}
                         <div>
-                            <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">Personal details</p>
+                            <p className="mb-3 text-[14px] font-medium text-[#737373]">Personal details</p>
                             <div className="space-y-4">
                                 <div>
                                     <label className="mb-1.5 block text-[14px] font-medium text-gray-700">
@@ -571,11 +568,9 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                             </div>
                         </div>
 
-                        <SheetDivider className="my-6" />
-
                         {/* Contact & Address */}
                         <div>
-                            <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">Contact & address</p>
+                            <p className="mb-3 text-[14px] font-medium text-[#737373]">Contact & address</p>
                             <div className="space-y-4">
                                 <div>
                                     <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Address line 1</label>
@@ -637,11 +632,9 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                             </div>
                         </div>
 
-                        <SheetDivider className="my-6" />
-
                         {/* Health Information */}
                         <div>
-                            <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">Health information</p>
+                            <p className="mb-3 text-[14px] font-medium text-[#737373]">Health information</p>
                             <div className="space-y-4">
                                 <div>
                                     <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Blood group</label>
@@ -700,11 +693,9 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                             </div>
                         </div>
 
-                        <SheetDivider className="my-6" />
-
                         {/* Emergency Contact */}
                         <div>
-                            <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">Emergency contact</p>
+                            <p className="mb-3 text-[14px] font-medium text-[#737373]">Emergency contact</p>
                             <div className="space-y-4">
                                 <div>
                                     <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Name</label>
@@ -731,13 +722,10 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </SheetBody>
 
                     <SheetFooter>
-                        <Button variant="outline" onClick={() => setShowEditForm(false)} disabled={saving}>
-                            Cancel
-                        </Button>
-                        <Button onClick={handleSave} disabled={saving}>
+                        <Button size="lg" className="flex-1" onClick={handleSave} disabled={saving}>
                             {saving ? 'Saving...' : 'Save changes'}
                         </Button>
                     </SheetFooter>

@@ -32,9 +32,8 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
   SheetFooter,
-  SheetDivider,
+  SheetBody,
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
 import { cn, formatTableDate } from '@/Lib/utils';
@@ -923,17 +922,11 @@ export default function InsuranceIndex({
       {/* Add Policy Sheet */}
       <Sheet open={showAddPolicy} onOpenChange={handleSheetClose}>
         <SheetContent className="sm:max-w-md">
-          <SheetHeader>
+          <SheetHeader onBack={addStep === 'review' ? () => setAddStep('upload') : undefined}>
             <SheetTitle>Add policy</SheetTitle>
-            <SheetDescription>
-              {addStep === 'upload' && 'Upload your policy document or enter details manually.'}
-              {addStep === 'extracting' && 'Analyzing your document...'}
-              {addStep === 'extract_failed' && 'We ran into a problem with your document.'}
-              {addStep === 'review' && 'Review and confirm the policy details.'}
-            </SheetDescription>
           </SheetHeader>
 
-          <div className="flex-1 overflow-y-auto -mx-6 px-6">
+          <SheetBody>
             {/* Step 1: Upload */}
             {addStep === 'upload' && (
               <div className="space-y-6">
@@ -1072,7 +1065,7 @@ export default function InsuranceIndex({
 
                 {/* Provider */}
                 <div>
-                  <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">
+                  <p className="mb-3 text-[14px] font-medium text-[#737373]">
                     Provider
                   </p>
                   <div className="space-y-3">
@@ -1111,12 +1104,10 @@ export default function InsuranceIndex({
                   </div>
                 </div>
 
-                <SheetDivider className="my-6" />
-
                 {/* Policy Details */}
                 <div>
-                  <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">
-                    Policy Details
+                  <p className="mb-3 text-[14px] font-medium text-[#737373]">
+                    Policy details
                   </p>
                   <div className="space-y-3">
                     <div>
@@ -1182,11 +1173,9 @@ export default function InsuranceIndex({
                   </div>
                 </div>
 
-                <SheetDivider className="my-6" />
-
                 {/* Coverage */}
                 <div>
-                  <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">
+                  <p className="mb-3 text-[14px] font-medium text-[#737373]">
                     Coverage
                   </p>
                   <div className="grid grid-cols-2 gap-3">
@@ -1223,11 +1212,9 @@ export default function InsuranceIndex({
                   </div>
                 </div>
 
-                <SheetDivider className="my-6" />
-
                 {/* Validity */}
                 <div>
-                  <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">
+                  <p className="mb-3 text-[14px] font-medium text-[#737373]">
                     Validity
                   </p>
                   <div className="grid grid-cols-2 gap-3">
@@ -1270,13 +1257,11 @@ export default function InsuranceIndex({
                   </div>
                 </div>
 
-                <SheetDivider className="my-6" />
-
                 {/* Covered Members */}
                 {familyMembers.length > 0 && (
                   <div>
-                    <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">
-                      Covered Members
+                    <p className="mb-3 text-[14px] font-medium text-[#737373]">
+                      Covered members
                     </p>
                     <div className="space-y-2">
                       {familyMembers.map((m) => (
@@ -1298,12 +1283,13 @@ export default function InsuranceIndex({
 
               </div>
             )}
-          </div>
+          </SheetBody>
 
           {addStep === 'review' && (
             <SheetFooter>
               <Button
                 className="flex-1"
+                size="lg"
                 onClick={handleSubmitPolicy}
                 disabled={submitting}
               >
@@ -1317,22 +1303,21 @@ export default function InsuranceIndex({
       {/* Pre-Auth Sheet */}
       <Sheet open={showPreAuth} onOpenChange={setShowPreAuth}>
         <SheetContent className="sm:max-w-md">
-          <SheetHeader>
+          <SheetHeader onBack={
+            preAuthStep === 'patient' && policies.length > 1 ? () => setPreAuthStep('policy') :
+            preAuthStep === 'details' ? () => setPreAuthStep('patient') :
+            preAuthStep === 'review' ? () => setPreAuthStep('details') :
+            undefined
+          }>
             <SheetTitle>
               {preAuthStep === 'policy' && 'Select policy'}
               {preAuthStep === 'patient' && 'Select patient'}
-              {preAuthStep === 'details' && 'Admission Details'}
-              {preAuthStep === 'review' && 'Review & Submit'}
+              {preAuthStep === 'details' && 'Admission details'}
+              {preAuthStep === 'review' && 'Review & submit'}
             </SheetTitle>
-            <SheetDescription>
-              {preAuthStep === 'policy' && 'Which policy should this admission use?'}
-              {preAuthStep === 'patient' && 'Who is this admission for?'}
-              {preAuthStep === 'details' && 'Provide details about the planned admission.'}
-              {preAuthStep === 'review' && 'Confirm the details before submitting.'}
-            </SheetDescription>
           </SheetHeader>
 
-          <div className="flex-1 overflow-y-auto -mx-6 px-6">
+          <SheetBody>
             {/* Step 0: Policy Selection */}
             {preAuthStep === 'policy' && (
               <div className="space-y-3">
@@ -1553,38 +1538,21 @@ export default function InsuranceIndex({
                 </div>
               </div>
             )}
-          </div>
+          </SheetBody>
 
           {/* Footer */}
-          {preAuthStep === 'patient' && policies.length > 1 && (
-            <SheetFooter>
-              <Button variant="outline" className="w-full" onClick={() => setPreAuthStep('policy')}>
-                Back
-              </Button>
-            </SheetFooter>
-          )}
           {preAuthStep === 'details' && (
             <SheetFooter>
-              <div className="flex gap-3 w-full">
-                <Button variant="outline" className="flex-1" onClick={() => setPreAuthStep('patient')}>
-                  Back
-                </Button>
-                <Button className="flex-1" disabled={!preAuthIsDetailsValid} onClick={handlePreAuthDetailsNext}>
-                  Review
-                </Button>
-              </div>
+              <Button className="flex-1" size="lg" disabled={!preAuthIsDetailsValid} onClick={handlePreAuthDetailsNext}>
+                Review
+              </Button>
             </SheetFooter>
           )}
           {preAuthStep === 'review' && (
             <SheetFooter>
-              <div className="flex gap-3 w-full">
-                <Button variant="outline" className="flex-1" disabled={preAuthSubmitting} onClick={() => setPreAuthStep('details')}>
-                  Back
-                </Button>
-                <Button className="flex-1" disabled={preAuthSubmitting} onClick={handlePreAuthSubmit}>
-                  {preAuthSubmitting ? 'Submitting...' : 'Submit pre-auth request'}
-                </Button>
-              </div>
+              <Button className="flex-1" size="lg" disabled={preAuthSubmitting} onClick={handlePreAuthSubmit}>
+                {preAuthSubmitting ? 'Submitting...' : 'Submit pre-auth request'}
+              </Button>
             </SheetFooter>
           )}
         </SheetContent>

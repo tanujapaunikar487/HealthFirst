@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Razorpay\Api\Api;
 use Illuminate\Support\Facades\Log;
+use App\Services\NotificationService;
+use App\Notifications\AppointmentConfirmed;
+use App\Notifications\PaymentSuccessful;
 
 class PaymentController extends Controller
 {
@@ -126,6 +129,14 @@ class PaymentController extends Controller
 
             // Create actual booking record
             $bookingId = $this->createBooking($conversation);
+
+            // Send notifications
+            $user = Auth::user() ?? \App\User::first();
+            $appointment = Appointment::find($bookingId);
+            if ($appointment) {
+                app(NotificationService::class)->send($user, new AppointmentConfirmed($appointment), 'appointments');
+                app(NotificationService::class)->send($user, new PaymentSuccessful($appointment), 'billing');
+            }
 
             return response()->json([
                 'success' => true,

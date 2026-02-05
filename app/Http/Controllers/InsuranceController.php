@@ -6,6 +6,7 @@ use App\Models\FamilyMember;
 use App\Models\InsuranceClaim;
 use App\Models\InsurancePolicy;
 use App\Models\InsuranceProvider;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -216,19 +217,25 @@ class InsuranceController extends Controller
 
     public function acceptClaim(InsuranceClaim $claim)
     {
+        $user = auth()->user() ?? \App\User::first();
         $claim->update(['status' => 'settled']);
+
+        app(NotificationService::class)->send($user, new \App\Notifications\InsuranceClaimUpdate($claim, 'settled'), 'insurance');
 
         return back()->with('success', 'Claim accepted and settled.');
     }
 
     public function requestEnhancement(InsuranceClaim $claim)
     {
+        $user = auth()->user() ?? \App\User::first();
         $metadata = $claim->metadata ?? [];
         $metadata['enhancement_requested_at'] = now()->toISOString();
         $claim->update([
             'status' => 'enhancement_required',
             'metadata' => $metadata,
         ]);
+
+        app(NotificationService::class)->send($user, new \App\Notifications\InsuranceClaimUpdate($claim, 'enhancement_required'), 'insurance');
 
         return back()->with('success', 'Enhancement request submitted.');
     }
@@ -247,12 +254,15 @@ class InsuranceController extends Controller
 
     public function disputeClaim(InsuranceClaim $claim)
     {
+        $user = auth()->user() ?? \App\User::first();
         $metadata = $claim->metadata ?? [];
         $metadata['dispute_raised_at'] = now()->toISOString();
         $claim->update([
             'status' => 'disputed',
             'metadata' => $metadata,
         ]);
+
+        app(NotificationService::class)->send($user, new \App\Notifications\InsuranceClaimUpdate($claim, 'disputed'), 'insurance');
 
         return back()->with('success', 'Dispute raised successfully.');
     }
@@ -303,6 +313,8 @@ class InsuranceController extends Controller
             'documents' => [],
             'description' => $validated['notes'] ?? null,
         ]);
+
+        app(NotificationService::class)->send($user, new \App\Notifications\InsuranceClaimUpdate($claim, 'pending'), 'insurance');
 
         return redirect("/insurance/claims/{$claim->id}")
             ->with('toast', 'Pre-authorization request submitted');
@@ -386,6 +398,8 @@ class InsuranceController extends Controller
 
     public function appealClaim(InsuranceClaim $claim)
     {
+        $user = auth()->user() ?? \App\User::first();
+
         if ($claim->status !== 'rejected') {
             return back()->with('error', 'Only rejected claims can be appealed.');
         }
@@ -402,6 +416,8 @@ class InsuranceController extends Controller
             'status' => 'under_review',
             'timeline' => $timeline,
         ]);
+
+        app(NotificationService::class)->send($user, new \App\Notifications\InsuranceClaimUpdate($claim, 'under_review'), 'insurance');
 
         return back()->with('success', 'Appeal request submitted');
     }

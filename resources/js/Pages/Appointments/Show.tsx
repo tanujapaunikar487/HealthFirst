@@ -10,7 +10,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
+  SheetBody,
   SheetFooter,
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
@@ -540,11 +540,11 @@ function LabTestDetailSheet({ test }: { test: LabTest }) {
   return (
     <div className="flex flex-col h-full">
       <SheetHeader>
-        <SheetTitle className="text-base">Lab Test Result</SheetTitle>
-        <SheetDescription>{test.name}</SheetDescription>
+        <SheetTitle>Lab test result</SheetTitle>
       </SheetHeader>
 
-      <div className="flex-1 -mx-6 px-6 overflow-y-auto space-y-5 mt-4">
+      <SheetBody>
+        <div className="space-y-5">
         {/* Status badge */}
         <div className="flex items-center gap-2">
           <Badge
@@ -590,12 +590,13 @@ function LabTestDetailSheet({ test }: { test: LabTest }) {
             </div>
           </div>
         )}
-      </div>
+        </div>
+      </SheetBody>
 
       <SheetFooter>
-        <Button className="flex-1" onClick={handleDownload}>
+        <Button className="flex-1" size="lg" onClick={handleDownload}>
           <Download className="h-4 w-4" />
-          Download Report
+          Download report
         </Button>
       </SheetFooter>
     </div>
@@ -608,10 +609,7 @@ function DocumentPreview({ doc }: { doc: AppDocument }) {
   return (
     <div className="flex flex-col h-full">
       <SheetHeader>
-        <SheetTitle className="text-base">{doc.name}</SheetTitle>
-        <SheetDescription>
-          {doc.type.toUpperCase()} · {doc.date} · {doc.size}
-        </SheetDescription>
+        <SheetTitle>{doc.name}</SheetTitle>
       </SheetHeader>
 
       {/* Mock PDF preview */}
@@ -632,7 +630,7 @@ function DocumentPreview({ doc }: { doc: AppDocument }) {
 
       {/* Actions */}
       <SheetFooter>
-        <Button className="flex-1">
+        <Button className="flex-1" size="lg">
           <Download className="h-4 w-4" />
           Download
         </Button>

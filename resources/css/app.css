@@ -132,6 +132,15 @@
     }
 }
 
+@layer components {
+    .sheet-body > * {
+        padding: 20px;
+    }
+    .sheet-body > * + * {
+        border-top: 1px solid #E5E5E5;
+    }
+}
+
 @layer utilities {
     @keyframes wave {
         0%, 100% {

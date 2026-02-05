@@ -3474,7 +3474,7 @@ class IntelligentBookingOrchestrator
 
         if (!$doctorDetails) {
             Log::warning('⚠️ Time Validation: Doctor not found', ['doctor_id' => $doctorId]);
-            return false;
+            return true;
         }
 
         // Get doctor's available slots for the date

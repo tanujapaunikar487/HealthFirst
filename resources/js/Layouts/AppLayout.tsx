@@ -11,7 +11,6 @@ import {
   SheetBody,
   SheetTitle,
   SheetDescription,
-  SheetDivider,
 } from '@/Components/ui/sheet';
 import { Tabs, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import {
@@ -454,22 +453,22 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
             </div>
             <SheetDescription className="sr-only">Billing notifications</SheetDescription>
 
-            {/* Filter Tabs */}
-            <Tabs
-              value={notifFilter}
-              onValueChange={(v) => setNotifFilter(v as 'all' | 'unread')}
-              className="mt-3"
-            >
-              <TabsList>
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="unread">
-                  Unread{unreadCount > 0 ? ` (${unreadCount})` : ''}
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+            {/* Filter Tabs — hide when no notifications at all */}
+            {allNotifications.length > 0 && (
+              <Tabs
+                value={notifFilter}
+                onValueChange={(v) => setNotifFilter(v as 'all' | 'unread')}
+                className="mt-3"
+              >
+                <TabsList>
+                  <TabsTrigger value="all">All</TabsTrigger>
+                  <TabsTrigger value="unread">
+                    Unread{unreadCount > 0 ? ` (${unreadCount})` : ''}
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            )}
           </SheetHeader>
-
-          <SheetDivider />
 
           {/* Scrollable Notification List */}
           <SheetBody>

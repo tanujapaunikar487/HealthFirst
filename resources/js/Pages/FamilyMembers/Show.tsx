@@ -24,9 +24,8 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
   SheetFooter,
-  SheetDivider,
+  SheetBody,
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
@@ -928,15 +927,12 @@ export default function FamilyMemberShow({
         <SheetContent>
           <SheetHeader>
             <SheetTitle>Edit Profile</SheetTitle>
-            <SheetDescription>
-              Update details for {member.name}.
-            </SheetDescription>
           </SheetHeader>
 
-          <div className="flex-1 overflow-y-auto -mx-6 px-6">
+          <SheetBody>
             {/* Personal Details */}
             <div>
-              <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">Personal Details</p>
+              <p className="mb-3 text-[14px] font-medium text-[#737373]">Personal details</p>
               <div className="space-y-4">
                 <div>
                   <label className="mb-1.5 block text-[14px] font-medium text-gray-700">
@@ -1010,11 +1006,9 @@ export default function FamilyMemberShow({
               </div>
             </div>
 
-            <SheetDivider className="my-6" />
-
             {/* Contact & Address */}
             <div>
-              <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">Contact & Address</p>
+              <p className="mb-3 text-[14px] font-medium text-[#737373]">Contact & address</p>
               <div className="space-y-4">
                 <div>
                   <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Phone</label>
@@ -1091,11 +1085,9 @@ export default function FamilyMemberShow({
               </div>
             </div>
 
-            <SheetDivider className="my-6" />
-
             {/* Health Information */}
             <div>
-              <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">Health Information</p>
+              <p className="mb-3 text-[14px] font-medium text-[#737373]">Health information</p>
               <div className="space-y-4">
                 <div>
                   <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Blood Group</label>
@@ -1151,11 +1143,9 @@ export default function FamilyMemberShow({
               </div>
             </div>
 
-            <SheetDivider className="my-6" />
-
             {/* Emergency Contact */}
             <div>
-              <p className="mb-3 text-[14px] font-semibold uppercase tracking-wider text-gray-400">Emergency Contact</p>
+              <p className="mb-3 text-[14px] font-medium text-[#737373]">Emergency contact</p>
               <div className="space-y-4">
                 <div>
                   <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Contact Name</label>
@@ -1183,10 +1173,11 @@ export default function FamilyMemberShow({
               </div>
             </div>
 
-          </div>
+          </SheetBody>
 
           <SheetFooter>
             <Button
+              size="lg"
               onClick={handleSubmit}
               disabled={submitting}
               className="flex-1"

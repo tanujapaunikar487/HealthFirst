@@ -12,8 +12,8 @@ import {
     SheetContent,
     SheetHeader,
     SheetTitle,
-    SheetDescription,
     SheetFooter,
+    SheetBody,
 } from '@/Components/ui/sheet';
 import {
     Dialog,
@@ -503,12 +503,9 @@ export function PaymentsTab({ paymentMethods = [], upiIds = [] }: PaymentsTabPro
                 <SheetContent className="sm:max-w-md">
                     <SheetHeader>
                         <SheetTitle>Add payment method</SheetTitle>
-                        <SheetDescription>
-                            Add a debit or credit card for faster checkout
-                        </SheetDescription>
                     </SheetHeader>
 
-                    <div className="py-6 space-y-4">
+                    <SheetBody><div className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="cardNumber">Card number</Label>
                             <Input
@@ -553,11 +550,12 @@ export function PaymentsTab({ paymentMethods = [], upiIds = [] }: PaymentsTabPro
                                 onChange={(e) => setCardHolder(e.target.value)}
                             />
                         </div>
-                    </div>
+                    </div></SheetBody>
 
                     <SheetFooter>
                         <Button
-                            className="w-full"
+                            className="flex-1"
+                            size="lg"
                             onClick={handleAddCard}
                             disabled={saving}
                         >

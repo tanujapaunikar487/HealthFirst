@@ -4,8 +4,8 @@ import { Button } from '@/Components/ui/button';
 import {
   SheetHeader,
   SheetTitle,
-  SheetDescription,
   SheetFooter,
+  SheetBody,
   SheetDivider,
 } from '@/Components/ui/sheet';
 import {
@@ -249,8 +249,8 @@ export function DetailsSheet({
       {/* Edge-to-edge divider */}
       <SheetDivider />
 
-      {/* Scrollable Content - extended to sheet edges so dividers can be edge-to-edge */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden pt-4 -mx-6 px-6">
+      {/* Scrollable Content */}
+      <SheetBody>
         {/* Details Section */}
         <Collapsible open={detailsOpen} onOpenChange={setDetailsOpen}>
           <CollapsibleTrigger className="flex items-center justify-between w-full py-3 hover:bg-muted/50 transition-colors">
@@ -278,9 +278,6 @@ export function DetailsSheet({
             />
           </CollapsibleContent>
         </Collapsible>
-
-        {/* Edge-to-edge divider */}
-        <SheetDivider />
 
         {/* Notes Section */}
         <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
@@ -361,9 +358,6 @@ export function DetailsSheet({
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Edge-to-edge divider */}
-        <SheetDivider />
-
         {/* Preparation Section */}
         <Collapsible open={preparationOpen} onOpenChange={setPreparationOpen}>
           <CollapsibleTrigger className="flex items-center justify-between w-full py-3 hover:bg-muted/50 transition-colors">
@@ -396,7 +390,7 @@ export function DetailsSheet({
             </ul>
           </CollapsibleContent>
         </Collapsible>
-      </div>
+      </SheetBody>
 
       {/* Footer */}
       <SheetFooter>
@@ -603,9 +597,9 @@ export function CancelledDetailsSheet({
       <SheetDivider />
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden pt-4 -mx-6 px-6">
+      <SheetBody>
         {/* Original Details Section */}
-        <div className="space-y-3 pb-4">
+        <div className="space-y-3">
           <p className="text-[14px] font-medium text-muted-foreground uppercase tracking-wide">Original Details</p>
           <div className="space-y-2">
             <KeyValueRow label="Date" value={appointment.date_formatted} />
@@ -615,11 +609,8 @@ export function CancelledDetailsSheet({
           </div>
         </div>
 
-        {/* Edge-to-edge divider */}
-        <SheetDivider />
-
         {/* Cancellation Info Section */}
-        <div className="space-y-3 pt-4">
+        <div className="space-y-3">
           <p className="text-[14px] font-medium text-muted-foreground uppercase tracking-wide">Cancellation Info</p>
           <div className="space-y-2">
             <KeyValueRow
@@ -634,7 +625,7 @@ export function CancelledDetailsSheet({
             />
           </div>
         </div>
-      </div>
+      </SheetBody>
 
       {/* Footer */}
       <SheetFooter>
@@ -755,10 +746,10 @@ export function CancelSheet({
     <div className="flex flex-col h-full">
       <SheetHeader>
         <SheetTitle>Cancel appointment</SheetTitle>
-        <SheetDescription>This action cannot be undone.</SheetDescription>
       </SheetHeader>
 
-      <div className="flex-1 space-y-6">
+      <SheetBody>
+        <div className="space-y-6">
         {/* Warning */}
         <div className="flex gap-3 p-4 rounded-lg bg-amber-50 border border-amber-200">
           <Icon icon={AlertTriangle} className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
@@ -794,12 +785,14 @@ export function CancelSheet({
             ))}
           </div>
         </div>
-      </div>
+        </div>
+      </SheetBody>
 
       {/* Actions */}
       <SheetFooter>
         <Button
           className="flex-1"
+          size="lg"
           variant="destructive"
           onClick={handleCancel}
           disabled={submitting}
@@ -882,13 +875,11 @@ export function RescheduleSheet({
   return (
     <div className="flex flex-col h-full">
       <SheetHeader>
-        <SheetTitle>Reschedule Appointment</SheetTitle>
-        <SheetDescription>
-          Currently: {appointment.date_formatted} at {appointment.time}
-        </SheetDescription>
+        <SheetTitle>Reschedule appointment</SheetTitle>
       </SheetHeader>
 
-      <div className="flex-1 space-y-6 overflow-y-auto">
+      <SheetBody>
+        <div className="space-y-6">
         {/* Booking Summary */}
         <div className="rounded-lg bg-muted/50 p-4 space-y-3">
           <div className="flex items-center gap-3">
@@ -923,8 +914,6 @@ export function RescheduleSheet({
             </div>
           </div>
         </div>
-
-        <SheetDivider />
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
@@ -1001,7 +990,8 @@ export function RescheduleSheet({
             )}
           </>
         )}
-      </div>
+        </div>
+      </SheetBody>
 
       {/* Actions */}
       <SheetFooter>
@@ -1150,9 +1140,6 @@ export function FollowUpSheet({
     <div className="flex flex-col h-full">
       <SheetHeader>
         <SheetTitle>Book follow-up</SheetTitle>
-        <SheetDescription>
-          {data?.doctor ? `with ${data.doctor.name}` : 'Loading...'}
-        </SheetDescription>
       </SheetHeader>
 
       {loading ? (
@@ -1161,7 +1148,8 @@ export function FollowUpSheet({
         </div>
       ) : data ? (
         <>
-          <div className="flex-1 space-y-6 overflow-y-auto">
+          <SheetBody>
+            <div className="space-y-6">
             {/* Doctor & Patient Card */}
             <div className="rounded-lg bg-muted/50 p-4 space-y-3">
               <div className="flex items-center gap-3">
@@ -1183,8 +1171,6 @@ export function FollowUpSheet({
                 <span>For: {data.patient.name}</span>
               </div>
             </div>
-
-            <SheetDivider />
 
             {/* Date Pills */}
             <div>
@@ -1292,7 +1278,8 @@ export function FollowUpSheet({
                 </div>
               </div>
             )}
-          </div>
+            </div>
+          </SheetBody>
 
           {/* Footer */}
           <SheetFooter>
@@ -1459,10 +1446,7 @@ export function BookAgainSheet({
   return (
     <div className="flex flex-col h-full">
       <SheetHeader>
-        <SheetTitle>Book Again</SheetTitle>
-        <SheetDescription>
-          {data?.doctor ? `with ${data.doctor.name}` : 'Loading...'}
-        </SheetDescription>
+        <SheetTitle>Book again</SheetTitle>
       </SheetHeader>
 
       {loading ? (
@@ -1471,7 +1455,8 @@ export function BookAgainSheet({
         </div>
       ) : data ? (
         <>
-          <div className="flex-1 space-y-6 overflow-y-auto">
+          <SheetBody>
+            <div className="space-y-6">
             {/* Doctor & Patient Card */}
             <div className="rounded-lg bg-muted/50 p-4 space-y-3">
               <div className="flex items-center gap-3">
@@ -1493,8 +1478,6 @@ export function BookAgainSheet({
                 <span>For: {data.patient.name}</span>
               </div>
             </div>
-
-            <SheetDivider />
 
             {/* Date Pills */}
             <div>
@@ -1602,7 +1585,8 @@ export function BookAgainSheet({
                 </div>
               </div>
             )}
-          </div>
+            </div>
+          </SheetBody>
 
           {/* Footer */}
           <SheetFooter>

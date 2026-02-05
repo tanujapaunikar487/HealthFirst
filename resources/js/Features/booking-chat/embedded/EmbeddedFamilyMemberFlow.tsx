@@ -10,7 +10,7 @@ import { RelationshipSelector } from '@/Components/RelationshipSelector';
 import { OtpInput } from '@/Components/OtpInput';
 import { MemberSearchCard } from '@/Components/MemberSearchCard';
 import { DetectionCard } from './DetectionCard';
-import { SheetHeader, SheetTitle, SheetDescription, SheetFooter } from '@/Components/ui/sheet';
+import { SheetHeader, SheetTitle, SheetFooter, SheetBody } from '@/Components/ui/sheet';
 import { cn } from '@/Lib/utils';
 
 type Step =
@@ -901,11 +901,10 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                 {state.step !== 'success' && (
                     <SheetHeader onBack={canGoBack ? handleBack : undefined}>
                         <SheetTitle>{stepInfo.title}</SheetTitle>
-                        <SheetDescription>{stepInfo.description}</SheetDescription>
                     </SheetHeader>
                 )}
 
-                <div className="flex-1 overflow-y-auto -mx-6 px-6 space-y-6">
+                <SheetBody><div className="space-y-6">
                     {/* Error Message */}
                     {state.error && (
                         <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 flex items-start gap-2">
@@ -1391,7 +1390,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             <p className="text-[14px] text-muted-foreground">{state.foundMember?.name} has been added to your family members</p>
                         </div>
                     )}
-                </div>
+                </div></SheetBody>
 
                 {renderStandaloneFooter()}
             </div>

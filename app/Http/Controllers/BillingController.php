@@ -6,6 +6,7 @@ use App\Models\Appointment;
 use App\Models\FamilyMember;
 use App\Models\InsuranceClaim;
 use App\Models\LabTestType;
+use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -186,6 +187,9 @@ class BillingController extends Controller
             // Update appointment payment status
             $appointment->payment_status = 'paid';
             $appointment->save();
+
+            // Send notification
+            app(NotificationService::class)->send($user, new \App\Notifications\PaymentSuccessful($appointment), 'billing');
 
             return response()->json([
                 'success' => true,

@@ -13,6 +13,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use App\Services\VideoMeeting\VideoMeetingService;
+use App\Services\NotificationService;
+use App\Notifications\AppointmentCancelled;
+use App\Notifications\RefundInitiated;
+use App\Notifications\AppointmentRescheduled;
+use App\Notifications\AppointmentCheckedIn;
+use App\Notifications\AppointmentConfirmed;
 
 class AppointmentsController extends Controller
 {
@@ -90,6 +96,9 @@ class AppointmentsController extends Controller
             'cancellation_reason' => $validated['cancellation_reason'] ?? null,
         ]);
 
+        app(NotificationService::class)->send($user, new AppointmentCancelled($appointment), 'appointments');
+        app(NotificationService::class)->send($user, new RefundInitiated($appointment, $appointment->fee), 'billing');
+
         return back()->with('success', 'Appointment cancelled successfully. A full refund has been initiated.');
     }
 
@@ -110,10 +119,16 @@ class AppointmentsController extends Controller
             'time' => 'required|string',
         ]);
 
+        // Capture old date/time before update
+        $oldDate = $appointment->appointment_date;
+        $oldTime = $appointment->appointment_time;
+
         $appointment->update([
             'appointment_date' => $validated['date'],
             'appointment_time' => $validated['time'],
         ]);
+
+        app(NotificationService::class)->send($user, new AppointmentRescheduled($appointment, $oldDate, $oldTime), 'appointments');
 
         return back()->with('success', 'Appointment rescheduled successfully.');
     }
@@ -141,6 +156,8 @@ class AppointmentsController extends Controller
         $appointment->update([
             'checked_in_at' => now(),
         ]);
+
+        app(NotificationService::class)->send($user, new AppointmentCheckedIn($appointment), 'appointments');
 
         return back()->with('success', 'Checked in successfully.');
     }
@@ -532,6 +549,8 @@ class AppointmentsController extends Controller
             ],
         ]);
 
+        app(NotificationService::class)->send($user, new AppointmentConfirmed($newAppointment), 'appointments');
+
         return back()->with('success', 'Appointment booked successfully.');
     }
 
@@ -673,6 +692,8 @@ class AppointmentsController extends Controller
                 'original_appointment_id' => $appointment->id,
             ],
         ]);
+
+        app(NotificationService::class)->send($user, new AppointmentConfirmed($followUp), 'appointments');
 
         return back()->with('success', 'Follow-up appointment booked successfully.');
     }
