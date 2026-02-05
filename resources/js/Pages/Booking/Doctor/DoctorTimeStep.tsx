@@ -281,7 +281,7 @@ export default function DoctorTimeStep({
               </Select>
 
               <div className="relative">
-                <Icon icon={Search} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-900" />
+                <Icon icon={Search} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground" />
                 <Input
                   placeholder="Search patient, doctor, date"
                   value={searchQuery}

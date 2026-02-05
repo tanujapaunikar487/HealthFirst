@@ -332,26 +332,26 @@ interface Props {
 /* ─── Category Config ─── */
 
 const categoryConfig: Record<string, { label: string; icon: React.ComponentType<any>; color: string; bg: string }> = {
-  lab_report:         { label: 'Lab Report',   icon: TestTube2,      color: '#1E40AF', bg: '#BFDBFE' },
-  xray_report:        { label: 'X-Ray',        icon: ScanLine,       color: '#1E40AF', bg: '#BFDBFE' },
-  mri_report:         { label: 'MRI',          icon: BrainCircuit,   color: '#1E40AF', bg: '#BFDBFE' },
-  ultrasound_report:  { label: 'Ultrasound',   icon: Radio,          color: '#1E40AF', bg: '#BFDBFE' },
-  ecg_report:         { label: 'ECG',          icon: HeartPulse,     color: '#1E40AF', bg: '#BFDBFE' },
-  pathology_report:   { label: 'Pathology',    icon: Microscope,     color: '#1E40AF', bg: '#BFDBFE' },
-  pft_report:         { label: 'PFT',          icon: Wind,           color: '#1E40AF', bg: '#BFDBFE' },
-  other_report:       { label: 'Other Report', icon: ClipboardList,  color: '#1E40AF', bg: '#BFDBFE' },
-  consultation_notes: { label: 'Consultation', icon: Stethoscope,    color: '#1E40AF', bg: '#BFDBFE' },
-  procedure_notes:    { label: 'Procedure',    icon: Syringe,        color: '#1E40AF', bg: '#BFDBFE' },
-  discharge_summary:  { label: 'Discharge',    icon: FileText,       color: '#1E40AF', bg: '#BFDBFE' },
-  er_visit:           { label: 'ER Visit',     icon: Ambulance,      color: '#1E40AF', bg: '#BFDBFE' },
-  referral:           { label: 'Referral',     icon: UserPlus,       color: '#1E40AF', bg: '#BFDBFE' },
-  other_visit:        { label: 'Other Visit',  icon: ClipboardCheck, color: '#1E40AF', bg: '#BFDBFE' },
-  prescription:       { label: 'Prescription', icon: Pill,           color: '#1E40AF', bg: '#BFDBFE' },
-  medication_active:  { label: 'Active Med',   icon: Pill,           color: '#1E40AF', bg: '#BFDBFE' },
-  medication_past:    { label: 'Past Med',     icon: Archive,        color: '#1E40AF', bg: '#BFDBFE' },
-  vaccination:        { label: 'Vaccination',  icon: Syringe,        color: '#1E40AF', bg: '#BFDBFE' },
-  medical_certificate:{ label: 'Certificate',  icon: Award,          color: '#1E40AF', bg: '#BFDBFE' },
-  invoice:            { label: 'Invoice',      icon: Receipt,        color: '#1E40AF', bg: '#BFDBFE' },
+  lab_report:         { label: 'Lab Report',   icon: TestTube2,      color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  xray_report:        { label: 'X-Ray',        icon: ScanLine,       color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  mri_report:         { label: 'MRI',          icon: BrainCircuit,   color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  ultrasound_report:  { label: 'Ultrasound',   icon: Radio,          color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  ecg_report:         { label: 'ECG',          icon: HeartPulse,     color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  pathology_report:   { label: 'Pathology',    icon: Microscope,     color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  pft_report:         { label: 'PFT',          icon: Wind,           color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  other_report:       { label: 'Other Report', icon: ClipboardList,  color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  consultation_notes: { label: 'Consultation', icon: Stethoscope,    color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  procedure_notes:    { label: 'Procedure',    icon: Syringe,        color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  discharge_summary:  { label: 'Discharge',    icon: FileText,       color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  er_visit:           { label: 'ER Visit',     icon: Ambulance,      color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  referral:           { label: 'Referral',     icon: UserPlus,       color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  other_visit:        { label: 'Other Visit',  icon: ClipboardCheck, color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  prescription:       { label: 'Prescription', icon: Pill,           color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  medication_active:  { label: 'Active Med',   icon: Pill,           color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  medication_past:    { label: 'Past Med',     icon: Archive,        color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  vaccination:        { label: 'Vaccination',  icon: Syringe,        color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  medical_certificate:{ label: 'Certificate',  icon: Award,          color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  invoice:            { label: 'Invoice',      icon: Receipt,        color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
 };
 
 /* ─── Section Config ─── */
@@ -367,7 +367,7 @@ const SECTIONS = [
 /* ─── Helpers ─── */
 
 function CategoryIcon({ category, size = 'md' }: { category: string; size?: 'sm' | 'md' | 'lg' }) {
-  const config = categoryConfig[category] || { icon: FileText, color: '#6B7280', bg: '#F3F4F6' };
+  const config = categoryConfig[category] || { icon: FileText, color: 'hsl(var(--muted-foreground))', bg: 'hsl(var(--secondary))' };
   const Icon = config.icon;
   const dims = { sm: 'h-10 w-10', md: 'h-12 w-12', lg: 'h-14 w-14' };
   const iconDims = { sm: 'h-5 w-5', md: 'h-6 w-6', lg: 'h-7 w-7' };
@@ -500,8 +500,8 @@ function Section({
   return (
     <div id={id} className="scroll-mt-24">
       <div className="flex items-center gap-2.5 mb-4">
-        <Icon icon={SectionIcon} className="h-5 w-5 text-neutral-900" />
-        <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+        <Icon icon={SectionIcon} className="h-5 w-5 text-foreground" />
+        <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
           {title}
         </h2>
       </div>
@@ -544,7 +544,7 @@ function NumberedList({ items, variant = 'default' }: { items: string[]; variant
   return (
     <ol className="space-y-2">
       {items.map((item, i) => (
-        <li key={i} className="text-[14px] flex items-start gap-3 leading-relaxed" style={{ color: '#374151' }}>
+        <li key={i} className="text-[14px] flex items-start gap-3 leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>
           {variant === 'default' ? (
             <span className="text-[14px] font-medium text-muted-foreground w-5 flex-shrink-0">{i + 1}.</span>
           ) : (
@@ -573,8 +573,8 @@ function LinkedRecordsList({ records, onView }: { records: LinkedRecord[]; onVie
                 <config.icon className="h-4 w-4" style={{ color: config.color }} />
               </div>
             ) : (
-              <div className="h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-100">
-                <FileText className="h-4 w-4 text-neutral-900" />
+              <div className="h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 bg-muted">
+                <FileText className="h-4 w-4 text-foreground" />
               </div>
             )}
             <span className="text-[14px] font-medium flex-1 truncate">{rec.title}</span>
@@ -592,7 +592,7 @@ function FindingsImpression({ findings, impression, impressionColor = '#0E7490',
       {findings && (
         <div>
           <SectionTitle>Findings</SectionTitle>
-          <p className="text-[14px] leading-relaxed" style={{ color: '#374151' }}>{findings}</p>
+          <p className="text-[14px] leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{findings}</p>
         </div>
       )}
       {impression && (
@@ -662,7 +662,7 @@ export default function Show({ user, record, familyMember }: Props) {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const config = categoryConfig[record.category] || { label: record.category, color: '#6B7280', bg: '#F3F4F6' };
+  const config = categoryConfig[record.category] || { label: record.category, color: 'hsl(var(--muted-foreground))', bg: 'hsl(var(--secondary))' };
 
   const handleDownload = () => {
     const pdfContent = generateHealthRecordPdfContent(record, aiSummary || undefined);
@@ -736,7 +736,7 @@ export default function Show({ user, record, familyMember }: Props) {
                     {config.label}
                   </Badge>
                 </div>
-                <h1 className="text-2xl font-bold" style={{ color: '#171717' }}>
+                <h1 className="text-2xl font-bold" style={{ color: 'hsl(var(--foreground))' }}>
                   {record.title}
                 </h1>
                 <p className="text-[14px] text-muted-foreground mt-1">
@@ -822,7 +822,7 @@ export default function Show({ user, record, familyMember }: Props) {
             {/* Summary Section */}
             <Section id="summary" title="Summary" icon={FileText}>
               {record.description ? (
-                <p className="text-[14px] leading-relaxed mb-6" style={{ color: '#374151' }}>{record.description}</p>
+                <p className="text-[14px] leading-relaxed mb-6" style={{ color: 'hsl(var(--foreground))' }}>{record.description}</p>
               ) : (
                 <p className="text-[14px] text-muted-foreground mb-6">No description available.</p>
               )}
@@ -1058,8 +1058,8 @@ function ConsultationDetail({ meta, onAction }: { meta: RecordMetadata; onAction
         {meta.chief_complaint && (
           <div>
             <p className="text-[14px] text-muted-foreground uppercase mb-2">Chief Complaint</p>
-            <div className="rounded-lg bg-blue-50 px-4 py-3">
-              <p className="text-[14px] font-medium" style={{ color: '#1E40AF' }}>{meta.chief_complaint}</p>
+            <div className="rounded-lg bg-primary/10 px-4 py-3">
+              <p className="text-[14px] font-medium text-primary">{meta.chief_complaint}</p>
             </div>
           </div>
         )}
@@ -1074,21 +1074,21 @@ function ConsultationDetail({ meta, onAction }: { meta: RecordMetadata; onAction
         {meta.history_of_present_illness && (
           <div>
             <p className="text-[14px] text-muted-foreground uppercase mb-2">History of Present Illness</p>
-            <p className="text-[14px] leading-relaxed" style={{ color: '#374151' }}>{meta.history_of_present_illness}</p>
+            <p className="text-[14px] leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.history_of_present_illness}</p>
           </div>
         )}
         {(meta.clinical_examination || meta.examination_findings) && (
           <div>
             <p className="text-[14px] text-muted-foreground uppercase mb-2">Examination</p>
-            <p className="text-[14px] leading-relaxed" style={{ color: '#374151' }}>{meta.clinical_examination || meta.examination_findings}</p>
+            <p className="text-[14px] leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.clinical_examination || meta.examination_findings}</p>
           </div>
         )}
         {meta.diagnosis && (
           <div>
             <p className="text-[14px] text-muted-foreground uppercase mb-2">Diagnosis</p>
-            <div className="rounded-lg bg-blue-50 px-4 py-3">
-              <p className="text-[14px] font-semibold" style={{ color: '#1E40AF' }}>{meta.diagnosis}</p>
-              {meta.icd_code && <p className="text-[14px] text-blue-500 mt-1">ICD: {meta.icd_code}</p>}
+            <div className="rounded-lg bg-primary/10 px-4 py-3">
+              <p className="text-[14px] font-semibold text-primary">{meta.diagnosis}</p>
+              {meta.icd_code && <p className="text-[14px] text-primary/70 mt-1">ICD: {meta.icd_code}</p>}
             </div>
           </div>
         )}
@@ -1100,7 +1100,7 @@ function ConsultationDetail({ meta, onAction }: { meta: RecordMetadata; onAction
           {meta.treatment_plan_steps && meta.treatment_plan_steps.length > 0 ? (
             <NumberedList items={meta.treatment_plan_steps} />
           ) : meta.treatment_plan ? (
-            <p className="text-[14px] leading-relaxed" style={{ color: '#374151' }}>{meta.treatment_plan}</p>
+            <p className="text-[14px] leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.treatment_plan}</p>
           ) : null}
         </div>
       )}
@@ -1115,9 +1115,9 @@ function ConsultationDetail({ meta, onAction }: { meta: RecordMetadata; onAction
       {(meta.follow_up_recommendation || meta.follow_up_date || meta.follow_up) && (
         <div>
           <SectionTitle>Follow-up</SectionTitle>
-          <div className="rounded-lg border border-blue-200 bg-blue-50/50 px-6 py-4 space-y-3">
+          <div className="rounded-lg border border-primary/20 bg-primary/10 px-6 py-4 space-y-3">
             {(meta.follow_up_recommendation || meta.follow_up) && (
-              <p className="text-[14px]" style={{ color: '#374151' }}>{meta.follow_up_recommendation || meta.follow_up}</p>
+              <p className="text-[14px]" style={{ color: 'hsl(var(--foreground))' }}>{meta.follow_up_recommendation || meta.follow_up}</p>
             )}
             {meta.follow_up_date && (
               <p className="text-[14px] text-muted-foreground">Recommended: {fmtDate(meta.follow_up_date)}</p>
@@ -1142,20 +1142,20 @@ function ProcedureDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (
       {meta.technique && (
         <div>
           <SectionTitle>Technique</SectionTitle>
-          <p className="text-[14px] leading-relaxed" style={{ color: '#374151' }}>{meta.technique}</p>
+          <p className="text-[14px] leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.technique}</p>
         </div>
       )}
       {meta.findings && (
         <div>
           <SectionTitle>Findings</SectionTitle>
-          <p className="text-[14px] leading-relaxed" style={{ color: '#374151' }}>{meta.findings}</p>
+          <p className="text-[14px] leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.findings}</p>
         </div>
       )}
       {meta.complications && <DetailRow label="Complications">{meta.complications}</DetailRow>}
       {meta.post_op_instructions && (
         <div>
           <SectionTitle>Post-Procedure Instructions</SectionTitle>
-          <p className="text-[14px] leading-relaxed" style={{ color: '#374151' }}>{meta.post_op_instructions}</p>
+          <p className="text-[14px] leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.post_op_instructions}</p>
         </div>
       )}
       {meta.linked_records && meta.linked_records.length > 0 && (
@@ -1182,7 +1182,7 @@ function ErVisitDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (ms
             {meta.triage_level && (
               <DetailRow label="Triage Level">
                 <Badge variant="secondary" className={cn(
-                  meta.triage_level.includes('1') || meta.triage_level.includes('2') ? 'bg-red-50 text-red-600 border-red-200' : 'bg-amber-50 text-amber-700 border-amber-200'
+                  meta.triage_level.includes('1') || meta.triage_level.includes('2') ? 'bg-destructive/10 text-destructive border-destructive/20' : 'bg-warning/10 text-warning border-warning/20'
                 )}>
                   {meta.triage_level}
                 </Badge>
@@ -1197,8 +1197,8 @@ function ErVisitDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (ms
       {meta.chief_complaint && (
         <div>
           <SectionTitle>Chief Complaint</SectionTitle>
-          <div className="rounded-lg bg-red-50 px-4 py-3">
-            <p className="text-[14px] font-semibold" style={{ color: '#DC2626' }}>{meta.chief_complaint}</p>
+          <div className="rounded-lg bg-destructive/10 px-4 py-3">
+            <p className="text-[14px] font-semibold text-destructive">{meta.chief_complaint}</p>
           </div>
         </div>
       )}
@@ -1213,7 +1213,7 @@ function ErVisitDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (ms
       {meta.examination && (
         <div>
           <SectionTitle>Examination</SectionTitle>
-          <p className="text-[14px] leading-relaxed" style={{ color: '#374151' }}>{meta.examination}</p>
+          <p className="text-[14px] leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.examination}</p>
         </div>
       )}
 
@@ -1223,13 +1223,13 @@ function ErVisitDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (ms
           <div className="space-y-2">
             {meta.investigations.map((inv, i) => (
               <div key={i} className="flex items-start gap-3 text-[14px]">
-                <span className="h-2 w-2 rounded-full bg-gray-400 flex-shrink-0 mt-2" />
+                <span className="h-2 w-2 rounded-full bg-muted-foreground flex-shrink-0 mt-2" />
                 <div className="flex-1">
                   <span className="font-medium">{inv.name}</span>
                   <span className="text-muted-foreground"> — {inv.result}</span>
                 </div>
                 {inv.has_link && (
-                  <button className="text-[14px] text-blue-600 hover:underline flex-shrink-0" onClick={() => onAction(`Opening ${inv.name}...`)}>
+                  <button className="text-[14px] text-primary hover:underline flex-shrink-0" onClick={() => onAction(`Opening ${inv.name}...`)}>
                     View
                   </button>
                 )}
@@ -1242,8 +1242,8 @@ function ErVisitDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (ms
       {meta.diagnosis && (
         <div>
           <SectionTitle>Diagnosis</SectionTitle>
-          <div className="rounded-lg bg-amber-50 px-4 py-3">
-            <p className="text-[14px] font-semibold" style={{ color: '#92400E' }}>{meta.diagnosis}</p>
+          <div className="rounded-lg bg-warning/10 px-4 py-3">
+            <p className="text-[14px] font-semibold text-warning">{meta.diagnosis}</p>
           </div>
         </div>
       )}
@@ -1254,7 +1254,7 @@ function ErVisitDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (ms
           {meta.treatment_items && meta.treatment_items.length > 0 ? (
             <NumberedList items={meta.treatment_items} />
           ) : meta.treatment_given ? (
-            <p className="text-[14px] leading-relaxed" style={{ color: '#374151' }}>{meta.treatment_given}</p>
+            <p className="text-[14px] leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.treatment_given}</p>
           ) : null}
         </div>
       )}
@@ -1262,7 +1262,7 @@ function ErVisitDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (ms
       {(meta.disposition || meta.disposition_detail) && (
         <div>
           <SectionTitle>Disposition</SectionTitle>
-          {meta.disposition && <p className="text-[14px] font-medium" style={{ color: '#374151' }}>{meta.disposition}</p>}
+          {meta.disposition && <p className="text-[14px] font-medium" style={{ color: 'hsl(var(--foreground))' }}>{meta.disposition}</p>}
           {meta.disposition_detail && <p className="text-[14px] leading-relaxed text-muted-foreground mt-1">{meta.disposition_detail}</p>}
         </div>
       )}
@@ -1294,7 +1294,7 @@ function ReferralDetail({ meta }: { meta: RecordMetadata }) {
       {meta.reason && (
         <div>
           <SectionTitle>Reason</SectionTitle>
-          <p className="text-[14px] leading-relaxed" style={{ color: '#374151' }}>{meta.reason}</p>
+          <p className="text-[14px] leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.reason}</p>
         </div>
       )}
     </div>
@@ -1321,15 +1321,15 @@ function DischargeDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (
           <SectionTitle>Diagnosis</SectionTitle>
           <div className="space-y-3">
             {(meta.primary_diagnosis || meta.diagnosis) && (
-              <div className="rounded-lg bg-blue-50 px-4 py-3">
-                <p className="text-[14px] text-blue-500 uppercase mb-1">Primary</p>
-                <p className="text-[14px] font-semibold" style={{ color: '#1E40AF' }}>{meta.primary_diagnosis || meta.diagnosis}</p>
+              <div className="rounded-lg bg-primary/10 px-4 py-3">
+                <p className="text-[14px] text-primary/70 uppercase mb-1">Primary</p>
+                <p className="text-[14px] font-semibold text-primary">{meta.primary_diagnosis || meta.diagnosis}</p>
               </div>
             )}
             {meta.secondary_diagnosis && (
-              <div className="rounded-lg bg-gray-50 px-4 py-3">
+              <div className="rounded-lg bg-muted px-4 py-3">
                 <p className="text-[14px] text-muted-foreground uppercase mb-1">Secondary</p>
-                <p className="text-[14px]" style={{ color: '#374151' }}>{meta.secondary_diagnosis}</p>
+                <p className="text-[14px]" style={{ color: 'hsl(var(--foreground))' }}>{meta.secondary_diagnosis}</p>
               </div>
             )}
             {meta.procedure_performed && (
@@ -1342,7 +1342,7 @@ function DischargeDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (
       {meta.hospital_course && (
         <div>
           <SectionTitle>Hospital Course</SectionTitle>
-          <p className="text-[14px] leading-relaxed" style={{ color: '#374151' }}>{meta.hospital_course}</p>
+          <p className="text-[14px] leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.hospital_course}</p>
         </div>
       )}
 
@@ -1359,7 +1359,7 @@ function DischargeDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (
           <ul className="space-y-2">
             {meta.procedures.map((p, i) => (
               <li key={i} className="text-[14px] flex items-center gap-3">
-                <span className="h-2 w-2 rounded-full bg-gray-400 flex-shrink-0" />{p}
+                <span className="h-2 w-2 rounded-full bg-muted-foreground flex-shrink-0" />{p}
               </li>
             ))}
           </ul>
@@ -1371,14 +1371,14 @@ function DischargeDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (
           <SectionTitle>Discharge Prescriptions</SectionTitle>
           <ol className="space-y-2">
             {meta.discharge_medications.map((med, i) => (
-              <li key={i} className="text-[14px] flex items-start gap-3" style={{ color: '#374151' }}>
+              <li key={i} className="text-[14px] flex items-start gap-3" style={{ color: 'hsl(var(--foreground))' }}>
                 <span className="text-[14px] font-medium text-muted-foreground w-5 flex-shrink-0">{i + 1}.</span>
                 <span>{med.name} — {med.dosage} x {med.duration}</span>
               </li>
             ))}
           </ol>
           <button
-            className="text-[14px] text-blue-600 hover:underline mt-3"
+            className="text-[14px] text-primary hover:underline mt-3"
             onClick={() => onAction('Opening prescription...')}
           >
             View Full Prescription →
@@ -1398,7 +1398,7 @@ function DischargeDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (
             <NumberedList items={meta.discharge_donts} variant="x" />
           )}
           {!meta.discharge_dos?.length && !meta.discharge_donts?.length && meta.discharge_instructions && (
-            <p className="text-[14px] leading-relaxed" style={{ color: '#374151' }}>{meta.discharge_instructions}</p>
+            <p className="text-[14px] leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.discharge_instructions}</p>
           )}
         </div>
       )}
@@ -1406,12 +1406,12 @@ function DischargeDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (
       {meta.warning_signs && meta.warning_signs.length > 0 && (
         <div>
           <SectionTitle>Warning Signs — Contact Immediately If</SectionTitle>
-          <div className="rounded-lg bg-red-50 border border-red-200 px-6 py-4 space-y-3">
+          <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-6 py-4 space-y-3">
             <NumberedList items={meta.warning_signs} variant="warning" />
             {meta.emergency_contact && (
-              <div className="flex items-center gap-2 pt-3 border-t border-red-200">
-                <Phone className="h-4 w-4 text-red-500" />
-                <span className="text-[14px] font-medium text-red-700">{meta.emergency_contact}</span>
+              <div className="flex items-center gap-2 pt-3 border-t border-destructive/20">
+                <Phone className="h-4 w-4 text-destructive" />
+                <span className="text-[14px] font-medium text-destructive">{meta.emergency_contact}</span>
               </div>
             )}
           </div>
@@ -1458,7 +1458,7 @@ function OtherVisitDetail({ meta }: { meta: RecordMetadata }) {
       {meta.notes && (
         <div>
           <SectionTitle>Notes</SectionTitle>
-          <p className="text-[14px] leading-relaxed" style={{ color: '#374151' }}>{meta.notes}</p>
+          <p className="text-[14px] leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.notes}</p>
         </div>
       )}
       {meta.follow_up && <DetailRow label="Follow-up">{meta.follow_up}</DetailRow>}
@@ -1590,21 +1590,21 @@ function PathologyDetail({ meta }: { meta: RecordMetadata }) {
       {meta.gross_description && (
         <div>
           <SectionTitle>Gross Description</SectionTitle>
-          <p className="text-[14px] leading-relaxed" style={{ color: '#374151' }}>{meta.gross_description}</p>
+          <p className="text-[14px] leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.gross_description}</p>
         </div>
       )}
       {meta.microscopic_findings && (
         <div>
           <SectionTitle>Microscopic Findings</SectionTitle>
-          <p className="text-[14px] leading-relaxed" style={{ color: '#374151' }}>{meta.microscopic_findings}</p>
+          <p className="text-[14px] leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.microscopic_findings}</p>
         </div>
       )}
       {meta.diagnosis && (
         <div>
           <SectionTitle>Diagnosis</SectionTitle>
-          <div className="rounded-lg bg-amber-50 px-4 py-3">
-            <p className="text-[14px] font-semibold" style={{ color: '#92400E' }}>{meta.diagnosis}</p>
-            {meta.grade && <p className="text-[14px] text-amber-600 mt-1">Grade: {meta.grade}</p>}
+          <div className="rounded-lg bg-warning/10 px-4 py-3">
+            <p className="text-[14px] font-semibold text-warning">{meta.diagnosis}</p>
+            {meta.grade && <p className="text-[14px] text-warning/70 mt-1">Grade: {meta.grade}</p>}
           </div>
         </div>
       )}
@@ -1648,8 +1648,8 @@ function PftDetail({ meta }: { meta: RecordMetadata }) {
       {meta.interpretation && (
         <div>
           <SectionTitle>Interpretation</SectionTitle>
-          <div className="rounded-lg bg-blue-50 px-4 py-3">
-            <p className="text-[14px]" style={{ color: '#1E40AF' }}>{meta.interpretation}</p>
+          <div className="rounded-lg bg-primary/10 px-4 py-3">
+            <p className="text-[14px] text-primary">{meta.interpretation}</p>
           </div>
         </div>
       )}
@@ -1677,7 +1677,7 @@ function PrescriptionDetail({ meta }: { meta: RecordMetadata }) {
           <div className="space-y-4">
             {meta.drugs.map((drug, i) => (
               <div key={i} className="rounded-lg border p-4">
-                <p className="text-base font-semibold" style={{ color: '#00184D' }}>{drug.name}</p>
+                <p className="text-base font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{drug.name}</p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-2">
                   <p className="text-[14px] text-muted-foreground">Dosage: <span className="text-foreground">{drug.dosage}</span></p>
                   <p className="text-[14px] text-muted-foreground">Frequency: <span className="text-foreground">{drug.frequency}</span></p>
@@ -1701,10 +1701,10 @@ function MedicationActiveDetail({ meta, onAction }: { meta: RecordMetadata; onAc
   return (
     <div className="space-y-6">
       {meta.drug_name && (
-        <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-3">
+        <div className="rounded-lg bg-success/10 border border-success/20 px-4 py-3">
           <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-green-500 animate-pulse" />
-            <p className="text-base font-semibold" style={{ color: '#166534' }}>{meta.drug_name}</p>
+            <span className="h-2.5 w-2.5 rounded-full bg-success animate-pulse" />
+            <p className="text-base font-semibold text-success">{meta.drug_name}</p>
           </div>
         </div>
       )}
@@ -1730,7 +1730,7 @@ function MedicationActiveDetail({ meta, onAction }: { meta: RecordMetadata; onAc
       {(meta.condition || meta.how_it_works) && (
         <div>
           <SectionTitle>Purpose</SectionTitle>
-          {meta.condition && <p className="text-[14px] font-medium mb-2" style={{ color: '#374151' }}>{meta.condition}</p>}
+          {meta.condition && <p className="text-[14px] font-medium mb-2" style={{ color: 'hsl(var(--foreground))' }}>{meta.condition}</p>}
           {meta.how_it_works && <p className="text-[14px] leading-relaxed text-muted-foreground">{meta.how_it_works}</p>}
         </div>
       )}
@@ -1751,8 +1751,8 @@ function MedicationActiveDetail({ meta, onAction }: { meta: RecordMetadata; onAc
           <SectionTitle>Common Side Effects</SectionTitle>
           <ul className="space-y-2">
             {meta.side_effects.map((se, i) => (
-              <li key={i} className="text-[14px] flex items-start gap-3 leading-relaxed" style={{ color: '#374151' }}>
-                <span className="h-2 w-2 rounded-full bg-gray-400 flex-shrink-0 mt-1.5" />
+              <li key={i} className="text-[14px] flex items-start gap-3 leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>
+                <span className="h-2 w-2 rounded-full bg-muted-foreground flex-shrink-0 mt-1.5" />
                 {se}
               </li>
             ))}
@@ -1776,13 +1776,13 @@ function MedicationActiveDetail({ meta, onAction }: { meta: RecordMetadata; onAc
               <div key={i} className="flex flex-col items-center gap-1 flex-1">
                 <div className={cn(
                   'h-10 w-10 rounded-full flex items-center justify-center',
-                  status === 'taken' && 'bg-green-100',
-                  status === 'missed' && 'bg-red-100',
-                  status === 'upcoming' && 'bg-gray-100',
+                  status === 'taken' && 'bg-success/10',
+                  status === 'missed' && 'bg-destructive/10',
+                  status === 'upcoming' && 'bg-muted',
                 )}>
-                  {status === 'taken' && <Check className="h-5 w-5 text-green-600" />}
-                  {status === 'missed' && <X className="h-5 w-5 text-red-500" />}
-                  {status === 'upcoming' && <span className="h-2.5 w-2.5 rounded-full bg-gray-300" />}
+                  {status === 'taken' && <Check className="h-5 w-5 text-success" />}
+                  {status === 'missed' && <X className="h-5 w-5 text-destructive" />}
+                  {status === 'upcoming' && <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/40" />}
                 </div>
                 <span className="text-[14px] text-muted-foreground">{dayLabels[i]}</span>
               </div>
@@ -1790,9 +1790,9 @@ function MedicationActiveDetail({ meta, onAction }: { meta: RecordMetadata; onAc
           </div>
           {meta.adherence_rate != null && (
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex-1 h-2.5 rounded-full bg-gray-100 overflow-hidden">
+              <div className="flex-1 h-2.5 rounded-full bg-muted overflow-hidden">
                 <div
-                  className={cn('h-full rounded-full transition-all', meta.adherence_rate >= 80 ? 'bg-green-500' : meta.adherence_rate >= 60 ? 'bg-amber-500' : 'bg-red-500')}
+                  className={cn('h-full rounded-full transition-all', meta.adherence_rate >= 80 ? 'bg-success' : meta.adherence_rate >= 60 ? 'bg-warning' : 'bg-destructive')}
                   style={{ width: `${meta.adherence_rate}%` }}
                 />
               </div>
@@ -1826,9 +1826,9 @@ function MedicationPastDetail({ meta, onAction }: { meta: RecordMetadata; onActi
   return (
     <div className="space-y-6">
       {meta.drug_name && (
-        <div className="rounded-lg bg-gray-50 border border-gray-200 px-4 py-3">
+        <div className="rounded-lg bg-muted border border-border px-4 py-3">
           <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-gray-400" />
+            <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground" />
             <p className="text-base font-semibold text-muted-foreground">{meta.drug_name}</p>
           </div>
         </div>
@@ -1855,7 +1855,7 @@ function MedicationPastDetail({ meta, onAction }: { meta: RecordMetadata; onActi
       {(meta.condition || meta.how_it_works) && (
         <div>
           <SectionTitle>Purpose</SectionTitle>
-          {meta.condition && <p className="text-[14px] font-medium mb-2" style={{ color: '#374151' }}>{meta.condition}</p>}
+          {meta.condition && <p className="text-[14px] font-medium mb-2" style={{ color: 'hsl(var(--foreground))' }}>{meta.condition}</p>}
           {meta.how_it_works && <p className="text-[14px] leading-relaxed text-muted-foreground">{meta.how_it_works}</p>}
         </div>
       )}
@@ -1875,8 +1875,8 @@ function MedicationPastDetail({ meta, onAction }: { meta: RecordMetadata; onActi
       {meta.reason_stopped && (
         <div>
           <SectionTitle>Reason Stopped</SectionTitle>
-          <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3">
-            <p className="text-[14px]" style={{ color: '#92400E' }}>{meta.reason_stopped}</p>
+          <div className="rounded-lg bg-warning/10 border border-warning/20 px-4 py-3">
+            <p className="text-[14px] text-warning">{meta.reason_stopped}</p>
           </div>
         </div>
       )}
@@ -1886,8 +1886,8 @@ function MedicationPastDetail({ meta, onAction }: { meta: RecordMetadata; onActi
           <SectionTitle>Common Side Effects</SectionTitle>
           <ul className="space-y-2">
             {meta.side_effects.map((se, i) => (
-              <li key={i} className="text-[14px] flex items-start gap-3 leading-relaxed" style={{ color: '#374151' }}>
-                <span className="h-2 w-2 rounded-full bg-gray-400 flex-shrink-0 mt-1.5" />
+              <li key={i} className="text-[14px] flex items-start gap-3 leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>
+                <span className="h-2 w-2 rounded-full bg-muted-foreground flex-shrink-0 mt-1.5" />
                 {se}
               </li>
             ))}
@@ -1919,8 +1919,8 @@ function VaccinationDetail({ meta, onAction, familyMember }: { meta: RecordMetad
   return (
     <div className="space-y-6">
       {meta.vaccine_name && (
-        <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-3">
-          <p className="text-base font-semibold" style={{ color: '#166534' }}>{meta.vaccine_name}</p>
+        <div className="rounded-lg bg-success/10 border border-success/20 px-4 py-3">
+          <p className="text-base font-semibold text-success">{meta.vaccine_name}</p>
         </div>
       )}
 
@@ -1943,8 +1943,8 @@ function VaccinationDetail({ meta, onAction, familyMember }: { meta: RecordMetad
             <DetailRow label="Dose">
               {meta.dose_number} of {meta.total_doses}
             </DetailRow>
-            <div className="mt-2 h-2.5 rounded-full bg-gray-100 overflow-hidden">
-              <div className="h-full rounded-full bg-green-500 transition-all" style={{ width: `${(meta.dose_number / meta.total_doses) * 100}%` }} />
+            <div className="mt-2 h-2.5 rounded-full bg-muted overflow-hidden">
+              <div className="h-full rounded-full bg-success transition-all" style={{ width: `${(meta.dose_number / meta.total_doses) * 100}%` }} />
             </div>
           </div>
         )}
@@ -1955,8 +1955,8 @@ function VaccinationDetail({ meta, onAction, familyMember }: { meta: RecordMetad
           {meta.next_due_date && <DetailRow label="Next Due">{fmtDate(meta.next_due_date)}</DetailRow>}
         </div>
         {meta.next_due_date === null && meta.dose_number === meta.total_doses && (
-          <div className="mt-3 rounded-lg bg-green-50 px-4 py-2 text-center">
-            <p className="text-[14px] font-medium text-green-700">Vaccination course complete</p>
+          <div className="mt-3 rounded-lg bg-success/10 px-4 py-2 text-center">
+            <p className="text-[14px] font-medium text-success">Vaccination course complete</p>
           </div>
         )}
       </div>
@@ -2060,7 +2060,7 @@ function MedicalCertificateDetail({ meta, onAction }: { meta: RecordMetadata; on
       {(meta.certificate_content || meta.notes) && (
         <div>
           <SectionTitle>Certificate Content</SectionTitle>
-          <p className="text-[14px] leading-relaxed mb-3" style={{ color: '#374151' }}>{meta.certificate_content || meta.notes}</p>
+          <p className="text-[14px] leading-relaxed mb-3" style={{ color: 'hsl(var(--foreground))' }}>{meta.certificate_content || meta.notes}</p>
           {meta.examination_findings_list && meta.examination_findings_list.length > 0 && (
             <div className="mt-3">
               <p className="text-[14px] font-medium text-muted-foreground mb-2">Examination Findings</p>
@@ -2090,7 +2090,7 @@ function MedicalCertificateDetail({ meta, onAction }: { meta: RecordMetadata; on
             {meta.verification_url && (
               <p className="text-[14px] text-muted-foreground">
                 Verify at:{' '}
-                <button className="text-blue-600 hover:underline" onClick={() => onAction(`Verification URL: ${meta.verification_url}`)}>
+                <button className="text-primary hover:underline" onClick={() => onAction(`Verification URL: ${meta.verification_url}`)}>
                   {meta.verification_url}
                 </button>
               </p>

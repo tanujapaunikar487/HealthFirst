@@ -57,7 +57,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
         <h3
             className="font-semibold"
             style={{
-                color: '#171717',
+                color: 'hsl(var(--foreground))',
                 fontSize: '20px',
                 lineHeight: '28px',
                 letterSpacing: '0',
@@ -181,8 +181,8 @@ export function PreferencesTab({
                         {/* Language Row */}
                         <div className="flex items-center justify-between px-6 py-4">
                             <div>
-                                <p className="text-[14px] font-semibold leading-5 text-[#171717]">Doctor's language</p>
-                                <p className="text-[14px] font-normal leading-5 text-[#737373]">
+                                <p className="text-[14px] font-semibold leading-5 text-foreground">Doctor's language</p>
+                                <p className="text-[14px] font-normal leading-5 text-muted-foreground">
                                     Preferred language for doctor communication
                                 </p>
                             </div>
@@ -204,8 +204,8 @@ export function PreferencesTab({
                         {/* Date Format Row */}
                         <div className="flex items-center justify-between px-6 py-4">
                             <div>
-                                <p className="text-[14px] font-semibold leading-5 text-[#171717]">Date Format</p>
-                                <p className="text-[14px] font-normal leading-5 text-[#737373]">
+                                <p className="text-[14px] font-semibold leading-5 text-foreground">Date Format</p>
+                                <p className="text-[14px] font-normal leading-5 text-muted-foreground">
                                     How dates appear throughout the app
                                 </p>
                             </div>
@@ -228,8 +228,8 @@ export function PreferencesTab({
                         {/* Time Format Row */}
                         <div className="flex items-center justify-between px-6 py-4">
                             <div>
-                                <p className="text-[14px] font-semibold leading-5 text-[#171717]">Time Format</p>
-                                <p className="text-[14px] font-normal leading-5 text-[#737373]">
+                                <p className="text-[14px] font-semibold leading-5 text-foreground">Time Format</p>
+                                <p className="text-[14px] font-normal leading-5 text-muted-foreground">
                                     12-hour or 24-hour clock
                                 </p>
                             </div>
@@ -268,8 +268,8 @@ export function PreferencesTab({
                         {/* Text Size Row */}
                         <div className="flex items-center justify-between px-6 py-4">
                             <div>
-                                <p className="text-[14px] font-semibold leading-5 text-[#171717]">Text Size</p>
-                                <p className="text-[14px] font-normal leading-5 text-[#737373]">
+                                <p className="text-[14px] font-semibold leading-5 text-foreground">Text Size</p>
+                                <p className="text-[14px] font-normal leading-5 text-muted-foreground">
                                     Adjust the font size throughout the app
                                 </p>
                             </div>
@@ -310,8 +310,8 @@ export function PreferencesTab({
                         {/* High Contrast Row */}
                         <div className="flex items-center justify-between px-6 py-4">
                             <div>
-                                <p className="text-[14px] font-semibold leading-5 text-[#171717]">High Contrast Mode</p>
-                                <p className="text-[14px] font-normal leading-5 text-[#737373]">
+                                <p className="text-[14px] font-semibold leading-5 text-foreground">High Contrast Mode</p>
+                                <p className="text-[14px] font-normal leading-5 text-muted-foreground">
                                     Increase contrast for better visibility
                                 </p>
                             </div>
@@ -332,8 +332,8 @@ export function PreferencesTab({
                         {/* Default Family Member Row */}
                         <div className="flex items-center justify-between px-6 py-4">
                             <div>
-                                <p className="text-[14px] font-semibold leading-5 text-[#171717]">Default Family Member</p>
-                                <p className="text-[14px] font-normal leading-5 text-[#737373]">
+                                <p className="text-[14px] font-semibold leading-5 text-foreground">Default Family Member</p>
+                                <p className="text-[14px] font-normal leading-5 text-muted-foreground">
                                     Pre-select when booking appointments
                                 </p>
                             </div>
@@ -371,9 +371,9 @@ export function PreferencesTab({
                         >
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Lock className="h-5 w-5 text-neutral-900" />
+                                    <Lock className="h-5 w-5 text-foreground" />
                                 </div>
-                                <span className="text-[14px] font-semibold leading-5 text-[#171717]">Change password</span>
+                                <span className="text-[14px] font-semibold leading-5 text-foreground">Change password</span>
                             </div>
                             <Button size="icon" icon={ChevronRight} />
                         </button>
@@ -385,9 +385,9 @@ export function PreferencesTab({
                         >
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Download className="h-5 w-5 text-neutral-900" />
+                                    <Download className="h-5 w-5 text-foreground" />
                                 </div>
-                                <span className="text-[14px] font-semibold leading-5 text-[#171717]">Download My Data</span>
+                                <span className="text-[14px] font-semibold leading-5 text-foreground">Download My Data</span>
                             </div>
                             <Button size="icon" icon={ChevronRight} />
                         </button>
@@ -399,9 +399,9 @@ export function PreferencesTab({
                         >
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Trash2 className="h-5 w-5 text-neutral-900" />
+                                    <Trash2 className="h-5 w-5 text-foreground" />
                                 </div>
-                                <span className="text-[14px] font-semibold leading-5 text-[#171717]">Delete account</span>
+                                <span className="text-[14px] font-semibold leading-5 text-foreground">Delete account</span>
                             </div>
                             <Button size="icon" icon={ChevronRight} />
                         </button>

@@ -283,7 +283,7 @@ export default function Show({ user, appointment }: Props) {
                 #{appointment.appointment_id}
               </span>
             </div>
-            <h1 className="text-2xl font-bold tracking-tight" style={{ color: '#00184D' }}>
+            <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'hsl(var(--foreground))' }}>
               {appointment.title}
             </h1>
             {appointment.subtitle && (
@@ -330,11 +330,11 @@ export default function Show({ user, appointment }: Props) {
 
         {/* Follow-up Alert - moved from footer */}
         {appointment.follow_up && appointment.type === 'doctor' && (
-          <Card className="p-4 border-blue-200 bg-blue-50/30 mb-8">
+          <Card className="p-4 border-primary/20 bg-primary/10 mb-8">
             <div className="flex items-start gap-3">
-              <Calendar className="h-5 w-5 text-blue-600 mt-0.5" />
+              <Calendar className="h-5 w-5 text-primary mt-0.5" />
               <div className="flex-1">
-                <p className="text-[14px] font-semibold" style={{ color: '#00184D' }}>Follow-up Recommended</p>
+                <p className="text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>Follow-up Recommended</p>
                 <p className="text-[14px] text-muted-foreground mt-1">
                   {appointment.follow_up.recommended_date_formatted}
                 </p>
@@ -552,8 +552,8 @@ function LabTestDetailSheet({ test }: { test: LabTest }) {
             className={cn(
               'text-[14px]',
               test.status === 'completed'
-                ? 'bg-green-50 text-green-700 border-green-200'
-                : 'bg-amber-50 text-amber-700 border-amber-200'
+                ? 'bg-success/10 text-success border-success/20'
+                : 'bg-warning/10 text-warning border-warning/20'
             )}
           >
             <CheckCircle2 className="h-3 w-3 mr-1" />
@@ -581,8 +581,8 @@ function LabTestDetailSheet({ test }: { test: LabTest }) {
                 className={cn(
                   'text-[14px]',
                   test.is_normal
-                    ? 'bg-green-50 text-green-700 border-green-200'
-                    : 'bg-red-50 text-red-700 border-red-200'
+                    ? 'bg-success/10 text-success border-success/20'
+                    : 'bg-destructive/10 text-destructive border-destructive/20'
                 )}
               >
                 {test.is_normal ? 'Normal' : 'Abnormal'}
@@ -614,8 +614,8 @@ function DocumentPreview({ doc }: { doc: AppDocument }) {
 
       {/* Mock PDF preview */}
       <div className="flex-1 rounded-lg border bg-muted/30 flex flex-col items-center justify-center gap-4 min-h-[400px]">
-        <div className="h-16 w-16 rounded-full bg-red-50 flex items-center justify-center">
-          <FileText className="h-8 w-8 text-red-500" />
+        <div className="h-16 w-16 rounded-full bg-destructive/10 flex items-center justify-center">
+          <FileText className="h-8 w-8 text-destructive" />
         </div>
         <div className="text-center">
           <p className="font-medium text-[14px]">{doc.name}</p>
@@ -710,8 +710,8 @@ function Section({
     <div id={id} className="scroll-mt-24">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
-          <Icon icon={SectionIcon} className="h-5 w-5 text-neutral-900" />
-          <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+          <Icon icon={SectionIcon} className="h-5 w-5 text-foreground" />
+          <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
             {title}
           </h2>
         </div>
@@ -737,7 +737,7 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
           <p className="text-[14px] font-medium text-muted-foreground uppercase tracking-wider">Patient</p>
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-              <UserIcon className="h-5 w-5 text-neutral-900" />
+              <UserIcon className="h-5 w-5 text-foreground" />
             </div>
             <div>
               <p className="font-medium text-[14px]">{appointment.patient?.name ?? appointment.patient_name}</p>
@@ -758,8 +758,8 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
           <div className="space-y-3">
             <p className="text-[14px] font-medium text-muted-foreground uppercase tracking-wider">Doctor</p>
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ backgroundColor: '#BFDBFE' }}>
-                <Stethoscope className="h-5 w-5" style={{ color: '#1E40AF' }} />
+              <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'hsl(var(--primary) / 0.2)' }}>
+                <Stethoscope className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />
               </div>
               <div>
                 <p className="font-medium text-[14px]">{appointment.doctor.name}</p>
@@ -782,15 +782,15 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
           <p className="text-[14px] font-medium text-muted-foreground uppercase tracking-wider">Appointment</p>
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-[14px]">
-              <Calendar className="h-4 w-4 text-neutral-900" />
+              <Calendar className="h-4 w-4 text-foreground" />
               <span>{appointment.date_formatted}</span>
             </div>
             <div className="flex items-center gap-2 text-[14px]">
-              <Clock className="h-4 w-4 text-neutral-900" />
+              <Clock className="h-4 w-4 text-foreground" />
               <span>{appointment.time} · {appointment.duration}</span>
             </div>
             <div className="flex items-center gap-2 text-[14px]">
-              <MapPin className="h-4 w-4 text-neutral-900" />
+              <MapPin className="h-4 w-4 text-foreground" />
               <span>{appointment.mode}</span>
             </div>
           </div>
@@ -820,7 +820,7 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
 
 function VitalsSection({ vitals }: { vitals: Vital[] }) {
   const statusColor = (s: string) =>
-    s === 'normal' ? 'text-green-600 bg-green-50' : s === 'elevated' ? 'text-red-600 bg-red-50' : 'text-amber-600 bg-amber-50';
+    s === 'normal' ? 'text-success bg-success/10' : s === 'elevated' ? 'text-destructive bg-destructive/10' : 'text-warning bg-warning/10';
 
   return (
     <Section id="vitals" title="Vitals" icon={Heart}>
@@ -829,7 +829,7 @@ function VitalsSection({ vitals }: { vitals: Vital[] }) {
           <div key={v.label} className="border rounded-lg p-3 space-y-1.5">
             <p className="text-[14px] text-muted-foreground">{v.label}</p>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-xl font-semibold" style={{ color: '#00184D' }}>{v.value}</span>
+              <span className="text-xl font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{v.value}</span>
               <span className="text-[14px] text-muted-foreground">{v.unit}</span>
             </div>
             <div className="flex items-center justify-between">
@@ -869,10 +869,10 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
               <Badge
                 className={cn(
                   'text-[14px]',
-                  diagnosis.severity === 'mild' && 'bg-green-50 text-green-700 border-green-200',
-                  diagnosis.severity === 'moderate' && 'bg-amber-50 text-amber-700 border-amber-200',
-                  diagnosis.severity === 'severe' && 'bg-red-50 text-red-700 border-red-200',
-                  diagnosis.severity === 'routine' && 'bg-blue-50 text-blue-700 border-blue-200'
+                  diagnosis.severity === 'mild' && 'bg-success/10 text-success border-success/20',
+                  diagnosis.severity === 'moderate' && 'bg-warning/10 text-warning border-warning/20',
+                  diagnosis.severity === 'severe' && 'bg-destructive/10 text-destructive border-destructive/20',
+                  diagnosis.severity === 'routine' && 'bg-primary/10 text-primary border-primary/20'
                 )}
                 variant="outline"
               >
@@ -885,10 +885,10 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
 
       {/* Allergies */}
       {(summary.allergies?.length ?? 0) > 0 && (
-        <div className="rounded-lg border border-red-200 bg-red-50/50 p-4 mb-5">
+        <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 mb-5">
           <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle className="h-4 w-4 text-red-500" />
-            <span className="text-[14px] font-semibold text-red-700">Known Allergies</span>
+            <AlertTriangle className="h-4 w-4 text-destructive" />
+            <span className="text-[14px] font-semibold text-destructive">Known Allergies</span>
           </div>
           <div className="flex gap-2 flex-wrap">
             {summary.allergies.map((a) => (
@@ -913,11 +913,11 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
       </div>
 
       {/* Symptoms worsen alert - moved from footer */}
-      <div className="rounded-lg border border-amber-200 bg-amber-50/30 p-4 mt-5">
+      <div className="rounded-lg border border-warning/20 bg-warning/10 p-4 mt-5">
         <div className="flex items-start gap-3">
-          <Phone className="h-4 w-4 text-amber-600 mt-0.5" />
+          <Phone className="h-4 w-4 text-warning mt-0.5" />
           <div>
-            <p className="text-[14px] font-semibold" style={{ color: '#00184D' }}>If Symptoms Worsen</p>
+            <p className="text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>If Symptoms Worsen</p>
             <p className="text-[14px] text-muted-foreground mt-1 leading-relaxed">
               Contact your doctor immediately or visit the nearest emergency room. For urgent assistance, call the hospital helpline at <span className="font-medium text-foreground">1800-123-4567</span>.
             </p>
@@ -950,9 +950,9 @@ function CollapsibleRow({
       >
         <span className="text-[14px] font-medium text-foreground">{label}</span>
         {open ? (
-          <ChevronUp className="h-4 w-4 text-neutral-900" />
+          <ChevronUp className="h-4 w-4 text-foreground" />
         ) : (
-          <ChevronDown className="h-4 w-4 text-neutral-900" />
+          <ChevronDown className="h-4 w-4 text-foreground" />
         )}
       </button>
       <div className={open ? 'block' : 'hidden'}>
@@ -1015,8 +1015,8 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
                     className={cn(
                       'text-[10px]',
                       rx.status === 'active'
-                        ? 'bg-green-50 text-green-700 border-green-200'
-                        : 'bg-gray-50 text-gray-500 border-gray-200'
+                        ? 'bg-success/10 text-success border-success/20'
+                        : 'bg-muted text-muted-foreground border-border'
                     )}
                   >
                     {rx.status === 'active' ? 'Active' : 'Completed'}
@@ -1027,7 +1027,7 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-neutral-900 hover:text-foreground"
+                className="h-8 w-8 text-foreground hover:text-foreground"
                 onClick={() => {
                   downloadAsHtml(`prescription-${rx.drug.toLowerCase().replace(/\s+/g, '-')}.pdf`, `
                     <h1>Prescription</h1>
@@ -1119,7 +1119,7 @@ function LabTestsSection({ tests, onSelect }: { tests: LabTest[]; onSelect?: (te
                   <span className="flex items-center gap-2">
                     {t.name}
                     {t.status === 'completed' && onSelect && (
-                      <ChevronRight className="h-3.5 w-3.5 text-neutral-900" />
+                      <ChevronRight className="h-3.5 w-3.5 text-foreground" />
                     )}
                   </span>
                 </td>
@@ -1130,8 +1130,8 @@ function LabTestsSection({ tests, onSelect }: { tests: LabTest[]; onSelect?: (te
                     className={cn(
                       'text-[10px]',
                       t.status === 'completed'
-                        ? 'bg-green-50 text-green-700 border-green-200'
-                        : 'bg-amber-50 text-amber-700 border-amber-200'
+                        ? 'bg-success/10 text-success border-success/20'
+                        : 'bg-warning/10 text-warning border-warning/20'
                     )}
                   >
                     {t.status === 'completed' ? 'Completed' : 'Pending'}
@@ -1139,7 +1139,7 @@ function LabTestsSection({ tests, onSelect }: { tests: LabTest[]; onSelect?: (te
                 </td>
                 <td className="px-4 py-3 text-[14px]">
                   {t.result ? (
-                    <span className={t.is_normal ? 'text-green-700' : 'text-red-600 font-medium'}>
+                    <span className={t.is_normal ? 'text-success' : 'text-destructive font-medium'}>
                       {t.result}
                     </span>
                   ) : (
@@ -1161,10 +1161,10 @@ function LabTestsSection({ tests, onSelect }: { tests: LabTest[]; onSelect?: (te
 function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadInvoice }: { billing: Billing; appointmentId: number; insuranceClaimId?: number | null; onDownloadInvoice: () => void }) {
   const statusColor =
     billing.payment_status === 'paid'
-      ? 'text-green-600'
+      ? 'text-success'
       : billing.payment_status === 'pending'
-        ? 'text-amber-600'
-        : 'text-red-600';
+        ? 'text-warning'
+        : 'text-destructive';
 
   return (
     <Section
@@ -1191,7 +1191,7 @@ function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadIn
             {billing.line_items.map((item, i) => (
               <div key={i} className="flex justify-between text-[14px]">
                 <span className="text-muted-foreground">{item.label}</span>
-                <span className={item.amount < 0 ? 'text-green-600' : ''}>
+                <span className={item.amount < 0 ? 'text-success' : ''}>
                   {item.amount < 0 ? '-' : ''}₹{Math.abs(item.amount)}
                 </span>
               </div>
@@ -1287,8 +1287,8 @@ function DocumentsSection({ documents, onPreview }: { documents: AppDocument[]; 
             className="w-full flex items-center justify-between px-6 py-4 hover:bg-muted/30 transition-colors text-left"
           >
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-full bg-red-50 flex items-center justify-center">
-                <FileText className="h-4 w-4 text-red-600" />
+              <div className="h-9 w-9 rounded-full bg-destructive/10 flex items-center justify-center">
+                <FileText className="h-4 w-4 text-destructive" />
               </div>
               <div>
                 <p className="text-[14px] font-medium">{doc.name}</p>
@@ -1297,7 +1297,7 @@ function DocumentsSection({ documents, onPreview }: { documents: AppDocument[]; 
                 </p>
               </div>
             </div>
-            <Eye className="h-4 w-4 text-neutral-900" />
+            <Eye className="h-4 w-4 text-foreground" />
           </button>
         ))}
       </div>

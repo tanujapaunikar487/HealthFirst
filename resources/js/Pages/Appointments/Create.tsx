@@ -56,7 +56,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
           width: '100%',
           height: '72px',
           backgroundColor: '#FFFFFF',
-          borderBottom: '1px solid #E5E7EB',
+          borderBottom: '1px solid hsl(var(--border))',
           display: 'flex',
           alignItems: 'center',
           padding: '0 32px',
@@ -71,6 +71,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
             display: 'flex',
             alignItems: 'center',
             gap: '12px',
+            color: 'hsl(var(--foreground))',
           }}
         >
           <svg
@@ -82,7 +83,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
           >
             <path
               d="M8 2V5M16 2V5M3.5 9.09H20.5M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z"
-              stroke="#0A0B0D"
+              stroke="currentColor"
               strokeWidth="1.5"
               strokeMiterlimit="10"
               strokeLinecap="round"
@@ -90,7 +91,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
             />
             <path
               d="M15.6947 13.7H15.7037M15.6947 16.7H15.7037M11.9955 13.7H12.0045M11.9955 16.7H12.0045M8.29431 13.7H8.30329M8.29431 16.7H8.30329"
-              stroke="#0A0B0D"
+              stroke="currentColor"
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -102,7 +103,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
               fontSize: '16px',
               fontWeight: 600,
               lineHeight: '24px',
-              color: '#171717',
+              color: 'hsl(var(--foreground))',
             }}
           >
             Booking an appointment
@@ -116,6 +117,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
             display: 'flex',
             alignItems: 'center',
             gap: '16px',
+            color: 'hsl(var(--foreground))',
           }}
         >
           <button
@@ -147,14 +149,14 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
             >
               <path
                 d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
-                stroke="#0A0B0D"
+                stroke="currentColor"
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
               <path
                 d="M22 22L20 20"
-                stroke="#0A0B0D"
+                stroke="currentColor"
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -190,14 +192,14 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
             >
               <path
                 d="M12.02 2.91C8.71 2.91 6.02 5.6 6.02 8.91V11.8C6.02 12.41 5.76 13.34 5.45 13.86L4.3 15.77C3.59 16.95 4.08 18.26 5.38 18.7C9.69 20.14 14.34 20.14 18.65 18.7C19.86 18.3 20.39 16.87 19.73 15.77L18.58 13.86C18.28 13.34 18.02 12.41 18.02 11.8V8.91C18.02 5.61 15.32 2.91 12.02 2.91Z"
-                stroke="#0A0B0D"
+                stroke="currentColor"
                 strokeWidth="1.5"
                 strokeMiterlimit="10"
                 strokeLinecap="round"
               />
               <path
                 d="M13.87 3.2C13.56 3.11 13.24 3.04 12.91 3C11.95 2.88 11.03 2.95 10.17 3.2C10.46 2.46 11.18 1.94 12.02 1.94C12.86 1.94 13.58 2.46 13.87 3.2Z"
-                stroke="#0A0B0D"
+                stroke="currentColor"
                 strokeWidth="1.5"
                 strokeMiterlimit="10"
                 strokeLinecap="round"
@@ -205,7 +207,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
               />
               <path
                 d="M15.02 19.06C15.02 20.71 13.67 22.06 12.02 22.06C11.2 22.06 10.44 21.72 9.90002 21.18C9.36002 20.64 9.02002 19.88 9.02002 19.06"
-                stroke="#0A0B0D"
+                stroke="currentColor"
                 strokeWidth="1.5"
                 strokeMiterlimit="10"
               />
@@ -258,7 +260,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
               fontWeight: 700,
               lineHeight: '40px',
               letterSpacing: '-0.64px',
-              color: '#171717',
+              color: 'hsl(var(--foreground))',
               textAlign: 'center',
               margin: 0,
             }}
@@ -284,7 +286,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
             >
               <PromptInputTextarea
                 placeholder="Type doctor's name"
-                className="text-base text-[#0A0B0D] placeholder:text-[#9CA3AF] min-h-[140px]"
+                className="text-base text-foreground placeholder:text-muted-foreground min-h-[140px]"
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
               />
@@ -297,7 +299,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                       width: '40px',
                       height: '40px',
                       backgroundColor: '#FFFFFF',
-                      border: '1px solid #E5E7EB',
+                      border: '1px solid hsl(var(--border))',
                       borderRadius: '50%',
                       display: 'flex',
                       alignItems: 'center',
@@ -321,7 +323,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                     >
                       <path
                         d="M12 5V19M5 12H19"
-                        stroke="#0A0B0D"
+                        stroke="currentColor"
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -337,7 +339,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                       height: '40px',
                       padding: '0 16px',
                       backgroundColor: '#FFFFFF',
-                      border: '1px solid #E5E7EB',
+                      border: '1px solid hsl(var(--border))',
                       borderRadius: '20px',
                       display: 'flex',
                       alignItems: 'center',
@@ -347,7 +349,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                       transition: 'all 0.2s ease',
                       fontSize: '15px',
                       fontWeight: 400,
-                      color: '#171717',
+                      color: 'hsl(var(--foreground))',
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.backgroundColor = '#F9FAFB';
@@ -365,14 +367,14 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                     >
                       <path
                         d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
-                        stroke="#0A0B0D"
+                        stroke="currentColor"
                         strokeWidth="1.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       />
                       <path
                         d="M2 12H22M12 2C14.5013 4.73835 15.9228 8.29203 16 12C15.9228 15.708 14.5013 19.2616 12 22C9.49872 19.2616 8.07725 15.708 8 12C8.07725 8.29203 9.49872 4.73835 12 2Z"
-                        stroke="#0A0B0D"
+                        stroke="currentColor"
                         strokeWidth="1.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -389,7 +391,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                       width: '40px',
                       height: '40px',
                       backgroundColor: '#FFFFFF',
-                      border: '1px solid #E5E7EB',
+                      border: '1px solid hsl(var(--border))',
                       borderRadius: '50%',
                       display: 'flex',
                       alignItems: 'center',
@@ -411,9 +413,9 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
                     >
-                      <circle cx="12" cy="6" r="1.5" fill="#0A0B0D" />
-                      <circle cx="12" cy="12" r="1.5" fill="#0A0B0D" />
-                      <circle cx="12" cy="18" r="1.5" fill="#0A0B0D" />
+                      <circle cx="12" cy="6" r="1.5" fill="currentColor" />
+                      <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+                      <circle cx="12" cy="18" r="1.5" fill="currentColor" />
                     </svg>
                   </button>
                 </PromptInputAction>
@@ -500,7 +502,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
               fontSize: '14px',
               fontWeight: 400,
               lineHeight: '20px',
-              color: '#737373',
+              color: 'hsl(var(--muted-foreground))',
               textAlign: 'center',
               margin: 0,
             }}

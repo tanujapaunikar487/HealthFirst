@@ -141,14 +141,14 @@ export default function BookingIndex() {
         }}
       >
         {/* Header */}
-        <header className="bg-white border-b">
+        <header className="bg-white border-b border-border">
           <div className="flex items-center justify-between px-6 py-4">
             <div className="flex items-center gap-2">
               <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-5 h-5" />
               <span className="font-medium text-[14px]">Booking an appointment</span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1 border rounded-full p-1 bg-gray-50">
+              <div className="flex items-center gap-1 border border-border rounded-full p-1 bg-muted">
               <button
                 className={cn(
                   'p-1.5 rounded-full transition-all',
@@ -180,16 +180,16 @@ export default function BookingIndex() {
               {/* Cancel button */}
               <button
                 onClick={() => router.visit('/')}
-                className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition-colors"
+                className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-accent transition-colors"
                 title="Cancel booking"
               >
-                <Icon icon={X} className="w-4 h-4 text-gray-600" />
+                <Icon icon={X} className="w-4 h-4 text-muted-foreground" />
               </button>
             </div>
           </div>
           {/* Progress bar */}
-          <div className="h-1 bg-gray-100">
-            <div className="h-full w-[16%] bg-blue-600 transition-all duration-300" />
+          <div className="h-1 bg-muted">
+            <div className="h-full w-[16%] bg-primary transition-all duration-300" />
           </div>
         </header>
 
@@ -201,14 +201,14 @@ export default function BookingIndex() {
           </div>
 
           {/* Mode toggle */}
-          <div className="flex items-center gap-1 border border-gray-300 rounded-full p-1 mb-10 bg-gray-50">
+          <div className="flex items-center gap-1 border border-border rounded-full p-1 mb-10 bg-muted">
             <button
               onClick={() => setMode('ai')}
               className={cn(
                 'flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] transition-all',
                 mode === 'ai'
-                  ? 'bg-white shadow-md text-gray-900 font-semibold'
-                  : 'text-gray-400 hover:text-gray-600 bg-transparent font-normal'
+                  ? 'bg-white shadow-md text-foreground font-semibold'
+                  : 'text-muted-foreground hover:text-foreground bg-transparent font-normal'
               )}
             >
               <img
@@ -227,8 +227,8 @@ export default function BookingIndex() {
               className={cn(
                 'flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] transition-all',
                 mode === 'guided'
-                  ? 'bg-white shadow-md text-gray-900 font-semibold'
-                  : 'text-gray-400 hover:text-gray-600 bg-transparent font-normal'
+                  ? 'bg-white shadow-md text-foreground font-semibold'
+                  : 'text-muted-foreground hover:text-foreground bg-transparent font-normal'
               )}
             >
               <img
@@ -245,7 +245,7 @@ export default function BookingIndex() {
           </div>
 
           {/* Title */}
-          <h1 className="text-3xl font-bold text-center mb-10 text-gray-900">
+          <h1 className="text-3xl font-bold text-center mb-10 text-foreground">
             What would you like to book today?
           </h1>
 
@@ -272,7 +272,7 @@ export default function BookingIndex() {
                     <div className="flex items-center gap-3 flex-1">
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                        <span className="text-[14px] font-medium text-gray-700">
+                        <span className="text-[14px] font-medium text-muted-foreground">
                           {formatRecordingTime(recordingTime)}
                         </span>
                       </div>
@@ -283,7 +283,7 @@ export default function BookingIndex() {
                   // Normal mode - show textarea
                   <PromptInputTextarea
                     placeholder="Type your symptom's"
-                    className="text-base text-[#0A0B0D] placeholder:text-[#9CA3AF] min-h-[140px]"
+                    className="text-base text-foreground placeholder:text-[#9CA3AF] min-h-[140px]"
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                   />
@@ -307,7 +307,7 @@ export default function BookingIndex() {
                             transition: 'all 0.2s ease',
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#F9FAFB';
+                            e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.backgroundColor = '#FFFFFF';
@@ -348,7 +348,7 @@ export default function BookingIndex() {
                               e.currentTarget.style.backgroundColor = '#FFFFFF';
                             }}
                           >
-                            <Icon icon={X} className="w-[18px] h-[18px] text-red-600" />
+                            <Icon icon={X} className="w-[18px] h-[18px] text-destructive" />
                           </button>
                         </PromptInputAction>
 
@@ -398,7 +398,7 @@ export default function BookingIndex() {
                               transition: 'all 0.2s ease',
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#F9FAFB';
+                              e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.backgroundColor = '#FFFFFF';
@@ -406,7 +406,7 @@ export default function BookingIndex() {
                           >
                             <Icon icon={Mic} className={cn(
                               "w-[18px] h-[18px]",
-                              isTranscribing && "animate-pulse text-blue-600"
+                              isTranscribing && "animate-pulse text-primary"
                             )} />
                           </button>
                         </PromptInputAction>

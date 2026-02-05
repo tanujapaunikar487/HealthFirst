@@ -149,7 +149,7 @@ export default function SettingsIndex({
                         fontSize: '36px',
                         lineHeight: '44px',
                         letterSpacing: '-1px',
-                        color: '#171717',
+                        color: 'hsl(var(--foreground))',
                     }}
                 >
                     Settings
@@ -172,7 +172,7 @@ export default function SettingsIndex({
                                     type="button"
                                     onClick={handleLogout}
                                     disabled={loggingOut}
-                                    className="w-full flex items-center gap-3 text-[14px] font-medium transition-all text-left rounded-full cursor-pointer text-neutral-900 hover:bg-red-50 hover:text-red-600"
+                                    className="w-full flex items-center gap-3 text-[14px] font-medium transition-all text-left rounded-full cursor-pointer text-foreground hover:bg-destructive/10 hover:text-destructive"
                                     style={{ padding: '8px 12px', lineHeight: '20px' }}
                                 >
                                     <Icon icon={LogOut} className="h-5 w-5 flex-shrink-0" />

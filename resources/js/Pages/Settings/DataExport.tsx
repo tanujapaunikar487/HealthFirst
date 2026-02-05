@@ -90,44 +90,44 @@ export default function DataExport({
             {/* Printable content */}
             <div className="max-w-[800px] mx-auto p-8 bg-white print:p-0">
                 {/* Header */}
-                <div className="border-b-2 border-gray-800 pb-4 mb-6">
-                    <h1 className="text-2xl font-bold text-gray-900">Healthcare Data Export</h1>
-                    <p className="text-[14px] text-gray-600 mt-1">Generated on {exportDate}</p>
+                <div className="border-b-2 border-foreground pb-4 mb-6">
+                    <h1 className="text-2xl font-bold text-foreground">Healthcare Data Export</h1>
+                    <p className="text-[14px] text-muted-foreground mt-1">Generated on {exportDate}</p>
                 </div>
 
                 {/* Profile Section */}
                 <section className="mb-8">
-                    <h2 className="text-lg font-semibold text-gray-900 border-b border-gray-300 pb-2 mb-4">
+                    <h2 className="text-lg font-semibold text-foreground border-b border-border pb-2 mb-4">
                         Personal Information
                     </h2>
                     <div className="grid grid-cols-2 gap-4 text-[14px]">
                         <div>
-                            <span className="font-medium text-gray-700">Name:</span>{' '}
-                            <span className="text-gray-900">{profile.name}</span>
+                            <span className="font-medium text-muted-foreground">Name:</span>{' '}
+                            <span className="text-foreground">{profile.name}</span>
                         </div>
                         <div>
-                            <span className="font-medium text-gray-700">Email:</span>{' '}
-                            <span className="text-gray-900">{profile.email}</span>
+                            <span className="font-medium text-muted-foreground">Email:</span>{' '}
+                            <span className="text-foreground">{profile.email}</span>
                         </div>
                         <div>
-                            <span className="font-medium text-gray-700">Phone:</span>{' '}
-                            <span className="text-gray-900">{profile.phone || '—'}</span>
+                            <span className="font-medium text-muted-foreground">Phone:</span>{' '}
+                            <span className="text-foreground">{profile.phone || '—'}</span>
                         </div>
                         <div>
-                            <span className="font-medium text-gray-700">Date of Birth:</span>{' '}
-                            <span className="text-gray-900">{profile.date_of_birth || '—'}</span>
+                            <span className="font-medium text-muted-foreground">Date of Birth:</span>{' '}
+                            <span className="text-foreground">{profile.date_of_birth || '—'}</span>
                         </div>
                         <div>
-                            <span className="font-medium text-gray-700">Gender:</span>{' '}
-                            <span className="text-gray-900">{profile.gender ? profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1) : '—'}</span>
+                            <span className="font-medium text-muted-foreground">Gender:</span>{' '}
+                            <span className="text-foreground">{profile.gender ? profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1) : '—'}</span>
                         </div>
                     </div>
 
                     {/* Address */}
                     {(profile.address_line_1 || profile.city) && (
                         <div className="mt-4 text-[14px]">
-                            <span className="font-medium text-gray-700">Address:</span>{' '}
-                            <span className="text-gray-900">
+                            <span className="font-medium text-muted-foreground">Address:</span>{' '}
+                            <span className="text-foreground">
                                 {[profile.address_line_1, profile.address_line_2, profile.city, profile.state, profile.pincode]
                                     .filter(Boolean)
                                     .join(', ')}
@@ -138,8 +138,8 @@ export default function DataExport({
                     {/* Emergency Contact */}
                     {profile.emergency_contact_name && (
                         <div className="mt-4 text-[14px]">
-                            <span className="font-medium text-gray-700">Emergency Contact:</span>{' '}
-                            <span className="text-gray-900">
+                            <span className="font-medium text-muted-foreground">Emergency Contact:</span>{' '}
+                            <span className="text-foreground">
                                 {profile.emergency_contact_name}
                                 {profile.emergency_contact_relation && ` (${profile.emergency_contact_relation})`}
                                 {profile.emergency_contact_phone && ` — ${profile.emergency_contact_phone}`}
@@ -151,25 +151,25 @@ export default function DataExport({
                 {/* Family Members Section */}
                 {familyMembers.length > 0 && (
                     <section className="mb-8">
-                        <h2 className="text-lg font-semibold text-gray-900 border-b border-gray-300 pb-2 mb-4">
+                        <h2 className="text-lg font-semibold text-foreground border-b border-border pb-2 mb-4">
                             Family Members ({familyMembers.length})
                         </h2>
                         <table className="w-full text-[14px]">
                             <thead>
-                                <tr className="border-b border-gray-200">
-                                    <th className="text-left py-2 font-medium text-gray-700">Name</th>
-                                    <th className="text-left py-2 font-medium text-gray-700">Relation</th>
-                                    <th className="text-left py-2 font-medium text-gray-700">Phone</th>
-                                    <th className="text-left py-2 font-medium text-gray-700">Email</th>
+                                <tr className="border-b border-border">
+                                    <th className="text-left py-2 font-medium text-muted-foreground">Name</th>
+                                    <th className="text-left py-2 font-medium text-muted-foreground">Relation</th>
+                                    <th className="text-left py-2 font-medium text-muted-foreground">Phone</th>
+                                    <th className="text-left py-2 font-medium text-muted-foreground">Email</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {familyMembers.map((member, index) => (
-                                    <tr key={index} className="border-b border-gray-100">
-                                        <td className="py-2 text-gray-900">{member.name}</td>
-                                        <td className="py-2 text-gray-900">{member.relation}</td>
-                                        <td className="py-2 text-gray-900">{member.phone || '—'}</td>
-                                        <td className="py-2 text-gray-900">{member.email || '—'}</td>
+                                    <tr key={index} className="border-b border-border">
+                                        <td className="py-2 text-foreground">{member.name}</td>
+                                        <td className="py-2 text-foreground">{member.relation}</td>
+                                        <td className="py-2 text-foreground">{member.phone || '—'}</td>
+                                        <td className="py-2 text-foreground">{member.email || '—'}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -180,25 +180,25 @@ export default function DataExport({
                 {/* Appointments Section */}
                 {appointments.length > 0 && (
                     <section className="mb-8">
-                        <h2 className="text-lg font-semibold text-gray-900 border-b border-gray-300 pb-2 mb-4">
+                        <h2 className="text-lg font-semibold text-foreground border-b border-border pb-2 mb-4">
                             Appointments ({appointments.length})
                         </h2>
                         <table className="w-full text-[14px]">
                             <thead>
-                                <tr className="border-b border-gray-200">
-                                    <th className="text-left py-2 font-medium text-gray-700">Date</th>
-                                    <th className="text-left py-2 font-medium text-gray-700">Time</th>
-                                    <th className="text-left py-2 font-medium text-gray-700">Doctor</th>
-                                    <th className="text-left py-2 font-medium text-gray-700">Status</th>
+                                <tr className="border-b border-border">
+                                    <th className="text-left py-2 font-medium text-muted-foreground">Date</th>
+                                    <th className="text-left py-2 font-medium text-muted-foreground">Time</th>
+                                    <th className="text-left py-2 font-medium text-muted-foreground">Doctor</th>
+                                    <th className="text-left py-2 font-medium text-muted-foreground">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {appointments.map((appt, index) => (
-                                    <tr key={index} className="border-b border-gray-100">
-                                        <td className="py-2 text-gray-900">{appt.date}</td>
-                                        <td className="py-2 text-gray-900">{appt.time}</td>
-                                        <td className="py-2 text-gray-900">{appt.doctor}</td>
-                                        <td className="py-2 text-gray-900">{appt.status}</td>
+                                    <tr key={index} className="border-b border-border">
+                                        <td className="py-2 text-foreground">{appt.date}</td>
+                                        <td className="py-2 text-foreground">{appt.time}</td>
+                                        <td className="py-2 text-foreground">{appt.doctor}</td>
+                                        <td className="py-2 text-foreground">{appt.status}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -209,23 +209,23 @@ export default function DataExport({
                 {/* Health Records Section */}
                 {healthRecords.length > 0 && (
                     <section className="mb-8">
-                        <h2 className="text-lg font-semibold text-gray-900 border-b border-gray-300 pb-2 mb-4">
+                        <h2 className="text-lg font-semibold text-foreground border-b border-border pb-2 mb-4">
                             Health Records ({healthRecords.length})
                         </h2>
                         <table className="w-full text-[14px]">
                             <thead>
-                                <tr className="border-b border-gray-200">
-                                    <th className="text-left py-2 font-medium text-gray-700">Category</th>
-                                    <th className="text-left py-2 font-medium text-gray-700">Title</th>
-                                    <th className="text-left py-2 font-medium text-gray-700">Date</th>
+                                <tr className="border-b border-border">
+                                    <th className="text-left py-2 font-medium text-muted-foreground">Category</th>
+                                    <th className="text-left py-2 font-medium text-muted-foreground">Title</th>
+                                    <th className="text-left py-2 font-medium text-muted-foreground">Date</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {healthRecords.map((record, index) => (
-                                    <tr key={index} className="border-b border-gray-100">
-                                        <td className="py-2 text-gray-900">{record.category}</td>
-                                        <td className="py-2 text-gray-900">{record.title}</td>
-                                        <td className="py-2 text-gray-900">{record.date}</td>
+                                    <tr key={index} className="border-b border-border">
+                                        <td className="py-2 text-foreground">{record.category}</td>
+                                        <td className="py-2 text-foreground">{record.title}</td>
+                                        <td className="py-2 text-foreground">{record.date}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -234,7 +234,7 @@ export default function DataExport({
                 )}
 
                 {/* Footer */}
-                <div className="border-t border-gray-300 pt-4 mt-8 text-[14px] text-gray-500">
+                <div className="border-t border-border pt-4 mt-8 text-[14px] text-muted-foreground">
                     <p>This document contains personal health information exported from your healthcare account.</p>
                     <p className="mt-1">Please store this document securely.</p>
                 </div>

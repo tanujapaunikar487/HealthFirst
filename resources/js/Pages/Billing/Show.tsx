@@ -265,8 +265,8 @@ function Section({
   return (
     <div id={id} className="scroll-mt-24">
       <div className="flex items-center gap-2.5 mb-4">
-        <Icon icon={SectionIcon} className="h-5 w-5 text-neutral-900" />
-        <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+        <Icon icon={SectionIcon} className="h-5 w-5 text-foreground" />
+        <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
           {title}
         </h2>
       </div>
@@ -294,26 +294,26 @@ function StatusAlertBanner({ bill }: { bill: Bill }) {
     switch (bill.billing_status) {
       case 'due':
         return bill.is_overdue
-          ? { icon: <AlertTriangle className={cls} />, title: 'Bill Overdue', message: `This bill is overdue by ${bill.days_overdue} days. Please pay immediately.`, bg: '#FEF2F2', border: '#FECACA', titleColor: 'text-red-800', textColor: 'text-red-700' }
-          : { icon: <IndianRupee className={cls} />, title: 'Payment Due', message: `Due by ${bill.due_date}. Amount: ₹${bill.due_amount.toLocaleString()}.`, bg: '#EFF6FF', border: '#BFDBFE', titleColor: 'text-blue-800', textColor: 'text-blue-700' };
+          ? { icon: <AlertTriangle className={cls} />, title: 'Bill Overdue', message: `This bill is overdue by ${bill.days_overdue} days. Please pay immediately.`, bg: 'hsl(var(--destructive) / 0.1)', border: 'hsl(var(--destructive) / 0.2)', titleColor: 'text-destructive', textColor: 'text-destructive' }
+          : { icon: <IndianRupee className={cls} />, title: 'Payment Due', message: `Due by ${bill.due_date}. Amount: ₹${bill.due_amount.toLocaleString()}.`, bg: 'hsl(var(--primary) / 0.1)', border: 'hsl(var(--primary) / 0.2)', titleColor: 'text-primary', textColor: 'text-primary' };
       case 'copay_due':
         return bill.is_overdue
-          ? { icon: <AlertTriangle className={cls} />, title: 'Co-pay Overdue', message: `Overdue by ${bill.days_overdue} days. Contact support for assistance.`, bg: '#FEF2F2', border: '#FECACA', titleColor: 'text-red-800', textColor: 'text-red-700' }
-          : { icon: <IndianRupee className={cls} />, title: 'Co-pay Due', message: `Insurance covers ₹${bill.insurance_covered.toLocaleString()}. Co-pay of ₹${bill.due_amount.toLocaleString()} due by ${bill.due_date}.`, bg: '#EFF6FF', border: '#BFDBFE', titleColor: 'text-blue-800', textColor: 'text-blue-700' };
+          ? { icon: <AlertTriangle className={cls} />, title: 'Co-pay Overdue', message: `Overdue by ${bill.days_overdue} days. Contact support for assistance.`, bg: 'hsl(var(--destructive) / 0.1)', border: 'hsl(var(--destructive) / 0.2)', titleColor: 'text-destructive', textColor: 'text-destructive' }
+          : { icon: <IndianRupee className={cls} />, title: 'Co-pay Due', message: `Insurance covers ₹${bill.insurance_covered.toLocaleString()}. Co-pay of ₹${bill.due_amount.toLocaleString()} due by ${bill.due_date}.`, bg: 'hsl(var(--primary) / 0.1)', border: 'hsl(var(--primary) / 0.2)', titleColor: 'text-primary', textColor: 'text-primary' };
       case 'awaiting_approval':
-        return { icon: <Clock className={cls} />, title: 'Insurance Pending', message: 'Claim under review. Payment on hold until approval.', bg: '#FFFBEB', border: '#FDE68A', titleColor: 'text-amber-800', textColor: 'text-amber-700' };
+        return { icon: <Clock className={cls} />, title: 'Insurance Pending', message: 'Claim under review. Payment on hold until approval.', bg: 'hsl(var(--warning) / 0.1)', border: 'hsl(var(--warning) / 0.2)', titleColor: 'text-warning', textColor: 'text-warning' };
       case 'claim_pending':
-        return { icon: <Clock className={cls} />, title: 'Claim Submitted', message: "Claim submitted and being processed. You'll be notified once approved.", bg: '#FFFBEB', border: '#FDE68A', titleColor: 'text-amber-800', textColor: 'text-amber-700' };
+        return { icon: <Clock className={cls} />, title: 'Claim Submitted', message: "Claim submitted and being processed. You'll be notified once approved.", bg: 'hsl(var(--warning) / 0.1)', border: 'hsl(var(--warning) / 0.2)', titleColor: 'text-warning', textColor: 'text-warning' };
       case 'disputed':
-        return { icon: <AlertTriangle className={cls} />, title: 'Under Dispute', message: 'Bill is being reviewed. Payment disabled until resolved.', bg: '#FEF2F2', border: '#FECACA', titleColor: 'text-red-800', textColor: 'text-red-700' };
+        return { icon: <AlertTriangle className={cls} />, title: 'Under Dispute', message: 'Bill is being reviewed. Payment disabled until resolved.', bg: 'hsl(var(--destructive) / 0.1)', border: 'hsl(var(--destructive) / 0.2)', titleColor: 'text-destructive', textColor: 'text-destructive' };
       case 'refunded':
-        return { icon: <RotateCcw className={cls} />, title: 'Refund Processed', message: 'Full refund issued. No further action required.', bg: '#F9FAFB', border: '#E5E7EB', titleColor: 'text-gray-800', textColor: 'text-gray-600' };
+        return { icon: <RotateCcw className={cls} />, title: 'Refund Processed', message: 'Full refund issued. No further action required.', bg: 'hsl(var(--muted))', border: 'hsl(var(--border))', titleColor: 'text-foreground', textColor: 'text-muted-foreground' };
       case 'emi':
-        return { icon: <CreditCard className={cls} />, title: 'EMI Active', message: `Installment ${emi?.paid_installments}/${emi?.total_installments} — ₹${emi?.monthly_amount.toLocaleString()}/month. Next: ${emi?.next_due_date}.`, bg: '#EFF6FF', border: '#BFDBFE', titleColor: 'text-blue-800', textColor: 'text-blue-700' };
+        return { icon: <CreditCard className={cls} />, title: 'EMI Active', message: `Installment ${emi?.paid_installments}/${emi?.total_installments} — ₹${emi?.monthly_amount.toLocaleString()}/month. Next: ${emi?.next_due_date}.`, bg: 'hsl(var(--primary) / 0.1)', border: 'hsl(var(--primary) / 0.2)', titleColor: 'text-primary', textColor: 'text-primary' };
       case 'covered':
-        return { icon: <ShieldCheck className={cls} />, title: 'Fully Covered', message: 'Fully covered by insurance. No payment required.', bg: '#F0FDF4', border: '#BBF7D0', titleColor: 'text-green-800', textColor: 'text-green-700' };
+        return { icon: <ShieldCheck className={cls} />, title: 'Fully Covered', message: 'Fully covered by insurance. No payment required.', bg: 'hsl(var(--success) / 0.1)', border: 'hsl(var(--success) / 0.2)', titleColor: 'text-success', textColor: 'text-success' };
       case 'reimbursed':
-        return { icon: <ShieldCheck className={cls} />, title: 'Reimbursed', message: 'Reimbursed by insurance.', bg: '#F0FDF4', border: '#BBF7D0', titleColor: 'text-green-800', textColor: 'text-green-700' };
+        return { icon: <ShieldCheck className={cls} />, title: 'Reimbursed', message: 'Reimbursed by insurance.', bg: 'hsl(var(--success) / 0.1)', border: 'hsl(var(--success) / 0.2)', titleColor: 'text-success', textColor: 'text-success' };
       default:
         return null;
     }
@@ -565,7 +565,7 @@ export default function Show({ user, bill }: Props) {
         {/* ─── Back Link ─── */}
         <button
           onClick={() => router.visit('/billing')}
-          className="mb-6 flex items-center gap-1.5 text-[14px] font-medium text-gray-500 hover:text-gray-900"
+          className="mb-6 flex items-center gap-1.5 text-[14px] font-medium text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Billing
@@ -575,10 +575,10 @@ export default function Show({ user, bill }: Props) {
         <div className="mb-6 flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">{bill.invoice_number}</h1>
+              <h1 className="text-2xl font-bold text-foreground">{bill.invoice_number}</h1>
               <StatusBadge status={bill.billing_status} />
             </div>
-            <p className="mt-1 text-[14px] text-gray-500">
+            <p className="mt-1 text-[14px] text-muted-foreground">
               {bill.patient_name} &middot; {bill.generated_date}
             </p>
           </div>
@@ -682,7 +682,7 @@ export default function Show({ user, bill }: Props) {
             {/* 3-dot Menu by Status */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="text-gray-400">
+                <Button variant="outline" size="icon" className="text-muted-foreground">
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -787,7 +787,7 @@ export default function Show({ user, bill }: Props) {
             <Section id="invoice" title="Invoice" icon={FileText}>
               {/* Hospital Identity */}
               <div className="mb-4 pb-4 border-b border-dashed">
-                <p className="text-base font-bold" style={{ color: '#171717' }}>HealthFirst Hospital</p>
+                <p className="text-base font-bold" style={{ color: 'hsl(var(--foreground))' }}>HealthFirst Hospital</p>
                 <p className="text-[14px] text-muted-foreground mt-0.5">123 Hospital Road, Pune 411001 &middot; GSTIN: 27AABCH1234P1ZP</p>
               </div>
 
@@ -795,11 +795,11 @@ export default function Show({ user, bill }: Props) {
               <div className="grid grid-cols-2 gap-x-8 gap-y-3 mb-4 pb-4 border-b">
                 <div>
                   <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Date</p>
-                  <p className="mt-1 text-[14px] font-semibold" style={{ color: '#171717' }}>{bill.generated_date}</p>
+                  <p className="mt-1 text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{bill.generated_date}</p>
                 </div>
                 <div>
                   <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Reference</p>
-                  <p className="mt-1 text-[14px] font-semibold" style={{ color: '#171717' }}>{bill.reference_number}</p>
+                  <p className="mt-1 text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{bill.reference_number}</p>
                 </div>
                 {bill.due_date && (
                   <div>
@@ -820,21 +820,21 @@ export default function Show({ user, bill }: Props) {
               <div className="grid grid-cols-2 gap-x-8 gap-y-3">
                 <div>
                   <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Patient</p>
-                  <p className="mt-1 text-[14px] font-semibold" style={{ color: '#171717' }}>{bill.patient_name}</p>
+                  <p className="mt-1 text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{bill.patient_name}</p>
                 </div>
                 <div>
                   <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Service</p>
                   <div className="mt-1 flex items-center gap-2">
-                    <div className="h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#BFDBFE' }}>
-                      {isDoctor ? <Stethoscope className="h-2.5 w-2.5" style={{ color: '#1E40AF' }} /> : <TestTube2 className="h-2.5 w-2.5" style={{ color: '#1E40AF' }} />}
+                    <div className="h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'hsl(var(--primary) / 0.2)' }}>
+                      {isDoctor ? <Stethoscope className="h-2.5 w-2.5" style={{ color: 'hsl(var(--primary))' }} /> : <TestTube2 className="h-2.5 w-2.5" style={{ color: 'hsl(var(--primary))' }} />}
                     </div>
-                    <p className="text-[14px] font-semibold" style={{ color: '#171717' }}>{bill.appointment_title}</p>
+                    <p className="text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{bill.appointment_title}</p>
                   </div>
                 </div>
                 {bill.doctor_name && (
                   <div>
                     <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Doctor</p>
-                    <p className="mt-1 text-[14px] font-semibold" style={{ color: '#171717' }}>
+                    <p className="mt-1 text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
                       {bill.doctor_name}
                       {bill.doctor_specialization && <span className="text-muted-foreground font-normal"> &middot; {bill.doctor_specialization}</span>}
                     </p>
@@ -842,7 +842,7 @@ export default function Show({ user, bill }: Props) {
                 )}
                 <div>
                   <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Date of Service</p>
-                  <p className="mt-1 text-[14px] font-semibold" style={{ color: '#171717' }}>
+                  <p className="mt-1 text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
                     {bill.service_date}
                     <span className="text-muted-foreground font-normal"> &middot; {bill.appointment_mode}</span>
                   </p>
@@ -857,7 +857,7 @@ export default function Show({ user, bill }: Props) {
                 <div className="overflow-x-auto -mx-5">
                   <table className="w-full text-[14px]">
                     <thead>
-                      <tr className="border-b" style={{ backgroundColor: '#FAFAFA' }}>
+                      <tr className="border-b" style={{ backgroundColor: 'hsl(var(--muted))' }}>
                         <th className="text-left font-medium text-muted-foreground px-5 py-2">Item</th>
                         <th className="text-center font-medium text-muted-foreground px-3 py-2 w-16">Qty</th>
                         <th className="text-right font-medium text-muted-foreground px-3 py-2 w-24">Unit Price</th>
@@ -905,7 +905,7 @@ export default function Show({ user, bill }: Props) {
                     <span className="text-[14px] font-semibold">
                       {isPayable ? 'Amount Due' : 'Amount Paid'}
                     </span>
-                    <span className="text-lg font-bold" style={{ color: '#171717' }}>
+                    <span className="text-lg font-bold" style={{ color: 'hsl(var(--foreground))' }}>
                       ₹{bill.total.toLocaleString()}
                     </span>
                   </div>
@@ -920,7 +920,7 @@ export default function Show({ user, bill }: Props) {
                   {/* Payment info */}
                   {bill.payment_info && (
                     <div>
-                      <p className="text-[14px]" style={{ color: '#171717' }}>
+                      <p className="text-[14px]" style={{ color: 'hsl(var(--foreground))' }}>
                         Paid via <span className="font-medium">{bill.payment_info.method}</span> on {bill.payment_info.paid_at}
                       </p>
                       <p className="text-[14px] text-muted-foreground mt-1">
@@ -935,10 +935,10 @@ export default function Show({ user, bill }: Props) {
                   {bill.insurance_details && (
                     <div className={bill.payment_info ? 'pt-4 border-t' : ''}>
                       <div className="flex items-center gap-1.5 mb-2">
-                        <Shield className="h-3.5 w-3.5 text-blue-600" />
-                        <p className="text-[14px] font-semibold text-blue-600 uppercase tracking-wide">Insurance</p>
+                        <Shield className="h-3.5 w-3.5 text-primary" />
+                        <p className="text-[14px] font-semibold text-primary uppercase tracking-wide">Insurance</p>
                       </div>
-                      <p className="text-[14px] font-semibold" style={{ color: '#171717' }}>
+                      <p className="text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
                         {bill.insurance_details.provider_name}
                         <span className="text-muted-foreground font-normal"> &middot; {bill.insurance_details.policy_number}</span>
                       </p>
@@ -969,7 +969,7 @@ export default function Show({ user, bill }: Props) {
                       {bill.insurance_details.insurance_claim_id && (
                         <button
                           className="mt-3 text-[14px] font-medium hover:underline flex items-center gap-1"
-                          style={{ color: '#0052FF' }}
+                          style={{ color: 'hsl(var(--primary))' }}
                           onClick={() => router.visit(`/insurance/claims/${bill.insurance_details!.insurance_claim_id}`)}
                         >
                           View Claim Details
@@ -985,7 +985,7 @@ export default function Show({ user, bill }: Props) {
             {/* ─── EMI Section ─── */}
             {bill.emi_details && (
               <Section id="emi" title="EMI Plan" icon={IndianRupee}>
-                <p className="text-[14px] font-semibold" style={{ color: '#171717' }}>
+                <p className="text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
                   ₹{bill.emi_details.monthly_amount.toLocaleString()}/month for {bill.emi_details.plan_months} months
                 </p>
 
@@ -995,7 +995,7 @@ export default function Show({ user, bill }: Props) {
                     <span>{bill.emi_details.paid_installments} of {bill.emi_details.total_installments} paid</span>
                     <span>{Math.round((bill.emi_details.paid_installments / bill.emi_details.total_installments) * 100)}%</span>
                   </div>
-                  <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+                  <div className="h-2 rounded-full bg-muted overflow-hidden">
                     <div
                       className="h-full rounded-full bg-blue-500 transition-all"
                       style={{ width: `${(bill.emi_details.paid_installments / bill.emi_details.total_installments) * 100}%` }}
@@ -1020,12 +1020,12 @@ export default function Show({ user, bill }: Props) {
             {bill.dispute_details && (
               <div id="dispute" className="scroll-mt-24">
                 <div className="flex items-center gap-2.5 mb-4">
-                  <Icon icon={AlertTriangle} className="h-5 w-5 text-neutral-900" />
-                  <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+                  <Icon icon={AlertTriangle} className="h-5 w-5 text-foreground" />
+                  <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                     Dispute
                   </h2>
                 </div>
-                <Card className="p-5" style={{ backgroundColor: '#FEF2F2', borderColor: '#FECACA' }}>
+                <Card className="p-5" style={{ backgroundColor: 'hsl(var(--destructive) / 0.1)', borderColor: 'hsl(var(--destructive) / 0.2)' }}>
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="h-4 w-4 text-red-600" />
                     <p className="text-[14px] font-semibold text-red-800">
@@ -1070,12 +1070,12 @@ export default function Show({ user, bill }: Props) {
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
               <AlertTriangle className="h-6 w-6 text-amber-600" />
             </div>
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">Raise a dispute?</h3>
-            <p className="mb-4 text-[14px] text-gray-500">
+            <h3 className="mb-2 text-lg font-semibold text-foreground">Raise a dispute?</h3>
+            <p className="mb-4 text-[14px] text-muted-foreground">
               Our team will review your dispute within 3–5 business days. Payment will be paused during review.
             </p>
             <div className="mb-4">
-              <label className="block text-[14px] font-medium text-gray-700 mb-2">
+              <label className="block text-[14px] font-medium text-foreground mb-2">
                 Reason for dispute
               </label>
               <Textarea
@@ -1086,7 +1086,7 @@ export default function Show({ user, bill }: Props) {
                 rows={4}
                 className="w-full"
               />
-              <p className="mt-1 text-[14px] text-gray-400 text-right">{disputeReason.length}/1000</p>
+              <p className="mt-1 text-[14px] text-muted-foreground text-right">{disputeReason.length}/1000</p>
             </div>
             <div className="flex gap-3">
               <Button

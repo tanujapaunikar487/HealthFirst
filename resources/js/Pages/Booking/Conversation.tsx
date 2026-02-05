@@ -330,14 +330,14 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
         }}
       >
         {/* Header */}
-        <header className="bg-white border-b">
+        <header className="bg-white border-b border-border">
           <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
             <div className="flex items-center gap-2">
               <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="font-medium text-[14px] sm:text-[14px]">Booking an appointment</span>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="flex items-center gap-1 border rounded-full p-0.5 sm:p-1 bg-gray-50">
+              <div className="flex items-center gap-1 border border-border rounded-full p-0.5 sm:p-1 bg-muted">
               <button
                 className={cn(
                   'p-1 sm:p-1.5 rounded-full transition-all',
@@ -369,17 +369,17 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
               {/* Cancel button */}
               <button
                 onClick={() => router.visit('/')}
-                className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full hover:bg-gray-100 transition-colors"
+                className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full hover:bg-accent transition-colors"
                 title="Cancel booking"
               >
-                <Icon icon={X} className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600" />
+                <Icon icon={X} className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
               </button>
             </div>
           </div>
           {/* Progress bar */}
-          <div className="h-1 bg-gray-100">
+          <div className="h-1 bg-muted">
             <div
-              className="h-full bg-blue-600 transition-all duration-300"
+              className="h-full bg-primary transition-all duration-300"
               style={{ width: `${Math.max(getProgress(), 2)}%` }}
             />
           </div>
@@ -454,7 +454,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                     <div className="flex items-center gap-3 flex-1">
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                        <span className="text-[14px] font-medium text-gray-700">
+                        <span className="text-[14px] font-medium text-muted-foreground">
                           {formatRecordingTime(recordingTime)}
                         </span>
                       </div>
@@ -465,7 +465,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                   // Normal mode - show textarea
                   <PromptInputTextarea
                     placeholder={isCancelled ? "Booking cancelled" : getPlaceholder(conversation.current_step)}
-                    className="text-[14px] text-[#0A0B0D] placeholder:text-[#9CA3AF] min-h-[80px] px-4 pt-4 pb-16 font-normal"
+                    className="text-[14px] text-foreground placeholder:text-[#9CA3AF] min-h-[80px] px-4 pt-4 pb-16 font-normal"
                     style={{ fontSize: '14px', lineHeight: '20px' }}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
@@ -491,7 +491,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                             transition: 'all 0.2s ease',
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#F9FAFB';
+                            e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.backgroundColor = '#FFFFFF';
@@ -532,7 +532,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                               e.currentTarget.style.backgroundColor = '#FFFFFF';
                             }}
                           >
-                            <Icon icon={X} className="w-[18px] h-[18px] text-red-600" />
+                            <Icon icon={X} className="w-[18px] h-[18px] text-destructive" />
                           </button>
                         </PromptInputAction>
 
@@ -582,7 +582,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                               transition: 'all 0.2s ease',
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#F9FAFB';
+                              e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.backgroundColor = '#FFFFFF';
@@ -590,7 +590,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                           >
                             <Icon icon={Mic} className={cn(
                               "w-[18px] h-[18px]",
-                              isTranscribing && "animate-pulse text-blue-600"
+                              isTranscribing && "animate-pulse text-primary"
                             )} />
                           </button>
                         </PromptInputAction>
@@ -633,7 +633,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
             </PromptInputContainer>
 
             {/* Disclaimer */}
-            <p className="text-[14px] text-center mt-3" style={{ color: '#737373' }}>
+            <p className="text-[14px] text-center mt-3 text-muted-foreground">
               AI may make mistakes. Verify important health information.
             </p>
           </div>
@@ -673,7 +673,7 @@ function MessageBubble({
   if (message.role === 'user') {
     return (
       <div className="flex gap-3 justify-end">
-        <div className="rounded-2xl px-4 py-2.5 bg-[#BFDBFE] text-[#0A0B0D] max-w-2xl">
+        <div className="rounded-2xl px-4 py-2.5 bg-primary/20 text-foreground max-w-2xl">
           <p className="text-[14px] leading-relaxed">{message.content}</p>
         </div>
       </div>
@@ -686,14 +686,14 @@ function MessageBubble({
       <div className="flex-1 max-w-3xl">
         {/* Chain of Thought - Thinking Process */}
         {message.thinking_steps && message.thinking_steps.length > 0 && (
-          <div className="rounded-2xl px-4 py-3 bg-[#F9FAFB] border border-gray-100 mb-2.5">
+          <div className="rounded-2xl px-4 py-3 bg-muted border border-border mb-2.5">
             <ThinkingIndicator steps={message.thinking_steps} />
           </div>
         )}
 
         {/* Text content */}
         {message.content && (
-          <div className="rounded-2xl px-4 py-2.5 bg-[#F3F4F6] text-[#0A0B0D] mb-2.5">
+          <div className="rounded-2xl px-4 py-2.5 bg-muted text-foreground mb-2.5">
             <p className="text-[14px] leading-relaxed whitespace-pre-line">{message.content}</p>
           </div>
         )}

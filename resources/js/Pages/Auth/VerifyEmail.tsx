@@ -21,7 +21,7 @@ export default function VerifyEmail({ status }: VerifyEmailProps) {
             <Head title="Email Verification" />
 
             <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold" style={{ color: '#00184D' }}>
+                <h1 className="text-2xl font-bold text-foreground">
                     Verify your email
                 </h1>
                 <p className="text-[14px] text-muted-foreground mt-1">
@@ -30,7 +30,7 @@ export default function VerifyEmail({ status }: VerifyEmailProps) {
             </div>
 
             {status === 'verification-link-sent' && (
-                <div className="mb-4 text-[14px] font-medium text-green-600 bg-green-50 p-3 rounded-lg">
+                <div className="mb-4 text-[14px] font-medium text-success bg-success/10 p-3 rounded-lg">
                     A new verification link has been sent to your email address.
                 </div>
             )}

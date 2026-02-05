@@ -131,8 +131,8 @@ function Section({
     <div id={id} className="scroll-mt-24">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
-          <Icon icon={SectionIcon} className="h-5 w-5 text-neutral-900" />
-          <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+          <Icon icon={SectionIcon} className="h-5 w-5 text-foreground" />
+          <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
             {title}
           </h2>
         </div>
@@ -609,14 +609,14 @@ function TimelineEventRow({
       dotClass = 'bg-red-500';
       break;
     default:
-      dotClass = 'bg-gray-300';
+      dotClass = 'bg-border';
       break;
   }
 
   return (
     <div className="relative flex gap-4 pb-6 last:pb-0">
       {!isLast && (
-        <div className="absolute left-[5px] top-[14px] h-full w-px bg-gray-200" />
+        <div className="absolute left-[5px] top-[14px] h-full w-px bg-border" />
       )}
       <div
         className={`relative z-10 mt-[5px] h-[11px] w-[11px] flex-shrink-0 rounded-full ${dotClass} ${dotExtra}`}
@@ -628,31 +628,31 @@ function TimelineEventRow({
         >
           <p
             className={`text-[14px] font-medium ${
-              event.status === 'pending' ? 'text-gray-400' : 'text-gray-900'
+              event.status === 'pending' ? 'text-muted-foreground' : 'text-foreground'
             }`}
           >
             {event.event}
           </p>
           {hasDetails && (
             <ChevronDown
-              className={`h-3.5 w-3.5 text-neutral-900 transition-transform ${
+              className={`h-3.5 w-3.5 text-foreground transition-transform ${
                 isExpanded ? 'rotate-180' : ''
               }`}
             />
           )}
         </div>
         {event.date && (
-          <p className="text-[14px] text-gray-500">{event.date}</p>
+          <p className="text-[14px] text-muted-foreground">{event.date}</p>
         )}
         {event.note && (
-          <p className="mt-0.5 text-[14px] italic text-gray-500">{event.note}</p>
+          <p className="mt-0.5 text-[14px] italic text-muted-foreground">{event.note}</p>
         )}
         {hasDetails && isExpanded && (
-          <div className="mt-2 rounded-lg border bg-gray-50 px-3 py-2">
+          <div className="mt-2 rounded-lg border bg-muted px-3 py-2">
             {Object.entries(event.details!).map(([key, value]) => (
               <div key={key} className="flex items-center justify-between py-1 text-[14px]">
-                <span className="text-gray-500">{key}</span>
-                <span className="font-medium text-gray-700">{value}</span>
+                <span className="text-muted-foreground">{key}</span>
+                <span className="font-medium text-foreground">{value}</span>
               </div>
             ))}
           </div>
@@ -783,7 +783,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
   const ThreeDotMenu = () => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-neutral-900">
+        <Button variant="ghost" size="icon" className="h-8 w-8 text-foreground">
           <MoreVertical className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
@@ -854,7 +854,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
       <div className="sticky top-0 z-10 border-b bg-white/95 backdrop-blur px-6 py-3 md:hidden">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-[14px] font-medium text-gray-500">{claim.claim_reference}</span>
+            <span className="text-[14px] font-medium text-muted-foreground">{claim.claim_reference}</span>
             {getStatusBadge(claim.status)}
           </div>
           <ThreeDotMenu />
@@ -863,10 +863,10 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
       <div className="w-full max-w-[960px] min-h-full flex flex-col pb-10">
         {/* Breadcrumb */}
-        <div className="mb-6 flex items-center gap-1.5 text-[14px] text-gray-500">
+        <div className="mb-6 flex items-center gap-1.5 text-[14px] text-muted-foreground">
           <button
             onClick={() => router.visit('/insurance')}
-            className="font-medium hover:text-gray-900"
+            className="font-medium hover:text-foreground"
           >
             Insurance
           </button>
@@ -875,14 +875,14 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
             <>
               <button
                 onClick={() => router.visit(`/insurance/${claim.policy_id}`)}
-                className="font-medium hover:text-gray-900"
+                className="font-medium hover:text-foreground"
               >
                 {claim.policy_plan_name}
               </button>
               <ChevronRight className="h-3.5 w-3.5" />
             </>
           ) : null}
-          <span className="text-gray-400">{claim.claim_reference}</span>
+          <span className="text-muted-foreground">{claim.claim_reference}</span>
         </div>
 
         {/* Header with three-dot menu */}
@@ -895,20 +895,20 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   return (
                     <div
                       className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl"
-                      style={{ backgroundColor: '#BFDBFE' }}
+                      style={{ backgroundColor: 'hsl(var(--primary) / 0.2)' }}
                     >
-                      <TreatmentIcon className="h-5 w-5" style={{ color: '#1E40AF' }} />
+                      <TreatmentIcon className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />
                     </div>
                   );
                 })()}
-                <h1 className="text-2xl font-bold text-gray-900">{claim.treatment_name}</h1>
+                <h1 className="text-2xl font-bold text-foreground">{claim.treatment_name}</h1>
                 {claim.procedure_type && (
                   <Badge variant="secondary">
                     {claim.procedure_type}
                   </Badge>
                 )}
               </div>
-              <div className="mt-1 flex items-center gap-2 text-[14px] text-gray-500">
+              <div className="mt-1 flex items-center gap-2 text-[14px] text-muted-foreground">
                 {claim.provider_name && <span>{claim.provider_name}</span>}
                 {claim.claim_date && (
                   <>
@@ -1094,7 +1094,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           <div className="divide-y">
             {/* Patient */}
             <div className="flex items-center gap-4 px-5 py-3.5">
-              <div className="flex w-24 flex-shrink-0 items-center gap-1.5 text-[14px] font-medium text-gray-500">
+              <div className="flex w-24 flex-shrink-0 items-center gap-1.5 text-[14px] font-medium text-muted-foreground">
                 <User className="h-3.5 w-3.5" />
                 Patient
               </div>
@@ -1116,16 +1116,16 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 >
                   {getInitials(patient.name)}
                 </div>
-                <span className="text-[14px] font-medium text-gray-900">{patient.name}</span>
+                <span className="text-[14px] font-medium text-foreground">{patient.name}</span>
                 {patient.relation !== 'self' && (
-                  <span className="text-[14px] capitalize text-gray-500">({patient.relation})</span>
+                  <span className="text-[14px] capitalize text-muted-foreground">({patient.relation})</span>
                 )}
               </button>
             </div>
 
             {/* Doctor */}
             <div className="flex items-center gap-4 px-5 py-3.5">
-              <div className="flex w-24 flex-shrink-0 items-center gap-1.5 text-[14px] font-medium text-gray-500">
+              <div className="flex w-24 flex-shrink-0 items-center gap-1.5 text-[14px] font-medium text-muted-foreground">
                 <Stethoscope className="h-3.5 w-3.5" />
                 Doctor
               </div>
@@ -1140,26 +1140,26 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   >
                     {getInitials(doctor.name)}
                   </div>
-                  <span className="font-medium text-gray-900">{doctor.name}</span>
-                  <span className="text-gray-400">&middot;</span>
-                  <span className="text-gray-500">{doctor.specialization}</span>
+                  <span className="font-medium text-foreground">{doctor.name}</span>
+                  <span className="text-muted-foreground">&middot;</span>
+                  <span className="text-muted-foreground">{doctor.specialization}</span>
                 </div>
               ) : (
-                <span className="text-[14px] text-gray-400">N/A</span>
+                <span className="text-[14px] text-muted-foreground">N/A</span>
               )}
             </div>
 
             {/* Stay */}
             <div className="flex items-center gap-4 px-5 py-3.5">
-              <div className="flex w-24 flex-shrink-0 items-center gap-1.5 text-[14px] font-medium text-gray-500">
+              <div className="flex w-24 flex-shrink-0 items-center gap-1.5 text-[14px] font-medium text-muted-foreground">
                 <BedDouble className="h-3.5 w-3.5" />
                 Stay
               </div>
               {isOutpatient ? (
-                <span className="text-[14px] font-medium text-gray-900">Outpatient</span>
+                <span className="text-[14px] font-medium text-foreground">Outpatient</span>
               ) : (
                 <div className="flex items-center gap-1.5 text-[14px] flex-wrap">
-                  <span className="font-medium text-gray-900">{stay!.days} Days</span>
+                  <span className="font-medium text-foreground">{stay!.days} Days</span>
                   {isOngoing && (
                     <Badge variant="default" className="text-[10px] px-1.5 py-0">
                       Ongoing
@@ -1167,8 +1167,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   )}
                   {stay!.admission_date && (
                     <>
-                      <span className="text-gray-400">&middot;</span>
-                      <span className="text-gray-500">
+                      <span className="text-muted-foreground">&middot;</span>
+                      <span className="text-muted-foreground">
                         {stay!.admission_date}
                         {stay!.discharge_date ? ` — ${stay!.discharge_date}` : ''}
                       </span>
@@ -1181,22 +1181,22 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
             {/* Room */}
             {!isOutpatient && (
               <div className="flex items-center gap-4 px-5 py-3.5">
-                <div className="flex w-24 flex-shrink-0 items-center gap-1.5 text-[14px] font-medium text-gray-500">
+                <div className="flex w-24 flex-shrink-0 items-center gap-1.5 text-[14px] font-medium text-muted-foreground">
                   <DoorOpen className="h-3.5 w-3.5" />
                   Room
                 </div>
                 <div className="flex items-center gap-1.5 text-[14px]">
-                  <span className="font-medium text-gray-900">{stay!.room_type ?? 'General'}</span>
+                  <span className="font-medium text-foreground">{stay!.room_type ?? 'General'}</span>
                   {stay!.room_number && (
                     <>
-                      <span className="text-gray-400">&middot;</span>
-                      <span className="text-gray-500">#{stay!.room_number}</span>
+                      <span className="text-muted-foreground">&middot;</span>
+                      <span className="text-muted-foreground">#{stay!.room_number}</span>
                     </>
                   )}
                   {stay!.daily_rate && (
                     <>
-                      <span className="text-gray-400">&middot;</span>
-                      <span className="text-gray-500">{formatCurrency(stay!.daily_rate)}/day</span>
+                      <span className="text-muted-foreground">&middot;</span>
+                      <span className="text-muted-foreground">{formatCurrency(stay!.daily_rate)}/day</span>
                     </>
                   )}
                 </div>
@@ -1212,13 +1212,13 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           {/* Original Policy (if transferred) */}
           {claim.original_policy_id && claim.original_policy_plan_name && (
             <div className="flex items-center gap-3 px-6 py-4">
-              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-100">
-                <Shield className="h-4 w-4 text-neutral-900" />
+              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-muted">
+                <Shield className="h-4 w-4 text-foreground" />
               </div>
               <div className="flex-1">
-                <p className="text-[14px] font-medium text-gray-500">Insurance Plan (Original)</p>
+                <p className="text-[14px] font-medium text-muted-foreground">Insurance Plan (Original)</p>
                 <div className="mt-0.5 flex items-center gap-2">
-                  <p className="text-[14px] font-semibold text-gray-400 line-through">
+                  <p className="text-[14px] font-semibold text-muted-foreground line-through">
                     {claim.original_policy_plan_name}
                   </p>
                   <Badge variant="secondary" className="text-[10px]">
@@ -1226,7 +1226,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   </Badge>
                 </div>
                 {claim.original_policy_expired_date && (
-                  <p className="text-[14px] text-gray-400">Expired {formatDate(claim.original_policy_expired_date)}</p>
+                  <p className="text-[14px] text-muted-foreground">Expired {formatDate(claim.original_policy_expired_date)}</p>
                 )}
               </div>
             </div>
@@ -1235,25 +1235,25 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           {/* Current Insurance Plan */}
           {claim.policy_id && claim.policy_plan_name && (
             <button
-              className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-gray-50"
+              className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-accent"
               onClick={() => router.visit(`/insurance/${claim.policy_id}`)}
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-50">
-                  <Shield className="h-4 w-4 text-blue-600" />
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
+                  <Shield className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-[14px] font-medium text-gray-500">
+                  <p className="text-[14px] font-medium text-muted-foreground">
                     Insurance Plan{claim.original_policy_id ? ' (Current)' : ''}
                   </p>
-                  <p className="mt-0.5 text-[14px] font-semibold text-gray-900">
+                  <p className="mt-0.5 text-[14px] font-semibold text-foreground">
                     {claim.policy_plan_name}
                   </p>
                   {claim.transfer_date && (
-                    <p className="text-[14px] text-gray-500">Transferred on {claim.transfer_date}</p>
+                    <p className="text-[14px] text-muted-foreground">Transferred on {claim.transfer_date}</p>
                   )}
                   {!claim.transfer_date && claim.provider_name && (
-                    <p className="text-[14px] text-gray-500">{claim.provider_name}</p>
+                    <p className="text-[14px] text-muted-foreground">{claim.provider_name}</p>
                   )}
                 </div>
               </div>
@@ -1264,20 +1264,20 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           {/* Related Appointment */}
           {claim.appointment_id && (
             <button
-              className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-gray-50"
+              className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-accent"
               onClick={() => router.visit(`/appointments/${claim.appointment_id}`)}
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-50">
-                  <Calendar className="h-4 w-4 text-green-600" />
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-success/10">
+                  <Calendar className="h-4 w-4 text-success" />
                 </div>
                 <div>
-                  <p className="text-[14px] font-medium text-gray-500">Related Appointment</p>
-                  <p className="mt-0.5 text-[14px] font-semibold text-gray-900">
+                  <p className="text-[14px] font-medium text-muted-foreground">Related Appointment</p>
+                  <p className="mt-0.5 text-[14px] font-semibold text-foreground">
                     {claim.treatment_name}
                   </p>
                   {(doctor || appointment?.date) && (
-                    <p className="text-[14px] text-gray-500">
+                    <p className="text-[14px] text-muted-foreground">
                       {doctor?.name}
                       {doctor && appointment?.date && ' \u00B7 '}
                       {appointment?.date && formatDate(appointment.date)}
@@ -1297,10 +1297,10 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
             <div className="divide-y">
                 {fin.preauth_requested != null && (
                   <div className="flex items-center justify-between px-5 py-3.5">
-                    <span className="text-[14px] text-gray-600">
+                    <span className="text-[14px] text-muted-foreground">
                       {hasEnhancements ? 'Original pre-auth' : 'Pre-auth requested'}
                     </span>
-                    <span className="text-[14px] font-semibold text-gray-900">
+                    <span className="text-[14px] font-semibold text-foreground">
                       {formatCurrency(fin.preauth_requested)}
                     </span>
                   </div>
@@ -1325,7 +1325,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                     <span className={`text-[14px] ${
                       enh.status === 'approved' ? 'font-medium text-green-700'
                         : enh.status === 'rejected' ? 'font-medium text-red-600'
-                          : 'text-gray-600'
+                          : 'text-muted-foreground'
                     }`}>
                       Enhancement {idx + 1} ({enh.status})
                     </span>
@@ -1359,7 +1359,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 {/* Single enhancement (legacy) */}
                 {!hasEnhancements && fin.enhancement_requested != null && (
                   <div className="flex items-center justify-between px-5 py-3.5">
-                    <span className="text-[14px] text-gray-600">Enhancement requested</span>
+                    <span className="text-[14px] text-muted-foreground">Enhancement requested</span>
                     <span className="text-[14px] font-semibold text-amber-700">
                       {formatCurrency(fin.enhancement_requested)}
                     </span>
@@ -1376,8 +1376,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
                 {fin.current_bill != null && (
                   <div className="flex items-center justify-between px-5 py-3.5">
-                    <span className="text-[14px] text-gray-600">Current bill</span>
-                    <span className="text-[14px] font-semibold text-gray-900">
+                    <span className="text-[14px] text-muted-foreground">Current bill</span>
+                    <span className="text-[14px] font-semibold text-foreground">
                       {formatCurrency(fin.current_bill)}
                     </span>
                   </div>
@@ -1385,8 +1385,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
                 {fin.insurance_covered != null && (
                   <div className="flex items-center justify-between px-5 py-3.5">
-                    <span className="text-[14px] text-gray-600">Insurance covered</span>
-                    <span className="text-[14px] font-semibold text-gray-900">
+                    <span className="text-[14px] text-muted-foreground">Insurance covered</span>
+                    <span className="text-[14px] font-semibold text-foreground">
                       {formatCurrency(fin.insurance_covered)}
                     </span>
                   </div>
@@ -1403,7 +1403,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                     </div>
                     {fin.deductions.map((d, idx) => (
                       <div key={idx} className="flex items-center justify-between px-5 py-2.5 pl-9">
-                        <span className="text-[14px] text-gray-500">{d.label}</span>
+                        <span className="text-[14px] text-muted-foreground">{d.label}</span>
                         <span className="text-[14px] font-medium text-red-500">{formatCurrency(d.amount)}</span>
                       </div>
                     ))}
@@ -1413,8 +1413,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 {/* Co-pay */}
                 {fin.copay_percentage != null && (
                   <div className="flex items-center justify-between px-5 py-3.5">
-                    <span className="text-[14px] text-gray-600">Co-pay ({fin.copay_percentage}%)</span>
-                    <span className="text-[14px] font-semibold text-gray-900">
+                    <span className="text-[14px] text-muted-foreground">Co-pay ({fin.copay_percentage}%)</span>
+                    <span className="text-[14px] font-semibold text-foreground">
                       {fin.copay_amount != null ? formatCurrency(fin.copay_amount) : '-'}
                     </span>
                   </div>
@@ -1434,15 +1434,15 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 {isInTreatment && fin.estimated_remaining != null && (
                   <>
                     <div className="flex items-center justify-between px-5 py-3.5">
-                      <span className="text-[14px] text-gray-500">Estimated remaining</span>
-                      <span className="text-[14px] font-medium text-gray-600">
+                      <span className="text-[14px] text-muted-foreground">Estimated remaining</span>
+                      <span className="text-[14px] font-medium text-muted-foreground">
                         {formatCurrency(fin.estimated_remaining)}
                       </span>
                     </div>
                     {fin.estimated_out_of_pocket != null && (
                       <div className="flex items-center justify-between px-5 py-3.5">
-                        <span className="text-[14px] text-gray-500">Estimated out-of-pocket</span>
-                        <span className="text-[14px] font-medium text-gray-600">
+                        <span className="text-[14px] text-muted-foreground">Estimated out-of-pocket</span>
+                        <span className="text-[14px] font-medium text-muted-foreground">
                           {formatCurrency(fin.estimated_out_of_pocket)}
                         </span>
                       </div>
@@ -1500,7 +1500,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               {claim.documents.map((doc, idx) => (
                 <button
                   key={idx}
-                  className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-gray-50"
+                  className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-accent"
                   onClick={() => {
                     downloadAsHtml(`${doc.type.replace(/\s+/g, '-').toLowerCase()}-${claim.claim_reference}.html`, `
                       <h1>${doc.type}</h1>
@@ -1511,15 +1511,15 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-100">
-                      <FileText className="h-4 w-4 text-neutral-900" />
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-muted">
+                      <FileText className="h-4 w-4 text-foreground" />
                     </div>
                     <div>
-                      <p className="text-[14px] font-medium text-gray-900">{doc.type}</p>
-                      <p className="text-[14px] text-gray-500">{doc.date}</p>
+                      <p className="text-[14px] font-medium text-foreground">{doc.type}</p>
+                      <p className="text-[14px] text-muted-foreground">{doc.date}</p>
                     </div>
                   </div>
-                  <Download className="h-4 w-4 flex-shrink-0 text-neutral-900" />
+                  <Download className="h-4 w-4 flex-shrink-0 text-foreground" />
                 </button>
               ))}
             </div>
@@ -1533,7 +1533,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           icon={Clock}
           action={
             lastUpdatedDate ? (
-              <span className="text-[14px] text-gray-400">Last Updated: {lastUpdatedDate}</span>
+              <span className="text-[14px] text-muted-foreground">Last Updated: {lastUpdatedDate}</span>
             ) : undefined
           }
         >
@@ -1545,7 +1545,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               <div className="px-6 py-4">
                 {/* Last updated on mobile */}
                 {lastUpdatedDate && (
-                  <p className="mb-3 text-[14px] text-gray-400 md:hidden">
+                  <p className="mb-3 text-[14px] text-muted-foreground md:hidden">
                     Last Updated: {lastUpdatedDate}
                   </p>
                 )}
@@ -1555,7 +1555,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   <div className="space-y-5">
                     {timelineGroups.map((group) => (
                       <div key={group.month}>
-                        <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                        <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                           {group.month}
                         </h3>
                         <div className="relative ml-3">
@@ -1596,7 +1596,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 {/* Show all button (when truncated) */}
                 {!useMonthGroups && !showAllTimeline && claim.timeline.length > 10 && (
                   <button
-                    className="mt-4 w-full text-center text-[14px] font-medium text-blue-600 hover:text-blue-700"
+                    className="mt-4 w-full text-center text-[14px] font-medium text-primary hover:text-primary"
                     onClick={() => setShowAllTimeline(true)}
                   >
                     Show all {claim.timeline.length} events

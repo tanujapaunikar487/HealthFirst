@@ -271,7 +271,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
               fontSize: '36px',
               lineHeight: '44px',
               letterSpacing: '-1px',
-              color: '#171717',
+              color: 'hsl(var(--foreground))',
             }}
           >
             Appointments
@@ -362,7 +362,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
               </Select>
             </div>
             <div className="relative">
-              <Icon icon={Search} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-900" />
+              <Icon icon={Search} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground" />
               <Input
                 placeholder="Search appointments..."
                 value={searchQuery}
@@ -537,12 +537,12 @@ function AppointmentsTable({
                 <div className="flex items-center gap-2.5">
                   <div
                     className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: '#BFDBFE' }}
+                    style={{ backgroundColor: 'hsl(var(--primary) / 0.2)' }}
                   >
                     {appt.type === 'doctor' ? (
-                      <Icon icon={Stethoscope} className="h-5 w-5" style={{ color: '#1E40AF' }} />
+                      <Icon icon={Stethoscope} className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />
                     ) : (
-                      <Icon icon={TestTube2} className="h-5 w-5" style={{ color: '#1E40AF' }} />
+                      <Icon icon={TestTube2} className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />
                     )}
                   </div>
                   <div>
@@ -574,7 +574,7 @@ function AppointmentsTable({
 
       {/* Table Footer */}
       {appointments.length > 0 && (
-        <div className="flex items-center justify-between px-6 py-4 border-t border-[#E5E5E5]">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-border">
           <p className="text-[14px] text-muted-foreground">
             Showing {appointments.length} {appointments.length === 1 ? 'appointment' : 'appointments'}
           </p>
@@ -588,10 +588,10 @@ function AppointmentsTable({
 
 function PaymentStatusTag({ status }: { status: string }) {
   const config: Record<string, { label: string; color: string }> = {
-    paid: { label: 'Paid', color: 'text-green-600' },
-    pending: { label: 'Pending', color: 'text-amber-600' },
-    partially_refunded: { label: 'Partially refunded', color: 'text-amber-600' },
-    fully_refunded: { label: 'Refunded', color: 'text-red-600' },
+    paid: { label: 'Paid', color: 'text-success' },
+    pending: { label: 'Pending', color: 'text-warning' },
+    partially_refunded: { label: 'Partially refunded', color: 'text-warning' },
+    fully_refunded: { label: 'Refunded', color: 'text-destructive' },
   };
 
   const { label, color } = config[status] || { label: status, color: 'text-muted-foreground' };

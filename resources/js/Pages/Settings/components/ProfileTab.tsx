@@ -355,10 +355,10 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                         />
                     </div>
                     <div>
-                        <h2 className="text-[16px] font-semibold leading-5 text-[#171717]">
+                        <h2 className="text-[16px] font-semibold leading-5 text-foreground">
                             {user.name}
                         </h2>
-                        <p className="text-[14px] leading-5 text-[#737373]">{user.email}</p>
+                        <p className="text-[14px] leading-5 text-muted-foreground">{user.email}</p>
                         {avatarPreview && (
                             <button
                                 onClick={handleRemoveAvatar}
@@ -379,8 +379,8 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
             {/* Personal Information - InfoCard Style */}
             <div>
                 <div className="flex items-center gap-2.5 mb-4">
-                    <Icon icon={User} className="h-5 w-5 text-neutral-900" />
-                    <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+                    <Icon icon={User} className="h-5 w-5 text-foreground" />
+                    <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                         Personal information
                     </h2>
                 </div>
@@ -417,8 +417,8 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
             {/* Contact & Address - InfoCard Style */}
             <div>
                 <div className="flex items-center gap-2.5 mb-4">
-                    <Icon icon={Phone} className="h-5 w-5 text-neutral-900" />
-                    <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+                    <Icon icon={Phone} className="h-5 w-5 text-foreground" />
+                    <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                         Contact & address
                     </h2>
                 </div>
@@ -443,8 +443,8 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
             {/* Health Information - InfoCard Style */}
             <div>
                 <div className="flex items-center gap-2.5 mb-4">
-                    <Icon icon={Heart} className="h-5 w-5 text-neutral-900" />
-                    <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+                    <Icon icon={Heart} className="h-5 w-5 text-foreground" />
+                    <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                         Health information
                     </h2>
                 </div>
@@ -485,8 +485,8 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
             {/* Emergency Contact - InfoCard Style */}
             <div>
                 <div className="flex items-center gap-2.5 mb-4">
-                    <Icon icon={Phone} className="h-5 w-5 text-neutral-900" />
-                    <h2 className="font-semibold" style={{ color: '#171717', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+                    <Icon icon={Phone} className="h-5 w-5 text-foreground" />
+                    <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
                         Emergency contact
                     </h2>
                 </div>
@@ -518,11 +518,11 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                     <SheetBody>
                         {/* Personal Details */}
                         <div>
-                            <p className="mb-3 text-[14px] font-medium text-[#737373]">Personal details</p>
+                            <p className="mb-3 text-[14px] font-medium text-muted-foreground">Personal details</p>
                             <div className="space-y-4">
                                 <div>
-                                    <label className="mb-1.5 block text-[14px] font-medium text-gray-700">
-                                        Name <span className="text-red-500">*</span>
+                                    <label className="mb-1.5 block text-[14px] font-medium text-muted-foreground">
+                                        Name <span className="text-destructive">*</span>
                                     </label>
                                     <Input
                                         value={formData.name}
@@ -532,7 +532,7 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                                 </div>
 
                                 <div>
-                                    <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Phone</label>
+                                    <label className="mb-1.5 block text-[14px] font-medium text-muted-foreground">Phone</label>
                                     <PhoneInput
                                         value={formData.phone}
                                         onChange={value => setFormData({ ...formData, phone: value })}
@@ -540,7 +540,7 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                                 </div>
 
                                 <div>
-                                    <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Date of birth</label>
+                                    <label className="mb-1.5 block text-[14px] font-medium text-muted-foreground">Date of birth</label>
                                     <DatePicker
                                         value={formData.date_of_birth}
                                         onChange={(value) => setFormData({ ...formData, date_of_birth: value })}
@@ -550,7 +550,7 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                                 </div>
 
                                 <div>
-                                    <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Gender</label>
+                                    <label className="mb-1.5 block text-[14px] font-medium text-muted-foreground">Gender</label>
                                     <Select
                                         value={formData.gender}
                                         onValueChange={val => setFormData({ ...formData, gender: val })}
@@ -570,10 +570,10 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
 
                         {/* Contact & Address */}
                         <div>
-                            <p className="mb-3 text-[14px] font-medium text-[#737373]">Contact & address</p>
+                            <p className="mb-3 text-[14px] font-medium text-muted-foreground">Contact & address</p>
                             <div className="space-y-4">
                                 <div>
-                                    <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Address line 1</label>
+                                    <label className="mb-1.5 block text-[14px] font-medium text-muted-foreground">Address line 1</label>
                                     <Input
                                         value={formData.address_line_1}
                                         onChange={e => setFormData({ ...formData, address_line_1: e.target.value })}
@@ -581,7 +581,7 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                                     />
                                 </div>
                                 <div>
-                                    <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Address line 2</label>
+                                    <label className="mb-1.5 block text-[14px] font-medium text-muted-foreground">Address line 2</label>
                                     <Input
                                         value={formData.address_line_2}
                                         onChange={e => setFormData({ ...formData, address_line_2: e.target.value })}
@@ -590,7 +590,7 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                                 </div>
                                 <div className="grid grid-cols-3 gap-3">
                                     <div>
-                                        <label className="mb-1.5 block text-[14px] font-medium text-gray-700">State</label>
+                                        <label className="mb-1.5 block text-[14px] font-medium text-muted-foreground">State</label>
                                         <Select value={formData.state} onValueChange={handleStateChange}>
                                             <SelectTrigger className={!formData.state ? 'text-muted-foreground' : ''}>
                                                 <SelectValue placeholder="Select" />
@@ -603,7 +603,7 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                                         </Select>
                                     </div>
                                     <div>
-                                        <label className="mb-1.5 block text-[14px] font-medium text-gray-700">City</label>
+                                        <label className="mb-1.5 block text-[14px] font-medium text-muted-foreground">City</label>
                                         <Select
                                             value={formData.city}
                                             onValueChange={(value: string) => setFormData({ ...formData, city: value })}
@@ -620,7 +620,7 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                                         </Select>
                                     </div>
                                     <div>
-                                        <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Pincode</label>
+                                        <label className="mb-1.5 block text-[14px] font-medium text-muted-foreground">Pincode</label>
                                         <Input
                                             value={formData.pincode}
                                             onChange={e => setFormData({ ...formData, pincode: e.target.value })}
@@ -634,10 +634,10 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
 
                         {/* Health Information */}
                         <div>
-                            <p className="mb-3 text-[14px] font-medium text-[#737373]">Health information</p>
+                            <p className="mb-3 text-[14px] font-medium text-muted-foreground">Health information</p>
                             <div className="space-y-4">
                                 <div>
-                                    <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Blood group</label>
+                                    <label className="mb-1.5 block text-[14px] font-medium text-muted-foreground">Blood group</label>
                                     <Select
                                         value={formData.blood_group}
                                         onValueChange={val => setFormData({ ...formData, blood_group: val })}
@@ -654,7 +654,7 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                                 </div>
 
                                 <div>
-                                    <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Primary doctor</label>
+                                    <label className="mb-1.5 block text-[14px] font-medium text-muted-foreground">Primary doctor</label>
                                     <Select
                                         value={formData.primary_doctor_id}
                                         onValueChange={val => setFormData({ ...formData, primary_doctor_id: val })}
@@ -673,7 +673,7 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                                 </div>
 
                                 <div>
-                                    <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Medical conditions</label>
+                                    <label className="mb-1.5 block text-[14px] font-medium text-muted-foreground">Medical conditions</label>
                                     <TagInput
                                         value={formData.medical_conditions}
                                         onChange={tags => setFormData({ ...formData, medical_conditions: tags })}
@@ -682,7 +682,7 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                                 </div>
 
                                 <div>
-                                    <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Allergies</label>
+                                    <label className="mb-1.5 block text-[14px] font-medium text-muted-foreground">Allergies</label>
                                     <TagInput
                                         value={formData.allergies}
                                         onChange={tags => setFormData({ ...formData, allergies: tags })}
@@ -695,10 +695,10 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
 
                         {/* Emergency Contact */}
                         <div>
-                            <p className="mb-3 text-[14px] font-medium text-[#737373]">Emergency contact</p>
+                            <p className="mb-3 text-[14px] font-medium text-muted-foreground">Emergency contact</p>
                             <div className="space-y-4">
                                 <div>
-                                    <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Name</label>
+                                    <label className="mb-1.5 block text-[14px] font-medium text-muted-foreground">Name</label>
                                     <Input
                                         value={formData.emergency_contact_name}
                                         onChange={e => setFormData({ ...formData, emergency_contact_name: e.target.value })}
@@ -706,7 +706,7 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                                     />
                                 </div>
                                 <div>
-                                    <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Relationship</label>
+                                    <label className="mb-1.5 block text-[14px] font-medium text-muted-foreground">Relationship</label>
                                     <Input
                                         value={formData.emergency_contact_relation}
                                         onChange={e => setFormData({ ...formData, emergency_contact_relation: e.target.value })}
@@ -714,7 +714,7 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                                     />
                                 </div>
                                 <div>
-                                    <label className="mb-1.5 block text-[14px] font-medium text-gray-700">Phone</label>
+                                    <label className="mb-1.5 block text-[14px] font-medium text-muted-foreground">Phone</label>
                                     <PhoneInput
                                         value={formData.emergency_contact_phone}
                                         onChange={value => setFormData({ ...formData, emergency_contact_phone: value })}

@@ -31,7 +31,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
             <Head title="Reset Password" />
 
             <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold" style={{ color: '#00184D' }}>
+                <h1 className="text-2xl font-bold text-foreground">
                     Reset your password
                 </h1>
                 <p className="text-[14px] text-muted-foreground mt-1">
@@ -48,10 +48,10 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                         value={data.email}
                         onChange={(e) => setData('email', e.target.value)}
                         autoComplete="username"
-                        className={errors.email ? 'border-red-500' : ''}
+                        className={errors.email ? 'border-destructive' : ''}
                     />
                     {errors.email && (
-                        <p className="text-[14px] text-red-600">{errors.email}</p>
+                        <p className="text-[14px] text-destructive">{errors.email}</p>
                     )}
                 </div>
 
@@ -64,10 +64,10 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                         onChange={(e) => setData('password', e.target.value)}
                         autoComplete="new-password"
                         autoFocus
-                        className={errors.password ? 'border-red-500' : ''}
+                        className={errors.password ? 'border-destructive' : ''}
                     />
                     {errors.password && (
-                        <p className="text-[14px] text-red-600">{errors.password}</p>
+                        <p className="text-[14px] text-destructive">{errors.password}</p>
                     )}
                 </div>
 
@@ -79,10 +79,10 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                         value={data.password_confirmation}
                         onChange={(e) => setData('password_confirmation', e.target.value)}
                         autoComplete="new-password"
-                        className={errors.password_confirmation ? 'border-red-500' : ''}
+                        className={errors.password_confirmation ? 'border-destructive' : ''}
                     />
                     {errors.password_confirmation && (
-                        <p className="text-[14px] text-red-600">{errors.password_confirmation}</p>
+                        <p className="text-[14px] text-destructive">{errors.password_confirmation}</p>
                     )}
                 </div>
 

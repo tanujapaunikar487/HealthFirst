@@ -230,7 +230,7 @@ function DashboardSkeleton() {
                 style={{
                   width: '738px',
                   padding: '16px',
-                  borderBottom: i === 2 ? 'none' : '1px solid #E5E5E5',
+                  borderBottom: i === 2 ? 'none' : '1px solid hsl(var(--border))',
                   display: 'flex',
                   flexDirection: 'row',
                   alignItems: 'center',
@@ -258,11 +258,11 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="w-full max-w-[800px] mx-auto" style={{ minHeight: '720px' }}>
       <div className="flex flex-col items-center justify-center gap-4 py-32">
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
-          <Icon icon={AlertCircle} className="h-7 w-7 text-gray-400" />
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+          <Icon icon={AlertCircle} className="h-7 w-7 text-muted-foreground" />
         </div>
-        <p className="text-[14px] font-medium text-gray-600">Unable to load dashboard</p>
-        <p className="text-[14px] text-gray-400">Please check your connection and try again.</p>
+        <p className="text-[14px] font-medium text-muted-foreground">Unable to load dashboard</p>
+        <p className="text-[14px] text-muted-foreground">Please check your connection and try again.</p>
         <Button variant="outline" className="mt-2" onClick={onRetry}>
           <Icon icon={RefreshCw} className="h-4 w-4" />
           Try Again
@@ -297,18 +297,18 @@ interface DashboardCardProps {
 }
 
 const cardConfig: Record<CardType, { icon: typeof Receipt; iconColor: string; iconBg: string }> = {
-  overdue_bill: { icon: Receipt, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
-  health_alert: { icon: AlertCircle, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
-  appointment_today: { icon: Stethoscope, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
-  appointment_upcoming: { icon: Calendar, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
-  payment_due_soon: { icon: CreditCard, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
-  emi_due: { icon: CreditCard, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
-  insurance_claim_update: { icon: Shield, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
+  overdue_bill: { icon: Receipt, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
+  health_alert: { icon: AlertCircle, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
+  appointment_today: { icon: Stethoscope, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
+  appointment_upcoming: { icon: Calendar, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
+  payment_due_soon: { icon: CreditCard, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
+  emi_due: { icon: CreditCard, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
+  insurance_claim_update: { icon: Shield, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
 
-  followup_due: { icon: RotateCcw, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
-  pre_appointment_reminder: { icon: Calendar, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
-  new_results_ready: { icon: CheckCircle2, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
-  vaccination_due: { icon: Syringe, iconColor: '#1E40AF', iconBg: '#BFDBFE' },
+  followup_due: { icon: RotateCcw, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
+  pre_appointment_reminder: { icon: Calendar, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
+  new_results_ready: { icon: CheckCircle2, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
+  vaccination_due: { icon: Syringe, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
 };
 
 function DashboardCard({
@@ -322,7 +322,7 @@ function DashboardCard({
     <div
       style={{
         padding: '16px',
-        borderBottom: isLast ? 'none' : '1px solid #E5E5E5',
+        borderBottom: isLast ? 'none' : '1px solid hsl(var(--border))',
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'flex-start',
@@ -350,7 +350,7 @@ function DashboardCard({
           >
             {patientInitials}
           </div>
-          <span className="text-[14px] font-medium" style={{ color: '#737373' }}>{patientName}</span>
+          <span className="text-[14px] font-medium" style={{ color: 'hsl(var(--muted-foreground))' }}>{patientName}</span>
           {badge && (
             <span
               className="text-[14px] font-medium px-2 py-0.5 rounded-full"
@@ -362,12 +362,12 @@ function DashboardCard({
         </div>
         {/* Title */}
         <h3
-          className="text-[14px] font-semibold leading-5 text-[#171717] truncate"
+          className="text-[14px] font-semibold leading-5 text-foreground truncate"
         >
           {title}
         </h3>
         {/* Subtitle */}
-        <p className="text-[14px] font-normal leading-5 text-[#737373]">{subtitle}</p>
+        <p className="text-[14px] font-normal leading-5 text-muted-foreground">{subtitle}</p>
       </div>
 
       {/* Action button */}
@@ -383,11 +383,11 @@ function DashboardCard({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className="flex items-center justify-center flex-shrink-0 rounded-full hover:bg-gray-100 transition-colors"
+            className="flex items-center justify-center flex-shrink-0 rounded-full hover:bg-accent transition-colors"
             style={{ width: '32px', height: '32px' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <Icon icon={MoreHorizontal} className="h-4 w-4" style={{ color: '#737373' }} />
+            <Icon icon={MoreHorizontal} className="h-4 w-4" style={{ color: 'hsl(var(--muted-foreground))' }} />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
@@ -395,7 +395,7 @@ function DashboardCard({
             <DropdownMenuItem
               key={i}
               onClick={item.onClick}
-              className={item.destructive ? 'text-red-600 focus:text-red-600' : ''}
+              className={item.destructive ? 'text-destructive focus:text-destructive' : ''}
             >
               {item.label}
             </DropdownMenuItem>
@@ -1040,10 +1040,10 @@ export default function Dashboard({
         {/* Page Header */}
         <div style={{ display: 'flex', flexDirection: 'row', width: '100%', height: '68px', gap: '12px', alignItems: 'flex-start' }}>
           <div style={{ display: 'flex', flexDirection: 'column', width: '485px', height: '68px', gap: '4px', flexGrow: 1 }}>
-            <h1 className="font-bold" style={{ fontSize: '36px', lineHeight: '44px', letterSpacing: '-1px', color: '#171717', margin: 0, width: '384px', height: '44px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <h1 className="font-bold" style={{ fontSize: '36px', lineHeight: '44px', letterSpacing: '-1px', color: 'hsl(var(--foreground))', margin: 0, width: '384px', height: '44px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               Hi, {firstName}
             </h1>
-            <p className="font-normal" style={{ fontSize: '14px', fontWeight: 400, lineHeight: '20px', letterSpacing: '0px', color: '#737373', margin: 0, width: '100%', height: '20px', display: 'flex', alignItems: 'center' }}>
+            <p className="font-normal" style={{ fontSize: '14px', fontWeight: 400, lineHeight: '20px', letterSpacing: '0px', color: 'hsl(var(--muted-foreground))', margin: 0, width: '100%', height: '20px', display: 'flex', alignItems: 'center' }}>
               {formattedDate}
             </p>
           </div>
@@ -1064,7 +1064,7 @@ export default function Dashboard({
             {/* Up next section */}
             {hasUpNextItems && (
               <div className="w-full" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: '#171717' }}>
+                <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: 'hsl(var(--foreground))' }}>
                   Up next
                 </h2>
                 <Card className="overflow-hidden w-full">
@@ -1074,10 +1074,10 @@ export default function Dashboard({
                     {/* View all button inside card */}
                     {upNextCards.length > 3 && (
                       <div
-                        className="px-6 py-4 border-t border-[#E5E5E5] flex justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+                        className="px-6 py-4 border-t border-border flex justify-center cursor-pointer hover:bg-accent transition-colors"
                         onClick={() => setUpNextExpanded(!upNextExpanded)}
                       >
-                        <span className="text-[14px] font-medium text-blue-600">
+                        <span className="text-[14px] font-medium text-primary">
                           {upNextExpanded ? 'Show less' : `View all ${upNextCards.length}`}
                         </span>
                       </div>
@@ -1090,7 +1090,7 @@ export default function Dashboard({
             {/* Later this week section */}
             {hasLaterItems && (
               <div className="w-full" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: '#171717' }}>
+                <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: 'hsl(var(--foreground))' }}>
                   Later this week
                 </h2>
                 <Card className="overflow-hidden w-full">
@@ -1100,10 +1100,10 @@ export default function Dashboard({
                     {/* View all button inside card */}
                     {laterCards.length > 3 && (
                       <div
-                        className="px-6 py-4 border-t border-[#E5E5E5] flex justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+                        className="px-6 py-4 border-t border-border flex justify-center cursor-pointer hover:bg-accent transition-colors"
                         onClick={() => setLaterExpanded(!laterExpanded)}
                       >
-                        <span className="text-[14px] font-medium text-blue-600">
+                        <span className="text-[14px] font-medium text-primary">
                           {laterExpanded ? 'Show less' : `View all ${laterCards.length}`}
                         </span>
                       </div>
@@ -1134,7 +1134,7 @@ export default function Dashboard({
             {upcomingAppointments.length > 0 && (
               <div className="w-full" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 <div className="flex items-center gap-3">
-                  <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: '#171717' }}>
+                  <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: 'hsl(var(--foreground))' }}>
                     Up next
                   </h2>
                 </div>
@@ -1164,7 +1164,7 @@ export default function Dashboard({
             {/* Profile completion steps */}
             <div className="w-full" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div className="flex items-center gap-3">
-                <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: '#171717' }}>
+                <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: 'hsl(var(--foreground))' }}>
                   Complete your profile
                 </h2>
                 <span className="text-[14px] font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: '#EEF0F3', color: '#525252' }}>
@@ -1347,11 +1347,11 @@ interface ProfileStepItemProps {
 function ProfileStepItem({ step, isLast }: ProfileStepItemProps) {
   const content = (
     <div
-      className={`transition-colors duration-300 w-full ${step.completed ? '' : 'hover:bg-[#F7F8F9]'}`}
+      className={`transition-colors duration-300 w-full ${step.completed ? '' : 'hover:bg-accent'}`}
       style={{
-        backgroundColor: step.completed ? '#F0FDF4' : '#FFFFFF',
+        backgroundColor: step.completed ? 'hsl(var(--success) / 0.1)' : 'hsl(var(--background))',
         padding: '16px',
-        borderBottom: isLast ? 'none' : '1px solid #E5E5E5',
+        borderBottom: isLast ? 'none' : '1px solid hsl(var(--border))',
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
@@ -1366,24 +1366,24 @@ function ProfileStepItem({ step, isLast }: ProfileStepItemProps) {
             backgroundColor: '#DCFCE7', animation: 'checkmark-pop 0.3s ease-out',
           }}
         >
-          <Icon icon={Check} className="h-5 w-5" style={{ color: '#16A34A' }} />
+          <Icon icon={Check} className="h-5 w-5" style={{ color: 'hsl(var(--success))' }} />
         </div>
       ) : (
         <div
           className="flex items-center justify-center flex-shrink-0"
           style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: '#EEF0F3' }}
         >
-          <span className="font-semibold" style={{ fontSize: '14px', fontWeight: 600, lineHeight: '22px', color: '#737373' }}>
+          <span className="font-semibold" style={{ fontSize: '14px', fontWeight: 600, lineHeight: '22px', color: 'hsl(var(--muted-foreground))' }}>
             {step.number}
           </span>
         </div>
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flexGrow: 1 }}>
-        <h3 className="text-[14px] font-semibold leading-5 text-[#171717] truncate">
+        <h3 className="text-[14px] font-semibold leading-5 text-foreground truncate">
           {step.title}
         </h3>
-        <p className="text-[14px] font-normal leading-5 text-[#737373] truncate">
+        <p className="text-[14px] font-normal leading-5 text-muted-foreground truncate">
           {step.subtitle}
         </p>
       </div>
@@ -1391,9 +1391,9 @@ function ProfileStepItem({ step, isLast }: ProfileStepItemProps) {
       {!step.completed && (
         <div
           className="flex items-center justify-center flex-shrink-0"
-          style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: '#EEF0F3', border: '1px solid #DEE1E7' }}
+          style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: 'hsl(var(--secondary))', border: '1px solid hsl(var(--border))' }}
         >
-          <Icon icon={ChevronRight} className="h-5 w-5" style={{ color: '#00184D' }} strokeWidth={1.25} />
+          <Icon icon={ChevronRight} className="h-5 w-5" style={{ color: 'hsl(var(--foreground))' }} strokeWidth={1.25} />
         </div>
       )}
     </div>

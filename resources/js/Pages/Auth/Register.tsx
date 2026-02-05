@@ -36,7 +36,7 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
             <Head title="Sign Up" />
 
             <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold" style={{ color: '#00184D' }}>
+                <h1 className="text-2xl font-bold text-foreground">
                     Create your account
                 </h1>
                 <p className="text-[14px] text-muted-foreground mt-1">
@@ -45,7 +45,7 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
             </div>
 
             {flash?.error && (
-                <div className="mb-4 text-[14px] font-medium text-red-600 bg-red-50 p-3 rounded-lg">
+                <div className="mb-4 text-[14px] font-medium text-destructive bg-destructive/10 p-3 rounded-lg">
                     {flash.error}
                 </div>
             )}
@@ -59,10 +59,10 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
                         onChange={(e) => setData('name', e.target.value)}
                         autoComplete="name"
                         autoFocus
-                        className={errors.name ? 'border-red-500' : ''}
+                        className={errors.name ? 'border-destructive' : ''}
                     />
                     {errors.name && (
-                        <p className="text-[14px] text-red-600">{errors.name}</p>
+                        <p className="text-[14px] text-destructive">{errors.name}</p>
                     )}
                 </div>
 
@@ -74,10 +74,10 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
                         value={data.email}
                         onChange={(e) => setData('email', e.target.value)}
                         autoComplete="username"
-                        className={errors.email ? 'border-red-500' : ''}
+                        className={errors.email ? 'border-destructive' : ''}
                     />
                     {errors.email && (
-                        <p className="text-[14px] text-red-600">{errors.email}</p>
+                        <p className="text-[14px] text-destructive">{errors.email}</p>
                     )}
                 </div>
 
@@ -89,10 +89,10 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
                         value={data.password}
                         onChange={(e) => setData('password', e.target.value)}
                         autoComplete="new-password"
-                        className={errors.password ? 'border-red-500' : ''}
+                        className={errors.password ? 'border-destructive' : ''}
                     />
                     {errors.password && (
-                        <p className="text-[14px] text-red-600">{errors.password}</p>
+                        <p className="text-[14px] text-destructive">{errors.password}</p>
                     )}
                 </div>
 
@@ -104,10 +104,10 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
                         value={data.password_confirmation}
                         onChange={(e) => setData('password_confirmation', e.target.value)}
                         autoComplete="new-password"
-                        className={errors.password_confirmation ? 'border-red-500' : ''}
+                        className={errors.password_confirmation ? 'border-destructive' : ''}
                     />
                     {errors.password_confirmation && (
-                        <p className="text-[14px] text-red-600">{errors.password_confirmation}</p>
+                        <p className="text-[14px] text-destructive">{errors.password_confirmation}</p>
                     )}
                 </div>
 
@@ -124,7 +124,7 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
 
                 <p className="text-center text-[14px] text-muted-foreground">
                     Already have an account?{' '}
-                    <Link href={route('login')} className="text-blue-600 hover:underline">
+                    <Link href={route('login')} className="text-primary hover:underline">
                         Sign in
                     </Link>
                 </p>

@@ -208,7 +208,7 @@ export default function ConcernsStep({
                   <div
                     className={cn(
                       'w-3 h-3 rounded-full flex-shrink-0',
-                      dotColors[option.value] || 'bg-gray-400'
+                      dotColors[option.value] || 'bg-muted-foreground'
                     )}
                   />
                   <div className="flex-1">

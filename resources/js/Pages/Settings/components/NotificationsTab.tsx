@@ -38,7 +38,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
         <h3
             className="font-semibold"
             style={{
-                color: '#171717',
+                color: 'hsl(var(--foreground))',
                 fontSize: '20px',
                 lineHeight: '28px',
                 letterSpacing: '0',
@@ -103,7 +103,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                         <div className="flex items-center justify-between px-6 py-4">
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Mail className="h-5 w-5 text-neutral-900" />
+                                    <Mail className="h-5 w-5 text-foreground" />
                                 </div>
                                 <div>
                                     <CardTitle>Email</CardTitle>
@@ -120,7 +120,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                         <div className="flex items-center justify-between px-6 py-4">
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <MessageSquare className="h-5 w-5 text-neutral-900" />
+                                    <MessageSquare className="h-5 w-5 text-foreground" />
                                 </div>
                                 <div>
                                     <CardTitle>WhatsApp</CardTitle>
@@ -137,7 +137,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                         <div className="flex items-center justify-between px-6 py-4">
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Phone className="h-5 w-5 text-neutral-900" />
+                                    <Phone className="h-5 w-5 text-foreground" />
                                 </div>
                                 <div>
                                     <CardTitle>SMS</CardTitle>

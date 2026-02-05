@@ -331,26 +331,26 @@ interface Props {
 
 const categoryConfig: Record<string, { label: string; icon: React.ComponentType<any>; color: string; bg: string }> = {
   // Reports
-  lab_report:         { label: 'Lab Report',   icon: TestTube2,      color: '#1E40AF', bg: '#BFDBFE' },
-  xray_report:        { label: 'X-Ray',        icon: ScanLine,       color: '#1E40AF', bg: '#BFDBFE' },
-  mri_report:         { label: 'MRI',          icon: BrainCircuit,   color: '#1E40AF', bg: '#BFDBFE' },
-  ultrasound_report:  { label: 'Ultrasound',   icon: Radio,          color: '#1E40AF', bg: '#BFDBFE' },
-  ecg_report:         { label: 'ECG',          icon: HeartPulse,     color: '#1E40AF', bg: '#BFDBFE' },
-  pathology_report:   { label: 'Pathology',    icon: Microscope,     color: '#1E40AF', bg: '#BFDBFE' },
-  pft_report:         { label: 'PFT',          icon: Wind,           color: '#1E40AF', bg: '#BFDBFE' },
-  other_report:       { label: 'Other Report', icon: ClipboardList,  color: '#1E40AF', bg: '#BFDBFE' },
+  lab_report:         { label: 'Lab Report',   icon: TestTube2,      color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  xray_report:        { label: 'X-Ray',        icon: ScanLine,       color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  mri_report:         { label: 'MRI',          icon: BrainCircuit,   color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  ultrasound_report:  { label: 'Ultrasound',   icon: Radio,          color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  ecg_report:         { label: 'ECG',          icon: HeartPulse,     color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  pathology_report:   { label: 'Pathology',    icon: Microscope,     color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  pft_report:         { label: 'PFT',          icon: Wind,           color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  other_report:       { label: 'Other Report', icon: ClipboardList,  color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
   // Visits
-  consultation_notes: { label: 'Consultation', icon: Stethoscope,    color: '#1E40AF', bg: '#BFDBFE' },
-  procedure_notes:    { label: 'Procedure',    icon: Syringe,        color: '#1E40AF', bg: '#BFDBFE' },
-  discharge_summary:  { label: 'Discharge',    icon: FileText,       color: '#1E40AF', bg: '#BFDBFE' },
-  er_visit:           { label: 'ER Visit',     icon: Ambulance,      color: '#1E40AF', bg: '#BFDBFE' },
-  referral:           { label: 'Referral',     icon: UserPlus,       color: '#1E40AF', bg: '#BFDBFE' },
-  other_visit:        { label: 'Other Visit',  icon: ClipboardCheck, color: '#1E40AF', bg: '#BFDBFE' },
+  consultation_notes: { label: 'Consultation', icon: Stethoscope,    color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  procedure_notes:    { label: 'Procedure',    icon: Syringe,        color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  discharge_summary:  { label: 'Discharge',    icon: FileText,       color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  er_visit:           { label: 'ER Visit',     icon: Ambulance,      color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  referral:           { label: 'Referral',     icon: UserPlus,       color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  other_visit:        { label: 'Other Visit',  icon: ClipboardCheck, color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
   // Prescriptions
-  prescription:       { label: 'Prescription', icon: Pill,           color: '#1E40AF', bg: '#BFDBFE' },
+  prescription:       { label: 'Prescription', icon: Pill,           color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
   // Documents
-  vaccination:        { label: 'Vaccination',  icon: Syringe,        color: '#1E40AF', bg: '#BFDBFE' },
-  medical_certificate:{ label: 'Certificate',  icon: Award,          color: '#1E40AF', bg: '#BFDBFE' },
+  vaccination:        { label: 'Vaccination',  icon: Syringe,        color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  medical_certificate:{ label: 'Certificate',  icon: Award,          color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
 };
 
 const typeGroups: Record<string, string[]> = {
@@ -363,7 +363,7 @@ const typeGroups: Record<string, string[]> = {
 const RECORDS_PER_PAGE = 10;
 
 function CategoryIcon({ category, size = 'md' }: { category: string; size?: 'sm' | 'md' }) {
-  const config = categoryConfig[category] || { icon: FileText, color: '#6B7280', bg: '#F3F4F6' };
+  const config = categoryConfig[category] || { icon: FileText, color: 'hsl(var(--muted-foreground))', bg: 'hsl(var(--secondary))' };
   const Icon = config.icon;
   const dim = size === 'sm' ? 'h-10 w-10' : 'h-10 w-10';
   const iconDim = size === 'sm' ? 'h-5 w-5' : 'h-[18px] w-[18px]';
@@ -702,7 +702,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
           <div>
             <h1
               className="font-bold"
-              style={{ fontSize: '36px', lineHeight: '44px', letterSpacing: '-1px', color: '#171717' }}
+              style={{ fontSize: '36px', lineHeight: '44px', letterSpacing: '-1px', color: 'hsl(var(--foreground))' }}
             >
               Health Records
             </h1>
@@ -810,7 +810,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
             )}
 
             <div className="relative ml-auto">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-900" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground" />
               <Input
                 placeholder="Search records..."
                 value={searchQuery}
@@ -887,7 +887,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                 </TableHeader>
                 <TableBody>
                   {paginatedRecords.map((record) => {
-                    const config = categoryConfig[record.category] || { label: record.category, color: '#6B7280', bg: '#F3F4F6' };
+                    const config = categoryConfig[record.category] || { label: record.category, color: 'hsl(var(--muted-foreground))', bg: 'hsl(var(--secondary))' };
                     const member = record.family_member_id ? memberMap[record.family_member_id] : undefined;
                     const isSelected = selectedIds.has(record.id);
 
@@ -937,7 +937,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
               </Table>
 
               {/* Pagination Footer */}
-              <div className="flex items-center justify-between px-6 py-4 border-t border-[#E5E5E5]">
+              <div className="flex items-center justify-between px-6 py-4 border-t border-border">
                 <p className="text-[14px] text-muted-foreground">
                   Showing {startIdx + 1}–{Math.min(startIdx + RECORDS_PER_PAGE, filteredRecords.length)} of {filteredRecords.length} records
                 </p>

@@ -23,7 +23,7 @@ export default function ConfirmPassword() {
             <Head title="Confirm Password" />
 
             <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold" style={{ color: '#00184D' }}>
+                <h1 className="text-2xl font-bold text-foreground">
                     Confirm your password
                 </h1>
                 <p className="text-[14px] text-muted-foreground mt-1">
@@ -40,10 +40,10 @@ export default function ConfirmPassword() {
                         value={data.password}
                         onChange={(e) => setData('password', e.target.value)}
                         autoFocus
-                        className={errors.password ? 'border-red-500' : ''}
+                        className={errors.password ? 'border-destructive' : ''}
                     />
                     {errors.password && (
-                        <p className="text-[14px] text-red-600">{errors.password}</p>
+                        <p className="text-[14px] text-destructive">{errors.password}</p>
                     )}
                 </div>
 

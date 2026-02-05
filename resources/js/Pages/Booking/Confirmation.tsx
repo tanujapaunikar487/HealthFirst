@@ -79,7 +79,7 @@ export default function Confirmation({ booking, calendarPreference }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-b from-primary/10 to-white flex items-center justify-center p-6">
       <div className="w-full max-w-md space-y-6">
         {/* Success icon */}
         <div className="flex justify-center">
@@ -118,9 +118,9 @@ export default function Confirmation({ booking, calendarPreference }: Props) {
         </Card>
 
         {/* What's next box */}
-        <div className="bg-blue-50 rounded-xl p-4">
+        <div className="bg-primary/10 rounded-xl p-4">
           <div className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+            <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
               <Icon icon={Info} className="w-3.5 h-3.5 text-white" />
             </div>
             <div className="flex-1">
