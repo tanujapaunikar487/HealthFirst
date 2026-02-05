@@ -196,10 +196,10 @@ export function PreferencesTab({
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
+                                    <SelectItem value="DD Mon YYYY">DD Mon YYYY</SelectItem>
                                     <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
                                     <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
                                     <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
-                                    <SelectItem value="DD Mon YYYY">DD Mon YYYY</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

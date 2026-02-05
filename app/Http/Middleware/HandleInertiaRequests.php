@@ -63,7 +63,7 @@ class HandleInertiaRequests extends Middleware
             'toast' => fn () => $request->session()->get('toast'),
             'userPreferences' => $user ? $user->getSetting('preferences', [
                 'language' => 'en',
-                'date_format' => 'DD/MM/YYYY',
+                'date_format' => 'DD Mon YYYY',
                 'time_format' => '12h',
                 'accessibility' => ['text_size' => 14, 'high_contrast' => false],
             ]) : null,

@@ -67,7 +67,7 @@ class SettingsController extends Controller
             ]),
             'preferences' => $user->getSetting('preferences', [
                 'language' => 'en',
-                'date_format' => 'DD/MM/YYYY',
+                'date_format' => 'DD Mon YYYY',
                 'time_format' => '12h',
                 'accessibility' => ['text_size' => 14, 'high_contrast' => false],
             ]),
@@ -427,7 +427,7 @@ class SettingsController extends Controller
     /**
      * Change user password (Step 2 of password change).
      */
-    public function changePassword(Request $request): RedirectResponse
+    public function changePassword(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'current_password' => ['required', 'current_password'],
@@ -440,7 +440,7 @@ class SettingsController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        return back()->with('success', 'Password changed successfully.');
+        return response()->json(['success' => true]);
     }
 
     /**

@@ -1,19 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Eye, EyeOff, Check, AlertCircle, Loader2 } from '@/Lib/icons';
+import { Eye, EyeOff, Check, AlertCircle, Loader2, ArrowLeft } from '@/Lib/icons';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import {
-    Sheet,
-    SheetContent,
-    SheetBody,
-    SheetFooter,
-    SheetHeader,
-    SheetTitle,
-    SheetDescription,
-} from '@/Components/ui/sheet';
+    Dialog,
+    DialogContent,
+    DialogBody,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from '@/Components/ui/dialog';
 
-interface PasswordSheetProps {
+interface PasswordModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
@@ -50,7 +50,7 @@ function calculateStrength(password: string): PasswordStrength {
     };
 }
 
-export function PasswordSheet({ open, onOpenChange }: PasswordSheetProps) {
+export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
     const [step, setStep] = useState<Step>('verify');
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
@@ -65,7 +65,7 @@ export function PasswordSheet({ open, onOpenChange }: PasswordSheetProps) {
     const passwordsMatch = newPassword === confirmPassword && newPassword.length > 0;
     const canCreate = strength.score >= 2 && passwordsMatch;
 
-    // Reset state when sheet closes
+    // Reset state when dialog closes
     useEffect(() => {
         if (!open) {
             setTimeout(() => {
@@ -77,7 +77,7 @@ export function PasswordSheet({ open, onOpenChange }: PasswordSheetProps) {
                 setShowCurrentPassword(false);
                 setShowNewPassword(false);
                 setShowConfirmPassword(false);
-            }, 300);
+            }, 200);
         }
     }, [open]);
 
@@ -100,18 +100,19 @@ export function PasswordSheet({ open, onOpenChange }: PasswordSheetProps) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN':
                         document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                 },
-                body: JSON.stringify({ password: currentPassword }),
+                body: JSON.stringify({ current_password: currentPassword }),
             });
 
             const data = await response.json();
 
-            if (data.verified) {
+            if (data.valid) {
                 setStep('create');
             } else {
-                setError('Incorrect password. Please try again.');
+                setError(data.message || 'Incorrect password. Please try again.');
             }
         } catch {
             setError('Something went wrong. Please try again.');
@@ -129,6 +130,7 @@ export function PasswordSheet({ open, onOpenChange }: PasswordSheetProps) {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN':
                         document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                 },
@@ -139,10 +141,11 @@ export function PasswordSheet({ open, onOpenChange }: PasswordSheetProps) {
                 }),
             });
 
+            const data = await response.json();
+
             if (response.ok) {
                 setStep('success');
             } else {
-                const data = await response.json();
                 setError(data.message || 'Failed to change password.');
             }
         } catch {
@@ -153,16 +156,16 @@ export function PasswordSheet({ open, onOpenChange }: PasswordSheetProps) {
     };
 
     return (
-        <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-md">
                 {step === 'verify' && (
                     <>
-                        <SheetHeader>
-                            <SheetTitle>Verify your identity</SheetTitle>
-                            <SheetDescription className="sr-only">Verify your identity to change password</SheetDescription>
-                        </SheetHeader>
+                        <DialogHeader>
+                            <DialogTitle>Verify your identity</DialogTitle>
+                            <DialogDescription className="sr-only">Verify your identity to change password</DialogDescription>
+                        </DialogHeader>
 
-                        <SheetBody>
+                        <DialogBody>
                             <div className="space-y-4">
                                 <p className="text-[14px] text-muted-foreground">
                                     Enter your current password to continue
@@ -200,9 +203,9 @@ export function PasswordSheet({ open, onOpenChange }: PasswordSheetProps) {
                                     </div>
                                 </div>
                             </div>
-                        </SheetBody>
+                        </DialogBody>
 
-                        <SheetFooter>
+                        <DialogFooter>
                             <Button
                                 onClick={handleVerify}
                                 disabled={!currentPassword || loading}
@@ -217,18 +220,18 @@ export function PasswordSheet({ open, onOpenChange }: PasswordSheetProps) {
                                     'Continue'
                                 )}
                             </Button>
-                        </SheetFooter>
+                        </DialogFooter>
                     </>
                 )}
 
                 {step === 'create' && (
                     <>
-                        <SheetHeader onBack={() => setStep('verify')}>
-                            <SheetTitle>Create new password</SheetTitle>
-                            <SheetDescription className="sr-only">Create a new password for your account</SheetDescription>
-                        </SheetHeader>
+                        <DialogHeader>
+                            <DialogTitle>Create new password</DialogTitle>
+                            <DialogDescription className="sr-only">Create a new password for your account</DialogDescription>
+                        </DialogHeader>
 
-                        <SheetBody>
+                        <DialogBody>
                             <div className="space-y-4">
                                 <p className="text-[14px] text-muted-foreground">
                                     Choose a strong password with at least 8 characters
@@ -319,9 +322,16 @@ export function PasswordSheet({ open, onOpenChange }: PasswordSheetProps) {
                                     )}
                                 </div>
                             </div>
-                        </SheetBody>
+                        </DialogBody>
 
-                        <SheetFooter>
+                        <DialogFooter>
+                            <Button
+                                variant="outline"
+                                onClick={() => setStep('verify')}
+                                icon={ArrowLeft}
+                            >
+                                Back
+                            </Button>
                             <Button
                                 onClick={handleChangePassword}
                                 disabled={!canCreate || loading}
@@ -336,17 +346,17 @@ export function PasswordSheet({ open, onOpenChange }: PasswordSheetProps) {
                                     'Change password'
                                 )}
                             </Button>
-                        </SheetFooter>
+                        </DialogFooter>
                     </>
                 )}
 
                 {step === 'success' && (
                     <>
-                        <SheetHeader>
-                            <SheetTitle>Password changed</SheetTitle>
-                            <SheetDescription className="sr-only">Password changed successfully</SheetDescription>
-                        </SheetHeader>
-                        <SheetBody>
+                        <DialogHeader>
+                            <DialogTitle>Password changed</DialogTitle>
+                            <DialogDescription className="sr-only">Password changed successfully</DialogDescription>
+                        </DialogHeader>
+                        <DialogBody>
                             <div className="py-8 text-center space-y-4">
                                 <div className="mx-auto h-16 w-16 rounded-full bg-success/10 flex items-center justify-center">
                                     <Check className="h-8 w-8 text-success" />
@@ -358,10 +368,10 @@ export function PasswordSheet({ open, onOpenChange }: PasswordSheetProps) {
                                     </p>
                                 </div>
                             </div>
-                        </SheetBody>
+                        </DialogBody>
                     </>
                 )}
-            </SheetContent>
-        </Sheet>
+            </DialogContent>
+        </Dialog>
     );
 }

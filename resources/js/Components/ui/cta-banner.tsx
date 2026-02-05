@@ -36,7 +36,7 @@ const CtaBanner = React.forwardRef<HTMLDivElement, CtaBannerProps>(
       onButtonClick,
       imageSrc,
       imageAlt,
-      gradient = 'radial-gradient(circle at center, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.6) 100%)',
+      gradient,
       minWidth = '800px',
       borderRadius = '20px',
       onDismiss,
@@ -48,12 +48,12 @@ const CtaBanner = React.forwardRef<HTMLDivElement, CtaBannerProps>(
     return (
       <div
         ref={ref}
-        className={cn('cta-banner', className)}
+        className={cn('cta-banner', !gradient && 'bg-gradient-to-r from-neutral-800 to-primary', className)}
         style={{
           minWidth,
           width: '100%',
           borderRadius,
-          background: gradient,
+          ...(gradient ? { background: gradient } : {}),
           position: 'relative',
         }}
         {...props}

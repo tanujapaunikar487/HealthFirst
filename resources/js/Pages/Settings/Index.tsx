@@ -9,7 +9,7 @@ import { ProfileTab } from './components/ProfileTab';
 import { NotificationsTab } from './components/NotificationsTab';
 import { PreferencesTab } from './components/PreferencesTab';
 import { ConnectionsTab } from './components/ConnectionsTab';
-import { PasswordSheet } from './components/PasswordSheet';
+import { PasswordModal } from './components/PasswordModal';
 
 interface FamilyMember {
     id: number;
@@ -121,7 +121,7 @@ export default function SettingsIndex({
     calendarSettings,
 }: Props) {
     const [activeTab, setActiveTab] = useState<Tab>('profile');
-    const [showPasswordSheet, setShowPasswordSheet] = useState(false);
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [loggingOut, setLoggingOut] = useState(false);
 
     // Handle URL parameter for direct tab navigation
@@ -197,7 +197,7 @@ export default function SettingsIndex({
                                 settings={preferences}
                                 bookingDefaults={bookingDefaults}
                                 familyMembers={familyMembers}
-                                onOpenPasswordModal={() => setShowPasswordSheet(true)}
+                                onOpenPasswordModal={() => setShowPasswordModal(true)}
                             />
                         )}
 
@@ -210,10 +210,10 @@ export default function SettingsIndex({
                 </div>
             </div>
 
-            {/* Password Change Sheet */}
-            <PasswordSheet
-                open={showPasswordSheet}
-                onOpenChange={setShowPasswordSheet}
+            {/* Password Change Modal */}
+            <PasswordModal
+                open={showPasswordModal}
+                onOpenChange={setShowPasswordModal}
             />
         </AppLayout>
     );

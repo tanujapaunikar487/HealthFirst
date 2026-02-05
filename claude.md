@@ -37,7 +37,7 @@ Tests: `php artisan test` (92 tests, 265 assertions)
 ## Technical Decisions
 
 1. **User Model**: UUIDs, `App\User` (not Models)
-2. **Overlay patterns**: Sheets for forms/wizards/content (right-side 500px). Dialogs for destructive confirmations (delete account), security gates, search (Cmd+K), and share. AlertDialog for simple "are you sure?" with no fields. Legacy Breeze profile pages removed
+2. **Overlay patterns**: Sheets for forms/wizards/content (right-side 500px). Dialogs for security/account actions (delete account, password change), search (Cmd+K), and share. AlertDialog for simple "are you sure?" with no fields. Legacy Breeze profile pages removed
 3. **Flexible JSON** `metadata` fields for category-specific data
 4. **Server-Side Status**: Controllers compute all badges
 5. **AI Optional**: System works without AI
@@ -55,4 +55,5 @@ Tests: `php artisan test` (92 tests, 265 assertions)
 17. **Google Calendar**: OAuth + mock mode. Auto sync on book/reschedule/cancel. `calendar_sync` in user_settings. Privacy-safe events. 7 controller hooks in try/catch
 18. **Calendar Preference**: `preferred` field (`'google'`|`'apple'`|`null`). Connect auto-sets; disconnect clears. Confirmation page adapts per preference
 19. **Toast**: #171717 text, status-colored icons, `fit-content` width. No `richColors`
-20. **High Contrast**: CSS vars in `app.css` (`:root` defaults, `.high-contrast` overrides). Tailwind `hsl(var(--*) / <alpha-value>)`. All 55 files use semantic classes (`text-foreground`, `bg-primary`, etc.). Shared avatar palette in `Lib/avatar-colors.ts`. Exceptions: Razorpay `theme.color` stays hex; print/download template HTML keeps hex (CSS vars unavailable)
+20. **High Contrast**: CSS vars in `app.css` (`:root` defaults, `.high-contrast` overrides). Tailwind `hsl(var(--*) / <alpha-value>)`. All 55 files use semantic classes (`text-foreground`, `bg-primary`, etc.). Shared avatar palette in `Lib/avatar-colors.ts`. Exceptions: Razorpay `theme.color` stays hex; PDF Blade template + print HTML keep hex (CSS vars unavailable in DomPDF/standalone HTML)
+21. **Download My Data**: Direct PDF download via `barryvdh/laravel-dompdf`. Blade view at `resources/views/pdf/data-export.blade.php`. Uses standalone HTML/CSS (no Tailwind/CSS vars). `window.location.href` triggers download without page navigation

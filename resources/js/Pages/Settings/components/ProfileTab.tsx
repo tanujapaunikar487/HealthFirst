@@ -370,8 +370,7 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                         )}
                     </div>
                 </div>
-                <Button variant="outline" onClick={() => setShowEditForm(true)}>
-                    <Icon icon={Pencil} className="h-4 w-4 mr-2" />
+                <Button size="lg" icon={Pencil} onClick={() => setShowEditForm(true)}>
                     Edit profile
                 </Button>
             </div>
