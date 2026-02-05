@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useState, useEffect, useRef } from 'react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Button } from '@/Components/ui/button';
@@ -24,6 +24,9 @@ import {
   type Appointment,
   type SheetView,
 } from '@/Components/Appointments/AppointmentSheets';
+import { HealthProfileSheet } from './components/HealthProfileSheet';
+import { AddInsuranceSheet } from '@/Components/Insurance/AddInsuranceSheet';
+import EmbeddedFamilyMemberFlow from '@/Features/booking-chat/embedded/EmbeddedFamilyMemberFlow';
 
 declare global {
   interface Window {
@@ -209,6 +212,17 @@ interface DashboardProps {
   newResultsReady?: NewResultsReady[];
   vaccinationsDue?: VaccinationDue[];
   prescriptionsExpiring?: PrescriptionExpiring[];
+
+  // Onboarding sheet data
+  selfMember?: {
+    id: number;
+    date_of_birth: string | null;
+    blood_group: string | null;
+    medical_conditions: string[];
+    allergies: string[];
+  } | null;
+  insuranceProviders?: { id: number; name: string }[];
+  onboardingFamilyMembers?: { id: number; name: string; relation: string }[];
 }
 
 // --- Skeleton Components ---
@@ -440,6 +454,9 @@ export default function Dashboard({
   newResultsReady = [],
   vaccinationsDue = [],
   prescriptionsExpiring = [],
+  selfMember,
+  insuranceProviders = [],
+  onboardingFamilyMembers = [],
 }: DashboardProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);

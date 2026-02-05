@@ -95,6 +95,10 @@ class InsuranceController extends Controller
             ...$validated,
         ]);
 
+        if ($request->boolean('_from_dashboard')) {
+            return back();
+        }
+
         return redirect()->route('insurance.index')
             ->with('toast', 'Policy added successfully');
     }

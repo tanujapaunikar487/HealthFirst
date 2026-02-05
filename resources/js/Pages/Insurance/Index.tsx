@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
@@ -11,7 +11,6 @@ import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Textarea } from '@/Components/ui/textarea';
 import { DatePicker } from '@/Components/ui/date-picker';
-import { Checkbox } from '@/Components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -35,6 +34,7 @@ import {
   SheetFooter,
   SheetBody,
 } from '@/Components/ui/sheet';
+import { AddInsuranceSheet } from '@/Components/Insurance/AddInsuranceSheet';
 import { Toast } from '@/Components/ui/toast';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { cn } from '@/Lib/utils';
@@ -49,10 +49,6 @@ import {
   ChevronRight,
   ArrowRight,
   Building2,
-  Upload,
-  LoaderCircle,
-  CheckCircle2,
-  XCircle,
   Check,
 } from '@/Lib/icons';
 
@@ -104,29 +100,6 @@ interface Props {
   insuranceProviders: InsuranceProvider[];
 }
 
-interface PolicyFormData {
-  insurance_provider_id: string;
-  policy_number: string;
-  plan_name: string;
-  plan_type: string;
-  sum_insured: string;
-  premium_amount: string;
-  start_date: string;
-  end_date: string;
-  members: number[];
-}
-
-const defaultPolicyForm: PolicyFormData = {
-  insurance_provider_id: '',
-  policy_number: '',
-  plan_name: '',
-  plan_type: '',
-  sum_insured: '',
-  premium_amount: '',
-  start_date: '',
-  end_date: '',
-  members: [],
-};
 
 const ROOM_TYPES = [
   { value: 'general', label: 'General Ward' },
@@ -219,11 +192,6 @@ function getAvatarColorByName(name: string) {
   return getAvatarColor(Math.abs(hash));
 }
 
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return bytes + ' B';
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-}
 
 function InsuranceSkeleton() {
   return (
@@ -316,16 +284,6 @@ export default function InsuranceIndex({
 
   // Add Policy Sheet
   const [showAddPolicy, setShowAddPolicy] = useState(false);
-  const [addStep, setAddStep] = useState<'upload' | 'extracting' | 'extract_failed' | 'review'>('upload');
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [uploadError, setUploadError] = useState('');
-  const [isDragOver, setIsDragOver] = useState(false);
-  const [cameFromUpload, setCameFromUpload] = useState(false);
-  const [extractionType, setExtractionType] = useState<'full' | 'partial' | null>(null);
-  const [policyForm, setPolicyForm] = useState<PolicyFormData>(defaultPolicyForm);
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [submitting, setSubmitting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Pre-Auth Sheet
   const [showPreAuth, setShowPreAuth] = useState(false);
@@ -436,157 +394,6 @@ export default function InsuranceIndex({
   const preAuthIsDetailsValid = preAuthForm.treatment_name.trim() && preAuthForm.admission_date && preAuthForm.room_type;
   const preAuthSelectedRoomLabel = ROOM_TYPES.find(r => r.value === preAuthForm.room_type)?.label;
 
-  // --- Add Policy Flow ---
-
-  function resetAddPolicy() {
-    setAddStep('upload');
-    setUploadedFile(null);
-    setUploadError('');
-    setIsDragOver(false);
-    setCameFromUpload(false);
-    setExtractionType(null);
-    setPolicyForm(defaultPolicyForm);
-    setFormErrors({});
-    setSubmitting(false);
-  }
-
-  function openAddPolicy() {
-    resetAddPolicy();
-    setShowAddPolicy(true);
-  }
-
-  function handleSheetClose(open: boolean) {
-    if (!open) {
-      setShowAddPolicy(false);
-      resetAddPolicy();
-    }
-  }
-
-  function validateFile(file: File): string | null {
-    if (file.type !== 'application/pdf') {
-      return 'Only PDF files are supported';
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      return 'File size must be less than 10MB';
-    }
-    return null;
-  }
-
-  function handleFileSelect(file: File) {
-    const error = validateFile(file);
-    if (error) {
-      setUploadError(error);
-      return;
-    }
-    setUploadError('');
-    setUploadedFile(file);
-    setCameFromUpload(true);
-    setAddStep('extracting');
-  }
-
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault();
-    setIsDragOver(false);
-    const file = e.dataTransfer.files[0];
-    if (file) handleFileSelect(file);
-  }
-
-  function handleDragOver(e: React.DragEvent) {
-    e.preventDefault();
-    setIsDragOver(true);
-  }
-
-  function handleDragLeave(e: React.DragEvent) {
-    e.preventDefault();
-    setIsDragOver(false);
-  }
-
-  function handleFileInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) handleFileSelect(file);
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  }
-
-  function handleEnterManually() {
-    setCameFromUpload(false);
-    setPolicyForm(defaultPolicyForm);
-    setAddStep('review');
-  }
-
-  // Simulated extraction
-  useEffect(() => {
-    if (addStep !== 'extracting') return;
-    const timer = setTimeout(() => {
-      // ~20% chance of failure
-      if (Math.random() < 0.2) {
-        setAddStep('extract_failed');
-        return;
-      }
-
-      const today = new Date();
-      const oneYearLater = new Date(today);
-      oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
-
-      // ~30% chance of partial extraction
-      const isPartial = Math.random() < 0.3;
-
-      if (isPartial) {
-        setPolicyForm({
-          insurance_provider_id: insuranceProviders[0]?.id?.toString() ?? '',
-          policy_number: 'POL-2026-' + Math.random().toString().slice(2, 8),
-          plan_name: 'Health Protect Plan',
-          plan_type: '',
-          sum_insured: '',
-          premium_amount: '',
-          start_date: '',
-          end_date: '',
-          members: [],
-        });
-        setExtractionType('partial');
-      } else {
-        setPolicyForm({
-          insurance_provider_id: insuranceProviders[0]?.id?.toString() ?? '',
-          policy_number: 'POL-2026-' + Math.random().toString().slice(2, 8),
-          plan_name: 'Health Protect Plan',
-          plan_type: 'individual',
-          sum_insured: '500000',
-          premium_amount: '15000',
-          start_date: today.toISOString().slice(0, 10),
-          end_date: oneYearLater.toISOString().slice(0, 10),
-          members: [],
-        });
-        setExtractionType('full');
-      }
-      setAddStep('review');
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, [addStep, insuranceProviders]);
-
-  const updateForm = useCallback(
-    (field: keyof PolicyFormData, value: string | number[]) => {
-      setPolicyForm((prev) => ({ ...prev, [field]: value }));
-      if (formErrors[field]) {
-        setFormErrors((prev) => ({ ...prev, [field]: '' }));
-      }
-    },
-    [formErrors]
-  );
-
-  function toggleMember(memberId: number) {
-    setPolicyForm((prev) => ({
-      ...prev,
-      members: prev.members.includes(memberId)
-        ? prev.members.filter((id) => id !== memberId)
-        : [...prev.members, memberId],
-    }));
-  }
-
-  const isPartialEmpty = useCallback(
-    (field: keyof PolicyFormData) =>
-      extractionType === 'partial' && cameFromUpload && !policyForm[field],
-    [extractionType, cameFromUpload, policyForm]
-  );
-
   if (hasError) {
     return (
       <AppLayout pageTitle="Insurance" pageIcon="insurance">
@@ -600,51 +407,6 @@ export default function InsuranceIndex({
       <AppLayout pageTitle="Insurance" pageIcon="insurance">
         <InsuranceSkeleton />
       </AppLayout>
-    );
-  }
-
-  function handleSubmitPolicy() {
-    const errors: Record<string, string> = {};
-    if (!policyForm.insurance_provider_id) errors.insurance_provider_id = 'Provider is required';
-    if (!policyForm.policy_number.trim()) errors.policy_number = 'Policy number is required';
-    if (!policyForm.plan_name.trim()) errors.plan_name = 'Plan name is required';
-    if (!policyForm.plan_type) errors.plan_type = 'Plan type is required';
-    if (!policyForm.sum_insured || Number(policyForm.sum_insured) <= 0)
-      errors.sum_insured = 'Sum insured must be greater than 0';
-    if (!policyForm.start_date) errors.start_date = 'Start date is required';
-    if (!policyForm.end_date) errors.end_date = 'End date is required';
-    if (policyForm.start_date && policyForm.end_date && policyForm.end_date <= policyForm.start_date)
-      errors.end_date = 'End date must be after start date';
-
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
-
-    setSubmitting(true);
-    router.post(
-      '/insurance',
-      {
-        insurance_provider_id: Number(policyForm.insurance_provider_id),
-        policy_number: policyForm.policy_number.trim(),
-        plan_name: policyForm.plan_name.trim(),
-        plan_type: policyForm.plan_type,
-        sum_insured: Number(policyForm.sum_insured),
-        premium_amount: policyForm.premium_amount ? Number(policyForm.premium_amount) : null,
-        start_date: policyForm.start_date,
-        end_date: policyForm.end_date,
-        members: policyForm.members.length > 0 ? policyForm.members : null,
-      },
-      {
-        onSuccess: () => {
-          setShowAddPolicy(false);
-          resetAddPolicy();
-        },
-        onError: (errors) => {
-          setFormErrors(errors as Record<string, string>);
-          setSubmitting(false);
-        },
-      }
     );
   }
 
@@ -666,7 +428,7 @@ export default function InsuranceIndex({
           </h1>
           {hasPolicies && (
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="lg" onClick={openAddPolicy}>
+              <Button variant="outline" size="lg" onClick={() => setShowAddPolicy(true)}>
                 <Plus className="h-[20px] w-[20px]" />
                 Add policy
               </Button>
@@ -682,7 +444,7 @@ export default function InsuranceIndex({
             heading="Add your insurance policy"
             description="Add your insurance policy to use cashless benefits during admission at this hospital."
             buttonText="Add insurance"
-            onButtonClick={openAddPolicy}
+            onButtonClick={() => setShowAddPolicy(true)}
             imageSrc="/assets/images/insurance.png"
             imageAlt="Insurance illustration"
           />
@@ -915,385 +677,12 @@ export default function InsuranceIndex({
       </div>
 
       {/* Add Policy Sheet */}
-      <Sheet open={showAddPolicy} onOpenChange={handleSheetClose}>
-        <SheetContent className="sm:max-w-md">
-          <SheetHeader onBack={addStep === 'review' ? () => setAddStep('upload') : undefined}>
-            <SheetTitle>Add policy</SheetTitle>
-          </SheetHeader>
-
-          <SheetBody>
-            {/* Step 1: Upload */}
-            {addStep === 'upload' && (
-              <div className="space-y-6">
-                <div
-                  className={cn(
-                    'flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-6 py-12 transition-colors',
-                    isDragOver
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border bg-muted hover:border-border hover:bg-accent'
-                  )}
-                  onDrop={handleDrop}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <div
-                    className="mb-3 flex h-12 w-12 items-center justify-center rounded-full"
-                    style={{ backgroundColor: 'hsl(var(--primary) / 0.2)' }}
-                  >
-                    <Upload className="h-6 w-6" style={{ color: 'hsl(var(--primary))' }} />
-                  </div>
-                  <p className="mb-1 text-[14px] font-semibold text-foreground">Upload policy PDF</p>
-                  <p className="mb-3 text-[14px] text-muted-foreground">
-                    We'll extract the details automatically
-                  </p>
-                  <p className="text-[14px] text-muted-foreground">Drag & drop or click to browse</p>
-                  <p className="mt-1 text-[14px] text-muted-foreground">PDF only - Max 10MB</p>
-                </div>
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".pdf,application/pdf"
-                  className="hidden"
-                  onChange={handleFileInputChange}
-                />
-
-                {uploadError && (
-                  <div className="flex items-center gap-2 rounded-lg bg-destructive/10 px-3 py-2 text-[14px] text-destructive">
-                    <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-                    {uploadError}
-                  </div>
-                )}
-
-                <div className="flex items-center gap-3">
-                  <div className="h-px flex-1 bg-border" />
-                  <span className="text-[14px] text-muted-foreground">OR</span>
-                  <div className="h-px flex-1 bg-border" />
-                </div>
-
-                <button
-                  className="w-full text-center text-[14px] font-medium text-primary hover:underline"
-                  onClick={handleEnterManually}
-                >
-                  Enter details manually
-                </button>
-              </div>
-            )}
-
-            {/* Step 2: Extracting */}
-            {addStep === 'extracting' && (
-              <div className="flex flex-col items-center justify-center py-12">
-                <LoaderCircle className="mb-4 h-10 w-10 animate-spin text-primary" />
-                <p className="mb-1 text-[14px] font-semibold text-foreground">
-                  Extracting policy details...
-                </p>
-                <p className="mb-6 text-[14px] text-muted-foreground">This may take a few moments</p>
-                {uploadedFile && (
-                  <div className="flex items-center gap-2 rounded-lg bg-muted px-4 py-2">
-                    <FileText className="h-4 w-4 text-foreground" />
-                    <span className="text-[14px] text-muted-foreground">{uploadedFile.name}</span>
-                    <span className="text-[14px] text-muted-foreground">
-                      ({formatFileSize(uploadedFile.size)})
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Step 2b: Extraction Failed */}
-            {addStep === 'extract_failed' && (
-              <div className="flex flex-col items-center justify-center py-12">
-                <div
-                  className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10"
-                >
-                  <XCircle className="h-6 w-6 text-destructive" />
-                </div>
-                <p className="mb-1 text-[14px] font-semibold text-foreground">
-                  Couldn't extract policy details
-                </p>
-                <p className="mb-6 max-w-xs text-center text-[14px] text-muted-foreground">
-                  The document may be encrypted or in an unsupported format.
-                </p>
-                {uploadedFile && (
-                  <div className="mb-6 flex items-center gap-2 rounded-lg bg-muted px-4 py-2">
-                    <FileText className="h-4 w-4 text-foreground" />
-                    <span className="text-[14px] text-muted-foreground">{uploadedFile.name}</span>
-                    <span className="text-[14px] text-muted-foreground">
-                      ({formatFileSize(uploadedFile.size)})
-                    </span>
-                  </div>
-                )}
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => setAddStep('extracting')}
-                  >
-                    Try again
-                  </Button>
-                  <Button onClick={handleEnterManually}>Enter manually</Button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 3: Review & Confirm */}
-            {addStep === 'review' && (
-              <div className="space-y-6">
-                {cameFromUpload && extractionType === 'full' && (
-                  <div className="flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-[14px] text-success">
-                    <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
-                    Details extracted from PDF. Review and confirm below.
-                  </div>
-                )}
-                {cameFromUpload && extractionType === 'partial' && (
-                  <div className="flex items-center gap-2 rounded-lg bg-warning/10 px-3 py-2 text-[14px] text-warning">
-                    <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-                    Some details couldn't be extracted. Please fill in the highlighted fields.
-                  </div>
-                )}
-                {formErrors.policy_number?.includes('already') && (
-                  <div className="flex items-center gap-2 rounded-lg bg-warning/10 px-3 py-2 text-[14px] text-warning">
-                    <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-                    A policy with this number already exists. Please check and update if needed.
-                  </div>
-                )}
-
-                {/* Provider */}
-                <div>
-                  <p className="mb-3 text-[14px] font-medium text-muted-foreground">
-                    Provider
-                  </p>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="mb-1 block text-[14px] font-medium text-foreground">
-                        Insurance Provider *
-                      </label>
-                      <Select
-                        value={policyForm.insurance_provider_id}
-                        onValueChange={(v) => updateForm('insurance_provider_id', v)}
-                      >
-                        <SelectTrigger
-                          className={cn(
-                            formErrors.insurance_provider_id &&
-                              'border-destructive/30 focus-visible:ring-destructive/40',
-                            isPartialEmpty('insurance_provider_id') &&
-                              'ring-2 ring-warning/30 border-warning/30'
-                          )}
-                        >
-                          <SelectValue placeholder="Select provider" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {insuranceProviders.map((p) => (
-                            <SelectItem key={p.id} value={p.id.toString()}>
-                              {p.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {formErrors.insurance_provider_id && (
-                        <p className="mt-1 text-[14px] text-destructive">
-                          {formErrors.insurance_provider_id}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Policy Details */}
-                <div>
-                  <p className="mb-3 text-[14px] font-medium text-muted-foreground">
-                    Policy details
-                  </p>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="mb-1 block text-[14px] font-medium text-foreground">
-                        Policy Number *
-                      </label>
-                      <Input
-                        value={policyForm.policy_number}
-                        onChange={(e) => updateForm('policy_number', e.target.value)}
-                        placeholder="e.g. SH-2026-123456"
-                        className={cn(
-                          formErrors.policy_number && 'border-destructive/30 focus-visible:ring-destructive/40'
-                        )}
-                      />
-                      {formErrors.policy_number && (
-                        <p className="mt-1 text-[14px] text-destructive">{formErrors.policy_number}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="mb-1 block text-[14px] font-medium text-foreground">
-                        Plan Name *
-                      </label>
-                      <Input
-                        value={policyForm.plan_name}
-                        onChange={(e) => updateForm('plan_name', e.target.value)}
-                        placeholder="e.g. Family Floater Plan"
-                        className={cn(
-                          formErrors.plan_name && 'border-destructive/30 focus-visible:ring-destructive/40'
-                        )}
-                      />
-                      {formErrors.plan_name && (
-                        <p className="mt-1 text-[14px] text-destructive">{formErrors.plan_name}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="mb-1 block text-[14px] font-medium text-foreground">
-                        Plan Type *
-                      </label>
-                      <Select
-                        value={policyForm.plan_type}
-                        onValueChange={(v) => updateForm('plan_type', v)}
-                      >
-                        <SelectTrigger
-                          className={cn(
-                            formErrors.plan_type && 'border-destructive/30 focus-visible:ring-destructive/40',
-                            isPartialEmpty('plan_type') &&
-                              'ring-2 ring-warning/30 border-warning/30'
-                          )}
-                        >
-                          <SelectValue placeholder="Select plan type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="individual">Individual</SelectItem>
-                          <SelectItem value="family">Family</SelectItem>
-                          <SelectItem value="corporate">Corporate</SelectItem>
-                          <SelectItem value="senior_citizen">Senior Citizen</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {formErrors.plan_type && (
-                        <p className="mt-1 text-[14px] text-destructive">{formErrors.plan_type}</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Coverage */}
-                <div>
-                  <p className="mb-3 text-[14px] font-medium text-muted-foreground">
-                    Coverage
-                  </p>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="mb-1 block text-[14px] font-medium text-foreground">
-                        Sum Insured (&#8377;) *
-                      </label>
-                      <Input
-                        type="number"
-                        value={policyForm.sum_insured}
-                        onChange={(e) => updateForm('sum_insured', e.target.value)}
-                        placeholder="500000"
-                        className={cn(
-                          formErrors.sum_insured && 'border-destructive/30 focus-visible:ring-destructive/40',
-                          isPartialEmpty('sum_insured') &&
-                            'ring-2 ring-warning/30 border-warning/30'
-                        )}
-                      />
-                      {formErrors.sum_insured && (
-                        <p className="mt-1 text-[14px] text-destructive">{formErrors.sum_insured}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="mb-1 block text-[14px] font-medium text-foreground">
-                        Premium (&#8377;)
-                      </label>
-                      <Input
-                        type="number"
-                        value={policyForm.premium_amount}
-                        onChange={(e) => updateForm('premium_amount', e.target.value)}
-                        placeholder="12000"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Validity */}
-                <div>
-                  <p className="mb-3 text-[14px] font-medium text-muted-foreground">
-                    Validity
-                  </p>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="mb-1 block text-[14px] font-medium text-foreground">
-                        Start Date *
-                      </label>
-                      <DatePicker
-                        value={policyForm.start_date}
-                        onChange={(value) => updateForm('start_date', value)}
-                        error={!!formErrors.start_date}
-                        className={cn(
-                          isPartialEmpty('start_date') &&
-                            'ring-2 ring-warning/30 border-warning/30'
-                        )}
-                        placeholder="Select start date"
-                      />
-                      {formErrors.start_date && (
-                        <p className="mt-1 text-[14px] text-destructive">{formErrors.start_date}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="mb-1 block text-[14px] font-medium text-foreground">
-                        End Date *
-                      </label>
-                      <DatePicker
-                        value={policyForm.end_date}
-                        onChange={(value) => updateForm('end_date', value)}
-                        error={!!formErrors.end_date}
-                        className={cn(
-                          isPartialEmpty('end_date') &&
-                            'ring-2 ring-warning/30 border-warning/30'
-                        )}
-                        placeholder="Select end date"
-                      />
-                      {formErrors.end_date && (
-                        <p className="mt-1 text-[14px] text-destructive">{formErrors.end_date}</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Covered Members */}
-                {familyMembers.length > 0 && (
-                  <div>
-                    <p className="mb-3 text-[14px] font-medium text-muted-foreground">
-                      Covered members
-                    </p>
-                    <div className="space-y-2">
-                      {familyMembers.map((m) => (
-                        <label
-                          key={m.id}
-                          className="flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors hover:bg-accent"
-                        >
-                          <Checkbox
-                            checked={policyForm.members.includes(m.id)}
-                            onCheckedChange={() => toggleMember(m.id)}
-                          />
-                          <span className="text-[14px] text-foreground">{m.name}</span>
-                          <span className="text-[14px] capitalize text-muted-foreground">({m.relation})</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-              </div>
-            )}
-          </SheetBody>
-
-          {addStep === 'review' && (
-            <SheetFooter>
-              <Button
-                className="flex-1"
-                size="lg"
-                onClick={handleSubmitPolicy}
-                disabled={submitting}
-              >
-                {submitting ? 'Saving...' : 'Save policy'}
-              </Button>
-            </SheetFooter>
-          )}
-        </SheetContent>
-      </Sheet>
+      <AddInsuranceSheet
+        open={showAddPolicy}
+        onOpenChange={setShowAddPolicy}
+        insuranceProviders={insuranceProviders}
+        familyMembers={familyMembers}
+      />
 
       {/* Pre-Auth Sheet */}
       <Sheet open={showPreAuth} onOpenChange={setShowPreAuth}>

@@ -7,9 +7,8 @@ import {
   PromptInputAction,
 } from '@/Components/ui/prompt-input';
 import { PromptInputContainer } from '@/Components/ui/prompt-input-container';
-import { Button } from '@/Components/ui/button';
 import { PromptSuggestion } from '@/Components/ui/prompt-suggestion';
-import { ArrowUp, Plus, Mic, X, Check } from '@/Lib/icons';
+import { ArrowUp, Plus, Mic, X, Check, ChevronRight } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { AudioWaveform } from '@/Components/ui/AudioWaveform';
 import { useAudioRecorder } from '@/Hooks/useAudioRecorder';
@@ -17,6 +16,13 @@ import { cn } from '@/Lib/utils';
 
 type BookingMode = 'ai' | 'guided';
 type BookingType = 'doctor' | 'lab_test' | null;
+
+const PROMPT_SUGGESTIONS: { text: string; type: 'doctor' | 'lab_test' }[] = [
+  { text: 'Book a follow-up with my previous doctor', type: 'doctor' },
+  { text: 'I need a blood test done at home this weekend', type: 'lab_test' },
+  { text: 'Schedule a video consultation for my mother', type: 'doctor' },
+  { text: 'Book an urgent appointment — I\u2019ve been having headaches', type: 'doctor' },
+];
 
 export default function BookingIndex() {
   const [mode, setMode] = useState<BookingMode>('ai');
@@ -115,12 +121,9 @@ export default function BookingIndex() {
     }
   };
 
-  const handleBookingAction = (type: 'doctor' | 'lab_test') => {
-    if (mode === 'ai') {
-      startConversation(type);
-    } else {
-      startGuidedBooking(type);
-    }
+  const handlePromptClick = (suggestion: typeof PROMPT_SUGGESTIONS[number]) => {
+    setInput(suggestion.text);
+    setTimeout(() => startConversation(suggestion.type, suggestion.text), 150);
   };
 
   // Format recording time as MM:SS
@@ -449,33 +452,63 @@ export default function BookingIndex() {
             </PromptInputContainer>
           )}
 
-          {/* Action buttons */}
-          <div className="flex gap-4 mt-6">
-            <PromptSuggestion
-              onClick={() => handleBookingAction('doctor')}
-              disabled={isLoading}
-              className="flex items-center gap-2"
-            >
-              <img
-                src="/assets/icons/hugeicons/doctor-01-1.svg"
-                alt=""
-                className="w-4 h-4"
-              />
-              Book a doctor
-            </PromptSuggestion>
-            <PromptSuggestion
-              onClick={() => handleBookingAction('lab_test')}
-              disabled={isLoading}
-              className="flex items-center gap-2"
-            >
-              <img
-                src="/assets/icons/hugeicons/test-tube-01.svg"
-                alt=""
-                className="w-4 h-4"
-              />
-              Book a test
-            </PromptSuggestion>
-          </div>
+          {/* AI mode — prompt suggestions */}
+          {mode === 'ai' && (
+            <div className="flex flex-wrap justify-center gap-3 mt-6" style={{ maxWidth: '720px', width: '100%' }}>
+              {PROMPT_SUGGESTIONS.map((suggestion, i) => (
+                <PromptSuggestion
+                  key={i}
+                  onClick={() => handlePromptClick(suggestion)}
+                  disabled={isLoading}
+                >
+                  {suggestion.text}
+                </PromptSuggestion>
+              ))}
+            </div>
+          )}
+
+          {/* Guided mode — booking type cards */}
+          {mode === 'guided' && (
+            <div className="flex flex-col gap-3 mt-6" style={{ maxWidth: '720px', width: '100%' }}>
+              <button
+                onClick={() => startGuidedBooking('doctor')}
+                className="flex items-center gap-4 p-5 rounded-[20px] border border-border bg-card text-left transition-all hover:border-primary/50 hover:bg-primary/5"
+              >
+                <div
+                  className="flex items-center justify-center w-12 h-12 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: 'hsl(var(--primary) / 0.1)' }}
+                >
+                  <img src="/assets/icons/hugeicons/doctor-01-1.svg" alt="" className="w-6 h-6" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[14px] font-semibold text-foreground">Book a doctor</p>
+                  <p className="text-[14px] text-muted-foreground mt-0.5">
+                    Schedule a consultation with a specialist or general physician
+                  </p>
+                </div>
+                <Icon icon={ChevronRight} className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+              </button>
+
+              <button
+                onClick={() => startGuidedBooking('lab_test')}
+                className="flex items-center gap-4 p-5 rounded-[20px] border border-border bg-card text-left transition-all hover:border-primary/50 hover:bg-primary/5"
+              >
+                <div
+                  className="flex items-center justify-center w-12 h-12 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: 'hsl(var(--primary) / 0.1)' }}
+                >
+                  <img src="/assets/icons/hugeicons/test-tube-01.svg" alt="" className="w-6 h-6" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[14px] font-semibold text-foreground">Book a test</p>
+                  <p className="text-[14px] text-muted-foreground mt-0.5">
+                    Lab tests, health packages, and home sample collection
+                  </p>
+                </div>
+                <Icon icon={ChevronRight} className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+              </button>
+            </div>
+          )}
         </main>
       </div>
     </>

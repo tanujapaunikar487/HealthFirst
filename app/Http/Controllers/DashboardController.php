@@ -7,8 +7,10 @@ use App\Models\FamilyMember;
 use App\Models\HealthRecord;
 use App\Models\InsuranceClaim;
 use App\Models\InsurancePolicy;
+use App\Models\InsuranceProvider;
 use App\Models\Promotion;
 use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -19,7 +21,11 @@ class DashboardController extends Controller
     {
         $user = $request->user() ?? \App\User::first();
 
-        $profileSteps = $this->getProfileSteps($user);
+        $selfMember = FamilyMember::where('user_id', $user->id)
+            ->where('relation', 'self')
+            ->first();
+
+        $profileSteps = $this->getProfileSteps($user, $selfMember);
 
         $allCompleted = collect($profileSteps)->every(fn ($s) => $s['completed']);
         $profileJustCompleted = false;
@@ -191,6 +197,24 @@ class DashboardController extends Controller
             'newResultsReady' => $newResultsReady,
             'vaccinationsDue' => $vaccinationsDue,
             'prescriptionsExpiring' => $prescriptionsExpiring,
+
+            // Onboarding sheet data
+            'selfMember' => $selfMember ? [
+                'id' => $selfMember->id,
+                'date_of_birth' => $selfMember->date_of_birth?->format('Y-m-d'),
+                'blood_group' => $selfMember->blood_group,
+                'medical_conditions' => $selfMember->medical_conditions ?? [],
+                'allergies' => $selfMember->allergies ?? [],
+            ] : null,
+            'insuranceProviders' => InsuranceProvider::where('is_active', true)
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->get(),
+            'onboardingFamilyMembers' => FamilyMember::where('user_id', $user->id)
+                ->orderByRaw("CASE WHEN relation = 'self' THEN 0 ELSE 1 END")
+                ->orderBy('name')
+                ->get()
+                ->map(fn ($m) => ['id' => $m->id, 'name' => $m->name, 'relation' => $m->relation]),
         ]);
     }
 
@@ -487,6 +511,35 @@ class DashboardController extends Controller
         return 0;
     }
 
+    public function updateHealthProfile(Request $request): RedirectResponse
+    {
+        $user = $request->user() ?? \App\User::first();
+
+        $validated = $request->validate([
+            'date_of_birth' => ['required', 'date', 'before:today'],
+            'blood_group' => ['required', 'string', 'in:A+,A-,B+,B-,AB+,AB-,O+,O-'],
+            'medical_conditions' => ['nullable', 'array'],
+            'medical_conditions.*' => ['string', 'max:100'],
+            'allergies' => ['nullable', 'array'],
+            'allergies.*' => ['string', 'max:100'],
+        ]);
+
+        $selfMember = FamilyMember::where('user_id', $user->id)
+            ->where('relation', 'self')
+            ->first();
+
+        if ($selfMember) {
+            $selfMember->update([
+                'date_of_birth' => $validated['date_of_birth'],
+                'blood_group' => $validated['blood_group'],
+                'medical_conditions' => $validated['medical_conditions'] ?? null,
+                'allergies' => $validated['allergies'] ?? null,
+            ]);
+        }
+
+        return back();
+    }
+
     private function getInitials(string $name): string
     {
         $parts = explode(' ', trim($name));
@@ -496,9 +549,9 @@ class DashboardController extends Controller
         return strtoupper(substr($name, 0, 2));
     }
 
-    private function getProfileSteps($user): array
+    private function getProfileSteps($user, $selfMember = null): array
     {
-        $selfMember = FamilyMember::where('user_id', $user->id)
+        $selfMember = $selfMember ?? FamilyMember::where('user_id', $user->id)
             ->where('relation', 'self')
             ->first();
 
