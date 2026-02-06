@@ -7,8 +7,6 @@ import { Card } from '@/Components/ui/card';
 import { Textarea } from '@/Components/ui/textarea';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
-import { User } from '@/Lib/icons';
-import { Icon } from '@/Components/ui/icon';
 
 const doctorSteps = [
   { id: 'patient', label: 'Patient' },
@@ -128,10 +126,10 @@ export default function ConcernsStep({
     }
   };
 
-  const dotColors: Record<string, string> = {
-    urgent: 'bg-destructive',
-    this_week: 'bg-warning',
-    specific_date: 'bg-warning',
+  const dotStyles: Record<string, { dot: string; ring: string }> = {
+    urgent: { dot: 'bg-destructive', ring: 'ring-destructive/15' },
+    this_week: { dot: 'bg-warning', ring: 'ring-warning/15' },
+    specific_date: { dot: 'bg-primary', ring: 'ring-primary/15' },
   };
 
   return (
@@ -194,34 +192,41 @@ export default function ConcernsStep({
               This determines which slots you'll see
             </p>
 
-            <Card className="overflow-hidden divide-y">
-              {urgencyOptions.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => setUrgency(option.value)}
-                  className={cn(
-                    'w-full flex items-center gap-3 p-4 text-left transition-all',
-                    'hover:bg-muted/50',
-                    urgency === option.value && 'bg-primary/5'
-                  )}
-                >
-                  <div
+            <Card className="overflow-hidden">
+              {urgencyOptions.map((option, index) => {
+                const style = dotStyles[option.value] || { dot: 'bg-muted-foreground', ring: 'ring-muted-foreground/15' };
+                return (
+                  <button
+                    key={option.value}
+                    onClick={() => setUrgency(option.value)}
                     className={cn(
-                      'w-3 h-3 rounded-full flex-shrink-0',
-                      dotColors[option.value] || 'bg-muted-foreground'
+                      'w-full flex items-start gap-3 p-4 text-left transition-all',
+                      'hover:bg-muted/50',
+                      urgency === option.value && 'bg-primary/5'
                     )}
-                  />
-                  <div className="flex-1">
-                    <p className="font-medium">{option.label}</p>
-                    <p className="text-[14px] text-muted-foreground">{option.description}</p>
-                  </div>
-                  {option.doctorCount !== undefined ? (
-                    <span className="text-[14px] text-muted-foreground">{option.doctorCount} doctors</span>
-                  ) : (
-                    <span className="text-[14px] text-muted-foreground">Full flexibility</span>
-                  )}
-                </button>
-              ))}
+                    style={{
+                      borderBottom: index < urgencyOptions.length - 1 ? '1px solid hsl(var(--border))' : 'none'
+                    }}
+                  >
+                    <div
+                      className={cn(
+                        'mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ring-4 ring-offset-0',
+                        style.dot,
+                        style.ring
+                      )}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-[14px] leading-tight mb-0.5">{option.label}</p>
+                      <p className="text-[14px] text-muted-foreground leading-tight">{option.description}</p>
+                    </div>
+                    {option.doctorCount !== undefined ? (
+                      <span className="text-[14px] text-muted-foreground">{option.doctorCount} doctors</span>
+                    ) : (
+                      <span className="text-[14px] text-muted-foreground">Full flexibility</span>
+                    )}
+                  </button>
+                );
+              })}
             </Card>
 
             {errors.urgency && <p className="text-[14px] text-destructive mt-2">{errors.urgency}</p>}

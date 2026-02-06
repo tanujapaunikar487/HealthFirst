@@ -128,8 +128,8 @@ export function ConnectionsTab({ calendarSettings }: ConnectionsTabProps) {
                         >
                             <div className="flex items-center gap-3">
                                 <RadioIndicator selected={preferred === 'google'} />
-                                <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-                                    <img src="/assets/icons/google-calendar.svg" alt="Google Calendar" className="h-8 w-8" />
+                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                                    <img src="/assets/icons/google-calendar.svg" alt="Google Calendar" className="h-6 w-6" />
                                 </div>
                                 <div>
                                     <p className="text-[14px] font-semibold leading-5 text-foreground">Google Calendar</p>
@@ -175,8 +175,8 @@ export function ConnectionsTab({ calendarSettings }: ConnectionsTabProps) {
                         >
                             <div className="flex items-center gap-3">
                                 <RadioIndicator selected={preferred === 'apple'} />
-                                <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-                                    <img src="/assets/icons/apple-calendar.svg" alt="Apple Calendar" className="h-8 w-8" />
+                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                                    <img src="/assets/icons/apple-calendar.svg" alt="Apple Calendar" className="h-6 w-6" />
                                 </div>
                                 <div>
                                     <p className="text-[14px] font-semibold leading-5 text-foreground">Apple Calendar</p>

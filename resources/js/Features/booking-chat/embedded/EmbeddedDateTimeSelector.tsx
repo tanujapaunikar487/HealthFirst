@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { cn } from '@/Lib/utils';
 import { Star } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { Card } from '@/Components/ui/card';
 
 interface DateOption {
   date?: string;
@@ -80,79 +81,81 @@ export function EmbeddedDateTimeSelector({
         </div>
       )}
 
-      {/* Date section */}
-      <div>
-        <label className="text-[14px] font-medium mb-2 block">Date</label>
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {dates.map((dateOption, idx) => {
-            const dateValue = dateOption.date || dateOption.value || '';
-            const subLabel = dateOption.sublabel || dateOption.day || '';
-            const isDateSelected = localDate === dateValue || selectedDate === dateValue;
+      <Card className="overflow-hidden">
+        {/* Date section */}
+        <div className="p-4" style={{ borderBottom: '1px solid hsl(var(--border))' }}>
+          <label className="text-[14px] font-medium mb-2 block">Date</label>
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {dates.map((dateOption, idx) => {
+              const dateValue = dateOption.date || dateOption.value || '';
+              const subLabel = dateOption.sublabel || dateOption.day || '';
+              const isDateSelected = localDate === dateValue || selectedDate === dateValue;
 
-            return (
-              <button
-                key={dateValue || idx}
-                onClick={() => handleDateSelect(dateValue)}
-                disabled={disabled}
-                className={cn(
-                  'flex-shrink-0 px-4 py-3 rounded-xl border transition-all min-w-[100px]',
-                  'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
-                  isDateSelected
-                    ? 'bg-foreground text-background border-foreground'
-                    : 'bg-background border-border'
-                )}
-              >
-                <p className={cn('font-medium', isDateSelected && 'text-background')}>
-                  {dateOption.label}
-                </p>
-                <p
+              return (
+                <button
+                  key={dateValue || idx}
+                  onClick={() => handleDateSelect(dateValue)}
+                  disabled={disabled}
                   className={cn(
-                    'text-[14px]',
-                    isDateSelected ? 'text-background/70' : 'text-muted-foreground'
+                    'flex-shrink-0 px-4 py-3 rounded-xl border transition-all min-w-[100px]',
+                    'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
+                    isDateSelected
+                      ? 'bg-foreground text-background border-foreground'
+                      : 'bg-background border-border'
                   )}
                 >
-                  {subLabel}
-                </p>
-              </button>
-            );
-          })}
+                  <p className={cn('font-medium', isDateSelected && 'text-background')}>
+                    {dateOption.label}
+                  </p>
+                  <p
+                    className={cn(
+                      'text-[14px]',
+                      isDateSelected ? 'text-background/70' : 'text-muted-foreground'
+                    )}
+                  >
+                    {subLabel}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      {/* Time section */}
-      <div>
-        <label className="text-[14px] font-medium mb-2 block">
-          Time
-          {fastingRequired && (
-            <span className="text-muted-foreground font-normal"> (morning recommended)</span>
-          )}
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {slots.map((slot) => {
-            const isTimeSelected = localTime === slot.time || selectedTime === slot.time;
+        {/* Time section */}
+        <div className="p-4">
+          <label className="text-[14px] font-medium mb-2 block">
+            Time
+            {fastingRequired && (
+              <span className="text-muted-foreground font-normal"> (morning recommended)</span>
+            )}
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {slots.map((slot) => {
+              const isTimeSelected = localTime === slot.time || selectedTime === slot.time;
 
-            return (
-              <button
-                key={slot.time}
-                onClick={() => handleTimeSelect(slot.time)}
-                disabled={disabled || !slot.available}
-                className={cn(
-                  'px-3 py-1.5 rounded-full text-[14px] border transition-all inline-flex items-center gap-1',
-                  'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
-                  isTimeSelected
-                    ? 'bg-foreground text-background border-foreground'
-                    : 'bg-background border-border'
-                )}
-              >
-                {slot.time}
-                {slot.preferred && !isTimeSelected && (
-                  <Star className="h-3 w-3 fill-warning text-warning" />
-                )}
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={slot.time}
+                  onClick={() => handleTimeSelect(slot.time)}
+                  disabled={disabled || !slot.available}
+                  className={cn(
+                    'px-3 py-1.5 rounded-full text-[14px] border transition-all inline-flex items-center gap-1',
+                    'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
+                    isTimeSelected
+                      ? 'bg-foreground text-background border-foreground'
+                      : 'bg-background border-border'
+                  )}
+                >
+                  {slot.time}
+                  {slot.preferred && !isTimeSelected && (
+                    <Star className="h-3 w-3 fill-warning text-warning" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

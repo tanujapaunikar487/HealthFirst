@@ -721,7 +721,17 @@ export default function InsuranceIndex({
                       <p className="text-[14px] font-semibold text-foreground truncate">{p.plan_name}</p>
                       <p className="text-[14px] text-muted-foreground">{p.provider_name} &middot; {formatCurrency(p.sum_insured)}</p>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-foreground flex-shrink-0" />
+                    <span
+                      className="flex items-center justify-center flex-shrink-0 rounded-full"
+                      style={{
+                        width: '40px', height: '40px',
+                        border: '1px solid hsl(var(--border))',
+                        background: 'hsl(var(--secondary))',
+                        color: 'hsl(var(--foreground))',
+                      }}
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </span>
                   </button>
                 ))}
               </div>
@@ -755,7 +765,17 @@ export default function InsuranceIndex({
                           <p className="text-[14px] font-semibold text-foreground">{member.name}</p>
                           <p className="text-[14px] text-muted-foreground capitalize">{member.relation}</p>
                         </div>
-                        <ChevronRight className="h-4 w-4 text-foreground" />
+                        <span
+                          className="flex items-center justify-center flex-shrink-0 rounded-full"
+                          style={{
+                            width: '40px', height: '40px',
+                            border: '1px solid hsl(var(--border))',
+                            background: 'hsl(var(--secondary))',
+                            color: 'hsl(var(--foreground))',
+                          }}
+                        >
+                          <ChevronRight className="h-5 w-5" />
+                        </span>
                       </button>
                     );
                   })

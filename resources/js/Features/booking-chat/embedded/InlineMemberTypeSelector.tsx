@@ -8,6 +8,7 @@ import { DatePicker } from '@/Components/ui/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { OtpInput } from '@/Components/OtpInput';
 import { MemberSearchCard } from '@/Components/MemberSearchCard';
+import { Card } from '@/Components/ui/card';
 import { DetectionCard } from './DetectionCard';
 import { TypeSelectorCard, MemberType } from './TypeSelectorCard';
 import { Collapsible, CollapsibleContent } from '@/Components/ui/collapsible';
@@ -1041,8 +1042,8 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
 
                     <div className="rounded-xl border border-border bg-muted/30 p-4">
                         <div className="flex items-center gap-3">
-                            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                                <User className="h-6 w-6 text-primary" />
+                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                <User className="h-5 w-5 text-primary" />
                             </div>
                             <div>
                                 <h4 className="font-semibold">{foundMember.name}</h4>
@@ -1229,42 +1230,59 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
 
     return (
         <div className="space-y-3">
-            {/* Type Selector Cards */}
-            <TypeSelectorCard
-                type="new_member"
-                isExpanded={state.expandedType === 'new_member'}
-                onClick={() => toggleType('new_member')}
-                disabled={state.loading}
-            />
-            <Collapsible open={state.expandedType === 'new_member'}>
-                <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
-                    {renderNewMemberForm()}
-                </CollapsibleContent>
-            </Collapsible>
+            <Card className="overflow-hidden">
+                {/* New Member */}
+                <div style={state.expandedType !== 'new_member' ? undefined : { borderBottom: '1px solid hsl(var(--border))' }}>
+                    <TypeSelectorCard
+                        type="new_member"
+                        isExpanded={state.expandedType === 'new_member'}
+                        onClick={() => toggleType('new_member')}
+                        disabled={state.loading}
+                    />
+                    <Collapsible open={state.expandedType === 'new_member'}>
+                        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
+                            <div className="px-4 pb-4">
+                                {renderNewMemberForm()}
+                            </div>
+                        </CollapsibleContent>
+                    </Collapsible>
+                </div>
 
-            <TypeSelectorCard
-                type="link_existing"
-                isExpanded={state.expandedType === 'link_existing'}
-                onClick={() => toggleType('link_existing')}
-                disabled={state.loading}
-            />
-            <Collapsible open={state.expandedType === 'link_existing'}>
-                <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
-                    {renderLinkExistingForm()}
-                </CollapsibleContent>
-            </Collapsible>
+                {/* Existing Patient */}
+                <div style={state.expandedType !== 'link_existing' ? undefined : { borderBottom: '1px solid hsl(var(--border))' }}>
+                    <TypeSelectorCard
+                        type="link_existing"
+                        isExpanded={state.expandedType === 'link_existing'}
+                        onClick={() => toggleType('link_existing')}
+                        disabled={state.loading}
+                    />
+                    <Collapsible open={state.expandedType === 'link_existing'}>
+                        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
+                            <div className="px-4 pb-4">
+                                {renderLinkExistingForm()}
+                            </div>
+                        </CollapsibleContent>
+                    </Collapsible>
+                </div>
 
-            <TypeSelectorCard
-                type="guest"
-                isExpanded={state.expandedType === 'guest'}
-                onClick={() => toggleType('guest')}
-                disabled={state.loading}
-            />
-            <Collapsible open={state.expandedType === 'guest'}>
-                <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
-                    {renderGuestForm()}
-                </CollapsibleContent>
-            </Collapsible>
+                {/* Guest */}
+                <div>
+                    <TypeSelectorCard
+                        type="guest"
+                        isExpanded={state.expandedType === 'guest'}
+                        onClick={() => toggleType('guest')}
+                        disabled={state.loading}
+                        isLast
+                    />
+                    <Collapsible open={state.expandedType === 'guest'}>
+                        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
+                            <div className="px-4 pb-4">
+                                {renderGuestForm()}
+                            </div>
+                        </CollapsibleContent>
+                    </Collapsible>
+                </div>
+            </Card>
 
             {/* Cancel button */}
             <Button

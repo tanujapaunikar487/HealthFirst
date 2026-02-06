@@ -41,7 +41,7 @@ export function EmbeddedAppointmentMode({ modes, selectedMode, onSelect, disable
             onClick={() => !disabled && onSelect(mode.type)}
             disabled={disabled}
             className={cn(
-              "w-full flex items-center gap-4 p-4 text-left transition-all",
+              "w-full flex items-center gap-4 px-6 py-4 text-left transition-all",
               "hover:bg-muted/50 disabled:cursor-not-allowed",
               isSelected
                 ? disabled ? "bg-primary/5 opacity-60" : "bg-primary/5"
@@ -52,7 +52,7 @@ export function EmbeddedAppointmentMode({ modes, selectedMode, onSelect, disable
             }}
           >
             {/* Icon with rounded background */}
-            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
               <ModeIcon className="h-5 w-5 text-foreground" />
             </div>
 

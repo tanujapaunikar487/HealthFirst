@@ -8,7 +8,7 @@ import {
 } from '@/Components/ui/prompt-input';
 import { PromptInputContainer } from '@/Components/ui/prompt-input-container';
 import { PromptSuggestion } from '@/Components/ui/prompt-suggestion';
-import { ArrowUp, Plus, Mic, X, Check, ChevronRight } from '@/Lib/icons';
+import { ArrowUp, Plus, Mic, X, Check, ChevronRight, Stethoscope, TestTube2 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { AudioWaveform } from '@/Components/ui/AudioWaveform';
 import { useAudioRecorder } from '@/Hooks/useAudioRecorder';
@@ -469,43 +469,53 @@ export default function BookingIndex() {
 
           {/* Guided mode — booking type cards */}
           {mode === 'guided' && (
-            <div className="flex flex-col gap-3 mt-6" style={{ maxWidth: '720px', width: '100%' }}>
+            <div className="flex gap-4 mt-6">
               <button
                 onClick={() => startGuidedBooking('doctor')}
-                className="flex items-center gap-4 p-5 rounded-[20px] border border-border bg-card text-left transition-all hover:border-primary/50 hover:bg-primary/5"
+                className="rounded-[20px] border border-border bg-card text-left transition-all hover:border-primary hover:shadow-sm overflow-hidden"
+                style={{ width: '300px', flexShrink: 0 }}
               >
                 <div
-                  className="flex items-center justify-center w-12 h-12 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: 'hsl(var(--primary) / 0.1)' }}
+                  className="relative overflow-hidden"
+                  style={{ backgroundColor: 'hsl(var(--primary) / 0.15)', height: '200px' }}
                 >
-                  <img src="/assets/icons/hugeicons/doctor-01-1.svg" alt="" className="w-6 h-6" />
+                  <img
+                    src="/assets/images/doctor.png"
+                    alt="Book a doctor"
+                    className="absolute"
+                    style={{ width: '260px', top: '0', left: '50%', transform: 'translateX(-50%)' }}
+                  />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[14px] font-semibold text-foreground">Book a doctor</p>
-                  <p className="text-[14px] text-muted-foreground mt-0.5">
+                <div className="px-5 py-4">
+                  <p className="text-[16px] font-semibold text-foreground">Book a doctor</p>
+                  <p className="text-[14px] text-muted-foreground mt-1">
                     Schedule a consultation with a specialist or general physician
                   </p>
                 </div>
-                <Icon icon={ChevronRight} className="w-5 h-5 text-muted-foreground flex-shrink-0" />
               </button>
 
               <button
                 onClick={() => startGuidedBooking('lab_test')}
-                className="flex items-center gap-4 p-5 rounded-[20px] border border-border bg-card text-left transition-all hover:border-primary/50 hover:bg-primary/5"
+                className="rounded-[20px] border border-border bg-card text-left transition-all hover:border-primary hover:shadow-sm overflow-hidden"
+                style={{ width: '300px', flexShrink: 0 }}
               >
                 <div
-                  className="flex items-center justify-center w-12 h-12 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: 'hsl(var(--primary) / 0.1)' }}
+                  className="relative overflow-hidden"
+                  style={{ backgroundColor: 'hsl(var(--primary) / 0.15)', height: '200px' }}
                 >
-                  <img src="/assets/icons/hugeicons/test-tube-01.svg" alt="" className="w-6 h-6" />
+                  <img
+                    src="/assets/images/test.png"
+                    alt="Book a test"
+                    className="absolute"
+                    style={{ width: '260px', top: '0', left: '50%', transform: 'translateX(-50%)' }}
+                  />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[14px] font-semibold text-foreground">Book a test</p>
-                  <p className="text-[14px] text-muted-foreground mt-0.5">
+                <div className="px-5 py-4">
+                  <p className="text-[16px] font-semibold text-foreground">Book a test</p>
+                  <p className="text-[14px] text-muted-foreground mt-1">
                     Lab tests, health packages, and home sample collection
                   </p>
                 </div>
-                <Icon icon={ChevronRight} className="w-5 h-5 text-muted-foreground flex-shrink-0" />
               </button>
             </div>
           )}

@@ -1068,11 +1068,11 @@ function ConsultationModeSelector({ modes, selected, onSelect, disabled }: any) 
           )}
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
               {mode.id === 'video' ? (
-                <Video className="w-5 h-5 text-[#0052FF]" />
+                <Video className="w-5 h-5 text-primary" />
               ) : (
-                <User className="w-5 h-5 text-[#0052FF]" />
+                <User className="w-5 h-5 text-primary" />
               )}
             </div>
             <div>
@@ -1287,67 +1287,69 @@ function DateTimePicker({ selectedDate, selectedTime, onSelect, disabled, warnin
         </div>
       )}
 
-      {/* Date selection */}
-      <div>
-        <h4 className="font-semibold text-[14px] mb-3 text-foreground">Date</h4>
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {dates.map((dateItem: any) => {
-            const isSelected = tempDate === dateItem.value || selectedDate === dateItem.value;
+      <Card className="overflow-hidden">
+        {/* Date selection */}
+        <div className="p-4" style={{ borderBottom: '1px solid hsl(var(--border))' }}>
+          <h4 className="font-semibold text-[14px] mb-3 text-foreground">Date</h4>
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {dates.map((dateItem: any) => {
+              const isSelected = tempDate === dateItem.value || selectedDate === dateItem.value;
 
-            return (
-              <button
-                key={dateItem.value}
-                onClick={() => handleDateSelect(dateItem.value)}
-                disabled={disabled}
-                className={cn(
-                  'flex-shrink-0 px-6 py-3 rounded-3xl border transition-all min-w-[120px]',
-                  'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
-                  isSelected
-                    ? 'border-foreground bg-foreground text-background'
-                    : 'border-border bg-background text-foreground'
-                )}
-              >
-                <div className={cn('font-semibold text-[14px]', isSelected && 'text-background')}>
-                  {dateItem.label}
-                </div>
-                <div className={cn('text-[14px]', isSelected ? 'text-background/70' : 'text-muted-foreground')}>
-                  {dateItem.sublabel}
-                </div>
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={dateItem.value}
+                  onClick={() => handleDateSelect(dateItem.value)}
+                  disabled={disabled}
+                  className={cn(
+                    'flex-shrink-0 px-6 py-3 rounded-2xl border transition-all min-w-[120px]',
+                    'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
+                    isSelected
+                      ? 'bg-foreground text-background border-foreground'
+                      : 'border-border bg-background text-foreground'
+                  )}
+                >
+                  <div className={cn('font-semibold text-[14px]', isSelected && 'text-background')}>
+                    {dateItem.label}
+                  </div>
+                  <div className={cn('text-[14px]', isSelected ? 'text-background/70' : 'text-muted-foreground')}>
+                    {dateItem.sublabel}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      {/* Time selection */}
-      <div>
-        <h4 className="font-semibold text-[14px] mb-3 text-foreground">
-          Time {warning && <span className="text-[14px] font-normal text-muted-foreground">(morning recommended)</span>}
-        </h4>
-        <div className="flex flex-wrap gap-2">
-          {timeSlots.map((slot: any) => {
-            const isSelected = tempTime === slot.time || selectedTime === slot.time;
+        {/* Time selection */}
+        <div className="p-4">
+          <h4 className="font-semibold text-[14px] mb-3 text-foreground">
+            Time {warning && <span className="text-[14px] font-normal text-muted-foreground">(morning recommended)</span>}
+          </h4>
+          <div className="flex flex-wrap gap-2">
+            {timeSlots.map((slot: any) => {
+              const isSelected = tempTime === slot.time || selectedTime === slot.time;
 
-            return (
-              <button
-                key={slot.time}
-                onClick={() => handleTimeSelect(slot.time)}
-                disabled={disabled || !slot.available}
-                className={cn(
-                  'px-3.5 py-1.5 rounded-full border text-[14px] font-medium transition-all inline-flex items-center gap-1.5',
-                  'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
-                  isSelected
-                    ? 'border-foreground bg-foreground text-background'
-                    : 'border-border bg-background text-foreground'
-                )}
-              >
-                {formatTimeDisplay(slot.time)}
-                {slot.preferred && !isSelected && <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />}
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={slot.time}
+                  onClick={() => handleTimeSelect(slot.time)}
+                  disabled={disabled || !slot.available}
+                  className={cn(
+                    'px-3.5 py-1.5 rounded-full border text-[14px] font-medium transition-all inline-flex items-center gap-1.5',
+                    'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
+                    isSelected
+                      ? 'bg-foreground text-background border-foreground'
+                      : 'border-border bg-background text-foreground'
+                  )}
+                >
+                  {formatTimeDisplay(slot.time)}
+                  {slot.preferred && !isSelected && <Star className="w-3.5 h-3.5 fill-warning text-warning" />}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
@@ -1397,13 +1399,13 @@ function ActionList({ actions, onSelect, disabled }: any) {
           )}
         >
           {action.number && (
-            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-              <span className="font-semibold text-blue-900">{action.number}</span>
+            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <span className="font-semibold text-primary">{action.number}</span>
             </div>
           )}
           {action.icon && !action.number && (
-            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-              <img src={`/assets/icons/hugeicons/${action.icon}.svg`} alt="" className="w-4 h-4" />
+            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+              <img src={`/assets/icons/hugeicons/${action.icon}.svg`} alt="" className="w-5 h-5" />
             </div>
           )}
           <div className="flex-1">
@@ -1432,19 +1434,19 @@ function InfoLinks({ links, onSelect, disabled }: any) {
           disabled={disabled}
           className="w-full flex items-start gap-4 p-4 rounded-2xl border border-border bg-white hover:border-primary hover:bg-blue-50 transition-all text-left disabled:cursor-not-allowed disabled:opacity-60"
         >
-          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
             {link.icon === 'clock' && (
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             )}
             {link.icon === 'phone' && (
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
               </svg>
             )}
             {link.icon === 'help-circle' && (
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             )}
@@ -1539,8 +1541,8 @@ function ScheduleConflict({ existing, newAppointment, onSelect, disabled }: any)
       <div className="bg-blue-50 rounded-2xl p-4 border border-blue-400">
         <p className="text-[14px] font-semibold text-blue-700 uppercase mb-2">New Appointment</p>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-            <span className="text-blue-600 font-bold text-lg">D</span>
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <span className="text-primary font-bold text-lg">D</span>
           </div>
           <div>
             <p className="font-semibold text-gray-900">{newAppointment?.doctor}</p>

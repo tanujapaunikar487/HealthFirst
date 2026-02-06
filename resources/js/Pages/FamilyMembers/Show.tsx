@@ -918,7 +918,17 @@ export default function FamilyMemberShow({
                         <p className="text-[14px] font-semibold text-foreground">{link.title}</p>
                         <p className="text-[14px] font-normal text-muted-foreground">{link.subtitle}</p>
                       </div>
-                      <ChevronRight className="h-5 w-5 text-foreground flex-shrink-0" />
+                      <span
+                        className="flex items-center justify-center flex-shrink-0 rounded-full"
+                        style={{
+                          width: '40px', height: '40px',
+                          border: '1px solid hsl(var(--border))',
+                          background: 'hsl(var(--secondary))',
+                          color: 'hsl(var(--foreground))',
+                        }}
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </span>
                     </button>
                   ))}
                 </div>

@@ -101,7 +101,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         style={mergedStyle}
         {...props}
       >
-        {IconComp && <IconComp className={size === 'lg' ? 'h-[20px] w-[20px]' : 'h-[16px] w-[16px]'} />}
+        {IconComp && <IconComp className={size === 'lg' || size === 'icon' ? 'h-[20px] w-[20px]' : 'h-[16px] w-[16px]'} />}
         {children}
       </button>
     );

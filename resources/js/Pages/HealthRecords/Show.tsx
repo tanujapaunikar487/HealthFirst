@@ -569,12 +569,12 @@ function LinkedRecordsList({ records, onView }: { records: LinkedRecord[]; onVie
             onClick={() => onView(rec.title)}
           >
             {config ? (
-              <div className="h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: config.bg }}>
-                <config.icon className="h-4 w-4" style={{ color: config.color }} />
+              <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: config.bg }}>
+                <config.icon className="h-5 w-5" style={{ color: config.color }} />
               </div>
             ) : (
-              <div className="h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 bg-muted">
-                <FileText className="h-4 w-4 text-foreground" />
+              <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-muted">
+                <FileText className="h-5 w-5 text-foreground" />
               </div>
             )}
             <span className="text-[14px] font-medium flex-1 truncate">{rec.title}</span>

@@ -1,6 +1,7 @@
 import { cn } from '@/Lib/utils';
 import { Star } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { Card } from '@/Components/ui/card';
 import { format, addDays, startOfDay } from 'date-fns';
 
 interface TimeSlot {
@@ -61,68 +62,70 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
         </div>
       )}
 
-      {/* Date selection */}
-      <div>
-        <h4 className="font-semibold text-[14px] mb-3">Date</h4>
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {dates.map((date, index) => {
-            const dateValue = formatDateValue(date);
-            const isSelected = selectedDate === dateValue;
+      <Card className="overflow-hidden">
+        {/* Date selection */}
+        <div className="p-4" style={{ borderBottom: '1px solid hsl(var(--border))' }}>
+          <h4 className="font-semibold text-[14px] mb-3">Date</h4>
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {dates.map((date, index) => {
+              const dateValue = formatDateValue(date);
+              const isSelected = selectedDate === dateValue;
 
-            return (
-              <button
-                key={dateValue}
-                onClick={() => !disabled && selectedTime && onSelect(dateValue, selectedTime)}
-                disabled={disabled}
-                className={cn(
-                  'flex flex-col items-center flex-shrink-0 px-6 py-3 rounded-2xl border transition-all min-w-[120px]',
-                  'hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-60',
-                  isSelected
-                    ? 'border-[#0A0B0D] bg-[#0A0B0D] text-white'
-                    : 'border-border bg-background text-foreground'
-                )}
-              >
-                <div className={cn('font-semibold text-[14px]', isSelected && 'text-white')}>
-                  {formatDateLabel(date, index)}
-                </div>
-                <div className={cn('text-[14px]', isSelected ? 'text-muted-foreground/50' : 'text-muted-foreground')}>
-                  {formatDateDisplay(date)}
-                </div>
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={dateValue}
+                  onClick={() => !disabled && selectedTime && onSelect(dateValue, selectedTime)}
+                  disabled={disabled}
+                  className={cn(
+                    'flex flex-col items-center flex-shrink-0 px-6 py-3 rounded-2xl border transition-all min-w-[120px]',
+                    'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
+                    isSelected
+                      ? 'bg-foreground text-background border-foreground'
+                      : 'border-border bg-background text-foreground'
+                  )}
+                >
+                  <div className={cn('font-semibold text-[14px]', isSelected && 'text-background')}>
+                    {formatDateLabel(date, index)}
+                  </div>
+                  <div className={cn('text-[14px]', isSelected ? 'text-background/70' : 'text-muted-foreground')}>
+                    {formatDateDisplay(date)}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      {/* Time selection */}
-      <div>
-        <h4 className="font-semibold text-[14px] mb-3">
-          Time {warning && <span className="text-[14px] font-normal text-muted-foreground">(morning recommended)</span>}
-        </h4>
-        <div className="flex flex-wrap gap-2">
-          {timeSlots.map((slot) => {
-            const isSelected = selectedTime === slot.time;
+        {/* Time selection */}
+        <div className="p-4">
+          <h4 className="font-semibold text-[14px] mb-3">
+            Time {warning && <span className="text-[14px] font-normal text-muted-foreground">(morning recommended)</span>}
+          </h4>
+          <div className="flex flex-wrap gap-2">
+            {timeSlots.map((slot) => {
+              const isSelected = selectedTime === slot.time;
 
-            return (
-              <button
-                key={slot.time}
-                onClick={() => !disabled && selectedDate && onSelect(selectedDate, slot.time)}
-                disabled={disabled || !slot.available}
-                className={cn(
-                  'px-3.5 py-1.5 rounded-full border text-[14px] font-medium transition-all inline-flex items-center gap-1',
-                  'hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-60',
-                  isSelected
-                    ? 'border-[#0A0B0D] bg-[#0A0B0D] text-white'
-                    : 'border-border bg-background text-foreground'
-                )}
-              >
-                {slot.time}
-                {slot.preferred && !isSelected && <Star className="w-3 h-3 fill-current" />}
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={slot.time}
+                  onClick={() => !disabled && selectedDate && onSelect(selectedDate, slot.time)}
+                  disabled={disabled || !slot.available}
+                  className={cn(
+                    'px-3.5 py-1.5 rounded-full border text-[14px] font-medium transition-all inline-flex items-center gap-1',
+                    'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
+                    isSelected
+                      ? 'bg-foreground text-background border-foreground'
+                      : 'border-border bg-background text-foreground'
+                  )}
+                >
+                  {slot.time}
+                  {slot.preferred && !isSelected && <Star className="w-3 h-3 fill-current" />}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

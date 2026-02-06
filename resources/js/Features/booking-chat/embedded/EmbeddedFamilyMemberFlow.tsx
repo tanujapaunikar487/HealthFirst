@@ -918,15 +918,15 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         <div className="space-y-4">
                             <div className="grid gap-3">
                                 <button onClick={() => handleInitialChoice('add_new_family')} className="flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
-                                    <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center"><Users className="h-6 w-6" /></div>
+                                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><Users className="h-5 w-5" /></div>
                                     <div><h4 className="font-semibold">Add New Family Member</h4><p className="text-[14px] text-muted-foreground">Create a full family member profile</p></div>
                                 </button>
                                 <button onClick={() => handleInitialChoice('link_existing')} className="flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
-                                    <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center"><Users className="h-6 w-6" /></div>
+                                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><Users className="h-5 w-5" /></div>
                                     <div><h4 className="font-semibold">Link Existing Patient</h4><p className="text-[14px] text-muted-foreground">Connect to an existing hospital patient record</p></div>
                                 </button>
                                 <button onClick={() => handleInitialChoice('guest')} className="flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
-                                    <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center"><User className="h-6 w-6" /></div>
+                                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><User className="h-5 w-5" /></div>
                                     <div><h4 className="font-semibold">Guest</h4><p className="text-[14px] text-muted-foreground">One-time booking only</p></div>
                                 </button>
                             </div>
@@ -1193,8 +1193,8 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             {/* Patient Card */}
                             <div className="rounded-xl border border-border bg-muted/30 p-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                                        <User className="h-6 w-6 text-primary" />
+                                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                        <User className="h-5 w-5 text-primary" />
                                     </div>
                                     <div>
                                         <h4 className="font-semibold">{state.foundMember.name}</h4>
@@ -1435,8 +1435,8 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             onClick={() => handleInitialChoice('guest')}
                             className="flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
                         >
-                            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-                                <User className="h-6 w-6" />
+                            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                                <User className="h-5 w-5" />
                             </div>
                             <div>
                                 <h4 className="font-semibold">Guest</h4>
@@ -1453,8 +1453,8 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             onClick={() => handleInitialChoice('add_new_family')}
                             className="flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
                         >
-                            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-                                <Users className="h-6 w-6" />
+                            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                                <Users className="h-5 w-5" />
                             </div>
                             <div>
                                 <h4 className="font-semibold">Add New Family Member</h4>
@@ -1469,8 +1469,8 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             onClick={() => handleInitialChoice('link_existing')}
                             className="flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
                         >
-                            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-                                <Users className="h-6 w-6" />
+                            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                                <Users className="h-5 w-5" />
                             </div>
                             <div>
                                 <h4 className="font-semibold">Link Existing Patient</h4>
@@ -1887,8 +1887,8 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     {/* Patient Card */}
                     <div className="rounded-xl border border-border bg-muted/30 p-4">
                         <div className="flex items-center gap-3">
-                            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                                <User className="h-6 w-6 text-primary" />
+                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                <User className="h-5 w-5 text-primary" />
                             </div>
                             <div>
                                 <h4 className="font-semibold">{state.foundMember.name}</h4>

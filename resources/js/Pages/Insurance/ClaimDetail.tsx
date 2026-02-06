@@ -776,7 +776,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
   const ThreeDotMenu = () => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-foreground">
+        <Button variant="ghost" size="icon" className="text-foreground">
           <MoreVertical className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
@@ -1205,8 +1205,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           {/* Original Policy (if transferred) */}
           {claim.original_policy_id && claim.original_policy_plan_name && (
             <div className="flex items-center gap-3 px-6 py-4">
-              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-muted">
-                <Shield className="h-4 w-4 text-foreground" />
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-muted">
+                <Shield className="h-5 w-5 text-foreground" />
               </div>
               <div className="flex-1">
                 <p className="text-[14px] font-medium text-muted-foreground">Insurance Plan (Original)</p>
@@ -1232,8 +1232,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               onClick={() => router.visit(`/insurance/${claim.policy_id}`)}
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
-                  <Shield className="h-4 w-4 text-primary" />
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
+                  <Shield className="h-5 w-5 text-primary" />
                 </div>
                 <div>
                   <p className="text-[14px] font-medium text-muted-foreground">
@@ -1261,8 +1261,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               onClick={() => router.visit(`/appointments/${claim.appointment_id}`)}
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-success/10">
-                  <Calendar className="h-4 w-4 text-success" />
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-success/10">
+                  <Calendar className="h-5 w-5 text-success" />
                 </div>
                 <div>
                   <p className="text-[14px] font-medium text-muted-foreground">Related Appointment</p>
@@ -1504,8 +1504,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-muted">
-                      <FileText className="h-4 w-4 text-foreground" />
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-muted">
+                      <FileText className="h-5 w-5 text-foreground" />
                     </div>
                     <div>
                       <p className="text-[14px] font-medium text-foreground">{doc.type}</p>

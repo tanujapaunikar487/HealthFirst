@@ -4,7 +4,7 @@ import AppLayout from '@/Layouts/AppLayout';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
 import {
-  ChevronRight, AlertCircle, RefreshCw, Check, Stethoscope, FlaskConical,
+  ChevronRight, AlertCircle, RefreshCw, Stethoscope, FlaskConical,
   Receipt, MoreHorizontal, Calendar, X, FileText, Clock, CreditCard, Loader2,
   Shield, RotateCcw, CheckCircle2, Syringe, Pill,
 } from '@/Lib/icons';
@@ -401,6 +401,7 @@ function DashboardCard({
       {/* Action button */}
       <Button
         variant={actionVariant}
+        size="md"
         className="flex-shrink-0"
         onClick={(e) => { e.stopPropagation(); onAction(); }}
       >
@@ -410,13 +411,13 @@ function DashboardCard({
       {/* Overflow menu */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button
-            className="flex items-center justify-center flex-shrink-0 rounded-full hover:bg-accent transition-colors"
-            style={{ width: '32px', height: '32px' }}
+          <Button
+            size="icon"
+            className="flex-shrink-0"
             onClick={(e) => e.stopPropagation()}
           >
-            <Icon icon={MoreHorizontal} className="h-4 w-4" style={{ color: 'hsl(var(--muted-foreground))' }} />
-          </button>
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
           {menuItems.map((item, i) => (
@@ -1484,10 +1485,10 @@ function ProfileStepItem({ step, isLast, onClick }: ProfileStepItemProps) {
           className="flex items-center justify-center flex-shrink-0"
           style={{
             width: '40px', height: '40px', borderRadius: '9999px',
-            backgroundColor: 'hsl(var(--success) / 0.15)', animation: 'checkmark-pop 0.3s ease-out',
+            backgroundColor: 'hsl(var(--success))', animation: 'checkmark-pop 0.3s ease-out',
           }}
         >
-          <Icon icon={Check} className="h-5 w-5" style={{ color: 'hsl(var(--success))' }} />
+          <Icon icon={CheckCircle2} className="h-5 w-5" style={{ color: 'white' }} />
         </div>
       ) : (
         <div

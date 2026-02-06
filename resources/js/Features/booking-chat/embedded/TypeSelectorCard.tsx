@@ -8,6 +8,7 @@ interface TypeSelectorCardProps {
     isExpanded: boolean;
     onClick: () => void;
     disabled?: boolean;
+    isLast?: boolean;
 }
 
 const cardConfig: Record<MemberType, { icon: typeof User; title: string; description: string }> = {
@@ -28,7 +29,7 @@ const cardConfig: Record<MemberType, { icon: typeof User; title: string; descrip
     },
 };
 
-export function TypeSelectorCard({ type, isExpanded, onClick, disabled }: TypeSelectorCardProps) {
+export function TypeSelectorCard({ type, isExpanded, onClick, disabled, isLast }: TypeSelectorCardProps) {
     const config = cardConfig[type];
     const Icon = config.icon;
 
@@ -37,18 +38,19 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled }: TypeSe
             onClick={onClick}
             disabled={disabled}
             className={cn(
-                'flex items-center gap-4 p-4 rounded-xl border transition-all text-left w-full',
+                'flex items-center gap-4 p-4 transition-all text-left w-full',
                 isExpanded
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border hover:border-primary/50 hover:bg-primary/5',
+                    ? 'bg-primary/5'
+                    : 'hover:bg-muted/50',
                 disabled && 'opacity-50 cursor-not-allowed'
             )}
+            style={!isLast && !isExpanded ? { borderBottom: '1px solid hsl(var(--border))' } : undefined}
         >
             <div className={cn(
-                'h-12 w-12 rounded-lg flex items-center justify-center shrink-0',
+                'h-10 w-10 rounded-full flex items-center justify-center shrink-0',
                 isExpanded ? 'bg-primary/10' : 'bg-muted'
             )}>
-                <Icon className={cn('h-6 w-6', isExpanded && 'text-primary')} />
+                <Icon className={cn('h-5 w-5', isExpanded ? 'text-primary' : 'text-foreground')} />
             </div>
             <div className="flex-1 min-w-0">
                 <h4 className="font-semibold">{config.title}</h4>

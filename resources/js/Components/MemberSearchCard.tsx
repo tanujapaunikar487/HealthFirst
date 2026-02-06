@@ -23,8 +23,8 @@ export function MemberSearchCard({ member, alreadyLinked }: MemberSearchCardProp
         <div className="border border-primary rounded-xl p-4 bg-primary/5">
             <div className="flex items-start gap-4">
                 {/* Avatar */}
-                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <User className="h-6 w-6 text-primary" />
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <User className="h-5 w-5 text-primary" />
                 </div>
 
                 {/* Details */}

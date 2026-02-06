@@ -7,7 +7,7 @@ import { Textarea } from '@/Components/ui/textarea';
 import { FollowUpBanner } from '@/Components/Booking/FollowUpBanner';
 import InlineMemberTypeSelector from '@/Features/booking-chat/embedded/InlineMemberTypeSelector';
 import { cn } from '@/Lib/utils';
-import { ArrowRight, Star, Calendar, MessageSquare, AlertCircle } from '@/Lib/icons';
+import { ArrowRight, Star, CalendarClock, RefreshCw, AlertCircle } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 
 const doctorSteps = [
@@ -343,11 +343,11 @@ export default function PatientStep({
   const getReasonIcon = (value: string) => {
     switch (value) {
       case 'scheduled':
-        return <Icon icon={Calendar} className="h-5 w-5 text-primary" />;
+        return <Icon icon={CalendarClock} className="h-5 w-5 text-primary" />;
       case 'new_concern':
-        return <Icon icon={AlertCircle} className="h-5 w-5 text-warning" />;
+        return <Icon icon={AlertCircle} className="h-5 w-5 text-primary" />;
       case 'ongoing_issue':
-        return <Icon icon={MessageSquare} className="h-5 w-5 text-destructive" />;
+        return <Icon icon={RefreshCw} className="h-5 w-5 text-primary" />;
       default:
         return null;
     }
@@ -474,7 +474,7 @@ export default function PatientStep({
                   key={option.value}
                   onClick={() => handleFollowupReasonSelect(option.value)}
                   className={cn(
-                    'w-full p-4 text-left transition-all',
+                    'w-full p-4 text-left transition-all flex items-center gap-4',
                     'hover:bg-muted/50',
                     followupReason === option.value && 'bg-primary/5'
                   )}
@@ -482,8 +482,13 @@ export default function PatientStep({
                     borderBottom: index < followUpReasonOptions.length - 1 ? '1px solid hsl(var(--border))' : 'none'
                   }}
                 >
-                  <p className="font-medium text-[14px]">{option.label}</p>
-                  <p className="text-[14px] text-muted-foreground">{option.description}</p>
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    {getReasonIcon(option.value)}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-medium text-[14px] text-foreground leading-tight mb-0.5">{option.label}</p>
+                    <p className="text-[14px] text-muted-foreground leading-tight">{option.description}</p>
+                  </div>
                 </button>
               ))}
             </Card>
