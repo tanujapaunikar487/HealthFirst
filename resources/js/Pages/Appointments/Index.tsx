@@ -86,7 +86,7 @@ interface Props {
 
 function AppointmentsSkeleton() {
   return (
-    <div style={{ width: '100%', maxWidth: '960px' }}>
+    <div className="w-full max-w-page">
       <div className="flex items-center justify-between mb-8">
         <Pulse className="h-9 w-48" />
         <Pulse className="h-10 w-40 rounded-full" />
@@ -260,23 +260,22 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
       pageTitle="Appointments"
       pageIcon="/assets/icons/appointment.svg"
     >
-      <div className="min-h-full flex flex-col" style={{ width: '100%', maxWidth: '960px' }}>
+      <div className="min-h-full flex flex-col w-full max-w-page">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h1
-            className="font-bold"
+            className="font-bold text-foreground"
             style={{
               fontSize: '36px',
               lineHeight: '44px',
               letterSpacing: '-1px',
-              color: 'hsl(var(--foreground))',
             }}
           >
             Appointments
           </h1>
           {appointments.length > 0 && (
             <Link href="/booking" className={buttonVariants({ size: 'lg' }) + ' font-semibold'}>
-              <Icon icon={CalendarPlus} className="h-[20px] w-[20px]" />
+              <Icon icon={CalendarPlus} className="h-5 w-5" />
               Book appointment
             </Link>
           )}
@@ -326,7 +325,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
             <div className="flex items-center gap-3">
               {doctors.length > 0 && (
                 <Select value={doctorFilter} onValueChange={setDoctorFilter}>
-                  <SelectTrigger className="w-[180px] h-9">
+                  <SelectTrigger className="w-44 h-9">
                     <SelectValue placeholder="All doctors" />
                   </SelectTrigger>
                   <SelectContent>
@@ -340,7 +339,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
                 </Select>
               )}
               <Select value={memberFilter} onValueChange={setMemberFilter}>
-                <SelectTrigger className="w-[180px] h-9">
+                <SelectTrigger className="w-44 h-9">
                   <SelectValue placeholder="All members" />
                 </SelectTrigger>
                 <SelectContent>
@@ -359,7 +358,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
                 placeholder="Search appointments..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-9 w-[220px]"
+                className="pl-9 h-9 w-56"
               />
             </div>
           </div>
@@ -490,16 +489,16 @@ function AppointmentsTable({
   }
 
   return (
-    <div className="border" style={{ borderRadius: '24px' }}>
+    <div className="border rounded-3xl">
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <TableHead className="w-[180px]">Date</TableHead>
+            <TableHead className="w-44">Date</TableHead>
             <TableHead>Details</TableHead>
-            <TableHead className="w-[120px]">Family member</TableHead>
-            <TableHead className="w-[120px] text-right">Amount</TableHead>
-            <TableHead className="w-[100px]">Status</TableHead>
-            <TableHead className="w-[50px]" />
+            <TableHead className="w-32">Family member</TableHead>
+            <TableHead className="w-32 text-right">Amount</TableHead>
+            <TableHead className="w-24">Status</TableHead>
+            <TableHead className="w-12" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -531,9 +530,9 @@ function AppointmentsTable({
                     style={{ backgroundColor: 'hsl(var(--primary) / 0.2)' }}
                   >
                     {appt.type === 'doctor' ? (
-                      <Icon icon={Stethoscope} className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />
+                      <Icon icon={Stethoscope} className="h-5 w-5 text-primary" />
                     ) : (
-                      <Icon icon={TestTube2} className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />
+                      <Icon icon={TestTube2} className="h-5 w-5 text-primary" />
                     )}
                   </div>
                   <div>

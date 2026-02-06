@@ -262,7 +262,7 @@ export default function BookingIndex() {
           {/* AI Input - only show in AI mode */}
           {mode === 'ai' && (
             <PromptInputContainer
-              style={{ maxWidth: '720px', width: '100%' }}
+              className="max-w-3xl w-full"
               gradient={
                 isFocused || input.length > 0
                   ? 'linear-gradient(265deg, hsl(var(--primary) / 0.4) 24.67%, hsl(var(--primary) / 0.25) 144.07%)'
@@ -278,7 +278,7 @@ export default function BookingIndex() {
               >
                 {isRecording ? (
                   // Recording mode - show waveform
-                  <div className="px-6 py-4 min-h-[140px] flex items-center justify-between">
+                  <div className="px-6 py-4 min-h-36 flex items-center justify-between">
                     <div className="flex items-center gap-3 flex-1">
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 bg-destructive rounded-full animate-pulse"></div>
@@ -293,7 +293,7 @@ export default function BookingIndex() {
                   // Normal mode - show textarea
                   <PromptInputTextarea
                     placeholder="Type your symptom's"
-                    className="text-base text-foreground placeholder:text-muted-foreground min-h-[140px]"
+                    className="text-base text-foreground placeholder:text-muted-foreground min-h-36"
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                   />
@@ -307,12 +307,9 @@ export default function BookingIndex() {
                           variant="outline"
                           iconOnly
                           size="md"
-                          style={{
-                            borderRadius: '50%',
-                            transition: 'all 0.2s ease',
-                          }}
+                          className="rounded-full transition-all duration-200"
                         >
-                          <Icon icon={Plus} className="w-[18px] h-[18px]" />
+                          <Icon icon={Plus} className="w-5 h-5" />
                         </Button>
                       </PromptInputAction>
                     )}
@@ -331,12 +328,9 @@ export default function BookingIndex() {
                             onClick={() => {
                               cancelRecording();
                             }}
-                            style={{
-                              borderRadius: '50%',
-                              transition: 'all 0.2s ease',
-                            }}
+                            className="rounded-full transition-all duration-200"
                           >
-                            <Icon icon={X} className="w-[18px] h-[18px] text-destructive" />
+                            <Icon icon={X} className="w-5 h-5 text-destructive" />
                           </Button>
                         </PromptInputAction>
 
@@ -346,10 +340,7 @@ export default function BookingIndex() {
                             iconOnly
                             size="md"
                             onClick={handleMicClick}
-                            style={{
-                              borderRadius: '50%',
-                              transition: 'all 0.2s ease',
-                            }}
+                            className="rounded-full transition-all duration-200"
                           >
                             <Icon icon={Check} className="w-5 h-5 text-white" />
                           </Button>
@@ -365,13 +356,10 @@ export default function BookingIndex() {
                             size="md"
                             onClick={handleMicClick}
                             disabled={isLoading}
-                            style={{
-                              borderRadius: '50%',
-                              transition: 'all 0.2s ease',
-                            }}
+                            className="rounded-full transition-all duration-200"
                           >
                             <Icon icon={Mic} className={cn(
-                              "w-[18px] h-[18px]",
+                              "w-5 h-5",
                               isTranscribing && "animate-pulse text-primary"
                             )} />
                           </Button>
@@ -384,11 +372,10 @@ export default function BookingIndex() {
                             size="md"
                             onClick={handleSubmit}
                             disabled={isLoading || !input.trim()}
-                            style={{
-                              borderRadius: '50%',
-                              backgroundColor: isLoading || !input.trim() ? 'hsl(var(--muted))' : undefined,
-                              transition: 'all 0.2s ease',
-                            }}
+                            className={cn(
+                              "rounded-full transition-all duration-200",
+                              (isLoading || !input.trim()) && "bg-muted"
+                            )}
                           >
                             <Icon icon={ArrowUp} className="w-5 h-5 text-white" />
                           </Button>
@@ -403,7 +390,7 @@ export default function BookingIndex() {
 
           {/* AI mode — prompt suggestions */}
           {mode === 'ai' && (
-            <div className="flex flex-col items-start gap-3 mt-6" style={{ maxWidth: '720px', width: '100%' }}>
+            <div className="flex flex-col items-start gap-3 mt-6 max-w-3xl w-full">
               {PROMPT_SUGGESTIONS.map((suggestion, i) => (
                 <PromptSuggestion
                   key={i}
@@ -422,19 +409,17 @@ export default function BookingIndex() {
               <Button
                 variant="ghost"
                 onClick={() => startGuidedBooking('doctor')}
-                className="h-auto p-0 rounded-3xl border border-border bg-card text-left transition-all hover:border-primary hover:shadow-sm overflow-hidden font-normal"
-                style={{ width: '300px', flexShrink: 0 }}
+                className="h-auto p-0 rounded-3xl border border-border bg-card text-left transition-all hover:border-primary hover:shadow-sm overflow-hidden font-normal w-72 shrink-0"
               >
                 <div className="w-full">
                   <div
-                    className="relative overflow-hidden"
-                    style={{ backgroundColor: 'hsl(var(--primary) / 0.15)', height: '200px' }}
+                    className="relative overflow-hidden h-48"
+                    style={{ backgroundColor: 'hsl(var(--primary) / 0.15)' }}
                   >
                     <img
                       src="/assets/images/doctor.png"
                       alt="Book a doctor"
-                      className="absolute"
-                      style={{ width: '260px', top: '0', left: '50%', transform: 'translateX(-50%)' }}
+                      className="absolute w-64 top-0 left-1/2 -translate-x-1/2"
                     />
                   </div>
                   <div className="px-5 py-4">
@@ -449,19 +434,17 @@ export default function BookingIndex() {
               <Button
                 variant="ghost"
                 onClick={() => startGuidedBooking('lab_test')}
-                className="h-auto p-0 rounded-3xl border border-border bg-card text-left transition-all hover:border-primary hover:shadow-sm overflow-hidden font-normal"
-                style={{ width: '300px', flexShrink: 0 }}
+                className="h-auto p-0 rounded-3xl border border-border bg-card text-left transition-all hover:border-primary hover:shadow-sm overflow-hidden font-normal w-72 shrink-0"
               >
                 <div className="w-full">
                   <div
-                    className="relative overflow-hidden"
-                    style={{ backgroundColor: 'hsl(var(--primary) / 0.15)', height: '200px' }}
+                    className="relative overflow-hidden h-48"
+                    style={{ backgroundColor: 'hsl(var(--primary) / 0.15)' }}
                   >
                     <img
                       src="/assets/images/test.png"
                       alt="Book a test"
-                      className="absolute"
-                      style={{ width: '260px', top: '0', left: '50%', transform: 'translateX(-50%)' }}
+                      className="absolute w-64 top-0 left-1/2 -translate-x-1/2"
                     />
                   </div>
                   <div className="px-5 py-4">

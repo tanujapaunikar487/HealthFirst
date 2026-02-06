@@ -129,7 +129,7 @@ function Section({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
           <Icon icon={SectionIcon} className="h-5 w-5 text-foreground" />
-          <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+          <h2 className="font-semibold text-foreground" style={{ fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
             {title}
           </h2>
         </div>
@@ -603,10 +603,10 @@ function TimelineEventRow({
   return (
     <div className="relative flex gap-4 pb-6 last:pb-0">
       {!isLast && (
-        <div className="absolute left-[5px] top-[14px] h-full w-px bg-border" />
+        <div className="absolute left-1.5 top-3.5 h-full w-px bg-border" />
       )}
       <div
-        className={`relative z-10 mt-[5px] h-[11px] w-[11px] flex-shrink-0 rounded-full ${dotClass} ${dotExtra}`}
+        className={`relative z-10 mt-1 h-3 w-3 flex-shrink-0 rounded-full ${dotClass} ${dotExtra}`}
       />
       <div className="flex-1 min-w-0">
         <div
@@ -653,7 +653,7 @@ function TimelineEventRow({
 
 function ClaimDetailSkeleton() {
   return (
-    <div className="w-full max-w-[960px]">
+    <div className="w-full max-w-page">
       <Pulse className="h-4 w-24 mb-6" />
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -848,7 +848,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         </div>
       </div>
 
-      <div className="w-full max-w-[960px] min-h-full flex flex-col pb-10">
+      <div className="w-full max-w-page min-h-full flex flex-col pb-10">
         {/* Breadcrumb */}
         <div className="mb-6 flex items-center gap-1.5 text-[14px] text-muted-foreground">
           <Button
@@ -888,7 +888,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                       className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full"
                       style={{ backgroundColor: 'hsl(var(--primary) / 0.2)' }}
                     >
-                      <TreatmentIcon className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />
+                      <TreatmentIcon className="h-5 w-5 text-primary" />
                     </div>
                   );
                 })()}
@@ -1084,7 +1084,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         <Section id="overview" title="Overview" icon={ClipboardList} noPadding>
           <div>
             {/* Patient */}
-            <div className="grid items-start px-4 py-4" style={{ gridTemplateColumns: '130px 1fr', borderBottom: '1px solid hsl(var(--border))' }}>
+            <div className="grid grid-cols-[theme(spacing.detail-label)_1fr] items-start px-4 py-4 border-b border-border">
               <span className="text-[14px] text-muted-foreground pt-px">Patient</span>
               <Button
                 variant="ghost"
@@ -1113,7 +1113,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
             </div>
 
             {/* Doctor */}
-            <div className="grid items-start px-4 py-4" style={{ gridTemplateColumns: '130px 1fr', borderBottom: '1px solid hsl(var(--border))' }}>
+            <div className="grid grid-cols-[theme(spacing.detail-label)_1fr] items-start px-4 py-4 border-b border-border">
               <span className="text-[14px] text-muted-foreground pt-px">Doctor</span>
               {doctor ? (
                 <div className="flex items-center gap-2.5 text-[14px]">
@@ -1136,7 +1136,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
             </div>
 
             {/* Stay */}
-            <div className="grid items-start px-4 py-4" style={{ gridTemplateColumns: '130px 1fr', ...(isOutpatient ? {} : { borderBottom: '1px solid hsl(var(--border))' }) }}>
+            <div className={cn("grid grid-cols-[theme(spacing.detail-label)_1fr] items-start px-4 py-4", !isOutpatient && "border-b border-border")}>
               <span className="text-[14px] text-muted-foreground pt-px">Stay</span>
               {isOutpatient ? (
                 <span className="text-[14px] font-medium text-foreground">Outpatient</span>
@@ -1163,7 +1163,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
             {/* Room */}
             {!isOutpatient && (
-              <div className="grid items-start px-4 py-4" style={{ gridTemplateColumns: '130px 1fr' }}>
+              <div className="grid grid-cols-[theme(spacing.detail-label)_1fr] items-start px-4 py-4">
                 <span className="text-[14px] text-muted-foreground pt-px">Room</span>
                 <div className="flex items-center gap-1.5 text-[14px]">
                   <span className="font-medium text-foreground">{stay!.room_type ?? 'General'}</span>

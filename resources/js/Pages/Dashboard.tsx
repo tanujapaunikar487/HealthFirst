@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Button, buttonVariants } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
+import { VStack, HStack } from '@/Components/ui/stack';
 import {
   ChevronRight, AlertCircle, RefreshCw, Stethoscope, FlaskConical,
   Receipt, MoreHorizontal, Calendar, X, FileText, Clock, CreditCard, Loader2,
@@ -233,56 +234,50 @@ function Pulse({ className, style }: { className?: string; style?: React.CSSProp
 
 function DashboardSkeleton() {
   return (
-    <div className="w-full max-w-[800px] mx-auto" style={{ minHeight: '720px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
-      <div style={{ display: 'flex', flexDirection: 'row', width: '100%', height: '68px', gap: '12px', alignItems: 'flex-start' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexGrow: 1 }}>
+    <VStack gap={12} className="w-full max-w-content mx-auto">
+      <HStack gap={3} align="start" className="w-full">
+        <VStack gap={2} className="flex-1">
           <Pulse className="h-10 w-48" />
           <Pulse className="h-5 w-56" />
-        </div>
+        </VStack>
         <Pulse className="h-12 w-60 rounded-full" />
-      </div>
+      </HStack>
 
-      <div style={{ display: 'flex', flexDirection: 'column', width: '738px', gap: '24px' }}>
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '738px' }}>
+      <VStack gap={6} className="w-full">
+        <HStack justify="between" align="center" className="w-full">
           <Pulse className="h-7 w-48" />
           <Pulse className="h-5 w-20" />
-        </div>
+        </HStack>
 
-        <Card className="overflow-hidden" style={{ width: '738px' }}>
+        <Card className="overflow-hidden w-full">
           <CardContent className="p-0">
             {[0, 1, 2].map((i) => (
-              <div
+              <HStack
                 key={i}
-                style={{
-                  width: '738px',
-                  padding: '16px',
-                  borderBottom: i === 2 ? 'none' : '1px solid hsl(var(--border))',
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: '16px',
-                }}
+                gap={4}
+                align="center"
+                className={`w-full p-4 ${i < 2 ? 'border-b border-border' : ''}`}
               >
                 <Pulse className="h-10 w-10 rounded-full flex-shrink-0" />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexGrow: 1 }}>
+                <VStack gap={2} className="flex-1">
                   <Pulse className="h-5 w-44" />
                   <Pulse className="h-4 w-64" />
-                </div>
+                </VStack>
                 <Pulse className="h-10 w-10 rounded-full flex-shrink-0" />
-              </div>
+              </HStack>
             ))}
           </CardContent>
         </Card>
-      </div>
+      </VStack>
 
-      <Pulse className="w-full rounded-3xl" style={{ height: '216px' }} />
-    </div>
+      <Pulse className="w-full rounded-3xl h-56" />
+    </VStack>
   );
 }
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="w-full max-w-[800px] mx-auto" style={{ minHeight: '720px' }}>
+    <div className="w-full max-w-content mx-auto">
       <div className="flex flex-col items-center justify-center gap-4 py-32">
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted">
           <Icon icon={AlertCircle} className="h-7 w-7 text-muted-foreground" />
@@ -347,38 +342,30 @@ function DashboardCard({
   const CardIcon = iconOverride || config.icon;
 
   return (
-    <div
-      style={{
-        padding: '16px',
-        borderBottom: isLast ? 'none' : '1px solid hsl(var(--border))',
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        gap: '14px',
-      }}
+    <HStack
+      gap={3}
+      align="start"
+      className={`p-4 ${!isLast ? 'border-b border-border' : ''}`}
     >
       {/* Icon */}
       <div
-        className="flex items-center justify-center flex-shrink-0"
-        style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: config.iconBg }}
+        className="flex items-center justify-center flex-shrink-0 w-10 h-10 rounded-full"
+        style={{ backgroundColor: config.iconBg }}
       >
         <Icon icon={CardIcon} className="h-5 w-5" style={{ color: config.iconColor }} />
       </div>
 
       {/* Content */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flexGrow: 1, minWidth: 0 }}>
+      <VStack gap={0.5} className="flex-1 min-w-0">
         {/* Patient + badge row */}
         <div className="flex items-center gap-2">
           <div
-            className="flex items-center justify-center flex-shrink-0 text-[14px] font-semibold"
-            style={{
-              width: '24px', height: '24px', borderRadius: '9999px',
-              backgroundColor: 'hsl(var(--muted))', color: 'hsl(var(--muted-foreground))', fontSize: '10px',
-            }}
+            className="flex items-center justify-center flex-shrink-0 w-6 h-6 rounded-full bg-muted text-muted-foreground"
+            style={{ fontSize: '10px' }}
           >
             {patientInitials}
           </div>
-          <span className="text-[14px] font-medium" style={{ color: 'hsl(var(--muted-foreground))' }}>{patientName}</span>
+          <span className="text-[14px] font-medium text-muted-foreground">{patientName}</span>
           {badge && (
             <span
               className="text-[14px] font-medium px-2 py-0.5 rounded-full"
@@ -396,7 +383,7 @@ function DashboardCard({
         </h3>
         {/* Subtitle */}
         <p className="text-[14px] font-normal leading-5 text-muted-foreground">{subtitle}</p>
-      </div>
+      </VStack>
 
       {/* Action button */}
       <Button
@@ -433,7 +420,7 @@ function DashboardCard({
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
-    </div>
+    </HStack>
   );
 }
 
@@ -1111,33 +1098,33 @@ export default function Dashboard({
     <AppLayout user={user}>
       <Head title="Dashboard" />
 
-      <div className="w-full max-w-[800px] mx-auto" style={{ minHeight: '720px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
+      <VStack gap={12} className="w-full max-w-content mx-auto">
         {/* Page Header */}
-        <div style={{ display: 'flex', flexDirection: 'row', width: '100%', height: '68px', gap: '12px', alignItems: 'flex-start' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', width: '485px', height: '68px', gap: '4px', flexGrow: 1 }}>
-            <h1 className="font-bold" style={{ fontSize: '36px', lineHeight: '44px', letterSpacing: '-1px', color: 'hsl(var(--foreground))', margin: 0, width: '384px', height: '44px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        <HStack gap={3} align="start" className="w-full">
+          <VStack gap={1} className="flex-1">
+            <h1 className="font-bold text-foreground truncate" style={{ fontSize: '36px', lineHeight: '44px', letterSpacing: '-1px' }}>
               Hi, {firstName}
             </h1>
-            <p className="font-normal" style={{ fontSize: '14px', fontWeight: 400, lineHeight: '20px', letterSpacing: '0px', color: 'hsl(var(--muted-foreground))', margin: 0, width: '100%', height: '20px', display: 'flex', alignItems: 'center' }}>
+            <p className="text-[14px] font-normal text-muted-foreground">
               {formattedDate}
             </p>
-          </div>
+          </VStack>
 
-          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
+          <HStack gap={2} align="center">
             <Link href="/booking" className={buttonVariants({ size: 'lg' }) + ' font-semibold'}>
-              <img src="/assets/icons/appointment-2.svg" alt="" style={{ width: '20px', height: '20px' }} />
+              <img src="/assets/icons/appointment-2.svg" alt="" className="w-5 h-5" />
               Book appointment
             </Link>
-          </div>
-        </div>
+          </HStack>
+        </HStack>
 
         {/* ─── ACTIVE DASHBOARD (all steps completed) ─── */}
         {allStepsCompleted && hasAnyActivity && (
           <>
             {/* Up next section */}
             {hasUpNextItems && (
-              <div className="w-full" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: 'hsl(var(--foreground))' }}>
+              <VStack gap={6} className="w-full">
+                <h2 className="text-[20px] font-semibold leading-7 text-foreground">
                   Up next
                 </h2>
                 <Card className="overflow-hidden w-full">
@@ -1157,13 +1144,13 @@ export default function Dashboard({
                     )}
                   </CardContent>
                 </Card>
-              </div>
+              </VStack>
             )}
 
             {/* Later this week section */}
             {hasLaterItems && (
-              <div className="w-full" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: 'hsl(var(--foreground))' }}>
+              <VStack gap={6} className="w-full">
+                <h2 className="text-[20px] font-semibold leading-7 text-foreground">
                   Later this week
                 </h2>
                 <Card className="overflow-hidden w-full">
@@ -1183,7 +1170,7 @@ export default function Dashboard({
                     )}
                   </CardContent>
                 </Card>
-              </div>
+              </VStack>
             )}
           </>
         )}
@@ -1205,9 +1192,9 @@ export default function Dashboard({
           <>
             {/* Up next - Upcoming appointments (if any) */}
             {upcomingAppointments.length > 0 && (
-              <div className="w-full" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <VStack gap={6} className="w-full">
                 <div className="flex items-center gap-3">
-                  <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: 'hsl(var(--foreground))' }}>
+                  <h2 className="text-[20px] font-semibold leading-7 text-foreground">
                     Up next
                   </h2>
                 </div>
@@ -1231,16 +1218,16 @@ export default function Dashboard({
                     ))}
                   </CardContent>
                 </Card>
-              </div>
+              </VStack>
             )}
 
             {/* Profile completion steps */}
-            <div className="w-full" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <VStack gap={6} className="w-full">
               <div className="flex items-center gap-3">
-                <h2 className="font-semibold" style={{ fontSize: '20px', fontWeight: 600, lineHeight: '28px', color: 'hsl(var(--foreground))' }}>
+                <h2 className="text-[20px] font-semibold leading-7 text-foreground">
                   Complete your profile
                 </h2>
-                <span className="text-[14px] font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: 'hsl(var(--muted))', color: 'hsl(var(--muted-foreground))' }}>
+                <span className="text-[14px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                   {profileSteps.filter(s => s.completed).length} of {profileSteps.length} done
                 </span>
               </div>
@@ -1264,7 +1251,7 @@ export default function Dashboard({
                   ))}
                 </CardContent>
               </Card>
-            </div>
+            </VStack>
 
             {/* Promotional vaccination banner */}
             {activePromotion && (
@@ -1281,7 +1268,7 @@ export default function Dashboard({
             )}
           </>
         )}
-      </div>
+      </VStack>
 
       <Toast
         show={showToast}
@@ -1464,57 +1451,42 @@ interface ProfileStepItemProps {
 
 function ProfileStepItem({ step, isLast, onClick }: ProfileStepItemProps) {
   const content = (
-    <div
-      className={`transition-colors duration-300 w-full ${step.completed ? '' : 'hover:bg-accent'}`}
-      style={{
-        backgroundColor: step.completed ? 'hsl(var(--success) / 0.1)' : 'hsl(var(--background))',
-        padding: '16px',
-        borderBottom: isLast ? 'none' : '1px solid hsl(var(--border))',
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: '16px'
-      }}
+    <HStack
+      gap={4}
+      align="center"
+      className={`transition-colors duration-300 w-full p-4 ${!isLast ? 'border-b border-border' : ''} ${step.completed ? '' : 'hover:bg-accent'}`}
+      style={{ backgroundColor: step.completed ? 'hsl(var(--success) / 0.1)' : 'hsl(var(--background))' }}
     >
       {step.completed ? (
         <div
-          className="flex items-center justify-center flex-shrink-0"
-          style={{
-            width: '40px', height: '40px', borderRadius: '9999px',
-            backgroundColor: 'hsl(var(--success))', animation: 'checkmark-pop 0.3s ease-out',
-          }}
+          className="flex items-center justify-center flex-shrink-0 w-10 h-10 rounded-full bg-success"
+          style={{ animation: 'checkmark-pop 0.3s ease-out' }}
         >
-          <Icon icon={CheckCircle2} className="h-5 w-5" style={{ color: 'white' }} />
+          <Icon icon={CheckCircle2} className="h-5 w-5 text-white" />
         </div>
       ) : (
-        <div
-          className="flex items-center justify-center flex-shrink-0"
-          style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: 'hsl(var(--muted))' }}
-        >
-          <span className="font-semibold" style={{ fontSize: '14px', fontWeight: 600, lineHeight: '22px', color: 'hsl(var(--muted-foreground))' }}>
+        <div className="flex items-center justify-center flex-shrink-0 w-10 h-10 rounded-full bg-muted">
+          <span className="text-[14px] font-semibold text-muted-foreground">
             {step.number}
           </span>
         </div>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flexGrow: 1 }}>
+      <VStack gap={0.5} className="flex-1">
         <h3 className="text-[14px] font-semibold leading-5 text-foreground truncate">
           {step.title}
         </h3>
         <p className="text-[14px] font-normal leading-5 text-muted-foreground truncate">
           {step.subtitle}
         </p>
-      </div>
+      </VStack>
 
       {!step.completed && (
-        <div
-          className="flex items-center justify-center flex-shrink-0"
-          style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: 'hsl(var(--secondary))', border: '1px solid hsl(var(--border))' }}
-        >
-          <Icon icon={ChevronRight} className="h-5 w-5" style={{ color: 'hsl(var(--foreground))' }} strokeWidth={1.25} />
+        <div className="flex items-center justify-center flex-shrink-0 w-10 h-10 rounded-full bg-secondary border border-border">
+          <Icon icon={ChevronRight} className="h-5 w-5 text-foreground" strokeWidth={1.25} />
         </div>
       )}
-    </div>
+    </HStack>
   );
 
   if (!step.completed && onClick) {

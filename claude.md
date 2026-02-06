@@ -62,3 +62,24 @@ Tests: `php artisan test` (92 tests, 265 assertions)
 24. **Smart Patient Resolution**: `mergeEntities()` does DB lookup by relation. If family member found → auto-select + skip patient_selection. If not found → show patient selector with contextual "I don't see a family member listed as X" message. Works for all relations including `self` (no hardcoded IDs)
 25. **Alert Migration**: All ad-hoc alert divs (`bg-primary/10 border-primary/20`, `bg-destructive/10`, etc.) replaced with `<Alert>` component across auth, health records, insurance, booking, settings, and clinical summary. No custom alert divs remain outside exceptions (EmergencyAlert, EmergencyWarning, ClaimDetail status banner)
 26. **Lab Tests (Appointment Detail)**: Info-card rows (not table) with 40x40 icons, Normal/Abnormal/Pending badges. Completed tests link to `/health-records/{id}` via `health_record_id`. Backend queries `HealthRecord` by `appointment_id` + `category='lab_report'` for linking. Empty states inside Section cards use simple centered text, not `EmptyState` component
+
+---
+
+## Hard Rules (enforced by ESLint: `npm run lint`)
+
+**No raw values in app UI** — everything must use design tokens:
+- No arbitrary Tailwind: `p-[13px]`, `w-[200px]`, `bg-[#hex]` → use spacing scale or theme tokens. **Exception**: `text-[Xpx]` allowed (typography tokens handled separately)
+- No inline `style={{}}` for layout: `display`, `flexDirection`, `gap`, `padding`, `margin`, `width`, `height`, `borderRadius`, `gridTemplateColumns`, `alignItems`, `justifyContent`, `flexGrow` → use Tailwind classes or Stack components
+- Inline `style` allowed for: colors using `hsl(var(--*))` with alpha, `animation`, typography (temporary), Razorpay/PDF (can't use CSS vars)
+- No raw hex colors in Tailwind or inline styles — use semantic tokens (`text-foreground`, `bg-primary`, etc.)
+
+**Stack components** (`Components/ui/stack.tsx`): Use `<VStack>` / `<HStack>` for flex layouts instead of inline styles
+- `gap` prop uses Tailwind numeric scale: `gap={6}` → `gap-6` = 24px
+- `align` prop: `'start'|'center'|'end'|'stretch'|'baseline'`
+- `justify` prop: `'start'|'center'|'end'|'between'`
+- `<Spacer />` for flex-1 spacers
+
+**Custom theme tokens** (in `tailwind.config.js`):
+- `max-w-page` (960px) | `max-w-content` (800px) | `min-w-sidebar` (200px) | `spacing.detail-label` (130px)
+
+**Only use existing component variants** — don't create ad-hoc styling that duplicates Button/Badge/Alert/Card APIs

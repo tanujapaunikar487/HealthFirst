@@ -142,14 +142,13 @@ export default function SettingsIndex({
         <AppLayout user={user}>
             <Head title="Settings" />
 
-            <div className="w-full max-w-[960px] pb-20">
+            <div className="w-full max-w-page pb-20">
                 <h1
-                    className="font-bold mb-6"
+                    className="font-bold mb-6 text-foreground"
                     style={{
                         fontSize: '36px',
                         lineHeight: '44px',
                         letterSpacing: '-1px',
-                        color: 'hsl(var(--foreground))',
                     }}
                 >
                     Settings
@@ -157,7 +156,7 @@ export default function SettingsIndex({
 
                 <div className="flex gap-24">
                     {/* Sidebar Navigation */}
-                    <div className="min-w-[200px] flex-shrink-0">
+                    <div className="min-w-sidebar flex-shrink-0">
                         <div className="sticky top-6">
                             <SideNav
                                 items={NAV_ITEMS}
@@ -170,8 +169,8 @@ export default function SettingsIndex({
                             <div className="mt-6 pt-6 border-t">
                                 <Button
                                     variant="ghost"
-                                    className="w-full flex items-center gap-3 text-[14px] font-medium transition-all text-left rounded-full cursor-pointer text-foreground hover:bg-destructive/10 hover:text-destructive h-auto"
-                                    style={{ padding: '8px 12px', lineHeight: '20px' }}
+                                    className="w-full flex items-center gap-3 text-[14px] font-medium transition-all text-left rounded-full cursor-pointer text-foreground hover:bg-destructive/10 hover:text-destructive h-auto py-2 px-3"
+                                    style={{ lineHeight: '20px' }}
                                     onClick={handleLogout}
                                     disabled={loggingOut}
                                 >

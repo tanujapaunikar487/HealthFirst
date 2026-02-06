@@ -23,6 +23,19 @@ export default {
             fontFamily: {
                 sans: ['Inter var', ...defaultTheme.fontFamily.sans],
             },
+            spacing: {
+                'page': '960px',
+                'content': '800px',
+                'sidebar': '200px',
+                'detail-label': '130px',
+            },
+            maxWidth: {
+                'page': '960px',
+                'content': '800px',
+            },
+            minWidth: {
+                'sidebar': '200px',
+            },
             colors: {
                 border: 'hsl(var(--border) / <alpha-value>)',
                 input: 'hsl(var(--input) / <alpha-value>)',
