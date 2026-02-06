@@ -13,7 +13,6 @@ import {
   DropdownMenuTrigger,
 } from '@/Components/ui/dropdown-menu';
 import { cn } from '@/Lib/utils';
-import { SupportFooter } from '@/Components/SupportFooter';
 import { SideNav } from '@/Components/SideNav';
 import {
   ArrowLeft,
@@ -1056,7 +1055,6 @@ export default function Show({ user, bill }: Props) {
           </div>
         </div>
 
-        <SupportFooter pageName="this bill" />
       </div>
 
       {/* Dispute Dialog */}

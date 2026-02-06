@@ -24,6 +24,7 @@ import {
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { Alert } from '@/Components/ui/alert';
+import { SupportFooter } from '@/Components/SupportFooter';
 
 // --- Types ---
 
@@ -416,6 +417,8 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
         >
           {children}
         </main>
+
+        <SupportFooter pageName={pageTitle || 'this page'} />
       </div>
 
       {/* Notifications Side Sheet */}

@@ -3,7 +3,6 @@ import { router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { EmptyState } from '@/Components/ui/empty-state';
-import { SupportFooter } from '@/Components/SupportFooter';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
@@ -996,7 +995,6 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
           </div>
         )}
 
-        <SupportFooter pageName="Health Records" />
       </div>
 
       <Toast show={!!toastMessage} message={toastMessage} onHide={() => setToastMessage('')} />

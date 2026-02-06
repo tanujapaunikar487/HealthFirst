@@ -3,7 +3,6 @@ import { router, usePage } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { CtaBanner } from '@/Components/ui/cta-banner';
-import { SupportFooter } from '@/Components/SupportFooter';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import {
@@ -226,7 +225,6 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
           </div>
         )}
 
-        <SupportFooter pageName="Family Members" />
       </div>
 
       {/* Add Sheet */}

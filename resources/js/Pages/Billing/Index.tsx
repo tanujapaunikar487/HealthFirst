@@ -3,7 +3,6 @@ import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading, SheetSkeleton } from '@/Components/ui/skeleton';
 import { EmptyState } from '@/Components/ui/empty-state';
-import { SupportFooter } from '@/Components/SupportFooter';
 import { Badge } from '@/Components/ui/badge';
 import { Button, buttonVariants } from '@/Components/ui/button';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
@@ -746,8 +745,6 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
             </div>
           </>
         )}
-
-        <SupportFooter pageName="Billing" />
       </div>
 
       {/* Payment Summary Sheet */}

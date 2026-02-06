@@ -4,7 +4,6 @@ import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { EmptyState } from '@/Components/ui/empty-state';
 import { CtaBanner } from '@/Components/ui/cta-banner';
-import { SupportFooter } from '@/Components/SupportFooter';
 import { Card } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
@@ -671,7 +670,6 @@ export default function InsuranceIndex({
           </>
         )}
 
-        <SupportFooter pageName="Insurance" />
       </div>
 
       {/* Add Policy Sheet */}

@@ -469,7 +469,7 @@ export default function BookingIndex() {
 
           {/* Guided mode — booking type cards */}
           {mode === 'guided' && (
-            <div className="flex gap-4 mt-6">
+            <div className="flex gap-4">
               <button
                 onClick={() => startGuidedBooking('doctor')}
                 className="rounded-3xl border border-border bg-card text-left transition-all hover:border-primary hover:shadow-sm overflow-hidden"

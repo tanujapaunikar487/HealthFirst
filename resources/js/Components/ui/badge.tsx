@@ -47,7 +47,8 @@ function Badge({
   return (
     <div
       className={cn(
-        'inline-flex items-center whitespace-nowrap rounded-full border gap-1 py-1 pr-3 pl-2',
+        'inline-flex items-center whitespace-nowrap rounded-full border gap-1 font-medium',
+        icon ? 'py-1 pl-1 pr-2' : 'py-1 px-2',
         variantClasses[variant],
         sizeClasses[size],
         className,

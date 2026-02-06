@@ -11,7 +11,6 @@ import { Icon } from '@/Components/ui/icon';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { cn } from '@/Lib/utils';
 import { getAvatarColor } from '@/Lib/avatar-colors';
-import { SupportFooter } from '@/Components/SupportFooter';
 import { SideNav, SideNavItem } from '@/Components/SideNav';
 import {
   DropdownMenu,
@@ -1600,7 +1599,6 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           </div>{/* End of flex-1 content area */}
         </div>{/* End of flex container */}
 
-        <SupportFooter pageName="this claim" />
       </div>
 
       <Toast message={toastMessage} show={showToast} onHide={() => setShowToast(false)} />

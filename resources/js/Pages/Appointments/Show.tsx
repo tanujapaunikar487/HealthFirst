@@ -17,7 +17,6 @@ import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
 import { downloadAsHtml } from '@/Lib/download';
 import { FollowUpSheet, BookAgainSheet, Appointment as AppointmentBase } from '@/Components/Appointments/AppointmentSheets';
-import { SupportFooter } from '@/Components/SupportFooter';
 import { ShareDialog } from '@/Components/ui/share-dialog';
 import {
   DropdownMenu,
@@ -273,10 +272,10 @@ export default function Show({ user, appointment }: Props) {
         <div className="flex items-start justify-between mb-8">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Badge variant="neutral" className="text-[14px]">
+              <Badge variant="neutral" size="lg">
                 {isDoctor ? 'Doctor' : 'Lab Test'}
               </Badge>
-              <Badge variant="neutral" className="text-[14px]">
+              <Badge variant="neutral" size="lg">
                 {appointment.mode}
               </Badge>
               <span className="text-[14px] text-muted-foreground font-mono">
@@ -376,7 +375,6 @@ export default function Show({ user, appointment }: Props) {
           </div>
         </div>
 
-        <SupportFooter pageName="this appointment" />
       </div>
 
       {/* PDF Preview Sheet */}
@@ -851,13 +849,13 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
               <p className="font-semibold text-[14px]">{diagnosis.name || 'Not specified'}</p>
             </div>
             {diagnosis.icd_code && (
-              <Badge variant="neutral" className="text-[14px] font-mono ml-auto">
+              <Badge variant="neutral" size="lg" className="font-mono ml-auto">
                 ICD: {diagnosis.icd_code}
               </Badge>
             )}
             {diagnosis.severity && (
               <Badge
-                className="text-[14px]"
+                size="lg"
                 variant={
                   diagnosis.severity === 'mild' ? 'success' :
                   diagnosis.severity === 'moderate' ? 'warning' :
@@ -881,7 +879,7 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
           </div>
           <div className="flex gap-2 flex-wrap">
             {summary.allergies.map((a) => (
-              <Badge key={a} variant="danger" className="text-[14px]">
+              <Badge key={a} variant="danger" size="lg">
                 {a}
               </Badge>
             ))}

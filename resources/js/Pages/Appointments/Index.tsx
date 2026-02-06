@@ -4,7 +4,6 @@ import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading, SheetSkeleton } from '@/Components/ui/skeleton';
 import { EmptyState } from '@/Components/ui/empty-state';
 import { CtaBanner } from '@/Components/ui/cta-banner';
-import { SupportFooter } from '@/Components/SupportFooter';
 import { Badge } from '@/Components/ui/badge';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { Button, buttonVariants } from '@/Components/ui/button';
@@ -389,7 +388,6 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
         </Tabs>
         )}
 
-        <SupportFooter pageName="Appointments" />
       </div>
 
       {/* Side Sheets */}

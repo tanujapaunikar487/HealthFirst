@@ -13,7 +13,6 @@ import { Alert } from '@/Components/ui/alert';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { cn } from '@/Lib/utils';
 import { getAvatarColor } from '@/Lib/avatar-colors';
-import { SupportFooter } from '@/Components/SupportFooter';
 import { SideNav } from '@/Components/SideNav';
 import {
   Select,
@@ -636,7 +635,6 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
           </div>{/* End flex-1 */}
         </div>{/* End flex container */}
 
-        <SupportFooter pageName="Insurance" />
       </div>
 
       {/* Pre-Auth Sheet */}

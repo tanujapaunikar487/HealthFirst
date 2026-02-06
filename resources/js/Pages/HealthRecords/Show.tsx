@@ -8,7 +8,6 @@ import { Icon } from '@/Components/ui/icon';
 import { SideNav } from '@/Components/SideNav';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { cn } from '@/Lib/utils';
-import { SupportFooter } from '@/Components/SupportFooter';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   DropdownMenu,
@@ -976,7 +975,6 @@ export default function Show({ user, record, familyMember }: Props) {
           </div>
         </div>
 
-        <SupportFooter pageName="this record" />
       </div>
 
       <Toast show={!!toastMessage} message={toastMessage} onHide={() => setToastMessage('')} />
