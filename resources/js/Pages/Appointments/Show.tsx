@@ -303,9 +303,19 @@ export default function Show({ user, appointment }: Props) {
                     Book Follow-up
                   </Button>
                 )}
-                <Button variant="secondary" iconOnly size="md" onClick={() => setShowShareDialog(true)}>
-                  <Share2 className="h-4 w-4" />
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="secondary" iconOnly size="md">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-[140px]">
+                    <DropdownMenuItem onClick={() => setShowShareDialog(true)}>
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Share
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </>
             )}
           </div>

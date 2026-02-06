@@ -48,8 +48,15 @@ import {
   Heart,
   Phone,
   Activity,
+  MoreVertical,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/Components/ui/dropdown-menu';
 import {
   Dialog,
   DialogContent,
@@ -642,23 +649,27 @@ export default function FamilyMemberShow({
           </div>
           {member.relation !== 'self' && (
             <div className="flex items-center gap-2 flex-shrink-0">
-              <Button
-                variant="secondary"
-                onClick={openEditForm}
-              >
+              <Button onClick={openEditForm}>
                 <Pencil className="h-4 w-4" />
                 Edit profile
               </Button>
               {canDelete && (
-                <Button
-                  variant="secondary"
-                  iconOnly
-                  size="md"
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="h-10 w-10 text-destructive hover:text-destructive hover:bg-destructive/10"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="secondary" iconOnly size="md">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      className="text-destructive focus:text-destructive"
+                      onClick={() => setShowDeleteConfirm(true)}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
             </div>
           )}
