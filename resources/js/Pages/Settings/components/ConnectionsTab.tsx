@@ -143,8 +143,8 @@ export function ConnectionsTab({ calendarSettings }: ConnectionsTabProps) {
                             <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
                                 {isGoogleConnected ? (
                                     <>
-                                        <Badge variant="outline" className="border-success/20 bg-success/10 text-success">
-                                            <Check className="h-3 w-3 mr-1" /> Connected
+                                        <Badge variant="success" icon={Check}>
+                                            Connected
                                         </Badge>
                                         <Button
                                             variant="ghost"

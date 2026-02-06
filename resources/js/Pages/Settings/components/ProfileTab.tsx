@@ -89,12 +89,12 @@ function TagInput({
     value,
     onChange,
     placeholder,
-    variant = 'default',
+    variant = 'neutral',
 }: {
     value: string[];
     onChange: (tags: string[]) => void;
     placeholder: string;
-    variant?: 'default' | 'destructive';
+    variant?: 'neutral' | 'danger';
 }) {
     const [inputValue, setInputValue] = useState('');
 
@@ -370,7 +370,8 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                         )}
                     </div>
                 </div>
-                <Button size="lg" icon={Pencil} onClick={() => setShowEditForm(true)}>
+                <Button size="lg" onClick={() => setShowEditForm(true)}>
+                    <Pencil className="h-5 w-5" />
                     Edit profile
                 </Button>
             </div>
@@ -462,7 +463,7 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                             value: user.medical_conditions && user.medical_conditions.length > 0 ? (
                                 <div className="flex flex-wrap gap-1.5">
                                     {user.medical_conditions.map((c, i) => (
-                                        <Badge key={i} variant="secondary">{c}</Badge>
+                                        <Badge key={i} variant="neutral">{c}</Badge>
                                     ))}
                                 </div>
                             ) : undefined,
@@ -472,7 +473,7 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                             value: user.allergies && user.allergies.length > 0 ? (
                                 <div className="flex flex-wrap gap-1.5">
                                     {user.allergies.map((a, i) => (
-                                        <Badge key={i} variant="destructive">{a}</Badge>
+                                        <Badge key={i} variant="danger">{a}</Badge>
                                     ))}
                                 </div>
                             ) : undefined,
@@ -686,7 +687,7 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                                         value={formData.allergies}
                                         onChange={tags => setFormData({ ...formData, allergies: tags })}
                                         placeholder="Add allergy"
-                                        variant="destructive"
+                                        variant="danger"
                                     />
                                 </div>
                             </div>

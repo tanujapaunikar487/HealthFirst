@@ -23,7 +23,7 @@ export default function GuestLayout({ children }: GuestLayoutProps) {
                 </Link>
             </div>
 
-            <Card className="mt-6 w-full sm:max-w-md" style={{ borderRadius: '20px' }}>
+            <Card className="mt-6 w-full sm:max-w-md" style={{ borderRadius: '24px' }}>
                 <CardContent className="p-6">
                     {children}
                 </CardContent>

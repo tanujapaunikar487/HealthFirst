@@ -7,7 +7,7 @@ import { CtaBanner } from '@/Components/ui/cta-banner';
 import { SupportFooter } from '@/Components/SupportFooter';
 import { Badge } from '@/Components/ui/badge';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
-import { Button } from '@/Components/ui/button';
+import { Button, buttonVariants } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/Components/ui/tabs';
 import {
@@ -32,7 +32,6 @@ import {
   SheetTitle,
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
-import { cn } from '@/Lib/utils';
 import {
   CalendarPlus,
   Copy,
@@ -277,16 +276,10 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
             Appointments
           </h1>
           {appointments.length > 0 && (
-            <Button
-              asChild
-              size="lg"
-              className="font-semibold"
-            >
-              <Link href="/booking" className="flex items-center gap-2">
-                <Icon icon={CalendarPlus} className="h-[20px] w-[20px]" />
-                Book appointment
-              </Link>
-            </Button>
+            <Link href="/booking" className={buttonVariants({ size: 'lg' }) + ' font-semibold'}>
+              <Icon icon={CalendarPlus} className="h-[20px] w-[20px]" />
+              Book appointment
+            </Link>
           )}
         </div>
 
@@ -306,7 +299,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
             <TabsTrigger value="upcoming" className="gap-1.5">
               Upcoming
               {categorized.upcoming.length > 0 && (
-                <Badge variant="secondary" className="ml-1 h-5 min-w-[20px] px-1.5 text-[11px]">
+                <Badge variant="neutral" className="ml-1 h-5 min-w-[20px] px-1.5 text-[11px]">
                   {categorized.upcoming.length}
                 </Badge>
               )}
@@ -314,7 +307,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
             <TabsTrigger value="past" className="gap-1.5">
               Past
               {categorized.past.length > 0 && (
-                <Badge variant="secondary" className="ml-1 h-5 min-w-[20px] px-1.5 text-[11px]">
+                <Badge variant="neutral" className="ml-1 h-5 min-w-[20px] px-1.5 text-[11px]">
                   {categorized.past.length}
                 </Badge>
               )}
@@ -322,7 +315,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
             <TabsTrigger value="cancelled" className="gap-1.5">
               Cancelled
               {categorized.cancelled.length > 0 && (
-                <Badge variant="secondary" className="ml-1 h-5 min-w-[20px] px-1.5 text-[11px]">
+                <Badge variant="neutral" className="ml-1 h-5 min-w-[20px] px-1.5 text-[11px]">
                   {categorized.cancelled.length}
                 </Badge>
               )}
@@ -490,16 +483,16 @@ function AppointmentsTable({
         message={message}
         description={description}
         action={tab === 'upcoming' ? (
-          <Button asChild variant="outline" size="sm">
-            <Link href="/booking">Book an appointment</Link>
-          </Button>
+          <Link href="/booking" className={buttonVariants({ variant: 'outline', size: 'sm' })}>
+            Book an appointment
+          </Link>
         ) : undefined}
       />
     );
   }
 
   return (
-    <div className="border" style={{ borderRadius: '20px' }}>
+    <div className="border" style={{ borderRadius: '24px' }}>
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
@@ -564,7 +557,7 @@ function AppointmentsTable({
                 <PaymentStatusTag status={appt.payment_status} />
               </TableCell>
               <TableCell className="align-top">
-                <Button size="icon" icon={ChevronRight} />
+                <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
               </TableCell>
             </TableRow>
             );
@@ -587,16 +580,16 @@ function AppointmentsTable({
 /* ─── Payment Status Tag ─── */
 
 function PaymentStatusTag({ status }: { status: string }) {
-  const config: Record<string, { label: string; color: string }> = {
-    paid: { label: 'Paid', color: 'text-success' },
-    pending: { label: 'Pending', color: 'text-warning' },
-    partially_refunded: { label: 'Partially refunded', color: 'text-warning' },
-    fully_refunded: { label: 'Refunded', color: 'text-destructive' },
+  const config: Record<string, { label: string; variant: 'success' | 'danger' | 'warning' | 'info' | 'neutral' }> = {
+    paid: { label: 'Paid', variant: 'success' },
+    pending: { label: 'Pending', variant: 'warning' },
+    partially_refunded: { label: 'Partially refunded', variant: 'warning' },
+    fully_refunded: { label: 'Refunded', variant: 'danger' },
   };
 
-  const { label, color } = config[status] || { label: status, color: 'text-muted-foreground' };
+  const { label, variant } = config[status] || { label: status, variant: 'neutral' as const };
 
-  return <span className={cn('text-[11px] font-medium', color)}>{label}</span>;
+  return <Badge variant={variant}>{label}</Badge>;
 }
 
 

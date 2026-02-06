@@ -9,6 +9,7 @@ import { Input } from '@/Components/ui/input';
 import { DatePicker } from '@/Components/ui/date-picker';
 import { Textarea } from '@/Components/ui/textarea';
 import { Icon } from '@/Components/ui/icon';
+import { Alert } from '@/Components/ui/alert';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { cn } from '@/Lib/utils';
 import { getAvatarColor } from '@/Lib/avatar-colors';
@@ -255,15 +256,13 @@ const EMPTY_PREAUTH_FORM: PreAuthForm = {
   notes: '',
 };
 
-type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'success' | 'warning' | 'info' | 'outline' | 'orange' | 'purple';
-
 function getStatusBadge(status: string) {
-  const map: Record<string, { label: string; variant: BadgeVariant }> = {
-    current: { label: 'In Treatment', variant: 'orange' },
-    processing: { label: 'In Treatment', variant: 'orange' },
+  const map: Record<string, { label: string; variant: 'success' | 'danger' | 'warning' | 'info' | 'neutral' }> = {
+    current: { label: 'In Treatment', variant: 'warning' },
+    processing: { label: 'In Treatment', variant: 'warning' },
     settled: { label: 'Settled', variant: 'success' },
     approved: { label: 'Settled', variant: 'success' },
-    rejected: { label: 'Rejected', variant: 'destructive' },
+    rejected: { label: 'Rejected', variant: 'danger' },
     pending: { label: 'Pending', variant: 'warning' },
   };
   const entry = map[status] ?? map.pending;
@@ -447,7 +446,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="text-muted-foreground">
+                <Button variant="outline" iconOnly size="md" className="text-muted-foreground">
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -509,17 +508,9 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
 
         {/* Expiry warning */}
         {policy.is_expiring_soon && (
-          <div className="mb-8 flex items-center gap-2 rounded-xl border border-warning/20 bg-warning/10 px-4 py-3">
-            <AlertTriangle className="h-4 w-4 flex-shrink-0 text-warning" />
-            <div>
-              <p className="text-[14px] font-semibold text-warning">
-                Policy expires in {policy.days_until_expiry} days
-              </p>
-              <p className="text-[14px] text-warning opacity-80">
-                Valid until {formatDate(policy.end_date)}. Consider renewing soon.
-              </p>
-            </div>
-          </div>
+          <Alert variant="warning" title={`Policy expires in ${policy.days_until_expiry} days`} className="mb-8">
+            Valid until {formatDate(policy.end_date)}. Consider renewing soon.
+          </Alert>
         )}
 
         {/* Main Content with Side Nav */}
@@ -635,7 +626,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                       {claim.claim_date && ` \u00B7 ${formatDate(claim.claim_date)}`}
                     </p>
                   </div>
-                  <Button size="icon" icon={ChevronRight} />
+                  <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
                 </button>
               ))}
             </div>

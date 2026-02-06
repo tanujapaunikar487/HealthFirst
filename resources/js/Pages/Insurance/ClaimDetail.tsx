@@ -302,22 +302,20 @@ function getTreatmentIcon(procedureType: string | null) {
   }
 }
 
-type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'success' | 'warning' | 'info' | 'outline' | 'orange' | 'purple';
-
 function getStatusBadge(status: string) {
-  const map: Record<string, { label: string; variant: BadgeVariant }> = {
-    current: { label: 'In Treatment', variant: 'default' },
-    processing: { label: 'In Treatment', variant: 'default' },
+  const map: Record<string, { label: string; variant: 'success' | 'danger' | 'warning' | 'info' | 'neutral' }> = {
+    current: { label: 'In Treatment', variant: 'info' },
+    processing: { label: 'In Treatment', variant: 'info' },
     pending: { label: 'Pending', variant: 'warning' },
     approved: { label: 'Approved', variant: 'success' },
     partially_approved: { label: 'Partially Approved', variant: 'warning' },
-    rejected: { label: 'Rejected', variant: 'destructive' },
-    expired: { label: 'Expired', variant: 'secondary' },
+    rejected: { label: 'Rejected', variant: 'danger' },
+    expired: { label: 'Expired', variant: 'neutral' },
     enhancement_required: { label: 'Enhancement Required', variant: 'warning' },
     enhancement_in_progress: { label: 'Enhancement In Progress', variant: 'warning' },
     enhancement_approved: { label: 'Enhancement Approved', variant: 'success' },
-    enhancement_rejected: { label: 'Enhancement Rejected', variant: 'destructive' },
-    dispute_under_review: { label: 'Dispute Under Review', variant: 'orange' },
+    enhancement_rejected: { label: 'Enhancement Rejected', variant: 'danger' },
+    dispute_under_review: { label: 'Dispute Under Review', variant: 'warning' },
     dispute_resolved: { label: 'Dispute Resolved', variant: 'success' },
     settled: { label: 'Settled', variant: 'success' },
   };
@@ -776,7 +774,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
   const ThreeDotMenu = () => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="text-foreground">
+        <Button variant="ghost" iconOnly size="md" className="text-foreground">
           <MoreVertical className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
@@ -896,7 +894,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 })()}
                 <h1 className="text-2xl font-bold text-foreground">{claim.treatment_name}</h1>
                 {claim.procedure_type && (
-                  <Badge variant="secondary">
+                  <Badge variant="neutral">
                     {claim.procedure_type}
                   </Badge>
                 )}
@@ -1154,7 +1152,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 <div className="flex items-center gap-1.5 text-[14px] flex-wrap">
                   <span className="font-medium text-foreground">{stay!.days} Days</span>
                   {isOngoing && (
-                    <Badge variant="default" className="text-[10px] px-1.5 py-0">
+                    <Badge variant="info" className="text-[10px] px-1.5 py-0">
                       Ongoing
                     </Badge>
                   )}
@@ -1214,7 +1212,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   <p className="text-[14px] font-semibold text-muted-foreground line-through">
                     {claim.original_policy_plan_name}
                   </p>
-                  <Badge variant="secondary" className="text-[10px]">
+                  <Badge variant="neutral" className="text-[10px]">
                     Expired
                   </Badge>
                 </div>
@@ -1250,7 +1248,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   )}
                 </div>
               </div>
-              <Button size="icon" icon={ChevronRight} />
+              <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
             </button>
           )}
 
@@ -1278,7 +1276,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   )}
                 </div>
               </div>
-              <Button size="icon" icon={ChevronRight} />
+              <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
             </button>
           )}
           </div>

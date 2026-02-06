@@ -214,12 +214,12 @@ function DoctorCard({
         <div className="flex flex-col items-end gap-2">
           <div className="flex gap-2">
             {doctor.consultation_modes?.includes('video') && (
-              <Badge variant="default">
+              <Badge variant="info">
                 Video
               </Badge>
             )}
             {doctor.consultation_modes?.includes('in_person') && (
-              <Badge variant="purple">
+              <Badge variant="info">
                 In-person
               </Badge>
             )}

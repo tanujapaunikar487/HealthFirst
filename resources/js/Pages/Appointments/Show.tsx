@@ -273,10 +273,10 @@ export default function Show({ user, appointment }: Props) {
         <div className="flex items-start justify-between mb-8">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Badge variant="secondary" className="text-[14px]">
+              <Badge variant="neutral" className="text-[14px]">
                 {isDoctor ? 'Doctor' : 'Lab Test'}
               </Badge>
-              <Badge variant="outline" className="text-[14px]">
+              <Badge variant="neutral" className="text-[14px]">
                 {appointment.mode}
               </Badge>
               <span className="text-[14px] text-muted-foreground font-mono">
@@ -300,7 +300,7 @@ export default function Show({ user, appointment }: Props) {
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon">
+                    <Button variant="outline" iconOnly size="md">
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -320,7 +320,7 @@ export default function Show({ user, appointment }: Props) {
                     Book Follow-up
                   </Button>
                 )}
-                <Button variant="outline" size="icon" onClick={() => setShowShareDialog(true)}>
+                <Button variant="outline" iconOnly size="md" onClick={() => setShowShareDialog(true)}>
                   <Share2 className="h-4 w-4" />
                 </Button>
               </>
@@ -548,15 +548,10 @@ function LabTestDetailSheet({ test }: { test: LabTest }) {
         {/* Status badge */}
         <div className="flex items-center gap-2">
           <Badge
-            variant="outline"
-            className={cn(
-              'text-[14px]',
-              test.status === 'completed'
-                ? 'bg-success/10 text-success border-success/20'
-                : 'bg-warning/10 text-warning border-warning/20'
-            )}
+            variant={test.status === 'completed' ? 'success' : 'warning'}
+            icon={CheckCircle2}
+            className="text-[14px]"
           >
-            <CheckCircle2 className="h-3 w-3 mr-1" />
             {test.status === 'completed' ? 'Completed' : 'Pending'}
           </Badge>
           {test.date && (
@@ -577,13 +572,8 @@ function LabTestDetailSheet({ test }: { test: LabTest }) {
             <p className="text-[14px] font-medium">{test.result}</p>
             <div className="mt-3">
               <Badge
-                variant="outline"
-                className={cn(
-                  'text-[14px]',
-                  test.is_normal
-                    ? 'bg-success/10 text-success border-success/20'
-                    : 'bg-destructive/10 text-destructive border-destructive/20'
-                )}
+                variant={test.is_normal ? 'success' : 'danger'}
+                className="text-[14px]"
               >
                 {test.is_normal ? 'Normal' : 'Abnormal'}
               </Badge>
@@ -802,7 +792,7 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
           <div className="space-y-2">
             <Badge
               className="text-[14px]"
-              variant={appointment.status === 'completed' ? 'success' : appointment.status === 'confirmed' ? 'default' : appointment.status === 'cancelled' ? 'destructive' : 'secondary'}
+              variant={appointment.status === 'completed' ? 'success' : appointment.status === 'confirmed' ? 'info' : appointment.status === 'cancelled' ? 'danger' : 'neutral'}
             >
               {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
             </Badge>
@@ -861,20 +851,19 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
               <p className="font-semibold text-[14px]">{diagnosis.name || 'Not specified'}</p>
             </div>
             {diagnosis.icd_code && (
-              <Badge variant="outline" className="text-[14px] font-mono ml-auto">
+              <Badge variant="neutral" className="text-[14px] font-mono ml-auto">
                 ICD: {diagnosis.icd_code}
               </Badge>
             )}
             {diagnosis.severity && (
               <Badge
-                className={cn(
-                  'text-[14px]',
-                  diagnosis.severity === 'mild' && 'bg-success/10 text-success border-success/20',
-                  diagnosis.severity === 'moderate' && 'bg-warning/10 text-warning border-warning/20',
-                  diagnosis.severity === 'severe' && 'bg-destructive/10 text-destructive border-destructive/20',
-                  diagnosis.severity === 'routine' && 'bg-primary/10 text-primary border-primary/20'
-                )}
-                variant="outline"
+                className="text-[14px]"
+                variant={
+                  diagnosis.severity === 'mild' ? 'success' :
+                  diagnosis.severity === 'moderate' ? 'warning' :
+                  diagnosis.severity === 'severe' ? 'danger' :
+                  'info'
+                }
               >
                 {diagnosis.severity.charAt(0).toUpperCase() + diagnosis.severity.slice(1)}
               </Badge>
@@ -892,7 +881,7 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
           </div>
           <div className="flex gap-2 flex-wrap">
             {summary.allergies.map((a) => (
-              <Badge key={a} variant="destructive" className="text-[14px]">
+              <Badge key={a} variant="danger" className="text-[14px]">
                 {a}
               </Badge>
             ))}
@@ -1011,13 +1000,8 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
                 <div className="flex items-center gap-2">
                   <p className="font-medium text-[14px]">{rx.drug} {rx.strength}</p>
                   <Badge
-                    variant="outline"
-                    className={cn(
-                      'text-[10px]',
-                      rx.status === 'active'
-                        ? 'bg-success/10 text-success border-success/20'
-                        : 'bg-muted text-muted-foreground border-border'
-                    )}
+                    variant={rx.status === 'active' ? 'success' : 'neutral'}
+                    className="text-[10px]"
                   >
                     {rx.status === 'active' ? 'Active' : 'Completed'}
                   </Badge>
@@ -1026,8 +1010,9 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
               </div>
               <Button
                 variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-foreground hover:text-foreground"
+                iconOnly
+                size="sm"
+                className="text-foreground hover:text-foreground"
                 onClick={() => {
                   downloadAsHtml(`prescription-${rx.drug.toLowerCase().replace(/\s+/g, '-')}.pdf`, `
                     <h1>Prescription</h1>
@@ -1126,13 +1111,8 @@ function LabTestsSection({ tests, onSelect }: { tests: LabTest[]; onSelect?: (te
                 <td className="px-4 py-3 text-muted-foreground text-[14px]">{t.reason}</td>
                 <td className="px-4 py-3">
                   <Badge
-                    variant="outline"
-                    className={cn(
-                      'text-[10px]',
-                      t.status === 'completed'
-                        ? 'bg-success/10 text-success border-success/20'
-                        : 'bg-warning/10 text-warning border-warning/20'
-                    )}
+                    variant={t.status === 'completed' ? 'success' : 'warning'}
+                    className="text-[10px]"
                   >
                     {t.status === 'completed' ? 'Completed' : 'Pending'}
                   </Badge>

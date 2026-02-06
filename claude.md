@@ -18,7 +18,7 @@ Tests: `php artisan test` (92 tests, 265 assertions)
 
 ## Design System
 
-**Layout**: Cards 20px radius/16px pad | Card rows `px-6 py-4` (24px H, 16px V) | Sheets 500px/24px radius/20px pad/right-side | Dialogs max-w-lg/20px radius/flex-col | Page 960px max/40px pad | Sections `space-y-12`
+**Layout**: Cards 20px radius/16px pad | Card rows `px-6 py-4` (24px H, 16px V) | Sheets 500px/20px radius/20px pad/right-side | Dialogs max-w-lg/20px radius/flex-col | Page 960px max/40px pad | Sections `space-y-12`
 
 **Typography**: Fixed pixels (`text-[14px]` not `text-sm`) | Card title: #0A0B0D/14px/500 | Card sub: #737373/14px/400 | Section title (page): #171717/20px/600 | Section title (sheet): #737373/14px/500 | Sentence case everywhere (exceptions: acronyms, proper nouns)
 

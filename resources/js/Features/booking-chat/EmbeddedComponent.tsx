@@ -22,6 +22,7 @@ import { EmbeddedFamilyMemberForm } from './embedded/EmbeddedFamilyMemberForm';
 import { EmbeddedAddressForm } from './embedded/EmbeddedAddressForm';
 import EmbeddedFamilyMemberFlow from './embedded/EmbeddedFamilyMemberFlow';
 import InlineMemberTypeSelector from './embedded/InlineMemberTypeSelector';
+import { Alert } from '@/Components/ui/alert';
 
 /**
  * EmbeddedComponent
@@ -680,17 +681,9 @@ export function EmbeddedComponent({
         <div className="space-y-4 max-w-3xl">
           {/* Warning message (e.g., past date alert) */}
           {data?.warning && (
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-[14px] font-bold">!</span>
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-amber-900 mb-1">{data.warning.title}</p>
-                  <p className="text-[14px] text-amber-800">{data.warning.description}</p>
-                </div>
-              </div>
-            </div>
+            <Alert variant="warning" title={data.warning.title}>
+              {data.warning.description}
+            </Alert>
           )}
 
           {/* Date pills */}
@@ -1127,8 +1120,6 @@ function BookingSummary({ summary, onPay, disabled }: any) {
         onClick={onPay}
         disabled={disabled}
         size="lg"
-        rounded="full"
-        className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white"
       >
         Pay ₹{summary?.consultation_fee || summary?.total || '800'}
       </Button>
@@ -1274,17 +1265,9 @@ function DateTimePicker({ selectedDate, selectedTime, onSelect, disabled, warnin
     <div className="space-y-4 max-w-3xl">
       {/* Warning message (e.g., fasting required) */}
       {warning && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-[14px] font-bold">!</span>
-            </div>
-            <div className="flex-1">
-              <p className="font-semibold text-amber-900 mb-1">{warning.title}</p>
-              <p className="text-[14px] text-amber-800">{warning.description}</p>
-            </div>
-          </div>
-        </div>
+        <Alert variant="warning" title={warning.title}>
+          {warning.description}
+        </Alert>
       )}
 
       <Card className="overflow-hidden">
@@ -1509,19 +1492,9 @@ function ConfirmationButtons({ options, onSelect, disabled }: any) {
 function ScheduleConflict({ existing, newAppointment, onSelect, disabled }: any) {
   return (
     <div className="space-y-4">
-      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center">
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-          <div className="flex-1">
-            <h3 className="font-semibold text-amber-900 mb-1">Schedule Conflict</h3>
-            <p className="text-[14px] text-amber-800">You already have an appointment at this time.</p>
-          </div>
-        </div>
-      </div>
+      <Alert variant="warning" title="Schedule Conflict">
+        You already have an appointment at this time.
+      </Alert>
 
       <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200">
         <p className="text-[14px] font-semibold text-gray-500 uppercase mb-2">Existing Appointment</p>

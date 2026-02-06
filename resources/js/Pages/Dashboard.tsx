@@ -1,7 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { useState, useEffect, useRef } from 'react';
 import AppLayout from '@/Layouts/AppLayout';
-import { Button } from '@/Components/ui/button';
+import { Button, buttonVariants } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
 import {
   ChevronRight, AlertCircle, RefreshCw, Stethoscope, FlaskConical,
@@ -412,7 +412,9 @@ function DashboardCard({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            size="icon"
+            variant="secondary"
+            iconOnly
+            size="md"
             className="flex-shrink-0"
             onClick={(e) => e.stopPropagation()}
           >
@@ -1126,12 +1128,10 @@ export default function Dashboard({
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
-            <Button asChild size="lg" className="font-semibold">
-              <Link href="/booking">
-                <img src="/assets/icons/appointment-2.svg" alt="" style={{ width: '20px', height: '20px' }} />
-                Book appointment
-              </Link>
-            </Button>
+            <Link href="/booking" className={buttonVariants({ size: 'lg' }) + ' font-semibold'}>
+              <img src="/assets/icons/appointment-2.svg" alt="" style={{ width: '20px', height: '20px' }} />
+              Book appointment
+            </Link>
           </div>
         </div>
 

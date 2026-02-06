@@ -186,7 +186,7 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
             imageAlt="Family members illustration"
           />
         ) : (
-          <div className="divide-y divide-border rounded-[20px] border border-border bg-card overflow-hidden">
+          <div className="divide-y divide-border rounded-3xl border border-border bg-card overflow-hidden">
             {members.map(member => {
               const colors = getRelationColor(member.relation);
 
@@ -219,7 +219,7 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
                   </div>
 
                   {/* Chevron */}
-                  <Button size="icon" icon={ChevronRight} />
+                  <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
                 </div>
               );
             })}

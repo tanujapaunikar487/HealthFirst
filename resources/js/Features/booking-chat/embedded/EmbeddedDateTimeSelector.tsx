@@ -3,6 +3,7 @@ import { cn } from '@/Lib/utils';
 import { Star } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { Card } from '@/Components/ui/card';
+import { Alert } from '@/Components/ui/alert';
 
 interface DateOption {
   date?: string;
@@ -66,19 +67,9 @@ export function EmbeddedDateTimeSelector({
     <div className="space-y-4">
       {/* Fasting alert */}
       {fastingRequired && (
-        <div className="bg-warning/10 border border-warning/20 rounded-xl p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-warning flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-[14px] font-bold">!</span>
-            </div>
-            <div>
-              <p className="font-semibold text-warning">Fasting required</p>
-              <p className="text-[14px] text-warning">
-                {fastingHours || 12} hours before. Morning recommended.
-              </p>
-            </div>
-          </div>
-        </div>
+        <Alert variant="warning" title="Fasting required">
+          {fastingHours || 12} hours before. Morning recommended.
+        </Alert>
       )}
 
       <Card className="overflow-hidden">

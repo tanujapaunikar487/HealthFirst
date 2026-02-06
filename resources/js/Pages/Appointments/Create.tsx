@@ -340,7 +340,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                       padding: '0 16px',
                       backgroundColor: 'hsl(var(--background))',
                       border: '1px solid hsl(var(--border))',
-                      borderRadius: '20px',
+                      borderRadius: '24px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',

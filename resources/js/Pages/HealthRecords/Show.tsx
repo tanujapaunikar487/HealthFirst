@@ -1,7 +1,7 @@
 import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Badge } from '@/Components/ui/badge';
-import { Button } from '@/Components/ui/button';
+import { Button, buttonVariants } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
 import { Toast } from '@/Components/ui/toast';
 import { Icon } from '@/Components/ui/icon';
@@ -382,15 +382,15 @@ function CategoryIcon({ category, size = 'md' }: { category: string; size?: 'sm'
 }
 
 function StatusBadge({ status }: { status: RecordStatus }) {
-  const variantMap: Record<string, 'success' | 'info' | 'warning' | 'destructive' | 'secondary'> = {
+  const variantMap: Record<string, 'success' | 'info' | 'warning' | 'danger' | 'neutral'> = {
     success: 'success',
     info: 'info',
     warning: 'warning',
-    destructive: 'destructive',
-    secondary: 'secondary',
+    destructive: 'danger',
+    secondary: 'neutral',
   };
   return (
-    <Badge variant={variantMap[status.variant] || 'secondary'}>
+    <Badge variant={variantMap[status.variant] || 'neutral'}>
       {status.label}
     </Badge>
   );
@@ -578,7 +578,7 @@ function LinkedRecordsList({ records, onView }: { records: LinkedRecord[]; onVie
               </div>
             )}
             <span className="text-[14px] font-medium flex-1 truncate">{rec.title}</span>
-            <Button size="icon" icon={ChevronRight} />
+            <Button variant="neutral" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
           </button>
         );
       })}
@@ -732,7 +732,7 @@ export default function Show({ user, record, familyMember }: Props) {
               <div>
                 <div className="flex items-center gap-3 mb-1">
                   {record.status && <StatusBadge status={record.status} />}
-                  <Badge variant="secondary" style={{ backgroundColor: config.bg, color: config.color }}>
+                  <Badge variant="neutral" style={{ backgroundColor: config.bg, color: config.color }}>
                     {config.label}
                   </Badge>
                 </div>
@@ -756,7 +756,7 @@ export default function Show({ user, record, familyMember }: Props) {
               )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon">
+                  <Button variant="outline" iconOnly size="md">
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -884,7 +884,7 @@ export default function Show({ user, record, familyMember }: Props) {
                   <DetailRow label="Record ID">#{record.id}</DetailRow>
                   <DetailRow label="Date">{formatDate(record.record_date)}</DetailRow>
                   <DetailRow label="Category">
-                    <Badge variant="secondary" style={{ backgroundColor: config.bg, color: config.color }}>
+                    <Badge variant="neutral" style={{ backgroundColor: config.bg, color: config.color }}>
                       {config.label}
                     </Badge>
                   </DetailRow>
@@ -954,28 +954,22 @@ export default function Show({ user, record, familyMember }: Props) {
                   Share Record
                 </Button>
                 {record.appointment_id && (
-                  <Button variant="outline" className="w-full justify-start gap-2" asChild>
-                    <Link href={`/appointments/${record.appointment_id}`}>
-                      <ExternalLink className="h-4 w-4" />
-                      View Appointment
-                    </Link>
-                  </Button>
+                  <Link href={`/appointments/${record.appointment_id}`} className={cn(buttonVariants({ variant: "outline" }), "w-full justify-start gap-2")}>
+                    <ExternalLink className="h-4 w-4" />
+                    View Appointment
+                  </Link>
                 )}
                 {record.insurance_claim_id && (
-                  <Button variant="outline" className="w-full justify-start gap-2" asChild>
-                    <Link href={`/insurance/claims/${record.insurance_claim_id}`}>
-                      <ShieldCheck className="h-4 w-4" />
-                      View Insurance Claim
-                    </Link>
-                  </Button>
+                  <Link href={`/insurance/claims/${record.insurance_claim_id}`} className={cn(buttonVariants({ variant: "outline" }), "w-full justify-start gap-2")}>
+                    <ShieldCheck className="h-4 w-4" />
+                    View Insurance Claim
+                  </Link>
                 )}
                 {record.category === 'invoice' && record.appointment_id && (
-                  <Button variant="outline" className="w-full justify-start gap-2" asChild>
-                    <Link href={`/billing/${record.appointment_id}`}>
-                      <Receipt className="h-4 w-4" />
-                      View Bill
-                    </Link>
-                  </Button>
+                  <Link href={`/billing/${record.appointment_id}`} className={cn(buttonVariants({ variant: "outline" }), "w-full justify-start gap-2")}>
+                    <Receipt className="h-4 w-4" />
+                    View Bill
+                  </Link>
                 )}
               </div>
             </Section>
@@ -1067,7 +1061,7 @@ function ConsultationDetail({ meta, onAction }: { meta: RecordMetadata; onAction
           <div>
             <p className="text-[14px] text-muted-foreground uppercase mb-2">Symptoms</p>
             <div className="flex flex-wrap gap-2">
-              {meta.symptoms.map((s, i) => <Badge key={i} variant="secondary">{s}</Badge>)}
+              {meta.symptoms.map((s, i) => <Badge key={i} variant="neutral">{s}</Badge>)}
             </div>
           </div>
         )}
@@ -1181,7 +1175,7 @@ function ErVisitDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (ms
             {meta.duration && <DetailRow label="Duration">{meta.duration}</DetailRow>}
             {meta.triage_level && (
               <DetailRow label="Triage Level">
-                <Badge variant="secondary" className={cn(
+                <Badge variant="neutral" className={cn(
                   meta.triage_level.includes('1') || meta.triage_level.includes('2') ? 'bg-destructive/10 text-destructive border-destructive/20' : 'bg-warning/10 text-warning border-warning/20'
                 )}>
                   {meta.triage_level}
@@ -1286,7 +1280,7 @@ function ReferralDetail({ meta }: { meta: RecordMetadata }) {
       {meta.referred_to_department && <DetailRow label="Department">{meta.referred_to_department}</DetailRow>}
       {meta.priority && (
         <DetailRow label="Priority">
-          <Badge variant={meta.priority === 'urgent' ? 'destructive' : 'secondary'} className="capitalize">
+          <Badge variant={meta.priority === 'urgent' ? 'danger' : 'neutral'} className="capitalize">
             {meta.priority}
           </Badge>
         </DetailRow>
@@ -1473,7 +1467,7 @@ function LabReportDetail({ meta }: { meta: RecordMetadata }) {
     <div className="space-y-5">
       {meta.test_name && (
         <div className="flex items-center gap-3 flex-wrap">
-          {meta.test_category && <Badge variant="secondary">{meta.test_category}</Badge>}
+          {meta.test_category && <Badge variant="neutral">{meta.test_category}</Badge>}
           {meta.lab_name && <span className="text-[14px] text-muted-foreground">{meta.lab_name}</span>}
         </div>
       )}
@@ -2025,7 +2019,7 @@ function VaccinationDetail({ meta, onAction, familyMember }: { meta: RecordMetad
                   <p className="text-[14px] font-medium truncate">{file.name}</p>
                   <p className="text-[14px] text-muted-foreground uppercase">{file.type}{file.size ? ` · ${file.size}` : ''}</p>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => onAction(`Downloading ${file.name}...`)}>
+                <Button variant="ghost" iconOnly size="md" onClick={() => onAction(`Downloading ${file.name}...`)}>
                   <Download className="h-4 w-4" />
                 </Button>
               </div>
@@ -2119,7 +2113,7 @@ function InvoiceDetail({ meta }: { meta: RecordMetadata }) {
         )}
         {meta.payment_status && (
           <DetailRow label="Status">
-            <Badge variant={meta.payment_status === 'paid' ? 'success' : meta.payment_status === 'pending' ? 'warning' : meta.payment_status === 'due' ? 'destructive' : 'secondary'} className="capitalize">
+            <Badge variant={meta.payment_status === 'paid' ? 'success' : meta.payment_status === 'pending' ? 'warning' : meta.payment_status === 'due' ? 'danger' : 'neutral'} className="capitalize">
               {meta.payment_status}
             </Badge>
           </DetailRow>

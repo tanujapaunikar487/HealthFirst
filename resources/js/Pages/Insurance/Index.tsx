@@ -134,16 +134,14 @@ const EMPTY_PREAUTH_FORM: PreAuthForm = {
   notes: '',
 };
 
-type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'success' | 'warning' | 'info' | 'outline' | 'orange' | 'purple';
-
 function getStatusBadge(status: string) {
-  const map: Record<string, { label: string; variant: BadgeVariant }> = {
-    current: { label: 'Current', variant: 'orange' },
-    processing: { label: 'Current', variant: 'orange' },
+  const map: Record<string, { label: string; variant: 'success' | 'danger' | 'warning' | 'info' | 'neutral' }> = {
+    current: { label: 'Current', variant: 'warning' },
+    processing: { label: 'Current', variant: 'warning' },
     settled: { label: 'Settled', variant: 'success' },
     approved: { label: 'Settled', variant: 'success' },
-    rejected: { label: 'Rejected', variant: 'destructive' },
-    disputed: { label: 'Disputed', variant: 'orange' },
+    rejected: { label: 'Rejected', variant: 'danger' },
+    disputed: { label: 'Disputed', variant: 'warning' },
     pending: { label: 'Pending', variant: 'warning' },
   };
   const entry = map[status] ?? map.pending;
@@ -453,7 +451,7 @@ export default function InsuranceIndex({
             {/* Policies on file */}
             <div className="mb-10">
               <h2 className="mb-4 text-[14px] font-semibold text-muted-foreground">Policies on file</h2>
-              <div className="border" style={{ borderRadius: '20px' }}>
+              <div className="border" style={{ borderRadius: '24px' }}>
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
@@ -503,20 +501,20 @@ export default function InsuranceIndex({
                         <TableCell className="align-top">
                           {policy.is_expiring_soon ? (
                             <Badge
-                              variant="outline"
-                              className="border-warning/20 bg-warning/10 text-warning text-[11px]"
+                              variant="warning"
+                              icon={AlertTriangle}
+                              className="text-[11px]"
                             >
-                              <AlertTriangle className="mr-1 h-3 w-3" />
                               Expires in {policy.days_until_expiry}d
                             </Badge>
                           ) : (
-                            <Badge className="bg-success/10 text-success text-[11px]">
+                            <Badge variant="success" className="text-[11px]">
                               Active
                             </Badge>
                           )}
                         </TableCell>
                         <TableCell className="align-top">
-                          <Button size="icon" icon={ChevronRight} />
+                          <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -598,7 +596,7 @@ export default function InsuranceIndex({
                   description="Claims filed against your policies will appear here."
                 />
               ) : (
-                <div className="border" style={{ borderRadius: '20px' }}>
+                <div className="border" style={{ borderRadius: '24px' }}>
                   <Table>
                     <TableHeader>
                       <TableRow className="hover:bg-transparent">
@@ -652,7 +650,7 @@ export default function InsuranceIndex({
                             {getStatusBadge(claim.status)}
                           </TableCell>
                           <TableCell className="align-top">
-                            <Button size="icon" icon={ChevronRight} />
+                            <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
                           </TableCell>
                         </TableRow>
                       ))}

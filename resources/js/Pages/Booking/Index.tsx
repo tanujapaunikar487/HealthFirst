@@ -472,7 +472,7 @@ export default function BookingIndex() {
             <div className="flex gap-4 mt-6">
               <button
                 onClick={() => startGuidedBooking('doctor')}
-                className="rounded-[20px] border border-border bg-card text-left transition-all hover:border-primary hover:shadow-sm overflow-hidden"
+                className="rounded-3xl border border-border bg-card text-left transition-all hover:border-primary hover:shadow-sm overflow-hidden"
                 style={{ width: '300px', flexShrink: 0 }}
               >
                 <div
@@ -496,7 +496,7 @@ export default function BookingIndex() {
 
               <button
                 onClick={() => startGuidedBooking('lab_test')}
-                className="rounded-[20px] border border-border bg-card text-left transition-all hover:border-primary hover:shadow-sm overflow-hidden"
+                className="rounded-3xl border border-border bg-card text-left transition-all hover:border-primary hover:shadow-sm overflow-hidden"
                 style={{ width: '300px', flexShrink: 0 }}
               >
                 <div

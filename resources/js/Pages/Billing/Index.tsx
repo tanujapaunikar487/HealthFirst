@@ -4,7 +4,8 @@ import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading, SheetSkeleton } from '@/Components/ui/skeleton';
 import { EmptyState } from '@/Components/ui/empty-state';
 import { SupportFooter } from '@/Components/SupportFooter';
-import { Button } from '@/Components/ui/button';
+import { Badge } from '@/Components/ui/badge';
+import { Button, buttonVariants } from '@/Components/ui/button';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { Input } from '@/Components/ui/input';
 import {
@@ -126,17 +127,17 @@ const OUTSTANDING_STATUSES: BillingStatus[] = [
 ];
 const PAID_STATUSES: BillingStatus[] = ['paid', 'covered', 'reimbursed'];
 
-const STATUS_CONFIG: Record<BillingStatus, { label: string; color: string; bg: string }> = {
-  due: { label: 'Due', color: 'text-destructive', bg: 'bg-destructive/10' },
-  paid: { label: 'Paid', color: 'text-success', bg: 'bg-success/10' },
-  refunded: { label: 'Refunded', color: 'text-muted-foreground', bg: 'bg-muted' },
-  awaiting_approval: { label: 'Awaiting approval', color: 'text-warning', bg: 'bg-warning/10' },
-  claim_pending: { label: 'Claim pending', color: 'text-warning', bg: 'bg-warning/10' },
-  copay_due: { label: 'Co-pay due', color: 'text-destructive', bg: 'bg-destructive/10' },
-  emi: { label: 'EMI', color: 'text-primary', bg: 'bg-primary/10' },
-  disputed: { label: 'Disputed', color: 'text-destructive', bg: 'bg-destructive/10' },
-  covered: { label: 'Covered', color: 'text-success', bg: 'bg-success/10' },
-  reimbursed: { label: 'Reimbursed', color: 'text-success', bg: 'bg-success/10' },
+const STATUS_CONFIG: Record<BillingStatus, { label: string; variant: 'success' | 'danger' | 'warning' | 'info' | 'neutral' }> = {
+  due: { label: 'Due', variant: 'danger' },
+  paid: { label: 'Paid', variant: 'success' },
+  refunded: { label: 'Refunded', variant: 'neutral' },
+  awaiting_approval: { label: 'Awaiting approval', variant: 'warning' },
+  claim_pending: { label: 'Claim pending', variant: 'warning' },
+  copay_due: { label: 'Co-pay due', variant: 'danger' },
+  emi: { label: 'EMI', variant: 'info' },
+  disputed: { label: 'Disputed', variant: 'danger' },
+  covered: { label: 'Covered', variant: 'success' },
+  reimbursed: { label: 'Reimbursed', variant: 'success' },
 };
 
 const PAYABLE_STATUSES: BillingStatus[] = ['due', 'copay_due'];
@@ -575,9 +576,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
               message="No bills yet"
               description="Invoices and payment history will appear here after your appointments."
               action={
-                <Button asChild variant="secondary" size="md">
-                  <Link href="/settings?tab=payments">Add payment method</Link>
-                </Button>
+                <Link href="/settings?tab=payments" className={cn(buttonVariants({ variant: 'secondary', size: 'md' }))}>Add payment method</Link>
               }
             />
           ) : (
@@ -589,7 +588,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
           )
         ) : (
           <>
-            <div className="border" style={{ borderRadius: '20px' }}>
+            <div className="border" style={{ borderRadius: '24px' }}>
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
@@ -614,7 +613,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                 <TableBody>
                   {paged.map((bill) => {
                     const isPayable = PAYABLE_STATUSES.includes(bill.billing_status);
-                    const cfg = STATUS_CONFIG[bill.billing_status] ?? { label: bill.billing_status, color: 'text-muted-foreground', bg: 'bg-muted' };
+                    const cfg = STATUS_CONFIG[bill.billing_status] ?? { label: bill.billing_status, variant: 'neutral' as const };
                     const statusLabel = bill.billing_status === 'emi' && bill.emi_current != null
                       ? `EMI ${bill.emi_current}/${bill.emi_total}`
                       : cfg.label;
@@ -684,15 +683,9 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
 
                         {/* Status */}
                         <TableCell className="align-top">
-                          <span
-                            className={cn(
-                              'inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold',
-                              cfg.color,
-                              cfg.bg
-                            )}
-                          >
+                          <Badge variant={cfg.variant}>
                             {statusLabel}
-                          </span>
+                          </Badge>
                           {bill.is_overdue && (
                             <p className="text-[10px] text-destructive mt-0.5">Overdue {bill.days_overdue}d</p>
                           )}
@@ -700,7 +693,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
 
                         {/* Visual indicator - click row for details */}
                         <TableCell className="align-top">
-                          <Button size="icon" icon={ChevronRight} />
+                          <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
                         </TableCell>
                       </TableRow>
                     );
@@ -718,8 +711,8 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                     <div className="flex items-center gap-1">
                     <Button
                       variant="outline"
-                      size="icon"
-                      className="h-8 w-8"
+                      iconOnly
+                      size="sm"
                       disabled={currentPage <= 1}
                       onClick={() => setPage(currentPage - 1)}
                     >
@@ -728,9 +721,10 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                       <Button
                         key={p}
-                        variant={p === currentPage ? 'default' : 'outline'}
-                        size="icon"
-                        className={cn('h-8 w-8 text-[14px]', p === currentPage && 'pointer-events-none')}
+                        variant={p === currentPage ? 'primary' : 'outline'}
+                        iconOnly
+                        size="sm"
+                        className={cn('text-[14px]', p === currentPage && 'pointer-events-none')}
                         onClick={() => setPage(p)}
                       >
                         {p}
@@ -738,8 +732,8 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                     ))}
                     <Button
                       variant="outline"
-                      size="icon"
-                      className="h-8 w-8"
+                      iconOnly
+                      size="sm"
                       disabled={currentPage >= totalPages}
                       onClick={() => setPage(currentPage + 1)}
                     >

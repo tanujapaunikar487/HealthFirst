@@ -7,7 +7,7 @@ import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
 import { Card } from '@/Components/ui/card';
 import { InfoCard } from '@/Components/ui/info-card';
-import { Alert } from '@/Components/ui/alert';
+import { Alert as AlertComponent } from '@/Components/ui/alert';
 import { Input } from '@/Components/ui/input';
 import { PhoneInput } from '@/Components/ui/phone-input';
 import { DatePicker } from '@/Components/ui/date-picker';
@@ -244,84 +244,26 @@ function capitalize(s: string): string {
 
 /* ─── Alert Banner Component ─── */
 
-// Alert banner icon mapping
-function getAlertIcon(type: Alert['type']) {
-  switch (type) {
-    case 'health_record':
-      return <AlertTriangle className="h-4 w-4 text-warning" />;
-    case 'billing':
-      return <Receipt className="h-4 w-4 text-destructive" />;
-    case 'insurance':
-      return <ShieldAlert className="h-4 w-4 text-warning" />;
-  }
-}
-
-// Alert banner color mapping
-function getAlertColors(type: Alert['type']) {
-  switch (type) {
-    case 'health_record':
-      return {
-        border: 'border-warning/20',
-        bg: 'bg-warning/10',
-        iconBg: 'bg-warning/20',
-        text: 'text-warning',
-        button: 'text-warning hover:text-warning',
-      };
-    case 'billing':
-      return {
-        border: 'border-destructive/20',
-        bg: 'bg-destructive/10',
-        iconBg: 'bg-destructive/20',
-        text: 'text-destructive',
-        button: 'text-destructive hover:text-destructive',
-      };
-    case 'insurance':
-      return {
-        border: 'border-warning/20',
-        bg: 'bg-warning/10',
-        iconBg: 'bg-warning/20',
-        text: 'text-warning',
-        button: 'text-warning hover:text-warning',
-      };
-  }
+function getAlertVariant(type: Alert['type']): 'warning' | 'error' {
+  return type === 'billing' ? 'error' : 'warning';
 }
 
 function AlertBanner({ alert }: { alert: Alert }) {
-  const colors = getAlertColors(alert.type);
+  const variant = getAlertVariant(alert.type);
 
   return (
-    <div className={cn(
-      'flex items-center gap-3 rounded-xl border px-4 py-3',
-      colors.border,
-      colors.bg
-    )}>
-      <div className={cn(
-        'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full',
-        colors.iconBg
-      )}>
-        {getAlertIcon(alert.type)}
-      </div>
-      <div className="flex-1">
-        <p className={cn('text-[14px] font-medium', colors.text)}>
-          {alert.message}
-        </p>
-        {alert.details && (
-          <p className={cn('text-[14px] mt-0.5', colors.text, 'opacity-80')}>
-            {alert.details}
-          </p>
-        )}
-      </div>
+    <AlertComponent variant={variant} mode="standalone" title={alert.message}>
+      {alert.details && (
+        <p className="mt-0.5">{alert.details}</p>
+      )}
       <button
         onClick={() => router.visit(alert.url)}
-        className={cn(
-          'flex items-center gap-1 text-[14px] font-medium',
-          colors.button
-        )}
+        className="flex items-center gap-1 text-[14px] font-medium text-foreground mt-2"
       >
         View details
         <ChevronRight className="h-4 w-4" />
       </button>
-    </div>
+    </AlertComponent>
   );
 }
 
@@ -331,12 +273,12 @@ function TagInput({
   tags,
   onChange,
   placeholder,
-  variant = 'default',
+  variant = 'neutral',
 }: {
   tags: string[];
   onChange: (tags: string[]) => void;
   placeholder: string;
-  variant?: 'default' | 'destructive';
+  variant?: 'neutral' | 'danger';
 }) {
   const [inputValue, setInputValue] = useState('');
 
@@ -691,7 +633,7 @@ export default function FamilyMemberShow({
                 {member.name}
               </h1>
               {member.relation === 'self' && (
-                <Badge variant="default">Admin</Badge>
+                <Badge variant="info">Admin</Badge>
               )}
             </div>
             {member.patient_id && (
@@ -710,7 +652,8 @@ export default function FamilyMemberShow({
               {canDelete && (
                 <Button
                   variant="outline"
-                  size="icon"
+                  iconOnly
+                  size="md"
                   onClick={() => setShowDeleteConfirm(true)}
                   className="h-10 w-10 text-destructive hover:text-destructive hover:bg-destructive/10"
                 >
@@ -732,9 +675,9 @@ export default function FamilyMemberShow({
 
         {/* Guest Information Message */}
         {member.is_guest && (
-          <Alert variant="warning" className="mb-6">
+          <AlertComponent variant="warning" className="mb-6">
             Guest members have limited profile features. Only appointment booking is available.
-          </Alert>
+          </AlertComponent>
         )}
 
         {/* Main Content with Side Nav */}
@@ -828,7 +771,7 @@ export default function FamilyMemberShow({
                       value: member.medical_conditions.length > 0 ? (
                         <div className="flex flex-wrap gap-1.5">
                           {member.medical_conditions.map((c, i) => (
-                            <Badge key={i} variant="secondary">{c}</Badge>
+                            <Badge key={i} variant="neutral">{c}</Badge>
                           ))}
                         </div>
                       ) : (
@@ -840,7 +783,7 @@ export default function FamilyMemberShow({
                       value: member.allergies.length > 0 ? (
                         <div className="flex flex-wrap gap-1.5">
                           {member.allergies.map((a, i) => (
-                            <Badge key={i} variant="destructive">{a}</Badge>
+                            <Badge key={i} variant="danger">{a}</Badge>
                           ))}
                         </div>
                       ) : (
@@ -1153,7 +1096,7 @@ export default function FamilyMemberShow({
                     tags={formData.allergies}
                     onChange={tags => setFormData({ ...formData, allergies: tags })}
                     placeholder="e.g. Penicillin, Peanuts"
-                    variant="destructive"
+                    variant="danger"
                   />
                 </div>
               </div>
@@ -1251,20 +1194,15 @@ export default function FamilyMemberShow({
           </DialogHeader>
           <DialogBody>
             <div className="space-y-4">
-              <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3">
-                <p className="text-[14px] text-destructive font-medium mb-2">
-                  This action cannot be undone
-                </p>
-                <p className="text-[14px] text-destructive">
-                  This will permanently delete:
-                </p>
-                <ul className="mt-2 text-[14px] text-destructive space-y-1 ml-4 list-disc">
+              <AlertComponent variant="error" title="This action cannot be undone">
+                <p>This will permanently delete:</p>
+                <ul className="mt-2 space-y-1 ml-4 list-disc">
                   <li>All health records and medical history</li>
                   <li>Past appointments and consultation notes</li>
                   <li>Billing and insurance claim records</li>
                   <li>Prescriptions and lab reports</li>
                 </ul>
-              </div>
+              </AlertComponent>
               <div>
                 <label className="block text-[14px] font-medium text-foreground mb-2">
                   Type <span className="font-semibold">{member.name}</span> to confirm

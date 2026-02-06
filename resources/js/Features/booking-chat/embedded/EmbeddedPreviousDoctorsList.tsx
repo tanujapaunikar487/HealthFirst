@@ -181,12 +181,12 @@ function PreviousDoctorCard({
           {/* Show availability message if available */}
           {doctor.availability_message ? (
             <Badge
-              variant={doctor.available_on_date ? 'success' : 'destructive'}
+              variant={doctor.available_on_date ? 'success' : 'danger'}
             >
               {doctor.availability_message}
             </Badge>
           ) : (
-            <Badge variant="default">
+            <Badge variant="info">
               Last: {formatLastVisit(doctor.last_visit || doctor.lastVisitDate)}
             </Badge>
           )}
@@ -195,12 +195,12 @@ function PreviousDoctorCard({
           {doctor.consultation_modes && doctor.consultation_modes.length > 0 && (
             <div className="flex gap-1">
               {doctor.consultation_modes.includes('video') && (
-                <Badge variant="default" className="text-[14px]">
+                <Badge variant="info" className="text-[14px]">
                   Video
                 </Badge>
               )}
               {doctor.consultation_modes.includes('in_person') && (
-                <Badge variant="purple" className="text-[14px]">
+                <Badge variant="info" className="text-[14px]">
                   In-person
                 </Badge>
               )}

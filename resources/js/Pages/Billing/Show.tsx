@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
+import { Alert } from '@/Components/ui/alert';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Card } from '@/Components/ui/card';
@@ -173,15 +174,15 @@ declare global {
 
 /* ─── Status Config ─── */
 
-const STATUS_CONFIG: Record<BillingStatus, { label: string; variant: string }> = {
-  due: { label: 'Due', variant: 'destructive' },
+const STATUS_CONFIG: Record<BillingStatus, { label: string; variant: 'success' | 'danger' | 'warning' | 'info' | 'neutral' }> = {
+  due: { label: 'Due', variant: 'danger' },
   paid: { label: 'Paid', variant: 'success' },
-  refunded: { label: 'Refunded', variant: 'secondary' },
+  refunded: { label: 'Refunded', variant: 'neutral' },
   awaiting_approval: { label: 'Awaiting Approval', variant: 'warning' },
   claim_pending: { label: 'Claim Pending', variant: 'warning' },
-  copay_due: { label: 'Co-pay Due', variant: 'destructive' },
-  emi: { label: 'EMI', variant: 'default' },
-  disputed: { label: 'Disputed', variant: 'destructive' },
+  copay_due: { label: 'Co-pay Due', variant: 'danger' },
+  emi: { label: 'EMI', variant: 'info' },
+  disputed: { label: 'Disputed', variant: 'danger' },
   covered: { label: 'Covered', variant: 'success' },
   reimbursed: { label: 'Reimbursed', variant: 'success' },
 };
@@ -288,7 +289,7 @@ function Section({
 
 function StatusBadge({ status }: { status: BillingStatus }) {
   const cfg = STATUS_CONFIG[status];
-  return <Badge variant={cfg.variant as any}>{cfg.label}</Badge>;
+  return <Badge variant={cfg.variant}>{cfg.label}</Badge>;
 }
 
 /* ─── Status Alert Banner (embedded in header) ─── */
@@ -296,33 +297,32 @@ function StatusBadge({ status }: { status: BillingStatus }) {
 function StatusAlertBanner({ bill }: { bill: Bill }) {
   const emi = bill.emi_details;
 
-  type BannerConfig = { icon: React.ReactNode; title: string; message: string; bg: string; border: string; titleColor: string; textColor: string } | null;
+  type BannerConfig = { variant: 'info' | 'success' | 'warning' | 'error'; title: string; message: string } | null;
 
   const config: BannerConfig = (() => {
-    const cls = 'h-4 w-4';
     switch (bill.billing_status) {
       case 'due':
         return bill.is_overdue
-          ? { icon: <AlertTriangle className={cls} />, title: 'Bill Overdue', message: `This bill is overdue by ${bill.days_overdue} days. Please pay immediately.`, bg: 'hsl(var(--destructive) / 0.1)', border: 'hsl(var(--destructive) / 0.2)', titleColor: 'text-destructive', textColor: 'text-destructive' }
-          : { icon: <IndianRupee className={cls} />, title: 'Payment Due', message: `Due by ${bill.due_date}. Amount: ₹${bill.due_amount.toLocaleString()}.`, bg: 'hsl(var(--primary) / 0.1)', border: 'hsl(var(--primary) / 0.2)', titleColor: 'text-primary', textColor: 'text-primary' };
+          ? { variant: 'error' as const, title: 'Bill Overdue', message: `This bill is overdue by ${bill.days_overdue} days. Please pay immediately.` }
+          : { variant: 'info' as const, title: 'Payment Due', message: `Due by ${bill.due_date}. Amount: ₹${bill.due_amount.toLocaleString()}.` };
       case 'copay_due':
         return bill.is_overdue
-          ? { icon: <AlertTriangle className={cls} />, title: 'Co-pay Overdue', message: `Overdue by ${bill.days_overdue} days. Contact support for assistance.`, bg: 'hsl(var(--destructive) / 0.1)', border: 'hsl(var(--destructive) / 0.2)', titleColor: 'text-destructive', textColor: 'text-destructive' }
-          : { icon: <IndianRupee className={cls} />, title: 'Co-pay Due', message: `Insurance covers ₹${bill.insurance_covered.toLocaleString()}. Co-pay of ₹${bill.due_amount.toLocaleString()} due by ${bill.due_date}.`, bg: 'hsl(var(--primary) / 0.1)', border: 'hsl(var(--primary) / 0.2)', titleColor: 'text-primary', textColor: 'text-primary' };
+          ? { variant: 'error' as const, title: 'Co-pay Overdue', message: `Overdue by ${bill.days_overdue} days. Contact support for assistance.` }
+          : { variant: 'info' as const, title: 'Co-pay Due', message: `Insurance covers ₹${bill.insurance_covered.toLocaleString()}. Co-pay of ₹${bill.due_amount.toLocaleString()} due by ${bill.due_date}.` };
       case 'awaiting_approval':
-        return { icon: <Clock className={cls} />, title: 'Insurance Pending', message: 'Claim under review. Payment on hold until approval.', bg: 'hsl(var(--warning) / 0.1)', border: 'hsl(var(--warning) / 0.2)', titleColor: 'text-warning', textColor: 'text-warning' };
+        return { variant: 'warning' as const, title: 'Insurance Pending', message: 'Claim under review. Payment on hold until approval.' };
       case 'claim_pending':
-        return { icon: <Clock className={cls} />, title: 'Claim Submitted', message: "Claim submitted and being processed. You'll be notified once approved.", bg: 'hsl(var(--warning) / 0.1)', border: 'hsl(var(--warning) / 0.2)', titleColor: 'text-warning', textColor: 'text-warning' };
+        return { variant: 'warning' as const, title: 'Claim Submitted', message: "Claim submitted and being processed. You'll be notified once approved." };
       case 'disputed':
-        return { icon: <AlertTriangle className={cls} />, title: 'Under Dispute', message: 'Bill is being reviewed. Payment disabled until resolved.', bg: 'hsl(var(--destructive) / 0.1)', border: 'hsl(var(--destructive) / 0.2)', titleColor: 'text-destructive', textColor: 'text-destructive' };
+        return { variant: 'error' as const, title: 'Under Dispute', message: 'Bill is being reviewed. Payment disabled until resolved.' };
       case 'refunded':
-        return { icon: <RotateCcw className={cls} />, title: 'Refund Processed', message: 'Full refund issued. No further action required.', bg: 'hsl(var(--muted))', border: 'hsl(var(--border))', titleColor: 'text-foreground', textColor: 'text-muted-foreground' };
+        return { variant: 'info' as const, title: 'Refund Processed', message: 'Full refund issued. No further action required.' };
       case 'emi':
-        return { icon: <CreditCard className={cls} />, title: 'EMI Active', message: `Installment ${emi?.paid_installments}/${emi?.total_installments} — ₹${emi?.monthly_amount.toLocaleString()}/month. Next: ${emi?.next_due_date}.`, bg: 'hsl(var(--primary) / 0.1)', border: 'hsl(var(--primary) / 0.2)', titleColor: 'text-primary', textColor: 'text-primary' };
+        return { variant: 'info' as const, title: 'EMI Active', message: `Installment ${emi?.paid_installments}/${emi?.total_installments} — ₹${emi?.monthly_amount.toLocaleString()}/month. Next: ${emi?.next_due_date}.` };
       case 'covered':
-        return { icon: <ShieldCheck className={cls} />, title: 'Fully Covered', message: 'Fully covered by insurance. No payment required.', bg: 'hsl(var(--success) / 0.1)', border: 'hsl(var(--success) / 0.2)', titleColor: 'text-success', textColor: 'text-success' };
+        return { variant: 'success' as const, title: 'Fully Covered', message: 'Fully covered by insurance. No payment required.' };
       case 'reimbursed':
-        return { icon: <ShieldCheck className={cls} />, title: 'Reimbursed', message: 'Reimbursed by insurance.', bg: 'hsl(var(--success) / 0.1)', border: 'hsl(var(--success) / 0.2)', titleColor: 'text-success', textColor: 'text-success' };
+        return { variant: 'success' as const, title: 'Reimbursed', message: 'Reimbursed by insurance.' };
       default:
         return null;
     }
@@ -331,13 +331,9 @@ function StatusAlertBanner({ bill }: { bill: Bill }) {
   if (!config) return null;
 
   return (
-    <div className="rounded-lg px-3.5 py-3 flex items-start gap-2.5 mb-4" style={{ backgroundColor: config.bg, border: `1px solid ${config.border}` }}>
-      <div className={cn('mt-0.5 flex-shrink-0', config.titleColor)}>{config.icon}</div>
-      <div>
-        <p className={cn('text-[14px] font-semibold', config.titleColor)}>{config.title}</p>
-        <p className={cn('text-[14px] mt-0.5', config.textColor)}>{config.message}</p>
-      </div>
-    </div>
+    <Alert variant={config.variant} title={config.title} className="mb-4">
+      {config.message}
+    </Alert>
   );
 }
 
@@ -691,7 +687,7 @@ export default function Show({ user, bill }: Props) {
             {/* 3-dot Menu by Status */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="text-muted-foreground">
+                <Button variant="outline" iconOnly size="md" className="text-muted-foreground">
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>

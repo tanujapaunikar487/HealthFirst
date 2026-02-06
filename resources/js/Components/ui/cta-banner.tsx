@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { cn } from '@/Lib/utils';
-import { Button } from '@/Components/ui/button';
+import { Button, buttonVariants } from '@/Components/ui/button';
 import { Link } from '@inertiajs/react';
 import { X } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
@@ -38,7 +38,7 @@ const CtaBanner = React.forwardRef<HTMLDivElement, CtaBannerProps>(
       imageAlt,
       gradient,
       minWidth = '800px',
-      borderRadius = '20px',
+      borderRadius = '24px',
       onDismiss,
       className,
       ...props
@@ -116,9 +116,9 @@ const CtaBanner = React.forwardRef<HTMLDivElement, CtaBannerProps>(
           </div>
 
           {buttonHref ? (
-            <Button asChild variant="cta" size="lg">
-              <Link href={buttonHref}>{buttonText}</Link>
-            </Button>
+            <Link href={buttonHref} className={buttonVariants({ variant: 'cta', size: 'lg' })}>
+              {buttonText}
+            </Link>
           ) : (
             <Button variant="cta" size="lg" onClick={onButtonClick}>
               {buttonText}

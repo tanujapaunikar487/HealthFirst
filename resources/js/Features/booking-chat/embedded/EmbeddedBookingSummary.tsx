@@ -1,5 +1,6 @@
 import { Button } from '@/Components/ui/button';
 import { Card } from '@/Components/ui/card';
+import { Alert } from '@/Components/ui/alert';
 import { format, parseISO } from 'date-fns';
 import { useState } from 'react';
 
@@ -38,10 +39,9 @@ export function EmbeddedBookingSummary({ summary, onPay, onSelect, disabled, con
   if (!summary || typeof summary !== 'object') {
     console.error('EmbeddedBookingSummary: Invalid summary data', summary);
     return (
-      <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl">
-        <p className="text-destructive font-medium">Unable to load booking summary</p>
-        <p className="text-destructive text-[14px] mt-1">Please try again or contact support.</p>
-      </div>
+      <Alert variant="error" title="Unable to load booking summary">
+        Please try again or contact support.
+      </Alert>
     );
   }
 
@@ -225,24 +225,16 @@ export function EmbeddedBookingSummary({ summary, onPay, onSelect, disabled, con
 
       {/* Preparation Instructions (for lab) */}
       {summary.prepInstructions && summary.prepInstructions.length > 0 && (
-        <div className="bg-warning/10 border border-warning/20 rounded-xl p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-warning flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-[14px] font-bold">!</span>
-            </div>
-            <div>
-              <p className="font-semibold text-warning mb-2">Preparation Instructions</p>
-              <ul className="space-y-1">
-                {summary.prepInstructions.map((instruction, i) => (
-                  <li key={i} className="text-[14px] text-warning flex items-start gap-2">
-                    <span>•</span>
-                    <span>{instruction}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
+        <Alert variant="warning" title="Preparation Instructions">
+          <ul className="space-y-1">
+            {summary.prepInstructions.map((instruction, i) => (
+              <li key={i} className="flex items-start gap-2">
+                <span>•</span>
+                <span>{instruction}</span>
+              </li>
+            ))}
+          </ul>
+        </Alert>
       )}
 
       {/* Pay button */}
@@ -250,8 +242,6 @@ export function EmbeddedBookingSummary({ summary, onPay, onSelect, disabled, con
         onClick={handlePayment}
         disabled={disabled || isProcessing}
         size="lg"
-        rounded="full"
-        className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white"
       >
         {isProcessing ? 'Processing...' : `Pay ₹${summary.fee.toLocaleString()}`}
       </Button>

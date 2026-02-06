@@ -378,15 +378,15 @@ function CategoryIcon({ category, size = 'md' }: { category: string; size?: 'sm'
 }
 
 function StatusBadge({ status }: { status: RecordStatus }) {
-  const variantMap: Record<string, 'success' | 'info' | 'warning' | 'destructive' | 'secondary'> = {
+  const variantMap: Record<string, 'success' | 'info' | 'warning' | 'danger' | 'neutral'> = {
     success: 'success',
     info: 'info',
     warning: 'warning',
-    destructive: 'destructive',
-    secondary: 'secondary',
+    destructive: 'danger',
+    secondary: 'neutral',
   };
   return (
-    <Badge variant={variantMap[status.variant] || 'secondary'} className="text-[10px] px-2 py-0.5">
+    <Badge variant={variantMap[status.variant] || 'neutral'} className="text-[10px] px-2 py-0.5">
       {status.label}
     </Badge>
   );
@@ -722,7 +722,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
             ].map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value} className="gap-1.5">
                 {tab.label}
-                <Badge variant="secondary" className="ml-1 h-5 min-w-[20px] px-1.5 text-[11px]">
+                <Badge variant="neutral" className="ml-1 h-5 min-w-[20px] px-1.5 text-[11px]">
                   {groupCounts[tab.value]}
                 </Badge>
               </TabsTrigger>
@@ -824,7 +824,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
           {activeFilters.length > 0 && (
             <div className="flex items-center gap-2 flex-wrap">
               {activeFilters.map((f) => (
-                <Badge key={f.key} variant="secondary" className="gap-1 pl-2.5 pr-1.5 py-1 h-7 text-[14px] font-medium">
+                <Badge key={f.key} variant="neutral" className="gap-1 pl-2.5 pr-1.5 py-1 h-7 text-[14px] font-medium">
                   {f.label}
                   <button onClick={f.onRemove} className="ml-1 rounded-full hover:bg-muted-foreground/20 p-0.5">
                     <X className="h-3 w-3" />
@@ -867,7 +867,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
         {/* Table */}
         {filteredRecords.length > 0 ? (
           <div className={selectedIds.size === 0 ? 'mt-4' : ''}>
-            <div className="border" style={{ borderRadius: '20px' }}>
+            <div className="border" style={{ borderRadius: '24px' }}>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -928,7 +928,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                           {record.status ? <StatusBadge status={record.status} /> : <span className="text-[14px] text-muted-foreground">—</span>}
                         </TableCell>
                         <TableCell>
-                          <Button size="icon" icon={ChevronRight} />
+                          <Button variant="neutral" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
                         </TableCell>
                       </TableRow>
                     );

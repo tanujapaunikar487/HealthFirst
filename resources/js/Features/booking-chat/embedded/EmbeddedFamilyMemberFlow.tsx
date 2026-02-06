@@ -11,6 +11,7 @@ import { OtpInput } from '@/Components/OtpInput';
 import { MemberSearchCard } from '@/Components/MemberSearchCard';
 import { DetectionCard } from './DetectionCard';
 import { SheetHeader, SheetTitle, SheetFooter, SheetBody } from '@/Components/ui/sheet';
+import { Alert } from '@/Components/ui/alert';
 import { cn } from '@/Lib/utils';
 
 type Step =
@@ -907,10 +908,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                 <SheetBody><div className="space-y-6">
                     {/* Error Message */}
                     {state.error && (
-                        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 flex items-start gap-2">
-                            <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
-                            <p className="text-[14px] text-destructive">{state.error}</p>
-                        </div>
+                        <Alert variant="error">{state.error}</Alert>
                     )}
 
                     {/* Step Content - standalone renders buttons in footer */}
@@ -1284,12 +1282,9 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                             {/* Lockout Warning */}
                             {state.lockedOut && (
-                                <div className="p-3 bg-warning/10 border border-warning/20 rounded-lg">
-                                    <p className="text-[14px] text-warning">
-                                        <AlertCircle className="inline h-4 w-4 mr-1" />
-                                        Too many OTP attempts. Please try again after 15 minutes.
-                                    </p>
-                                </div>
+                                <Alert variant="warning">
+                                    Too many OTP attempts. Please try again after 15 minutes.
+                                </Alert>
                             )}
 
                             {/* Send OTP Button */}
@@ -1413,10 +1408,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
             {/* Error Message */}
             {state.error && (
-                <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 flex items-start gap-2">
-                    <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
-                    <p className="text-[14px] text-destructive">{state.error}</p>
-                </div>
+                <Alert variant="error">{state.error}</Alert>
             )}
 
             {/* Step Content */}
@@ -1978,12 +1970,9 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     {/* Lockout Warning */}
                     {state.lockedOut && (
-                        <div className="p-3 bg-warning/10 border border-warning/20 rounded-lg">
-                            <p className="text-[14px] text-warning">
-                                <AlertCircle className="inline h-4 w-4 mr-1" />
-                                Too many OTP attempts. Please try again after 15 minutes.
-                            </p>
-                        </div>
+                        <Alert variant="warning">
+                            Too many OTP attempts. Please try again after 15 minutes.
+                        </Alert>
                     )}
 
                     {/* Send OTP Button */}

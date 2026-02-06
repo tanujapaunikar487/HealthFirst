@@ -28,12 +28,12 @@ function TagInput({
     value,
     onChange,
     placeholder,
-    variant = 'default',
+    variant = 'neutral',
 }: {
     value: string[];
     onChange: (tags: string[]) => void;
     placeholder: string;
-    variant?: 'default' | 'destructive';
+    variant?: 'neutral' | 'danger';
 }) {
     const [inputValue, setInputValue] = useState('');
 
@@ -176,7 +176,7 @@ export function HealthProfileSheet({ selfMember, onSuccess }: HealthProfileSheet
                                 value={formData.allergies}
                                 onChange={tags => setFormData({ ...formData, allergies: tags })}
                                 placeholder="Add allergy"
-                                variant="destructive"
+                                variant="danger"
                             />
                         </div>
                     </div>

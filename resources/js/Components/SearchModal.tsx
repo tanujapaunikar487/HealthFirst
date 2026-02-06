@@ -272,7 +272,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
           width: '714px',
           maxWidth: '90vw',
           height: '420px',
-          borderRadius: '20px',
+          borderRadius: '24px',
           border: '1px solid hsl(var(--border))',
           background: 'hsl(var(--background))',
           boxShadow: '0 5px 10px 0 rgba(0, 0, 0, 0.10), 0 15px 30px 0 rgba(0, 0, 0, 0.10), 0 20px 40px 0 rgba(0, 0, 0, 0.15)',

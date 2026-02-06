@@ -22,6 +22,7 @@ import {
 } from '@/Components/ui/collapsible';
 import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
 import { Textarea } from '@/Components/ui/textarea';
+import { Alert } from '@/Components/ui/alert';
 import { cn } from '@/Lib/utils';
 import {
   MoreHorizontal,
@@ -421,7 +422,7 @@ export function DetailsSheet({
             {/* More Options */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="flex-shrink-0">
+                <Button variant="outline" iconOnly size="md" className="flex-shrink-0">
                   <Icon icon={MoreHorizontal} className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -490,7 +491,7 @@ export function DetailsSheet({
             )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="flex-shrink-0">
+                <Button variant="outline" iconOnly size="md" className="flex-shrink-0">
                   <Icon icon={MoreHorizontal} className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -552,10 +553,9 @@ export function CancelledDetailsSheet({
       </SheetHeader>
 
       {/* Cancelled Banner */}
-      <div className="mb-4 flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/20 px-3 py-2.5">
-        <Icon icon={XCircle} className="h-4 w-4 text-destructive flex-shrink-0" />
-        <span className="text-[14px] text-destructive">This appointment was cancelled</span>
-      </div>
+      <Alert variant="error" className="mb-4">
+        This appointment was cancelled
+      </Alert>
 
       {/* People Rows */}
       <div className="space-y-3 pb-4">
@@ -622,7 +622,7 @@ export function CancelledDetailsSheet({
         )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon" className="flex-shrink-0">
+            <Button variant="outline" iconOnly size="md" className="flex-shrink-0">
               <Icon icon={MoreHorizontal} className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -723,18 +723,12 @@ export function CancelSheet({
       <SheetBody>
         <div className="space-y-6">
         {/* Warning */}
-        <div className="flex gap-3 p-4 rounded-lg bg-warning/10 border border-warning/20">
-          <Icon icon={AlertTriangle} className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
-          <div className="text-[14px]">
-            <p className="font-medium text-warning">Are you sure?</p>
-            <p className="text-warning mt-1">
-              Cancelling your appointment with{' '}
-              <span className="font-medium">{appointment.title}</span> on{' '}
-              <span className="font-medium">{appointment.date_formatted}</span> will initiate a
-              full refund of ₹{appointment.fee.toLocaleString()}.
-            </p>
-          </div>
-        </div>
+        <Alert variant="warning" title="Are you sure?">
+          Cancelling your appointment with{' '}
+          <span className="font-medium">{appointment.title}</span> on{' '}
+          <span className="font-medium">{appointment.date_formatted}</span> will initiate a
+          full refund of ₹{appointment.fee.toLocaleString()}.
+        </Alert>
 
         {/* Reason selection */}
         <div>

@@ -2,7 +2,8 @@ import { Link, usePage, router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import SearchModal from '@/Components/SearchModal';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
-import { Button } from '@/Components/ui/button';
+import { Button, buttonVariants } from '@/Components/ui/button';
+import { cn } from '@/Lib/utils';
 import { Badge } from '@/Components/ui/badge';
 import {
   Sheet,
@@ -22,6 +23,7 @@ import {
   Calendar, Video, TestTube, AlertCircle, Pill, User, UserPlus, Stethoscope,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { Alert } from '@/Components/ui/alert';
 
 // --- Types ---
 
@@ -175,7 +177,7 @@ function NotificationCard({
             {notification.channels.map((ch) => (
               <Badge
                 key={ch}
-                variant="secondary"
+                variant="neutral"
                 className="text-[9px] px-1.5 py-0 h-[16px] font-medium rounded"
               >
                 {channelLabels[ch] || ch}
@@ -354,8 +356,9 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
               {/* Search Icon Button */}
               <Button
                 variant="ghost"
-                size="icon"
-                className="h-12 w-12 hover:bg-accent"
+                iconOnly
+                size="lg"
+                className="hover:bg-accent"
                 style={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }}
                 onClick={() => setSearchOpen(true)}
               >
@@ -365,8 +368,9 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
               {/* Notifications Bell → Opens Sheet */}
               <Button
                 variant="ghost"
-                size="icon"
-                className="h-12 w-12 hover:bg-accent relative"
+                iconOnly
+                size="lg"
+                className="hover:bg-accent relative"
                 style={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }}
                 onClick={() => setNotifOpen(true)}
               >
@@ -381,17 +385,8 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
 
         {/* Profile Warning Banner */}
         {profileWarnings.length > 0 && !profileBannerDismissed && (
-          <div
-            className="flex items-center gap-3"
-            style={{ backgroundColor: 'hsl(var(--warning) / 0.1)', borderBottom: '1px solid hsl(var(--warning) / 0.3)', padding: '12px 24px' }}
-          >
-            <div
-              className="flex h-6 w-6 items-center justify-center rounded-full flex-shrink-0"
-              style={{ backgroundColor: 'hsl(var(--warning) / 0.3)' }}
-            >
-              <Icon icon={AlertTriangle} className="h-3.5 w-3.5 text-warning" />
-            </div>
-            <p className="flex-1 text-[14px] font-medium text-foreground">
+          <Alert variant="warning" mode="sticky" onDismiss={dismissProfileBanner}>
+            <span className="font-medium">
               Your profile is incomplete. Add{' '}
               {profileWarnings.map((w, i) => (
                 <span key={w.key}>
@@ -406,14 +401,8 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
                 </span>
               ))}{' '}
               for hassle-free claims.
-            </p>
-            <button
-              onClick={dismissProfileBanner}
-              className="flex h-6 w-6 items-center justify-center rounded-full flex-shrink-0 hover:bg-warning/20 transition-colors"
-            >
-              <Icon icon={X} className="h-4 w-4 text-foreground" />
-            </button>
-          </div>
+            </span>
+          </Alert>
         )}
 
         {/* Page Content */}
@@ -580,7 +569,7 @@ function Sidebar({ user }: { user: User | null }) {
           <Link
             href="/settings"
             className="flex items-center gap-3 px-3 py-2.5 hover:bg-muted transition-colors"
-            style={{ borderRadius: '20px' }}
+            style={{ borderRadius: '24px' }}
           >
             <Avatar className="h-10 w-10 flex-shrink-0">
               <AvatarImage src={user.avatar_url} />
@@ -599,12 +588,12 @@ function Sidebar({ user }: { user: User | null }) {
       {/* Guest actions - not authenticated */}
       {!user && (
         <div className="px-6 py-4 border-t space-y-2" style={{ borderColor: 'hsl(var(--border))' }}>
-          <Button asChild className="w-full">
-            <Link href={route('login')}>Sign In</Link>
-          </Button>
-          <Button asChild variant="outline" className="w-full">
-            <Link href={route('register')}>Create Account</Link>
-          </Button>
+          <Link href={route('login')} className={cn(buttonVariants(), 'w-full')}>
+            Sign In
+          </Link>
+          <Link href={route('register')} className={cn(buttonVariants({ variant: 'outline' }), 'w-full')}>
+            Create Account
+          </Link>
         </div>
       )}
     </aside>

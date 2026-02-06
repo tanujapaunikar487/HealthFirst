@@ -354,7 +354,7 @@ export function PreferencesTab({
                                 </div>
                                 <span className="text-[14px] font-semibold leading-5 text-foreground">Change password</span>
                             </div>
-                            <Button size="icon" icon={ChevronRight} />
+                            <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
                         </button>
 
                         {/* Download My Data Row */}
@@ -368,7 +368,7 @@ export function PreferencesTab({
                                 </div>
                                 <span className="text-[14px] font-semibold leading-5 text-foreground">Download My Data</span>
                             </div>
-                            <Button size="icon" icon={ChevronRight} />
+                            <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
                         </button>
 
                         {/* Delete account Row */}
@@ -382,7 +382,7 @@ export function PreferencesTab({
                                 </div>
                                 <span className="text-[14px] font-semibold leading-5 text-foreground">Delete account</span>
                             </div>
-                            <Button size="icon" icon={ChevronRight} />
+                            <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
                         </button>
                     </CardContent>
                 </Card>

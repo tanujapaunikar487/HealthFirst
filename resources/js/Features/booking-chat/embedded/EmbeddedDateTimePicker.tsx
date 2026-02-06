@@ -2,6 +2,7 @@ import { cn } from '@/Lib/utils';
 import { Star } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { Card } from '@/Components/ui/card';
+import { Alert } from '@/Components/ui/alert';
 import { format, addDays, startOfDay } from 'date-fns';
 
 interface TimeSlot {
@@ -49,17 +50,9 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
     <div className="space-y-4">
       {/* Warning message (e.g., fasting required) */}
       {warning && (
-        <div className="bg-warning/10 border border-warning/20 rounded-xl p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-warning flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-[14px] font-bold">!</span>
-            </div>
-            <div className="flex-1">
-              <p className="font-semibold text-[14px] text-warning mb-1">{warning.title}</p>
-              <p className="text-[14px] text-warning">{warning.description}</p>
-            </div>
-          </div>
-        </div>
+        <Alert variant="warning" title={warning.title}>
+          {warning.description}
+        </Alert>
       )}
 
       <Card className="overflow-hidden">

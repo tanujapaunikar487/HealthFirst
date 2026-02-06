@@ -60,7 +60,7 @@ export function MemberSearchCard({ member, alreadyLinked }: MemberSearchCardProp
                     )}
 
                     {alreadyLinked && (
-                        <Badge variant="secondary" className="mt-2">
+                        <Badge variant="neutral" className="mt-2">
                             Already linked to your account
                         </Badge>
                     )}

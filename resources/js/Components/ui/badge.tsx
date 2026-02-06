@@ -1,42 +1,65 @@
 import * as React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/Lib/utils';
+import { Icon } from '@/Components/ui/icon';
 
 /**
  * Badge Component
  *
- * Status indicators and labels.
- * Stateless, presentation-only. Consumes design tokens.
+ * Status indicators and labels with 5 semantic variants and 2 sizes.
+ * Optional leading icon. Stateless, presentation-only.
  */
 
-const badgeVariants = cva(
-  'inline-flex items-center rounded-full border px-2.5 py-0.5 text-[14px] font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-  {
-    variants: {
-      variant: {
-        default: 'bg-primary/10 text-primary border-primary/20',
-        secondary: 'bg-muted text-muted-foreground border-border',
-        destructive: 'bg-destructive/10 text-destructive border-destructive/20',
-        success: 'bg-success/10 text-success border-success/20',
-        warning: 'bg-warning/10 text-warning border-warning/20',
-        info: 'bg-info/10 text-info border-info/20',
-        outline: 'text-foreground',
-        orange: 'bg-warning/10 text-warning border-warning/20',
-        purple: 'bg-primary/10 text-primary border-primary/20',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
-    },
-  }
-);
+export type BadgeVariant = 'success' | 'danger' | 'warning' | 'info' | 'neutral';
+export type BadgeSize = 'sm' | 'lg';
 
-export interface BadgeProps extends React.PropsWithChildren<React.HTMLAttributes<HTMLDivElement>> {
-  variant?: 'default' | 'secondary' | 'destructive' | 'success' | 'warning' | 'info' | 'outline' | 'orange' | 'purple' | null;
+const variantClasses: Record<BadgeVariant, string> = {
+  success: 'border-green-200 bg-green-50 text-green-700',
+  danger: 'border-red-200 bg-red-50 text-red-700',
+  warning: 'border-yellow-200 bg-yellow-50 text-yellow-800',
+  info: 'border-sky-200 bg-sky-50 text-sky-700',
+  neutral: 'border-neutral-200 bg-neutral-100 text-neutral-600',
+};
+
+const sizeClasses: Record<BadgeSize, string> = {
+  sm: 'text-[12px]',
+  lg: 'text-[14px]',
+};
+
+const iconSizeClasses: Record<BadgeSize, string> = {
+  sm: 'h-3.5 w-3.5',
+  lg: 'h-4 w-4',
+};
+
+export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: BadgeVariant;
+  size?: BadgeSize;
+  icon?: any;
 }
 
-function Badge({ className, variant, ...props }: BadgeProps) {
-  return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
+function Badge({
+  className,
+  variant = 'neutral',
+  size = 'sm',
+  icon,
+  children,
+  ...props
+}: BadgeProps) {
+  return (
+    <div
+      className={cn(
+        'inline-flex items-center whitespace-nowrap rounded-full border gap-1 py-1 pr-3 pl-2',
+        variantClasses[variant],
+        sizeClasses[size],
+        className,
+      )}
+      {...props}
+    >
+      {icon && (
+        <Icon icon={icon} className={cn('shrink-0', iconSizeClasses[size])} />
+      )}
+      {children}
+    </div>
+  );
 }
 
-export { Badge, badgeVariants };
+export { Badge };

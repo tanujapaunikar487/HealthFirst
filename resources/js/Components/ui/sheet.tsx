@@ -56,10 +56,9 @@ const SheetContent = React.forwardRef<
     <SheetOverlay />
     <SheetPrimitive.Content
       ref={ref}
-      className={cn(sheetVariants({ side }), className)}
+      className={cn(sheetVariants({ side }), 'rounded-3xl', className)}
       style={{
         width: '500px',
-        borderRadius: '24px',
         border: '1px solid hsl(var(--border))',
         background: 'hsl(var(--card))',
         boxShadow: '0 32px 32px 0 rgba(23, 23, 23, 0.12), 0 50px 60px 0 rgba(23, 23, 23, 0.12)',

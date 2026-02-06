@@ -13,7 +13,7 @@ const Table = React.forwardRef<
       alignItems: 'flex-start',
       gap: '1px',
       alignSelf: 'stretch',
-      borderRadius: 'var(--radius-radius-2xl, 20px)',
+      borderRadius: 'var(--radius-radius-2xl, 24px)',
       background: 'hsl(var(--card))',
     }}
   >

@@ -20,6 +20,7 @@ import {
   SheetBody,
 } from '@/Components/ui/sheet';
 import { cn } from '@/Lib/utils';
+import { Alert } from '@/Components/ui/alert';
 import {
   Upload,
   LoaderCircle,
@@ -333,10 +334,7 @@ export function AddInsuranceSheet({
               />
 
               {uploadError && (
-                <div className="flex items-center gap-2 rounded-lg bg-destructive/10 px-3 py-2 text-[14px] text-destructive">
-                  <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-                  {uploadError}
-                </div>
+                <Alert variant="error">{uploadError}</Alert>
               )}
 
               <div className="flex items-center gap-3">
@@ -413,22 +411,19 @@ export function AddInsuranceSheet({
           {addStep === 'review' && (
             <div className="space-y-6">
               {cameFromUpload && extractionType === 'full' && (
-                <div className="flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-[14px] text-success">
-                  <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
+                <Alert variant="success">
                   Details extracted from PDF. Review and confirm below.
-                </div>
+                </Alert>
               )}
               {cameFromUpload && extractionType === 'partial' && (
-                <div className="flex items-center gap-2 rounded-lg bg-warning/10 px-3 py-2 text-[14px] text-warning">
-                  <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+                <Alert variant="warning">
                   Some details couldn't be extracted. Please fill in the highlighted fields.
-                </div>
+                </Alert>
               )}
               {formErrors.policy_number?.includes('already') && (
-                <div className="flex items-center gap-2 rounded-lg bg-warning/10 px-3 py-2 text-[14px] text-warning">
-                  <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+                <Alert variant="warning">
                   A policy with this number already exists. Please check and update if needed.
-                </div>
+                </Alert>
               )}
 
               {/* Provider */}

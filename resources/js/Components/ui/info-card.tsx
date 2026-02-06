@@ -41,7 +41,7 @@ export function InfoCard({ items, className }: InfoCardProps) {
   return (
     <div
       className={cn(
-        'rounded-[20px] border border-border bg-white overflow-hidden',
+        'rounded-3xl border border-border bg-white overflow-hidden',
         className
       )}
     >

@@ -12,6 +12,7 @@ import { Card } from '@/Components/ui/card';
 import { DetectionCard } from './DetectionCard';
 import { TypeSelectorCard, MemberType } from './TypeSelectorCard';
 import { Collapsible, CollapsibleContent } from '@/Components/ui/collapsible';
+import { Alert } from '@/Components/ui/alert';
 import { cn } from '@/Lib/utils';
 
 type LinkSubStep = 'search' | 'contact_selection' | 'otp' | 'success';
@@ -627,10 +628,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
 
     // ============ RENDER HELPERS ============
     const renderError = () => state.error && (
-        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 flex items-start gap-2">
-            <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
-            <p className="text-[14px] text-destructive">{state.error}</p>
-        </div>
+        <Alert variant="error">{state.error}</Alert>
     );
 
     const renderGuestForm = () => (

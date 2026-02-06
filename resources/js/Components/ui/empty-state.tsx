@@ -12,11 +12,10 @@ interface EmptyStateProps {
 export function EmptyState({ image, icon: EmptyIcon, message, description, action }: EmptyStateProps) {
   return (
     <div
-      className="text-center flex flex-col items-center justify-center"
+      className="text-center flex flex-col items-center justify-center rounded-3xl"
       style={{
         backgroundColor: 'hsl(var(--secondary))',
         padding: '24px 24px 48px 24px',
-        borderRadius: '20px',
       }}
     >
       {image ? (

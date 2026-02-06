@@ -205,7 +205,7 @@ export function EmbeddedPackageList({
                                   {test.name}
                                 </span>
                                 {test.requires_fasting && (
-                                  <Badge variant="orange" className="text-[10px] px-1.5 py-0">
+                                  <Badge variant="warning" className="text-[10px] px-1.5 py-0">
                                     Fasting {test.fasting_hours}h
                                   </Badge>
                                 )}
