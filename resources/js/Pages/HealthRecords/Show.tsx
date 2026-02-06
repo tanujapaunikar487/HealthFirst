@@ -398,9 +398,9 @@ function StatusBadge({ status }: { status: RecordStatus }) {
 
 function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between py-2">
-      <span className="text-[14px] text-muted-foreground">{label}</span>
-      <span className="text-[14px] font-medium text-right">{children}</span>
+    <div className="grid items-start py-2" style={{ gridTemplateColumns: '130px 1fr' }}>
+      <span className="text-[14px] text-muted-foreground pt-px">{label}</span>
+      <span className="text-[14px] font-medium">{children}</span>
     </div>
   );
 }

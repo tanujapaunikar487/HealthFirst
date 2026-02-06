@@ -291,10 +291,10 @@ function StatusBadge({ status }: { status: BillingStatus }) {
 function InfoRow({ label, value, isLast }: { label: React.ReactNode; value: React.ReactNode; isLast?: boolean }) {
   return (
     <div
-      className="flex items-center justify-between px-4 py-4"
-      style={isLast ? undefined : { borderBottom: '1px solid hsl(var(--border))' }}
+      className="grid items-start px-4 py-4"
+      style={{ gridTemplateColumns: '130px 1fr', ...(isLast ? {} : { borderBottom: '1px solid hsl(var(--border))' }) }}
     >
-      <span className="text-[14px] text-muted-foreground">{label}</span>
+      <span className="text-[14px] text-muted-foreground pt-px">{label}</span>
       <span className="text-[14px] font-medium">{value}</span>
     </div>
   );
@@ -884,9 +884,9 @@ export default function Show({ user, bill }: Props) {
               {bill.insurance_deduction > 0 && (
                 <InfoRow label="Insurance coverage" value={<span className="text-success">-₹{bill.insurance_deduction.toLocaleString()}</span>} />
               )}
-              <div className="flex items-center justify-between px-4 py-4">
+              <div className="grid items-start px-4 py-4" style={{ gridTemplateColumns: '130px 1fr' }}>
                 <span className="text-[14px] font-semibold">{isPayable ? 'Amount due' : 'Amount paid'}</span>
-                <span className="text-[16px] font-bold" style={{ color: 'hsl(var(--foreground))' }}>₹{bill.total.toLocaleString()}</span>
+                <span className="text-[16px] font-bold text-right" style={{ color: 'hsl(var(--foreground))' }}>₹{bill.total.toLocaleString()}</span>
               </div>
             </Section>
 

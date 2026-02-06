@@ -1078,10 +1078,10 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
         {/* Overview Section */}
         <Section id="overview" title="Overview" icon={ClipboardList} noPadding>
-          <div className="divide-y">
+          <div>
             {/* Patient */}
-            <div className="flex items-center gap-4 px-5 py-3.5">
-              <span className="w-24 flex-shrink-0 text-[14px] text-muted-foreground">Patient</span>
+            <div className="grid items-start px-4 py-4" style={{ gridTemplateColumns: '130px 1fr', borderBottom: '1px solid hsl(var(--border))' }}>
+              <span className="text-[14px] text-muted-foreground pt-px">Patient</span>
               <button
                 className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
                 onClick={() => {
@@ -1108,8 +1108,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
             </div>
 
             {/* Doctor */}
-            <div className="flex items-center gap-4 px-5 py-3.5">
-              <span className="w-24 flex-shrink-0 text-[14px] text-muted-foreground">Doctor</span>
+            <div className="grid items-start px-4 py-4" style={{ gridTemplateColumns: '130px 1fr', borderBottom: '1px solid hsl(var(--border))' }}>
+              <span className="text-[14px] text-muted-foreground pt-px">Doctor</span>
               {doctor ? (
                 <div className="flex items-center gap-2.5 text-[14px]">
                   <div
@@ -1131,8 +1131,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
             </div>
 
             {/* Stay */}
-            <div className="flex items-center gap-4 px-5 py-3.5">
-              <span className="w-24 flex-shrink-0 text-[14px] text-muted-foreground">Stay</span>
+            <div className="grid items-start px-4 py-4" style={{ gridTemplateColumns: '130px 1fr', ...(isOutpatient ? {} : { borderBottom: '1px solid hsl(var(--border))' }) }}>
+              <span className="text-[14px] text-muted-foreground pt-px">Stay</span>
               {isOutpatient ? (
                 <span className="text-[14px] font-medium text-foreground">Outpatient</span>
               ) : (
@@ -1158,8 +1158,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
             {/* Room */}
             {!isOutpatient && (
-              <div className="flex items-center gap-4 px-5 py-3.5">
-                <span className="w-24 flex-shrink-0 text-[14px] text-muted-foreground">Room</span>
+              <div className="grid items-start px-4 py-4" style={{ gridTemplateColumns: '130px 1fr' }}>
+                <span className="text-[14px] text-muted-foreground pt-px">Room</span>
                 <div className="flex items-center gap-1.5 text-[14px]">
                   <span className="font-medium text-foreground">{stay!.room_type ?? 'General'}</span>
                   {stay!.room_number && (

@@ -581,10 +581,10 @@ function Section({
 function InfoRow({ label, value, isLast }: { label: React.ReactNode; value: React.ReactNode; isLast?: boolean }) {
   return (
     <div
-      className="flex items-center justify-between px-4 py-4"
-      style={isLast ? undefined : { borderBottom: '1px solid hsl(var(--border))' }}
+      className="grid items-start px-4 py-4"
+      style={{ gridTemplateColumns: '130px 1fr', ...(isLast ? {} : { borderBottom: '1px solid hsl(var(--border))' }) }}
     >
-      <span className="text-[14px] text-muted-foreground">{label}</span>
+      <span className="text-[14px] text-muted-foreground pt-px">{label}</span>
       <span className="text-[14px] font-medium">{value}</span>
     </div>
   );
@@ -607,28 +607,28 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
       <InfoRow
         label="Patient"
         value={
-          <div className="text-right">
+          <>
             <p className="text-[14px] font-medium">{appointment.patient?.name ?? appointment.patient_name}</p>
             {patientSub && <p className="text-[14px] text-muted-foreground">{patientSub}</p>}
-          </div>
+          </>
         }
       />
       {hasDoctor && (
         <InfoRow
           label="Doctor"
           value={
-            <div className="text-right">
+            <>
               <p className="text-[14px] font-medium">{appointment.doctor!.name}</p>
               <p className="text-[14px] text-muted-foreground">
                 {[appointment.doctor!.specialization, appointment.doctor!.qualification].filter(Boolean).join(' · ')}
               </p>
-              <div className="flex items-center gap-1 justify-end mt-0.5">
+              <div className="flex items-center gap-1 mt-0.5">
                 <Star className="h-3 w-3 fill-warning text-warning" />
                 <span className="text-[14px] text-muted-foreground">
                   {appointment.doctor!.rating ?? '—'} · {appointment.doctor!.experience_years ?? '—'} yrs exp
                 </span>
               </div>
-            </div>
+            </>
           }
         />
       )}
@@ -660,25 +660,30 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
 function VitalsSection({ vitals }: { vitals: Vital[] }) {
   return (
     <Section id="vitals" title="Vitals" icon={Heart}>
-      <div className="p-4">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {vitals.map((v) => (
-            <div key={v.label} className="border rounded-lg p-3 space-y-1.5">
-              <p className="text-[14px] text-muted-foreground">{v.label}</p>
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-xl font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{v.value}</span>
-                <span className="text-[14px] text-muted-foreground">{v.unit}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <Badge variant={v.status === 'normal' ? 'success' : v.status === 'elevated' ? 'danger' : 'warning'}>
+      {vitals.map((v, i) => (
+        <div
+          key={v.label}
+          className="grid items-start px-4 py-4"
+          style={{ gridTemplateColumns: '130px 1fr', ...(i < vitals.length - 1 ? { borderBottom: '1px solid hsl(var(--border))' } : {}) }}
+        >
+          <span className="text-[14px] text-muted-foreground pt-px">{v.label}</span>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[14px] font-medium">
+                {v.value}{v.unit ? ` ${v.unit}` : ''}
+              </span>
+              {v.status !== 'normal' && (
+                <Badge variant={v.status === 'elevated' ? 'danger' : 'warning'}>
                   {v.status.charAt(0).toUpperCase() + v.status.slice(1)}
                 </Badge>
-                <span className="text-[10px] text-muted-foreground">{v.reference}</span>
-              </div>
+              )}
             </div>
-          ))}
+            {v.reference && (
+              <p className="text-[14px] text-muted-foreground mt-0.5">Normal: {v.reference}</p>
+            )}
+          </div>
         </div>
-      </div>
+      ))}
     </Section>
   );
 }
@@ -838,56 +843,12 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
           >
             <div className="flex items-start justify-between">
               <div>
-                <div className="flex items-center gap-2">
-                  <p className="font-medium text-[14px]">{rx.drug} {rx.strength}</p>
-                  <Badge
-                    variant={rx.status === 'active' ? 'success' : 'neutral'}
-                  >
-                    {rx.status === 'active' ? 'Active' : 'Completed'}
-                  </Badge>
-                </div>
-                <p className="text-[14px] text-muted-foreground mt-1">{rx.purpose}</p>
+                <p className="font-medium text-[14px]">{rx.drug} {rx.strength}</p>
+                <p className="text-[14px] text-muted-foreground mt-0.5">
+                  {[rx.dosage, rx.frequency, rx.purpose].filter(Boolean).join(' · ')}
+                </p>
               </div>
-              <Button
-                variant="ghost"
-                iconOnly
-                size="sm"
-                className="text-foreground hover:text-foreground"
-                onClick={() => {
-                  downloadAsHtml(`prescription-${rx.drug.toLowerCase().replace(/\s+/g, '-')}.pdf`, `
-                    <h1>Prescription</h1>
-                    <p class="subtitle">${appointmentTitle} &middot; ${appointmentDate} &middot; ${appointmentTime}</p>
-                    <h2>Prescription</h2>
-                    <table>
-                      <thead><tr><th>Drug</th><th>Strength</th><th>Dosage</th><th>Frequency</th><th>Duration</th><th>Purpose</th></tr></thead>
-                      <tbody><tr>
-                        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;font-weight:500">${rx.drug}</td>
-                        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px">${rx.strength}</td>
-                        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px">${rx.dosage}</td>
-                        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px">${rx.frequency}</td>
-                        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px">${rx.duration}</td>
-                        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:13px">${rx.purpose}</td>
-                      </tr></tbody>
-                    </table>
-                  `);
-                }}
-              >
-                <Download className="h-4 w-4" />
-              </Button>
-            </div>
-            <div className="grid grid-cols-3 gap-4 mt-3 pt-3 border-t border-dashed">
-              <div>
-                <p className="text-[10px] text-muted-foreground uppercase">Dosage</p>
-                <p className="text-[14px] font-medium mt-0.5">{rx.dosage}</p>
-              </div>
-              <div>
-                <p className="text-[10px] text-muted-foreground uppercase">Frequency</p>
-                <p className="text-[14px] font-medium mt-0.5">{rx.frequency}</p>
-              </div>
-              <div>
-                <p className="text-[10px] text-muted-foreground uppercase">Duration</p>
-                <p className="text-[14px] font-medium mt-0.5">{rx.duration}</p>
-              </div>
+              <span className="text-[14px] text-muted-foreground shrink-0 ml-4">{rx.duration}</span>
             </div>
           </div>
         );
@@ -938,23 +899,12 @@ function LabTestsSection({ tests }: { tests: LabTest[] }) {
             )}
             style={isLast ? undefined : { borderBottom: '1px solid hsl(var(--border))' }}
           >
-            <div className="flex items-center gap-3">
-              <div className={cn(
-                'h-10 w-10 rounded-full flex items-center justify-center',
-                t.is_normal === false ? 'bg-destructive/10' : 'bg-primary/10',
-              )}>
-                <FlaskConical className={cn('h-5 w-5', t.is_normal === false ? 'text-destructive' : 'text-primary')} />
-              </div>
-              <div>
-                <p className="text-[14px] font-medium">{t.name}</p>
-                <Badge
-                  variant={t.status === 'completed' ? (t.is_normal === false ? 'danger' : 'success') : 'warning'}
-                >
-                  {t.status === 'completed' ? (t.is_normal === false ? 'Abnormal' : 'Normal') : 'Pending'}
-                </Badge>
-              </div>
+            <div>
+              <p className="text-[14px] font-medium">{t.name}</p>
             </div>
-            {canLink && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+            <Badge variant={t.status === 'completed' ? 'neutral' : 'warning'}>
+              {t.status === 'completed' ? 'Completed' : 'Pending Test'}
+            </Badge>
           </div>
         );
 
@@ -1003,9 +953,9 @@ function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadIn
             }
           />
         ))}
-        <div className="flex items-center justify-between px-4 py-4">
+        <div className="grid items-start px-4 py-4" style={{ gridTemplateColumns: '130px 1fr' }}>
           <span className="text-[14px] font-semibold">Total</span>
-          <span className="text-[14px] font-bold">₹{billing.total.toLocaleString()}</span>
+          <span className="text-[14px] font-bold text-right">₹{billing.total.toLocaleString()}</span>
         </div>
       </Card>
 
