@@ -1169,7 +1169,7 @@ export default function FamilyMemberShow({
               Cancel
             </Button>
             <Button
-              variant="default"
+              variant="primary"
               className="flex-1"
               onClick={handleUpgrade}
               disabled={upgrading}

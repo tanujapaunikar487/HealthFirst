@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Eye, EyeOff, Check, AlertCircle, Loader2, ArrowLeft } from '@/Lib/icons';
+import { Alert } from '@/Components/ui/alert';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
@@ -172,10 +173,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                                 </p>
 
                                 {error && (
-                                    <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-[14px]">
-                                        <AlertCircle className="h-4 w-4" />
-                                        {error}
-                                    </div>
+                                    <Alert variant="error">{error}</Alert>
                                 )}
 
                                 <div className="space-y-2">
@@ -238,10 +236,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                                 </p>
 
                                 {error && (
-                                    <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-[14px]">
-                                        <AlertCircle className="h-4 w-4" />
-                                        {error}
-                                    </div>
+                                    <Alert variant="error">{error}</Alert>
                                 )}
 
                                 <div className="space-y-2">

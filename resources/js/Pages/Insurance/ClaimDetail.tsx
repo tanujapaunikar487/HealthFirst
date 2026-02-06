@@ -1151,7 +1151,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 <div className="flex items-center gap-1.5 text-[14px] flex-wrap">
                   <span className="font-medium text-foreground">{stay!.days} Days</span>
                   {isOngoing && (
-                    <Badge variant="info" className="text-[10px] px-1.5 py-0">
+                    <Badge variant="info">
                       Ongoing
                     </Badge>
                   )}
@@ -1211,7 +1211,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   <p className="text-[14px] font-semibold text-muted-foreground line-through">
                     {claim.original_policy_plan_name}
                   </p>
-                  <Badge variant="neutral" className="text-[10px]">
+                  <Badge variant="neutral">
                     Expired
                   </Badge>
                 </div>

@@ -2,6 +2,7 @@ import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Badge } from '@/Components/ui/badge';
 import { Button, buttonVariants } from '@/Components/ui/button';
+import { Alert } from '@/Components/ui/alert';
 import { Card, CardContent } from '@/Components/ui/card';
 import { Toast } from '@/Components/ui/toast';
 import { Icon } from '@/Components/ui/icon';
@@ -731,7 +732,7 @@ export default function Show({ user, record, familyMember }: Props) {
               <div>
                 <div className="flex items-center gap-3 mb-1">
                   {record.status && <StatusBadge status={record.status} />}
-                  <Badge variant="neutral" style={{ backgroundColor: config.bg, color: config.color }}>
+                  <Badge variant="info">
                     {config.label}
                   </Badge>
                 </div>
@@ -834,29 +835,28 @@ export default function Show({ user, record, familyMember }: Props) {
                 </div>
 
                 {aiSummaryLoading ? (
-                  <div className="rounded-lg bg-primary/10 border border-primary/20 px-6 py-4">
+                  <Alert variant="info" hideIcon>
                     <div className="flex items-center gap-3">
                       <Loader2 className="h-5 w-5 text-primary animate-spin" />
-                      <p className="text-[14px] text-primary">Generating AI summary...</p>
+                      <span>Generating AI summary...</span>
                     </div>
-                  </div>
+                  </Alert>
                 ) : aiSummaryError ? (
-                  <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-6 py-4">
-                    <p className="text-[14px] text-destructive mb-3">{aiSummaryError}</p>
+                  <Alert variant="error">
+                    <p className="mb-3">{aiSummaryError}</p>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => generateAiSummary()}
-                      className="text-destructive border-destructive/20 hover:bg-destructive/10"
                     >
                       Try Again
                     </Button>
-                  </div>
+                  </Alert>
                 ) : aiSummary ? (
-                  <div className="rounded-lg bg-primary/10 border border-primary/20 px-6 py-4">
+                  <Alert variant="info" hideIcon>
                     <p className="text-[14px] leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{aiSummary}</p>
                     {summaryGeneratedAt && (
-                      <p className="text-[14px] text-primary/60 mt-3">
+                      <p className="text-[14px] text-muted-foreground mt-3">
                         Generated {new Date(summaryGeneratedAt).toLocaleDateString('en-IN', {
                           day: 'numeric',
                           month: 'short',
@@ -866,14 +866,14 @@ export default function Show({ user, record, familyMember }: Props) {
                         })}
                       </p>
                     )}
-                  </div>
+                  </Alert>
                 ) : (
-                  <div className="rounded-lg bg-primary/10 border border-primary/20 px-6 py-4">
+                  <Alert variant="info" hideIcon>
                     <div className="flex items-center gap-3">
                       <Loader2 className="h-5 w-5 text-primary animate-spin" />
-                      <p className="text-[14px] text-primary">Generating AI summary...</p>
+                      <span>Generating AI summary...</span>
                     </div>
-                  </div>
+                  </Alert>
                 )}
               </div>
 
@@ -883,7 +883,7 @@ export default function Show({ user, record, familyMember }: Props) {
                   <DetailRow label="Record ID">#{record.id}</DetailRow>
                   <DetailRow label="Date">{formatDate(record.record_date)}</DetailRow>
                   <DetailRow label="Category">
-                    <Badge variant="neutral" style={{ backgroundColor: config.bg, color: config.color }}>
+                    <Badge variant="info">
                       {config.label}
                     </Badge>
                   </DetailRow>
@@ -1050,9 +1050,7 @@ function ConsultationDetail({ meta, onAction }: { meta: RecordMetadata; onAction
         {meta.chief_complaint && (
           <div>
             <p className="text-[14px] text-muted-foreground uppercase mb-2">Chief Complaint</p>
-            <div className="rounded-lg bg-primary/10 px-4 py-3">
-              <p className="text-[14px] font-medium text-primary">{meta.chief_complaint}</p>
-            </div>
+            <Alert variant="info" hideIcon>{meta.chief_complaint}</Alert>
           </div>
         )}
         {meta.symptoms && meta.symptoms.length > 0 && (
@@ -1078,10 +1076,10 @@ function ConsultationDetail({ meta, onAction }: { meta: RecordMetadata; onAction
         {meta.diagnosis && (
           <div>
             <p className="text-[14px] text-muted-foreground uppercase mb-2">Diagnosis</p>
-            <div className="rounded-lg bg-primary/10 px-4 py-3">
-              <p className="text-[14px] font-semibold text-primary">{meta.diagnosis}</p>
-              {meta.icd_code && <p className="text-[14px] text-primary/70 mt-1">ICD: {meta.icd_code}</p>}
-            </div>
+            <Alert variant="info" hideIcon>
+              <p className="text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{meta.diagnosis}</p>
+              {meta.icd_code && <p className="text-[14px] text-muted-foreground mt-1">ICD: {meta.icd_code}</p>}
+            </Alert>
           </div>
         )}
       </div>
@@ -1107,18 +1105,18 @@ function ConsultationDetail({ meta, onAction }: { meta: RecordMetadata; onAction
       {(meta.follow_up_recommendation || meta.follow_up_date || meta.follow_up) && (
         <div>
           <SectionTitle>Follow-up</SectionTitle>
-          <div className="rounded-lg border border-primary/20 bg-primary/10 px-6 py-4 space-y-3">
+          <Alert variant="info">
             {(meta.follow_up_recommendation || meta.follow_up) && (
               <p className="text-[14px]" style={{ color: 'hsl(var(--foreground))' }}>{meta.follow_up_recommendation || meta.follow_up}</p>
             )}
             {meta.follow_up_date && (
-              <p className="text-[14px] text-muted-foreground">Recommended: {fmtDate(meta.follow_up_date)}</p>
+              <p className="text-[14px] text-muted-foreground mt-1">Recommended: {fmtDate(meta.follow_up_date)}</p>
             )}
-            <Button size="sm" variant="outline" className="w-full" onClick={() => { window.location.href = '/booking'; }}>
+            <Button size="sm" variant="outline" className="w-full mt-3" onClick={() => { window.location.href = '/booking'; }}>
               <Calendar className="h-4 w-4" />
               Book Follow-up Appointment
             </Button>
-          </div>
+          </Alert>
         </div>
       )}
     </div>
@@ -1189,9 +1187,7 @@ function ErVisitDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (ms
       {meta.chief_complaint && (
         <div>
           <SectionTitle>Chief Complaint</SectionTitle>
-          <div className="rounded-lg bg-destructive/10 px-4 py-3">
-            <p className="text-[14px] font-semibold text-destructive">{meta.chief_complaint}</p>
-          </div>
+          <Alert variant="error" hideIcon>{meta.chief_complaint}</Alert>
         </div>
       )}
 
@@ -1234,9 +1230,7 @@ function ErVisitDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (ms
       {meta.diagnosis && (
         <div>
           <SectionTitle>Diagnosis</SectionTitle>
-          <div className="rounded-lg bg-warning/10 px-4 py-3">
-            <p className="text-[14px] font-semibold text-warning">{meta.diagnosis}</p>
-          </div>
+          <Alert variant="warning" hideIcon>{meta.diagnosis}</Alert>
         </div>
       )}
 
@@ -1313,10 +1307,10 @@ function DischargeDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (
           <SectionTitle>Diagnosis</SectionTitle>
           <div className="space-y-3">
             {(meta.primary_diagnosis || meta.diagnosis) && (
-              <div className="rounded-lg bg-primary/10 px-4 py-3">
-                <p className="text-[14px] text-primary/70 uppercase mb-1">Primary</p>
-                <p className="text-[14px] font-semibold text-primary">{meta.primary_diagnosis || meta.diagnosis}</p>
-              </div>
+              <Alert variant="info" hideIcon>
+                <p className="text-[14px] text-muted-foreground uppercase mb-1">Primary</p>
+                <p className="text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{meta.primary_diagnosis || meta.diagnosis}</p>
+              </Alert>
             )}
             {meta.secondary_diagnosis && (
               <div className="rounded-lg bg-muted px-4 py-3">
@@ -1398,15 +1392,15 @@ function DischargeDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (
       {meta.warning_signs && meta.warning_signs.length > 0 && (
         <div>
           <SectionTitle>Warning Signs — Contact Immediately If</SectionTitle>
-          <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-6 py-4 space-y-3">
+          <Alert variant="error" title="Warning Signs">
             <NumberedList items={meta.warning_signs} variant="warning" />
             {meta.emergency_contact && (
-              <div className="flex items-center gap-2 pt-3 border-t border-destructive/20">
+              <div className="flex items-center gap-2 pt-3 border-t border-red-200">
                 <Phone className="h-4 w-4 text-destructive" />
                 <span className="text-[14px] font-medium text-destructive">{meta.emergency_contact}</span>
               </div>
             )}
-          </div>
+          </Alert>
         </div>
       )}
 
@@ -1594,10 +1588,10 @@ function PathologyDetail({ meta }: { meta: RecordMetadata }) {
       {meta.diagnosis && (
         <div>
           <SectionTitle>Diagnosis</SectionTitle>
-          <div className="rounded-lg bg-warning/10 px-4 py-3">
-            <p className="text-[14px] font-semibold text-warning">{meta.diagnosis}</p>
-            {meta.grade && <p className="text-[14px] text-warning/70 mt-1">Grade: {meta.grade}</p>}
-          </div>
+          <Alert variant="warning" hideIcon>
+            <p className="text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{meta.diagnosis}</p>
+            {meta.grade && <p className="text-[14px] text-muted-foreground mt-1">Grade: {meta.grade}</p>}
+          </Alert>
         </div>
       )}
     </div>
@@ -1640,9 +1634,7 @@ function PftDetail({ meta }: { meta: RecordMetadata }) {
       {meta.interpretation && (
         <div>
           <SectionTitle>Interpretation</SectionTitle>
-          <div className="rounded-lg bg-primary/10 px-4 py-3">
-            <p className="text-[14px] text-primary">{meta.interpretation}</p>
-          </div>
+          <Alert variant="info" hideIcon>{meta.interpretation}</Alert>
         </div>
       )}
     </div>
@@ -1693,12 +1685,12 @@ function MedicationActiveDetail({ meta, onAction }: { meta: RecordMetadata; onAc
   return (
     <div className="space-y-6">
       {meta.drug_name && (
-        <div className="rounded-lg bg-success/10 border border-success/20 px-4 py-3">
+        <Alert variant="success" hideIcon>
           <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-success animate-pulse" />
-            <p className="text-base font-semibold text-success">{meta.drug_name}</p>
+            <span className="h-2.5 w-2.5 rounded-full bg-green-700 animate-pulse" />
+            <p className="text-base font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{meta.drug_name}</p>
           </div>
-        </div>
+        </Alert>
       )}
 
       {(meta.dosage || meta.frequency || meta.timing || meta.medication_duration || meta.route) && (
@@ -1750,11 +1742,8 @@ function MedicationActiveDetail({ meta, onAction }: { meta: RecordMetadata; onAc
             ))}
           </ul>
           {meta.side_effects_warning && (
-            <div className="mt-3 rounded-lg bg-warning/10 border border-warning/20 px-4 py-3">
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="h-4 w-4 text-warning flex-shrink-0 mt-0.5" />
-                <p className="text-[14px] text-warning">{meta.side_effects_warning}</p>
-              </div>
+            <div className="mt-3">
+              <Alert variant="warning">{meta.side_effects_warning}</Alert>
             </div>
           )}
         </div>
@@ -1867,9 +1856,7 @@ function MedicationPastDetail({ meta, onAction }: { meta: RecordMetadata; onActi
       {meta.reason_stopped && (
         <div>
           <SectionTitle>Reason Stopped</SectionTitle>
-          <div className="rounded-lg bg-warning/10 border border-warning/20 px-4 py-3">
-            <p className="text-[14px] text-warning">{meta.reason_stopped}</p>
-          </div>
+          <Alert variant="warning" hideIcon>{meta.reason_stopped}</Alert>
         </div>
       )}
 
@@ -1885,11 +1872,8 @@ function MedicationPastDetail({ meta, onAction }: { meta: RecordMetadata; onActi
             ))}
           </ul>
           {meta.side_effects_warning && (
-            <div className="mt-3 rounded-lg bg-warning/10 border border-warning/20 px-4 py-3">
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="h-4 w-4 text-warning flex-shrink-0 mt-0.5" />
-                <p className="text-[14px] text-warning">{meta.side_effects_warning}</p>
-              </div>
+            <div className="mt-3">
+              <Alert variant="warning">{meta.side_effects_warning}</Alert>
             </div>
           )}
         </div>
@@ -1911,9 +1895,9 @@ function VaccinationDetail({ meta, onAction, familyMember }: { meta: RecordMetad
   return (
     <div className="space-y-6">
       {meta.vaccine_name && (
-        <div className="rounded-lg bg-success/10 border border-success/20 px-4 py-3">
-          <p className="text-base font-semibold text-success">{meta.vaccine_name}</p>
-        </div>
+        <Alert variant="success" hideIcon>
+          <p className="text-base font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{meta.vaccine_name}</p>
+        </Alert>
       )}
 
       {familyMember && (
@@ -1947,8 +1931,8 @@ function VaccinationDetail({ meta, onAction, familyMember }: { meta: RecordMetad
           {meta.next_due_date && <DetailRow label="Next Due">{fmtDate(meta.next_due_date)}</DetailRow>}
         </div>
         {meta.next_due_date === null && meta.dose_number === meta.total_doses && (
-          <div className="mt-3 rounded-lg bg-success/10 px-4 py-2 text-center">
-            <p className="text-[14px] font-medium text-success">Vaccination course complete</p>
+          <div className="mt-3">
+            <Alert variant="success" hideIcon>Vaccination course complete</Alert>
           </div>
         )}
       </div>
@@ -2033,9 +2017,9 @@ function MedicalCertificateDetail({ meta, onAction }: { meta: RecordMetadata; on
   return (
     <div className="space-y-6">
       {meta.certificate_type && (
-        <div className="rounded-lg bg-primary/10 border border-primary/20 px-4 py-3">
-          <p className="text-base font-semibold text-primary">{meta.certificate_type}</p>
-        </div>
+        <Alert variant="info" hideIcon>
+          <p className="text-base font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{meta.certificate_type}</p>
+        </Alert>
       )}
 
       <div>

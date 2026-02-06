@@ -2,6 +2,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Button } from '@/Components/ui/button';
 import { FormEventHandler } from 'react';
+import { Alert } from '@/Components/ui/alert';
 
 interface VerifyEmailProps {
     status?: string;
@@ -30,8 +31,8 @@ export default function VerifyEmail({ status }: VerifyEmailProps) {
             </div>
 
             {status === 'verification-link-sent' && (
-                <div className="mb-4 text-[14px] font-medium text-success bg-success/10 p-3 rounded-lg">
-                    A new verification link has been sent to your email address.
+                <div className="mb-4">
+                    <Alert variant="success" hideIcon>A new verification link has been sent to your email address.</Alert>
                 </div>
             )}
 

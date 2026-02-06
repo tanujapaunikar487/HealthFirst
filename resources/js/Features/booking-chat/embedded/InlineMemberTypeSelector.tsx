@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Users, Loader2, CheckCircle2, AlertCircle } from '@/Lib/icons';
 import { router } from '@inertiajs/react';
+import { Alert } from '@/Components/ui/alert';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { PhoneInput } from '@/Components/ui/phone-input';
@@ -986,11 +987,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                     {renderError()}
 
                     {otpSentTo && (
-                        <div className="text-center p-3 bg-primary/10 border border-primary/20 rounded-lg">
-                            <p className="text-[14px] text-blue-800">
-                                OTP sent to <strong>{otpSentTo}</strong>
-                            </p>
-                        </div>
+                        <Alert variant="info" hideIcon>OTP sent to <strong>{otpSentTo}</strong></Alert>
                     )}
 
                     <OtpInput

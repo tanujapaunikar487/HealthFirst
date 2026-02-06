@@ -721,7 +721,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
             ].map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value} className="gap-1.5">
                 {tab.label}
-                <Badge variant="neutral" className="ml-1 h-5 min-w-[20px] px-1.5 text-[11px]">
+                <Badge variant="neutral" className="ml-1">
                   {groupCounts[tab.value]}
                 </Badge>
               </TabsTrigger>
@@ -823,7 +823,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
           {activeFilters.length > 0 && (
             <div className="flex items-center gap-2 flex-wrap">
               {activeFilters.map((f) => (
-                <Badge key={f.key} variant="neutral" className="gap-1 pl-2.5 pr-1.5 py-1 h-7 text-[14px] font-medium">
+                <Badge key={f.key} variant="neutral" className="gap-1 pl-2.5 pr-1.5 py-1 h-7 font-medium">
                   {f.label}
                   <button onClick={f.onRemove} className="ml-1 rounded-full hover:bg-muted-foreground/20 p-0.5">
                     <X className="h-3 w-3" />

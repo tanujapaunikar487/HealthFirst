@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from '@inertiajs/react';
-import { Button } from '@/Components/ui/button';
+import { Button, buttonVariants } from '@/Components/ui/button';
+import { cn } from '@/Lib/utils';
 import { Card } from '@/Components/ui/card';
 import { AddToCalendarButton } from '@/Components/AddToCalendarButton';
 import { Check, Info, Plus, Download } from '@/Lib/icons';
@@ -178,25 +179,13 @@ export default function Confirmation({ booking, calendarPreference }: Props) {
               variant="primary"
             />
           )}
-          <Button
-            variant="outline"
-            asChild
-            size="lg"
-            className="w-full"
-          >
-            <Link href="/appointments">View My Appointments</Link>
-          </Button>
-          <Button
-            variant="ghost"
-            asChild
-            size="lg"
-            className="w-full"
-          >
-            <Link href="/booking" className="flex items-center gap-2">
-              <Icon icon={Plus} className="h-[20px] w-[20px]" />
-              Book Another Appointment
-            </Link>
-          </Button>
+          <Link href="/appointments" className={cn(buttonVariants({ variant: 'secondary', size: 'md' }), 'w-full')}>
+            View My Appointments
+          </Link>
+          <Link href="/booking" className={cn(buttonVariants({ variant: 'ghost', size: 'md' }), 'w-full')}>
+            <Icon icon={Plus} className="h-[20px] w-[20px]" />
+            Book Another Appointment
+          </Link>
         </div>
       </div>
     </div>

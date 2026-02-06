@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Users, ChevronLeft, Loader2, CheckCircle2, AlertCircle } from '@/Lib/icons';
 import { router } from '@inertiajs/react';
+import { Alert } from '@/Components/ui/alert';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { PhoneInput } from '@/Components/ui/phone-input';
@@ -2028,11 +2029,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     {/* Show where OTP was sent */}
                     {state.otpSentTo && (
-                        <div className="text-center p-3 bg-primary/10 border border-primary/20 rounded-lg">
-                            <p className="text-[14px] text-primary">
-                                OTP sent to <strong>{state.otpSentTo}</strong>
-                            </p>
-                        </div>
+                        <Alert variant="info" hideIcon>OTP sent to <strong>{state.otpSentTo}</strong></Alert>
                     )}
 
                     <OtpInput

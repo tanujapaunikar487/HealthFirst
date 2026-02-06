@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
+import { Alert } from '@/Components/ui/alert';
 import { Card } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
@@ -842,12 +843,9 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                 </div>
 
                 {/* Info banner */}
-                <div className="rounded-lg bg-primary/10 border border-primary/20 px-3.5 py-3 flex items-start gap-2.5">
-                  <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <p className="text-[14px] text-primary">
-                    Your pre-authorization request will be sent to {policy.provider_name} for review. You'll be notified once it's processed.
-                  </p>
-                </div>
+                <Alert variant="info">
+                  Your pre-authorization request will be sent to {policy.provider_name} for review. You'll be notified once it's processed.
+                </Alert>
               </div>
             )}
           </SheetBody>

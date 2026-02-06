@@ -179,7 +179,6 @@ function NotificationCard({
               <Badge
                 key={ch}
                 variant="neutral"
-                className="text-[9px] px-1.5 py-0 h-[16px] font-medium rounded"
               >
                 {channelLabels[ch] || ch}
               </Badge>

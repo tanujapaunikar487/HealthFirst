@@ -3,6 +3,7 @@ import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
+import { Alert } from '@/Components/ui/alert';
 import { Card } from '@/Components/ui/card';
 import { SideNav } from '@/Components/SideNav';
 import {
@@ -10,8 +11,6 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetBody,
-  SheetFooter,
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
@@ -30,9 +29,7 @@ import {
   Share2,
   Stethoscope,
   TestTube2,
-  Calendar,
   Star,
-  AlertTriangle,
   FileText,
   Pill,
   FlaskConical,
@@ -42,8 +39,6 @@ import {
   Heart,
   ChevronDown,
   ChevronUp,
-  Phone,
-  CheckCircle2,
   ExternalLink,
   ShieldCheck,
   RotateCcw,
@@ -94,11 +89,9 @@ interface Prescription {
 
 interface LabTest {
   name: string;
-  reason: string;
   status: 'completed' | 'pending';
-  result: string | null;
-  date: string | null;
   is_normal: boolean | null;
+  health_record_id: number | null;
 }
 
 interface BillingLineItem {
@@ -211,8 +204,6 @@ export default function Show({ user, appointment }: Props) {
   const [showFollowUpSheet, setShowFollowUpSheet] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showBookAgainSheet, setShowBookAgainSheet] = useState(false);
-  const [selectedLabTest, setSelectedLabTest] = useState<LabTest | null>(null);
-
   const isPastAppointment = !appointment.is_upcoming && appointment.status === 'completed';
 
   // Guard: if appointment data is missing, show skeleton
@@ -265,10 +256,10 @@ export default function Show({ user, appointment }: Props) {
         <div className="flex items-start justify-between mb-8">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Badge variant="neutral" size="lg">
+              <Badge variant="neutral">
                 {isDoctor ? 'Doctor' : 'Lab Test'}
               </Badge>
-              <Badge variant="neutral" size="lg">
+              <Badge variant="neutral">
                 {appointment.mode}
               </Badge>
               <span className="text-[14px] text-muted-foreground font-mono">
@@ -322,23 +313,19 @@ export default function Show({ user, appointment }: Props) {
 
         {/* Follow-up Alert - moved from footer */}
         {appointment.follow_up && appointment.type === 'doctor' && (
-          <Card className="p-4 border-primary/20 bg-primary/10 mb-8">
-            <div className="flex items-start gap-3">
-              <Calendar className="h-5 w-5 text-primary mt-0.5" />
-              <div className="flex-1">
-                <p className="text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>Follow-up Recommended</p>
-                <p className="text-[14px] text-muted-foreground mt-1">
-                  {appointment.follow_up.recommended_date_formatted}
-                </p>
-                <p className="text-[14px] text-muted-foreground mt-2 leading-relaxed">
-                  {appointment.follow_up.notes}
-                </p>
-              </div>
-              <Button size="sm" variant="outline" className="text-[14px]" onClick={() => setShowFollowUpSheet(true)}>
+          <div className="mb-8">
+            <Alert variant="info" title="Follow-up Recommended">
+              <p className="text-[14px] text-muted-foreground">
+                {appointment.follow_up.recommended_date_formatted}
+              </p>
+              <p className="text-[14px] text-muted-foreground mt-2 leading-relaxed">
+                {appointment.follow_up.notes}
+              </p>
+              <Button size="sm" variant="outline" className="mt-3" onClick={() => setShowFollowUpSheet(true)}>
                 Schedule
               </Button>
-            </div>
-          </Card>
+            </Alert>
+          </div>
         )}
 
         {/* Main content: Side nav + sections */}
@@ -348,7 +335,12 @@ export default function Show({ user, appointment }: Props) {
             <OverviewSection appointment={appointment} />
             {(appointment.vitals?.length ?? 0) > 0
               ? <VitalsSection vitals={appointment.vitals} />
-              : <Section id="vitals" title="Vitals" icon={Heart}><EmptyState icon={Heart} message="No vitals recorded for this appointment" description="Vitals will be recorded during your appointment." /></Section>
+              : <Section id="vitals" title="Vitals" icon={Heart}>
+                  <div className="px-4 py-6 text-center">
+                    <p className="text-[14px] font-medium text-muted-foreground">No vitals recorded for this appointment</p>
+                    <p className="text-[14px] text-muted-foreground mt-0.5">Vitals will be recorded during your appointment.</p>
+                  </div>
+                </Section>
             }
             {appointment.clinical_summary
               ? <ClinicalSummarySection summary={appointment.clinical_summary} />
@@ -363,7 +355,7 @@ export default function Show({ user, appointment }: Props) {
                   </div>
                 </Section>
             }
-            <LabTestsSection tests={appointment.lab_tests ?? []} onSelect={(test) => test.status === 'completed' && setSelectedLabTest(test)} />
+            <LabTestsSection tests={appointment.lab_tests ?? []} />
             {appointment.billing && (
               <BillingSection billing={appointment.billing} appointmentId={appointment.id} insuranceClaimId={appointment.insurance_claim_id} onDownloadInvoice={handleDownloadInvoice} />
             )}
@@ -437,13 +429,6 @@ export default function Show({ user, appointment }: Props) {
         </SheetContent>
       </Sheet>
 
-      {/* Lab Test Detail Sheet */}
-      <Sheet open={!!selectedLabTest} onOpenChange={(o) => !o && setSelectedLabTest(null)}>
-        <SheetContent side="right" className="sm:max-w-lg">
-          {selectedLabTest && <LabTestDetailSheet test={selectedLabTest} />}
-        </SheetContent>
-      </Sheet>
-
       {/* Share Sheet */}
       <ShareDialog
         open={showShareDialog}
@@ -498,86 +483,6 @@ function SkeletonPage() {
           ))}
         </div>
       </div>
-    </div>
-  );
-}
-
-/* ─── Lab Test Detail Sheet ─── */
-
-function LabTestDetailSheet({ test }: { test: LabTest }) {
-  const handleDownload = () => {
-    downloadAsHtml(`lab-report-${test.name.toLowerCase().replace(/\s+/g, '-')}.pdf`, `
-      <h1>Lab Test Report</h1>
-      <p class="subtitle">${test.name}</p>
-      <div class="section">
-        <h3>Test Information</h3>
-        <div class="row"><span class="row-label">Test Name</span><span class="row-value">${test.name}</span></div>
-        <div class="row"><span class="row-label">Reason</span><span class="row-value">${test.reason}</span></div>
-        <div class="row"><span class="row-label">Date</span><span class="row-value">${test.date ?? 'N/A'}</span></div>
-        <div class="row"><span class="row-label">Status</span><span class="row-value">${test.status}</span></div>
-      </div>
-      ${test.result ? `
-        <div class="section">
-          <h3>Result</h3>
-          <p style="font-size:14px;margin-top:8px">${test.result}</p>
-          <p style="font-size:12px;margin-top:4px;color:${test.is_normal ? '#16a34a' : '#dc2626'};font-weight:500">${test.is_normal ? 'Within normal range' : 'Abnormal - requires attention'}</p>
-        </div>
-      ` : ''}
-    `);
-  };
-
-  return (
-    <div className="flex flex-col h-full">
-      <SheetHeader>
-        <SheetTitle>Lab test result</SheetTitle>
-      </SheetHeader>
-
-      <SheetBody>
-        <div className="space-y-5">
-        {/* Status badge */}
-        <div className="flex items-center gap-2">
-          <Badge
-            variant={test.status === 'completed' ? 'success' : 'warning'}
-            icon={CheckCircle2}
-            className="text-[14px]"
-          >
-            {test.status === 'completed' ? 'Completed' : 'Pending'}
-          </Badge>
-          {test.date && (
-            <span className="text-[14px] text-muted-foreground">{test.date}</span>
-          )}
-        </div>
-
-        {/* Reason */}
-        <div className="rounded-lg border p-4">
-          <p className="text-[14px] text-muted-foreground uppercase font-medium mb-2">Reason for Test</p>
-          <p className="text-[14px]">{test.reason}</p>
-        </div>
-
-        {/* Result */}
-        {test.result && (
-          <div className="rounded-lg border p-4">
-            <p className="text-[14px] text-muted-foreground uppercase font-medium mb-2">Result</p>
-            <p className="text-[14px] font-medium">{test.result}</p>
-            <div className="mt-3">
-              <Badge
-                variant={test.is_normal ? 'success' : 'danger'}
-                className="text-[14px]"
-              >
-                {test.is_normal ? 'Normal' : 'Abnormal'}
-              </Badge>
-            </div>
-          </div>
-        )}
-        </div>
-      </SheetBody>
-
-      <SheetFooter>
-        <Button className="flex-1" size="lg" onClick={handleDownload}>
-          <Download className="h-4 w-4" />
-          Download report
-        </Button>
-      </SheetFooter>
     </div>
   );
 }
@@ -785,13 +690,12 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
                 <p className="font-semibold text-[14px]">{diagnosis.name || 'Not specified'}</p>
               </div>
               {diagnosis.icd_code && (
-                <Badge variant="neutral" size="lg" className="font-mono ml-auto">
+                <Badge variant="neutral" className="font-mono ml-auto">
                   ICD: {diagnosis.icd_code}
                 </Badge>
               )}
               {diagnosis.severity && (
                 <Badge
-                  size="lg"
                   variant={
                     diagnosis.severity === 'mild' ? 'success' :
                     diagnosis.severity === 'moderate' ? 'warning' :
@@ -808,19 +712,15 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
 
         {/* Allergies */}
         {(summary.allergies?.length ?? 0) > 0 && (
-          <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="h-4 w-4 text-destructive" />
-              <span className="text-[14px] font-semibold text-destructive">Known Allergies</span>
-            </div>
+          <Alert variant="error" title="Known Allergies">
             <div className="flex gap-2 flex-wrap">
               {summary.allergies.map((a) => (
-                <Badge key={a} variant="danger" size="lg">
+                <Badge key={a} variant="danger">
                   {a}
                 </Badge>
               ))}
             </div>
-          </div>
+          </Alert>
         )}
 
         {/* Collapsible subsections */}
@@ -836,17 +736,9 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
         </div>
 
         {/* Symptoms worsen alert */}
-        <div className="rounded-lg border border-warning/20 bg-warning/10 p-4">
-          <div className="flex items-start gap-3">
-            <Phone className="h-4 w-4 text-warning mt-0.5" />
-            <div>
-              <p className="text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>If Symptoms Worsen</p>
-              <p className="text-[14px] text-muted-foreground mt-1 leading-relaxed">
-                Contact your doctor immediately or visit the nearest emergency room. For urgent assistance, call the hospital helpline at <span className="font-medium text-foreground">1800-123-4567</span>.
-              </p>
-            </div>
-          </div>
-        </div>
+        <Alert variant="warning" title="If Symptoms Worsen">
+          Contact your doctor immediately or visit the nearest emergency room. For urgent assistance, call the hospital helpline at <span className="font-medium text-foreground">1800-123-4567</span>.
+        </Alert>
       </div>
     </Section>
   );
@@ -940,7 +832,6 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
                   <p className="font-medium text-[14px]">{rx.drug} {rx.strength}</p>
                   <Badge
                     variant={rx.status === 'active' ? 'success' : 'neutral'}
-                    className="text-[10px]"
                   >
                     {rx.status === 'active' ? 'Active' : 'Completed'}
                   </Badge>
@@ -997,11 +888,14 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
 
 /* ─── 5. Lab Tests ─── */
 
-function LabTestsSection({ tests, onSelect }: { tests: LabTest[]; onSelect?: (test: LabTest) => void }) {
+function LabTestsSection({ tests }: { tests: LabTest[] }) {
   if (tests.length === 0) {
     return (
       <Section id="lab-tests" title="Lab Tests" icon={FlaskConical}>
-        <EmptyState icon={FlaskConical} message="No lab tests ordered for this appointment" description="Lab tests will appear here if ordered by your doctor." />
+        <div className="px-4 py-6 text-center">
+          <p className="text-[14px] font-medium text-muted-foreground">No lab tests ordered for this appointment</p>
+          <p className="text-[14px] text-muted-foreground mt-0.5">Lab tests will appear here if ordered by your doctor.</p>
+        </div>
       </Section>
     );
   }
@@ -1021,48 +915,44 @@ function LabTestsSection({ tests, onSelect }: { tests: LabTest[]; onSelect?: (te
         ) : undefined
       }
     >
-      <table className="w-full text-[14px]">
-        <thead>
-          <tr className="text-left" style={{ backgroundColor: 'hsl(var(--muted))' }}>
-            <th className="pl-4 py-3 font-medium text-[14px] text-muted-foreground">Test</th>
-            <th className="py-3 font-medium text-[14px] text-muted-foreground">Reason</th>
-            <th className="py-3 font-medium text-[14px] text-muted-foreground">Status</th>
-            <th className="pr-4 py-3 font-medium text-[14px] text-muted-foreground">Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tests.map((t, i) => {
-            const isLast = i === tests.length - 1;
-            return (
-              <tr
-                key={i}
-                className={cn(t.status === 'completed' && onSelect && 'cursor-pointer hover:bg-muted/30 transition-colors')}
-                onClick={() => t.status === 'completed' && onSelect?.(t)}
-                style={isLast ? undefined : { borderBottom: '1px solid hsl(var(--border))' }}
-              >
-                <td className="pl-4 py-3 font-medium">
-                  <span className="flex items-center gap-2">
-                    {t.name}
-                    {t.status === 'completed' && onSelect && (
-                      <ChevronRight className="h-3.5 w-3.5 text-foreground" />
-                    )}
-                  </span>
-                </td>
-                <td className="py-3 text-muted-foreground text-[14px]">{t.reason}</td>
-                <td className="py-3">
-                  <Badge
-                    variant={t.status === 'completed' ? 'success' : 'warning'}
-                    className="text-[10px]"
-                  >
-                    {t.status === 'completed' ? 'Completed' : 'Pending'}
-                  </Badge>
-                </td>
-                <td className="pr-4 py-3 text-[14px] text-muted-foreground">{t.date ?? '—'}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      {tests.map((t, i) => {
+        const isLast = i === tests.length - 1;
+        const canLink = t.status === 'completed' && t.health_record_id;
+
+        const row = (
+          <div
+            key={i}
+            className={cn(
+              'flex items-center justify-between px-4 py-4',
+              canLink && 'cursor-pointer hover:bg-muted/50 transition-colors',
+            )}
+            style={isLast ? undefined : { borderBottom: '1px solid hsl(var(--border))' }}
+          >
+            <div className="flex items-center gap-3">
+              <div className={cn(
+                'h-10 w-10 rounded-full flex items-center justify-center',
+                t.is_normal === false ? 'bg-destructive/10' : 'bg-primary/10',
+              )}>
+                <FlaskConical className={cn('h-5 w-5', t.is_normal === false ? 'text-destructive' : 'text-primary')} />
+              </div>
+              <div>
+                <p className="text-[14px] font-medium">{t.name}</p>
+                <Badge
+                  variant={t.status === 'completed' ? (t.is_normal === false ? 'danger' : 'success') : 'warning'}
+                >
+                  {t.status === 'completed' ? (t.is_normal === false ? 'Abnormal' : 'Normal') : 'Pending'}
+                </Badge>
+              </div>
+            </div>
+            {canLink && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+          </div>
+        );
+
+        if (canLink) {
+          return <Link key={i} href={`/health-records/${t.health_record_id}`}>{row}</Link>;
+        }
+        return row;
+      })}
     </Section>
   );
 }

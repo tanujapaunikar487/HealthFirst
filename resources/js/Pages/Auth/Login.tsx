@@ -5,6 +5,7 @@ import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import { Checkbox } from '@/Components/ui/checkbox';
 import { FormEventHandler } from 'react';
+import { Alert } from '@/Components/ui/alert';
 import SocialLoginButtons from '@/Components/Auth/SocialLoginButtons';
 import SocialDivider from '@/Components/Auth/SocialDivider';
 
@@ -47,14 +48,14 @@ export default function Login({ status, canResetPassword, socialLoginEnabled }: 
             </div>
 
             {status && (
-                <div className="mb-4 text-[14px] font-medium text-success bg-success/10 p-3 rounded-lg">
-                    {status}
+                <div className="mb-4">
+                    <Alert variant="success" hideIcon>{status}</Alert>
                 </div>
             )}
 
             {flash?.error && (
-                <div className="mb-4 text-[14px] font-medium text-destructive bg-destructive/10 p-3 rounded-lg">
-                    {flash.error}
+                <div className="mb-4">
+                    <Alert variant="error" hideIcon>{flash.error}</Alert>
                 </div>
             )}
 

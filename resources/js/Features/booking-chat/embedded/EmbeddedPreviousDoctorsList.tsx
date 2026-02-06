@@ -195,12 +195,12 @@ function PreviousDoctorCard({
           {doctor.consultation_modes && doctor.consultation_modes.length > 0 && (
             <div className="flex gap-1">
               {doctor.consultation_modes.includes('video') && (
-                <Badge variant="info" size="lg">
+                <Badge variant="info">
                   Video
                 </Badge>
               )}
               {doctor.consultation_modes.includes('in_person') && (
-                <Badge variant="info" size="lg">
+                <Badge variant="info">
                   In-person
                 </Badge>
               )}

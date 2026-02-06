@@ -4,6 +4,7 @@ import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import { FormEventHandler } from 'react';
+import { Alert } from '@/Components/ui/alert';
 
 interface ForgotPasswordProps {
     status?: string;
@@ -34,8 +35,8 @@ export default function ForgotPassword({ status }: ForgotPasswordProps) {
             </div>
 
             {status && (
-                <div className="mb-4 text-[14px] font-medium text-success bg-success/10 p-3 rounded-lg">
-                    {status}
+                <div className="mb-4">
+                    <Alert variant="success" hideIcon>{status}</Alert>
                 </div>
             )}
 

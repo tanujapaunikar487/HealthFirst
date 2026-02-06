@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\FamilyMember;
+use App\Models\HealthRecord;
 use App\Models\InsuranceClaim;
 use App\Models\LabTestType;
 use App\Models\TimeSlot;
@@ -805,11 +806,15 @@ class AppointmentsController extends Controller
             ['drug' => 'Pantoprazole', 'strength' => '40mg', 'dosage' => '1 tablet', 'frequency' => 'Once daily before breakfast', 'duration' => '7 days', 'purpose' => 'Gastric protection', 'status' => 'active'],
         ] : [];
 
-        // Mock lab tests
+        // Mock lab tests — look up real health records for linking
+        $labRecords = HealthRecord::where('appointment_id', $appt->id)
+            ->where('category', 'lab_report')
+            ->pluck('id', 'title');
+
         $labTests = [
-            ['name' => 'Complete Blood Count (CBC)', 'reason' => 'Routine / Infection markers', 'status' => 'completed', 'result' => 'WBC 8,200 /µL, Hb 13.8 g/dL, Plt 2.4 L', 'date' => $apptDate->format('Y-m-d'), 'is_normal' => true],
-            ['name' => 'C-Reactive Protein (CRP)', 'reason' => 'Inflammation marker', 'status' => 'completed', 'result' => '12.4 mg/L (High)', 'date' => $apptDate->format('Y-m-d'), 'is_normal' => false],
-            ['name' => 'Thyroid Panel (TSH, T3, T4)', 'reason' => 'Routine screening', 'status' => 'pending', 'result' => null, 'date' => null, 'is_normal' => null],
+            ['name' => 'Complete Blood Count (CBC)', 'status' => 'completed', 'is_normal' => true, 'health_record_id' => $labRecords->get('Complete Blood Count (CBC)')],
+            ['name' => 'C-Reactive Protein (CRP)', 'status' => 'completed', 'is_normal' => false, 'health_record_id' => $labRecords->get('C-Reactive Protein (CRP)')],
+            ['name' => 'Thyroid Panel (TSH, T3, T4)', 'status' => 'pending', 'is_normal' => null, 'health_record_id' => null],
         ];
 
         // Mock billing

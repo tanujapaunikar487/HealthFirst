@@ -298,7 +298,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
             <TabsTrigger value="upcoming" className="gap-1.5">
               Upcoming
               {categorized.upcoming.length > 0 && (
-                <Badge variant="neutral" className="ml-1 h-5 min-w-[20px] px-1.5 text-[11px]">
+                <Badge variant="neutral" className="ml-1">
                   {categorized.upcoming.length}
                 </Badge>
               )}
@@ -306,7 +306,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
             <TabsTrigger value="past" className="gap-1.5">
               Past
               {categorized.past.length > 0 && (
-                <Badge variant="neutral" className="ml-1 h-5 min-w-[20px] px-1.5 text-[11px]">
+                <Badge variant="neutral" className="ml-1">
                   {categorized.past.length}
                 </Badge>
               )}
@@ -314,7 +314,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
             <TabsTrigger value="cancelled" className="gap-1.5">
               Cancelled
               {categorized.cancelled.length > 0 && (
-                <Badge variant="neutral" className="ml-1 h-5 min-w-[20px] px-1.5 text-[11px]">
+                <Badge variant="neutral" className="ml-1">
                   {categorized.cancelled.length}
                 </Badge>
               )}

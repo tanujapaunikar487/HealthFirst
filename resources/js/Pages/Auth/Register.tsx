@@ -4,6 +4,7 @@ import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import { FormEventHandler } from 'react';
+import { Alert } from '@/Components/ui/alert';
 import SocialLoginButtons from '@/Components/Auth/SocialLoginButtons';
 import SocialDivider from '@/Components/Auth/SocialDivider';
 
@@ -45,8 +46,8 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
             </div>
 
             {flash?.error && (
-                <div className="mb-4 text-[14px] font-medium text-destructive bg-destructive/10 p-3 rounded-lg">
-                    {flash.error}
+                <div className="mb-4">
+                    <Alert variant="error" hideIcon>{flash.error}</Alert>
                 </div>
             )}
 
