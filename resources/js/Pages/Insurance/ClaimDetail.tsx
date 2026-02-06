@@ -6,7 +6,6 @@ import { Card } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Toast } from '@/Components/ui/toast';
-import { EmptyState } from '@/Components/ui/empty-state';
 import { Icon } from '@/Components/ui/icon';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { cn } from '@/Lib/utils';
@@ -1214,8 +1213,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-accent"
               onClick={() => router.visit(`/insurance/${claim.policy_id}`)}
             >
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
                   <Shield className="h-5 w-5 text-primary" />
                 </div>
                 <div>
@@ -1468,8 +1467,9 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           }
         >
           {claim.documents.length === 0 ? (
-            <div className="p-6">
-              <EmptyState icon={FileText} message="No documents uploaded" description="Upload supporting documents for this claim" />
+            <div className="px-4 py-6 text-center">
+              <p className="text-[14px] font-medium text-foreground">No documents uploaded</p>
+              <p className="mt-1 text-[14px] text-muted-foreground">Upload supporting documents for this claim</p>
             </div>
           ) : (
             <div className="divide-y">
@@ -1514,8 +1514,9 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           }
         >
           {claim.timeline.length === 0 ? (
-            <div className="p-6">
-              <EmptyState icon={Clock} message="No timeline events" description="Timeline updates will appear here as your claim progresses." />
+            <div className="px-4 py-6 text-center">
+              <p className="text-[14px] font-medium text-foreground">No timeline events</p>
+              <p className="mt-1 text-[14px] text-muted-foreground">Timeline updates will appear here as your claim progresses</p>
             </div>
             ) : (
               <div className="px-6 py-4">
