@@ -29,7 +29,7 @@ export function SideNav({
   return (
     <div
       className={cn(
-        'min-w-[200px] flex-shrink-0',
+        'w-sidebar shrink-0',
         hiddenOnMobile && 'hidden lg:block',
         className
       )}
