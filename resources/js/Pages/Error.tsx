@@ -72,7 +72,7 @@ export default function Error({ status, message }: Props) {
                 Try Again
               </Button>
               <Link href="/dashboard">
-                <Button variant="outline">
+                <Button variant="secondary">
                   <Icon icon={ArrowLeft} className="h-4 w-4" />
                   Go home
                 </Button>
@@ -87,7 +87,7 @@ export default function Error({ status, message }: Props) {
                 Go Back
               </Button>
               <Link href="/dashboard">
-                <Button variant="outline">
+                <Button variant="secondary">
                   Go home
                 </Button>
               </Link>

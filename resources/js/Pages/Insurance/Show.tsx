@@ -446,7 +446,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" iconOnly size="md" className="text-muted-foreground">
+                <Button variant="secondary" iconOnly size="md" className="text-muted-foreground">
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>

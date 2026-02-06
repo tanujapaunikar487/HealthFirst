@@ -283,7 +283,7 @@ export default function Show({ user, appointment }: Props) {
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" iconOnly size="md">
+                    <Button variant="secondary" iconOnly size="md">
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -303,7 +303,7 @@ export default function Show({ user, appointment }: Props) {
                     Book Follow-up
                   </Button>
                 )}
-                <Button variant="outline" iconOnly size="md" onClick={() => setShowShareDialog(true)}>
+                <Button variant="secondary" iconOnly size="md" onClick={() => setShowShareDialog(true)}>
                   <Share2 className="h-4 w-4" />
                 </Button>
               </>
@@ -321,7 +321,7 @@ export default function Show({ user, appointment }: Props) {
               <p className="text-[14px] text-muted-foreground mt-2 leading-relaxed">
                 {appointment.follow_up.notes}
               </p>
-              <Button size="sm" variant="outline" className="mt-3" onClick={() => setShowFollowUpSheet(true)}>
+              <Button size="sm" variant="secondary" className="mt-3" onClick={() => setShowFollowUpSheet(true)}>
                 Schedule
               </Button>
             </Alert>
@@ -788,7 +788,7 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
       icon={Pill}
       action={
         <Button
-          variant="outline"
+          variant="secondary"
           size="sm"
           className="text-[14px]"
           onClick={() => {
@@ -1071,7 +1071,7 @@ function DocumentsSection({ documents }: { documents: AppDocument[] }) {
       title="Documents"
       icon={FolderOpen}
       action={
-        <Button variant="outline" size="sm" className="text-[14px]" onClick={handleDownloadAll}>
+        <Button variant="secondary" size="sm" className="text-[14px]" onClick={handleDownloadAll}>
           <Download className="h-3.5 w-3.5" />
           Download All
         </Button>

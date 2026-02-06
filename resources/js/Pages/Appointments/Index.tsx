@@ -481,7 +481,7 @@ function AppointmentsTable({
         message={message}
         description={description}
         action={tab === 'upcoming' ? (
-          <Link href="/booking" className={buttonVariants({ variant: 'outline', size: 'sm' })}>
+          <Link href="/booking" className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
             Book an appointment
           </Link>
         ) : undefined}

@@ -289,7 +289,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
         </div>
         <p className="text-[14px] font-medium text-muted-foreground">Unable to load dashboard</p>
         <p className="text-[14px] text-muted-foreground">Please check your connection and try again.</p>
-        <Button variant="outline" className="mt-2" onClick={onRetry}>
+        <Button variant="secondary" className="mt-2" onClick={onRetry}>
           <Icon icon={RefreshCw} className="h-4 w-4" />
           Try Again
         </Button>

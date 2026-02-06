@@ -709,7 +709,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                   {filtered.length > ITEMS_PER_PAGE && (
                     <div className="flex items-center gap-1">
                     <Button
-                      variant="outline"
+                      variant="secondary"
                       iconOnly
                       size="sm"
                       disabled={currentPage <= 1}
@@ -730,7 +730,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                       </Button>
                     ))}
                     <Button
-                      variant="outline"
+                      variant="secondary"
                       iconOnly
                       size="sm"
                       disabled={currentPage >= totalPages}

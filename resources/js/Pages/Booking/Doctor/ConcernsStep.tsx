@@ -175,7 +175,7 @@ export default function ConcernsStep({
             {(selectedSymptoms.length > 0 || symptomNotes.trim().length > 0) && !showUrgency && (
               <Button
                 onClick={handleSymptomContinue}
-                variant="outline"
+                variant="secondary"
                 className="border-border hover:bg-accent"
               >
                 Continue

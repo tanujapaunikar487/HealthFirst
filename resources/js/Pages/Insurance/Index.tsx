@@ -426,7 +426,7 @@ export default function InsuranceIndex({
           </h1>
           {hasPolicies && (
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="lg" onClick={() => setShowAddPolicy(true)}>
+              <Button variant="secondary" size="lg" onClick={() => setShowAddPolicy(true)}>
                 <Plus className="h-[20px] w-[20px]" />
                 Add policy
               </Button>

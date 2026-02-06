@@ -1,4 +1,5 @@
 import { cn } from '@/Lib/utils';
+import { Badge } from '@/Components/ui/badge';
 import { Home, MapPin, Plus, Check } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 
@@ -50,9 +51,7 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
                 <div className="flex items-center gap-2">
                   <p className="font-medium text-[14px]">{addr.label}</p>
                   {addr.is_default && (
-                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
-                      Default
-                    </span>
+                    <Badge variant="info">Default</Badge>
                   )}
                 </div>
                 <div className="flex items-center gap-1 mt-1 text-[14px] text-muted-foreground">

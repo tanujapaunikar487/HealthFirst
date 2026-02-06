@@ -967,12 +967,12 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   Download Settlement
                 </Button>
               ) : claim.status === 'dispute_resolved' ? (
-                <Button variant="outline" onClick={() => document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+                <Button variant="secondary" onClick={() => document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
                   <FileText className="h-4 w-4" />
                   View resolution
                 </Button>
               ) : (claim.status === 'pending' || claim.status === 'enhancement_in_progress' || claim.status === 'dispute_under_review') ? (
-                <Button variant="outline" onClick={() => document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+                <Button variant="secondary" onClick={() => document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
                   <Clock className="h-4 w-4" />
                   Track status
                 </Button>
@@ -1006,7 +1006,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
             {banner.action && (
               <Button
                 size="sm"
-                variant="outline"
+                variant="secondary"
                 className="flex-shrink-0 h-8 text-[14px]"
                 onClick={() => {
                   const label = banner.action!.label;
@@ -1461,7 +1461,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           action={
             claim.documents.length > 0 ? (
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 className="text-[14px]"
                 onClick={() => {

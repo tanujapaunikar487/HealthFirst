@@ -642,7 +642,7 @@ export default function Show({ user, bill }: Props) {
             {bill.billing_status === 'disputed' && (
               bill.dispute_details?.status === 'Under Review' ? (
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => {
                     if (confirm('Are you sure you want to cancel this dispute?')) {
                       router.post(`/billing/${bill.id}/dispute/cancel`, {}, {
@@ -656,14 +656,14 @@ export default function Show({ user, bill }: Props) {
                   Cancel Dispute
                 </Button>
               ) : (
-                <Button variant="outline" onClick={() => document.getElementById('dispute')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+                <Button variant="secondary" onClick={() => document.getElementById('dispute')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
                   <AlertTriangle className="h-4 w-4" />
                   View Dispute
                 </Button>
               )
             )}
             {(bill.billing_status === 'awaiting_approval' || bill.billing_status === 'claim_pending') && (
-              <Button variant="outline" onClick={() => document.getElementById('payment')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+              <Button variant="secondary" onClick={() => document.getElementById('payment')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
                 <ClipboardList className="h-4 w-4" />
                 Track Claim
               </Button>
@@ -695,7 +695,7 @@ export default function Show({ user, bill }: Props) {
             {/* 3-dot Menu by Status */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" iconOnly size="md" className="text-muted-foreground">
+                <Button variant="secondary" iconOnly size="md" className="text-muted-foreground">
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -1057,7 +1057,7 @@ export default function Show({ user, bill }: Props) {
 
           <DialogFooter>
             <Button
-              variant="outline"
+              variant="secondary"
               className="flex-1"
               disabled={disputeLoading}
               onClick={() => {

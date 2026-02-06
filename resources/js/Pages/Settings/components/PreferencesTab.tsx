@@ -428,7 +428,7 @@ export function PreferencesTab({
                     </DialogBody>
 
                     <DialogFooter>
-                        <Button variant="outline" className="flex-1" onClick={() => setShowDeleteDialog(false)}>
+                        <Button variant="secondary" className="flex-1" onClick={() => setShowDeleteDialog(false)}>
                             Cancel
                         </Button>
                         <Button

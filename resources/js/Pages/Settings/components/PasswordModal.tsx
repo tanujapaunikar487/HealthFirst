@@ -321,7 +321,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
 
                         <DialogFooter>
                             <Button
-                                variant="outline"
+                                variant="secondary"
                                 onClick={() => setStep('verify')}
                                 icon={ArrowLeft}
                             >

@@ -158,7 +158,7 @@ export function ConnectionsTab({ calendarSettings }: ConnectionsTabProps) {
                                     </>
                                 ) : (
                                     <Button
-                                        variant="outline"
+                                        variant="secondary"
                                         size="md"
                                         onClick={handleConnectGoogle}
                                     >

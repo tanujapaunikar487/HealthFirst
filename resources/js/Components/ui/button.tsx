@@ -6,7 +6,7 @@ import { cn } from '@/Lib/utils';
  * Button Component
  *
  * Stateless, presentation-only button component.
- * 4 primary variants (primary, secondary, accent, destructive) + 4 compat variants.
+ * 4 primary variants (primary, secondary, accent, destructive) + 3 compat variants.
  * 3 sizes (lg/md/sm) with iconOnly mode for square buttons.
  */
 
@@ -19,7 +19,6 @@ const buttonVariants = cva(
         secondary: 'border border-neutral-200 bg-neutral-100 text-neutral-900 hover:bg-neutral-200',
         accent: 'bg-neutral-900 text-white hover:bg-neutral-800',
         destructive: 'border border-red-600 bg-red-50 text-red-700 hover:bg-red-100',
-        outline: 'border border-border bg-background hover:bg-accent hover:text-accent-foreground',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
         cta: 'bg-white text-foreground hover:bg-white/95',

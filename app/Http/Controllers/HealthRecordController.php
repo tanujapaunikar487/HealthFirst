@@ -99,7 +99,7 @@ class HealthRecordController extends Controller
         }
 
         if ($hasAbnormal) {
-            return ['label' => 'Needs Attention', 'variant' => 'destructive'];
+            return ['label' => 'Needs Attention', 'variant' => 'warning'];
         }
         if ($hasBorderline) {
             return ['label' => 'Borderline', 'variant' => 'warning'];

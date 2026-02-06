@@ -311,7 +311,7 @@ function TagInput({
         />
         <Button
           type="button"
-          variant="outline"
+          variant="secondary"
           size="sm"
           onClick={addTag}
           disabled={!inputValue.trim()}
@@ -643,7 +643,7 @@ export default function FamilyMemberShow({
           {member.relation !== 'self' && (
             <div className="flex items-center gap-2 flex-shrink-0">
               <Button
-                variant="outline"
+                variant="secondary"
                 onClick={openEditForm}
               >
                 <Pencil className="h-4 w-4" />
@@ -651,7 +651,7 @@ export default function FamilyMemberShow({
               </Button>
               {canDelete && (
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   iconOnly
                   size="md"
                   onClick={() => setShowDeleteConfirm(true)}
@@ -831,7 +831,7 @@ export default function FamilyMemberShow({
                       message="No emergency contact added"
                       description="Add someone to contact in case of emergencies"
                       action={
-                        <Button variant="outline" size="sm" onClick={() => setShowEditForm(true)}>
+                        <Button variant="secondary" size="sm" onClick={() => setShowEditForm(true)}>
                           Add contact
                         </Button>
                       }
@@ -1161,7 +1161,7 @@ export default function FamilyMemberShow({
           </DialogHeader>
           <DialogFooter>
             <Button
-              variant="outline"
+              variant="secondary"
               className="flex-1"
               onClick={() => setShowUpgradeConfirm(false)}
               disabled={upgrading}
@@ -1219,7 +1219,7 @@ export default function FamilyMemberShow({
           </DialogBody>
           <DialogFooter>
             <Button
-              variant="outline"
+              variant="secondary"
               className="flex-1"
               onClick={() => {
                 setShowDeleteConfirm(false);

@@ -76,7 +76,7 @@ export function EmbeddedPreviousDoctorsList({
 
       {/* See other doctors button */}
       <Button
-        variant="outline"
+        variant="secondary"
         className="w-full"
         onClick={onSeeOtherDoctors}
         disabled={disabled}

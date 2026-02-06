@@ -82,7 +82,7 @@ export default function DataExport({
 
             {/* Back button - hidden when printing */}
             <div className="print:hidden fixed top-4 left-4 z-50">
-                <Button variant="outline" onClick={() => window.history.back()}>
+                <Button variant="secondary" onClick={() => window.history.back()}>
                     Back to Settings
                 </Button>
             </div>

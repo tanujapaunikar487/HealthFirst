@@ -372,7 +372,7 @@ export default function ScheduleStep({
                   <div className="text-center py-4">
                     <p className="text-[14px] text-muted-foreground mb-3">No saved addresses yet</p>
                     <Button
-                      variant="outline"
+                      variant="secondary"
                       size="sm"
                       onClick={() => setShowAddressForm(true)}
                     >

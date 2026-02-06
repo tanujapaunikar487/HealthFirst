@@ -1214,7 +1214,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                     </Button>
 
                     {state.error.includes('No member found') && (
-                        <Button variant="outline" onClick={handleAddAsNew} className="w-full">
+                        <Button variant="secondary" onClick={handleAddAsNew} className="w-full">
                             Add as New Member
                         </Button>
                     )}

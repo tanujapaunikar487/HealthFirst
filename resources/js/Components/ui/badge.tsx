@@ -15,7 +15,7 @@ export type BadgeSize = 'sm' | 'lg';
 const variantClasses: Record<BadgeVariant, string> = {
   success: 'border-green-200 bg-green-50 text-green-700',
   danger: 'border-red-200 bg-red-50 text-red-700',
-  warning: 'border-yellow-200 bg-yellow-50 text-yellow-800',
+  warning: 'border-amber-200 bg-amber-50 text-amber-600',
   info: 'border-sky-200 bg-sky-50 text-sky-700',
   neutral: 'border-neutral-200 bg-neutral-100 text-neutral-600',
 };

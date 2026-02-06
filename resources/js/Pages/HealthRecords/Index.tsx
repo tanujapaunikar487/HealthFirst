@@ -841,7 +841,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
         {selectedIds.size > 0 && (
           <div className="flex items-center gap-3 rounded-lg bg-muted px-4 py-2.5 mt-4 mb-4">
             <span className="text-[14px] font-medium">{selectedIds.size} selected</span>
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => {
+            <Button variant="secondary" size="sm" className="gap-1.5" onClick={() => {
               const selected = records.filter(r => selectedIds.has(r.id));
               const categoryLabels = Object.fromEntries(
                 Object.entries(categoryConfig).map(([k, v]) => [k, v.label])
@@ -853,7 +853,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
               <Download className="h-3.5 w-3.5" />
               Download
             </Button>
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setBulkShareOpen(true)}>
+            <Button variant="secondary" size="sm" className="gap-1.5" onClick={() => setBulkShareOpen(true)}>
               <Share2 className="h-3.5 w-3.5" />
               Share
             </Button>
@@ -943,7 +943,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                 {totalPages > 1 && (
                   <div className="flex items-center gap-1">
                     <Button
-                      variant="outline"
+                      variant="secondary"
                       size="sm"
                       className="h-8 w-8 p-0"
                       disabled={currentPage === 1}
@@ -963,7 +963,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                       </Button>
                     ))}
                     <Button
-                      variant="outline"
+                      variant="secondary"
                       size="sm"
                       className="h-8 w-8 p-0"
                       disabled={currentPage === totalPages}

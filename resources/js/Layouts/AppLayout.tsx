@@ -594,7 +594,7 @@ function Sidebar({ user }: { user: User | null }) {
           <Link href={route('login')} className={cn(buttonVariants(), 'w-full')}>
             Sign In
           </Link>
-          <Link href={route('register')} className={cn(buttonVariants({ variant: 'outline' }), 'w-full')}>
+          <Link href={route('register')} className={cn(buttonVariants({ variant: 'secondary' }), 'w-full')}>
             Create Account
           </Link>
         </div>

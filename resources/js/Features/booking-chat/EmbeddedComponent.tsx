@@ -2,6 +2,7 @@ import * as React from 'react';
 import { cn } from '@/Lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
+import { Badge } from '@/Components/ui/badge';
 import { Card } from '@/Components/ui/card';
 import { Check, Star, Video, User, Search, ChevronDown } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
@@ -1000,10 +1001,10 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
               </div>
               <div className="flex items-start gap-2 flex-shrink-0">
                 {doctor.modes?.includes('video') && (
-                  <span className="px-2 py-1 text-[14px] font-medium text-[#0052FF] bg-blue-100 rounded">Video</span>
+                  <Badge variant="info">Video</Badge>
                 )}
                 {doctor.modes?.includes('in_person') && (
-                  <span className="px-2 py-1 text-[14px] font-medium text-green-700 bg-green-100 rounded">In-hospital</span>
+                  <Badge variant="success">In-hospital</Badge>
                 )}
                 <div className="text-right">
                   <div className="font-semibold text-[14px] text-[#171717]">₹{doctor.fees?.video || doctor.fees}</div>

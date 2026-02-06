@@ -1180,7 +1180,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                     {state.loading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Searching...</>) : 'Search'}
                                 </Button>
                                 {state.error.includes('No member found') && (
-                                    <Button variant="outline" onClick={handleAddAsNew} className="w-full">Add as New Member</Button>
+                                    <Button variant="secondary" onClick={handleAddAsNew} className="w-full">Add as New Member</Button>
                                 )}
                             </div>
                         </div>
@@ -1861,7 +1861,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         </Button>
 
                         {state.error.includes('No member found') && (
-                            <Button variant="outline" onClick={handleAddAsNew} className="w-full">
+                            <Button variant="secondary" onClick={handleAddAsNew} className="w-full">
                                 Add as New Member
                             </Button>
                         )}

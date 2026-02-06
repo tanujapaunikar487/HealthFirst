@@ -27,7 +27,7 @@ export default function SocialLoginButtons({ isProcessing = false, enabled }: So
             {showGoogle && (
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     className="flex-1 h-12 gap-2"
                     onClick={() => handleSocialLogin('google')}
                     disabled={isProcessing}
@@ -58,7 +58,7 @@ export default function SocialLoginButtons({ isProcessing = false, enabled }: So
             {showApple && (
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     className="flex-1 h-12 gap-2"
                     onClick={() => handleSocialLogin('apple')}
                     disabled={isProcessing}

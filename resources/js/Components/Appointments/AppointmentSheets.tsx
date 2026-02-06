@@ -422,7 +422,7 @@ export function DetailsSheet({
             {/* More Options */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" iconOnly size="md" className="flex-shrink-0">
+                <Button variant="secondary" iconOnly size="md" className="flex-shrink-0">
                   <Icon icon={MoreHorizontal} className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -491,7 +491,7 @@ export function DetailsSheet({
             )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" iconOnly size="md" className="flex-shrink-0">
+                <Button variant="secondary" iconOnly size="md" className="flex-shrink-0">
                   <Icon icon={MoreHorizontal} className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -622,7 +622,7 @@ export function CancelledDetailsSheet({
         )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" iconOnly size="md" className="flex-shrink-0">
+            <Button variant="secondary" iconOnly size="md" className="flex-shrink-0">
               <Icon icon={MoreHorizontal} className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>

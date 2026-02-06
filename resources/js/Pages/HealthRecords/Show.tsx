@@ -756,7 +756,7 @@ export default function Show({ user, record, familyMember }: Props) {
               )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" iconOnly size="md">
+                  <Button variant="secondary" iconOnly size="md">
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -845,7 +845,7 @@ export default function Show({ user, record, familyMember }: Props) {
                   <Alert variant="error">
                     <p className="mb-3">{aiSummaryError}</p>
                     <Button
-                      variant="outline"
+                      variant="secondary"
                       size="sm"
                       onClick={() => generateAiSummary()}
                     >
@@ -944,28 +944,28 @@ export default function Show({ user, record, familyMember }: Props) {
             {/* Actions Section */}
             <Section id="actions" title="Actions" icon={Settings2}>
               <div className="space-y-2">
-                <Button variant="outline" className="w-full justify-start gap-2" onClick={handleDownload}>
+                <Button variant="secondary" className="w-full justify-start gap-2" onClick={handleDownload}>
                   <Download className="h-4 w-4" />
                   Download Record
                 </Button>
-                <Button variant="outline" className="w-full justify-start gap-2" onClick={handleShare}>
+                <Button variant="secondary" className="w-full justify-start gap-2" onClick={handleShare}>
                   <Share2 className="h-4 w-4" />
                   Share Record
                 </Button>
                 {record.appointment_id && (
-                  <Link href={`/appointments/${record.appointment_id}`} className={cn(buttonVariants({ variant: "outline" }), "w-full justify-start gap-2")}>
+                  <Link href={`/appointments/${record.appointment_id}`} className={cn(buttonVariants({ variant: "secondary" }), "w-full justify-start gap-2")}>
                     <ExternalLink className="h-4 w-4" />
                     View Appointment
                   </Link>
                 )}
                 {record.insurance_claim_id && (
-                  <Link href={`/insurance/claims/${record.insurance_claim_id}`} className={cn(buttonVariants({ variant: "outline" }), "w-full justify-start gap-2")}>
+                  <Link href={`/insurance/claims/${record.insurance_claim_id}`} className={cn(buttonVariants({ variant: "secondary" }), "w-full justify-start gap-2")}>
                     <ShieldCheck className="h-4 w-4" />
                     View Insurance Claim
                   </Link>
                 )}
                 {record.category === 'invoice' && record.appointment_id && (
-                  <Link href={`/billing/${record.appointment_id}`} className={cn(buttonVariants({ variant: "outline" }), "w-full justify-start gap-2")}>
+                  <Link href={`/billing/${record.appointment_id}`} className={cn(buttonVariants({ variant: "secondary" }), "w-full justify-start gap-2")}>
                     <Receipt className="h-4 w-4" />
                     View Bill
                   </Link>
@@ -1112,7 +1112,7 @@ function ConsultationDetail({ meta, onAction }: { meta: RecordMetadata; onAction
             {meta.follow_up_date && (
               <p className="text-[14px] text-muted-foreground mt-1">Recommended: {fmtDate(meta.follow_up_date)}</p>
             )}
-            <Button size="sm" variant="outline" className="w-full mt-3" onClick={() => { window.location.href = '/booking'; }}>
+            <Button size="sm" variant="secondary" className="w-full mt-3" onClick={() => { window.location.href = '/booking'; }}>
               <Calendar className="h-4 w-4" />
               Book Follow-up Appointment
             </Button>
@@ -1171,9 +1171,7 @@ function ErVisitDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (ms
             {meta.duration && <DetailRow label="Duration">{meta.duration}</DetailRow>}
             {meta.triage_level && (
               <DetailRow label="Triage Level">
-                <Badge variant="neutral" className={cn(
-                  meta.triage_level.includes('1') || meta.triage_level.includes('2') ? 'bg-destructive/10 text-destructive border-destructive/20' : 'bg-warning/10 text-warning border-warning/20'
-                )}>
+                <Badge variant={meta.triage_level.includes('1') || meta.triage_level.includes('2') ? 'danger' : 'warning'}>
                   {meta.triage_level}
                 </Badge>
               </DetailRow>
@@ -1417,7 +1415,7 @@ function DischargeDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (
                 {item.booked ? (
                   <Badge variant="success">Booked</Badge>
                 ) : (
-                  <Button size="sm" variant="outline" onClick={() => { window.location.href = '/booking'; }}>
+                  <Button size="sm" variant="secondary" onClick={() => { window.location.href = '/booking'; }}>
                     Book Now
                   </Button>
                 )}
@@ -1781,11 +1779,11 @@ function MedicationActiveDetail({ meta, onAction }: { meta: RecordMetadata; onAc
             </div>
           )}
           <div className="flex gap-3">
-            <Button variant="outline" size="sm" className="flex-1 gap-2" onClick={() => onAction('Dose logged successfully')}>
+            <Button variant="secondary" size="sm" className="flex-1 gap-2" onClick={() => onAction('Dose logged successfully')}>
               <Check className="h-4 w-4" />
               Log Today's Dose
             </Button>
-            <Button variant="outline" size="sm" className="flex-1 gap-2" onClick={() => onAction('Adherence history logged')}>
+            <Button variant="secondary" size="sm" className="flex-1 gap-2" onClick={() => onAction('Adherence history logged')}>
               <Calendar className="h-4 w-4" />
               View History
             </Button>
@@ -1977,7 +1975,7 @@ function VaccinationDetail({ meta, onAction, familyMember }: { meta: RecordMetad
                     <p className="text-[14px] font-medium">{vac.vaccine_name}</p>
                     <p className="text-[14px] text-muted-foreground">{vac.dose_label} · Due {fmtDate(vac.due_date)}</p>
                   </div>
-                  <Button variant="outline" size="sm" className="gap-2" onClick={() => onAction(`Scheduling ${vac.vaccine_name}...`)}>
+                  <Button variant="secondary" size="sm" className="gap-2" onClick={() => onAction(`Scheduling ${vac.vaccine_name}...`)}>
                     <Calendar className="h-4 w-4" />
                     Schedule
                   </Button>

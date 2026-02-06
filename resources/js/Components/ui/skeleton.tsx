@@ -21,7 +21,7 @@ export function ErrorState({ onRetry, label = 'Unable to load page' }: { onRetry
       </div>
       <p className="text-[14px] font-medium text-muted-foreground">{label}</p>
       <p className="text-[14px] text-muted-foreground">Please check your connection and try again.</p>
-      <Button variant="outline" className="mt-2" onClick={onRetry}>
+      <Button variant="secondary" className="mt-2" onClick={onRetry}>
         <RefreshCw className="h-4 w-4" />
         Try Again
       </Button>

@@ -102,7 +102,7 @@ export function GuidedBookingLayout({
       <footer className="sticky bottom-0 z-10 flex-none border-t bg-background px-6 py-4">
         <div className="max-w-[800px] mx-auto flex items-center justify-between">
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={onBack}
             className="px-6"
             disabled={isProcessing}
