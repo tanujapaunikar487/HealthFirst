@@ -781,7 +781,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         {/* Download claim summary */}
         <DropdownMenuItem onClick={() => {
           const f = claim.financial;
-          downloadAsHtml(`claim-${claim.claim_reference}.html`, `
+          downloadAsHtml(`claim-${claim.claim_reference}.pdf`, `
             <h1>Insurance Claim</h1>
             <p class="subtitle">${claim.claim_reference}</p>
             <h2>Claim Details</h2>
@@ -1466,7 +1466,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 className="text-[14px]"
                 onClick={() => {
                   const docList = claim.documents.map(d => `<div class="row"><span class="row-label">${d.type}</span><span class="row-value">${d.date}</span></div>`).join('');
-                  downloadAsHtml(`claim-documents-${claim.claim_reference}.html`, `
+                  downloadAsHtml(`claim-documents-${claim.claim_reference}.pdf`, `
                     <h1>Claim Documents</h1>
                     <p class="subtitle">${claim.claim_reference} &middot; ${claim.treatment_name}</p>
                     <h2>Documents</h2>
@@ -1492,7 +1492,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   key={idx}
                   className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-accent"
                   onClick={() => {
-                    downloadAsHtml(`${doc.type.replace(/\s+/g, '-').toLowerCase()}-${claim.claim_reference}.html`, `
+                    downloadAsHtml(`${doc.type.replace(/\s+/g, '-').toLowerCase()}-${claim.claim_reference}.pdf`, `
                       <h1>${doc.type}</h1>
                       <p class="subtitle">${claim.claim_reference} &middot; ${doc.date}</p>
                       <p>Document: ${doc.filename ?? doc.type}</p>

@@ -6,15 +6,7 @@ export function SupportFooter({ pageName }: SupportFooterProps) {
     const gmailUrl = `https://mail.google.com/mail/?view=cm&to=support@healthfirst.in&su=${encodeURIComponent(pageName + ' Support')}`;
 
     return (
-        <div
-            className="fixed text-center"
-            style={{
-                bottom: '20px',
-                left: '320px',
-                right: '0',
-                zIndex: 10,
-            }}
-        >
+        <div className="pt-20 text-center">
             <p className="text-xs text-neutral-500">
                 Need help with {pageName}?{' '}
                 <a

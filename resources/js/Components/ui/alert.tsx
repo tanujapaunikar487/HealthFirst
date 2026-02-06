@@ -23,7 +23,7 @@ const alertVariants = cva(
         error: 'bg-red-50 border-b-red-200',
       },
       mode: {
-        standalone: 'rounded-3xl',
+        standalone: 'rounded-3xl border-b-2',
         sticky: 'rounded-none',
       },
     },

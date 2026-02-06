@@ -408,17 +408,18 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
 
         {/* Page Content */}
         <main
-          className="flex-1 overflow-y-auto flex justify-center"
+          className="flex-1 overflow-y-auto flex flex-col"
           style={{
             background: 'linear-gradient(180deg, hsl(var(--primary) / 0.1) 0%, hsl(var(--background) / 0.5) 13.94%, hsl(var(--background)) 30.77%)',
             paddingTop: '80px',
-            paddingBottom: '80px'
+            paddingBottom: '20px'
           }}
         >
-          {children}
+          <div className="flex-1 flex justify-center">
+            {children}
+          </div>
+          <SupportFooter pageName={pageTitle || 'this page'} />
         </main>
-
-        <SupportFooter pageName={pageTitle || 'this page'} />
       </div>
 
       {/* Notifications Side Sheet */}

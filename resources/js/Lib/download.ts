@@ -1,73 +1,79 @@
 /**
  * Download utilities for generating client-side PDF downloads.
  *
- * Uses a hidden iframe + window.print() to trigger the browser's native
- * "Save as PDF" dialog, producing a properly formatted PDF document.
+ * Uses html2pdf.js to convert styled HTML into real PDF files.
+ * For zip bundles, uses JSZip to package multiple PDFs.
  */
 
-/** Open a print-to-PDF dialog for styled HTML content */
+import html2pdf from 'html2pdf.js';
+import JSZip from 'jszip';
+
+const PDF_OPTIONS: {
+  margin: [number, number, number, number];
+  image: { type: 'jpeg'; quality: number };
+  html2canvas: { scale: number };
+  jsPDF: { unit: string; format: string; orientation: 'portrait' };
+} = {
+  margin: [10, 10, 10, 10],
+  image: { type: 'jpeg', quality: 0.98 },
+  html2canvas: { scale: 2 },
+  jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+};
+
+/** Generate a PDF from styled HTML and trigger download */
 export function downloadAsPdf(title: string, htmlContent: string): void {
   const fullHtml = buildStyledHtml(title, htmlContent);
-
-  // Create a hidden iframe, write the HTML, then trigger print
-  const iframe = document.createElement('iframe');
-  iframe.style.position = 'fixed';
-  iframe.style.right = '0';
-  iframe.style.bottom = '0';
-  iframe.style.width = '0';
-  iframe.style.height = '0';
-  iframe.style.border = 'none';
-  document.body.appendChild(iframe);
-
-  const iframeDoc = iframe.contentWindow?.document;
-  if (!iframeDoc) {
-    // Fallback: open in new window
-    const win = window.open('', '_blank');
-    if (win) {
-      win.document.write(fullHtml);
-      win.document.close();
-      win.focus();
-      win.print();
-    }
-    document.body.removeChild(iframe);
-    return;
-  }
-
-  iframeDoc.open();
-  iframeDoc.write(fullHtml);
-  iframeDoc.close();
-
-  // Wait for content to render before printing
-  iframe.onload = () => {
-    setTimeout(() => {
-      iframe.contentWindow?.focus();
-      iframe.contentWindow?.print();
-      // Clean up after a delay to allow the print dialog to appear
-      setTimeout(() => {
-        document.body.removeChild(iframe);
-      }, 1000);
-    }, 250);
-  };
-
-  // Fallback if onload doesn't fire (some browsers)
-  setTimeout(() => {
-    try {
-      iframe.contentWindow?.focus();
-      iframe.contentWindow?.print();
-    } catch {
-      // iframe may already be removed
-    }
-  }, 500);
+  const filename = title.replace(/\s+/g, '-').toLowerCase() + '.pdf';
+  html2pdf().from(fullHtml).set({ ...PDF_OPTIONS, filename }).save();
 }
 
 /**
- * Backward-compatible alias — all existing call sites use this.
- * Now triggers PDF download instead of HTML file download.
+ * Backward-compatible alias — existing call sites pass a filename + HTML content.
+ * Converts to PDF regardless of the extension in the filename.
  */
 export function downloadAsHtml(filename: string, htmlContent: string): void {
-  // Extract a readable title from the filename
   const title = filename.replace(/\.(html|pdf)$/i, '').replace(/[-_]/g, ' ');
-  downloadAsPdf(title, htmlContent);
+  const pdfFilename = filename.replace(/\.(html)$/i, '.pdf');
+  const fullHtml = buildStyledHtml(title, htmlContent);
+  html2pdf().from(fullHtml).set({ ...PDF_OPTIONS, filename: pdfFilename }).save();
+}
+
+/** Download styled HTML content as a PDF file */
+export function downloadFile(filename: string, htmlContent: string): void {
+  const title = filename.replace(/\.(html|pdf)$/i, '').replace(/[-_]/g, ' ');
+  const pdfFilename = filename.replace(/\.(html)$/i, '.pdf');
+  const fullHtml = buildStyledHtml(title, htmlContent);
+  html2pdf().from(fullHtml).set({ ...PDF_OPTIONS, filename: pdfFilename }).save();
+}
+
+/** Bundle multiple documents as PDFs into a zip and download */
+export async function downloadAsZip(
+  zipFilename: string,
+  files: { filename: string; htmlContent: string }[]
+): Promise<void> {
+  const zip = new JSZip();
+  for (const file of files) {
+    const title = file.filename.replace(/\.(html|pdf)$/i, '').replace(/[-_]/g, ' ');
+    const pdfFilename = file.filename.replace(/\.(html)$/i, '.pdf');
+    const fullHtml = buildStyledHtml(title, file.htmlContent);
+    const pdfBlob: Blob = await html2pdf().from(fullHtml).set(PDF_OPTIONS).outputPdf('blob');
+    zip.file(pdfFilename, pdfBlob);
+  }
+  const blob = await zip.generateAsync({ type: 'blob' });
+  triggerDownload(blob, zipFilename);
+}
+
+/* ─── Internal helpers ─── */
+
+function triggerDownload(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 function buildStyledHtml(title: string, htmlContent: string): string {
@@ -131,10 +137,6 @@ function buildStyledHtml(title: string, htmlContent: string): string {
     .vital-value { display: block; font-size: 14px; font-weight: 600; color: #1f2937; }
     /* Small text helper */
     .small-text { font-size: 11px; color: #6b7280; margin-top: 4px; }
-    @media print {
-      body { padding: 20px; }
-      @page { margin: 1cm; }
-    }
   </style>
 </head>
 <body>

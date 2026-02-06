@@ -24,7 +24,7 @@ Tests: `php artisan test` (92 tests, 265 assertions)
 
 **Colors**: Primary blue (#1E40AF bg, #BFDBFE icons) | Success/Warning/Error = Green/Amber/Red | Light text: #171717 primary, #737373 secondary | Dark text: #fff primary, white/70 secondary | Icons: light bg `text-neutral-900`, dark bg `text-white`, nav active `#2563EB`
 
-**Components**: Badges = pastel bg + colored text | Skeleton 300ms min/10s timeout | EmptyState #F5F5F5/20px radius (always message+description) | CtaBanner dark gradient/white text | Borders always 1px (spinner/Switch 2px) | Icon bg always `h-10 w-10 rounded-full` (40x40) + `h-5 w-5` icons, semantic CSS vars only | SideNav 14px/20px icons/6px gap/pill/#2563EB active/200px min
+**Components**: Badges = pastel bg + colored text, `font-medium`, 2 sizes (`sm`=12px default, `lg`=14px), padding `py-1 px-2` (no icon) / `py-1 pl-1 pr-2` (with icon). Use `size="lg"` prop not `className="text-[14px]"` | SupportFooter in AppLayout (global, fixed position) | Skeleton 300ms min/10s timeout | EmptyState #F5F5F5/20px radius (always message+description) | CtaBanner dark gradient/white text | Borders always 1px (spinner/Switch 2px) | Icon bg always `h-10 w-10 rounded-full` (40x40) + `h-5 w-5` icons, semantic CSS vars only | SideNav 14px/20px icons/6px gap/pill/#2563EB active/200px min
 
 **Buttons**: Primary lg = 48px/16px font/8px gap/`icon` at 20px | Secondary icon = 40x40/8px pad/#E5E5E5 border/#F5F5F5 bg/16px icon | Default = 48px/14px/pill | CTA = white bg on dark
 

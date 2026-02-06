@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/Components/ui/dropdown-menu';
-import { cn } from '@/Lib/utils';
+
 import { SideNav } from '@/Components/SideNav';
 import {
   ArrowLeft,
@@ -22,12 +22,11 @@ import {
   TestTube2,
   CreditCard,
   IndianRupee,
-  Shield,
-  ShieldCheck,
+
+
   AlertTriangle,
   CheckCircle2,
-  Clock,
-  RotateCcw,
+
   MoreVertical,
   Receipt,
   Mail,
@@ -263,13 +262,11 @@ function Section({
   title,
   icon: SectionIcon,
   children,
-  noPadding,
 }: {
   id: string;
   title: string;
   icon: React.ElementType;
   children: React.ReactNode;
-  noPadding?: boolean;
 }) {
   return (
     <div id={id} className="scroll-mt-24">
@@ -279,7 +276,7 @@ function Section({
           {title}
         </h2>
       </div>
-      <Card className={noPadding ? '' : 'p-5'}>{children}</Card>
+      <Card className="overflow-hidden">{children}</Card>
     </div>
   );
 }
@@ -289,6 +286,18 @@ function Section({
 function StatusBadge({ status }: { status: BillingStatus }) {
   const cfg = STATUS_CONFIG[status];
   return <Badge variant={cfg.variant}>{cfg.label}</Badge>;
+}
+
+function InfoRow({ label, value, isLast }: { label: React.ReactNode; value: React.ReactNode; isLast?: boolean }) {
+  return (
+    <div
+      className="flex items-center justify-between px-4 py-4"
+      style={isLast ? undefined : { borderBottom: '1px solid hsl(var(--border))' }}
+    >
+      <span className="text-[14px] text-muted-foreground">{label}</span>
+      <span className="text-[14px] font-medium">{value}</span>
+    </div>
+  );
 }
 
 /* ─── Status Alert Banner (embedded in header) ─── */
@@ -789,212 +798,175 @@ export default function Show({ user, bill }: Props) {
 
             {/* ─── Invoice Section ─── */}
             <Section id="invoice" title="Invoice" icon={FileText}>
-              {/* Hospital Identity */}
-              <div className="mb-4 pb-4 border-b border-dashed">
-                <p className="text-base font-bold" style={{ color: 'hsl(var(--foreground))' }}>HealthFirst Hospital</p>
+              <div
+                className="px-4 py-4"
+                style={{ borderBottom: '1px solid hsl(var(--border))' }}
+              >
+                <p className="text-[14px] font-semibold text-foreground">HealthFirst Hospital</p>
                 <p className="text-[14px] text-muted-foreground mt-0.5">123 Hospital Road, Pune 411001 &middot; GSTIN: 27AABCH1234P1ZP</p>
               </div>
-
-              {/* Invoice Metadata */}
-              <div className="grid grid-cols-2 gap-x-8 gap-y-3 mb-4 pb-4 border-b">
-                <div>
-                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Date</p>
-                  <p className="mt-1 text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{bill.generated_date}</p>
-                </div>
-                <div>
-                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Reference</p>
-                  <p className="mt-1 text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{bill.reference_number}</p>
-                </div>
-                {bill.due_date && (
-                  <div>
-                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Due Date</p>
-                    <p className={cn('mt-1 text-[14px] font-semibold', bill.is_overdue ? 'text-destructive' : '')} style={bill.is_overdue ? {} : { color: 'hsl(var(--foreground))' }}>
+              <InfoRow label="Invoice date" value={bill.generated_date} />
+              <InfoRow label="Reference" value={<span className="font-mono">{bill.reference_number}</span>} />
+              {bill.due_date && (
+                <InfoRow
+                  label="Due date"
+                  value={
+                    <span className={`flex items-center gap-2 ${bill.is_overdue ? 'text-destructive' : ''}`}>
                       {bill.due_date}
                       {bill.is_overdue && (
-                        <span className="ml-2 text-[10px] font-semibold text-destructive bg-destructive/10 px-1.5 py-0.5 rounded-full">
-                          {bill.days_overdue}d overdue
-                        </span>
+                        <Badge variant="danger">{bill.days_overdue}d overdue</Badge>
                       )}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Patient & Service */}
-              <div className="grid grid-cols-2 gap-x-8 gap-y-3">
-                <div>
-                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Patient</p>
-                  <p className="mt-1 text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{bill.patient_name}</p>
-                </div>
-                <div>
-                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Service</p>
-                  <div className="mt-1 flex items-center gap-2">
-                    <div className="h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'hsl(var(--primary) / 0.2)' }}>
+                    </span>
+                  }
+                />
+              )}
+              <InfoRow label="Patient" value={bill.patient_name} />
+              <InfoRow
+                label="Service"
+                value={
+                  <span className="flex items-center gap-2">
+                    <span className="h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'hsl(var(--primary) / 0.2)' }}>
                       {isDoctor ? <Stethoscope className="h-2.5 w-2.5" style={{ color: 'hsl(var(--primary))' }} /> : <TestTube2 className="h-2.5 w-2.5" style={{ color: 'hsl(var(--primary))' }} />}
-                    </div>
-                    <p className="text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{bill.appointment_title}</p>
-                  </div>
-                </div>
-                {bill.doctor_name && (
-                  <div>
-                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Doctor</p>
-                    <p className="mt-1 text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
+                    </span>
+                    {bill.appointment_title}
+                  </span>
+                }
+              />
+              {bill.doctor_name && (
+                <InfoRow
+                  label="Doctor"
+                  value={
+                    <>
                       {bill.doctor_name}
                       {bill.doctor_specialization && <span className="text-muted-foreground font-normal"> &middot; {bill.doctor_specialization}</span>}
-                    </p>
-                  </div>
-                )}
-                <div>
-                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Date of Service</p>
-                  <p className="mt-1 text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
-                    {bill.service_date}
-                    <span className="text-muted-foreground font-normal"> &middot; {bill.appointment_mode}</span>
-                  </p>
-                </div>
-              </div>
+                    </>
+                  }
+                />
+              )}
+              <InfoRow
+                label="Date of service"
+                value={<>{bill.service_date}<span className="text-muted-foreground font-normal"> &middot; {bill.appointment_mode}</span></>}
+                isLast
+              />
             </Section>
 
             {/* ─── Charges Section ─── */}
-            <Section id="charges" title="Charges" icon={Receipt} noPadding>
-              <div className="px-6 py-4">
-                {/* Table */}
-                <div className="overflow-x-auto -mx-5">
-                  <table className="w-full text-[14px]">
-                    <thead>
-                      <tr className="border-b" style={{ backgroundColor: 'hsl(var(--muted))' }}>
-                        <th className="text-left font-medium text-muted-foreground px-5 py-2">Item</th>
-                        <th className="text-center font-medium text-muted-foreground px-3 py-2 w-16">Qty</th>
-                        <th className="text-right font-medium text-muted-foreground px-3 py-2 w-24">Unit Price</th>
-                        <th className="text-right font-medium text-muted-foreground px-5 py-2 w-24">Total</th>
+            <Section id="charges" title="Charges" icon={Receipt}>
+              <div style={{ borderBottom: '1px solid hsl(var(--border))' }}>
+                <table className="w-full text-[14px]">
+                  <thead>
+                    <tr style={{ backgroundColor: 'hsl(var(--muted))' }}>
+                      <th className="text-left font-medium text-muted-foreground pl-4 pr-2 py-3">Item</th>
+                      <th className="text-center font-medium text-muted-foreground px-2 py-3 w-16">Qty</th>
+                      <th className="text-right font-medium text-muted-foreground px-2 py-3 w-24">Unit Price</th>
+                      <th className="text-right font-medium text-muted-foreground pl-2 pr-4 py-3 w-24">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bill.line_items.map((item, i) => (
+                      <tr key={i} className="border-b last:border-b-0">
+                        <td className="pl-4 pr-2 py-3">{item.label}</td>
+                        <td className="text-center px-2 py-3 text-muted-foreground">{item.qty}</td>
+                        <td className="text-right px-2 py-3 text-muted-foreground">₹{item.unit_price.toLocaleString()}</td>
+                        <td className="text-right pl-2 pr-4 py-3">₹{item.total.toLocaleString()}</td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {bill.line_items.map((item, i) => (
-                        <tr key={i} className="border-b last:border-b-0">
-                          <td className="px-5 py-2.5">{item.label}</td>
-                          <td className="text-center px-3 py-2.5 text-muted-foreground">{item.qty}</td>
-                          <td className="text-right px-3 py-2.5 text-muted-foreground">₹{item.unit_price.toLocaleString()}</td>
-                          <td className="text-right px-5 py-2.5">₹{item.total.toLocaleString()}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Summary rows */}
-                <div className="border-t mt-2 pt-3 space-y-1.5">
-                  <div className="flex justify-between text-[14px]">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <span>₹{bill.subtotal.toLocaleString()}</span>
-                  </div>
-                  {bill.discount > 0 && (
-                    <div className="flex justify-between text-[14px]">
-                      <span className="text-muted-foreground">Discount</span>
-                      <span className="text-success">-₹{bill.discount.toLocaleString()}</span>
-                    </div>
-                  )}
-                  {bill.tax > 0 && (
-                    <div className="flex justify-between text-[14px]">
-                      <span className="text-muted-foreground">Tax</span>
-                      <span>₹{bill.tax.toLocaleString()}</span>
-                    </div>
-                  )}
-                  {bill.insurance_deduction > 0 && (
-                    <div className="flex justify-between text-[14px]">
-                      <span className="text-muted-foreground">Insurance Coverage</span>
-                      <span className="text-success">-₹{bill.insurance_deduction.toLocaleString()}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between pt-2 border-t">
-                    <span className="text-[14px] font-semibold">
-                      {isPayable ? 'Amount Due' : 'Amount Paid'}
-                    </span>
-                    <span className="text-lg font-bold" style={{ color: 'hsl(var(--foreground))' }}>
-                      ₹{bill.total.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <InfoRow label="Subtotal" value={`₹${bill.subtotal.toLocaleString()}`} />
+              {bill.discount > 0 && (
+                <InfoRow label="Discount" value={<span className="text-success">-₹{bill.discount.toLocaleString()}</span>} />
+              )}
+              {bill.tax > 0 && (
+                <InfoRow label="Tax" value={`₹${bill.tax.toLocaleString()}`} />
+              )}
+              {bill.insurance_deduction > 0 && (
+                <InfoRow label="Insurance coverage" value={<span className="text-success">-₹{bill.insurance_deduction.toLocaleString()}</span>} />
+              )}
+              <div className="flex items-center justify-between px-4 py-4">
+                <span className="text-[14px] font-semibold">{isPayable ? 'Amount due' : 'Amount paid'}</span>
+                <span className="text-[16px] font-bold" style={{ color: 'hsl(var(--foreground))' }}>₹{bill.total.toLocaleString()}</span>
               </div>
             </Section>
 
             {/* ─── Payment & Insurance Section ─── */}
             {(bill.payment_info || bill.insurance_details) && (
-              <Section id="payment" title="Payment Details" icon={CreditCard}>
-                <div className="space-y-4">
-                  {/* Payment info */}
-                  {bill.payment_info && (
-                    <div>
-                      <p className="text-[14px]" style={{ color: 'hsl(var(--foreground))' }}>
-                        Paid via <span className="font-medium">{bill.payment_info.method}</span> on {bill.payment_info.paid_at}
-                      </p>
-                      <p className="text-[14px] text-muted-foreground mt-1">
-                        Transaction: <span className="font-mono">{bill.payment_info.transaction_id}</span>
-                        <span className="mx-2">&middot;</span>
-                        Receipt: <span className="font-mono">{bill.payment_info.receipt_number}</span>
-                      </p>
+              <div id="payment" className="scroll-mt-24 space-y-4">
+                <div className="flex items-center gap-2.5 mb-4">
+                  <Icon icon={CreditCard} className="h-5 w-5 text-foreground" />
+                  <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+                    Payment Details
+                  </h2>
+                </div>
+                {bill.payment_info && (
+                  <Card className="overflow-hidden">
+                    <InfoRow label="Payment method" value={bill.payment_info.method} />
+                    <InfoRow label="Paid on" value={bill.payment_info.paid_at} />
+                    <InfoRow label="Transaction ID" value={<span className="font-mono">{bill.payment_info.transaction_id}</span>} />
+                    <InfoRow
+                      label="Receipt number"
+                      value={<span className="font-mono">{bill.payment_info.receipt_number}</span>}
+                      isLast
+                    />
+                  </Card>
+                )}
+                {bill.insurance_details && (
+                  <Card className="overflow-hidden">
+                    <div
+                      className="px-4 py-3"
+                      style={{ borderBottom: '1px solid hsl(var(--border))', backgroundColor: 'hsl(var(--muted))' }}
+                    >
+                      <p className="text-[14px] font-medium text-muted-foreground">Insurance</p>
                     </div>
-                  )}
-
-                  {/* Insurance info */}
-                  {bill.insurance_details && (
-                    <div className={bill.payment_info ? 'pt-4 border-t' : ''}>
-                      <div className="flex items-center gap-1.5 mb-2">
-                        <Shield className="h-3.5 w-3.5 text-primary" />
-                        <p className="text-[14px] font-semibold text-primary uppercase tracking-wide">Insurance</p>
-                      </div>
-                      <p className="text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
-                        {bill.insurance_details.provider_name}
-                        <span className="text-muted-foreground font-normal"> &middot; {bill.insurance_details.policy_number}</span>
-                      </p>
-                      <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-[14px]">
-                        <span>
-                          <span className="text-muted-foreground">Claim:</span>{' '}
-                          <span className="font-mono text-[14px]">{bill.insurance_details.claim_id}</span>
-                          <span className="ml-1.5">
-                            {bill.insurance_details.claim_status === 'Approved' || bill.insurance_details.claim_status === 'Reimbursed'
-                              ? <span className="text-success text-[14px] font-medium">{bill.insurance_details.claim_status}</span>
-                              : <span className="text-warning text-[14px] font-medium">{bill.insurance_details.claim_status}</span>
-                            }
-                          </span>
+                    <InfoRow label="Provider" value={bill.insurance_details.provider_name} />
+                    <InfoRow label="Policy number" value={<span className="font-mono">{bill.insurance_details.policy_number}</span>} />
+                    <InfoRow
+                      label="Claim"
+                      value={
+                        <span className="flex items-center gap-2">
+                          <span className="font-mono">{bill.insurance_details.claim_id}</span>
+                          <Badge variant={
+                            bill.insurance_details.claim_status === 'Approved' || bill.insurance_details.claim_status === 'Reimbursed'
+                              ? 'success' : 'warning'
+                          }>
+                            {bill.insurance_details.claim_status}
+                          </Badge>
                         </span>
-                      </div>
-                      <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-[14px]">
-                        <span>
-                          <span className="text-muted-foreground">Covered:</span>{' '}
-                          <span className="text-success font-medium">₹{bill.insurance_details.covered_amount.toLocaleString()}</span>
-                        </span>
-                        {bill.insurance_details.copay_amount > 0 && (
-                          <span>
-                            <span className="text-muted-foreground">Co-pay:</span>{' '}
-                            <span className="text-destructive font-medium">₹{bill.insurance_details.copay_amount.toLocaleString()}</span>
-                          </span>
-                        )}
-                      </div>
-                      {bill.insurance_details.insurance_claim_id && (
+                      }
+                    />
+                    <InfoRow label="Covered amount" value={<span className="text-success font-medium">₹{bill.insurance_details.covered_amount.toLocaleString()}</span>} isLast={bill.insurance_details.copay_amount <= 0 && !bill.insurance_details.insurance_claim_id} />
+                    {bill.insurance_details.copay_amount > 0 && (
+                      <InfoRow label="Co-pay" value={<span className="text-destructive font-medium">₹{bill.insurance_details.copay_amount.toLocaleString()}</span>} isLast={!bill.insurance_details.insurance_claim_id} />
+                    )}
+                    {bill.insurance_details.insurance_claim_id && (
+                      <div className="px-4 py-4">
                         <button
-                          className="mt-3 text-[14px] font-medium hover:underline flex items-center gap-1"
+                          className="text-[14px] font-medium hover:underline flex items-center gap-1"
                           style={{ color: 'hsl(var(--primary))' }}
                           onClick={() => router.visit(`/insurance/claims/${bill.insurance_details!.insurance_claim_id}`)}
                         >
-                          View Claim Details
+                          View claim details
                           <ChevronRight className="h-3 w-3" />
                         </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </Section>
+                      </div>
+                    )}
+                  </Card>
+                )}
+              </div>
             )}
 
             {/* ─── EMI Section ─── */}
             {bill.emi_details && (
               <Section id="emi" title="EMI Plan" icon={IndianRupee}>
-                <p className="text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
-                  ₹{bill.emi_details.monthly_amount.toLocaleString()}/month for {bill.emi_details.plan_months} months
-                </p>
-
-                {/* Progress bar */}
-                <div className="mt-3">
+                <InfoRow
+                  label="Monthly payment"
+                  value={`₹${bill.emi_details.monthly_amount.toLocaleString()}/month for ${bill.emi_details.plan_months} months`}
+                />
+                <div
+                  className="px-4 py-4"
+                  style={{ borderBottom: '1px solid hsl(var(--border))' }}
+                >
                   <div className="flex justify-between text-[14px] text-muted-foreground mb-1.5">
                     <span>{bill.emi_details.paid_installments} of {bill.emi_details.total_installments} paid</span>
                     <span>{Math.round((bill.emi_details.paid_installments / bill.emi_details.total_installments) * 100)}%</span>
@@ -1006,17 +978,8 @@ export default function Show({ user, bill }: Props) {
                     />
                   </div>
                 </div>
-
-                <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-[14px]">
-                  <span>
-                    <span className="text-muted-foreground">Next due:</span>{' '}
-                    <span className="text-warning font-medium">{bill.emi_details.next_due_date}</span>
-                  </span>
-                  <span>
-                    <span className="text-muted-foreground">Remaining:</span>{' '}
-                    <span className="text-destructive font-medium">₹{bill.emi_details.remaining_balance.toLocaleString()}</span>
-                  </span>
-                </div>
+                <InfoRow label="Next due" value={<span className="text-warning font-medium">{bill.emi_details.next_due_date}</span>} />
+                <InfoRow label="Remaining balance" value={<span className="text-destructive font-medium">₹{bill.emi_details.remaining_balance.toLocaleString()}</span>} isLast />
               </Section>
             )}
 
