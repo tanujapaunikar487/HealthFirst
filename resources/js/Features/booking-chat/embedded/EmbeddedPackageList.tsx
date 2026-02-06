@@ -114,14 +114,14 @@ export function EmbeddedPackageList({
     <Card className="overflow-hidden">
       {/* Tab Switcher */}
       {showTabs && (
-        <div className="flex border-b">
+        <div className="flex items-center gap-1 px-4 py-3">
           <button
             onClick={() => setActiveTab('tests')}
             className={cn(
-              'flex-1 flex items-center justify-center gap-2 px-4 py-3 text-[14px] font-medium transition-colors',
+              'flex items-center justify-center gap-2 rounded-full px-4 py-2 text-[14px] font-medium transition-all',
               activeTab === 'tests'
-                ? 'text-primary border-b-2 border-primary bg-primary/5'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50',
+                ? 'bg-background text-foreground shadow-[0_1px_3px_0_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)]'
+                : 'text-muted-foreground hover:text-foreground',
             )}
           >
             <TestTube className="h-4 w-4" />
@@ -135,10 +135,10 @@ export function EmbeddedPackageList({
           <button
             onClick={() => setActiveTab('packages')}
             className={cn(
-              'flex-1 flex items-center justify-center gap-2 px-4 py-3 text-[14px] font-medium transition-colors',
+              'flex items-center justify-center gap-2 rounded-full px-4 py-2 text-[14px] font-medium transition-all',
               activeTab === 'packages'
-                ? 'text-primary border-b-2 border-primary bg-primary/5'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50',
+                ? 'bg-background text-foreground shadow-[0_1px_3px_0_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)]'
+                : 'text-muted-foreground hover:text-foreground',
             )}
           >
             <FlaskConical className="h-4 w-4" />

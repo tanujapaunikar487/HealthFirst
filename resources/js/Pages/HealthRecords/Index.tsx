@@ -711,7 +711,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
 
         {/* Tabs + Filters */}
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v)} className="space-y-4">
-          <TabsList className="bg-muted/60">
+          <TabsList>
             {[
               { value: 'all', label: 'All' },
               { value: 'reports', label: 'Reports' },

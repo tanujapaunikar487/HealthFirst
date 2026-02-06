@@ -294,7 +294,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
         ) : (
         /* Tabs */
         <Tabs defaultValue="upcoming" className="space-y-4">
-          <TabsList className="bg-muted/60">
+          <TabsList>
             <TabsTrigger value="upcoming" className="gap-1.5">
               Upcoming
               {categorized.upcoming.length > 0 && (
