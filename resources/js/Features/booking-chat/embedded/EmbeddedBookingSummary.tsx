@@ -210,13 +210,15 @@ export function EmbeddedBookingSummary({ summary, onPay, onSelect, disabled, con
             <div className="flex items-center gap-3">
               <span className="text-[14px] font-medium text-right">{row.value}</span>
               {row.showChange && (
-                <button
+                <Button
+                  variant="link"
+                  size="sm"
                   onClick={row.onChange}
-                  className="text-primary text-[14px] hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="h-auto p-0 text-primary text-[14px] hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={!row.onChange}
                 >
                   Change
-                </button>
+                </Button>
               )}
             </div>
           </div>

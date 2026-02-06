@@ -576,13 +576,15 @@ export default function Show({ user, bill }: Props) {
       <div className="w-full max-w-[960px] min-h-full flex flex-col pb-10">
 
         {/* ─── Back Link ─── */}
-        <button
+        <Button
+          variant="link"
+          size="sm"
+          className="h-auto p-0 mb-6 flex items-center gap-1.5 text-[14px] font-medium text-muted-foreground hover:text-foreground"
           onClick={() => router.visit('/billing')}
-          className="mb-6 flex items-center gap-1.5 text-[14px] font-medium text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Billing
-        </button>
+        </Button>
 
         {/* ─── Page Header ─── */}
         <div className="mb-6 flex items-start justify-between">
@@ -941,14 +943,16 @@ export default function Show({ user, bill }: Props) {
                     )}
                     {bill.insurance_details.insurance_claim_id && (
                       <div className="px-4 py-4">
-                        <button
-                          className="text-[14px] font-medium hover:underline flex items-center gap-1"
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="h-auto p-0 text-[14px] font-medium hover:underline flex items-center gap-1"
                           style={{ color: 'hsl(var(--primary))' }}
                           onClick={() => router.visit(`/insurance/claims/${bill.insurance_details!.insurance_claim_id}`)}
                         >
                           View claim details
                           <ChevronRight className="h-3 w-3" />
-                        </button>
+                        </Button>
                       </div>
                     )}
                   </Card>

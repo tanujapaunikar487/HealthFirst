@@ -1,5 +1,6 @@
 import { User, Users, Link2, ChevronDown } from '@/Lib/icons';
 import { cn } from '@/Lib/utils';
+import { Button } from '@/Components/ui/button';
 
 export type MemberType = 'new_member' | 'link_existing' | 'guest';
 
@@ -34,14 +35,16 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled, isLast }
     const Icon = config.icon;
 
     return (
-        <button
+        <Button
+            variant="ghost"
             onClick={onClick}
             disabled={disabled}
             className={cn(
-                'flex items-center gap-4 p-4 transition-all text-left w-full',
+                'w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50',
+                'flex items-center gap-4 text-left transition-all',
                 isExpanded
                     ? 'bg-primary/5'
-                    : 'hover:bg-muted/50',
+                    : '',
                 disabled && 'opacity-50 cursor-not-allowed'
             )}
             style={!isLast && !isExpanded ? { borderBottom: '1px solid hsl(var(--border))' } : undefined}
@@ -52,7 +55,7 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled, isLast }
             )}>
                 <Icon className={cn('h-5 w-5', isExpanded ? 'text-primary' : 'text-foreground')} />
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 text-left">
                 <h4 className="font-semibold">{config.title}</h4>
                 <p className="text-[14px] text-muted-foreground">{config.description}</p>
             </div>
@@ -62,6 +65,6 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled, isLast }
                     isExpanded && 'rotate-180 text-primary'
                 )}
             />
-        </button>
+        </Button>
     );
 }

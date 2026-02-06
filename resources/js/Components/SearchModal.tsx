@@ -5,6 +5,7 @@ import {
   DialogContent,
   DialogTitle,
 } from '@/Components/ui/dialog';
+import { Button } from '@/Components/ui/button';
 import {
   Search, X, Loader2, AlertTriangle,
   Stethoscope, FileText, Receipt, FlaskConical,
@@ -292,12 +293,15 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
               <span>
                 {category === 'health_records' ? 'Health records' : category.charAt(0).toUpperCase() + category.slice(1)}
               </span>
-              <button
+              <Button
+                variant="ghost"
+                iconOnly
+                size="xs"
                 onClick={() => setCategory('all')}
-                className="text-primary hover:text-primary/80"
+                className="h-auto w-auto p-0 text-primary hover:text-primary/80 hover:bg-transparent"
               >
                 <Icon icon={X} className="h-3.5 w-3.5" />
-              </button>
+              </Button>
             </div>
           )}
 
@@ -316,20 +320,25 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
           <div className="flex items-center gap-3 flex-shrink-0">
             {/* Clear Button - text only, clears query */}
             {query && !loading && (
-              <button
+              <Button
+                variant="link"
+                size="sm"
                 onClick={() => setQuery('')}
-                className="text-[14px] text-muted-foreground hover:text-foreground"
+                className="h-auto p-0 text-[14px] text-muted-foreground hover:text-foreground no-underline"
               >
                 Clear
-              </button>
+              </Button>
             )}
             {/* Close Modal Button - 24px */}
-            <button
+            <Button
+              variant="ghost"
+              iconOnly
+              size="sm"
               onClick={() => onOpenChange(false)}
               className="text-muted-foreground hover:text-foreground"
             >
               <Icon icon={X} className="h-6 w-6" />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -339,36 +348,42 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
           {category === 'all' && (
             <div className="px-4 py-5">
               <div className="flex flex-wrap gap-3">
-                <button
+                <Button
+                  variant="outline"
+                  size="md"
                   onClick={() => {
                     setCategory('appointments');
                     inputRef.current?.focus();
                   }}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-border bg-background text-[14px] font-medium text-foreground hover:bg-muted transition-colors"
+                  className="h-auto px-4 py-2.5 gap-2 font-medium"
                 >
-                  <Icon icon={Calendar} className="h-4 w-4 text-neutral-900" />
+                  <Icon icon={Calendar} className="h-4 w-4 text-foreground" />
                   Search in <span className="font-semibold">appointment</span>
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="outline"
+                  size="md"
                   onClick={() => {
                     setCategory('health_records');
                     inputRef.current?.focus();
                   }}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-border bg-background text-[14px] font-medium text-foreground hover:bg-muted transition-colors"
+                  className="h-auto px-4 py-2.5 gap-2 font-medium"
                 >
-                  <Icon icon={ClipboardList} className="h-4 w-4 text-neutral-900" />
+                  <Icon icon={ClipboardList} className="h-4 w-4 text-foreground" />
                   Search in <span className="font-semibold">health records</span>
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="outline"
+                  size="md"
                   onClick={() => {
                     setCategory('bills');
                     inputRef.current?.focus();
                   }}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-border bg-background text-[14px] font-medium text-foreground hover:bg-muted transition-colors"
+                  className="h-auto px-4 py-2.5 gap-2 font-medium"
                 >
-                  <Icon icon={FileText} className="h-4 w-4 text-neutral-900" />
+                  <Icon icon={FileText} className="h-4 w-4 text-foreground" />
                   Search in <span className="font-semibold">bills</span>
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -380,13 +395,14 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
               <p className="text-[14px] font-medium" style={{ color: 'hsl(var(--foreground))' }}>
                 {error}
               </p>
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={performSearch}
-                className="mt-3 text-[14px] font-medium px-4 py-2 rounded-lg transition-colors hover:bg-accent"
-                style={{ backgroundColor: 'hsl(var(--muted))', color: 'hsl(var(--foreground))' }}
+                className="mt-3"
               >
                 Retry
-              </button>
+              </Button>
             </div>
           )}
 
@@ -566,14 +582,15 @@ function ResultSection({
       </p>
       {children}
       {total !== undefined && shownCount !== undefined && total > shownCount && onViewAll && (
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={onViewAll}
-          className="flex items-center gap-1.5 w-full px-4 py-2 text-[14px] font-medium transition-colors hover:bg-muted"
-          style={{ color: 'hsl(var(--primary))' }}
+          className="w-full justify-start rounded-none px-4 py-2 text-[14px] font-medium text-primary gap-1.5"
         >
           <span>View all {total} results</span>
           <Icon icon={ArrowRight} className="h-3 w-3" />
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -589,16 +606,17 @@ function ResultItem({
   children: React.ReactNode;
 }) {
   return (
-    <button
+    <Button
+      variant="ghost"
       data-result-item
       onClick={onClick}
-      className="flex items-center gap-3 w-full px-4 py-2.5 text-left transition-colors"
+      className="flex items-center gap-3 w-full h-auto justify-start rounded-none px-4 py-2.5 font-normal text-[14px]"
       style={{ backgroundColor: active ? 'hsl(var(--accent))' : 'transparent' }}
       onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = active ? 'hsl(var(--accent))' : 'hsl(var(--muted))')}
       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = active ? 'hsl(var(--accent))' : 'transparent')}
     >
       {children}
-    </button>
+    </Button>
   );
 }
 

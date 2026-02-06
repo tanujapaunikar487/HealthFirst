@@ -1,4 +1,5 @@
 import { cn } from '@/Lib/utils';
+import { Button } from '@/Components/ui/button';
 
 interface Symptom {
   id: string;
@@ -19,12 +20,14 @@ export function SymptomChips({ symptoms, selectedIds, onToggle, className }: Sym
         const isSelected = selectedIds.includes(symptom.id);
 
         return (
-          <button
+          <Button
             key={symptom.id}
+            variant="outline"
+            size="sm"
             type="button"
             onClick={() => onToggle(symptom.id)}
             className={cn(
-              "px-4 py-2 rounded-full border text-[14px] transition-all",
+              "h-auto px-4 py-2 rounded-full text-[14px] transition-all",
               "hover:border-primary/50 hover:bg-primary/5",
               isSelected
                 ? "bg-primary/10 border-primary text-primary font-medium"
@@ -32,7 +35,7 @@ export function SymptomChips({ symptoms, selectedIds, onToggle, className }: Sym
             )}
           >
             {symptom.name}
-          </button>
+          </Button>
         );
       })}
     </div>

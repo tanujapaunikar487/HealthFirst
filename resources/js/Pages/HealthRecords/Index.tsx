@@ -825,14 +825,14 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
               {activeFilters.map((f) => (
                 <Badge key={f.key} variant="neutral" className="gap-1 pr-1">
                   {f.label}
-                  <button onClick={f.onRemove} className="rounded-full hover:bg-muted-foreground/20 p-0.5">
+                  <Button variant="ghost" className="rounded-full hover:bg-muted-foreground/20 p-0.5 h-auto" onClick={f.onRemove}>
                     <X className="h-3 w-3" />
-                  </button>
+                  </Button>
                 </Badge>
               ))}
-              <button onClick={clearAllFilters} className="text-[14px] text-muted-foreground hover:text-foreground ml-1">
+              <Button variant="link" size="sm" className="h-auto p-0 text-[14px] text-muted-foreground hover:text-foreground ml-1" onClick={clearAllFilters}>
                 Clear all
-              </button>
+              </Button>
             </div>
           )}
         </Tabs>
@@ -841,7 +841,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
         {selectedIds.size > 0 && (
           <div className="flex items-center gap-3 rounded-lg bg-muted px-4 py-2.5 mt-4 mb-4">
             <span className="text-[14px] font-medium">{selectedIds.size} selected</span>
-            <Button variant="secondary" size="sm" className="gap-1.5" onClick={() => {
+            <Button variant="secondary" size="md" className="gap-1.5" onClick={() => {
               const selected = records.filter(r => selectedIds.has(r.id));
               const categoryLabels = Object.fromEntries(
                 Object.entries(categoryConfig).map(([k, v]) => [k, v.label])
@@ -853,7 +853,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
               <Download className="h-3.5 w-3.5" />
               Download
             </Button>
-            <Button variant="secondary" size="sm" className="gap-1.5" onClick={() => setBulkShareOpen(true)}>
+            <Button variant="secondary" size="md" className="gap-1.5" onClick={() => setBulkShareOpen(true)}>
               <Share2 className="h-3.5 w-3.5" />
               Share
             </Button>
@@ -927,7 +927,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                           {record.status ? <StatusBadge status={record.status} /> : <span className="text-[14px] text-muted-foreground">—</span>}
                         </TableCell>
                         <TableCell>
-                          <Button variant="neutral" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
+                          <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
                         </TableCell>
                       </TableRow>
                     );
@@ -944,8 +944,8 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                   <div className="flex items-center gap-1">
                     <Button
                       variant="secondary"
-                      size="sm"
-                      className="h-8 w-8 p-0"
+                      iconOnly
+                      size="md"
                       disabled={currentPage === 1}
                       onClick={() => setCurrentPage((p) => p - 1)}
                     >
@@ -954,9 +954,9 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                       <Button
                         key={page}
-                        variant={page === currentPage ? 'default' : 'outline'}
-                        size="sm"
-                        className="h-8 w-8 p-0"
+                        variant={page === currentPage ? 'primary' : 'outline'}
+                        iconOnly
+                        size="md"
                         onClick={() => setCurrentPage(page)}
                       >
                         {page}
@@ -964,8 +964,8 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                     ))}
                     <Button
                       variant="secondary"
-                      size="sm"
-                      className="h-8 w-8 p-0"
+                      iconOnly
+                      size="md"
                       disabled={currentPage === totalPages}
                       onClick={() => setCurrentPage((p) => p + 1)}
                     >

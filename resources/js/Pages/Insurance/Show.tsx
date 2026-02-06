@@ -430,13 +430,15 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
     <AppLayout pageTitle="Insurance" pageIcon="insurance">
       <div className="w-full max-w-[960px] min-h-full flex flex-col pb-10">
         {/* Back link */}
-        <button
+        <Button
+          variant="link"
+          size="sm"
+          className="h-auto p-0 mb-6 flex items-center gap-1.5 text-[14px] font-medium text-muted-foreground hover:text-foreground"
           onClick={() => router.visit('/insurance')}
-          className="mb-6 flex items-center gap-1.5 text-[14px] font-medium text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Insurance
-        </button>
+        </Button>
 
         {/* Header */}
         <div className="mb-6 flex items-start justify-between">
@@ -585,9 +587,10 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
           ) : (
             <div className="divide-y">
               {claims.map((claim) => (
-                <button
+                <Button
                   key={claim.id}
-                  className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-accent"
+                  variant="ghost"
+                  className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-accent h-auto rounded-none"
                   onClick={() => router.visit(`/insurance/claims/${claim.id}?from=policy`)}
                 >
                   <div className="min-w-0 flex-1">
@@ -604,7 +607,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                     </p>
                   </div>
                   <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
-                </button>
+                </Button>
               ))}
             </div>
           )}
@@ -644,9 +647,10 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                   coveredMembers.map(member => {
                     const color = getAvatarColorByName(member.name);
                     return (
-                      <button
+                      <Button
                         key={member.id}
-                        className="flex w-full items-center gap-3 rounded-xl border px-4 py-3.5 text-left transition-colors hover:bg-accent"
+                        variant="ghost"
+                        className="flex w-full items-center gap-3 rounded-xl border px-4 py-3.5 text-left transition-colors hover:bg-accent h-auto"
                         onClick={() => handlePreAuthPatientSelect(member.id)}
                       >
                         <div
@@ -660,7 +664,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                           <p className="text-[14px] text-muted-foreground capitalize">{member.relation}</p>
                         </div>
                         <ChevronRight className="h-4 w-4 text-foreground" />
-                      </button>
+                      </Button>
                     );
                   })
                 )}

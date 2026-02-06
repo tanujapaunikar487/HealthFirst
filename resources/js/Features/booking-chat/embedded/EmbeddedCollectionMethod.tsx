@@ -1,6 +1,7 @@
 import { cn } from '@/Lib/utils';
 import { Home, Building2 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { Button } from '@/Components/ui/button';
 
 interface CollectionMethod {
   type: 'home' | 'center';
@@ -35,13 +36,14 @@ export function EmbeddedCollectionMethod({ methods, selectedMethod, onSelect, di
         const isFree = method.price === 'free' || method.price === 0;
 
         return (
-          <button
+          <Button
             key={method.type}
+            variant="ghost"
             onClick={() => !disabled && onSelect(method.type)}
             disabled={disabled}
             className={cn(
-              "w-full flex items-center gap-4 px-6 py-4 text-left transition-all",
-              "hover:bg-muted/50",
+              "w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50",
+              "flex items-center gap-4 text-left transition-all",
               isSelected && "bg-primary/5 border-l-2 border-l-primary",
               disabled && !isSelected && "opacity-60"
             )}
@@ -55,7 +57,7 @@ export function EmbeddedCollectionMethod({ methods, selectedMethod, onSelect, di
             </div>
 
             {/* Text */}
-            <div className="flex-1">
+            <div className="flex-1 text-left">
               <p className="font-medium">{method.label}</p>
               <p className="text-[14px] text-muted-foreground">{method.address}</p>
             </div>
@@ -66,7 +68,7 @@ export function EmbeddedCollectionMethod({ methods, selectedMethod, onSelect, di
             ) : (
               <span className="font-semibold">₹{typeof method.price === 'number' ? method.price.toLocaleString() : method.price}</span>
             )}
-          </button>
+          </Button>
         );
       })}
     </div>

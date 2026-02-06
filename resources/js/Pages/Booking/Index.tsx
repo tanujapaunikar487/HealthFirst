@@ -12,6 +12,7 @@ import { ArrowUp, Plus, Mic, X, Check, ChevronRight, Stethoscope, TestTube2 } fr
 import { Icon } from '@/Components/ui/icon';
 import { AudioWaveform } from '@/Components/ui/AudioWaveform';
 import { useAudioRecorder } from '@/Hooks/useAudioRecorder';
+import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
 
 type BookingMode = 'ai' | 'guided';
@@ -152,9 +153,10 @@ export default function BookingIndex() {
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1 border border-border rounded-full p-1 bg-muted">
-              <button
+              <Button
+                variant="ghost"
                 className={cn(
-                  'p-1.5 rounded-full transition-all',
+                  'h-auto p-1.5 rounded-full transition-all',
                   mode === 'ai' ? 'shadow-md' : ''
                 )}
                 onClick={() => setMode('ai')}
@@ -164,10 +166,11 @@ export default function BookingIndex() {
                   alt=""
                   className="w-4 h-4"
                 />
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="ghost"
                 className={cn(
-                  'p-1.5 rounded-full transition-all',
+                  'h-auto p-1.5 rounded-full transition-all',
                   mode === 'guided' ? 'shadow-md' : ''
                 )}
                 onClick={() => setMode('guided')}
@@ -177,17 +180,19 @@ export default function BookingIndex() {
                   alt=""
                   className="w-4 h-4"
                 />
-              </button>
+              </Button>
             </div>
 
               {/* Cancel button */}
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => router.visit('/')}
-                className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-accent transition-colors"
+                className="w-8 h-8 rounded-full hover:bg-accent transition-colors"
+                iconOnly
                 title="Cancel booking"
               >
                 <Icon icon={X} className="w-4 h-4 text-muted-foreground" />
-              </button>
+              </Button>
             </div>
           </div>
           {/* Progress bar */}
@@ -205,10 +210,11 @@ export default function BookingIndex() {
 
           {/* Mode toggle */}
           <div className="flex items-center gap-1 border border-border rounded-full p-1 mb-10 bg-muted">
-            <button
+            <Button
+              variant="ghost"
               onClick={() => setMode('ai')}
               className={cn(
-                'flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] transition-all',
+                'h-auto flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] transition-all',
                 mode === 'ai'
                   ? 'bg-white shadow-md text-foreground font-semibold'
                   : 'text-muted-foreground hover:text-foreground bg-transparent font-normal'
@@ -224,11 +230,12 @@ export default function BookingIndex() {
                 className="w-5 h-5"
               />
               AI assistant
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
               onClick={() => setMode('guided')}
               className={cn(
-                'flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] transition-all',
+                'h-auto flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] transition-all',
                 mode === 'guided'
                   ? 'bg-white shadow-md text-foreground font-semibold'
                   : 'text-muted-foreground hover:text-foreground bg-transparent font-normal'
@@ -244,7 +251,7 @@ export default function BookingIndex() {
                 className="w-5 h-5"
               />
               Guided Booking
-            </button>
+            </Button>
           </div>
 
           {/* Title */}
@@ -296,28 +303,17 @@ export default function BookingIndex() {
                     {/* Add Button - hide when recording */}
                     {!isRecording && (
                       <PromptInputAction tooltip="Add attachment">
-                        <button
+                        <Button
+                          variant="outline"
+                          iconOnly
+                          size="md"
                           style={{
-                            width: '40px',
-                            height: '40px',
-                            backgroundColor: 'hsl(var(--background))',
-                            border: '1px solid hsl(var(--border))',
                             borderRadius: '50%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
                             transition: 'all 0.2s ease',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = 'hsl(var(--background))';
                           }}
                         >
                           <Icon icon={Plus} className="w-[18px] h-[18px]" />
-                        </button>
+                        </Button>
                       </PromptInputAction>
                     )}
                   </div>
@@ -328,121 +324,74 @@ export default function BookingIndex() {
                       // Recording mode - show Cancel (X) and Submit (Check) icons
                       <>
                         <PromptInputAction tooltip="Cancel recording">
-                          <button
+                          <Button
+                            variant="outline"
+                            iconOnly
+                            size="md"
                             onClick={() => {
                               cancelRecording();
                             }}
                             style={{
-                              width: '40px',
-                              height: '40px',
-                              backgroundColor: 'hsl(var(--background))',
-                              border: '1px solid hsl(var(--border))',
                               borderRadius: '50%',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer',
                               transition: 'all 0.2s ease',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = 'hsl(var(--destructive) / 0.1)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'hsl(var(--background))';
                             }}
                           >
                             <Icon icon={X} className="w-[18px] h-[18px] text-destructive" />
-                          </button>
+                          </Button>
                         </PromptInputAction>
 
                         <PromptInputAction tooltip="Submit recording">
-                          <button
+                          <Button
+                            variant="primary"
+                            iconOnly
+                            size="md"
                             onClick={handleMicClick}
                             style={{
-                              width: '40px',
-                              height: '40px',
-                              backgroundColor: 'hsl(var(--primary))',
-                              border: 'none',
                               borderRadius: '50%',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer',
                               transition: 'all 0.2s ease',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
                             }}
                           >
                             <Icon icon={Check} className="w-5 h-5 text-white" />
-                          </button>
+                          </Button>
                         </PromptInputAction>
                       </>
                     ) : (
                       // Normal mode - show Mic and Submit buttons
                       <>
                         <PromptInputAction tooltip={isTranscribing ? "Transcribing..." : "Voice input"}>
-                          <button
+                          <Button
+                            variant="outline"
+                            iconOnly
+                            size="md"
                             onClick={handleMicClick}
                             disabled={isLoading}
                             style={{
-                              width: '40px',
-                              height: '40px',
-                              backgroundColor: 'hsl(var(--background))',
-                              border: '1px solid hsl(var(--border))',
                               borderRadius: '50%',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer',
                               transition: 'all 0.2s ease',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'hsl(var(--background))';
                             }}
                           >
                             <Icon icon={Mic} className={cn(
                               "w-[18px] h-[18px]",
                               isTranscribing && "animate-pulse text-primary"
                             )} />
-                          </button>
+                          </Button>
                         </PromptInputAction>
 
                         <PromptInputAction tooltip="Submit">
-                          <button
+                          <Button
+                            variant="primary"
+                            iconOnly
+                            size="md"
                             onClick={handleSubmit}
                             disabled={isLoading || !input.trim()}
                             style={{
-                              width: '40px',
-                              height: '40px',
-                              backgroundColor: isLoading || !input.trim() ? 'hsl(var(--muted))' : 'hsl(var(--primary))',
-                              border: 'none',
                               borderRadius: '50%',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: isLoading || !input.trim() ? 'not-allowed' : 'pointer',
+                              backgroundColor: isLoading || !input.trim() ? 'hsl(var(--muted))' : undefined,
                               transition: 'all 0.2s ease',
-                            }}
-                            onMouseEnter={(e) => {
-                              if (!isLoading && input.trim()) {
-                                e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (!isLoading && input.trim()) {
-                                e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
-                              }
                             }}
                           >
                             <Icon icon={ArrowUp} className="w-5 h-5 text-white" />
-                          </button>
+                          </Button>
                         </PromptInputAction>
                       </>
                     )}
@@ -470,53 +419,59 @@ export default function BookingIndex() {
           {/* Guided mode — booking type cards */}
           {mode === 'guided' && (
             <div className="flex gap-4">
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => startGuidedBooking('doctor')}
-                className="rounded-3xl border border-border bg-card text-left transition-all hover:border-primary hover:shadow-sm overflow-hidden"
+                className="h-auto p-0 rounded-3xl border border-border bg-card text-left transition-all hover:border-primary hover:shadow-sm overflow-hidden font-normal"
                 style={{ width: '300px', flexShrink: 0 }}
               >
-                <div
-                  className="relative overflow-hidden"
-                  style={{ backgroundColor: 'hsl(var(--primary) / 0.15)', height: '200px' }}
-                >
-                  <img
-                    src="/assets/images/doctor.png"
-                    alt="Book a doctor"
-                    className="absolute"
-                    style={{ width: '260px', top: '0', left: '50%', transform: 'translateX(-50%)' }}
-                  />
+                <div className="w-full">
+                  <div
+                    className="relative overflow-hidden"
+                    style={{ backgroundColor: 'hsl(var(--primary) / 0.15)', height: '200px' }}
+                  >
+                    <img
+                      src="/assets/images/doctor.png"
+                      alt="Book a doctor"
+                      className="absolute"
+                      style={{ width: '260px', top: '0', left: '50%', transform: 'translateX(-50%)' }}
+                    />
+                  </div>
+                  <div className="px-5 py-4">
+                    <p className="text-[16px] font-semibold text-foreground">Book a doctor</p>
+                    <p className="text-[14px] text-muted-foreground mt-1">
+                      Schedule a consultation with a specialist or general physician
+                    </p>
+                  </div>
                 </div>
-                <div className="px-5 py-4">
-                  <p className="text-[16px] font-semibold text-foreground">Book a doctor</p>
-                  <p className="text-[14px] text-muted-foreground mt-1">
-                    Schedule a consultation with a specialist or general physician
-                  </p>
-                </div>
-              </button>
+              </Button>
 
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => startGuidedBooking('lab_test')}
-                className="rounded-3xl border border-border bg-card text-left transition-all hover:border-primary hover:shadow-sm overflow-hidden"
+                className="h-auto p-0 rounded-3xl border border-border bg-card text-left transition-all hover:border-primary hover:shadow-sm overflow-hidden font-normal"
                 style={{ width: '300px', flexShrink: 0 }}
               >
-                <div
-                  className="relative overflow-hidden"
-                  style={{ backgroundColor: 'hsl(var(--primary) / 0.15)', height: '200px' }}
-                >
-                  <img
-                    src="/assets/images/test.png"
-                    alt="Book a test"
-                    className="absolute"
-                    style={{ width: '260px', top: '0', left: '50%', transform: 'translateX(-50%)' }}
-                  />
+                <div className="w-full">
+                  <div
+                    className="relative overflow-hidden"
+                    style={{ backgroundColor: 'hsl(var(--primary) / 0.15)', height: '200px' }}
+                  >
+                    <img
+                      src="/assets/images/test.png"
+                      alt="Book a test"
+                      className="absolute"
+                      style={{ width: '260px', top: '0', left: '50%', transform: 'translateX(-50%)' }}
+                    />
+                  </div>
+                  <div className="px-5 py-4">
+                    <p className="text-[16px] font-semibold text-foreground">Book a test</p>
+                    <p className="text-[14px] text-muted-foreground mt-1">
+                      Lab tests, health packages, and home sample collection
+                    </p>
+                  </div>
                 </div>
-                <div className="px-5 py-4">
-                  <p className="text-[16px] font-semibold text-foreground">Book a test</p>
-                  <p className="text-[14px] text-muted-foreground mt-1">
-                    Lab tests, health packages, and home sample collection
-                  </p>
-                </div>
-              </button>
+              </Button>
             </div>
           )}
         </main>

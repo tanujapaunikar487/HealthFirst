@@ -120,24 +120,13 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
             color: 'hsl(var(--foreground))',
           }}
         >
-          <button
+          <Button
+            variant="ghost"
+            iconOnly
+            size="md"
             style={{
-              width: '40px',
-              height: '40px',
-              backgroundColor: 'transparent',
-              border: 'none',
               borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
               transition: 'all 0.2s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
             }}
           >
             <svg
@@ -162,25 +151,14 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                 strokeLinejoin="round"
               />
             </svg>
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="ghost"
+            iconOnly
+            size="md"
             style={{
-              width: '40px',
-              height: '40px',
-              backgroundColor: 'transparent',
-              border: 'none',
               borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
               transition: 'all 0.2s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
             }}
           >
             <svg
@@ -212,7 +190,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                 strokeMiterlimit="10"
               />
             </svg>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -294,24 +272,13 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
               <div className="flex items-center gap-1">
                 {/* Add Button */}
                 <PromptInputAction tooltip="Add attachment">
-                  <button
+                  <Button
+                    variant="outline"
+                    iconOnly
+                    size="md"
                     style={{
-                      width: '40px',
-                      height: '40px',
-                      backgroundColor: 'hsl(var(--background))',
-                      border: '1px solid hsl(var(--border))',
                       borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
                       transition: 'all 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'hsl(var(--background))';
                     }}
                   >
                     <svg
@@ -329,33 +296,17 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                         strokeLinejoin="round"
                       />
                     </svg>
-                  </button>
+                  </Button>
                 </PromptInputAction>
 
                 {/* Search Button */}
                 <PromptInputAction tooltip="Search">
-                  <button
+                  <Button
+                    variant="outline"
+                    size="md"
+                    className="rounded-full font-normal"
                     style={{
-                      height: '40px',
-                      padding: '0 16px',
-                      backgroundColor: 'hsl(var(--background))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '24px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '6px',
-                      cursor: 'pointer',
                       transition: 'all 0.2s ease',
-                      fontSize: '15px',
-                      fontWeight: 400,
-                      color: 'hsl(var(--foreground))',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'hsl(var(--background))';
                     }}
                   >
                     <svg
@@ -381,29 +332,18 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                       />
                     </svg>
                     Search
-                  </button>
+                  </Button>
                 </PromptInputAction>
 
                 {/* More Options Button */}
                 <PromptInputAction tooltip="More options">
-                  <button
+                  <Button
+                    variant="outline"
+                    iconOnly
+                    size="md"
                     style={{
-                      width: '40px',
-                      height: '40px',
-                      backgroundColor: 'hsl(var(--background))',
-                      border: '1px solid hsl(var(--border))',
                       borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
                       transition: 'all 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'hsl(var(--background))';
                     }}
                   >
                     <svg
@@ -417,36 +357,22 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                       <circle cx="12" cy="12" r="1.5" fill="currentColor" />
                       <circle cx="12" cy="18" r="1.5" fill="currentColor" />
                     </svg>
-                  </button>
+                  </Button>
                 </PromptInputAction>
               </div>
 
               {/* Submit Button */}
               <PromptInputAction tooltip="Submit">
-                <button
+                <Button
+                  variant="primary"
+                  iconOnly
+                  size="md"
                   onClick={handleSubmit}
                   disabled={isLoading || !query.trim()}
                   style={{
-                    width: '40px',
-                    height: '40px',
-                    backgroundColor: isLoading || !query.trim() ? 'hsl(var(--muted))' : 'hsl(var(--primary))',
-                    border: 'none',
                     borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: isLoading || !query.trim() ? 'not-allowed' : 'pointer',
+                    backgroundColor: isLoading || !query.trim() ? 'hsl(var(--muted))' : undefined,
                     transition: 'all 0.2s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isLoading && query.trim()) {
-                      e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isLoading && query.trim()) {
-                      e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
-                    }
                   }}
                 >
                   <svg
@@ -464,7 +390,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
                       strokeLinejoin="round"
                     />
                   </svg>
-                </button>
+                </Button>
               </PromptInputAction>
             </PromptInputActions>
             </PromptInput>

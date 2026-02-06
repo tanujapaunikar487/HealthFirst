@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { cn } from '@/Lib/utils';
 import { Icon } from '@/Components/ui/icon';
+import { Button } from '@/Components/ui/button';
 
 export interface SideNavItem {
   id: string;
@@ -37,21 +38,22 @@ export function SideNav({
         {items.map(({ id, label, icon: ItemIcon }) => {
           const isActive = activeId === id;
           return (
-            <button
+            <Button
+              variant="ghost"
               type="button"
               key={id}
               onClick={() => onSelect(id)}
               className={cn(
-                'w-full flex items-center gap-3 font-medium transition-all text-left rounded-full cursor-pointer',
+                'w-full justify-start gap-3 font-medium text-left cursor-pointer',
                 isActive
                   ? 'bg-[#F5F8FF] text-[#2563EB]'
-                  : 'text-neutral-900 hover:bg-muted'
+                  : 'text-foreground hover:bg-muted'
               )}
-              style={{ fontSize: '14px', lineHeight: '20px', padding: '8px 12px' }}
+              style={{ fontSize: '14px', lineHeight: '20px', padding: '8px 12px', height: 'auto' }}
             >
               <Icon icon={ItemIcon} className="h-5 w-5 flex-shrink-0" />
               <span className="truncate">{label}</span>
-            </button>
+            </Button>
           );
         })}
       </div>

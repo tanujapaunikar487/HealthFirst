@@ -236,20 +236,19 @@ function PreviousDoctorCard({
               <p className="text-[14px] text-muted-foreground">Quick available times:</p>
               <div className="flex flex-wrap gap-2">
                 {doctor.quick_times.map((time) => (
-                  <button
+                  <Button
                     key={time}
+                    variant={selectedTime === time ? 'accent' : 'outline'}
                     onClick={() => !disabled && onSelectTime(time)}
                     disabled={disabled}
                     className={cn(
-                      "px-3 py-1.5 rounded-full text-[14px] border transition-colors",
-                      "hover:border-primary/50 hover:bg-primary/5",
-                      selectedTime === time
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : "border-border bg-background"
+                      "h-auto px-3 py-1.5 rounded-full font-medium text-[14px]",
+                      "disabled:opacity-60",
+                      selectedTime === time && "border-foreground"
                     )}
                   >
                     {formatTime(time)}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </>
@@ -257,20 +256,19 @@ function PreviousDoctorCard({
             /* Fallback to full slots if available */
             <div className="flex flex-wrap gap-2">
               {doctor.slots.map((slot) => (
-                <button
+                <Button
                   key={slot.time}
+                  variant={selectedTime === slot.time ? 'accent' : 'outline'}
                   onClick={() => !disabled && slot.available && onSelectTime(slot.time)}
                   disabled={disabled || !slot.available}
                   className={cn(
-                    "px-3 py-1.5 rounded-full text-[14px] border transition-colors",
-                    "hover:border-primary/50 hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50",
-                    selectedTime === slot.time
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "border-border bg-background"
+                    "h-auto px-3 py-1.5 rounded-full font-medium text-[14px]",
+                    "disabled:opacity-60",
+                    selectedTime === slot.time && "border-foreground"
                   )}
                 >
                   {formatTime(slot.time)}
-                </button>
+                </Button>
               ))}
             </div>
           ) : null}

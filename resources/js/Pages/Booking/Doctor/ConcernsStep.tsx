@@ -196,11 +196,12 @@ export default function ConcernsStep({
               {urgencyOptions.map((option, index) => {
                 const style = dotStyles[option.value] || { dot: 'bg-muted-foreground', ring: 'ring-muted-foreground/15' };
                 return (
-                  <button
+                  <Button
                     key={option.value}
+                    variant="ghost"
                     onClick={() => setUrgency(option.value)}
                     className={cn(
-                      'w-full flex items-start gap-3 px-6 py-4 text-left transition-all',
+                      'w-full h-auto flex items-start gap-3 px-6 py-4 rounded-none justify-start text-left transition-all font-normal text-[14px]',
                       'hover:bg-muted/50',
                       urgency === option.value && 'bg-primary/5'
                     )}
@@ -224,7 +225,7 @@ export default function ConcernsStep({
                     ) : (
                       <span className="text-[14px] text-muted-foreground">Full flexibility</span>
                     )}
-                  </button>
+                  </Button>
                 );
               })}
             </Card>

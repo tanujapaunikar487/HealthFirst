@@ -2,6 +2,7 @@ import { cn } from '@/Lib/utils';
 import { Card } from '@/Components/ui/card';
 import { Video, User } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { Button } from '@/Components/ui/button';
 
 interface Mode {
   type: 'video' | 'in_person';
@@ -35,12 +36,13 @@ export function AppointmentModeSelector({
         const isSelected = selectedMode === mode.type;
 
         return (
-          <button
+          <Button
             key={mode.type}
+            variant="ghost"
             onClick={() => onSelect(mode.type)}
             className={cn(
-              'w-full flex items-center gap-4 px-6 py-4 text-left transition-all',
-              'hover:bg-muted/50',
+              'w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50',
+              'flex items-center gap-4 text-left transition-all',
               isSelected && 'bg-primary/5'
             )}
             style={{
@@ -62,7 +64,7 @@ export function AppointmentModeSelector({
             <span className="font-medium text-[14px] flex-shrink-0">
               ₹{mode.price.toLocaleString()}
             </span>
-          </button>
+          </Button>
         );
       })}
     </Card>

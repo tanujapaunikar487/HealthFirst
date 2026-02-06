@@ -267,28 +267,31 @@ export default function ScheduleStep({
 
           <div className="flex gap-2 overflow-x-auto pb-2">
             {availableDates.map((dateOption) => (
-              <button
+              <Button
                 key={dateOption.date}
+                variant={selectedDate === dateOption.date ? 'accent' : 'outline'}
                 onClick={() => handleDateChange(dateOption.date)}
                 className={cn(
-                  'flex-shrink-0 px-4 py-3 rounded-xl border transition-all min-w-[100px]',
+                  'h-auto flex-shrink-0 px-6 py-3 rounded-2xl transition-all min-w-[100px] font-normal',
                   selectedDate === dateOption.date
-                    ? 'bg-foreground text-background border-foreground'
+                    ? 'border-foreground'
                     : 'bg-background hover:border-primary/50'
                 )}
               >
-                <p className="font-medium text-[14px]">{dateOption.label}</p>
-                <p
-                  className={cn(
-                    'text-[14px]',
-                    selectedDate === dateOption.date
-                      ? 'text-background/70'
-                      : 'text-muted-foreground'
-                  )}
-                >
-                  {dateOption.sublabel}
-                </p>
-              </button>
+                <div className="w-full text-left">
+                  <p className="font-medium text-[14px]">{dateOption.label}</p>
+                  <p
+                    className={cn(
+                      'text-[14px]',
+                      selectedDate === dateOption.date
+                        ? 'text-background/70'
+                        : 'text-muted-foreground'
+                    )}
+                  >
+                    {dateOption.sublabel}
+                  </p>
+                </div>
+              </Button>
             ))}
           </div>
         </section>
@@ -317,11 +320,12 @@ export default function ScheduleStep({
               {locations.map((loc, index) => {
                 const isSelected = selectedLocation === loc.type;
                 return (
-                  <button
+                  <Button
                     key={loc.type}
+                    variant="ghost"
                     onClick={() => handleLocationChange(loc.type)}
                     className={cn(
-                      'w-full flex items-center gap-4 px-6 py-4 text-left transition-all',
+                      'w-full h-auto flex items-center gap-4 px-6 py-4 rounded-none justify-start text-left transition-all font-normal text-[14px]',
                       'hover:bg-muted/50',
                       isSelected && 'bg-primary/5'
                     )}
@@ -346,7 +350,7 @@ export default function ScheduleStep({
                         </p>
                       )}
                     </div>
-                  </button>
+                  </Button>
                 );
               })}
             </Card>

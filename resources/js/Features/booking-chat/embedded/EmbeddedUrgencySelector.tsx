@@ -1,5 +1,6 @@
 import { cn } from '@/Lib/utils';
 import { Card } from '@/Components/ui/card';
+import { Button } from '@/Components/ui/button';
 import { Flame, CalendarClock, CalendarPlus } from '@/Lib/icons';
 
 interface Props {
@@ -43,13 +44,15 @@ export function EmbeddedUrgencySelector({ selectedUrgency, onSelect, disabled }:
         const OptionIcon = option.icon;
 
         return (
-          <button
+          <Button
             key={option.value}
+            variant="ghost"
             onClick={() => !disabled && onSelect(option.value)}
             disabled={disabled}
             className={cn(
-              "w-full flex items-center gap-4 px-6 py-4 text-left transition-all",
-              "hover:bg-muted/50 disabled:cursor-not-allowed",
+              "w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50",
+              "flex items-center gap-4 text-left transition-all",
+              "disabled:cursor-not-allowed",
               isSelected
                 ? disabled ? "bg-primary/5 opacity-60" : "bg-primary/5"
                 : disabled ? "opacity-30" : ""
@@ -62,11 +65,11 @@ export function EmbeddedUrgencySelector({ selectedUrgency, onSelect, disabled }:
               <OptionIcon className={cn("h-5 w-5", option.iconColor)} />
             </div>
 
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 text-left">
               <p className="font-medium text-[14px] leading-tight mb-0.5">{option.label}</p>
               <p className="text-[14px] text-muted-foreground leading-tight">{option.description}</p>
             </div>
-          </button>
+          </Button>
         );
       })}
     </Card>

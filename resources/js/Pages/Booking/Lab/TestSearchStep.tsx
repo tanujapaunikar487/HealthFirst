@@ -231,13 +231,14 @@ export default function TestSearchStep({ savedData }: Props) {
           {!hasSearched && (
             <div className="flex flex-wrap gap-2 mb-4">
               {suggestionChips.map((chip) => (
-                <button
+                <Button
                   key={chip}
+                  variant="outline"
                   onClick={() => handleSuggestionClick(chip)}
-                  className="px-3 py-1.5 rounded-full border text-[14px] hover:border-primary/50 hover:bg-primary/5 transition-all"
+                  className="h-auto px-3 py-1.5 rounded-full text-[14px] hover:border-primary/50 hover:bg-primary/5 transition-all font-normal"
                 >
                   {chip}
-                </button>
+                </Button>
               ))}
             </div>
           )}

@@ -563,9 +563,10 @@ function LinkedRecordsList({ records, onView }: { records: LinkedRecord[]; onVie
       {records.map((rec, i) => {
         const config = categoryConfig[rec.icon_type];
         return (
-          <button
+          <Button
             key={i}
-            className="flex items-center gap-3 w-full rounded-lg border px-4 py-3 text-left hover:bg-muted/50 transition-colors"
+            variant="ghost"
+            className="flex items-center gap-3 w-full rounded-lg border px-4 py-3 h-auto text-left hover:bg-muted/50 transition-colors"
             onClick={() => onView(rec.title)}
           >
             {config ? (
@@ -579,7 +580,7 @@ function LinkedRecordsList({ records, onView }: { records: LinkedRecord[]; onVie
             )}
             <span className="text-[14px] font-medium flex-1 truncate">{rec.title}</span>
             <Button variant="neutral" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
-          </button>
+          </Button>
         );
       })}
     </div>
@@ -1215,9 +1216,9 @@ function ErVisitDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (ms
                   <span className="text-muted-foreground"> — {inv.result}</span>
                 </div>
                 {inv.has_link && (
-                  <button className="text-[14px] text-primary hover:underline flex-shrink-0" onClick={() => onAction(`Opening ${inv.name}...`)}>
+                  <Button variant="link" size="sm" className="h-auto p-0 text-[14px] text-primary hover:underline flex-shrink-0" onClick={() => onAction(`Opening ${inv.name}...`)}>
                     View
-                  </button>
+                  </Button>
                 )}
               </div>
             ))}
@@ -1361,12 +1362,14 @@ function DischargeDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (
               </li>
             ))}
           </ol>
-          <button
-            className="text-[14px] text-primary hover:underline mt-3"
+          <Button
+            variant="link"
+            size="sm"
+            className="h-auto p-0 text-[14px] text-primary hover:underline mt-3"
             onClick={() => onAction('Opening prescription...')}
           >
             View Full Prescription →
-          </button>
+          </Button>
         </div>
       )}
 
@@ -2064,9 +2067,9 @@ function MedicalCertificateDetail({ meta, onAction }: { meta: RecordMetadata; on
             {meta.verification_url && (
               <p className="text-[14px] text-muted-foreground">
                 Verify at:{' '}
-                <button className="text-primary hover:underline" onClick={() => onAction(`Verification URL: ${meta.verification_url}`)}>
+                <Button variant="link" size="sm" className="h-auto p-0 text-primary hover:underline" onClick={() => onAction(`Verification URL: ${meta.verification_url}`)}>
                   {meta.verification_url}
-                </button>
+                </Button>
               </p>
             )}
           </div>

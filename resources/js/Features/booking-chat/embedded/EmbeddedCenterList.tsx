@@ -1,6 +1,7 @@
 import { cn } from '@/Lib/utils';
 import { Building2, MapPin, Star } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { Button } from '@/Components/ui/button';
 
 interface Center {
   id: number;
@@ -25,13 +26,14 @@ export function EmbeddedCenterList({ centers, selectedCenterId, onSelect, disabl
         const isSelected = selectedCenterId === center.id;
 
         return (
-          <button
+          <Button
             key={center.id}
+            variant="ghost"
             onClick={() => !disabled && onSelect(center.id)}
             disabled={disabled}
             className={cn(
-              "w-full flex items-start gap-3 px-6 py-4 text-left transition-all",
-              "hover:bg-muted/50",
+              "w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50",
+              "flex items-start gap-3 text-left transition-all",
               isSelected && "bg-primary/5 border-l-2 border-l-primary",
               disabled && !isSelected && "opacity-60"
             )}
@@ -43,7 +45,7 @@ export function EmbeddedCenterList({ centers, selectedCenterId, onSelect, disabl
               <Building2 className={cn("h-5 w-5", isSelected && "text-primary")} />
             </div>
 
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 text-left">
               <p className="font-medium text-[14px]">{center.name}</p>
               <div className="flex items-center gap-1 mt-1 text-[14px] text-muted-foreground">
                 <MapPin className="h-3 w-3 flex-shrink-0" />
@@ -59,7 +61,7 @@ export function EmbeddedCenterList({ centers, selectedCenterId, onSelect, disabl
                 </span>
               </div>
             </div>
-          </button>
+          </Button>
         );
       })}
     </div>

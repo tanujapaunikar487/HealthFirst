@@ -851,21 +851,25 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
       <div className="w-full max-w-[960px] min-h-full flex flex-col pb-10">
         {/* Breadcrumb */}
         <div className="mb-6 flex items-center gap-1.5 text-[14px] text-muted-foreground">
-          <button
+          <Button
+            variant="link"
+            size="sm"
             onClick={() => router.visit('/insurance')}
-            className="font-medium hover:text-foreground"
+            className="h-auto p-0 font-medium text-muted-foreground hover:text-foreground"
           >
             Insurance
-          </button>
+          </Button>
           <ChevronRight className="h-3.5 w-3.5" />
           {fromPolicy && claim.policy_id && claim.policy_plan_name ? (
             <>
-              <button
+              <Button
+                variant="link"
+                size="sm"
                 onClick={() => router.visit(`/insurance/${claim.policy_id}`)}
-                className="font-medium hover:text-foreground"
+                className="h-auto p-0 font-medium text-muted-foreground hover:text-foreground"
               >
                 {claim.policy_plan_name}
-              </button>
+              </Button>
               <ChevronRight className="h-3.5 w-3.5" />
             </>
           ) : null}
@@ -1082,8 +1086,9 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
             {/* Patient */}
             <div className="grid items-start px-4 py-4" style={{ gridTemplateColumns: '130px 1fr', borderBottom: '1px solid hsl(var(--border))' }}>
               <span className="text-[14px] text-muted-foreground pt-px">Patient</span>
-              <button
-                className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
+              <Button
+                variant="ghost"
+                className="flex items-center gap-2.5 h-auto p-0 hover:opacity-80 hover:bg-transparent transition-opacity"
                 onClick={() => {
                   if (claim.family_member_id) {
                     router.visit(`/family-members/${claim.family_member_id}`);
@@ -1104,7 +1109,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 {patient.relation !== 'self' && (
                   <span className="text-[14px] capitalize text-muted-foreground">({patient.relation})</span>
                 )}
-              </button>
+              </Button>
             </div>
 
             {/* Doctor */}
@@ -1209,8 +1214,9 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
           {/* Current Insurance Plan */}
           {claim.policy_id && claim.policy_plan_name && (
-            <button
-              className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-accent"
+            <Button
+              variant="ghost"
+              className="flex w-full items-center justify-between px-6 py-4 h-auto rounded-none text-left transition-colors hover:bg-accent"
               onClick={() => router.visit(`/insurance/${claim.policy_id}`)}
             >
               <div className="flex items-start gap-3">
@@ -1233,13 +1239,14 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 </div>
               </div>
               <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
-            </button>
+            </Button>
           )}
 
           {/* Related Appointment */}
           {claim.appointment_id && (
-            <button
-              className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-accent"
+            <Button
+              variant="ghost"
+              className="flex w-full items-center justify-between px-6 py-4 h-auto rounded-none text-left transition-colors hover:bg-accent"
               onClick={() => router.visit(`/appointments/${claim.appointment_id}`)}
             >
               <div className="flex items-center gap-3">
@@ -1261,7 +1268,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 </div>
               </div>
               <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
-            </button>
+            </Button>
           )}
           </div>
         </Section>
@@ -1474,9 +1481,10 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           ) : (
             <div className="divide-y">
               {claim.documents.map((doc, idx) => (
-                <button
+                <Button
                   key={idx}
-                  className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-accent"
+                  variant="ghost"
+                  className="flex w-full items-center justify-between px-6 py-4 h-auto rounded-none text-left transition-colors hover:bg-accent"
                   onClick={() => {
                     downloadAsHtml(`${doc.type.replace(/\s+/g, '-').toLowerCase()}-${claim.claim_reference}.pdf`, `
                       <h1>${doc.type}</h1>
@@ -1496,7 +1504,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                     </div>
                   </div>
                   <Download className="h-4 w-4 flex-shrink-0 text-foreground" />
-                </button>
+                </Button>
               ))}
             </div>
           )}
@@ -1572,12 +1580,14 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
                 {/* Show all button (when truncated) */}
                 {!useMonthGroups && !showAllTimeline && claim.timeline.length > 10 && (
-                  <button
-                    className="mt-4 w-full text-center text-[14px] font-medium text-primary hover:text-primary"
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="mt-4 w-full h-auto p-0 text-center text-[14px] font-medium text-primary hover:text-primary"
                     onClick={() => setShowAllTimeline(true)}
                   >
                     Show all {claim.timeline.length} events
-                  </button>
+                  </Button>
                 )}
               </div>
             )}

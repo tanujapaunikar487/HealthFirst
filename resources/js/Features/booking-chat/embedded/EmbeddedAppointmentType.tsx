@@ -1,4 +1,5 @@
 import { cn } from '@/Lib/utils';
+import { Button } from '@/Components/ui/button';
 
 interface Props {
   selectedType: 'new' | 'followup' | null;
@@ -18,12 +19,13 @@ export function EmbeddedAppointmentType({ selectedType, onSelect, disabled }: Pr
         const isSelected = selectedType === option.value;
 
         return (
-          <button
+          <Button
             key={option.value}
+            variant="outline"
             onClick={() => !disabled && onSelect(option.value)}
             disabled={disabled}
             className={cn(
-              "px-5 py-3 rounded-full border text-left transition-all",
+              "h-auto rounded-full px-5 py-3 font-medium text-[14px] text-left transition-all",
               "hover:border-primary/50 hover:bg-primary/5 disabled:cursor-not-allowed",
               isSelected
                 ? disabled ? "border-primary bg-primary/5 opacity-60" : "border-primary bg-primary/5"
@@ -31,7 +33,7 @@ export function EmbeddedAppointmentType({ selectedType, onSelect, disabled }: Pr
             )}
           >
             <span className="font-medium text-[14px]">{option.label}</span>
-          </button>
+          </Button>
         );
       })}
     </div>

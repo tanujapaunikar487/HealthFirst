@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
 import InlineMemberTypeSelector from '@/Features/booking-chat/embedded/InlineMemberTypeSelector';
+import { Button } from '@/Components/ui/button';
 import { ArrowRight } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { cn } from '@/Lib/utils';
@@ -82,11 +83,12 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
 
           <div className="grid grid-cols-2 gap-3">
             {members.map((member) => (
-              <button
+              <Button
                 key={member.id}
+                variant="outline"
                 onClick={() => setPatientId(member.id)}
                 className={cn(
-                  'flex items-center gap-3 p-3 rounded-full border text-left transition-all',
+                  'h-auto flex items-center gap-3 p-3 rounded-full border text-left transition-all font-normal text-[14px]',
                   'hover:border-primary/50 hover:bg-primary/5',
                   patientId === member.id && 'border-primary bg-primary/5'
                 )}
@@ -98,18 +100,19 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
                   </AvatarFallback>
                 </Avatar>
                 <span className="font-medium text-[14px]">{member.name}</span>
-              </button>
+              </Button>
             ))}
           </div>
 
           {!showAddMemberInline && (
-            <button
+            <Button
+              variant="outline"
               onClick={() => setShowAddMemberInline(true)}
-              className="mt-3 inline-flex items-center gap-1 px-4 py-2.5 rounded-full border text-[14px] text-foreground hover:border-primary/50 hover:bg-primary/5 transition-all"
+              className="mt-3 h-auto inline-flex items-center gap-1 px-4 py-2.5 rounded-full text-[14px] text-foreground hover:border-primary/50 hover:bg-primary/5 transition-all font-normal"
             >
               Add family member or guest
               <Icon icon={ArrowRight} className="h-4 w-4" />
-            </button>
+            </Button>
           )}
 
           {/* Inline Member Type Selector */}

@@ -148,16 +148,14 @@ export default function Confirmation({ booking, calendarPreference }: Props) {
               <span>Synced to Google Calendar</span>
             </div>
           ) : applePreferred ? (
-            <button
+            <Button
+              variant="primary"
               onClick={handleDownloadIcs}
               disabled={icsDownloaded}
-              className={`
-                w-full px-6 py-3 rounded-full font-medium text-base
-                flex items-center justify-center gap-2 transition-all duration-200
-                ${icsDownloaded
-                  ? 'bg-success text-white cursor-default'
-                  : 'bg-primary text-white hover:bg-primary/90'}
-              `}
+              className={cn(
+                'w-full h-auto px-6 py-3 rounded-full font-medium text-base flex items-center justify-center gap-2 transition-all duration-200',
+                icsDownloaded && 'bg-success text-white cursor-default hover:bg-success'
+              )}
             >
               {icsDownloaded ? (
                 <>
@@ -172,7 +170,7 @@ export default function Confirmation({ booking, calendarPreference }: Props) {
                   <span>Add to Apple Calendar</span>
                 </>
               )}
-            </button>
+            </Button>
           ) : (
             <AddToCalendarButton
               conversationId={booking.id}

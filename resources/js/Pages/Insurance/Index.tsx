@@ -702,9 +702,10 @@ export default function InsuranceIndex({
             {preAuthStep === 'policy' && (
               <div className="space-y-3">
                 {policies.map(p => (
-                  <button
+                  <Button
                     key={p.id}
-                    className="flex w-full items-center gap-3 rounded-xl border px-4 py-3.5 text-left transition-colors hover:bg-accent"
+                    variant="ghost"
+                    className="flex w-full items-center gap-3 rounded-xl border px-4 py-3.5 text-left transition-colors hover:bg-accent h-auto"
                     onClick={() => handlePreAuthPolicySelect(p.id)}
                   >
                     <div
@@ -728,7 +729,7 @@ export default function InsuranceIndex({
                     >
                       <ChevronRight className="h-5 w-5" />
                     </span>
-                  </button>
+                  </Button>
                 ))}
               </div>
             )}
@@ -746,9 +747,10 @@ export default function InsuranceIndex({
                   preAuthCoveredMembers.map(member => {
                     const color = getAvatarColorByName(member.name);
                     return (
-                      <button
+                      <Button
                         key={member.id}
-                        className="flex w-full items-center gap-3 rounded-xl border px-4 py-3.5 text-left transition-colors hover:bg-accent"
+                        variant="ghost"
+                        className="flex w-full items-center gap-3 rounded-xl border px-4 py-3.5 text-left transition-colors hover:bg-accent h-auto"
                         onClick={() => handlePreAuthPatientSelect(member.id)}
                       >
                         <div
@@ -772,7 +774,7 @@ export default function InsuranceIndex({
                         >
                           <ChevronRight className="h-5 w-5" />
                         </span>
-                      </button>
+                      </Button>
                     );
                   })
                 )}

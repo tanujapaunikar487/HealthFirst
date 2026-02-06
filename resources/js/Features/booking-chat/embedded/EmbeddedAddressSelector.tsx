@@ -2,6 +2,7 @@ import { cn } from '@/Lib/utils';
 import { Badge } from '@/Components/ui/badge';
 import { Home, MapPin, Plus, Check } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { Button } from '@/Components/ui/button';
 
 interface Address {
   id: number;
@@ -27,13 +28,14 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
           const isSelected = selectedAddressId === addr.id;
 
           return (
-            <button
+            <Button
               key={addr.id}
+              variant="ghost"
               onClick={() => !disabled && onSelect(addr.id, addr.label, addr.address)}
               disabled={disabled}
               className={cn(
-                'w-full flex items-start gap-3 px-6 py-4 text-left transition-all',
-                'hover:bg-muted/50',
+                'w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50',
+                'flex items-start gap-3 text-left transition-all',
                 isSelected && 'bg-primary/5 border-l-2 border-l-primary',
                 disabled && !isSelected && 'opacity-60',
               )}
@@ -47,7 +49,7 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
                 <Home className={cn('h-5 w-5', isSelected && 'text-primary')} />
               </div>
 
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 text-left">
                 <div className="flex items-center gap-2">
                   <p className="font-medium text-[14px]">{addr.label}</p>
                   {addr.is_default && (
@@ -65,26 +67,26 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
                   <Check className="h-5 w-5 text-primary" />
                 </div>
               )}
-            </button>
+            </Button>
           );
         })}
       </div>
 
       {/* Add new address placeholder */}
-      <button
+      <Button
+        variant="outline"
         disabled={disabled}
         className={cn(
-          'w-full flex items-center gap-3 p-3 rounded-xl border border-dashed transition-all text-left',
+          'w-full h-auto flex items-center gap-3 p-3 rounded-xl border-dashed transition-all text-left font-normal',
           'hover:bg-muted/50 hover:border-primary/30',
-          'disabled:opacity-50 disabled:cursor-not-allowed',
         )}
         onClick={() => !disabled && onAddAddress?.()}
       >
         <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-          <Plus className="h-4 w-4 text-neutral-900" />
+          <Plus className="h-4 w-4 text-foreground" />
         </div>
         <span className="text-[14px] text-muted-foreground">Add new address</span>
-      </button>
+      </Button>
     </div>
   );
 }

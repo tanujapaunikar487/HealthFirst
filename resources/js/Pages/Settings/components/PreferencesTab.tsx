@@ -213,26 +213,28 @@ export function PreferencesTab({
                                 </p>
                             </div>
                             <div className="flex rounded-full border bg-muted p-1">
-                                <button
+                                <Button
+                                    variant="ghost"
                                     onClick={() => handlePrefChange('time_format', '24h')}
-                                    className={`px-4 py-1.5 text-[14px] font-medium rounded-full transition-colors ${
+                                    className={`px-4 py-1.5 h-auto text-[14px] font-medium rounded-full transition-colors ${
                                         prefs.time_format === '24h'
                                             ? 'bg-background text-primary shadow-sm'
                                             : 'text-muted-foreground hover:text-foreground'
                                     }`}
                                 >
                                     24 hrs
-                                </button>
-                                <button
+                                </Button>
+                                <Button
+                                    variant="ghost"
                                     onClick={() => handlePrefChange('time_format', '12h')}
-                                    className={`px-4 py-1.5 text-[14px] font-medium rounded-full transition-colors ${
+                                    className={`px-4 py-1.5 h-auto text-[14px] font-medium rounded-full transition-colors ${
                                         prefs.time_format === '12h'
                                             ? 'bg-background text-primary shadow-sm'
                                             : 'text-muted-foreground hover:text-foreground'
                                     }`}
                                 >
                                     12 hrs
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     </CardContent>
@@ -253,36 +255,39 @@ export function PreferencesTab({
                                 </p>
                             </div>
                             <div className="flex rounded-full border bg-muted p-1">
-                                <button
+                                <Button
+                                    variant="ghost"
                                     onClick={() => setTextSizeFromOption('small')}
-                                    className={`px-3 py-1.5 text-[14px] font-medium rounded-full transition-colors ${
+                                    className={`px-3 py-1.5 h-auto text-[14px] font-medium rounded-full transition-colors ${
                                         getTextSizeOption(prefs.accessibility.text_size) === 'small'
                                             ? 'bg-background text-primary shadow-sm'
                                             : 'text-muted-foreground hover:text-foreground'
                                     }`}
                                 >
                                     A
-                                </button>
-                                <button
+                                </Button>
+                                <Button
+                                    variant="ghost"
                                     onClick={() => setTextSizeFromOption('medium')}
-                                    className={`px-3 py-1.5 text-[14px] font-medium rounded-full transition-colors ${
+                                    className={`px-3 py-1.5 h-auto text-[14px] font-medium rounded-full transition-colors ${
                                         getTextSizeOption(prefs.accessibility.text_size) === 'medium'
                                             ? 'bg-background text-primary shadow-sm'
                                             : 'text-muted-foreground hover:text-foreground'
                                     }`}
                                 >
                                     A
-                                </button>
-                                <button
+                                </Button>
+                                <Button
+                                    variant="ghost"
                                     onClick={() => setTextSizeFromOption('large')}
-                                    className={`px-3 py-1.5 text-base font-medium rounded-full transition-colors ${
+                                    className={`px-3 py-1.5 h-auto text-base font-medium rounded-full transition-colors ${
                                         getTextSizeOption(prefs.accessibility.text_size) === 'large'
                                             ? 'bg-background text-primary shadow-sm'
                                             : 'text-muted-foreground hover:text-foreground'
                                     }`}
                                 >
                                     A
-                                </button>
+                                </Button>
                             </div>
                         </div>
 
@@ -344,9 +349,10 @@ export function PreferencesTab({
                 <Card className="mt-4">
                     <CardContent className="p-0 divide-y">
                         {/* Change password Row */}
-                        <button
+                        <Button
+                            variant="ghost"
                             onClick={onOpenPasswordModal}
-                            className="w-full flex items-center justify-between px-6 py-4 hover:bg-muted/50 transition-colors text-left"
+                            className="w-full flex items-center justify-between px-6 py-4 h-auto rounded-none hover:bg-muted/50 transition-colors text-left"
                         >
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
@@ -355,12 +361,13 @@ export function PreferencesTab({
                                 <span className="text-[14px] font-semibold leading-5 text-foreground">Change password</span>
                             </div>
                             <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
-                        </button>
+                        </Button>
 
                         {/* Download My Data Row */}
-                        <button
+                        <Button
+                            variant="ghost"
                             onClick={handleDownloadData}
-                            className="w-full flex items-center justify-between px-6 py-4 hover:bg-muted/50 transition-colors text-left"
+                            className="w-full flex items-center justify-between px-6 py-4 h-auto rounded-none hover:bg-muted/50 transition-colors text-left"
                         >
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
@@ -369,12 +376,13 @@ export function PreferencesTab({
                                 <span className="text-[14px] font-semibold leading-5 text-foreground">Download My Data</span>
                             </div>
                             <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
-                        </button>
+                        </Button>
 
                         {/* Delete account Row */}
-                        <button
+                        <Button
+                            variant="ghost"
                             onClick={() => setShowDeleteDialog(true)}
-                            className="w-full flex items-center justify-between px-6 py-4 hover:bg-muted/50 transition-colors text-left"
+                            className="w-full flex items-center justify-between px-6 py-4 h-auto rounded-none hover:bg-muted/50 transition-colors text-left"
                         >
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
@@ -383,7 +391,7 @@ export function PreferencesTab({
                                 <span className="text-[14px] font-semibold leading-5 text-foreground">Delete account</span>
                             </div>
                             <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
-                        </button>
+                        </Button>
                     </CardContent>
                 </Card>
             </div>

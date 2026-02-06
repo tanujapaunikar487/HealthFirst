@@ -3,6 +3,7 @@ import { Star } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { Card } from '@/Components/ui/card';
 import { Alert } from '@/Components/ui/alert';
+import { Button } from '@/Components/ui/button';
 import { format, addDays, startOfDay } from 'date-fns';
 
 interface TimeSlot {
@@ -65,16 +66,16 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
               const isSelected = selectedDate === dateValue;
 
               return (
-                <button
+                <Button
                   key={dateValue}
+                  variant={isSelected ? 'accent' : 'outline'}
                   onClick={() => !disabled && selectedTime && onSelect(dateValue, selectedTime)}
                   disabled={disabled}
                   className={cn(
-                    'flex flex-col items-center flex-shrink-0 px-6 py-3 rounded-2xl border transition-all min-w-[120px]',
-                    'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
-                    isSelected
-                      ? 'bg-foreground text-background border-foreground'
-                      : 'border-border bg-background text-foreground'
+                    'h-auto px-6 py-3 rounded-2xl font-normal',
+                    'flex flex-col items-center flex-shrink-0 min-w-[120px]',
+                    'disabled:opacity-60',
+                    isSelected && 'border-foreground'
                   )}
                 >
                   <div className={cn('font-semibold text-[14px]', isSelected && 'text-background')}>
@@ -83,7 +84,7 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
                   <div className={cn('text-[14px]', isSelected ? 'text-background/70' : 'text-muted-foreground')}>
                     {formatDateDisplay(date)}
                   </div>
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -99,21 +100,20 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
               const isSelected = selectedTime === slot.time;
 
               return (
-                <button
+                <Button
                   key={slot.time}
+                  variant={isSelected ? 'accent' : 'outline'}
                   onClick={() => !disabled && selectedDate && onSelect(selectedDate, slot.time)}
                   disabled={disabled || !slot.available}
                   className={cn(
-                    'px-3.5 py-1.5 rounded-full border text-[14px] font-medium transition-all inline-flex items-center gap-1',
-                    'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
-                    isSelected
-                      ? 'bg-foreground text-background border-foreground'
-                      : 'border-border bg-background text-foreground'
+                    'h-auto px-3 py-1.5 rounded-full font-medium text-[14px]',
+                    'disabled:opacity-60',
+                    isSelected && 'border-foreground'
                   )}
                 >
                   {slot.time}
                   {slot.preferred && !isSelected && <Star className="w-3 h-3 fill-current" />}
-                </button>
+                </Button>
               );
             })}
           </div>

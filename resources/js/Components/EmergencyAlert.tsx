@@ -1,6 +1,7 @@
 import React from 'react';
 import { AlertTriangle, Phone, Ambulance, Shield, Flame } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { Button } from '@/Components/ui/button';
 
 interface EmergencyAlertProps {
     emergencyNumber: string;
@@ -71,7 +72,9 @@ export function EmergencyAlert({
             {/* Nearby Hospitals */}
             {showNearbyHospitals && (
                 <div className="mt-4">
-                    <button
+                    <Button
+                        variant="secondary"
+                        size="md"
                         onClick={() => {
                             // Open Google Maps with "emergency room near me"
                             window.open(
@@ -79,7 +82,7 @@ export function EmergencyAlert({
                                 '_blank'
                             );
                         }}
-                        className="w-full flex items-center justify-center gap-2 bg-background border border-destructive text-destructive py-3 px-4 rounded-lg font-semibold hover:bg-destructive/10 transition-colors"
+                        className="w-full bg-background border-destructive text-destructive py-3 px-4 rounded-lg font-semibold hover:bg-destructive/10"
                     >
                         <svg
                             className="w-5 h-5"
@@ -89,7 +92,7 @@ export function EmergencyAlert({
                             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                         </svg>
                         <span>Find Nearest Emergency Room</span>
-                    </button>
+                    </Button>
                 </div>
             )}
 

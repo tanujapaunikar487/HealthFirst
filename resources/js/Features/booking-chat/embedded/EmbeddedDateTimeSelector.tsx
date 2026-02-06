@@ -4,6 +4,7 @@ import { Star } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { Card } from '@/Components/ui/card';
 import { Alert } from '@/Components/ui/alert';
+import { Button } from '@/Components/ui/button';
 
 interface DateOption {
   date?: string;
@@ -83,30 +84,32 @@ export function EmbeddedDateTimeSelector({
               const isDateSelected = localDate === dateValue || selectedDate === dateValue;
 
               return (
-                <button
+                <Button
                   key={dateValue || idx}
+                  variant={isDateSelected ? 'accent' : 'outline'}
                   onClick={() => handleDateSelect(dateValue)}
                   disabled={disabled}
                   className={cn(
-                    'flex-shrink-0 px-4 py-3 rounded-xl border transition-all min-w-[100px]',
-                    'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
-                    isDateSelected
-                      ? 'bg-foreground text-background border-foreground'
-                      : 'bg-background border-border'
+                    'h-auto px-6 py-3 rounded-2xl font-normal',
+                    'flex-shrink-0 min-w-[100px]',
+                    'disabled:opacity-60',
+                    isDateSelected && 'border-foreground'
                   )}
                 >
-                  <p className={cn('font-medium', isDateSelected && 'text-background')}>
-                    {dateOption.label}
-                  </p>
-                  <p
-                    className={cn(
-                      'text-[14px]',
-                      isDateSelected ? 'text-background/70' : 'text-muted-foreground'
-                    )}
-                  >
-                    {subLabel}
-                  </p>
-                </button>
+                  <div className="w-full text-left">
+                    <p className={cn('font-medium', isDateSelected && 'text-background')}>
+                      {dateOption.label}
+                    </p>
+                    <p
+                      className={cn(
+                        'text-[14px]',
+                        isDateSelected ? 'text-background/70' : 'text-muted-foreground'
+                      )}
+                    >
+                      {subLabel}
+                    </p>
+                  </div>
+                </Button>
               );
             })}
           </div>
@@ -125,23 +128,22 @@ export function EmbeddedDateTimeSelector({
               const isTimeSelected = localTime === slot.time || selectedTime === slot.time;
 
               return (
-                <button
+                <Button
                   key={slot.time}
+                  variant={isTimeSelected ? 'accent' : 'outline'}
                   onClick={() => handleTimeSelect(slot.time)}
                   disabled={disabled || !slot.available}
                   className={cn(
-                    'px-3 py-1.5 rounded-full text-[14px] border transition-all inline-flex items-center gap-1',
-                    'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
-                    isTimeSelected
-                      ? 'bg-foreground text-background border-foreground'
-                      : 'bg-background border-border'
+                    'h-auto px-3 py-1.5 rounded-full font-medium text-[14px]',
+                    'disabled:opacity-60',
+                    isTimeSelected && 'border-foreground'
                   )}
                 >
                   {slot.time}
                   {slot.preferred && !isTimeSelected && (
                     <Star className="h-3 w-3 fill-warning text-warning" />
                   )}
-                </button>
+                </Button>
               );
             })}
           </div>

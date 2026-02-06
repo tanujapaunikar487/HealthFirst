@@ -916,18 +916,24 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     {state.step === 'choice' && (
                         <div className="space-y-4">
                             <div className="grid gap-3">
-                                <button onClick={() => handleInitialChoice('add_new_family')} className="flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
-                                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><Users className="h-5 w-5" /></div>
-                                    <div><h4 className="font-semibold">Add New Family Member</h4><p className="text-[14px] text-muted-foreground">Create a full family member profile</p></div>
-                                </button>
-                                <button onClick={() => handleInitialChoice('link_existing')} className="flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
-                                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><Users className="h-5 w-5" /></div>
-                                    <div><h4 className="font-semibold">Link Existing Patient</h4><p className="text-[14px] text-muted-foreground">Connect to an existing hospital patient record</p></div>
-                                </button>
-                                <button onClick={() => handleInitialChoice('guest')} className="flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-left">
-                                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><User className="h-5 w-5" /></div>
-                                    <div><h4 className="font-semibold">Guest</h4><p className="text-[14px] text-muted-foreground">One-time booking only</p></div>
-                                </button>
+                                <Button variant="ghost" onClick={() => handleInitialChoice('add_new_family')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 font-normal text-[14px]">
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><Users className="h-5 w-5" /></div>
+                                        <div><h4 className="font-semibold">Add New Family Member</h4><p className="text-[14px] text-muted-foreground">Create a full family member profile</p></div>
+                                    </div>
+                                </Button>
+                                <Button variant="ghost" onClick={() => handleInitialChoice('link_existing')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 font-normal text-[14px]">
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><Users className="h-5 w-5" /></div>
+                                        <div><h4 className="font-semibold">Link Existing Patient</h4><p className="text-[14px] text-muted-foreground">Connect to an existing hospital patient record</p></div>
+                                    </div>
+                                </Button>
+                                <Button variant="ghost" onClick={() => handleInitialChoice('guest')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 font-normal text-[14px]">
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><User className="h-5 w-5" /></div>
+                                        <div><h4 className="font-semibold">Guest</h4><p className="text-[14px] text-muted-foreground">One-time booking only</p></div>
+                                    </div>
+                                </Button>
                             </div>
                         </div>
                     )}
@@ -1303,12 +1309,14 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                             {/* Request Contact Update */}
                             <div className="pt-2 border-t">
-                                <button
+                                <Button
+                                    variant="link"
+                                    size="sm"
                                     onClick={() => setState(prev => ({ ...prev, showContactUpdateModal: true }))}
-                                    className="w-full text-[14px] text-muted-foreground hover:text-foreground"
+                                    className="h-auto p-0 w-full text-[14px] text-muted-foreground hover:text-foreground"
                                 >
                                     Contact info not correct? Request update
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     )}
@@ -1359,7 +1367,9 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             )}
                             {/* Option to try different method */}
                             {state.foundMember?.has_phone && state.foundMember?.has_email && (
-                                <button
+                                <Button
+                                    variant="link"
+                                    size="sm"
                                     onClick={() => {
                                         const newMethod: 'phone' | 'email' = state.selectedContactMethod === 'phone' ? 'email' : 'phone';
                                         setState(prev => ({
@@ -1370,11 +1380,11 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                         // Pass method directly to avoid stale state
                                         handleSendOtp(newMethod);
                                     }}
-                                    className="w-full text-[14px] text-primary hover:underline"
+                                    className="h-auto p-0 w-full text-[14px] text-primary hover:underline"
                                     disabled={state.loading}
                                 >
                                     Try {state.selectedContactMethod === 'phone' ? 'Email' : 'Phone'} Instead →
-                                </button>
+                                </Button>
                             )}
                         </div>
                     )}
@@ -1398,13 +1408,15 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
         <div className="space-y-6 p-6">
             {/* Embedded: Separate back button */}
             {canGoBack && (
-                <button
+                <Button
+                    variant="link"
+                    size="sm"
                     onClick={handleBack}
-                    className="flex items-center gap-2 text-[14px] text-muted-foreground hover:text-foreground transition-colors"
+                    className="h-auto p-0 flex items-center gap-2 text-[14px] text-muted-foreground hover:text-foreground"
                 >
                     <ChevronLeft className="h-4 w-4" />
                     Back
-                </button>
+                </Button>
             )}
 
             {/* Error Message */}
@@ -1422,56 +1434,65 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     <div role="radiogroup" aria-labelledby="choice-heading" className="grid gap-3">
                         {/* Guest */}
-                        <button
+                        <Button
+                            variant="ghost"
                             role="radio"
                             aria-checked={state.flowType === 'guest'}
                             onClick={() => handleInitialChoice('guest')}
-                            className="flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
+                            className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 font-normal text-[14px]"
                         >
-                            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                <User className="h-5 w-5" />
+                            <div className="flex items-center gap-4">
+                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                                    <User className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold">Guest</h4>
+                                    <p className="text-[14px] text-muted-foreground">
+                                        Quick booking for someone without medical history
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <h4 className="font-semibold">Guest</h4>
-                                <p className="text-[14px] text-muted-foreground">
-                                    Quick booking for someone without medical history
-                                </p>
-                            </div>
-                        </button>
+                        </Button>
 
                         {/* Add New Family Member */}
-                        <button
+                        <Button
+                            variant="ghost"
                             role="radio"
                             aria-checked={state.flowType === 'add_new_family'}
                             onClick={() => handleInitialChoice('add_new_family')}
-                            className="flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
+                            className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 font-normal text-[14px]"
                         >
-                            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                <Users className="h-5 w-5" />
+                            <div className="flex items-center gap-4">
+                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                                    <Users className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold">Add New Family Member</h4>
+                                    <p className="text-[14px] text-muted-foreground">
+                                        Create a full family member profile
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <h4 className="font-semibold">Add New Family Member</h4>
-                                <p className="text-[14px] text-muted-foreground">
-                                    Create a full family member profile
-                                </p>
-                            </div>
-                        </button>
+                        </Button>
 
                         {/* Link Existing Patient */}
-                        <button
+                        <Button
+                            variant="ghost"
                             onClick={() => handleInitialChoice('link_existing')}
-                            className="flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
+                            className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 font-normal text-[14px]"
                         >
-                            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                <Users className="h-5 w-5" />
+                            <div className="flex items-center gap-4">
+                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                                    <Users className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold">Link Existing Patient</h4>
+                                    <p className="text-[14px] text-muted-foreground">
+                                        Connect to an existing hospital patient record
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <h4 className="font-semibold">Link Existing Patient</h4>
-                                <p className="text-[14px] text-muted-foreground">
-                                    Connect to an existing hospital patient record
-                                </p>
-                            </div>
-                        </button>
+                        </Button>
                     </div>
 
                     <Button variant="ghost" onClick={onCancel} className="w-full">
@@ -1991,12 +2012,14 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     {/* Request Contact Update */}
                     <div className="pt-2 border-t">
-                        <button
+                        <Button
+                            variant="link"
+                            size="sm"
                             onClick={() => setState(prev => ({ ...prev, showContactUpdateModal: true }))}
-                            className="w-full text-[14px] text-muted-foreground hover:text-foreground"
+                            className="h-auto p-0 w-full text-[14px] text-muted-foreground hover:text-foreground"
                         >
                             Contact info not correct? Request update
-                        </button>
+                        </Button>
                     </div>
                 </div>
             )}
@@ -2049,7 +2072,9 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     {/* Option to try different method */}
                     {state.foundMember?.has_phone && state.foundMember?.has_email && (
-                        <button
+                        <Button
+                            variant="link"
+                            size="sm"
                             onClick={() => {
                                 const newMethod: 'phone' | 'email' = state.selectedContactMethod === 'phone' ? 'email' : 'phone';
                                 setState(prev => ({
@@ -2060,11 +2085,11 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 // Pass method directly to avoid stale state
                                 handleSendOtp(newMethod);
                             }}
-                            className="w-full text-[14px] text-primary hover:underline"
+                            className="h-auto p-0 w-full text-[14px] text-primary hover:underline"
                             disabled={state.loading}
                         >
                             Try {state.selectedContactMethod === 'phone' ? 'Email' : 'Phone'} Instead →
-                        </button>
+                        </Button>
                     )}
                 </div>
             )}

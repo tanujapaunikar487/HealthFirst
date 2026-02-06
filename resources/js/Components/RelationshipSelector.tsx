@@ -1,6 +1,7 @@
 import React from 'react';
 import { Heart, Shield, Users, Baby, Home } from '@/Lib/icons';
 import { cn } from '@/Lib/utils';
+import { Button } from '@/Components/ui/button';
 
 interface RelationOption {
     value: string;
@@ -30,12 +31,13 @@ export function RelationshipSelector({ value, onChange }: RelationshipSelectorPr
     return (
         <div className="grid grid-cols-2 gap-3">
             {relationshipOptions.map((option) => (
-                <button
+                <Button
                     key={option.value}
+                    variant="outline"
                     type="button"
                     onClick={() => onChange(option.value)}
                     className={cn(
-                        'flex items-center gap-3 px-4 py-3 rounded-xl border transition-all',
+                        'flex items-center gap-3 h-auto px-4 py-3 rounded-xl transition-all font-normal',
                         'hover:bg-muted/50',
                         value === option.value
                             ? 'border-primary bg-primary/5'
@@ -53,7 +55,7 @@ export function RelationshipSelector({ value, onChange }: RelationshipSelectorPr
                         {option.icon}
                     </div>
                     <span className="font-medium">{option.label}</span>
-                </button>
+                </Button>
             ))}
         </div>
     );

@@ -263,13 +263,15 @@ function AlertBanner({ alert }: { alert: Alert }) {
       {alert.details && (
         <p className="mt-0.5">{alert.details}</p>
       )}
-      <button
+      <Button
+        variant="link"
+        size="sm"
         onClick={() => router.visit(alert.url)}
-        className="flex items-center gap-1 text-[14px] font-medium text-foreground mt-2"
+        className="h-auto p-0 flex items-center gap-1 text-[14px] font-medium text-foreground mt-2"
       >
         View details
         <ChevronRight className="h-4 w-4" />
-      </button>
+      </Button>
     </AlertComponent>
   );
 }
@@ -331,13 +333,14 @@ function TagInput({
           {tags.map((tag, i) => (
             <Badge key={i} variant={variant} className="gap-1 pr-1">
               {tag}
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => removeTag(i)}
-                className="ml-0.5 rounded-full p-0.5 hover:bg-black/10"
+                className="ml-0.5 rounded-full p-0.5 h-auto hover:bg-black/10"
               >
                 <X className="h-3 w-3" />
-              </button>
+              </Button>
             </Badge>
           ))}
         </div>
@@ -606,13 +609,15 @@ export default function FamilyMemberShow({
     >
       <div className="w-full max-w-[960px] pb-10">
         {/* Back Navigation */}
-        <button
+        <Button
+          variant="link"
+          size="sm"
           onClick={() => router.visit('/family-members')}
-          className="mb-6 flex items-center gap-1.5 text-[14px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+          className="mb-6 h-auto p-0 flex items-center gap-1.5 text-[14px] font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Family Members
-        </button>
+        </Button>
 
         {/* Profile Header */}
         <div className="mb-6 flex items-center gap-4">
@@ -857,10 +862,11 @@ export default function FamilyMemberShow({
               <Section id="health" title="Health Data" icon={Activity} noPadding>
                 <div className="divide-y">
                   {healthDataLinks.map((link, i) => (
-                    <button
+                    <Button
                       key={i}
+                      variant="ghost"
                       onClick={() => router.visit(link.href)}
-                      className="w-full flex items-center gap-4 px-6 py-4 text-left hover:bg-muted/30 transition-colors"
+                      className="w-full flex items-center gap-4 px-6 py-4 h-auto rounded-none text-left hover:bg-muted/30 transition-colors"
                     >
                       <div
                         className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full"
@@ -883,7 +889,7 @@ export default function FamilyMemberShow({
                       >
                         <ChevronRight className="h-5 w-5" />
                       </span>
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </Section>
@@ -1180,7 +1186,6 @@ export default function FamilyMemberShow({
               Cancel
             </Button>
             <Button
-              variant="primary"
               className="flex-1"
               onClick={handleUpgrade}
               disabled={upgrading}

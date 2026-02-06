@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { cn } from '@/Lib/utils';
 import { User } from '@/Lib/icons';
+import { Button } from '@/Components/ui/button';
 
 interface DetectionCardProps {
     member: {
@@ -57,12 +58,13 @@ export function DetectionCard({ member, onAccept, disabled }: DetectionCardProps
                 </div>
             </div>
 
-            <button
+            <Button
+                variant="outline"
                 onClick={onAccept}
                 disabled={disabled}
                 className={cn(
-                    "w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg",
-                    "bg-background border border-primary/20 text-primary font-medium text-[14px]",
+                    "w-full h-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg",
+                    "border-primary/20 text-primary font-medium text-[14px]",
                     "hover:bg-primary/10 transition-colors",
                     "disabled:opacity-50 disabled:cursor-not-allowed"
                 )}
@@ -71,7 +73,7 @@ export function DetectionCard({ member, onAccept, disabled }: DetectionCardProps
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
                 {relationshipText}
-            </button>
+            </Button>
         </div>
     );
 }

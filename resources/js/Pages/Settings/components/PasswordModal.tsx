@@ -187,17 +187,19 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                                             placeholder="Enter your current password"
                                             className="pr-10"
                                         />
-                                        <button
+                                        <Button
                                             type="button"
+                                            variant="ghost"
+                                            iconOnly
                                             onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 h-auto p-0 text-muted-foreground hover:text-foreground hover:bg-transparent"
                                         >
                                             {showCurrentPassword ? (
                                                 <EyeOff className="h-4 w-4" />
                                             ) : (
                                                 <Eye className="h-4 w-4" />
                                             )}
-                                        </button>
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
@@ -250,17 +252,19 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                                             placeholder="Enter new password"
                                             className="pr-10"
                                         />
-                                        <button
+                                        <Button
                                             type="button"
+                                            variant="ghost"
+                                            iconOnly
                                             onClick={() => setShowNewPassword(!showNewPassword)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 h-auto p-0 text-muted-foreground hover:text-foreground hover:bg-transparent"
                                         >
                                             {showNewPassword ? (
                                                 <EyeOff className="h-4 w-4" />
                                             ) : (
                                                 <Eye className="h-4 w-4" />
                                             )}
-                                        </button>
+                                        </Button>
                                     </div>
 
                                     {/* Strength Meter */}
@@ -300,17 +304,19 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                                                     : ''
                                             }`}
                                         />
-                                        <button
+                                        <Button
                                             type="button"
+                                            variant="ghost"
+                                            iconOnly
                                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 h-auto p-0 text-muted-foreground hover:text-foreground hover:bg-transparent"
                                         >
                                             {showConfirmPassword ? (
                                                 <EyeOff className="h-4 w-4" />
                                             ) : (
                                                 <Eye className="h-4 w-4" />
                                             )}
-                                        </button>
+                                        </Button>
                                     </div>
                                     {confirmPassword && !passwordsMatch && (
                                         <p className="text-[14px] text-destructive">Passwords do not match</p>
@@ -323,8 +329,8 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                             <Button
                                 variant="secondary"
                                 onClick={() => setStep('verify')}
-                                icon={ArrowLeft}
                             >
+                                <ArrowLeft className="h-4 w-4" />
                                 Back
                             </Button>
                             <Button

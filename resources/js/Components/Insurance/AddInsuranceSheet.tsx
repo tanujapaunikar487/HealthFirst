@@ -343,12 +343,14 @@ export function AddInsuranceSheet({
                 <div className="h-px flex-1 bg-border" />
               </div>
 
-              <button
-                className="w-full text-center text-[14px] font-medium text-primary hover:underline"
+              <Button
+                variant="link"
+                size="sm"
+                className="w-full h-auto p-0 text-[14px] font-medium"
                 onClick={handleEnterManually}
               >
                 Enter details manually
-              </button>
+              </Button>
             </div>
           )}
 

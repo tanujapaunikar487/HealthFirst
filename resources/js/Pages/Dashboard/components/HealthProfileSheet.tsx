@@ -71,13 +71,13 @@ function TagInput({
                     {value.map((tag, i) => (
                         <Badge key={i} variant={variant} className="gap-1 pr-1">
                             {tag}
-                            <button
-                                type="button"
+                            <Button
+                                variant="ghost"
+                                className="ml-0.5 rounded-full p-0.5 hover:bg-black/10 h-auto"
                                 onClick={() => removeTag(i)}
-                                className="ml-0.5 rounded-full p-0.5 hover:bg-black/10"
                             >
                                 <X className="h-3 w-3" />
-                            </button>
+                            </Button>
                         </Badge>
                     ))}
                 </div>

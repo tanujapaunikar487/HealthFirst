@@ -6,6 +6,7 @@ import { Card } from '@/Components/ui/card';
 import { Textarea } from '@/Components/ui/textarea';
 import { FollowUpBanner } from '@/Components/Booking/FollowUpBanner';
 import InlineMemberTypeSelector from '@/Features/booking-chat/embedded/InlineMemberTypeSelector';
+import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
 import { ArrowRight, Star, CalendarClock, RefreshCw, AlertCircle } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
@@ -375,11 +376,12 @@ export default function PatientStep({
 
           <div className="grid grid-cols-2 gap-3">
             {members.map((member) => (
-              <button
+              <Button
                 key={member.id}
+                variant="outline"
                 onClick={() => handlePatientSelect(member.id)}
                 className={cn(
-                  'flex items-center gap-3 p-3 rounded-full border text-left transition-all',
+                  'h-auto flex items-center gap-3 p-3 rounded-full border text-left transition-all font-normal text-[14px]',
                   'hover:border-primary/50 hover:bg-primary/5',
                   patientId === member.id && 'border-primary bg-primary/5'
                 )}
@@ -391,18 +393,19 @@ export default function PatientStep({
                   </AvatarFallback>
                 </Avatar>
                 <span className="font-medium text-[14px]">{member.name}</span>
-              </button>
+              </Button>
             ))}
           </div>
 
           {!showAddMemberInline && (
-            <button
+            <Button
+              variant="outline"
               onClick={() => setShowAddMemberInline(true)}
-              className="mt-3 inline-flex items-center gap-1 px-4 py-2.5 rounded-full border text-[14px] text-foreground hover:border-primary/50 hover:bg-primary/5 transition-all"
+              className="mt-3 h-auto inline-flex items-center gap-1 px-4 py-2.5 rounded-full text-[14px] text-foreground hover:border-primary/50 hover:bg-primary/5 transition-all font-normal"
             >
               Add family member or guest
               <Icon icon={ArrowRight} className="h-4 w-4" />
-            </button>
+            </Button>
           )}
 
           {/* Inline Member Type Selector */}
@@ -432,26 +435,28 @@ export default function PatientStep({
             </p>
 
             <div className="grid grid-cols-2 gap-3">
-              <button
+              <Button
+                variant="outline"
                 onClick={() => handleAppointmentTypeSelect('new')}
                 className={cn(
-                  'px-5 py-3 rounded-full border text-left transition-all',
+                  'h-auto px-5 py-3 rounded-full text-left transition-all font-medium text-[14px]',
                   'hover:border-primary/50 hover:bg-primary/5',
                   appointmentType === 'new' && 'border-primary bg-primary/5'
                 )}
               >
                 <span className="font-medium">New Consultation</span>
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="outline"
                 onClick={() => handleAppointmentTypeSelect('followup')}
                 className={cn(
-                  'px-5 py-3 rounded-full border text-left transition-all',
+                  'h-auto px-5 py-3 rounded-full text-left transition-all font-medium text-[14px]',
                   'hover:border-primary/50 hover:bg-primary/5',
                   appointmentType === 'followup' && 'border-primary bg-primary/5'
                 )}
               >
                 <span className="font-medium">Follow-up</span>
-              </button>
+              </Button>
             </div>
 
             {errors.appointmentType && (
@@ -470,11 +475,12 @@ export default function PatientStep({
 
             <Card className="overflow-hidden">
               {followUpReasonOptions.map((option, index) => (
-                <button
+                <Button
                   key={option.value}
+                  variant="ghost"
                   onClick={() => handleFollowupReasonSelect(option.value)}
                   className={cn(
-                    'w-full p-4 text-left transition-all flex items-center gap-4',
+                    'w-full h-auto p-4 rounded-none text-left transition-all flex items-center gap-4 font-normal text-[14px]',
                     'hover:bg-muted/50',
                     followupReason === option.value && 'bg-primary/5'
                   )}
@@ -489,7 +495,7 @@ export default function PatientStep({
                     <p className="font-medium text-[14px] text-foreground leading-tight mb-0.5">{option.label}</p>
                     <p className="text-[14px] text-muted-foreground leading-tight">{option.description}</p>
                   </div>
-                </button>
+                </Button>
               ))}
             </Card>
 
@@ -527,12 +533,13 @@ export default function PatientStep({
               />
 
               {!showPreviousDoctors && !followupNotes.trim() && (
-                <button
+                <Button
+                  variant="link"
                   onClick={handleFollowupNotesSkip}
-                  className="text-[14px] text-muted-foreground hover:text-foreground transition-colors"
+                  className="h-auto p-0 text-[14px] text-muted-foreground hover:text-foreground transition-colors font-normal"
                 >
                   Skip this step
-                </button>
+                </Button>
               )}
             </div>
           </section>
@@ -579,11 +586,12 @@ export default function PatientStep({
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2">
                 {symptoms.map((symptom) => (
-                  <button
+                  <Button
                     key={symptom.id}
+                    variant="outline"
                     onClick={() => handleSymptomToggle(symptom.id)}
                     className={cn(
-                      'px-4 py-2 rounded-full border text-[14px] transition-all',
+                      'h-auto px-4 py-2 rounded-full text-[14px] transition-all font-normal',
                       'hover:border-primary/50 hover:bg-primary/5',
                       selectedSymptoms.includes(symptom.id)
                         ? 'bg-primary/10 border-primary text-primary font-medium'
@@ -591,7 +599,7 @@ export default function PatientStep({
                     )}
                   >
                     {symptom.name}
-                  </button>
+                  </Button>
                 ))}
               </div>
 
@@ -663,16 +671,16 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: D
       {/* Time Slots */}
       <div className="flex flex-wrap gap-2">
         {slots.map((slot) => (
-          <button
+          <Button
             key={slot.time}
+            variant={selectedTime === slot.time ? 'accent' : 'outline'}
             onClick={() => slot.available && onSelectTime(slot.time)}
             disabled={!slot.available}
             className={cn(
-              'px-3 py-1.5 text-[14px] rounded-lg border transition-all',
-              'hover:border-primary/50 hover:bg-primary/5',
+              'h-auto px-3 py-1.5 text-[14px] rounded-full font-medium transition-all',
+              selectedTime !== slot.time && 'hover:border-primary/50 hover:bg-primary/5',
               slot.preferred && 'relative',
-              selectedTime === slot.time &&
-                'bg-black text-white border-black hover:bg-black hover:border-black',
+              selectedTime === slot.time && 'border-foreground',
               !slot.available && 'opacity-40 cursor-not-allowed'
             )}
           >
@@ -680,7 +688,7 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: D
             {slot.preferred && selectedTime !== slot.time && (
               <Icon icon={Star} className="absolute -top-1 -right-1 h-3 w-3 fill-black text-black" />
             )}
-          </button>
+          </Button>
         ))}
       </div>
     </div>

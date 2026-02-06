@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/Components/ui/select';
+import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
 import { Search, Star } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
@@ -225,34 +226,37 @@ export default function DoctorTimeStep({
               const isSelected = selectedDate === dateOption.date;
               const noDoctors = dateOption.doctorCount === 0;
               return (
-                <button
+                <Button
                   key={dateOption.date}
+                  variant={isSelected ? 'accent' : 'outline'}
                   onClick={() => handleDateChange(dateOption.date)}
                   className={cn(
-                    'flex-shrink-0 px-4 py-3 rounded-xl border transition-all min-w-[100px]',
+                    'h-auto flex-shrink-0 px-6 py-3 rounded-2xl transition-all min-w-[100px] font-normal',
                     isSelected
-                      ? 'bg-foreground text-background border-foreground'
+                      ? 'border-foreground'
                       : noDoctors
                         ? 'bg-background border-dashed opacity-60'
                         : 'bg-background hover:border-primary/50'
                   )}
                 >
-                  <p className="font-medium text-[14px]">{dateOption.label}</p>
-                  <p className={cn(
-                    'text-[14px]',
-                    isSelected ? 'text-background/70' : 'text-muted-foreground'
-                  )}>
-                    {dateOption.sublabel}
-                  </p>
-                  {dateOption.doctorCount !== undefined && (
+                  <div className="w-full text-left">
+                    <p className="font-medium text-[14px]">{dateOption.label}</p>
                     <p className={cn(
-                      'text-[14px] mt-0.5',
-                      isSelected ? 'text-background/60' : noDoctors ? 'text-destructive/70' : 'text-muted-foreground'
+                      'text-[14px]',
+                      isSelected ? 'text-background/70' : 'text-muted-foreground'
                     )}>
-                      {noDoctors ? 'No doctors' : `${dateOption.doctorCount} doctors`}
+                      {dateOption.sublabel}
                     </p>
-                  )}
-                </button>
+                    {dateOption.doctorCount !== undefined && (
+                      <p className={cn(
+                        'text-[14px] mt-0.5',
+                        isSelected ? 'text-background/60' : noDoctors ? 'text-destructive/70' : 'text-muted-foreground'
+                      )}>
+                        {noDoctors ? 'No doctors' : `${dateOption.doctorCount} doctors`}
+                      </p>
+                    )}
+                  </div>
+                </Button>
               );
             })}
           </div>
@@ -417,15 +421,15 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime, isL
       {/* Time Slots */}
       <div className="flex flex-wrap gap-2">
         {slots.map((slot) => (
-          <button
+          <Button
             key={slot.time}
+            variant={selectedTime === slot.time ? 'accent' : 'outline'}
             onClick={() => slot.available && onSelectTime(slot.time)}
             disabled={!slot.available}
             className={cn(
-              'px-3 py-1.5 text-[14px] rounded-lg border transition-all relative',
-              'hover:border-primary/50 hover:bg-primary/5',
-              selectedTime === slot.time &&
-                'bg-black text-white border-black hover:bg-black hover:border-black',
+              'h-auto px-3 py-1.5 text-[14px] rounded-full font-medium transition-all relative',
+              selectedTime !== slot.time && 'hover:border-primary/50 hover:bg-primary/5',
+              selectedTime === slot.time && 'border-foreground',
               !slot.available && 'opacity-40 cursor-not-allowed'
             )}
           >
@@ -433,7 +437,7 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime, isL
             {slot.preferred && selectedTime !== slot.time && (
               <Icon icon={Star} className="absolute -top-1 -right-1 h-3 w-3 fill-black text-black" />
             )}
-          </button>
+          </Button>
         ))}
       </div>
     </div>

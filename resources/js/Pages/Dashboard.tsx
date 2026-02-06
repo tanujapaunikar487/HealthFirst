@@ -341,7 +341,7 @@ const cardConfig: Record<CardType, { icon: typeof Receipt; iconColor: string; ic
 
 function DashboardCard({
   type, title, subtitle, patientName, patientInitials, badge, badgeColor, badgeBg,
-  actionLabel, actionVariant = 'accent', onAction, menuItems, isLast, iconOverride,
+  actionLabel, actionVariant = 'secondary', onAction, menuItems, isLast, iconOverride,
 }: DashboardCardProps) {
   const config = cardConfig[type];
   const CardIcon = iconOverride || config.icon;
@@ -839,7 +839,6 @@ export default function Dashboard({
               'hsl(var(--warning) / 0.1)'
             }
             actionLabel="View claim"
-            actionVariant="accent"
             onAction={() => router.visit(`/insurance/claims/${claim.claim_id}`)}
             menuItems={[
               { label: 'View details', onClick: () => router.visit(`/insurance/claims/${claim.claim_id}`) },
@@ -909,7 +908,6 @@ export default function Dashboard({
             badgeColor={followup.days_overdue >= 0 ? 'hsl(var(--destructive))' : 'hsl(var(--warning))'}
             badgeBg={followup.days_overdue >= 0 ? 'hsl(var(--destructive) / 0.1)' : 'hsl(var(--warning) / 0.1)'}
             actionLabel="Book follow-up"
-            actionVariant="accent"
             onAction={() => router.visit('/booking')}
             menuItems={[
               { label: 'View previous visit', onClick: () => router.visit(`/appointments/${followup.original_appointment_id}`) },
@@ -933,7 +931,6 @@ export default function Dashboard({
             badgeColor="hsl(var(--success))"
             badgeBg="hsl(var(--success) / 0.1)"
             actionLabel="View results"
-            actionVariant="accent"
             onAction={() => router.visit(`/health-records?record=${result.record_id}`)}
             menuItems={[
               { label: 'Share with doctor', onClick: () => {} },
@@ -958,7 +955,6 @@ export default function Dashboard({
             badgeColor={appt.mode === 'video' ? 'hsl(var(--primary))' : appt.type === 'lab_test' ? 'hsl(var(--warning))' : undefined}
             badgeBg={appt.mode === 'video' ? 'hsl(var(--primary) / 0.1)' : appt.type === 'lab_test' ? 'hsl(var(--warning) / 0.1)' : undefined}
             actionLabel="View"
-            actionVariant="accent"
             onAction={() => setSheetView({ type: 'details', appointment: appt })}
             menuItems={[
               { label: 'Reschedule', onClick: () => setSheetView({ type: 'reschedule', appointment: appt }) },
@@ -1523,9 +1519,9 @@ function ProfileStepItem({ step, isLast, onClick }: ProfileStepItemProps) {
 
   if (!step.completed && onClick) {
     return (
-      <button type="button" onClick={onClick} className="block w-full text-left">
+      <Button variant="ghost" className="block w-full text-left h-auto p-0 rounded-none" onClick={onClick}>
         {content}
-      </button>
+      </Button>
     );
   }
 

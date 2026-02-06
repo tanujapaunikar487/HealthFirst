@@ -71,13 +71,16 @@ export function GuidedBookingLayout({
             </div>
 
             {/* Cancel button */}
-            <button
-              onClick={() => router.visit('/')}
+            <Button
+              variant="ghost"
+              iconOnly
+              size="sm"
               className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-accent transition-colors"
               title="Cancel booking"
+              onClick={() => router.visit('/')}
             >
               <Icon icon={X} className="w-4 h-4 text-muted-foreground" />
-            </button>
+            </Button>
             </div>
           </div>
         </div>

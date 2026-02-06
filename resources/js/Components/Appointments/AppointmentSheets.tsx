@@ -329,7 +329,7 @@ export function DetailsSheet({
                 <div className="flex gap-2 justify-end">
                   <Button
                     variant="ghost"
-                    size="sm"
+                    size="md"
                     onClick={() => {
                       setIsEditingNotes(false);
                       setNotesValue(appointment.notes || '');
@@ -339,7 +339,7 @@ export function DetailsSheet({
                     Cancel
                   </Button>
                   <Button
-                    size="sm"
+                    size="md"
                     onClick={handleSaveNotes}
                     disabled={isSavingNotes}
                   >
@@ -735,19 +735,20 @@ export function CancelSheet({
           <p className="text-[14px] font-medium mb-3">Reason for cancellation (optional)</p>
           <div className="space-y-2">
             {reasons.map((r) => (
-              <button
+              <Button
                 key={r}
+                variant="outline"
                 type="button"
                 onClick={() => setReason(reason === r ? '' : r)}
                 className={cn(
-                  'w-full text-left px-4 py-2.5 rounded-lg border text-[14px] transition-colors',
+                  'w-full justify-start h-auto px-4 py-2.5 rounded-lg text-[14px] font-normal transition-colors',
                   reason === r
                     ? 'border-primary bg-primary/10 text-primary'
                     : 'border-border hover:border-border text-muted-foreground'
                 )}
               >
                 {r}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -892,12 +893,13 @@ export function RescheduleSheet({
               <p className="text-[14px] font-medium mb-3">Select a new date</p>
               <div className="flex gap-2 overflow-x-auto pb-2">
                 {dates.map((d) => (
-                  <button
+                  <Button
                     key={d.date}
+                    variant="outline"
                     type="button"
                     onClick={() => handleDateChange(d.date)}
                     className={cn(
-                      'flex flex-col items-center justify-center min-w-[100px] px-4 py-3 rounded-xl border text-[14px] transition-all flex-shrink-0',
+                      'flex flex-col items-center justify-center min-w-[100px] h-auto px-4 py-3 rounded-xl text-[14px] transition-all flex-shrink-0 font-normal',
                       selectedDate === d.date
                         ? 'bg-foreground text-background border-foreground'
                         : 'bg-background hover:border-primary/50 border-border'
@@ -914,7 +916,7 @@ export function RescheduleSheet({
                         Today
                       </span>
                     )}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
@@ -936,19 +938,21 @@ export function RescheduleSheet({
                 ) : (
                   <div className="flex flex-wrap gap-2">
                     {slots.map((s) => (
-                      <button
+                      <Button
                         key={s.time}
+                        variant="outline"
+                        size="sm"
                         type="button"
                         onClick={() => setSelectedTime(s.time)}
                         className={cn(
-                          'px-4 py-2 rounded-full border text-[14px] transition-all',
+                          'h-auto px-4 py-2 text-[14px] font-normal transition-all',
                           selectedTime === s.time
                             ? 'bg-foreground text-background border-foreground'
                             : 'bg-background hover:border-primary/50 border-border'
                         )}
                       >
                         {s.display}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 )}
@@ -1143,12 +1147,13 @@ export function FollowUpSheet({
               <p className="text-[14px] font-medium mb-3">Select a date</p>
               <div className="flex gap-2 overflow-x-auto pb-2">
                 {data.dates.map((d) => (
-                  <button
+                  <Button
                     key={d.date}
+                    variant="outline"
                     type="button"
                     onClick={() => handleDateChange(d.date)}
                     className={cn(
-                      'flex flex-col items-center justify-center min-w-[100px] px-4 py-3 rounded-xl border text-[14px] transition-all flex-shrink-0',
+                      'flex flex-col items-center justify-center min-w-[100px] h-auto px-4 py-3 rounded-xl text-[14px] transition-all flex-shrink-0 font-normal',
                       selectedDate === d.date
                         ? 'bg-foreground text-background border-foreground'
                         : 'bg-background hover:border-primary/50 border-border'
@@ -1163,7 +1168,7 @@ export function FollowUpSheet({
                     >
                       {d.sublabel}
                     </span>
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
@@ -1183,22 +1188,24 @@ export function FollowUpSheet({
                 ) : (
                   <div className="flex flex-wrap gap-2">
                     {data.slots.map((s) => (
-                      <button
+                      <Button
                         key={s.time}
+                        variant="outline"
+                        size="sm"
                         type="button"
                         onClick={() => s.available && setSelectedTime(s.time)}
                         disabled={!s.available}
                         className={cn(
-                          'px-4 py-2 rounded-full border text-[14px] transition-all',
+                          'h-auto px-4 py-2 text-[14px] font-normal transition-all',
                           selectedTime === s.time
                             ? 'bg-foreground text-background border-foreground'
                             : s.available
                             ? 'bg-background hover:border-primary/50 border-border'
-                            : 'bg-muted text-muted-foreground border-border cursor-not-allowed opacity-50'
+                            : 'bg-muted text-muted-foreground border-border cursor-not-allowed'
                         )}
                       >
                         {s.time}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 )}
@@ -1211,12 +1218,13 @@ export function FollowUpSheet({
                 <p className="text-[14px] font-medium mb-3">How would you like to consult?</p>
                 <div className="space-y-2">
                   {data.modes.map((mode) => (
-                    <button
+                    <Button
                       key={mode.type}
+                      variant="outline"
                       type="button"
                       onClick={() => setSelectedMode(mode.type)}
                       className={cn(
-                        'w-full flex items-center justify-between p-4 rounded-lg border text-left transition-all',
+                        'w-full h-auto flex items-center justify-between p-4 rounded-lg text-left font-normal transition-all',
                         selectedMode === mode.type
                           ? 'border-primary bg-primary/10'
                           : 'border-border hover:border-border'
@@ -1239,7 +1247,7 @@ export function FollowUpSheet({
                         </div>
                       </div>
                       <span className="font-semibold text-[14px]">₹{mode.price.toLocaleString()}</span>
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -1450,12 +1458,13 @@ export function BookAgainSheet({
               <p className="text-[14px] font-medium mb-3">Select a date</p>
               <div className="flex gap-2 overflow-x-auto pb-2">
                 {data.dates.map((d) => (
-                  <button
+                  <Button
                     key={d.date}
+                    variant="outline"
                     type="button"
                     onClick={() => handleDateChange(d.date)}
                     className={cn(
-                      'flex flex-col items-center justify-center min-w-[100px] px-4 py-3 rounded-xl border text-[14px] transition-all flex-shrink-0',
+                      'flex flex-col items-center justify-center min-w-[100px] h-auto px-4 py-3 rounded-xl text-[14px] transition-all flex-shrink-0 font-normal',
                       selectedDate === d.date
                         ? 'bg-foreground text-background border-foreground'
                         : 'bg-background hover:border-primary/50 border-border'
@@ -1470,7 +1479,7 @@ export function BookAgainSheet({
                     >
                       {d.sublabel}
                     </span>
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
@@ -1490,22 +1499,24 @@ export function BookAgainSheet({
                 ) : (
                   <div className="flex flex-wrap gap-2">
                     {data.slots.map((s) => (
-                      <button
+                      <Button
                         key={s.time}
+                        variant="outline"
+                        size="sm"
                         type="button"
                         onClick={() => s.available && setSelectedTime(s.time)}
                         disabled={!s.available}
                         className={cn(
-                          'px-4 py-2 rounded-full border text-[14px] transition-all',
+                          'h-auto px-4 py-2 text-[14px] font-normal transition-all',
                           selectedTime === s.time
                             ? 'bg-foreground text-background border-foreground'
                             : s.available
                             ? 'bg-background hover:border-primary/50 border-border'
-                            : 'bg-muted text-muted-foreground border-border cursor-not-allowed opacity-50'
+                            : 'bg-muted text-muted-foreground border-border cursor-not-allowed'
                         )}
                       >
                         {s.time}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 )}
@@ -1518,12 +1529,13 @@ export function BookAgainSheet({
                 <p className="text-[14px] font-medium mb-3">How would you like to consult?</p>
                 <div className="space-y-2">
                   {data.modes.map((mode) => (
-                    <button
+                    <Button
                       key={mode.type}
+                      variant="outline"
                       type="button"
                       onClick={() => setSelectedMode(mode.type)}
                       className={cn(
-                        'w-full flex items-center justify-between p-4 rounded-lg border text-left transition-all',
+                        'w-full h-auto flex items-center justify-between p-4 rounded-lg text-left font-normal transition-all',
                         selectedMode === mode.type
                           ? 'border-primary bg-primary/10'
                           : 'border-border hover:border-border'
@@ -1546,7 +1558,7 @@ export function BookAgainSheet({
                         </div>
                       </div>
                       <span className="font-semibold text-[14px]">₹{mode.price.toLocaleString()}</span>
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>

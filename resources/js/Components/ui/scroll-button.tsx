@@ -3,6 +3,7 @@ import { cn } from '@/Lib/utils';
 import { useChatContainer } from '@/Components/ui/chat-container';
 import { ArrowDown } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { Button } from '@/Components/ui/button';
 
 /**
  * ScrollButton Component
@@ -40,19 +41,15 @@ export function ScrollButton({ className, ...props }: ScrollButtonProps) {
   if (!show) return null;
 
   return (
-    <button
+    <Button
+      variant="secondary"
+      iconOnly
+      size="md"
       onClick={scrollToBottom}
-      className={cn(
-        'flex items-center justify-center',
-        'w-10 h-10 rounded-full',
-        'bg-background border border-border shadow-lg',
-        'hover:bg-muted transition-colors',
-        'focus:outline-none focus:ring-2 focus:ring-primary',
-        className
-      )}
+      className={cn('shadow-lg', className)}
       {...props}
     >
       <ArrowDown className="w-5 h-5 text-foreground" />
-    </button>
+    </Button>
   );
 }

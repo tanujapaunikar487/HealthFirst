@@ -118,20 +118,23 @@ export function EmbeddedComponent({
       return (
         <div className="flex gap-3 mt-3">
           {data?.options?.map((option: any) => (
-            <button
+            <Button
               key={option.id}
+              variant="outline"
               onClick={() => onSelect({
                 appointment_type: option.id,
                 display_message: option.label
               })}
               disabled={disabled || isSelected}
-              className="flex-1 px-6 py-4 border border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 h-auto px-6 py-4 rounded-xl text-left font-normal"
             >
-              <div className="font-semibold text-gray-900">{option.label}</div>
-              {option.description && (
-                <div className="text-[14px] text-gray-500 mt-1">{option.description}</div>
-              )}
-            </button>
+              <div className="w-full">
+                <div className="font-semibold text-foreground">{option.label}</div>
+                {option.description && (
+                  <div className="text-[14px] text-muted-foreground mt-1">{option.description}</div>
+                )}
+              </div>
+            </Button>
           ))}
         </div>
       );
@@ -144,8 +147,9 @@ export function EmbeddedComponent({
           {options.map((option: any, index: number) => {
             const optionSelected = isSelected && data?.selected === (option.value || option.id);
             return (
-              <button
+              <Button
                 key={option.id || option.value}
+                variant="ghost"
                 onClick={() =>
                   onSelect({
                     followup_reason: option.value || option.id,
@@ -154,21 +158,22 @@ export function EmbeddedComponent({
                 }
                 disabled={disabled || isSelected}
                 className={cn(
-                  "w-full px-6 py-4 text-left transition-all disabled:cursor-not-allowed",
-                  "hover:bg-muted/50",
+                  "w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50",
                   optionSelected
-                    ? "bg-primary/5 opacity-60"
-                    : isSelected ? "opacity-30" : ""
+                    ? "bg-primary/5 disabled:opacity-60"
+                    : isSelected ? "disabled:opacity-30" : ""
                 )}
                 style={{
                   borderBottom: index < options.length - 1 ? '1px solid hsl(var(--border))' : 'none'
                 }}
               >
-                <p className="font-medium text-[14px] text-foreground leading-tight mb-0.5">{option.label}</p>
-                {option.description && (
-                  <p className="text-[14px] text-muted-foreground leading-tight">{option.description}</p>
-                )}
-              </button>
+                <div className="w-full text-left">
+                  <p className="font-medium text-[14px] text-foreground leading-tight mb-0.5">{option.label}</p>
+                  {option.description && (
+                    <p className="text-[14px] text-muted-foreground leading-tight">{option.description}</p>
+                  )}
+                </div>
+              </Button>
             );
           })}
         </Card>
@@ -415,14 +420,17 @@ export function EmbeddedComponent({
         // No previous doctors, show all doctors button
         return (
           <div className="mt-3">
-            <button
+            <Button
+              variant="outline"
               onClick={() => onSelect({ show_all_doctors: true })}
               disabled={disabled || isSelected}
-              className="w-full px-6 py-4 border border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-left"
+              className="w-full h-auto px-6 py-4 rounded-xl text-left font-normal"
             >
-              <div className="font-semibold text-gray-900">See all available doctors</div>
-              <div className="text-[14px] text-gray-500 mt-1">Browse our full list of doctors</div>
-            </button>
+              <div className="w-full">
+                <div className="font-semibold text-foreground">See all available doctors</div>
+                <div className="text-[14px] text-muted-foreground mt-1">Browse our full list of doctors</div>
+              </div>
+            </Button>
           </div>
         );
       }
@@ -436,8 +444,9 @@ export function EmbeddedComponent({
               const doctorSelected = selection?.doctor_id === doctor.id;
 
               return (
-                <button
+                <Button
                   key={doctor.id}
+                  variant="ghost"
                   onClick={() =>
                     onSelect({
                       doctor_id: doctor.id,
@@ -448,11 +457,10 @@ export function EmbeddedComponent({
                   }
                   disabled={disabled || isSelected}
                   className={cn(
-                    'w-full px-6 py-4 text-left transition-all',
-                    'hover:bg-muted/50 disabled:cursor-not-allowed',
+                    'w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50',
                     doctorSelected
-                      ? isSelected ? 'bg-primary/5 opacity-60' : 'bg-primary/5'
-                      : isSelected ? 'opacity-30' : ''
+                      ? isSelected ? 'bg-primary/5 disabled:opacity-60' : 'bg-primary/5'
+                      : isSelected ? 'disabled:opacity-30' : ''
                   )}
                   style={{
                     borderBottom: (index < previousDoctors.length - 1 || showAllDoctorsOption)
@@ -460,7 +468,7 @@ export function EmbeddedComponent({
                       : 'none'
                   }}
                 >
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-3 w-full text-left">
                     <Avatar className="h-12 w-12">
                       <AvatarImage src={doctor.avatar || undefined} />
                       <AvatarFallback className="bg-warning text-warning-foreground">
@@ -475,21 +483,21 @@ export function EmbeddedComponent({
                       )}
                     </div>
                   </div>
-                </button>
+                </Button>
               );
             })}
             {showAllDoctorsOption && (
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => onSelect({ show_all_doctors: true })}
                 disabled={disabled || isSelected}
                 className={cn(
-                  'w-full px-6 py-4 text-left transition-all',
-                  'hover:bg-muted/50 disabled:cursor-not-allowed',
-                  isSelected ? 'opacity-30' : ''
+                  'w-full h-auto rounded-none justify-center px-6 py-4 font-normal text-[14px] hover:bg-muted/50',
+                  isSelected ? 'disabled:opacity-30' : ''
                 )}
               >
                 <div className="text-[14px] font-medium text-primary text-center">Or see all other doctors</div>
-              </button>
+              </Button>
             )}
           </Card>
         </div>
@@ -603,26 +611,23 @@ export function EmbeddedComponent({
               const dateIsActive = dateValue === activeDate;
 
               return (
-                <button
+                <Button
                   key={dateValue}
+                  variant={dateIsActive ? 'primary' : 'secondary'}
                   onClick={() => setUserPickedDate(dateValue)}
                   disabled={disabled}
-                  className={cn(
-                    'px-4 py-2 rounded-lg whitespace-nowrap transition-colors',
-                    'disabled:opacity-50 disabled:cursor-not-allowed',
-                    dateIsActive
-                      ? 'bg-[#0052FF] text-white'
-                      : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
-                  )}
+                  className="h-auto px-4 py-2 rounded-lg font-normal"
                 >
-                  <div className="font-medium text-[14px]">{d.label}</div>
-                  <div className="text-[14px] opacity-75">{d.day}</div>
-                  {d.doctor_count !== undefined && (
-                    <div className={cn('text-[14px] mt-0.5', dateIsActive ? 'opacity-75' : 'opacity-50')}>
-                      {d.doctor_count} dr{d.doctor_count !== 1 ? 's' : ''}
-                    </div>
-                  )}
-                </button>
+                  <div className="text-left">
+                    <div className="font-medium text-[14px]">{d.label}</div>
+                    <div className="text-[14px] opacity-75">{d.day}</div>
+                    {d.doctor_count !== undefined && (
+                      <div className={cn('text-[14px] mt-0.5', dateIsActive ? 'opacity-75' : 'opacity-50')}>
+                        {d.doctor_count} dr{d.doctor_count !== 1 ? 's' : ''}
+                      </div>
+                    )}
+                  </div>
+                </Button>
               );
             })}
           </div>
@@ -696,8 +701,9 @@ export function EmbeddedComponent({
                 const dateIsActive = dateValue === pickedDate;
 
                 return (
-                  <button
+                  <Button
                     key={dateValue}
+                    variant={dateIsActive ? 'accent' : 'outline'}
                     onClick={() => {
                       if (disabled || isSelected) return;
                       setPickedDate(dateValue);
@@ -705,20 +711,19 @@ export function EmbeddedComponent({
                     }}
                     disabled={disabled || isSelected}
                     className={cn(
-                      'flex-shrink-0 px-6 py-3 rounded-3xl border transition-all min-w-[120px]',
-                      'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
-                      dateIsActive
-                        ? 'border-foreground bg-foreground text-background'
-                        : 'border-border bg-background text-foreground'
+                      'h-auto flex-shrink-0 px-6 py-3 rounded-3xl min-w-[120px] font-normal disabled:opacity-60',
+                      dateIsActive && 'border-foreground'
                     )}
                   >
-                    <div className={cn('font-semibold text-[14px]', dateIsActive && 'text-background')}>
-                      {d.label}
+                    <div className="text-left">
+                      <div className={cn('font-semibold text-[14px]', dateIsActive && 'text-background')}>
+                        {d.label}
+                      </div>
+                      <div className={cn('text-[14px]', dateIsActive ? 'text-background/70' : 'text-muted-foreground')}>
+                        {d.day}
+                      </div>
                     </div>
-                    <div className={cn('text-[14px]', dateIsActive ? 'text-background/70' : 'text-muted-foreground')}>
-                      {d.day}
-                    </div>
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -733,22 +738,21 @@ export function EmbeddedComponent({
       return (
         <div className="flex gap-2 overflow-x-auto pb-2">
           {data?.dates?.map((d: any) => (
-            <button
+            <Button
               key={d.date}
+              variant={d.date === selectedWeekDate ? 'accent' : 'secondary'}
               onClick={() => {
                 setSelectedWeekDate(d.date);
                 onSelect({ date: d.date });
               }}
               disabled={disabled}
-              className={`px-4 py-2 rounded-lg whitespace-nowrap transition-colors ${
-                d.date === selectedWeekDate
-                  ? 'bg-gray-900 text-white'
-                  : 'bg-gray-100 hover:bg-gray-200'
-              }`}
+              className="h-auto px-4 py-2 rounded-lg font-normal"
             >
-              <div className="font-medium text-[14px]">{d.label}</div>
-              <div className="text-[14px] opacity-75">{d.day}</div>
-            </button>
+              <div className="text-left">
+                <div className="font-medium text-[14px]">{d.label}</div>
+                <div className="text-[14px] opacity-75">{d.day}</div>
+              </div>
+            </Button>
           ))}
         </div>
       );
@@ -844,16 +848,17 @@ function PatientSelector({ patients, selected, defaultPatientId, onSelect, onAdd
     <div className="space-y-2">
       <div className="grid grid-cols-2 gap-2 max-w-2xl">
         {patients.map((patient: any) => (
-          <button
+          <Button
             key={patient.id}
+            variant="outline"
             onClick={() => !disabled && onSelect(patient.id)}
             disabled={disabled}
             className={cn(
-              'flex items-center gap-3 p-3 rounded-full border transition-all text-left',
-              'hover:border-primary/50 hover:bg-primary/5 disabled:cursor-not-allowed',
+              'h-auto flex items-center gap-3 p-3 rounded-full text-left font-normal',
+              'hover:border-primary/50 hover:bg-primary/5',
               highlightedId === patient.id
-                ? disabled ? 'border-primary bg-primary/5 opacity-60' : 'border-primary bg-primary/5'
-                : disabled ? 'border-border bg-background opacity-30' : 'border-border bg-background'
+                ? disabled ? 'border-primary bg-primary/5 disabled:opacity-60' : 'border-primary bg-primary/5'
+                : disabled ? 'disabled:opacity-30' : ''
             )}
           >
             <Avatar className="w-9 h-9 flex-shrink-0">
@@ -868,17 +873,18 @@ function PatientSelector({ patients, selected, defaultPatientId, onSelect, onAdd
                 <div className="text-[14px] leading-tight text-muted-foreground mt-0.5">{patient.relation}</div>
               )}
             </div>
-          </button>
+          </Button>
         ))}
       </div>
 
-      <button
+      <Button
+        variant="outline"
         onClick={() => !disabled && onAddMember?.()}
         disabled={disabled}
-        className="text-[14px] text-foreground flex items-center gap-1 mt-2 px-4 py-2.5 rounded-full border hover:border-primary/50 hover:bg-primary/5 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+        className="h-auto mt-2 px-4 py-2.5 rounded-full font-normal text-[14px] hover:border-primary/50 hover:bg-primary/5 disabled:opacity-30"
       >
         Add family member or guest &rarr;
-      </button>
+      </Button>
     </div>
   );
 }
@@ -888,20 +894,21 @@ function OptionSelector({ options, selected, onSelect, disabled }: any) {
   return (
     <div className="flex flex-wrap gap-2 max-w-xl">
       {options.map((option: any) => (
-        <button
+        <Button
           key={option.id}
+          variant="outline"
           onClick={() => !disabled && onSelect(option.id)}
           disabled={disabled}
           className={cn(
-            'px-5 py-2.5 rounded-full border text-[14px] font-medium transition-all',
-            'hover:border-primary/50 hover:bg-primary/5 disabled:cursor-not-allowed',
+            'h-auto px-5 py-2.5 rounded-full font-medium text-[14px]',
+            'hover:border-primary/50 hover:bg-primary/5',
             selected === option.id
-              ? disabled ? 'border-primary bg-primary/5 opacity-60' : 'border-primary bg-primary/5'
-              : disabled ? 'border-border bg-background opacity-30' : 'border-border bg-background'
+              ? disabled ? 'border-primary bg-primary/5 disabled:opacity-60' : 'border-primary bg-primary/5'
+              : disabled ? 'disabled:opacity-30' : ''
           )}
         >
           {option.label}
-        </button>
+        </Button>
       ))}
     </div>
   );
@@ -925,26 +932,26 @@ function UrgencySelector({ levels, selected, onSelect, disabled }: any) {
   return (
     <div className="space-y-2 max-w-2xl">
       {levels.map((level: any) => (
-        <button
+        <Button
           key={level.id}
+          variant="ghost"
           onClick={() => !disabled && onSelect(level.id)}
           disabled={disabled}
           className={cn(
-            'w-full flex items-start gap-3 p-4 rounded-2xl border transition-all text-left',
-            'hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60',
+            'w-full h-auto flex items-start gap-3 p-4 rounded-2xl border text-left font-normal text-[14px] hover:bg-primary/5 disabled:opacity-60',
             selected === level.id
-              ? 'border-[#0052FF] bg-blue-50'
-              : 'border-gray-200 bg-white'
+              ? 'border-primary bg-primary/5'
+              : 'border-border'
           )}
         >
           <div className={cn('w-2 h-2 rounded-full mt-1.5 flex-shrink-0', getIndicatorColor(level.id))} />
           <div className="flex-1">
-            <div className="font-semibold text-[14px] text-[#171717]">{level.label}</div>
+            <div className="font-semibold text-[14px] text-foreground">{level.label}</div>
             {level.description && (
-              <div className="text-[14px] text-gray-500 mt-0.5">{level.description}</div>
+              <div className="text-[14px] text-muted-foreground mt-0.5">{level.description}</div>
             )}
           </div>
-        </button>
+        </Button>
       ))}
     </div>
   );
@@ -958,9 +965,9 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
     <div className="space-y-4 max-w-3xl">
       {/* Search and filter header */}
       <div className="flex items-center gap-3">
-        <button className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg text-[14px] text-[#0A0B0D] hover:bg-gray-50">
+        <Button variant="secondary" size="sm" className="rounded-lg gap-2 font-normal text-[14px]">
           Recommended <ChevronDown className="w-4 h-4" />
-        </button>
+        </Button>
         <div className="flex-1 flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg">
           <Search className="w-4 h-4 text-neutral-900" />
           <input
@@ -1019,21 +1026,16 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
             {doctor.slots && doctor.slots.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {doctor.slots.map((slot: any) => (
-                  <button
+                  <Button
                     key={slot.time}
+                    variant={selectedDoctorId === doctor.id && selectedTime === slot.time ? 'accent' : 'outline'}
                     onClick={() => !disabled && onSelect(doctor.id, slot.time)}
                     disabled={disabled}
-                    className={cn(
-                      'px-3 py-1.5 rounded-lg text-[14px] font-medium transition-all flex items-center gap-1',
-                      'hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60',
-                      selectedDoctorId === doctor.id && selectedTime === slot.time
-                        ? 'bg-[#0A0B0D] text-white'
-                        : 'bg-white border border-gray-200 text-[#0A0B0D]'
-                    )}
+                    className="h-auto px-3 py-1.5 rounded-lg font-medium text-[14px] gap-1 disabled:opacity-60"
                   >
                     {slot.time}
                     {slot.priority && <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />}
-                  </button>
+                  </Button>
                 ))}
               </div>
             )}
@@ -1049,16 +1051,16 @@ function ConsultationModeSelector({ modes, selected, onSelect, disabled }: any) 
   return (
     <div className="space-y-3 max-w-2xl">
       {modes.map((mode: any) => (
-        <button
+        <Button
           key={mode.id}
+          variant="ghost"
           onClick={() => !disabled && onSelect(mode.id)}
           disabled={disabled}
           className={cn(
-            'w-full flex items-center justify-between p-4 rounded-2xl border transition-all text-left',
-            'hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60',
+            'w-full h-auto flex items-center justify-between p-4 rounded-2xl border text-left font-normal text-[14px] hover:bg-primary/5 disabled:opacity-60',
             selected === mode.id
-              ? 'border-[#0052FF] bg-blue-50'
-              : 'border-gray-200 bg-white'
+              ? 'border-primary bg-primary/5'
+              : 'border-border'
           )}
         >
           <div className="flex items-center gap-3">
@@ -1070,12 +1072,12 @@ function ConsultationModeSelector({ modes, selected, onSelect, disabled }: any) 
               )}
             </div>
             <div>
-              <div className="font-semibold text-[14px] text-[#171717]">{mode.label}</div>
-              <div className="text-[14px] text-gray-500">{mode.description}</div>
+              <div className="font-semibold text-[14px] text-foreground">{mode.label}</div>
+              <div className="text-[14px] text-muted-foreground">{mode.description}</div>
             </div>
           </div>
-          <div className="font-semibold text-[14px] text-[#171717]">₹{mode.price}</div>
-        </button>
+          <div className="font-semibold text-[14px] text-foreground">₹{mode.price}</div>
+        </Button>
       ))}
     </div>
   );
@@ -1101,7 +1103,7 @@ function BookingSummary({ summary, onPay, disabled }: any) {
                     </Avatar>
                   )}
                   <span className="text-[14px] font-semibold text-[#171717]">{value.label || String(value)}</span>
-                  <button className="text-[#0052FF] text-[14px] font-medium hover:underline">Change</button>
+                  <Button variant="link" size="sm" className="h-auto p-0 text-[14px]">Change</Button>
                 </div>
               </div>
             );
@@ -1133,31 +1135,31 @@ function PackageList({ packages, selected, onSelect, disabled }: any) {
   return (
     <div className="space-y-3 max-w-2xl">
       {packages.map((pkg: any) => (
-        <button
+        <Button
           key={pkg.id}
+          variant="ghost"
           onClick={() => !disabled && onSelect(pkg.id)}
           disabled={disabled}
           className={cn(
-            'w-full p-4 rounded-2xl border transition-all text-left',
-            'hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60',
+            'w-full h-auto p-4 rounded-2xl border text-left font-normal text-[14px] hover:bg-primary/5 disabled:opacity-60',
             selected === pkg.id
-              ? 'border-[#0052FF] bg-blue-50'
-              : 'border-gray-200 bg-white'
+              ? 'border-primary bg-primary/5'
+              : 'border-border'
           )}
         >
-          <div className="flex items-start justify-between">
+          <div className="flex items-start justify-between w-full">
             <div className="flex-1">
-              <div className="font-semibold text-[14px] text-[#171717]">{pkg.name}</div>
-              <div className="text-[14px] text-gray-600 mt-1">
+              <div className="font-semibold text-[14px] text-foreground">{pkg.name}</div>
+              <div className="text-[14px] text-muted-foreground mt-1">
                 {pkg.tests_included?.join(', ')}
               </div>
-              <div className="text-[10px] text-gray-500 mt-2">Duration: {pkg.duration}</div>
+              <div className="text-[10px] text-muted-foreground mt-2">Duration: {pkg.duration}</div>
             </div>
             <div className="text-right flex-shrink-0 ml-4">
-              <div className="font-semibold text-[14px] text-[#171717]">₹{pkg.price}</div>
+              <div className="font-semibold text-[14px] text-foreground">₹{pkg.price}</div>
             </div>
           </div>
-        </button>
+        </Button>
       ))}
     </div>
   );
@@ -1168,25 +1170,25 @@ function LocationSelector({ locations, selected, onSelect, disabled }: any) {
   return (
     <div className="space-y-2 max-w-2xl">
       {locations.map((location: any) => (
-        <button
+        <Button
           key={location.id}
+          variant="ghost"
           onClick={() => !disabled && onSelect(location.id)}
           disabled={disabled}
           className={cn(
-            'w-full p-3 rounded-xl border transition-all text-left',
-            'hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60',
+            'w-full h-auto p-3 rounded-xl border text-left font-normal text-[14px] hover:bg-primary/5 disabled:opacity-60',
             selected === location.id
-              ? 'border-[#0052FF] bg-blue-50'
-              : 'border-gray-200 bg-white'
+              ? 'border-primary bg-primary/5'
+              : 'border-border'
           )}
         >
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between w-full">
             <div>
-              <div className="font-semibold text-[14px] text-[#171717]">{location.name}</div>
-              <div className="text-[14px] text-gray-500">{location.address}</div>
+              <div className="font-semibold text-[14px] text-foreground">{location.name}</div>
+              <div className="text-[14px] text-muted-foreground">{location.address}</div>
             </div>
           </div>
-        </button>
+        </Button>
       ))}
     </div>
   );
@@ -1280,25 +1282,25 @@ function DateTimePicker({ selectedDate, selectedTime, onSelect, disabled, warnin
               const isSelected = tempDate === dateItem.value || selectedDate === dateItem.value;
 
               return (
-                <button
+                <Button
                   key={dateItem.value}
+                  variant={isSelected ? 'accent' : 'outline'}
                   onClick={() => handleDateSelect(dateItem.value)}
                   disabled={disabled}
                   className={cn(
-                    'flex-shrink-0 px-6 py-3 rounded-2xl border transition-all min-w-[120px]',
-                    'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
-                    isSelected
-                      ? 'bg-foreground text-background border-foreground'
-                      : 'border-border bg-background text-foreground'
+                    'h-auto flex-shrink-0 px-6 py-3 rounded-2xl min-w-[120px] font-normal disabled:opacity-60',
+                    isSelected && 'border-foreground'
                   )}
                 >
-                  <div className={cn('font-semibold text-[14px]', isSelected && 'text-background')}>
-                    {dateItem.label}
+                  <div className="text-left">
+                    <div className={cn('font-semibold text-[14px]', isSelected && 'text-background')}>
+                      {dateItem.label}
+                    </div>
+                    <div className={cn('text-[14px]', isSelected ? 'text-background/70' : 'text-muted-foreground')}>
+                      {dateItem.sublabel}
+                    </div>
                   </div>
-                  <div className={cn('text-[14px]', isSelected ? 'text-background/70' : 'text-muted-foreground')}>
-                    {dateItem.sublabel}
-                  </div>
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -1314,21 +1316,19 @@ function DateTimePicker({ selectedDate, selectedTime, onSelect, disabled, warnin
               const isSelected = tempTime === slot.time || selectedTime === slot.time;
 
               return (
-                <button
+                <Button
                   key={slot.time}
+                  variant={isSelected ? 'accent' : 'outline'}
                   onClick={() => handleTimeSelect(slot.time)}
                   disabled={disabled || !slot.available}
                   className={cn(
-                    'px-3.5 py-1.5 rounded-full border text-[14px] font-medium transition-all inline-flex items-center gap-1.5',
-                    'hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60',
-                    isSelected
-                      ? 'bg-foreground text-background border-foreground'
-                      : 'border-border bg-background text-foreground'
+                    'h-auto px-3.5 py-1.5 rounded-full font-medium text-[14px] gap-1.5 disabled:opacity-60',
+                    isSelected && 'border-foreground'
                   )}
                 >
                   {formatTimeDisplay(slot.time)}
                   {slot.preferred && !isSelected && <Star className="w-3.5 h-3.5 fill-warning text-warning" />}
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -1372,14 +1372,14 @@ function ActionList({ actions, onSelect, disabled }: any) {
   return (
     <div className="space-y-3">
       {actions.map((action: any) => (
-        <button
+        <Button
           key={action.id}
+          variant="ghost"
           onClick={() => !disabled && onSelect(action.id)}
           disabled={disabled}
           className={cn(
-            'w-full flex items-start gap-4 p-4 rounded-2xl border transition-all text-left',
-            'hover:border-primary hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60',
-            action.id === 'continue' ? 'bg-blue-50 border-primary' : 'bg-white border-border'
+            'w-full h-auto flex items-start gap-4 p-4 rounded-2xl border text-left font-normal text-[14px] hover:border-primary hover:bg-primary/5 disabled:opacity-60',
+            action.id === 'continue' ? 'bg-primary/5 border-primary' : 'border-border'
           )}
         >
           {action.number && (
@@ -1401,7 +1401,7 @@ function ActionList({ actions, onSelect, disabled }: any) {
           <svg className="w-5 h-5 text-neutral-900 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
-        </button>
+        </Button>
       ))}
     </div>
   );
@@ -1412,11 +1412,12 @@ function InfoLinks({ links, onSelect, disabled }: any) {
   return (
     <div className="space-y-3">
       {links.map((link: any) => (
-        <button
+        <Button
           key={link.id}
+          variant="ghost"
           onClick={() => !disabled && onSelect(link.id)}
           disabled={disabled}
-          className="w-full flex items-start gap-4 p-4 rounded-2xl border border-border bg-white hover:border-primary hover:bg-blue-50 transition-all text-left disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full h-auto flex items-start gap-4 p-4 rounded-2xl border border-border text-left font-normal text-[14px] hover:border-primary hover:bg-primary/5 disabled:opacity-60"
         >
           <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
             {link.icon === 'clock' && (
@@ -1442,7 +1443,7 @@ function InfoLinks({ links, onSelect, disabled }: any) {
           <svg className="w-5 h-5 text-neutral-900 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
-        </button>
+        </Button>
       ))}
       <p className="text-[14px] text-muted-foreground text-center mt-4">
         Would you like to continue booking an appointment?
@@ -1456,16 +1457,12 @@ function ConfirmationButtons({ options, onSelect, disabled }: any) {
   return (
     <div className="flex flex-col gap-2">
       {options.map((option: any, index: number) => (
-        <button
+        <Button
           key={option.id}
+          variant={index === 0 ? 'primary' : 'outline'}
           onClick={() => !disabled && onSelect(option.id)}
           disabled={disabled}
-          className={cn(
-            'px-6 py-3 rounded-full font-medium transition-all disabled:cursor-not-allowed disabled:opacity-60 flex items-center justify-center gap-2',
-            index === 0
-              ? 'bg-primary text-white hover:bg-primary/90'
-              : 'bg-white border border-border text-foreground hover:bg-gray-50'
-          )}
+          className="disabled:opacity-60"
         >
           {option.icon && option.icon === 'video' && (
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -1483,7 +1480,7 @@ function ConfirmationButtons({ options, onSelect, disabled }: any) {
             </svg>
           )}
           {option.label}
-        </button>
+        </Button>
       ))}
     </div>
   );
@@ -1528,27 +1525,29 @@ function ScheduleConflict({ existing, newAppointment, onSelect, disabled }: any)
       </div>
 
       <div className="space-y-2">
-        <button
+        <Button
           onClick={() => !disabled && onSelect('pick_different_time')}
           disabled={disabled}
-          className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full disabled:opacity-60"
         >
           Pick a different time for new appointment
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="outline"
           onClick={() => !disabled && onSelect('cancel_and_book')}
           disabled={disabled}
-          className="w-full bg-white hover:bg-gray-50 border border-border text-foreground font-medium py-3 px-6 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full disabled:opacity-60"
         >
           Cancel existing & book new
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="ghost"
           onClick={() => !disabled && onSelect('keep_existing')}
           disabled={disabled}
-          className="w-full bg-white hover:bg-gray-50 text-gray-600 font-medium py-2.5 px-6 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full text-muted-foreground disabled:opacity-60"
         >
           Keep existing appointment
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -1651,22 +1650,26 @@ function TextInputComponent({
           disabled={disabled}
           className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
         />
-        <button
+        <Button
+          variant="primary"
+          size="md"
           onClick={handleSubmit}
           disabled={disabled || !text.trim()}
-          className="px-6 py-3 bg-blue-500 text-white font-semibold rounded-xl hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="rounded-xl"
         >
           Send
-        </button>
+        </Button>
       </div>
       {skippable && (
-        <button
+        <Button
+          variant="link"
+          size="sm"
           onClick={handleSkip}
           disabled={disabled}
-          className="text-[14px] text-gray-500 hover:text-gray-700 underline disabled:opacity-50 disabled:cursor-not-allowed"
+          className="h-auto p-0 text-muted-foreground hover:text-foreground"
         >
           {skipText}
-        </button>
+        </Button>
       )}
     </div>
   );

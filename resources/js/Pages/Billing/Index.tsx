@@ -472,7 +472,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
               </div>
             </div>
             <Button
-              size="sm"
+              size="md"
               onClick={() => {
                 const outstandingPayable = bills.filter(
                   (b) => OUTSTANDING_STATUSES.includes(b.billing_status) && PAYABLE_STATUSES.includes(b.billing_status)
@@ -549,16 +549,18 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
               <p className="text-[14px] font-medium">
                 {selectedIds.size} {selectedIds.size === 1 ? 'bill' : 'bills'} selected
               </p>
-              <button
+              <Button
+                variant="link"
+                size="sm"
+                className="h-auto p-0 text-[14px] text-muted-foreground hover:text-foreground flex items-center gap-1"
                 onClick={clearSelection}
-                className="text-[14px] text-muted-foreground hover:text-foreground flex items-center gap-1"
               >
                 <X className="h-3 w-3" />
                 Clear
-              </button>
+              </Button>
             </div>
             <Button
-              size="sm"
+              size="md"
               onClick={() => setPayBills(selectedBills)}
             >
               <CreditCard className="h-3.5 w-3.5" />
@@ -711,7 +713,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                     <Button
                       variant="secondary"
                       iconOnly
-                      size="sm"
+                      size="md"
                       disabled={currentPage <= 1}
                       onClick={() => setPage(currentPage - 1)}
                     >
@@ -722,7 +724,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                         key={p}
                         variant={p === currentPage ? 'primary' : 'outline'}
                         iconOnly
-                        size="sm"
+                        size="md"
                         className={cn('text-[14px]', p === currentPage && 'pointer-events-none')}
                         onClick={() => setPage(p)}
                       >
@@ -732,7 +734,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                     <Button
                       variant="secondary"
                       iconOnly
-                      size="sm"
+                      size="md"
                       disabled={currentPage >= totalPages}
                       onClick={() => setPage(currentPage + 1)}
                     >

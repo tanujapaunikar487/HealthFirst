@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
+import { Button } from '@/Components/ui/button';
 import { Card } from '@/Components/ui/card';
 import { Alert } from '@/Components/ui/alert';
 import { format, parseISO } from 'date-fns';
@@ -82,12 +83,13 @@ export default function ConfirmStep({ summary }: Props) {
               <span className="text-[14px] text-muted-foreground">{row.label}</span>
               <div className="flex items-center gap-3">
                 <span className="text-[14px] font-medium">{row.value}</span>
-                <button
+                <Button
+                  variant="link"
                   onClick={() => handleChange(row.step)}
-                  className="text-primary text-[14px] hover:underline"
+                  className="h-auto p-0 text-primary text-[14px] hover:underline"
                 >
                   Change
-                </button>
+                </Button>
               </div>
             </div>
           ))}

@@ -177,14 +177,14 @@ export function EmbeddedPackageList({
                 return (
                   <div key={`test-${test.id}`}>
                     <div className="flex">
-                      <button
+                      <Button
+                        variant="ghost"
                         onClick={() => toggleTest(idStr)}
                         disabled={disabled || isLocked}
                         className={cn(
-                          'flex-1 text-left px-6 py-4 transition-colors',
-                          !isLocked && 'hover:bg-accent/50 cursor-pointer',
+                          'w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50',
                           isChecked && 'bg-primary/5',
-                          (disabled || isLocked) && !isChecked && 'opacity-60',
+                          (disabled || isLocked) && !isChecked && 'disabled:opacity-60',
                         )}
                       >
                         <div className="flex gap-3">
@@ -236,18 +236,19 @@ export function EmbeddedPackageList({
                             </div>
                           </div>
                         </div>
-                      </button>
+                      </Button>
 
                       {/* Expand button for tests with fasting */}
                       {test.requires_fasting && (
-                        <button
+                        <Button
+                          variant="ghost"
                           onClick={(e) => {
                             e.stopPropagation();
                             setExpandedTestId(isExpanded ? null : idStr);
                           }}
                           className={cn(
-                            'flex-shrink-0 px-3 flex items-center transition-colors',
-                            'hover:bg-accent/50 text-muted-foreground hover:text-foreground',
+                            'flex-shrink-0 h-auto px-3 rounded-none',
+                            'text-muted-foreground hover:text-foreground',
                             isChecked && 'bg-primary/5',
                           )}
                         >
@@ -256,7 +257,7 @@ export function EmbeddedPackageList({
                           ) : (
                             <ChevronRight className="h-4 w-4" />
                           )}
-                        </button>
+                        </Button>
                       )}
                     </div>
 
@@ -323,14 +324,14 @@ export function EmbeddedPackageList({
                   className="transition-colors"
                 >
                   <div className="flex">
-                    <button
+                    <Button
+                      variant="ghost"
                       onClick={() => !disabled && !alreadySubmitted && onSelect(pkg.id)}
                       disabled={disabled || alreadySubmitted}
                       className={cn(
-                        'flex-1 text-left px-6 py-4 transition-colors',
-                        !alreadySubmitted && 'hover:bg-accent/50 cursor-pointer',
+                        'w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50',
                         isSelected && 'bg-primary/5',
-                        (disabled || alreadySubmitted) && !isSelected && 'opacity-60',
+                        (disabled || alreadySubmitted) && !isSelected && 'disabled:opacity-60',
                       )}
                     >
                       <div className="flex gap-3">
@@ -387,18 +388,19 @@ export function EmbeddedPackageList({
                           </div>
                         </div>
                       </div>
-                    </button>
+                    </Button>
 
                     {/* Expand button */}
                     {hasDetails && (
-                      <button
+                      <Button
+                        variant="ghost"
                         onClick={(e) => {
                           e.stopPropagation();
                           setExpandedPkgId(isExpanded ? null : String(pkg.id));
                         }}
                         className={cn(
-                          'flex-shrink-0 px-3 flex items-center transition-colors',
-                          'hover:bg-accent/50 text-muted-foreground hover:text-foreground',
+                          'flex-shrink-0 h-auto px-3 rounded-none',
+                          'text-muted-foreground hover:text-foreground',
                           isSelected && 'bg-primary/5',
                         )}
                       >
@@ -407,7 +409,7 @@ export function EmbeddedPackageList({
                         ) : (
                           <ChevronRight className="h-4 w-4" />
                         )}
-                      </button>
+                      </Button>
                     )}
                   </div>
 

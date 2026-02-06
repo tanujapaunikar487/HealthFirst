@@ -133,13 +133,14 @@ function TagInput({
                     {value.map((tag, i) => (
                         <Badge key={i} variant={variant} className="gap-1 pr-1">
                             {tag}
-                            <button
+                            <Button
                                 type="button"
+                                variant="ghost"
                                 onClick={() => removeTag(i)}
-                                className="ml-0.5 rounded-full p-0.5 hover:bg-black/10"
+                                className="ml-0.5 rounded-full p-0.5 h-auto hover:bg-black/10"
                             >
                                 <X className="h-3 w-3" />
-                            </button>
+                            </Button>
                         </Badge>
                     ))}
                 </div>
@@ -339,13 +340,15 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                                 {getInitials(user.name)}
                             </AvatarFallback>
                         </Avatar>
-                        <button
+                        <Button
+                            variant="ghost"
+                            iconOnly
                             onClick={() => fileInputRef.current?.click()}
                             disabled={uploading || removing}
                             className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
                         >
                             <Camera className="h-4 w-4" />
-                        </button>
+                        </Button>
                         <input
                             ref={fileInputRef}
                             type="file"
@@ -360,13 +363,15 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                         </h2>
                         <p className="text-[14px] leading-5 text-muted-foreground">{user.email}</p>
                         {avatarPreview && (
-                            <button
+                            <Button
+                                variant="link"
+                                size="sm"
                                 onClick={handleRemoveAvatar}
                                 disabled={removing || uploading}
-                                className="text-[14px] text-destructive hover:underline disabled:opacity-50 mt-1"
+                                className="h-auto p-0 text-[14px] text-destructive hover:underline disabled:opacity-50 mt-1"
                             >
                                 {removing ? 'Removing...' : 'Remove photo'}
-                            </button>
+                            </Button>
                         )}
                     </div>
                 </div>

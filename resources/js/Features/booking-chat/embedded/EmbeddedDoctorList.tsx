@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
 import { Badge } from '@/Components/ui/badge';
+import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
 import { Input } from '@/Components/ui/input';
 import {
@@ -231,21 +232,21 @@ function DoctorCard({
       {/* Time slots */}
       <div className="flex flex-wrap gap-2">
         {doctor.slots?.map((slot) => (
-          <button
+          <Button
             key={slot.time}
+            variant={selectedTime === slot.time ? 'accent' : 'outline'}
             onClick={() => !disabled && slot.available && onSelectTime(slot.time)}
             disabled={disabled || !slot.available}
             className={cn(
-              "px-3 py-1.5 rounded-full text-[14px] border transition-colors inline-flex items-center gap-1",
-              "hover:bg-accent hover:border-primary",
-              selectedTime === slot.time && "bg-primary text-primary-foreground border-primary",
-              !slot.available && "opacity-50 cursor-not-allowed",
+              "h-auto px-3 py-1.5 rounded-full font-medium text-[14px]",
+              "disabled:opacity-60",
+              selectedTime === slot.time && "border-foreground",
               slot.preferred && selectedTime !== slot.time && "border-warning bg-warning/10"
             )}
           >
             {formatTime(slot.time)}
             {slot.preferred && <Star className="h-3 w-3 fill-warning text-warning" />}
-          </button>
+          </Button>
         ))}
       </div>
     </div>

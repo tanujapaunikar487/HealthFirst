@@ -1,5 +1,6 @@
 import { cn } from '@/Lib/utils';
 import { Card } from '@/Components/ui/card';
+import { Button } from '@/Components/ui/button';
 import { Monitor, Users } from '@/Lib/icons';
 
 interface Mode {
@@ -36,13 +37,15 @@ export function EmbeddedAppointmentMode({ modes, selectedMode, onSelect, disable
         const isSelected = selectedMode === mode.type;
 
         return (
-          <button
+          <Button
             key={mode.type}
+            variant="ghost"
             onClick={() => !disabled && onSelect(mode.type)}
             disabled={disabled}
             className={cn(
-              "w-full flex items-center gap-4 px-6 py-4 text-left transition-all",
-              "hover:bg-muted/50 disabled:cursor-not-allowed",
+              "w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50",
+              "flex items-center gap-4 text-left transition-all",
+              "disabled:cursor-not-allowed",
               isSelected
                 ? disabled ? "bg-primary/5 opacity-60" : "bg-primary/5"
                 : disabled ? "opacity-30" : ""
@@ -57,14 +60,14 @@ export function EmbeddedAppointmentMode({ modes, selectedMode, onSelect, disable
             </div>
 
             {/* Text */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 text-left">
               <p className="text-[14px] font-medium leading-tight mb-0.5">{config.label}</p>
               <p className="text-[14px] text-muted-foreground leading-tight">{config.description}</p>
             </div>
 
             {/* Price */}
             <span className="text-[14px] font-medium flex-shrink-0">₹{mode.price.toLocaleString()}</span>
-          </button>
+          </Button>
         );
       })}
     </Card>

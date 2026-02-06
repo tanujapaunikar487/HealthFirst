@@ -147,13 +147,14 @@ function NotificationCard({
   const isUnread = !notification.read_at;
 
   return (
-    <button
-      onClick={onClick}
-      className="w-full text-left rounded-xl p-4 transition-colors hover:bg-accent"
+    <Button
+      variant="ghost"
+      className="w-full text-left rounded-xl p-4 transition-colors hover:bg-accent h-auto"
       style={{
         backgroundColor: isUnread ? 'hsl(var(--primary) / 0.05)' : 'hsl(var(--background))',
         border: `1px solid ${isUnread ? 'hsl(var(--primary) / 0.15)' : 'hsl(var(--border))'}`,
       }}
+      onClick={onClick}
     >
       <div className="flex gap-3">
         <NotificationIcon type={notification.type} />
@@ -186,7 +187,7 @@ function NotificationCard({
           </div>
         </div>
       </div>
-    </button>
+    </Button>
   );
 }
 
@@ -437,13 +438,15 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
                 )}
               </div>
               {unreadCount > 0 && (
-                <button
+                <Button
+                  variant="link"
+                  size="sm"
+                  className="h-auto p-0 flex items-center gap-1 text-[14px] font-medium text-primary hover:underline"
                   onClick={handleMarkAllAsRead}
-                  className="flex items-center gap-1 text-[14px] font-medium text-primary hover:underline"
                 >
                   <Icon icon={CheckCheck} className="h-3.5 w-3.5" />
                   Mark all read
-                </button>
+                </Button>
               )}
             </div>
             <SheetDescription className="sr-only">Billing notifications</SheetDescription>

@@ -1010,7 +1010,9 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                     )}
 
                     {foundMember?.has_phone && foundMember?.has_email && (
-                        <button
+                        <Button
+                            variant="link"
+                            size="sm"
                             onClick={() => {
                                 const newMethod: 'phone' | 'email' = selectedContactMethod === 'phone' ? 'email' : 'phone';
                                 setState(prev => ({
@@ -1020,11 +1022,11 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                                 }));
                                 handleSendOtp(newMethod);
                             }}
-                            className="w-full text-[14px] text-primary hover:underline"
+                            className="h-auto p-0 w-full"
                             disabled={state.loading}
                         >
                             Try {selectedContactMethod === 'phone' ? 'Email' : 'Phone'} Instead →
-                        </button>
+                        </Button>
                     )}
                 </div>
             );

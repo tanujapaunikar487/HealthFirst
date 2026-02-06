@@ -331,7 +331,7 @@ export default function Show({ user, appointment }: Props) {
               <p className="text-[14px] text-muted-foreground mt-2 leading-relaxed">
                 {appointment.follow_up.notes}
               </p>
-              <Button size="sm" variant="secondary" className="mt-3" onClick={() => setShowFollowUpSheet(true)}>
+              <Button size="md" variant="secondary" className="mt-3" onClick={() => setShowFollowUpSheet(true)}>
                 Schedule
               </Button>
             </Alert>
@@ -775,9 +775,10 @@ function CollapsibleRow({
 
   return (
     <div className="py-3">
-      <button
+      <Button
+        variant="ghost"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between text-left group"
+        className="w-full flex items-center justify-between h-auto p-0 text-left group hover:bg-transparent"
       >
         <span className="text-[14px] font-medium text-foreground">{label}</span>
         {open ? (
@@ -785,7 +786,7 @@ function CollapsibleRow({
         ) : (
           <ChevronDown className="h-4 w-4 text-foreground" />
         )}
-      </button>
+      </Button>
       <div className={open ? 'block' : 'hidden'}>
         <p className="text-[14px] text-muted-foreground mt-2 leading-relaxed">{content}</p>
       </div>
@@ -804,7 +805,7 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
       action={
         <Button
           variant="secondary"
-          size="sm"
+          size="md"
           className="text-[14px]"
           onClick={() => {
             const rows = prescriptions.map((rx) =>
@@ -1031,7 +1032,7 @@ function DocumentsSection({ documents }: { documents: AppDocument[] }) {
       title="Documents"
       icon={FolderOpen}
       action={
-        <Button variant="secondary" size="sm" className="text-[14px]" onClick={handleDownloadAll}>
+        <Button variant="secondary" size="md" className="text-[14px]" onClick={handleDownloadAll}>
           <Download className="h-3.5 w-3.5" />
           Download All
         </Button>
@@ -1040,10 +1041,11 @@ function DocumentsSection({ documents }: { documents: AppDocument[] }) {
       {documents.map((doc, i) => {
         const isLast = i === documents.length - 1;
         return (
-          <button
+          <Button
             key={i}
+            variant="ghost"
             onClick={() => handleDownloadOne(doc)}
-            className="w-full flex items-center justify-between px-4 py-4 hover:bg-muted/30 transition-colors text-left"
+            className="w-full flex items-center justify-between px-4 py-4 h-auto rounded-none hover:bg-muted/30 transition-colors text-left"
             style={isLast ? undefined : { borderBottom: '1px solid hsl(var(--border))' }}
           >
             <div className="flex items-center gap-3">
@@ -1058,7 +1060,7 @@ function DocumentsSection({ documents }: { documents: AppDocument[] }) {
               </div>
             </div>
             <Download className="h-4 w-4 text-foreground" />
-          </button>
+          </Button>
         );
       })}
     </Section>
@@ -1138,9 +1140,10 @@ function FooterActions({ appointment }: { appointment: DetailedAppointment }) {
       </div>
       <div className="flex gap-1">
         {[1, 2, 3, 4, 5].map((n) => (
-          <button
+          <Button
             key={n}
-            className="p-1 hover:scale-110 transition-transform"
+            variant="ghost"
+            className="p-1 h-auto hover:scale-110 hover:bg-transparent transition-transform"
             onClick={() => !ratingSubmitted && handleRate(n)}
             onMouseEnter={() => !ratingSubmitted && setHoverRating(n)}
             onMouseLeave={() => !ratingSubmitted && setHoverRating(0)}
@@ -1152,7 +1155,7 @@ function FooterActions({ appointment }: { appointment: DetailedAppointment }) {
                 ? 'text-warning fill-warning'
                 : 'text-muted-foreground/30'
             )} />
-          </button>
+          </Button>
         ))}
       </div>
     </div>

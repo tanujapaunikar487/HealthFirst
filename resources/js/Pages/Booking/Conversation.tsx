@@ -20,6 +20,7 @@ import { EmbeddedComponent } from '@/Features/booking-chat/EmbeddedComponent';
 import { ThinkingIndicator } from '@/Components/Booking/ThinkingIndicator';
 import { AudioWaveform } from '@/Components/ui/AudioWaveform';
 import { useAudioRecorder } from '@/Hooks/useAudioRecorder';
+import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
 
 interface ConversationMessage {
@@ -338,9 +339,10 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="flex items-center gap-1 border border-border rounded-full p-0.5 sm:p-1 bg-muted">
-              <button
+              <Button
+                variant="ghost"
                 className={cn(
-                  'p-1 sm:p-1.5 rounded-full transition-all',
+                  'h-auto p-1 sm:p-1.5 rounded-full transition-all',
                   mode === 'ai' ? 'shadow-md' : ''
                 )}
                 onClick={() => setMode('ai')}
@@ -350,10 +352,11 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                   alt=""
                   className="w-3.5 h-3.5 sm:w-4 sm:h-4"
                 />
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="ghost"
                 className={cn(
-                  'p-1 sm:p-1.5 rounded-full transition-all',
+                  'h-auto p-1 sm:p-1.5 rounded-full transition-all',
                   mode === 'guided' ? 'shadow-md' : ''
                 )}
                 onClick={() => setMode('guided')}
@@ -363,17 +366,19 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                   alt=""
                   className="w-3.5 h-3.5 sm:w-4 sm:h-4"
                 />
-              </button>
+              </Button>
             </div>
 
               {/* Cancel button */}
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => router.visit('/')}
-                className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full hover:bg-accent transition-colors"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full hover:bg-accent transition-colors"
+                iconOnly
                 title="Cancel booking"
               >
                 <Icon icon={X} className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
-              </button>
+              </Button>
             </div>
           </div>
           {/* Progress bar */}
@@ -478,28 +483,17 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                     {/* Add Button - hide when recording */}
                     {!isRecording && (
                       <PromptInputAction tooltip="Add attachment">
-                        <button
+                        <Button
+                          variant="outline"
+                          iconOnly
+                          size="md"
                           style={{
-                            width: '40px',
-                            height: '40px',
-                            backgroundColor: 'hsl(var(--background))',
-                            border: '1px solid hsl(var(--border))',
                             borderRadius: '50%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
                             transition: 'all 0.2s ease',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = 'hsl(var(--background))';
                           }}
                         >
                           <Icon icon={Plus} className="w-[18px] h-[18px]" />
-                        </button>
+                        </Button>
                       </PromptInputAction>
                     )}
                   </div>
@@ -510,121 +504,74 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                       // Recording mode - show Cancel (X) and Submit (Check) icons
                       <>
                         <PromptInputAction tooltip="Cancel recording">
-                          <button
+                          <Button
+                            variant="outline"
+                            iconOnly
+                            size="md"
                             onClick={() => {
                               cancelRecording();
                             }}
                             style={{
-                              width: '40px',
-                              height: '40px',
-                              backgroundColor: 'hsl(var(--background))',
-                              border: '1px solid hsl(var(--border))',
                               borderRadius: '50%',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer',
                               transition: 'all 0.2s ease',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = 'hsl(var(--destructive) / 0.1)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'hsl(var(--background))';
                             }}
                           >
                             <Icon icon={X} className="w-[18px] h-[18px] text-destructive" />
-                          </button>
+                          </Button>
                         </PromptInputAction>
 
                         <PromptInputAction tooltip="Submit recording">
-                          <button
+                          <Button
+                            variant="primary"
+                            iconOnly
+                            size="md"
                             onClick={handleMicClick}
                             style={{
-                              width: '40px',
-                              height: '40px',
-                              backgroundColor: 'hsl(var(--primary))',
-                              border: 'none',
                               borderRadius: '50%',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer',
                               transition: 'all 0.2s ease',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
                             }}
                           >
                             <Icon icon={Check} className="w-5 h-5 text-white" />
-                          </button>
+                          </Button>
                         </PromptInputAction>
                       </>
                     ) : (
                       // Normal mode - show Mic and Submit buttons
                       <>
                         <PromptInputAction tooltip={isTranscribing ? "Transcribing..." : "Voice input"}>
-                          <button
+                          <Button
+                            variant="outline"
+                            iconOnly
+                            size="md"
                             onClick={handleMicClick}
                             disabled={isLoading}
                             style={{
-                              width: '40px',
-                              height: '40px',
-                              backgroundColor: 'hsl(var(--background))',
-                              border: '1px solid hsl(var(--border))',
                               borderRadius: '50%',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer',
                               transition: 'all 0.2s ease',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'hsl(var(--background))';
                             }}
                           >
                             <Icon icon={Mic} className={cn(
                               "w-[18px] h-[18px]",
                               isTranscribing && "animate-pulse text-primary"
                             )} />
-                          </button>
+                          </Button>
                         </PromptInputAction>
 
                         <PromptInputAction tooltip="Submit">
-                          <button
+                          <Button
+                            variant="primary"
+                            iconOnly
+                            size="md"
                             onClick={handleSubmit}
                             disabled={isLoading || !input.trim() || isCancelled}
                             style={{
-                              width: '40px',
-                              height: '40px',
-                              backgroundColor: isLoading || !input.trim() || isCancelled ? 'hsl(var(--muted))' : 'hsl(var(--primary))',
-                              border: 'none',
                               borderRadius: '50%',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: isLoading || !input.trim() || isCancelled ? 'not-allowed' : 'pointer',
+                              backgroundColor: isLoading || !input.trim() || isCancelled ? 'hsl(var(--muted))' : undefined,
                               transition: 'all 0.2s ease',
-                            }}
-                            onMouseEnter={(e) => {
-                              if (!isLoading && input.trim() && !isCancelled) {
-                                e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (!isLoading && input.trim() && !isCancelled) {
-                                e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
-                              }
                             }}
                           >
                             <Icon icon={ArrowUp} className="w-5 h-5 text-white" />
-                          </button>
+                          </Button>
                         </PromptInputAction>
                       </>
                     )}
