@@ -91,7 +91,7 @@ export default function Confirmation({ booking, calendarPreference }: Props) {
 
         {/* Title */}
         <div className="text-center">
-          <h1 className="text-2xl font-bold">Booking confirmed!</h1>
+          <h1 className="text-detail-title">Booking confirmed!</h1>
           <p className="text-muted-foreground mt-1">Booking ID: {booking.booking_id}</p>
         </div>
 
@@ -125,10 +125,10 @@ export default function Confirmation({ booking, calendarPreference }: Props) {
               <Icon icon={Info} className="w-3.5 h-3.5 text-white" />
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-[14px] mb-2">What's next?</p>
+              <p className="text-card-title mb-2">What's next?</p>
               <ul className="space-y-1">
                 {getWhatsNextItems().map((item, i) => (
-                  <li key={i} className="text-[14px] text-foreground flex items-start gap-2">
+                  <li key={i} className="text-body text-foreground flex items-start gap-2">
                     <span>•</span>
                     <span>{item}</span>
                   </li>
@@ -193,8 +193,8 @@ export default function Confirmation({ booking, calendarPreference }: Props) {
 function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between px-6 py-4">
-      <span className="text-[14px] text-muted-foreground">{label}</span>
-      <div className="text-[14px] text-right font-medium">{value}</div>
+      <span className="text-body text-muted-foreground">{label}</span>
+      <div className="text-label text-right">{value}</div>
     </div>
   );
 }

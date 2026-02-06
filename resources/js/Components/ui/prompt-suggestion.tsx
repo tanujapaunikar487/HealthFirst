@@ -12,7 +12,7 @@ const PromptSuggestion = React.forwardRef<HTMLButtonElement, PromptSuggestionPro
         ref={ref}
         className={cn(
           'inline-flex items-center justify-center whitespace-nowrap rounded-full',
-          'px-4 py-2 text-[14px] font-medium',
+          'px-4 py-2 text-label',
           'border border-border bg-background text-foreground',
           'hover:bg-muted hover:border-muted-foreground/30',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',

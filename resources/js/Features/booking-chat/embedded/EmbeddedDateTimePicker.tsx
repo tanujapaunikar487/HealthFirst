@@ -59,7 +59,7 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
       <Card className="overflow-hidden">
         {/* Date selection */}
         <div className="p-4" style={{ borderBottom: '1px solid hsl(var(--border))' }}>
-          <h4 className="font-semibold text-[14px] mb-3">Date</h4>
+          <h4 className="text-card-title mb-3">Date</h4>
           <div className="flex gap-2 overflow-x-auto pb-2">
             {dates.map((date, index) => {
               const dateValue = formatDateValue(date);
@@ -78,10 +78,10 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
                     isSelected && 'border-foreground'
                   )}
                 >
-                  <div className={cn('font-semibold text-[14px]', isSelected && 'text-background')}>
+                  <div className={cn('text-card-title', isSelected && 'text-background')}>
                     {formatDateLabel(date, index)}
                   </div>
-                  <div className={cn('text-[14px]', isSelected ? 'text-background/70' : 'text-muted-foreground')}>
+                  <div className={cn('text-body', isSelected ? 'text-background/70' : 'text-muted-foreground')}>
                     {formatDateDisplay(date)}
                   </div>
                 </Button>
@@ -92,8 +92,8 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
 
         {/* Time selection */}
         <div className="p-4">
-          <h4 className="font-semibold text-[14px] mb-3">
-            Time {warning && <span className="text-[14px] font-normal text-muted-foreground">(morning recommended)</span>}
+          <h4 className="text-card-title mb-3">
+            Time {warning && <span className="text-body text-muted-foreground">(morning recommended)</span>}
           </h4>
           <div className="flex flex-wrap gap-2">
             {timeSlots.map((slot) => {
@@ -106,7 +106,7 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
                   onClick={() => !disabled && selectedDate && onSelect(selectedDate, slot.time)}
                   disabled={disabled || !slot.available}
                   className={cn(
-                    'h-auto px-3 py-1.5 rounded-full font-medium text-[14px]',
+                    'h-auto px-3 py-1.5 rounded-full text-label',
                     'disabled:opacity-60',
                     isSelected && 'border-foreground'
                   )}

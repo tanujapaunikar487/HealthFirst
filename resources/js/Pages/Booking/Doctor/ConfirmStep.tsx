@@ -75,7 +75,7 @@ export default function ConfirmStep({ summary }: Props) {
       priceEstimate={`Total: ₹${summary.fee.toLocaleString()}`}
     >
       <div>
-        <h2 className="text-xl font-semibold mb-6">Booking Summary</h2>
+        <h2 className="text-step-title mb-6">Booking Summary</h2>
 
         <Card className="overflow-hidden">
           {rows.map((row, index) => (
@@ -86,13 +86,13 @@ export default function ConfirmStep({ summary }: Props) {
                 borderBottom: '1px solid hsl(var(--border))'
               }}
             >
-              <span className="text-[14px] text-muted-foreground">{row.label}</span>
+              <span className="text-body text-muted-foreground">{row.label}</span>
               <div className="flex items-center gap-3">
-                <span className="text-[14px] font-medium">{row.value}</span>
+                <span className="text-label">{row.value}</span>
                 <Button
                   variant="link"
                   onClick={() => handleChange(row.step)}
-                  className="h-auto p-0 text-primary text-[14px] hover:underline"
+                  className="h-auto p-0 text-primary text-body hover:underline"
                 >
                   Change
                 </Button>
@@ -101,8 +101,8 @@ export default function ConfirmStep({ summary }: Props) {
           ))}
           {/* Fee - no Change button */}
           <div className="flex items-center justify-between px-4 py-4">
-            <span className="text-[14px] text-muted-foreground">Appointment Fee</span>
-            <span className="text-[14px] font-medium">₹{summary.fee.toLocaleString()}</span>
+            <span className="text-body text-muted-foreground">Appointment Fee</span>
+            <span className="text-label">₹{summary.fee.toLocaleString()}</span>
           </div>
         </Card>
       </div>

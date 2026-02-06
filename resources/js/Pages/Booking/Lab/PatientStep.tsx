@@ -76,8 +76,8 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
     >
       <div className="space-y-12">
         <section>
-          <h2 className="text-xl font-semibold mb-2">Who is this for?</h2>
-          <p className="text-[14px] text-muted-foreground mb-4">
+          <h2 className="text-step-title mb-2">Who is this for?</h2>
+          <p className="text-body text-muted-foreground mb-4">
             Select a family member or add a new patient
           </p>
 
@@ -88,18 +88,18 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
                 variant="outline"
                 onClick={() => setPatientId(member.id)}
                 className={cn(
-                  'h-auto flex items-center gap-3 p-3 rounded-full border text-left transition-all font-normal text-[14px]',
+                  'h-auto flex items-center gap-3 p-3 rounded-full border text-left transition-all text-body',
                   'hover:border-primary/50 hover:bg-primary/5',
                   patientId === member.id && 'border-primary bg-primary/5'
                 )}
               >
                 <Avatar className="w-10 h-10">
                   <AvatarImage src={member.avatar || undefined} />
-                  <AvatarFallback className="bg-warning text-warning-foreground text-[14px] font-medium">
+                  <AvatarFallback className="bg-warning text-warning-foreground text-label">
                     {member.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
-                <span className="font-medium text-[14px]">{member.name}</span>
+                <span className="text-label">{member.name}</span>
               </Button>
             ))}
           </div>
@@ -108,7 +108,7 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
             <Button
               variant="outline"
               onClick={() => setShowAddMemberInline(true)}
-              className="mt-3 h-auto inline-flex items-center gap-1 px-4 py-2.5 rounded-full text-[14px] text-foreground hover:border-primary/50 hover:bg-primary/5 transition-all font-normal"
+              className="mt-3 h-auto inline-flex items-center gap-1 px-4 py-2.5 rounded-full text-body text-foreground hover:border-primary/50 hover:bg-primary/5 transition-all"
             >
               Add family member or guest
               <Icon icon={ArrowRight} className="h-4 w-4" />
@@ -125,7 +125,7 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
             </div>
           )}
 
-          {errors.patient && <p className="text-[14px] text-destructive mt-2">{errors.patient}</p>}
+          {errors.patient && <p className="text-body text-destructive mt-2">{errors.patient}</p>}
         </section>
       </div>
     </GuidedBookingLayout>

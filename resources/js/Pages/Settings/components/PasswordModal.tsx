@@ -168,7 +168,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
 
                         <DialogBody>
                             <div className="space-y-4">
-                                <p className="text-[14px] text-muted-foreground">
+                                <p className="text-body text-muted-foreground">
                                     Enter your current password to continue
                                 </p>
 
@@ -233,7 +233,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
 
                         <DialogBody>
                             <div className="space-y-4">
-                                <p className="text-[14px] text-muted-foreground">
+                                <p className="text-body text-muted-foreground">
                                     Choose a strong password with at least 8 characters
                                 </p>
 
@@ -282,7 +282,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                                                     />
                                                 ))}
                                             </div>
-                                            <p className="text-[14px] text-muted-foreground">
+                                            <p className="text-body text-muted-foreground">
                                                 Password strength: <span className="font-medium">{strength.label}</span>
                                             </p>
                                         </div>
@@ -319,7 +319,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                                         </Button>
                                     </div>
                                     {confirmPassword && !passwordsMatch && (
-                                        <p className="text-[14px] text-destructive">Passwords do not match</p>
+                                        <p className="text-body text-destructive">Passwords do not match</p>
                                     )}
                                 </div>
                             </div>
@@ -363,8 +363,8 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                                     <Check className="h-8 w-8 text-success" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-semibold">Password changed!</h3>
-                                    <p className="text-[14px] text-muted-foreground mt-1">
+                                    <h3 className="text-subheading">Password changed!</h3>
+                                    <p className="text-body text-muted-foreground mt-1">
                                         Your password has been updated successfully
                                     </p>
                                 </div>

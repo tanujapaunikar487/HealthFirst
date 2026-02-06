@@ -44,7 +44,7 @@ export function EmbeddedFollowUpReason({ selectedReason, onSelect, disabled }: P
             onClick={() => !disabled && onSelect(reason.value)}
             disabled={disabled}
             className={cn(
-              "w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50",
+              "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
               "flex items-center gap-4 text-left transition-all",
               "disabled:cursor-not-allowed",
               isSelected
@@ -59,10 +59,10 @@ export function EmbeddedFollowUpReason({ selectedReason, onSelect, disabled }: P
               <Icon className="h-5 w-5 text-primary" />
             </div>
             <div className="min-w-0 text-left">
-              <p className="font-medium text-[14px] text-foreground leading-tight mb-0.5">
+              <p className="text-label text-foreground leading-tight mb-0.5">
                 {reason.label}
               </p>
-              <p className="text-[14px] text-muted-foreground leading-tight">
+              <p className="text-body text-muted-foreground leading-tight">
                 {reason.description}
               </p>
             </div>

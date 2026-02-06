@@ -638,7 +638,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
 
             <div className="space-y-4">
                 <div className="space-y-2">
-                    <label htmlFor="guest_name" className="block text-[14px] font-medium text-foreground">
+                    <label htmlFor="guest_name" className="block text-label text-foreground">
                         Name <span className="text-destructive">*</span>
                     </label>
                     <Input
@@ -654,7 +654,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                     />
                 </div>
                 <div className="space-y-2">
-                    <label htmlFor="guest_phone" className="block text-[14px] font-medium text-foreground">
+                    <label htmlFor="guest_phone" className="block text-label text-foreground">
                         Phone Number <span className="text-destructive">*</span>
                     </label>
                     <PhoneInput
@@ -671,10 +671,10 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
             </div>
 
             <div className="space-y-4">
-                <p className="text-[14px] text-muted-foreground uppercase tracking-wide pt-2">Optional</p>
+                <p className="text-body text-muted-foreground uppercase tracking-wide pt-2">Optional</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-2">
-                        <label htmlFor="guest_dob" className="block text-[14px] font-medium text-foreground">Date of Birth</label>
+                        <label htmlFor="guest_dob" className="block text-label text-foreground">Date of Birth</label>
                         <DatePicker
                             id="guest_dob"
                             value={state.guest.dob}
@@ -688,7 +688,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                         />
                     </div>
                     <div className="space-y-2">
-                        <label htmlFor="guest_age" className="block text-[14px] font-medium text-foreground">Age</label>
+                        <label htmlFor="guest_age" className="block text-label text-foreground">Age</label>
                         <Select
                             value={state.guest.age}
                             onValueChange={(value) => setState(prev => ({
@@ -711,7 +711,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                     </div>
                 </div>
                 <div className="space-y-2">
-                    <label htmlFor="guest_gender" className="block text-[14px] font-medium text-foreground">Gender</label>
+                    <label htmlFor="guest_gender" className="block text-label text-foreground">Gender</label>
                     <Select
                         value={state.guest.gender}
                         onValueChange={(value) => setState(prev => ({
@@ -755,7 +755,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
 
             <div className="space-y-4">
                 <div className="space-y-2">
-                    <label htmlFor="member_relation" className="block text-[14px] font-medium text-foreground">
+                    <label htmlFor="member_relation" className="block text-label text-foreground">
                         Relationship <span className="text-destructive">*</span>
                     </label>
                     <Select
@@ -787,7 +787,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                 </div>
 
                 <div className="space-y-2">
-                    <label htmlFor="member_name" className="block text-[14px] font-medium text-foreground">
+                    <label htmlFor="member_name" className="block text-label text-foreground">
                         Full Name <span className="text-destructive">*</span>
                     </label>
                     <Input
@@ -804,7 +804,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                 </div>
 
                 <div className="space-y-2">
-                    <label htmlFor="member_phone" className="block text-[14px] font-medium text-foreground">
+                    <label htmlFor="member_phone" className="block text-label text-foreground">
                         Phone Number <span className="text-destructive">*</span>
                     </label>
                     <div className="relative">
@@ -832,9 +832,9 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                         )}
                     </div>
                     {state.fieldErrors.memberPhone && (
-                        <p className="text-[14px] text-destructive">{state.fieldErrors.memberPhone}</p>
+                        <p className="text-body text-destructive">{state.fieldErrors.memberPhone}</p>
                     )}
-                    <p className="text-[14px] text-muted-foreground">We'll check if this person has a patient record</p>
+                    <p className="text-body text-muted-foreground">We'll check if this person has a patient record</p>
                 </div>
 
                 {state.showDetectionCard && state.detectedMember && (
@@ -847,10 +847,10 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
             </div>
 
             <div className="space-y-4">
-                <p className="text-[14px] text-muted-foreground uppercase tracking-wide pt-2">Optional</p>
+                <p className="text-body text-muted-foreground uppercase tracking-wide pt-2">Optional</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-2">
-                        <label htmlFor="member_dob" className="block text-[14px] font-medium text-foreground">Date of Birth</label>
+                        <label htmlFor="member_dob" className="block text-label text-foreground">Date of Birth</label>
                         <DatePicker
                             id="member_dob"
                             value={state.newMember.dob}
@@ -864,7 +864,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                         />
                     </div>
                     <div className="space-y-2">
-                        <label htmlFor="member_age" className="block text-[14px] font-medium text-foreground">Age</label>
+                        <label htmlFor="member_age" className="block text-label text-foreground">Age</label>
                         <Select
                             value={state.newMember.age}
                             onValueChange={(value) => setState(prev => ({
@@ -887,7 +887,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                     </div>
                 </div>
                 <div className="space-y-2">
-                    <label htmlFor="member_gender" className="block text-[14px] font-medium text-foreground">Gender</label>
+                    <label htmlFor="member_gender" className="block text-label text-foreground">Gender</label>
                     <Select
                         value={state.newMember.gender}
                         onValueChange={(value) => setState(prev => ({
@@ -907,7 +907,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                     </Select>
                 </div>
                 <div className="space-y-2">
-                    <label htmlFor="member_email" className="block text-[14px] font-medium text-foreground">Email</label>
+                    <label htmlFor="member_email" className="block text-label text-foreground">Email</label>
                     <Input
                         id="member_email"
                         type="email"
@@ -921,7 +921,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                     />
                 </div>
                 <div className="space-y-2">
-                    <label htmlFor="member_blood_group" className="block text-[14px] font-medium text-foreground">Blood Group</label>
+                    <label htmlFor="member_blood_group" className="block text-label text-foreground">Blood Group</label>
                     <Select
                         value={state.newMember.bloodGroup}
                         onValueChange={(value) => setState(prev => ({
@@ -974,7 +974,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                         <CheckCircle2 className="h-8 w-8 text-success" />
                     </div>
                     <h3 className="text-lg font-semibold">Successfully Linked!</h3>
-                    <p className="text-[14px] text-muted-foreground">
+                    <p className="text-body text-muted-foreground">
                         {foundMember?.name} has been added to your family members
                     </p>
                 </div>
@@ -1003,7 +1003,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                     />
 
                     {state.loading && (
-                        <div className="flex items-center justify-center gap-2 text-[14px] text-muted-foreground">
+                        <div className="flex items-center justify-center gap-2 text-body text-muted-foreground">
                             <Loader2 className="h-4 w-4 animate-spin" />
                             Verifying...
                         </div>
@@ -1045,14 +1045,14 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                             <div>
                                 <h4 className="font-semibold">{foundMember.name}</h4>
                                 {foundMember.patient_id && (
-                                    <p className="text-[14px] text-muted-foreground">Patient ID: {foundMember.patient_id}</p>
+                                    <p className="text-body text-muted-foreground">Patient ID: {foundMember.patient_id}</p>
                                 )}
                             </div>
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <label htmlFor="link_relation" className="block text-[14px] font-medium text-foreground">
+                        <label htmlFor="link_relation" className="block text-label text-foreground">
                             Relationship to you <span className="text-destructive">*</span>
                         </label>
                         <Select
@@ -1084,7 +1084,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                     </div>
 
                     <div className="space-y-2">
-                        <label className="block text-[14px] font-medium text-foreground">
+                        <label className="block text-label text-foreground">
                             Send OTP to <span className="text-destructive">*</span>
                         </label>
                         <div className="space-y-2">
@@ -1112,7 +1112,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                                             <div className="h-2 w-2 rounded-full bg-primary" />
                                         )}
                                     </div>
-                                    <span className="text-[14px]">Phone: {foundMember.masked_phone}</span>
+                                    <span className="text-body">Phone: {foundMember.masked_phone}</span>
                                 </label>
                             )}
                             {foundMember.has_email && (
@@ -1139,7 +1139,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                                             <div className="h-2 w-2 rounded-full bg-primary" />
                                         )}
                                     </div>
-                                    <span className="text-[14px]">Email: {foundMember.masked_email}</span>
+                                    <span className="text-body">Email: {foundMember.masked_email}</span>
                                 </label>
                             )}
                         </div>
@@ -1169,7 +1169,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                 {renderError()}
 
                 <div className="space-y-2">
-                    <label htmlFor="search_value" className="block text-[14px] font-medium text-foreground">
+                    <label htmlFor="search_value" className="block text-label text-foreground">
                         Search by phone, email, or patient ID
                     </label>
                     <Input
@@ -1189,7 +1189,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                         disabled={state.loading}
                     />
                     {searchValue.trim() && (
-                        <p className="text-[14px] text-muted-foreground">
+                        <p className="text-body text-muted-foreground">
                             Detected: {detectSearchType(searchValue) === 'phone' ? 'Phone Number' : detectSearchType(searchValue) === 'email' ? 'Email' : 'Patient ID'}
                         </p>
                     )}

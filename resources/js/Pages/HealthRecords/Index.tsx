@@ -699,10 +699,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
           <div>
-            <h1
-              className="font-bold"
-              style={{ fontSize: '36px', lineHeight: '44px', letterSpacing: '-1px', color: 'hsl(var(--foreground))' }}
-            >
+            <h1 className="text-page-title text-foreground">
               Health Records
             </h1>
           </div>
@@ -802,9 +799,9 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
 
             {datePreset === 'custom' && (
               <div className="flex items-center gap-1.5">
-                <DatePicker value={dateFrom} onChange={setDateFrom} className="h-9 w-[140px] text-[14px]" placeholder="From" />
-                <span className="text-[14px] text-muted-foreground">to</span>
-                <DatePicker value={dateTo} onChange={setDateTo} className="h-9 w-[140px] text-[14px]" placeholder="To" />
+                <DatePicker value={dateFrom} onChange={setDateFrom} className="h-9 w-[140px] text-body" placeholder="From" />
+                <span className="text-body text-muted-foreground">to</span>
+                <DatePicker value={dateTo} onChange={setDateTo} className="h-9 w-[140px] text-body" placeholder="To" />
               </div>
             )}
 
@@ -830,7 +827,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                   </Button>
                 </Badge>
               ))}
-              <Button variant="link" size="sm" className="h-auto p-0 text-[14px] text-muted-foreground hover:text-foreground ml-1" onClick={clearAllFilters}>
+              <Button variant="link" size="sm" className="h-auto p-0 text-body text-muted-foreground hover:text-foreground ml-1" onClick={clearAllFilters}>
                 Clear all
               </Button>
             </div>
@@ -840,7 +837,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
         {/* Bulk Actions Bar */}
         {selectedIds.size > 0 && (
           <div className="flex items-center gap-3 rounded-lg bg-muted px-4 py-2.5 mt-4 mb-4">
-            <span className="text-[14px] font-medium">{selectedIds.size} selected</span>
+            <span className="text-label">{selectedIds.size} selected</span>
             <Button variant="secondary" size="md" className="gap-1.5" onClick={() => {
               const selected = records.filter(r => selectedIds.has(r.id));
               const categoryLabels = Object.fromEntries(
@@ -905,26 +902,26 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                           />
                         </TableCell>
                         <TableCell>
-                          <p className="text-[14px] font-medium whitespace-nowrap">{formatDate(record.record_date) || '—'}</p>
+                          <p className="text-label whitespace-nowrap">{formatDate(record.record_date) || '—'}</p>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <CategoryIcon category={record.category} size="sm" />
                             <div className="min-w-0">
-                              <p className="text-[14px] font-medium truncate">{record.title}</p>
-                              <p className="text-[14px] text-muted-foreground mt-0.5 truncate">
+                              <p className="text-label truncate">{record.title}</p>
+                              <p className="text-body text-muted-foreground mt-0.5 truncate">
                                 {config.label}{record.doctor_name && ` • ${record.doctor_name}`}
                               </p>
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <span className="text-[14px]">
+                          <span className="text-body">
                             {member ? member.name : 'You'}
                           </span>
                         </TableCell>
                         <TableCell>
-                          {record.status ? <StatusBadge status={record.status} /> : <span className="text-[14px] text-muted-foreground">—</span>}
+                          {record.status ? <StatusBadge status={record.status} /> : <span className="text-body text-muted-foreground">—</span>}
                         </TableCell>
                         <TableCell>
                           <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
@@ -937,7 +934,7 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
 
               {/* Pagination Footer */}
               <div className="flex items-center justify-between px-6 py-4 border-t border-border">
-                <p className="text-[14px] text-muted-foreground">
+                <p className="text-body text-muted-foreground">
                   Showing {startIdx + 1}–{Math.min(startIdx + RECORDS_PER_PAGE, filteredRecords.length)} of {filteredRecords.length} records
                 </p>
                 {totalPages > 1 && (

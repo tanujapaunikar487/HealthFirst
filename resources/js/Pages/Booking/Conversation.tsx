@@ -335,7 +335,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
           <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
             <div className="flex items-center gap-2">
               <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="font-medium text-[14px] sm:text-[14px]">Booking an appointment</span>
+              <span className="text-label">Booking an appointment</span>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="flex items-center gap-1 border border-border rounded-full p-0.5 sm:p-1 bg-muted">
@@ -460,7 +460,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                     <div className="flex items-center gap-3 flex-1">
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 bg-destructive rounded-full animate-pulse"></div>
-                        <span className="text-[14px] font-medium text-muted-foreground">
+                        <span className="text-label text-muted-foreground">
                           {formatRecordingTime(recordingTime)}
                         </span>
                       </div>
@@ -471,8 +471,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                   // Normal mode - show textarea
                   <PromptInputTextarea
                     placeholder={isCancelled ? "Booking cancelled" : getPlaceholder(conversation.current_step)}
-                    className="text-[14px] text-foreground placeholder:text-muted-foreground min-h-[80px] px-4 pt-4 pb-16 font-normal"
-                    style={{ fontSize: '14px', lineHeight: '20px' }}
+                    className="text-body text-foreground placeholder:text-muted-foreground min-h-[80px] px-4 pt-4 pb-16"
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                     disabled={isCancelled}
@@ -581,7 +580,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
             </PromptInputContainer>
 
             {/* Disclaimer */}
-            <p className="text-[14px] text-center mt-3 text-muted-foreground">
+            <p className="text-body text-center mt-3 text-muted-foreground">
               AI may make mistakes. Verify important health information.
             </p>
           </div>
@@ -624,7 +623,7 @@ function MessageBubble({
     return (
       <div className="flex gap-3 justify-end">
         <div className="rounded-2xl px-4 py-2.5 bg-primary/20 text-foreground max-w-2xl">
-          <p className="text-[14px] leading-relaxed">{message.content}</p>
+          <p className="text-body leading-relaxed">{message.content}</p>
         </div>
       </div>
     );
@@ -643,7 +642,7 @@ function MessageBubble({
 
         {/* Text content */}
         {message.content && (
-          <p className="text-[14px] leading-relaxed whitespace-pre-line text-foreground mb-2.5">{message.content}</p>
+          <p className="text-body leading-relaxed whitespace-pre-line text-foreground mb-2.5">{message.content}</p>
         )}
 
         {/* Embedded component - show if it's the last message OR if a selection was made */}

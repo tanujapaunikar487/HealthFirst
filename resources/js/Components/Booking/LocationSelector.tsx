@@ -47,7 +47,7 @@ export function LocationSelector({
                 variant="ghost"
                 onClick={() => onSelect(location.type)}
                 className={cn(
-                  'w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50',
+                  'w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50',
                   'flex items-start gap-4 text-left transition-all',
                   isSelected && 'bg-primary/5 border border-primary'
                 )}
@@ -62,10 +62,10 @@ export function LocationSelector({
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-[14px]">{location.label}</p>
-                  <p className="text-[14px] text-muted-foreground">{location.description}</p>
+                  <p className="text-label">{location.label}</p>
+                  <p className="text-body text-muted-foreground">{location.description}</p>
                   {location.address && (
-                    <p className="text-[14px] text-muted-foreground mt-1">
+                    <p className="text-body text-muted-foreground mt-1">
                       {location.address}
                       {location.distance && ` • ${location.distance}`}
                     </p>
@@ -81,7 +81,7 @@ export function LocationSelector({
                           e.stopPropagation();
                           onChangeAddress();
                         }}
-                        className="h-auto p-0 inline-flex items-center gap-1 text-[14px] text-primary hover:text-primary/80 transition-colors"
+                        className="h-auto p-0 inline-flex items-center gap-1 text-body text-primary hover:text-primary/80 transition-colors"
                       >
                         <Icon icon={MapPin} className="h-3 w-3" />
                         Change address
@@ -94,7 +94,7 @@ export function LocationSelector({
                           e.stopPropagation();
                           onChangeBranch();
                         }}
-                        className="h-auto p-0 inline-flex items-center gap-1 text-[14px] text-primary hover:text-primary/80 transition-colors"
+                        className="h-auto p-0 inline-flex items-center gap-1 text-body text-primary hover:text-primary/80 transition-colors"
                       >
                         <Icon icon={MapPin} className="h-3 w-3" />
                         Change branch
@@ -103,7 +103,7 @@ export function LocationSelector({
                   </div>
                 </div>
 
-                <span className="font-semibold text-[14px] flex-shrink-0">
+                <span className="text-card-title flex-shrink-0">
                   ₹{location.fee.toLocaleString()}
                 </span>
               </Button>

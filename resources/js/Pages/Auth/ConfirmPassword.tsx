@@ -23,10 +23,10 @@ export default function ConfirmPassword() {
             <Head title="Confirm Password" />
 
             <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold text-foreground">
+                <h1 className="text-detail-title text-foreground">
                     Confirm your password
                 </h1>
-                <p className="text-[14px] text-muted-foreground mt-1">
+                <p className="text-body text-muted-foreground mt-1">
                     This is a secure area. Please confirm your password to continue.
                 </p>
             </div>
@@ -43,7 +43,7 @@ export default function ConfirmPassword() {
                         className={errors.password ? 'border-destructive' : ''}
                     />
                     {errors.password && (
-                        <p className="text-[14px] text-destructive">{errors.password}</p>
+                        <p className="text-body text-destructive">{errors.password}</p>
                     )}
                 </div>
 

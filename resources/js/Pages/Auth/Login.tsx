@@ -39,10 +39,10 @@ export default function Login({ status, canResetPassword, socialLoginEnabled }: 
             <Head title="Sign In" />
 
             <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold text-foreground">
+                <h1 className="text-detail-title text-foreground">
                     Welcome back
                 </h1>
-                <p className="text-[14px] text-muted-foreground mt-1">
+                <p className="text-body text-muted-foreground mt-1">
                     Sign in to your account to continue
                 </p>
             </div>
@@ -72,7 +72,7 @@ export default function Login({ status, canResetPassword, socialLoginEnabled }: 
                         className={errors.email ? 'border-destructive' : ''}
                     />
                     {errors.email && (
-                        <p className="text-[14px] text-destructive">{errors.email}</p>
+                        <p className="text-body text-destructive">{errors.email}</p>
                     )}
                 </div>
 
@@ -87,7 +87,7 @@ export default function Login({ status, canResetPassword, socialLoginEnabled }: 
                         className={errors.password ? 'border-destructive' : ''}
                     />
                     {errors.password && (
-                        <p className="text-[14px] text-destructive">{errors.password}</p>
+                        <p className="text-body text-destructive">{errors.password}</p>
                     )}
                 </div>
 
@@ -100,7 +100,7 @@ export default function Login({ status, canResetPassword, socialLoginEnabled }: 
                                 setData('remember', checked as boolean)
                             }
                         />
-                        <Label htmlFor="remember" className="text-[14px] font-normal cursor-pointer">
+                        <Label htmlFor="remember" className="text-body cursor-pointer">
                             Remember me
                         </Label>
                     </div>
@@ -108,7 +108,7 @@ export default function Login({ status, canResetPassword, socialLoginEnabled }: 
                     {canResetPassword && (
                         <Link
                             href={route('password.request')}
-                            className="text-[14px] text-primary hover:underline"
+                            className="text-body text-primary hover:underline"
                         >
                             Forgot password?
                         </Link>
@@ -126,7 +126,7 @@ export default function Login({ status, canResetPassword, socialLoginEnabled }: 
                     </>
                 )}
 
-                <p className="text-center text-[14px] text-muted-foreground">
+                <p className="text-center text-body text-muted-foreground">
                     Don't have an account?{' '}
                     <Link href={route('register')} className="text-primary hover:underline">
                         Sign up

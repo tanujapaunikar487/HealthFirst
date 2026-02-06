@@ -317,12 +317,12 @@ export function AddInsuranceSheet({
                 >
                   <Upload className="h-6 w-6" style={{ color: 'hsl(var(--primary))' }} />
                 </div>
-                <p className="mb-1 text-[14px] font-semibold text-foreground">Upload policy PDF</p>
-                <p className="mb-3 text-[14px] text-muted-foreground">
+                <p className="mb-1 text-card-title text-foreground">Upload policy PDF</p>
+                <p className="mb-3 text-body text-muted-foreground">
                   We'll extract the details automatically
                 </p>
-                <p className="text-[14px] text-muted-foreground">Drag & drop or click to browse</p>
-                <p className="mt-1 text-[14px] text-muted-foreground">PDF only - Max 10MB</p>
+                <p className="text-body text-muted-foreground">Drag & drop or click to browse</p>
+                <p className="mt-1 text-body text-muted-foreground">PDF only - Max 10MB</p>
               </div>
 
               <input
@@ -339,14 +339,14 @@ export function AddInsuranceSheet({
 
               <div className="flex items-center gap-3">
                 <div className="h-px flex-1 bg-border" />
-                <span className="text-[14px] text-muted-foreground">OR</span>
+                <span className="text-body text-muted-foreground">OR</span>
                 <div className="h-px flex-1 bg-border" />
               </div>
 
               <Button
                 variant="link"
                 size="sm"
-                className="w-full h-auto p-0 text-[14px] font-medium"
+                className="w-full h-auto p-0 text-label"
                 onClick={handleEnterManually}
               >
                 Enter details manually
@@ -358,15 +358,15 @@ export function AddInsuranceSheet({
           {addStep === 'extracting' && (
             <div className="flex flex-col items-center justify-center py-12">
               <LoaderCircle className="mb-4 h-10 w-10 animate-spin text-primary" />
-              <p className="mb-1 text-[14px] font-semibold text-foreground">
+              <p className="mb-1 text-card-title text-foreground">
                 Extracting policy details...
               </p>
-              <p className="mb-6 text-[14px] text-muted-foreground">This may take a few moments</p>
+              <p className="mb-6 text-body text-muted-foreground">This may take a few moments</p>
               {uploadedFile && (
                 <div className="flex items-center gap-2 rounded-lg bg-muted px-4 py-2">
                   <FileText className="h-4 w-4 text-foreground" />
-                  <span className="text-[14px] text-muted-foreground">{uploadedFile.name}</span>
-                  <span className="text-[14px] text-muted-foreground">
+                  <span className="text-body text-muted-foreground">{uploadedFile.name}</span>
+                  <span className="text-body text-muted-foreground">
                     ({formatFileSize(uploadedFile.size)})
                   </span>
                 </div>
@@ -382,17 +382,17 @@ export function AddInsuranceSheet({
               >
                 <XCircle className="h-6 w-6 text-destructive" />
               </div>
-              <p className="mb-1 text-[14px] font-semibold text-foreground">
+              <p className="mb-1 text-card-title text-foreground">
                 Couldn't extract policy details
               </p>
-              <p className="mb-6 max-w-xs text-center text-[14px] text-muted-foreground">
+              <p className="mb-6 max-w-xs text-center text-body text-muted-foreground">
                 The document may be encrypted or in an unsupported format.
               </p>
               {uploadedFile && (
                 <div className="mb-6 flex items-center gap-2 rounded-lg bg-muted px-4 py-2">
                   <FileText className="h-4 w-4 text-foreground" />
-                  <span className="text-[14px] text-muted-foreground">{uploadedFile.name}</span>
-                  <span className="text-[14px] text-muted-foreground">
+                  <span className="text-body text-muted-foreground">{uploadedFile.name}</span>
+                  <span className="text-body text-muted-foreground">
                     ({formatFileSize(uploadedFile.size)})
                   </span>
                 </div>
@@ -430,12 +430,12 @@ export function AddInsuranceSheet({
 
               {/* Provider */}
               <div>
-                <p className="mb-3 text-[14px] font-medium text-muted-foreground">
+                <p className="mb-3 text-label text-muted-foreground">
                   Provider
                 </p>
                 <div className="space-y-3">
                   <div>
-                    <label className="mb-1 block text-[14px] font-medium text-foreground">
+                    <label className="mb-1 block text-label text-foreground">
                       Insurance Provider *
                     </label>
                     <Select
@@ -461,7 +461,7 @@ export function AddInsuranceSheet({
                       </SelectContent>
                     </Select>
                     {formErrors.insurance_provider_id && (
-                      <p className="mt-1 text-[14px] text-destructive">
+                      <p className="mt-1 text-body text-destructive">
                         {formErrors.insurance_provider_id}
                       </p>
                     )}
@@ -471,12 +471,12 @@ export function AddInsuranceSheet({
 
               {/* Policy Details */}
               <div>
-                <p className="mb-3 text-[14px] font-medium text-muted-foreground">
+                <p className="mb-3 text-label text-muted-foreground">
                   Policy details
                 </p>
                 <div className="space-y-3">
                   <div>
-                    <label className="mb-1 block text-[14px] font-medium text-foreground">
+                    <label className="mb-1 block text-label text-foreground">
                       Policy Number *
                     </label>
                     <Input
@@ -488,11 +488,11 @@ export function AddInsuranceSheet({
                       )}
                     />
                     {formErrors.policy_number && (
-                      <p className="mt-1 text-[14px] text-destructive">{formErrors.policy_number}</p>
+                      <p className="mt-1 text-body text-destructive">{formErrors.policy_number}</p>
                     )}
                   </div>
                   <div>
-                    <label className="mb-1 block text-[14px] font-medium text-foreground">
+                    <label className="mb-1 block text-label text-foreground">
                       Plan Name *
                     </label>
                     <Input
@@ -504,11 +504,11 @@ export function AddInsuranceSheet({
                       )}
                     />
                     {formErrors.plan_name && (
-                      <p className="mt-1 text-[14px] text-destructive">{formErrors.plan_name}</p>
+                      <p className="mt-1 text-body text-destructive">{formErrors.plan_name}</p>
                     )}
                   </div>
                   <div>
-                    <label className="mb-1 block text-[14px] font-medium text-foreground">
+                    <label className="mb-1 block text-label text-foreground">
                       Plan Type *
                     </label>
                     <Select
@@ -532,7 +532,7 @@ export function AddInsuranceSheet({
                       </SelectContent>
                     </Select>
                     {formErrors.plan_type && (
-                      <p className="mt-1 text-[14px] text-destructive">{formErrors.plan_type}</p>
+                      <p className="mt-1 text-body text-destructive">{formErrors.plan_type}</p>
                     )}
                   </div>
                 </div>
@@ -540,12 +540,12 @@ export function AddInsuranceSheet({
 
               {/* Coverage */}
               <div>
-                <p className="mb-3 text-[14px] font-medium text-muted-foreground">
+                <p className="mb-3 text-label text-muted-foreground">
                   Coverage
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="mb-1 block text-[14px] font-medium text-foreground">
+                    <label className="mb-1 block text-label text-foreground">
                       Sum Insured (&#8377;) *
                     </label>
                     <Input
@@ -560,11 +560,11 @@ export function AddInsuranceSheet({
                       )}
                     />
                     {formErrors.sum_insured && (
-                      <p className="mt-1 text-[14px] text-destructive">{formErrors.sum_insured}</p>
+                      <p className="mt-1 text-body text-destructive">{formErrors.sum_insured}</p>
                     )}
                   </div>
                   <div>
-                    <label className="mb-1 block text-[14px] font-medium text-foreground">
+                    <label className="mb-1 block text-label text-foreground">
                       Premium (&#8377;)
                     </label>
                     <Input
@@ -579,12 +579,12 @@ export function AddInsuranceSheet({
 
               {/* Validity */}
               <div>
-                <p className="mb-3 text-[14px] font-medium text-muted-foreground">
+                <p className="mb-3 text-label text-muted-foreground">
                   Validity
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="mb-1 block text-[14px] font-medium text-foreground">
+                    <label className="mb-1 block text-label text-foreground">
                       Start Date *
                     </label>
                     <DatePicker
@@ -598,11 +598,11 @@ export function AddInsuranceSheet({
                       placeholder="Select start date"
                     />
                     {formErrors.start_date && (
-                      <p className="mt-1 text-[14px] text-destructive">{formErrors.start_date}</p>
+                      <p className="mt-1 text-body text-destructive">{formErrors.start_date}</p>
                     )}
                   </div>
                   <div>
-                    <label className="mb-1 block text-[14px] font-medium text-foreground">
+                    <label className="mb-1 block text-label text-foreground">
                       End Date *
                     </label>
                     <DatePicker
@@ -616,7 +616,7 @@ export function AddInsuranceSheet({
                       placeholder="Select end date"
                     />
                     {formErrors.end_date && (
-                      <p className="mt-1 text-[14px] text-destructive">{formErrors.end_date}</p>
+                      <p className="mt-1 text-body text-destructive">{formErrors.end_date}</p>
                     )}
                   </div>
                 </div>
@@ -625,7 +625,7 @@ export function AddInsuranceSheet({
               {/* Covered Members */}
               {familyMembers.length > 0 && (
                 <div>
-                  <p className="mb-3 text-[14px] font-medium text-muted-foreground">
+                  <p className="mb-3 text-label text-muted-foreground">
                     Covered members
                   </p>
                   <div className="space-y-2">
@@ -638,8 +638,8 @@ export function AddInsuranceSheet({
                           checked={policyForm.members.includes(m.id)}
                           onCheckedChange={() => toggleMember(m.id)}
                         />
-                        <span className="text-[14px] text-foreground">{m.name}</span>
-                        <span className="text-[14px] capitalize text-muted-foreground">({m.relation})</span>
+                        <span className="text-body text-foreground">{m.name}</span>
+                        <span className="text-body capitalize text-muted-foreground">({m.relation})</span>
                       </label>
                     ))}
                   </div>

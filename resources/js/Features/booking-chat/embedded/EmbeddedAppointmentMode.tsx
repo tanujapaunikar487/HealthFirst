@@ -43,7 +43,7 @@ export function EmbeddedAppointmentMode({ modes, selectedMode, onSelect, disable
             onClick={() => !disabled && onSelect(mode.type)}
             disabled={disabled}
             className={cn(
-              "w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50",
+              "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
               "flex items-center gap-4 text-left transition-all",
               "disabled:cursor-not-allowed",
               isSelected
@@ -61,12 +61,12 @@ export function EmbeddedAppointmentMode({ modes, selectedMode, onSelect, disable
 
             {/* Text */}
             <div className="flex-1 min-w-0 text-left">
-              <p className="text-[14px] font-medium leading-tight mb-0.5">{config.label}</p>
-              <p className="text-[14px] text-muted-foreground leading-tight">{config.description}</p>
+              <p className="text-label leading-tight mb-0.5">{config.label}</p>
+              <p className="text-body text-muted-foreground leading-tight">{config.description}</p>
             </div>
 
             {/* Price */}
-            <span className="text-[14px] font-medium flex-shrink-0">₹{mode.price.toLocaleString()}</span>
+            <span className="text-label flex-shrink-0">₹{mode.price.toLocaleString()}</span>
           </Button>
         );
       })}

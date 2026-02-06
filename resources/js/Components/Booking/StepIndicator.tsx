@@ -60,7 +60,7 @@ export function StepIndicator({ steps, currentStepId, className }: StepIndicator
             return (
               <div
                 key={step.id}
-                className="text-[14px] whitespace-nowrap text-center"
+                className="whitespace-nowrap text-center"
                 style={{
                   flex: '1 1 0%',
                 }}
@@ -68,7 +68,7 @@ export function StepIndicator({ steps, currentStepId, className }: StepIndicator
                 <span
                   className={cn(
                     'transition-colors',
-                    isCurrent ? 'font-semibold text-foreground' : 'text-muted-foreground'
+                    isCurrent ? 'text-card-title text-foreground' : 'text-body text-muted-foreground'
                   )}
                 >
                   {step.label}

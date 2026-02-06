@@ -24,15 +24,7 @@ interface ConnectionsTabProps {
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
     return (
-        <h3
-            className="font-semibold"
-            style={{
-                color: 'hsl(var(--foreground))',
-                fontSize: '20px',
-                lineHeight: '28px',
-                letterSpacing: '0',
-            }}
-        >
+        <h3 className="text-section-title text-foreground">
             {children}
         </h3>
     );
@@ -114,7 +106,7 @@ export function ConnectionsTab({ calendarSettings }: ConnectionsTabProps) {
             <div>
                 <div className="mb-4">
                     <SectionTitle>Calendar</SectionTitle>
-                    <p className="text-[14px] text-muted-foreground mt-1">
+                    <p className="text-body text-muted-foreground mt-1">
                         Sync appointments to your preferred calendar
                     </p>
                 </div>
@@ -132,8 +124,8 @@ export function ConnectionsTab({ calendarSettings }: ConnectionsTabProps) {
                                     <img src="/assets/icons/google-calendar.svg" alt="Google Calendar" className="h-6 w-6" />
                                 </div>
                                 <div>
-                                    <p className="text-[14px] font-semibold leading-5 text-foreground">Google Calendar</p>
-                                    <p className="text-[14px] font-normal leading-5 text-muted-foreground">
+                                    <p className="text-card-title text-foreground">Google Calendar</p>
+                                    <p className="text-body text-muted-foreground">
                                         {isGoogleConnected && googleEmail
                                             ? googleEmail
                                             : 'Auto-sync appointments to Google Calendar'}
@@ -151,7 +143,7 @@ export function ConnectionsTab({ calendarSettings }: ConnectionsTabProps) {
                                             size="sm"
                                             onClick={handleDisconnectGoogle}
                                             disabled={disconnecting}
-                                            className="text-[14px] text-muted-foreground hover:text-destructive"
+                                            className="text-body text-muted-foreground hover:text-destructive"
                                         >
                                             {disconnecting ? 'Disconnecting...' : 'Disconnect'}
                                         </Button>
@@ -179,8 +171,8 @@ export function ConnectionsTab({ calendarSettings }: ConnectionsTabProps) {
                                     <img src="/assets/icons/apple-calendar.svg" alt="Apple Calendar" className="h-6 w-6" />
                                 </div>
                                 <div>
-                                    <p className="text-[14px] font-semibold leading-5 text-foreground">Apple Calendar</p>
-                                    <p className="text-[14px] font-normal leading-5 text-muted-foreground">
+                                    <p className="text-card-title text-foreground">Apple Calendar</p>
+                                    <p className="text-body text-muted-foreground">
                                         Download .ics file after each booking
                                     </p>
                                 </div>

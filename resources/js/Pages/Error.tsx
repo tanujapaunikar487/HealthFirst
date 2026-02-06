@@ -42,7 +42,7 @@ export default function Error({ status, message }: Props) {
     <div className="min-h-screen bg-background flex items-center justify-center px-6">
       <div className="text-center max-w-md">
         {/* Status code */}
-        <p className="text-7xl font-bold tracking-tighter text-muted-foreground/20 mb-4">
+        <p className="text-display tracking-tighter text-muted-foreground/20 mb-4">
           {status}
         </p>
 
@@ -52,7 +52,7 @@ export default function Error({ status, message }: Props) {
         </div>
 
         {/* Title */}
-        <h1 className="text-2xl font-bold tracking-tight mb-2" style={{ color: 'hsl(var(--foreground))' }}>
+        <h1 className="text-detail-title tracking-tight mb-2 text-foreground">
           {error.title}
         </h1>
 

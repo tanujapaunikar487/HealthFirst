@@ -76,7 +76,7 @@ export function EmbeddedDateTimeSelector({
       <Card className="overflow-hidden">
         {/* Date section */}
         <div className="p-4" style={{ borderBottom: '1px solid hsl(var(--border))' }}>
-          <label className="text-[14px] font-medium mb-2 block">Date</label>
+          <label className="text-label mb-2 block">Date</label>
           <div className="flex gap-2 overflow-x-auto pb-2">
             {dates.map((dateOption, idx) => {
               const dateValue = dateOption.date || dateOption.value || '';
@@ -102,7 +102,7 @@ export function EmbeddedDateTimeSelector({
                     </p>
                     <p
                       className={cn(
-                        'text-[14px]',
+                        'text-body',
                         isDateSelected ? 'text-background/70' : 'text-muted-foreground'
                       )}
                     >
@@ -117,7 +117,7 @@ export function EmbeddedDateTimeSelector({
 
         {/* Time section */}
         <div className="p-4">
-          <label className="text-[14px] font-medium mb-2 block">
+          <label className="text-label mb-2 block">
             Time
             {fastingRequired && (
               <span className="text-muted-foreground font-normal"> (morning recommended)</span>
@@ -134,7 +134,7 @@ export function EmbeddedDateTimeSelector({
                   onClick={() => handleTimeSelect(slot.time)}
                   disabled={disabled || !slot.available}
                   className={cn(
-                    'h-auto px-3 py-1.5 rounded-full font-medium text-[14px]',
+                    'h-auto px-3 py-1.5 rounded-full text-label',
                     'disabled:opacity-60',
                     isTimeSelected && 'border-foreground'
                   )}

@@ -209,4 +209,76 @@
             opacity: 1;
         }
     }
+
+    /* Typography Tokens */
+    .text-display {
+        font-size: 72px;
+        font-weight: 700;
+        line-height: 80px;
+        letter-spacing: -2px;
+    }
+    .text-page-title {
+        font-size: 36px;
+        font-weight: 700;
+        line-height: 44px;
+        letter-spacing: -1px;
+    }
+    .text-detail-title {
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 32px;
+    }
+    .text-banner-heading {
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 32px;
+        letter-spacing: -0.48px;
+    }
+    .text-section-title {
+        font-size: 20px;
+        font-weight: 600;
+        line-height: 28px;
+    }
+    .text-step-title {
+        font-size: 20px;
+        font-weight: 600;
+        line-height: 28px;
+    }
+    .text-subheading {
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 24px;
+    }
+    .text-card-title {
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 20px;
+    }
+    .text-label {
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 20px;
+    }
+    .text-body {
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 20px;
+    }
+    .text-overline {
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 16px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .text-caption {
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 16px;
+    }
+    .text-micro {
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 14px;
+    }
 }

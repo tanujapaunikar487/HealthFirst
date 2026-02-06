@@ -63,7 +63,7 @@ export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
   };
 
   const inputClasses = cn(
-    'w-full rounded-lg border border-border bg-background px-3 py-2 text-[14px]',
+    'w-full rounded-lg border border-border bg-background px-3 py-2 text-body',
     'placeholder:text-muted-foreground',
     'focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary',
     'disabled:opacity-50 disabled:cursor-not-allowed',
@@ -80,12 +80,12 @@ export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
         <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
           <UserPlus className="h-4 w-4 text-primary" />
         </div>
-        <h4 className="font-semibold text-[14px] text-foreground">Add family member or guest</h4>
+        <h4 className="text-card-title text-foreground">Add family member or guest</h4>
       </div>
 
       {/* Name */}
       <div className="space-y-1.5">
-        <label className="text-[14px] font-medium text-muted-foreground">
+        <label className="text-label text-muted-foreground">
           Name <span className="text-destructive">*</span>
         </label>
         <input
@@ -96,12 +96,12 @@ export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
           disabled={disabled}
           className={cn(inputClasses, errors.name && 'border-destructive focus:ring-destructive/20')}
         />
-        {errors.name && <p className="text-[14px] text-destructive">{errors.name}</p>}
+        {errors.name && <p className="text-body text-destructive">{errors.name}</p>}
       </div>
 
       {/* Phone */}
       <div className="space-y-1.5">
-        <label className="text-[14px] font-medium text-muted-foreground">
+        <label className="text-label text-muted-foreground">
           Phone Number <span className="text-destructive">*</span>
         </label>
         <PhoneInput
@@ -110,12 +110,12 @@ export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
           disabled={disabled}
           error={!!errors.phone}
         />
-        {errors.phone && <p className="text-[14px] text-destructive">{errors.phone}</p>}
+        {errors.phone && <p className="text-body text-destructive">{errors.phone}</p>}
       </div>
 
       {/* Relation */}
       <div className="space-y-1.5">
-        <label className="text-[14px] font-medium text-muted-foreground">
+        <label className="text-label text-muted-foreground">
           Relation <span className="text-destructive">*</span>
         </label>
         <select
@@ -129,14 +129,14 @@ export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
             <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
           ))}
         </select>
-        {errors.relation && <p className="text-[14px] text-destructive">{errors.relation}</p>}
+        {errors.relation && <p className="text-body text-destructive">{errors.relation}</p>}
       </div>
 
       {/* Date of Birth + Age */}
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
-          <label className="text-[14px] font-medium text-muted-foreground">
-            Date of Birth <span className="text-[14px] font-normal">(Recommended)</span>
+          <label className="text-label text-muted-foreground">
+            Date of Birth <span className="text-body">(Recommended)</span>
           </label>
           <DatePicker
             value={dateOfBirth}
@@ -147,8 +147,8 @@ export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-[14px] font-medium text-muted-foreground">
-            Age <span className="text-[14px] font-normal">(If DOB unknown)</span>
+          <label className="text-label text-muted-foreground">
+            Age <span className="text-body">(If DOB unknown)</span>
           </label>
           <input
             type="number"
@@ -165,7 +165,7 @@ export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
 
       {/* Gender */}
       <div className="space-y-1.5">
-        <label className="text-[14px] font-medium text-muted-foreground">Gender</label>
+        <label className="text-label text-muted-foreground">Gender</label>
         <select
           value={gender}
           onChange={(e) => setGender(e.target.value)}

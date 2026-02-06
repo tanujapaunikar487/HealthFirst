@@ -152,8 +152,8 @@ export default function ConcernsStep({
 
         {/* Symptoms - Always visible */}
         <section>
-          <h2 className="text-xl font-semibold mb-2">What symptoms are you experiencing?</h2>
-          <p className="text-[14px] text-muted-foreground mb-4">
+          <h2 className="text-step-title mb-2">What symptoms are you experiencing?</h2>
+          <p className="text-body text-muted-foreground mb-4">
             Select all that apply, or describe in your own words
           </p>
 
@@ -187,8 +187,8 @@ export default function ConcernsStep({
         {/* Urgency - Show after continue button is clicked */}
         {showUrgency && (
           <section ref={urgencySectionRef}>
-            <h2 className="text-xl font-semibold mb-2">How soon do you need to see a doctor?</h2>
-            <p className="text-[14px] text-muted-foreground mb-4">
+            <h2 className="text-step-title mb-2">How soon do you need to see a doctor?</h2>
+            <p className="text-body text-muted-foreground mb-4">
               This determines which slots you'll see
             </p>
 
@@ -201,7 +201,7 @@ export default function ConcernsStep({
                     variant="ghost"
                     onClick={() => setUrgency(option.value)}
                     className={cn(
-                      'w-full h-auto flex items-start gap-3 px-6 py-4 rounded-none justify-start text-left transition-all font-normal text-[14px]',
+                      'w-full h-auto flex items-start gap-3 px-6 py-4 rounded-none justify-start text-left transition-all text-body',
                       'hover:bg-muted/50',
                       urgency === option.value && 'bg-primary/5'
                     )}
@@ -217,20 +217,20 @@ export default function ConcernsStep({
                       )}
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-[14px] leading-tight mb-0.5">{option.label}</p>
-                      <p className="text-[14px] text-muted-foreground leading-tight">{option.description}</p>
+                      <p className="text-label leading-tight mb-0.5">{option.label}</p>
+                      <p className="text-body text-muted-foreground leading-tight">{option.description}</p>
                     </div>
                     {option.doctorCount !== undefined ? (
-                      <span className="text-[14px] text-muted-foreground">{option.doctorCount} doctors</span>
+                      <span className="text-body text-muted-foreground">{option.doctorCount} doctors</span>
                     ) : (
-                      <span className="text-[14px] text-muted-foreground">Full flexibility</span>
+                      <span className="text-body text-muted-foreground">Full flexibility</span>
                     )}
                   </Button>
                 );
               })}
             </Card>
 
-            {errors.urgency && <p className="text-[14px] text-destructive mt-2">{errors.urgency}</p>}
+            {errors.urgency && <p className="text-body text-destructive mt-2">{errors.urgency}</p>}
           </section>
         )}
       </div>

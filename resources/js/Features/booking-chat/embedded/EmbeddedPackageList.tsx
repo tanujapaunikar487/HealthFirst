@@ -118,7 +118,7 @@ export function EmbeddedPackageList({
           <button
             onClick={() => setActiveTab('tests')}
             className={cn(
-              'flex items-center justify-center gap-2 rounded-full px-4 py-2 text-[14px] font-medium transition-all',
+              'flex items-center justify-center gap-2 rounded-full px-4 py-2 text-label transition-all',
               activeTab === 'tests'
                 ? 'bg-background text-foreground shadow-[0_1px_3px_0_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)]'
                 : 'text-muted-foreground hover:text-foreground',
@@ -127,7 +127,7 @@ export function EmbeddedPackageList({
             <TestTube className="h-4 w-4" />
             Pick Tests
             {hasTests && (
-              <span className="text-[14px] bg-muted px-1.5 py-0.5 rounded-full">
+              <span className="text-body bg-muted px-1.5 py-0.5 rounded-full">
                 {individualTests.length}
               </span>
             )}
@@ -135,7 +135,7 @@ export function EmbeddedPackageList({
           <button
             onClick={() => setActiveTab('packages')}
             className={cn(
-              'flex items-center justify-center gap-2 rounded-full px-4 py-2 text-[14px] font-medium transition-all',
+              'flex items-center justify-center gap-2 rounded-full px-4 py-2 text-label transition-all',
               activeTab === 'packages'
                 ? 'bg-background text-foreground shadow-[0_1px_3px_0_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)]'
                 : 'text-muted-foreground hover:text-foreground',
@@ -144,7 +144,7 @@ export function EmbeddedPackageList({
             <FlaskConical className="h-4 w-4" />
             Health Packages
             {hasPackages && (
-              <span className="text-[14px] bg-muted px-1.5 py-0.5 rounded-full">
+              <span className="text-body bg-muted px-1.5 py-0.5 rounded-full">
                 {packages.length}
               </span>
             )}
@@ -160,7 +160,7 @@ export function EmbeddedPackageList({
               <div className="px-4 py-2.5 border-b bg-muted/30">
                 <div className="flex items-center gap-2">
                   <TestTube className="h-4 w-4 text-primary" />
-                  <span className="text-[14px] font-semibold text-muted-foreground uppercase tracking-wide">
+                  <span className="text-card-title text-muted-foreground uppercase tracking-wide">
                     Select one or more tests
                   </span>
                 </div>
@@ -182,7 +182,7 @@ export function EmbeddedPackageList({
                         onClick={() => toggleTest(idStr)}
                         disabled={disabled || isLocked}
                         className={cn(
-                          'w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50',
+                          'w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50',
                           isChecked && 'bg-primary/5',
                           (disabled || isLocked) && !isChecked && 'disabled:opacity-60',
                         )}
@@ -201,7 +201,7 @@ export function EmbeddedPackageList({
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-3 mb-1">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className={cn('text-[14px] font-medium', isChecked && 'text-primary')}>
+                                <span className={cn('text-label', isChecked && 'text-primary')}>
                                   {test.name}
                                 </span>
                                 {test.requires_fasting && (
@@ -210,26 +210,26 @@ export function EmbeddedPackageList({
                                   </Badge>
                                 )}
                               </div>
-                              <span className="text-[14px] font-semibold whitespace-nowrap">
+                              <span className="text-card-title whitespace-nowrap">
                                 ₹{test.price.toLocaleString()}
                               </span>
                             </div>
 
-                            <p className="text-[14px] text-muted-foreground mb-1.5">{test.description}</p>
+                            <p className="text-body text-muted-foreground mb-1.5">{test.description}</p>
 
                             <div className="flex items-center gap-2 flex-wrap">
                               {test.turnaround_hours && (
-                                <span className="text-[14px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                                <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
                                   Report in {test.turnaround_hours}h
                                 </span>
                               )}
                               {test.requires_fasting && test.fasting_hours && (
-                                <span className="text-[14px] text-orange-700 bg-orange-50 px-2 py-0.5 rounded-full">
+                                <span className="text-body text-orange-700 bg-orange-50 px-2 py-0.5 rounded-full">
                                   {test.fasting_hours}h fasting
                                 </span>
                               )}
                               {test.category && (
-                                <span className="text-[14px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                                <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
                                   {test.category}
                                 </span>
                               )}
@@ -267,7 +267,7 @@ export function EmbeddedPackageList({
                         'px-4 pb-4 pt-0 ml-12 border-t-0',
                         isChecked && 'bg-primary/5',
                       )}>
-                        <div className="bg-orange-50 rounded-lg p-3 text-[14px] space-y-1">
+                        <div className="bg-orange-50 rounded-lg p-3 text-body space-y-1">
                           <p className="font-medium text-orange-900">Preparation Required</p>
                           <p className="text-orange-800">Fasting for {test.fasting_hours} hours before the test.</p>
                           <p className="text-orange-800">Water is allowed during fasting period.</p>
@@ -297,7 +297,7 @@ export function EmbeddedPackageList({
 
             {!isGuided && alreadySubmitted && selectedTestIds.length > 0 && (
               <div className="px-4 py-2.5 border-t bg-primary/5">
-                <div className="flex items-center gap-2 text-[14px] text-primary">
+                <div className="flex items-center gap-2 text-body text-primary">
                   <Check className="h-4 w-4" />
                   <span className="font-medium">
                     {selectedTestIds.length} test{selectedTestIds.length > 1 ? 's' : ''} selected
@@ -329,7 +329,7 @@ export function EmbeddedPackageList({
                       onClick={() => !disabled && !alreadySubmitted && onSelect(pkg.id)}
                       disabled={disabled || alreadySubmitted}
                       className={cn(
-                        'w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50',
+                        'w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50',
                         isSelected && 'bg-primary/5',
                         (disabled || alreadySubmitted) && !isSelected && 'disabled:opacity-60',
                       )}
@@ -348,7 +348,7 @@ export function EmbeddedPackageList({
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-3 mb-1">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className={cn('text-[14px] font-medium', isSelected && 'text-primary')}>
+                              <span className={cn('text-label', isSelected && 'text-primary')}>
                                 {pkg.name}
                               </span>
                               {pkg.is_recommended && (
@@ -358,31 +358,31 @@ export function EmbeddedPackageList({
                               )}
                             </div>
                             <div className="text-right flex-shrink-0">
-                              <span className="text-[14px] font-semibold">₹{pkg.price.toLocaleString()}</span>
+                              <span className="text-card-title">₹{pkg.price.toLocaleString()}</span>
                               {pkg.original_price > pkg.price && (
-                                <span className="text-[14px] text-muted-foreground line-through ml-1.5">
+                                <span className="text-body text-muted-foreground line-through ml-1.5">
                                   ₹{pkg.original_price.toLocaleString()}
                                 </span>
                               )}
                             </div>
                           </div>
 
-                          <p className="text-[14px] text-muted-foreground mb-1.5">{pkg.description}</p>
+                          <p className="text-body text-muted-foreground mb-1.5">{pkg.description}</p>
 
                           {/* Info badges */}
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-[14px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                            <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
                               {pkg.duration_hours} hrs
                             </span>
-                            <span className="text-[14px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                            <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
                               {pkg.tests_count} tests
                             </span>
                             {pkg.requires_fasting && pkg.fasting_hours && (
-                              <span className="text-[14px] text-orange-700 bg-orange-50 px-2 py-0.5 rounded-full">
+                              <span className="text-body text-orange-700 bg-orange-50 px-2 py-0.5 rounded-full">
                                 {pkg.fasting_hours}h fasting
                               </span>
                             )}
-                            <span className="text-[14px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                            <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
                               {pkg.age_range} age
                             </span>
                           </div>
@@ -418,7 +418,7 @@ export function EmbeddedPackageList({
                     <div className="px-4 pb-4 bg-muted/20 space-y-3">
                       {/* Savings highlight */}
                       {savings > 0 && (
-                        <div className="flex items-center gap-2 text-[14px]">
+                        <div className="flex items-center gap-2 text-body">
                           <Sparkles className="h-4 w-4 text-success" />
                           <span className="font-medium text-success">
                             You save ₹{savings.toLocaleString()}
@@ -431,13 +431,13 @@ export function EmbeddedPackageList({
                         <div>
                           <div className="flex items-center gap-1.5 mb-2">
                             <TestTube className="h-3.5 w-3.5 text-neutral-900" />
-                            <span className="text-[14px] font-semibold text-muted-foreground uppercase tracking-wide">
+                            <span className="text-card-title text-muted-foreground uppercase tracking-wide">
                               Included Tests
                             </span>
                           </div>
                           <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                             {pkg.included_test_names.map((testName, i) => (
-                              <div key={i} className="flex items-center gap-1.5 text-[14px] text-foreground">
+                              <div key={i} className="flex items-center gap-1.5 text-body text-foreground">
                                 <Check className="h-3 w-3 text-primary flex-shrink-0" />
                                 <span>{testName}</span>
                               </div>
@@ -451,11 +451,11 @@ export function EmbeddedPackageList({
                         <div>
                           <div className="flex items-center gap-1.5 mb-2">
                             <ClipboardList className="h-3.5 w-3.5 text-neutral-900" />
-                            <span className="text-[14px] font-semibold text-muted-foreground uppercase tracking-wide">
+                            <span className="text-card-title text-muted-foreground uppercase tracking-wide">
                               Preparation
                             </span>
                           </div>
-                          <div className="bg-orange-50 rounded-lg p-3 text-[14px] space-y-1">
+                          <div className="bg-orange-50 rounded-lg p-3 text-body space-y-1">
                             {pkg.preparation_notes.split('.').filter(Boolean).map((note, i) => (
                               <p key={i} className="text-orange-800">{note.trim()}.</p>
                             ))}

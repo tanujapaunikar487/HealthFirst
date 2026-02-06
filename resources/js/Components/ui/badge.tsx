@@ -21,8 +21,8 @@ const variantClasses: Record<BadgeVariant, string> = {
 };
 
 const sizeClasses: Record<BadgeSize, string> = {
-  sm: 'text-[12px]',
-  lg: 'text-[14px]',
+  sm: 'text-caption',
+  lg: 'text-label',
 };
 
 const iconSizeClasses: Record<BadgeSize, string> = {
@@ -47,7 +47,7 @@ function Badge({
   return (
     <div
       className={cn(
-        'inline-flex items-center whitespace-nowrap rounded-full border gap-1 font-medium',
+        'inline-flex items-center whitespace-nowrap rounded-full border gap-1',
         icon ? 'py-1 pl-1 pr-2' : 'py-1 px-2',
         variantClasses[variant],
         sizeClasses[size],

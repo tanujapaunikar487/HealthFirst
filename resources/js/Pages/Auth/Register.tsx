@@ -37,10 +37,10 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
             <Head title="Sign Up" />
 
             <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold text-foreground">
+                <h1 className="text-detail-title text-foreground">
                     Create your account
                 </h1>
-                <p className="text-[14px] text-muted-foreground mt-1">
+                <p className="text-body text-muted-foreground mt-1">
                     Get started with your healthcare journey
                 </p>
             </div>
@@ -63,7 +63,7 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
                         className={errors.name ? 'border-destructive' : ''}
                     />
                     {errors.name && (
-                        <p className="text-[14px] text-destructive">{errors.name}</p>
+                        <p className="text-body text-destructive">{errors.name}</p>
                     )}
                 </div>
 
@@ -78,7 +78,7 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
                         className={errors.email ? 'border-destructive' : ''}
                     />
                     {errors.email && (
-                        <p className="text-[14px] text-destructive">{errors.email}</p>
+                        <p className="text-body text-destructive">{errors.email}</p>
                     )}
                 </div>
 
@@ -93,7 +93,7 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
                         className={errors.password ? 'border-destructive' : ''}
                     />
                     {errors.password && (
-                        <p className="text-[14px] text-destructive">{errors.password}</p>
+                        <p className="text-body text-destructive">{errors.password}</p>
                     )}
                 </div>
 
@@ -108,7 +108,7 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
                         className={errors.password_confirmation ? 'border-destructive' : ''}
                     />
                     {errors.password_confirmation && (
-                        <p className="text-[14px] text-destructive">{errors.password_confirmation}</p>
+                        <p className="text-body text-destructive">{errors.password_confirmation}</p>
                     )}
                 </div>
 
@@ -123,7 +123,7 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
                     </>
                 )}
 
-                <p className="text-center text-[14px] text-muted-foreground">
+                <p className="text-center text-body text-muted-foreground">
                     Already have an account?{' '}
                     <Link href={route('login')} className="text-primary hover:underline">
                         Sign in

@@ -12,16 +12,7 @@ interface CardSubtextProps {
 
 export function CardTitle({ children, className = '' }: CardTitleProps) {
     return (
-        <p
-            className={`truncate ${className}`}
-            style={{
-                color: 'hsl(var(--foreground))',
-                fontSize: '14px',
-                fontWeight: 600,
-                lineHeight: '20px',
-                letterSpacing: 0,
-            }}
-        >
+        <p className={`text-card-title text-foreground truncate ${className}`}>
             {children}
         </p>
     );
@@ -29,17 +20,7 @@ export function CardTitle({ children, className = '' }: CardTitleProps) {
 
 export function CardSubtext({ children, className = '' }: CardSubtextProps) {
     return (
-        <p
-            className={className}
-            style={{
-                color: 'hsl(var(--muted-foreground))',
-                fontSize: '14px',
-                fontWeight: 400,
-                lineHeight: '20px',
-                letterSpacing: 0,
-                marginTop: '2px',
-            }}
-        >
+        <p className={`text-body text-muted-foreground mt-0.5 ${className}`}>
             {children}
         </p>
     );

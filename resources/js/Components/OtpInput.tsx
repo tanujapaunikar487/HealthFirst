@@ -99,6 +99,7 @@ export function OtpInput({
                         onKeyDown={(e) => handleKeyDown(index, e)}
                         onPaste={handlePaste}
                         className={cn(
+                            // Typography exception: OTP digit input uses custom text-2xl font-semibold sizing
                             'w-12 h-14 text-center text-2xl font-semibold rounded-xl border transition-all',
                             'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
                             error
@@ -113,7 +114,7 @@ export function OtpInput({
             </div>
 
             {error && (
-                <p className="text-[14px] text-destructive text-center">{error}</p>
+                <p className="text-body text-destructive text-center">{error}</p>
             )}
 
             {onResend && (
@@ -128,7 +129,7 @@ export function OtpInput({
                             Resend OTP
                         </Button>
                     ) : (
-                        <p className="text-[14px] text-muted-foreground">
+                        <p className="text-body text-muted-foreground">
                             Resend OTP in {resendTimer}s
                         </p>
                     )}

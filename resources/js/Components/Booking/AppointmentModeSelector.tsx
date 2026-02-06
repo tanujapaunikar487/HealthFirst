@@ -41,7 +41,7 @@ export function AppointmentModeSelector({
             variant="ghost"
             onClick={() => onSelect(mode.type)}
             className={cn(
-              'w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50',
+              'w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50',
               'flex items-center gap-4 text-left transition-all',
               isSelected && 'bg-primary/5'
             )}
@@ -56,12 +56,12 @@ export function AppointmentModeSelector({
 
             {/* Text */}
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-[14px] leading-tight mb-0.5">{mode.label}</p>
-              <p className="text-[14px] text-muted-foreground leading-tight">{mode.description}</p>
+              <p className="text-label leading-tight mb-0.5">{mode.label}</p>
+              <p className="text-body text-muted-foreground leading-tight">{mode.description}</p>
             </div>
 
             {/* Price */}
-            <span className="font-medium text-[14px] flex-shrink-0">
+            <span className="text-label flex-shrink-0">
               ₹{mode.price.toLocaleString()}
             </span>
           </Button>

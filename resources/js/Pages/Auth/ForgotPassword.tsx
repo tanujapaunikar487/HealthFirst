@@ -26,10 +26,10 @@ export default function ForgotPassword({ status }: ForgotPasswordProps) {
             <Head title="Forgot Password" />
 
             <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold text-foreground">
+                <h1 className="text-detail-title text-foreground">
                     Forgot your password?
                 </h1>
-                <p className="text-[14px] text-muted-foreground mt-1">
+                <p className="text-body text-muted-foreground mt-1">
                     No problem. Enter your email and we'll send you a reset link.
                 </p>
             </div>
@@ -52,7 +52,7 @@ export default function ForgotPassword({ status }: ForgotPasswordProps) {
                         className={errors.email ? 'border-destructive' : ''}
                     />
                     {errors.email && (
-                        <p className="text-[14px] text-destructive">{errors.email}</p>
+                        <p className="text-body text-destructive">{errors.email}</p>
                     )}
                 </div>
 
@@ -60,7 +60,7 @@ export default function ForgotPassword({ status }: ForgotPasswordProps) {
                     {processing ? 'Sending...' : 'Send reset link'}
                 </Button>
 
-                <p className="text-center text-[14px] text-muted-foreground">
+                <p className="text-center text-body text-muted-foreground">
                     Remember your password?{' '}
                     <Link href={route('login')} className="text-primary hover:underline">
                         Sign in

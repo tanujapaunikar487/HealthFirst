@@ -48,7 +48,7 @@ export function PatientSelectionStep() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-semibold mb-2">Who is this appointment for?</h1>
-          <p className="text-[14px] text-muted-foreground">
+          <p className="text-body text-muted-foreground">
             Select a family member or add a new patient
           </p>
         </div>
@@ -104,7 +104,7 @@ export function ConcernsStep() {
           <h1 className="text-2xl font-semibold mb-2">
             What symptoms are you experiencing?
           </h1>
-          <p className="text-[14px] text-muted-foreground">
+          <p className="text-body text-muted-foreground">
             Select all that apply, or describe in your own words
           </p>
         </div>
@@ -127,7 +127,7 @@ export function ConcernsStep() {
           <h2 className="text-xl font-semibold mb-2">
             How soon do you need to see a doctor?
           </h2>
-          <p className="text-[14px] text-muted-foreground mb-4">
+          <p className="text-body text-muted-foreground mb-4">
             This determines which slots you'll see
           </p>
 
@@ -182,7 +182,7 @@ export function FollowUpConcernsStep() {
           <h1 className="text-2xl font-semibold mb-2">
             What symptoms are you experiencing?
           </h1>
-          <p className="text-[14px] text-muted-foreground">
+          <p className="text-body text-muted-foreground">
             Select all that apply, or describe in your own words
           </p>
         </div>
@@ -218,7 +218,7 @@ export function DoctorSelectionStep() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-semibold mb-2">Choose your doctor</h1>
-          <p className="text-[14px] text-muted-foreground">
+          <p className="text-body text-muted-foreground">
             12 doctors available for your appointment
           </p>
         </div>
@@ -256,7 +256,7 @@ export function ProcessingStep() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-semibold mb-2">Confirm your booking</h1>
-          <p className="text-[14px] text-muted-foreground">
+          <p className="text-body text-muted-foreground">
             Review your appointment details before confirming
           </p>
         </div>
@@ -281,7 +281,7 @@ export function LabTestTypeStep() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-semibold mb-2">What test do you need?</h1>
-          <p className="text-[14px] text-muted-foreground">
+          <p className="text-body text-muted-foreground">
             Search or select from popular tests
           </p>
         </div>

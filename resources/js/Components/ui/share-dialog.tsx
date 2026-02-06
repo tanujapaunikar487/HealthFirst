@@ -77,9 +77,9 @@ export function ShareDialog({ open, onOpenChange, title, description, url }: Sha
                                 <div className="min-w-0 flex-1">
                                     <p className="font-medium text-foreground truncate">{title}</p>
                                     {description && (
-                                        <p className="text-[14px] text-muted-foreground truncate">{description}</p>
+                                        <p className="text-body text-muted-foreground truncate">{description}</p>
                                     )}
-                                    <p className="text-[14px] text-muted-foreground/70 mt-1 truncate">{url}</p>
+                                    <p className="text-body text-muted-foreground/70 mt-1 truncate">{url}</p>
                                 </div>
                             </div>
                         </div>

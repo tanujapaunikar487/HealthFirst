@@ -31,10 +31,10 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
             <Head title="Reset Password" />
 
             <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold text-foreground">
+                <h1 className="text-detail-title text-foreground">
                     Reset your password
                 </h1>
-                <p className="text-[14px] text-muted-foreground mt-1">
+                <p className="text-body text-muted-foreground mt-1">
                     Enter your new password below
                 </p>
             </div>
@@ -51,7 +51,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                         className={errors.email ? 'border-destructive' : ''}
                     />
                     {errors.email && (
-                        <p className="text-[14px] text-destructive">{errors.email}</p>
+                        <p className="text-body text-destructive">{errors.email}</p>
                     )}
                 </div>
 
@@ -67,7 +67,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                         className={errors.password ? 'border-destructive' : ''}
                     />
                     {errors.password && (
-                        <p className="text-[14px] text-destructive">{errors.password}</p>
+                        <p className="text-body text-destructive">{errors.password}</p>
                     )}
                 </div>
 
@@ -82,7 +82,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                         className={errors.password_confirmation ? 'border-destructive' : ''}
                     />
                     {errors.password_confirmation && (
-                        <p className="text-[14px] text-destructive">{errors.password_confirmation}</p>
+                        <p className="text-body text-destructive">{errors.password_confirmation}</p>
                     )}
                 </div>
 

@@ -40,7 +40,7 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled, isLast }
             onClick={onClick}
             disabled={disabled}
             className={cn(
-                'w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50',
+                'w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50',
                 'flex items-center gap-4 text-left transition-all',
                 isExpanded
                     ? 'bg-primary/5'
@@ -57,7 +57,7 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled, isLast }
             </div>
             <div className="flex-1 min-w-0 text-left">
                 <h4 className="font-semibold">{config.title}</h4>
-                <p className="text-[14px] text-muted-foreground">{config.description}</p>
+                <p className="text-body text-muted-foreground">{config.description}</p>
             </div>
             <ChevronDown
                 className={cn(

@@ -200,8 +200,8 @@ export default function TestSearchStep({ savedData }: Props) {
     >
       <div className="space-y-6">
         <section>
-          <h2 className="text-xl font-semibold mb-2">What test are you looking for?</h2>
-          <p className="text-[14px] text-muted-foreground mb-4">
+          <h2 className="text-step-title mb-2">What test are you looking for?</h2>
+          <p className="text-body text-muted-foreground mb-4">
             Search by test name, condition, or symptoms
           </p>
 
@@ -215,7 +215,7 @@ export default function TestSearchStep({ savedData }: Props) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border bg-background text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border bg-background text-body focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
             <Button
@@ -235,7 +235,7 @@ export default function TestSearchStep({ savedData }: Props) {
                   key={chip}
                   variant="outline"
                   onClick={() => handleSuggestionClick(chip)}
-                  className="h-auto px-3 py-1.5 rounded-full text-[14px] hover:border-primary/50 hover:bg-primary/5 transition-all font-normal"
+                  className="h-auto px-3 py-1.5 rounded-full text-body hover:border-primary/50 hover:bg-primary/5 transition-all"
                 >
                   {chip}
                 </Button>
@@ -271,7 +271,7 @@ export default function TestSearchStep({ savedData }: Props) {
               <p className="text-muted-foreground">
                 No tests or packages found for &ldquo;{searchQuery}&rdquo;.
               </p>
-              <p className="text-[14px] text-muted-foreground">
+              <p className="text-body text-muted-foreground">
                 Try searching by test name or condition:
               </p>
               <div className="flex flex-wrap justify-center gap-2">
@@ -279,7 +279,7 @@ export default function TestSearchStep({ savedData }: Props) {
                   <button
                     key={chip}
                     onClick={() => handleSuggestionClick(chip)}
-                    className="px-3 py-1.5 rounded-full border text-[14px] hover:border-primary/50 hover:bg-primary/5 transition-all"
+                    className="px-3 py-1.5 rounded-full border text-body hover:border-primary/50 hover:bg-primary/5 transition-all"
                   >
                     {chip}
                   </button>
@@ -292,12 +292,12 @@ export default function TestSearchStep({ savedData }: Props) {
           {isSearching && (
             <div className="flex items-center justify-center py-8">
               <Icon icon={Loader2} className="h-6 w-6 animate-spin text-muted-foreground" />
-              <span className="ml-2 text-[14px] text-muted-foreground">Searching...</span>
+              <span className="ml-2 text-body text-muted-foreground">Searching...</span>
             </div>
           )}
 
           {errors.selection && (
-            <p className="text-[14px] text-destructive mt-2">{errors.selection}</p>
+            <p className="text-body text-destructive mt-2">{errors.selection}</p>
           )}
         </section>
       </div>

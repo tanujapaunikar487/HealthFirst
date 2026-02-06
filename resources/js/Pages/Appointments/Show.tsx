@@ -244,7 +244,7 @@ export default function Show({ user, appointment }: Props) {
     <AppLayout user={user} pageTitle="Appointment Details" pageIcon="/assets/icons/appointment.svg">
       <div className="w-full max-w-[960px] min-h-full flex flex-col pb-10">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-1.5 text-[14px] text-muted-foreground mb-4">
+        <nav className="flex items-center gap-1.5 text-body text-muted-foreground mb-4">
           <Link href="/appointments" className="hover:text-foreground transition-colors">
             Appointments
           </Link>
@@ -262,7 +262,7 @@ export default function Show({ user, appointment }: Props) {
               <Badge variant="neutral">
                 {appointment.mode}
               </Badge>
-              <span className="text-[14px] text-muted-foreground font-mono">
+              <span className="text-body text-muted-foreground font-mono">
                 #{appointment.appointment_id}
               </span>
             </div>
@@ -325,10 +325,10 @@ export default function Show({ user, appointment }: Props) {
         {appointment.follow_up && appointment.type === 'doctor' && (
           <div className="mb-8">
             <Alert variant="info" title="Follow-up Recommended">
-              <p className="text-[14px] text-muted-foreground">
+              <p className="text-body text-muted-foreground">
                 {appointment.follow_up.recommended_date_formatted}
               </p>
-              <p className="text-[14px] text-muted-foreground mt-2 leading-relaxed">
+              <p className="text-body text-muted-foreground mt-2 leading-relaxed">
                 {appointment.follow_up.notes}
               </p>
               <Button size="md" variant="secondary" className="mt-3" onClick={() => setShowFollowUpSheet(true)}>
@@ -347,8 +347,8 @@ export default function Show({ user, appointment }: Props) {
               ? <VitalsSection vitals={appointment.vitals} />
               : <Section id="vitals" title="Vitals" icon={Heart}>
                   <div className="px-4 py-6 text-center">
-                    <p className="text-[14px] font-medium text-muted-foreground">No vitals recorded for this appointment</p>
-                    <p className="text-[14px] text-muted-foreground mt-0.5">Vitals will be recorded during your appointment.</p>
+                    <p className="text-label text-muted-foreground">No vitals recorded for this appointment</p>
+                    <p className="text-body text-muted-foreground mt-0.5">Vitals will be recorded during your appointment.</p>
                   </div>
                 </Section>
             }
@@ -360,8 +360,8 @@ export default function Show({ user, appointment }: Props) {
               ? <PrescriptionsSection prescriptions={appointment.prescriptions} appointmentId={appointment.appointment_id} appointmentTitle={appointment.title} appointmentDate={appointment.date_formatted} appointmentTime={appointment.time} />
               : <Section id="prescriptions" title="Prescriptions" icon={Pill}>
                   <div className="px-4 py-6 text-center">
-                    <p className="text-[14px] font-medium text-muted-foreground">No prescriptions for this appointment</p>
-                    <p className="text-[14px] text-muted-foreground mt-0.5">Prescriptions will appear here if prescribed by your doctor.</p>
+                    <p className="text-label text-muted-foreground">No prescriptions for this appointment</p>
+                    <p className="text-body text-muted-foreground mt-0.5">Prescriptions will appear here if prescribed by your doctor.</p>
                   </div>
                 </Section>
             }
@@ -584,8 +584,8 @@ function InfoRow({ label, value, isLast }: { label: React.ReactNode; value: Reac
       className="grid items-start px-4 py-4"
       style={{ gridTemplateColumns: '130px 1fr', ...(isLast ? {} : { borderBottom: '1px solid hsl(var(--border))' }) }}
     >
-      <span className="text-[14px] text-muted-foreground pt-px">{label}</span>
-      <span className="text-[14px] font-medium">{value}</span>
+      <span className="text-body text-muted-foreground pt-px">{label}</span>
+      <span className="text-label">{value}</span>
     </div>
   );
 }
@@ -608,8 +608,8 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
         label="Patient"
         value={
           <>
-            <p className="text-[14px] font-medium">{appointment.patient?.name ?? appointment.patient_name}</p>
-            {patientSub && <p className="text-[14px] text-muted-foreground">{patientSub}</p>}
+            <p className="text-label">{appointment.patient?.name ?? appointment.patient_name}</p>
+            {patientSub && <p className="text-body text-muted-foreground">{patientSub}</p>}
           </>
         }
       />
@@ -618,13 +618,13 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
           label="Doctor"
           value={
             <>
-              <p className="text-[14px] font-medium">{appointment.doctor!.name}</p>
-              <p className="text-[14px] text-muted-foreground">
+              <p className="text-label">{appointment.doctor!.name}</p>
+              <p className="text-body text-muted-foreground">
                 {[appointment.doctor!.specialization, appointment.doctor!.qualification].filter(Boolean).join(' · ')}
               </p>
               <div className="flex items-center gap-1 mt-0.5">
                 <Star className="h-3 w-3 fill-warning text-warning" />
-                <span className="text-[14px] text-muted-foreground">
+                <span className="text-body text-muted-foreground">
                   {appointment.doctor!.rating ?? '—'} · {appointment.doctor!.experience_years ?? '—'} yrs exp
                 </span>
               </div>
@@ -640,7 +640,7 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
         value={
           <div className="flex items-center gap-2">
             {appointment.notes && (
-              <span className="text-[14px] text-muted-foreground">{appointment.notes}</span>
+              <span className="text-body text-muted-foreground">{appointment.notes}</span>
             )}
             <Badge
               variant={appointment.status === 'completed' ? 'success' : appointment.status === 'confirmed' ? 'info' : appointment.status === 'cancelled' ? 'danger' : 'neutral'}
@@ -666,10 +666,10 @@ function VitalsSection({ vitals }: { vitals: Vital[] }) {
           className="grid items-start px-4 py-4"
           style={{ gridTemplateColumns: '130px 1fr', ...(i < vitals.length - 1 ? { borderBottom: '1px solid hsl(var(--border))' } : {}) }}
         >
-          <span className="text-[14px] text-muted-foreground pt-px">{v.label}</span>
+          <span className="text-body text-muted-foreground pt-px">{v.label}</span>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[14px] font-medium">
+              <span className="text-label">
                 {v.value}{v.unit ? ` ${v.unit}` : ''}
               </span>
               {v.status !== 'normal' && (
@@ -679,7 +679,7 @@ function VitalsSection({ vitals }: { vitals: Vital[] }) {
               )}
             </div>
             {v.reference && (
-              <p className="text-[14px] text-muted-foreground mt-0.5">Normal: {v.reference}</p>
+              <p className="text-body text-muted-foreground mt-0.5">Normal: {v.reference}</p>
             )}
           </div>
         </div>
@@ -701,8 +701,8 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
           <div className="rounded-lg bg-muted/50 p-4">
             <div className="flex items-center gap-3 flex-wrap">
               <div>
-                <p className="text-[14px] text-muted-foreground mb-1">Primary Diagnosis</p>
-                <p className="font-semibold text-[14px]">{diagnosis.name || 'Not specified'}</p>
+                <p className="text-body text-muted-foreground mb-1">Primary Diagnosis</p>
+                <p className="text-card-title">{diagnosis.name || 'Not specified'}</p>
               </div>
               {diagnosis.icd_code && (
                 <Badge variant="neutral" className="font-mono ml-auto">
@@ -780,7 +780,7 @@ function CollapsibleRow({
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between h-auto p-0 text-left group hover:bg-transparent"
       >
-        <span className="text-[14px] font-medium text-foreground">{label}</span>
+        <span className="text-label text-foreground">{label}</span>
         {open ? (
           <ChevronUp className="h-4 w-4 text-foreground" />
         ) : (
@@ -788,7 +788,7 @@ function CollapsibleRow({
         )}
       </Button>
       <div className={open ? 'block' : 'hidden'}>
-        <p className="text-[14px] text-muted-foreground mt-2 leading-relaxed">{content}</p>
+        <p className="text-body text-muted-foreground mt-2 leading-relaxed">{content}</p>
       </div>
     </div>
   );
@@ -806,7 +806,7 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
         <Button
           variant="secondary"
           size="md"
-          className="text-[14px]"
+          className="text-body"
           onClick={() => {
             const rows = prescriptions.map((rx) =>
               `<tr>
@@ -844,12 +844,12 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
           >
             <div className="flex items-start justify-between">
               <div>
-                <p className="font-medium text-[14px]">{rx.drug} {rx.strength}</p>
-                <p className="text-[14px] text-muted-foreground mt-0.5">
+                <p className="text-label">{rx.drug} {rx.strength}</p>
+                <p className="text-body text-muted-foreground mt-0.5">
                   {[rx.dosage, rx.frequency, rx.purpose].filter(Boolean).join(' · ')}
                 </p>
               </div>
-              <span className="text-[14px] text-muted-foreground shrink-0 ml-4">{rx.duration}</span>
+              <span className="text-body text-muted-foreground shrink-0 ml-4">{rx.duration}</span>
             </div>
           </div>
         );
@@ -865,8 +865,8 @@ function LabTestsSection({ tests }: { tests: LabTest[] }) {
     return (
       <Section id="lab-tests" title="Lab Tests" icon={FlaskConical}>
         <div className="px-4 py-6 text-center">
-          <p className="text-[14px] font-medium text-muted-foreground">No lab tests ordered for this appointment</p>
-          <p className="text-[14px] text-muted-foreground mt-0.5">Lab tests will appear here if ordered by your doctor.</p>
+          <p className="text-label text-muted-foreground">No lab tests ordered for this appointment</p>
+          <p className="text-body text-muted-foreground mt-0.5">Lab tests will appear here if ordered by your doctor.</p>
         </div>
       </Section>
     );
@@ -880,7 +880,7 @@ function LabTestsSection({ tests }: { tests: LabTest[] }) {
       action={
         tests.some((t) => t.status === 'pending') ? (
           <Link href="/booking/lab/patient">
-            <Button variant="secondary" size="md" className="text-[14px]">
+            <Button variant="secondary" size="md" className="text-body">
               Book pending tests
             </Button>
           </Link>
@@ -901,7 +901,7 @@ function LabTestsSection({ tests }: { tests: LabTest[] }) {
             style={isLast ? undefined : { borderBottom: '1px solid hsl(var(--border))' }}
           >
             <div>
-              <p className="text-[14px] font-medium">{t.name}</p>
+              <p className="text-label">{t.name}</p>
             </div>
             <Badge variant={t.status === 'completed' ? 'neutral' : 'warning'}>
               {t.status === 'completed' ? 'Completed' : 'Pending Test'}
@@ -933,7 +933,7 @@ function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadIn
         <Button
           variant="secondary"
           size="md"
-          className="text-[14px]"
+          className="text-body"
           onClick={onDownloadInvoice}
         >
           <Download className="h-3.5 w-3.5" />
@@ -955,8 +955,8 @@ function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadIn
           />
         ))}
         <div className="grid items-start px-4 py-4" style={{ gridTemplateColumns: '130px 1fr' }}>
-          <span className="text-[14px] font-semibold">Total</span>
-          <span className="text-[14px] font-bold text-right">₹{billing.total.toLocaleString()}</span>
+          <span className="text-card-title">Total</span>
+          <span className="text-body font-bold text-right">₹{billing.total.toLocaleString()}</span>
         </div>
       </Card>
 
@@ -966,7 +966,7 @@ function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadIn
           className="px-4 py-3"
           style={{ borderBottom: '1px solid hsl(var(--border))', backgroundColor: 'hsl(var(--muted))' }}
         >
-          <span className="text-[14px] font-medium text-muted-foreground">Payment details</span>
+          <span className="text-label text-muted-foreground">Payment details</span>
         </div>
         <InfoRow
           label="Status"
@@ -980,12 +980,12 @@ function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadIn
         <InfoRow label="Invoice" value={<span className="font-mono">{billing.invoice_number}</span>} />
         <InfoRow label="Paid on" value={billing.payment_date} />
         <div className="px-4 py-3 flex items-center gap-4">
-          <Link href={`/billing/${appointmentId}`} className="text-[14px] font-medium text-primary hover:underline flex items-center gap-1">
+          <Link href={`/billing/${appointmentId}`} className="text-label text-primary hover:underline flex items-center gap-1">
             View Full Bill
             <ChevronRight className="h-3.5 w-3.5" />
           </Link>
           {insuranceClaimId && (
-            <Link href={`/insurance/claims/${insuranceClaimId}`} className="text-[14px] font-medium text-primary hover:underline flex items-center gap-1">
+            <Link href={`/insurance/claims/${insuranceClaimId}`} className="text-label text-primary hover:underline flex items-center gap-1">
               View Insurance Claim
               <ChevronRight className="h-3.5 w-3.5" />
             </Link>
@@ -1032,7 +1032,7 @@ function DocumentsSection({ documents }: { documents: AppDocument[] }) {
       title="Documents"
       icon={FolderOpen}
       action={
-        <Button variant="secondary" size="md" className="text-[14px]" onClick={handleDownloadAll}>
+        <Button variant="secondary" size="md" className="text-body" onClick={handleDownloadAll}>
           <Download className="h-3.5 w-3.5" />
           Download All
         </Button>
@@ -1053,8 +1053,8 @@ function DocumentsSection({ documents }: { documents: AppDocument[] }) {
                 <FileText className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="text-[14px] font-medium">{doc.name}</p>
-                <p className="text-[14px] text-muted-foreground">
+                <p className="text-label">{doc.name}</p>
+                <p className="text-body text-muted-foreground">
                   {doc.type.toUpperCase()} · {doc.date} · {doc.size}
                 </p>
               </div>
@@ -1099,9 +1099,9 @@ function ActivitySection({ activity }: { activity: ActivityItem[] }) {
                   <div className={cn('h-3 w-3 rounded-full relative z-10', getDotColor(item.icon))} />
                 </div>
                 <div className="-mt-0.5">
-                  <p className="text-[14px] font-medium">{item.event}</p>
+                  <p className="text-label">{item.event}</p>
                   {item.timestamp && (
-                    <p className="text-[14px] text-muted-foreground mt-0.5">{item.timestamp}</p>
+                    <p className="text-body text-muted-foreground mt-0.5">{item.timestamp}</p>
                   )}
                 </div>
               </div>
@@ -1131,10 +1131,10 @@ function FooterActions({ appointment }: { appointment: DetailedAppointment }) {
   return (
     <div className="flex items-center justify-between rounded-3xl border p-4">
       <div>
-        <p className="text-[14px] font-medium">
+        <p className="text-label">
           {ratingSubmitted ? 'Thank you for your feedback!' : 'Rate this appointment'}
         </p>
-        <p className="text-[14px] text-muted-foreground">
+        <p className="text-body text-muted-foreground">
           {ratingSubmitted ? `You rated ${rating} out of 5 stars` : 'Your feedback helps us improve'}
         </p>
       </div>

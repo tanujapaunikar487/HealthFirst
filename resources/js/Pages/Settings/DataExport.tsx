@@ -91,16 +91,16 @@ export default function DataExport({
             <div className="max-w-[800px] mx-auto p-8 bg-white print:p-0">
                 {/* Header */}
                 <div className="border-b-2 border-foreground pb-4 mb-6">
-                    <h1 className="text-2xl font-bold text-foreground">Healthcare Data Export</h1>
-                    <p className="text-[14px] text-muted-foreground mt-1">Generated on {exportDate}</p>
+                    <h1 className="text-detail-title text-foreground">Healthcare Data Export</h1>
+                    <p className="text-body text-muted-foreground mt-1">Generated on {exportDate}</p>
                 </div>
 
                 {/* Profile Section */}
                 <section className="mb-8">
-                    <h2 className="text-lg font-semibold text-foreground border-b border-border pb-2 mb-4">
+                    <h2 className="text-subheading text-foreground border-b border-border pb-2 mb-4">
                         Personal Information
                     </h2>
-                    <div className="grid grid-cols-2 gap-4 text-[14px]">
+                    <div className="grid grid-cols-2 gap-4 text-body">
                         <div>
                             <span className="font-medium text-muted-foreground">Name:</span>{' '}
                             <span className="text-foreground">{profile.name}</span>
@@ -125,7 +125,7 @@ export default function DataExport({
 
                     {/* Address */}
                     {(profile.address_line_1 || profile.city) && (
-                        <div className="mt-4 text-[14px]">
+                        <div className="mt-4 text-body">
                             <span className="font-medium text-muted-foreground">Address:</span>{' '}
                             <span className="text-foreground">
                                 {[profile.address_line_1, profile.address_line_2, profile.city, profile.state, profile.pincode]
@@ -137,7 +137,7 @@ export default function DataExport({
 
                     {/* Emergency Contact */}
                     {profile.emergency_contact_name && (
-                        <div className="mt-4 text-[14px]">
+                        <div className="mt-4 text-body">
                             <span className="font-medium text-muted-foreground">Emergency Contact:</span>{' '}
                             <span className="text-foreground">
                                 {profile.emergency_contact_name}
@@ -151,10 +151,10 @@ export default function DataExport({
                 {/* Family Members Section */}
                 {familyMembers.length > 0 && (
                     <section className="mb-8">
-                        <h2 className="text-lg font-semibold text-foreground border-b border-border pb-2 mb-4">
+                        <h2 className="text-subheading text-foreground border-b border-border pb-2 mb-4">
                             Family Members ({familyMembers.length})
                         </h2>
-                        <table className="w-full text-[14px]">
+                        <table className="w-full text-body">
                             <thead>
                                 <tr className="border-b border-border">
                                     <th className="text-left py-2 font-medium text-muted-foreground">Name</th>
@@ -180,10 +180,10 @@ export default function DataExport({
                 {/* Appointments Section */}
                 {appointments.length > 0 && (
                     <section className="mb-8">
-                        <h2 className="text-lg font-semibold text-foreground border-b border-border pb-2 mb-4">
+                        <h2 className="text-subheading text-foreground border-b border-border pb-2 mb-4">
                             Appointments ({appointments.length})
                         </h2>
-                        <table className="w-full text-[14px]">
+                        <table className="w-full text-body">
                             <thead>
                                 <tr className="border-b border-border">
                                     <th className="text-left py-2 font-medium text-muted-foreground">Date</th>
@@ -209,10 +209,10 @@ export default function DataExport({
                 {/* Health Records Section */}
                 {healthRecords.length > 0 && (
                     <section className="mb-8">
-                        <h2 className="text-lg font-semibold text-foreground border-b border-border pb-2 mb-4">
+                        <h2 className="text-subheading text-foreground border-b border-border pb-2 mb-4">
                             Health Records ({healthRecords.length})
                         </h2>
-                        <table className="w-full text-[14px]">
+                        <table className="w-full text-body">
                             <thead>
                                 <tr className="border-b border-border">
                                     <th className="text-left py-2 font-medium text-muted-foreground">Category</th>
@@ -234,7 +234,7 @@ export default function DataExport({
                 )}
 
                 {/* Footer */}
-                <div className="border-t border-border pt-4 mt-8 text-[14px] text-muted-foreground">
+                <div className="border-t border-border pt-4 mt-8 text-body text-muted-foreground">
                     <p>This document contains personal health information exported from your healthcare account.</p>
                     <p className="mt-1">Please store this document securely.</p>
                 </div>

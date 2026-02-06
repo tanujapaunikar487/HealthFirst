@@ -7,7 +7,7 @@ export function SupportFooter({ pageName }: SupportFooterProps) {
 
     return (
         <div className="pt-20 text-center">
-            <p className="text-xs text-neutral-500">
+            <p className="text-caption text-neutral-500">
                 Need help with {pageName}?{' '}
                 <a
                     href={gmailUrl}

@@ -143,7 +143,7 @@ export function EmbeddedDoctorList({ doctors, selectedDoctorId, selectedTime, on
         </Select>
 
         {/* Results count */}
-        <div className="ml-auto text-[14px] text-muted-foreground">
+        <div className="ml-auto text-body text-muted-foreground">
           {filteredDoctors.length} doctor{filteredDoctors.length !== 1 ? 's' : ''}
         </div>
       </div>
@@ -205,8 +205,8 @@ function DoctorCard({
             <AvatarFallback>{doctor.name?.charAt(0) || 'D'}</AvatarFallback>
           </Avatar>
           <div className="space-y-1">
-            <p className="text-[14px] font-medium leading-none">{doctor.name || 'Unknown Doctor'}</p>
-            <p className="text-[14px] text-muted-foreground">
+            <p className="text-label leading-none">{doctor.name || 'Unknown Doctor'}</p>
+            <p className="text-body text-muted-foreground">
               {doctor.specialization || 'General'} • {doctor.experience_years || 0} years
             </p>
           </div>
@@ -225,7 +225,7 @@ function DoctorCard({
               </Badge>
             )}
           </div>
-          <p className="text-[14px] font-medium">{getPrice()}</p>
+          <p className="text-label">{getPrice()}</p>
         </div>
       </div>
 
@@ -238,7 +238,7 @@ function DoctorCard({
             onClick={() => !disabled && slot.available && onSelectTime(slot.time)}
             disabled={disabled || !slot.available}
             className={cn(
-              "h-auto px-3 py-1.5 rounded-full font-medium text-[14px]",
+              "h-auto px-3 py-1.5 rounded-full text-label",
               "disabled:opacity-60",
               selectedTime === slot.time && "border-foreground",
               slot.preferred && selectedTime !== slot.time && "border-warning bg-warning/10"

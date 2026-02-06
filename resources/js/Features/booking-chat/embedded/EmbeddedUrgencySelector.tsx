@@ -50,7 +50,7 @@ export function EmbeddedUrgencySelector({ selectedUrgency, onSelect, disabled }:
             onClick={() => !disabled && onSelect(option.value)}
             disabled={disabled}
             className={cn(
-              "w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50",
+              "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
               "flex items-center gap-4 text-left transition-all",
               "disabled:cursor-not-allowed",
               isSelected
@@ -66,8 +66,8 @@ export function EmbeddedUrgencySelector({ selectedUrgency, onSelect, disabled }:
             </div>
 
             <div className="min-w-0 flex-1 text-left">
-              <p className="font-medium text-[14px] leading-tight mb-0.5">{option.label}</p>
-              <p className="text-[14px] text-muted-foreground leading-tight">{option.description}</p>
+              <p className="text-label leading-tight mb-0.5">{option.label}</p>
+              <p className="text-body text-muted-foreground leading-tight">{option.description}</p>
             </div>
           </Button>
         );

@@ -158,7 +158,7 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
               Family Members
             </h1>
             {!canCreate && memberCount >= 12 && (
-              <p className="text-[14px] text-muted-foreground mt-1">
+              <p className="text-body text-muted-foreground mt-1">
                 You've reached the maximum of 12 family members.
               </p>
             )}
@@ -197,7 +197,7 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
                 >
                   {/* Avatar */}
                   <div
-                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-[14px] font-semibold"
+                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-card-title"
                     style={{ backgroundColor: colors.bg, color: colors.text }}
                   >
                     {member.avatar_url ? (
@@ -209,7 +209,7 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
 
                   {/* Name + Badge */}
                   <div className="flex flex-1 items-center gap-2">
-                    <span className="truncate text-[16px] font-medium text-foreground">
+                    <span className="truncate text-base font-medium text-foreground">
                       {member.name}
                     </span>
                     {member.alert_count > 0 && (

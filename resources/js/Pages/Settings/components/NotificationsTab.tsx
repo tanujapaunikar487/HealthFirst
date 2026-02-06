@@ -33,15 +33,7 @@ interface NotificationsTabProps {
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
     return (
-        <h3
-            className="font-semibold"
-            style={{
-                color: 'hsl(var(--foreground))',
-                fontSize: '20px',
-                lineHeight: '28px',
-                letterSpacing: '0',
-            }}
-        >
+        <h3 className="text-section-title text-foreground">
             {children}
         </h3>
     );

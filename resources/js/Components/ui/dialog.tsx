@@ -93,13 +93,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn('font-semibold', className)}
-    style={{
-      color: 'hsl(var(--foreground))',
-      fontSize: '20px',
-      lineHeight: '28px',
-      letterSpacing: '0',
-    }}
+    className={cn('text-section-title text-foreground', className)}
     {...props}
   />
 ));
@@ -111,7 +105,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn('text-[14px] text-muted-foreground', className)}
+    className={cn('text-body text-muted-foreground', className)}
     {...props}
   />
 ));

@@ -89,24 +89,14 @@ const CtaBanner = React.forwardRef<HTMLDivElement, CtaBannerProps>(
             }}
           >
             <h2
-              className="font-semibold"
-              style={{
-                fontSize: '24px',
-                fontWeight: 600,
-                lineHeight: '32px',
-                letterSpacing: '-0.48px',
-                color: 'hsl(var(--primary-foreground))',
-                margin: 0,
-              }}
+              className="text-banner-heading text-primary-foreground"
+              style={{ margin: 0 }}
             >
               {heading}
             </h2>
             <p
-              className="font-medium"
+              className="text-label"
               style={{
-                fontSize: '14px',
-                fontWeight: 500,
-                lineHeight: '20px',
                 color: 'rgba(255, 255, 255, 0.7)',
                 margin: 0,
               }}

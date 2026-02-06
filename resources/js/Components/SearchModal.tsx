@@ -289,7 +289,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
 
           {/* Category Tag */}
           {category !== 'all' && (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-[14px] font-medium flex-shrink-0">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-label flex-shrink-0">
               <span>
                 {category === 'health_records' ? 'Health records' : category.charAt(0).toUpperCase() + category.slice(1)}
               </span>
@@ -311,7 +311,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search..."
-            className="flex-1 bg-transparent text-[14px] outline-none border-none focus:outline-none focus:ring-0 placeholder:text-muted-foreground"
+            className="flex-1 bg-transparent text-body outline-none border-none focus:outline-none focus:ring-0 placeholder:text-muted-foreground"
             style={{ boxShadow: 'none' }}
             autoComplete="off"
           />
@@ -324,7 +324,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                 variant="link"
                 size="sm"
                 onClick={() => setQuery('')}
-                className="h-auto p-0 text-[14px] text-muted-foreground hover:text-foreground no-underline"
+                className="h-auto p-0 text-body text-muted-foreground hover:text-foreground no-underline"
               >
                 Clear
               </Button>
@@ -392,7 +392,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
           {error && !loading && (
             <div className="text-center py-10 px-4">
               <Icon icon={AlertTriangle} className="h-8 w-8 text-warning mx-auto mb-3" />
-              <p className="text-[14px] font-medium" style={{ color: 'hsl(var(--foreground))' }}>
+              <p className="text-label text-foreground">
                 {error}
               </p>
               <Button
@@ -414,10 +414,10 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                 alt="No results"
                 className="w-24 h-24 mb-3"
               />
-              <p className="text-[14px] font-medium" style={{ color: 'hsl(var(--foreground))' }}>
+              <p className="text-label text-foreground">
                 No results for "{query}"
               </p>
-              <p className="text-[14px] text-muted-foreground mt-1">
+              <p className="text-body text-muted-foreground mt-1">
                 Try a different search term or browse by category
               </p>
             </div>
@@ -446,8 +446,8 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                           <Icon icon={Stethoscope} className="h-4 w-4" />
                         </ResultIcon>
                         <div className="min-w-0 flex-1">
-                          <p className="text-[14px] font-medium truncate" style={{ color: 'hsl(var(--foreground))' }}>{doctor.name}</p>
-                          <p className="text-[14px] text-muted-foreground truncate">
+                          <p className="text-label truncate text-foreground">{doctor.name}</p>
+                          <p className="text-body text-muted-foreground truncate">
                             {doctor.specialization} &middot; {doctor.experience_years} years
                           </p>
                         </div>
@@ -478,8 +478,8 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                           <Icon icon={apptIcon} className="h-4 w-4" />
                         </ResultIcon>
                         <div className="min-w-0 flex-1">
-                          <p className="text-[14px] font-medium truncate" style={{ color: 'hsl(var(--foreground))' }}>{appt.title}</p>
-                          <p className="text-[14px] text-muted-foreground truncate">
+                          <p className="text-label truncate text-foreground">{appt.title}</p>
+                          <p className="text-body text-muted-foreground truncate">
                             {appt.subtitle} &middot; {appt.date_formatted} &middot; {appt.patient_name}
                           </p>
                         </div>
@@ -509,8 +509,8 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                           <Icon icon={FileText} className="h-4 w-4" />
                         </ResultIcon>
                         <div className="min-w-0 flex-1">
-                          <p className="text-[14px] font-medium truncate" style={{ color: 'hsl(var(--foreground))' }}>{record.title}</p>
-                          <p className="text-[14px] text-muted-foreground truncate">
+                          <p className="text-label truncate text-foreground">{record.title}</p>
+                          <p className="text-body text-muted-foreground truncate">
                             {record.doctor_name || record.category} &middot; {record.record_date_formatted} &middot; {record.patient_name}
                           </p>
                         </div>
@@ -540,10 +540,10 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                           <Icon icon={Receipt} className="h-4 w-4" />
                         </ResultIcon>
                         <div className="min-w-0 flex-1">
-                          <p className="text-[14px] font-medium truncate" style={{ color: 'hsl(var(--foreground))' }}>
+                          <p className="text-label truncate text-foreground">
                             {bill.title} &middot; {bill.invoice_number}
                           </p>
-                          <p className="text-[14px] text-muted-foreground truncate">
+                          <p className="text-body text-muted-foreground truncate">
                             {bill.patient_name} &middot; {bill.date_formatted} &middot; ₹{bill.amount}
                           </p>
                         </div>
@@ -577,7 +577,7 @@ function ResultSection({
 }) {
   return (
     <div className="mb-1">
-      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-4 py-1.5">
+      <p className="text-overline text-muted-foreground px-4 py-1.5">
         {title}
       </p>
       {children}
@@ -586,7 +586,7 @@ function ResultSection({
           variant="ghost"
           size="sm"
           onClick={onViewAll}
-          className="w-full justify-start rounded-none px-4 py-2 text-[14px] font-medium text-primary gap-1.5"
+          className="w-full justify-start rounded-none px-4 py-2 text-label text-primary gap-1.5"
         >
           <span>View all {total} results</span>
           <Icon icon={ArrowRight} className="h-3 w-3" />
@@ -610,7 +610,7 @@ function ResultItem({
       variant="ghost"
       data-result-item
       onClick={onClick}
-      className="flex items-center gap-3 w-full h-auto justify-start rounded-none px-4 py-2.5 font-normal text-[14px]"
+      className="flex items-center gap-3 w-full h-auto justify-start rounded-none px-4 py-2.5 text-body"
       style={{ backgroundColor: active ? 'hsl(var(--accent))' : 'transparent' }}
       onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = active ? 'hsl(var(--accent))' : 'hsl(var(--muted))')}
       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = active ? 'hsl(var(--accent))' : 'transparent')}

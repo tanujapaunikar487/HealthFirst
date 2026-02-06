@@ -128,10 +128,10 @@ export function HealthProfileSheet({ selfMember, onSuccess }: HealthProfileSheet
 
             <SheetBody>
                 <div>
-                    <p className="mb-3 text-[14px] font-medium text-muted-foreground">Health information</p>
+                    <p className="mb-3 text-label text-muted-foreground">Health information</p>
                     <div className="space-y-4">
                         <div>
-                            <label className="mb-1.5 block text-[14px] font-medium text-muted-foreground">
+                            <label className="mb-1.5 block text-label text-muted-foreground">
                                 Date of birth <span className="text-destructive">*</span>
                             </label>
                             <DatePicker
@@ -143,7 +143,7 @@ export function HealthProfileSheet({ selfMember, onSuccess }: HealthProfileSheet
                         </div>
 
                         <div>
-                            <label className="mb-1.5 block text-[14px] font-medium text-muted-foreground">
+                            <label className="mb-1.5 block text-label text-muted-foreground">
                                 Blood group <span className="text-destructive">*</span>
                             </label>
                             <Select
@@ -162,7 +162,7 @@ export function HealthProfileSheet({ selfMember, onSuccess }: HealthProfileSheet
                         </div>
 
                         <div>
-                            <label className="mb-1.5 block text-[14px] font-medium text-muted-foreground">Medical conditions</label>
+                            <label className="mb-1.5 block text-label text-muted-foreground">Medical conditions</label>
                             <TagInput
                                 value={formData.medical_conditions}
                                 onChange={tags => setFormData({ ...formData, medical_conditions: tags })}
@@ -171,7 +171,7 @@ export function HealthProfileSheet({ selfMember, onSuccess }: HealthProfileSheet
                         </div>
 
                         <div>
-                            <label className="mb-1.5 block text-[14px] font-medium text-muted-foreground">Allergies</label>
+                            <label className="mb-1.5 block text-label text-muted-foreground">Allergies</label>
                             <TagInput
                                 value={formData.allergies}
                                 onChange={tags => setFormData({ ...formData, allergies: tags })}

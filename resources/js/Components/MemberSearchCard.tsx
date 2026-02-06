@@ -38,23 +38,23 @@ export function MemberSearchCard({ member, alreadyLinked }: MemberSearchCardProp
 
                     <div className="flex flex-wrap gap-2 mb-2">
                         {member.age && (
-                            <span className="text-[14px] text-muted-foreground">{member.age} years</span>
+                            <span className="text-body text-muted-foreground">{member.age} years</span>
                         )}
                         {member.gender && (
-                            <span className="text-[14px] text-muted-foreground capitalize">
+                            <span className="text-body text-muted-foreground capitalize">
                                 • {member.gender}
                             </span>
                         )}
                     </div>
 
                     {member.patient_id && (
-                        <p className="text-[14px] text-muted-foreground mb-2">
+                        <p className="text-body text-muted-foreground mb-2">
                             Patient ID: <span className="font-mono">{member.patient_id}</span>
                         </p>
                     )}
 
                     {member.phone && (
-                        <p className="text-[14px] text-muted-foreground">
+                        <p className="text-body text-muted-foreground">
                             Phone: {member.phone}
                         </p>
                     )}

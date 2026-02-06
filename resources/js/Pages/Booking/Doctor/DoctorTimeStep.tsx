@@ -220,7 +220,7 @@ export default function DoctorTimeStep({
       <div className="space-y-12">
         {/* Date Selection - 14 date pills */}
         <section>
-          <h2 className="text-xl font-semibold mb-4">Available {selectedDateLabel}</h2>
+          <h2 className="text-step-title mb-4">Available {selectedDateLabel}</h2>
           <div className="flex gap-2 overflow-x-auto pb-2">
             {availableDates.map((dateOption) => {
               const isSelected = selectedDate === dateOption.date;
@@ -240,16 +240,16 @@ export default function DoctorTimeStep({
                   )}
                 >
                   <div className="w-full text-left">
-                    <p className="font-medium text-[14px]">{dateOption.label}</p>
+                    <p className="text-label">{dateOption.label}</p>
                     <p className={cn(
-                      'text-[14px]',
+                      'text-body',
                       isSelected ? 'text-background/70' : 'text-muted-foreground'
                     )}>
                       {dateOption.sublabel}
                     </p>
                     {dateOption.doctorCount !== undefined && (
                       <p className={cn(
-                        'text-[14px] mt-0.5',
+                        'text-body mt-0.5',
                         isSelected ? 'text-background/60' : noDoctors ? 'text-destructive/70' : 'text-muted-foreground'
                       )}>
                         {noDoctors ? 'No doctors' : `${dateOption.doctorCount} doctors`}
@@ -266,8 +266,8 @@ export default function DoctorTimeStep({
         <section>
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-xl font-semibold">{filteredDoctors.length} doctors available</h2>
-              <p className="text-[14px] text-muted-foreground">
+              <h2 className="text-step-title">{filteredDoctors.length} doctors available</h2>
+              <p className="text-body text-muted-foreground">
                 Based on your symptoms and selected date
               </p>
             </div>
@@ -299,7 +299,7 @@ export default function DoctorTimeStep({
           {filteredDoctors.length === 0 ? (
             <Card className="p-8 text-center">
               <p className="font-medium text-foreground">No doctors available on this date</p>
-              <p className="text-[14px] text-muted-foreground mt-1">
+              <p className="text-body text-muted-foreground mt-1">
                 Some doctors don't work on {selectedDateLabel}s. Try selecting a different date.
               </p>
             </Card>
@@ -319,13 +319,13 @@ export default function DoctorTimeStep({
             </Card>
           )}
 
-          {errors.doctor && <p className="text-[14px] text-destructive mt-2">{errors.doctor}</p>}
+          {errors.doctor && <p className="text-body text-destructive mt-2">{errors.doctor}</p>}
         </section>
 
         {/* Consultation Mode */}
         {selectedDoctor && (
           <section ref={appointmentModeSectionRef}>
-            <h2 className="text-xl font-semibold mb-4">How would you like to consult?</h2>
+            <h2 className="text-step-title mb-4">How would you like to consult?</h2>
 
             <AppointmentModeSelector
               modes={getModes()}
@@ -333,7 +333,7 @@ export default function DoctorTimeStep({
               onSelect={(mode) => setConsultationMode(mode as 'video' | 'in_person')}
             />
 
-            {errors.mode && <p className="text-[14px] text-destructive mt-2">{errors.mode}</p>}
+            {errors.mode && <p className="text-body text-destructive mt-2">{errors.mode}</p>}
           </section>
         )}
       </div>
@@ -406,15 +406,15 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime, isL
         </Avatar>
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-foreground">{doctor.name}</h3>
-          <p className="text-[14px] text-muted-foreground">
+          <p className="text-body text-muted-foreground">
             {doctor.specialization} • {doctor.experience_years} years of experience
           </p>
         </div>
         <div className="flex flex-col items-end gap-1">
-          <span className="inline-block px-2 py-1 text-[14px] font-medium text-primary bg-primary/10 rounded whitespace-nowrap">
+          <span className="inline-block px-2 py-1 text-label text-primary bg-primary/10 rounded whitespace-nowrap">
             {formatConsultationModes(doctor.appointment_modes)}
           </span>
-          <span className="font-semibold text-[14px]">{getFeeRange()}</span>
+          <span className="text-card-title">{getFeeRange()}</span>
         </div>
       </div>
 
@@ -427,7 +427,7 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime, isL
             onClick={() => slot.available && onSelectTime(slot.time)}
             disabled={!slot.available}
             className={cn(
-              'h-auto px-3 py-1.5 text-[14px] rounded-full font-medium transition-all relative',
+              'h-auto px-3 py-1.5 text-label rounded-full transition-all relative',
               selectedTime !== slot.time && 'hover:border-primary/50 hover:bg-primary/5',
               selectedTime === slot.time && 'border-foreground',
               !slot.available && 'opacity-40 cursor-not-allowed'

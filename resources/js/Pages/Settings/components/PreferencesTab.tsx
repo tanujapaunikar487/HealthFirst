@@ -54,15 +54,7 @@ interface PreferencesTabProps {
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
     return (
-        <h3
-            className="font-semibold"
-            style={{
-                color: 'hsl(var(--foreground))',
-                fontSize: '20px',
-                lineHeight: '28px',
-                letterSpacing: '0',
-            }}
-        >
+        <h3 className="text-section-title text-foreground">
             {children}
         </h3>
     );
@@ -183,8 +175,8 @@ export function PreferencesTab({
                         {/* Date Format Row */}
                         <div className="flex items-center justify-between px-6 py-4">
                             <div>
-                                <p className="text-[14px] font-semibold leading-5 text-foreground">Date Format</p>
-                                <p className="text-[14px] font-normal leading-5 text-muted-foreground">
+                                <p className="text-card-title text-foreground">Date Format</p>
+                                <p className="text-body text-muted-foreground">
                                     How dates appear throughout the app
                                 </p>
                             </div>
@@ -207,8 +199,8 @@ export function PreferencesTab({
                         {/* Time Format Row */}
                         <div className="flex items-center justify-between px-6 py-4">
                             <div>
-                                <p className="text-[14px] font-semibold leading-5 text-foreground">Time Format</p>
-                                <p className="text-[14px] font-normal leading-5 text-muted-foreground">
+                                <p className="text-card-title text-foreground">Time Format</p>
+                                <p className="text-body text-muted-foreground">
                                     12-hour or 24-hour clock
                                 </p>
                             </div>
@@ -216,7 +208,7 @@ export function PreferencesTab({
                                 <Button
                                     variant="ghost"
                                     onClick={() => handlePrefChange('time_format', '24h')}
-                                    className={`px-4 py-1.5 h-auto text-[14px] font-medium rounded-full transition-colors ${
+                                    className={`px-4 py-1.5 h-auto text-label rounded-full transition-colors ${
                                         prefs.time_format === '24h'
                                             ? 'bg-background text-primary shadow-sm'
                                             : 'text-muted-foreground hover:text-foreground'
@@ -227,7 +219,7 @@ export function PreferencesTab({
                                 <Button
                                     variant="ghost"
                                     onClick={() => handlePrefChange('time_format', '12h')}
-                                    className={`px-4 py-1.5 h-auto text-[14px] font-medium rounded-full transition-colors ${
+                                    className={`px-4 py-1.5 h-auto text-label rounded-full transition-colors ${
                                         prefs.time_format === '12h'
                                             ? 'bg-background text-primary shadow-sm'
                                             : 'text-muted-foreground hover:text-foreground'
@@ -249,8 +241,8 @@ export function PreferencesTab({
                         {/* Text Size Row */}
                         <div className="flex items-center justify-between px-6 py-4">
                             <div>
-                                <p className="text-[14px] font-semibold leading-5 text-foreground">Text Size</p>
-                                <p className="text-[14px] font-normal leading-5 text-muted-foreground">
+                                <p className="text-card-title text-foreground">Text Size</p>
+                                <p className="text-body text-muted-foreground">
                                     Adjust the font size throughout the app
                                 </p>
                             </div>
@@ -258,7 +250,7 @@ export function PreferencesTab({
                                 <Button
                                     variant="ghost"
                                     onClick={() => setTextSizeFromOption('small')}
-                                    className={`px-3 py-1.5 h-auto text-[14px] font-medium rounded-full transition-colors ${
+                                    className={`px-3 py-1.5 h-auto text-label rounded-full transition-colors ${
                                         getTextSizeOption(prefs.accessibility.text_size) === 'small'
                                             ? 'bg-background text-primary shadow-sm'
                                             : 'text-muted-foreground hover:text-foreground'
@@ -269,7 +261,7 @@ export function PreferencesTab({
                                 <Button
                                     variant="ghost"
                                     onClick={() => setTextSizeFromOption('medium')}
-                                    className={`px-3 py-1.5 h-auto text-[14px] font-medium rounded-full transition-colors ${
+                                    className={`px-3 py-1.5 h-auto text-label rounded-full transition-colors ${
                                         getTextSizeOption(prefs.accessibility.text_size) === 'medium'
                                             ? 'bg-background text-primary shadow-sm'
                                             : 'text-muted-foreground hover:text-foreground'
@@ -294,8 +286,8 @@ export function PreferencesTab({
                         {/* High Contrast Row */}
                         <div className="flex items-center justify-between px-6 py-4">
                             <div>
-                                <p className="text-[14px] font-semibold leading-5 text-foreground">High Contrast Mode</p>
-                                <p className="text-[14px] font-normal leading-5 text-muted-foreground">
+                                <p className="text-card-title text-foreground">High Contrast Mode</p>
+                                <p className="text-body text-muted-foreground">
                                     Increase contrast for better visibility
                                 </p>
                             </div>
@@ -316,8 +308,8 @@ export function PreferencesTab({
                         {/* Default Family Member Row */}
                         <div className="flex items-center justify-between px-6 py-4">
                             <div>
-                                <p className="text-[14px] font-semibold leading-5 text-foreground">Default Family Member</p>
-                                <p className="text-[14px] font-normal leading-5 text-muted-foreground">
+                                <p className="text-card-title text-foreground">Default Family Member</p>
+                                <p className="text-body text-muted-foreground">
                                     Pre-select when booking appointments
                                 </p>
                             </div>
@@ -358,7 +350,7 @@ export function PreferencesTab({
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                                     <Lock className="h-5 w-5 text-foreground" />
                                 </div>
-                                <span className="text-[14px] font-semibold leading-5 text-foreground">Change password</span>
+                                <span className="text-card-title text-foreground">Change password</span>
                             </div>
                             <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
                         </Button>
@@ -373,7 +365,7 @@ export function PreferencesTab({
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                                     <Download className="h-5 w-5 text-foreground" />
                                 </div>
-                                <span className="text-[14px] font-semibold leading-5 text-foreground">Download My Data</span>
+                                <span className="text-card-title text-foreground">Download My Data</span>
                             </div>
                             <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
                         </Button>
@@ -388,7 +380,7 @@ export function PreferencesTab({
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                                     <Trash2 className="h-5 w-5 text-foreground" />
                                 </div>
-                                <span className="text-[14px] font-semibold leading-5 text-foreground">Delete account</span>
+                                <span className="text-card-title text-foreground">Delete account</span>
                             </div>
                             <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
                         </Button>
@@ -405,13 +397,13 @@ export function PreferencesTab({
 
                     <DialogBody>
                         <div className="space-y-4">
-                            <p className="text-[14px] text-muted-foreground">
+                            <p className="text-body text-muted-foreground">
                                 This action cannot be undone. This will permanently delete your account and
                                 remove all your data from our servers.
                             </p>
 
-                            <div className="rounded-lg border bg-muted/50 p-4 text-[14px]">
-                                <p className="font-medium text-foreground mb-2">The following data will be deleted:</p>
+                            <div className="rounded-lg border bg-muted/50 p-4 text-body">
+                                <p className="text-label text-foreground mb-2">The following data will be deleted:</p>
                                 <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                                     <li>Your profile and personal information</li>
                                     <li>All family member records</li>

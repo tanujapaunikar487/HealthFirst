@@ -39,17 +39,17 @@ export const typography = {
 
     // Body text
     p: 'leading-7',
-    pMuted: 'text-[14px] text-muted-foreground',
+    pMuted: 'text-body text-muted-foreground',
 
     // UI text (most common)
-    label: 'text-[14px] font-medium leading-none',
-    labelMuted: 'text-[14px] text-muted-foreground',
+    label: 'text-label leading-none',
+    labelMuted: 'text-body text-muted-foreground',
 
     // Emphasis
     lead: 'text-xl text-muted-foreground',
     large: 'text-lg font-semibold',
-    small: 'text-[14px] font-medium leading-none',
-    subtle: 'text-[14px] text-muted-foreground',
+    small: 'text-label leading-none',
+    subtle: 'text-body text-muted-foreground',
 } as const;
 
 // ============================================
@@ -71,7 +71,7 @@ export const card = {
     base: 'rounded-lg border bg-card text-card-foreground shadow-sm',
     header: 'flex flex-col space-y-1.5 p-6',
     title: 'text-2xl font-semibold leading-none tracking-tight',
-    description: 'text-[14px] text-muted-foreground',
+    description: 'text-body text-muted-foreground',
     content: 'p-6 pt-0',
     footer: 'flex items-center p-6 pt-0',
 } as const;
@@ -92,7 +92,7 @@ export const button = {
 } as const;
 
 export const badge = {
-    default: 'inline-flex items-center rounded-full border px-2.5 py-0.5 text-[14px] font-semibold',
+    default: 'inline-flex items-center rounded-full border px-2.5 py-0.5 text-card-title',
     secondary: 'border-transparent bg-secondary text-secondary-foreground',
     outline: 'text-foreground',
 } as const;

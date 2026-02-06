@@ -42,7 +42,7 @@ export function GuidedBookingLayout({
         <div className="flex items-center justify-between gap-8 px-6 py-4">
           <div className="flex items-center gap-2 flex-shrink-0">
             <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-5 h-5" />
-            <span className="font-medium text-[14px]">Booking an appointment</span>
+            <span className="text-label">Booking an appointment</span>
           </div>
 
           {/* Step indicator - inline, will handle its own 800px centering */}

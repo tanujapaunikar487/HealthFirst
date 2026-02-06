@@ -26,7 +26,7 @@ const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
       <div className={cn('flex items-center', className)}>
         {/* Country Code Badge */}
         <div className={cn(
-          'flex h-10 items-center justify-center rounded-l-lg border border-r-0 bg-muted px-3 text-[14px] font-medium',
+          'flex h-10 items-center justify-center rounded-l-lg border border-r-0 bg-muted px-3 text-label',
           error ? 'border-destructive' : 'border-border',
           disabled && 'opacity-50 cursor-not-allowed'
         )}>
@@ -41,7 +41,7 @@ const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
           onChange={handleChange}
           disabled={disabled}
           className={cn(
-            'flex h-10 w-full rounded-r-lg border bg-background px-3 py-2 text-[14px] ring-offset-background file:border-0 file:bg-transparent file:text-[14px] file:font-medium placeholder:text-muted-foreground',
+            'flex h-10 w-full rounded-r-lg border bg-background px-3 py-2 text-body ring-offset-background file:border-0 file:bg-transparent file:text-label placeholder:text-muted-foreground',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
             'disabled:cursor-not-allowed disabled:opacity-50',
             error ? 'border-destructive focus-visible:ring-destructive/20' : 'border-border',

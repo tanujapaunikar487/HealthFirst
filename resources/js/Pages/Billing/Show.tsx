@@ -272,7 +272,7 @@ function Section({
     <div id={id} className="scroll-mt-24">
       <div className="flex items-center gap-2.5 mb-4">
         <Icon icon={SectionIcon} className="h-5 w-5 text-foreground" />
-        <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+        <h2 className="text-section-title text-foreground">
           {title}
         </h2>
       </div>
@@ -294,8 +294,8 @@ function InfoRow({ label, value, isLast }: { label: React.ReactNode; value: Reac
       className="grid items-start px-4 py-4"
       style={{ gridTemplateColumns: '130px 1fr', ...(isLast ? {} : { borderBottom: '1px solid hsl(var(--border))' }) }}
     >
-      <span className="text-[14px] text-muted-foreground pt-px">{label}</span>
-      <span className="text-[14px] font-medium">{value}</span>
+      <span className="text-body text-muted-foreground pt-px">{label}</span>
+      <span className="text-label">{value}</span>
     </div>
   );
 }
@@ -579,7 +579,7 @@ export default function Show({ user, bill }: Props) {
         <Button
           variant="link"
           size="sm"
-          className="h-auto p-0 mb-6 flex items-center gap-1.5 text-[14px] font-medium text-muted-foreground hover:text-foreground"
+          className="h-auto p-0 mb-6 flex items-center gap-1.5 text-label text-muted-foreground hover:text-foreground"
           onClick={() => router.visit('/billing')}
         >
           <ArrowLeft className="h-4 w-4" />
@@ -590,10 +590,10 @@ export default function Show({ user, bill }: Props) {
         <div className="mb-6 flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-foreground">{bill.invoice_number}</h1>
+              <h1 className="text-detail-title text-foreground">{bill.invoice_number}</h1>
               <StatusBadge status={bill.billing_status} />
             </div>
-            <p className="mt-1 text-[14px] text-muted-foreground">
+            <p className="mt-1 text-body text-muted-foreground">
               {bill.patient_name} &middot; {bill.generated_date}
             </p>
           </div>
@@ -804,8 +804,8 @@ export default function Show({ user, bill }: Props) {
                 className="px-4 py-4"
                 style={{ borderBottom: '1px solid hsl(var(--border))' }}
               >
-                <p className="text-[14px] font-semibold text-foreground">HealthFirst Hospital</p>
-                <p className="text-[14px] text-muted-foreground mt-0.5">123 Hospital Road, Pune 411001 &middot; GSTIN: 27AABCH1234P1ZP</p>
+                <p className="text-card-title text-foreground">HealthFirst Hospital</p>
+                <p className="text-body text-muted-foreground mt-0.5">123 Hospital Road, Pune 411001 &middot; GSTIN: 27AABCH1234P1ZP</p>
               </div>
               <InfoRow label="Invoice date" value={bill.generated_date} />
               <InfoRow label="Reference" value={<span className="font-mono">{bill.reference_number}</span>} />
@@ -855,7 +855,7 @@ export default function Show({ user, bill }: Props) {
             {/* ─── Charges Section ─── */}
             <Section id="charges" title="Charges" icon={Receipt}>
               <div style={{ borderBottom: '1px solid hsl(var(--border))' }}>
-                <table className="w-full text-[14px]">
+                <table className="w-full text-body">
                   <thead>
                     <tr style={{ backgroundColor: 'hsl(var(--muted))' }}>
                       <th className="text-left font-medium text-muted-foreground pl-4 pr-2 py-3">Item</th>
@@ -887,8 +887,8 @@ export default function Show({ user, bill }: Props) {
                 <InfoRow label="Insurance coverage" value={<span className="text-success">-₹{bill.insurance_deduction.toLocaleString()}</span>} />
               )}
               <div className="grid items-start px-4 py-4" style={{ gridTemplateColumns: '130px 1fr' }}>
-                <span className="text-[14px] font-semibold">{isPayable ? 'Amount due' : 'Amount paid'}</span>
-                <span className="text-[16px] font-bold text-right" style={{ color: 'hsl(var(--foreground))' }}>₹{bill.total.toLocaleString()}</span>
+                <span className="text-card-title">{isPayable ? 'Amount due' : 'Amount paid'}</span>
+                <span className="text-subheading text-right text-foreground">₹{bill.total.toLocaleString()}</span>
               </div>
             </Section>
 
@@ -897,7 +897,7 @@ export default function Show({ user, bill }: Props) {
               <div id="payment" className="scroll-mt-24 space-y-4">
                 <div className="flex items-center gap-2.5 mb-4">
                   <Icon icon={CreditCard} className="h-5 w-5 text-foreground" />
-                  <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+                  <h2 className="text-section-title text-foreground">
                     Payment Details
                   </h2>
                 </div>
@@ -919,7 +919,7 @@ export default function Show({ user, bill }: Props) {
                       className="px-4 py-3"
                       style={{ borderBottom: '1px solid hsl(var(--border))', backgroundColor: 'hsl(var(--muted))' }}
                     >
-                      <p className="text-[14px] font-medium text-muted-foreground">Insurance</p>
+                      <p className="text-label text-muted-foreground">Insurance</p>
                     </div>
                     <InfoRow label="Provider" value={bill.insurance_details.provider_name} />
                     <InfoRow label="Policy number" value={<span className="font-mono">{bill.insurance_details.policy_number}</span>} />
@@ -946,7 +946,7 @@ export default function Show({ user, bill }: Props) {
                         <Button
                           variant="link"
                           size="sm"
-                          className="h-auto p-0 text-[14px] font-medium hover:underline flex items-center gap-1"
+                          className="h-auto p-0 text-label hover:underline flex items-center gap-1"
                           style={{ color: 'hsl(var(--primary))' }}
                           onClick={() => router.visit(`/insurance/claims/${bill.insurance_details!.insurance_claim_id}`)}
                         >
@@ -971,7 +971,7 @@ export default function Show({ user, bill }: Props) {
                   className="px-4 py-4"
                   style={{ borderBottom: '1px solid hsl(var(--border))' }}
                 >
-                  <div className="flex justify-between text-[14px] text-muted-foreground mb-1.5">
+                  <div className="flex justify-between text-body text-muted-foreground mb-1.5">
                     <span>{bill.emi_details.paid_installments} of {bill.emi_details.total_installments} paid</span>
                     <span>{Math.round((bill.emi_details.paid_installments / bill.emi_details.total_installments) * 100)}%</span>
                   </div>
@@ -992,26 +992,26 @@ export default function Show({ user, bill }: Props) {
               <div id="dispute" className="scroll-mt-24">
                 <div className="flex items-center gap-2.5 mb-4">
                   <Icon icon={AlertTriangle} className="h-5 w-5 text-foreground" />
-                  <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+                  <h2 className="text-section-title text-foreground">
                     Dispute
                   </h2>
                 </div>
                 <Card className="p-5" style={{ backgroundColor: 'hsl(var(--destructive) / 0.1)', borderColor: 'hsl(var(--destructive) / 0.2)' }}>
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="h-4 w-4 text-destructive" />
-                    <p className="text-[14px] font-semibold text-destructive">
+                    <p className="text-card-title text-destructive">
                       {bill.dispute_details.dispute_id} &middot; Raised {bill.dispute_details.raised_on}
                     </p>
                   </div>
-                  <p className="text-[14px] text-destructive">
+                  <p className="text-body text-destructive">
                     <span className="text-muted-foreground">Reason:</span> {bill.dispute_details.reason}
                   </p>
-                  <p className="text-[14px] text-destructive mt-1">
+                  <p className="text-body text-destructive mt-1">
                     <span className="text-muted-foreground">Status:</span>{' '}
                     <span className="font-medium">{bill.dispute_details.status}</span>
                   </p>
                   {bill.dispute_details.resolution_notes && (
-                    <p className="text-[14px] text-destructive mt-1">
+                    <p className="text-body text-destructive mt-1">
                       <span className="text-muted-foreground">Resolution:</span> {bill.dispute_details.resolution_notes}
                     </p>
                   )}
@@ -1044,7 +1044,7 @@ export default function Show({ user, bill }: Props) {
 
           <DialogBody>
             <div>
-              <label className="block text-[14px] font-medium text-foreground mb-2">
+              <label className="block text-label text-foreground mb-2">
                 Reason for dispute
               </label>
               <Textarea
@@ -1055,7 +1055,7 @@ export default function Show({ user, bill }: Props) {
                 rows={4}
                 className="w-full"
               />
-              <p className="mt-1 text-[14px] text-muted-foreground text-right">{disputeReason.length}/1000</p>
+              <p className="mt-1 text-body text-muted-foreground text-right">{disputeReason.length}/1000</p>
             </div>
           </DialogBody>
 
@@ -1100,7 +1100,7 @@ export default function Show({ user, bill }: Props) {
       {/* Toast */}
       {toastMessage && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-          <div className="flex items-center gap-2 rounded-lg bg-foreground px-4 py-2.5 text-[14px] text-background shadow-lg">
+          <div className="flex items-center gap-2 rounded-lg bg-foreground px-4 py-2.5 text-body text-background shadow-lg">
             <CheckCircle2 className="h-4 w-4 text-success" />
             {toastMessage}
           </div>

@@ -34,7 +34,7 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
               onClick={() => !disabled && onSelect(addr.id, addr.label, addr.address)}
               disabled={disabled}
               className={cn(
-                'w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50',
+                'w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50',
                 'flex items-start gap-3 text-left transition-all',
                 isSelected && 'bg-primary/5 border-l-2 border-l-primary',
                 disabled && !isSelected && 'opacity-60',
@@ -51,12 +51,12 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
 
               <div className="flex-1 min-w-0 text-left">
                 <div className="flex items-center gap-2">
-                  <p className="font-medium text-[14px]">{addr.label}</p>
+                  <p className="text-label">{addr.label}</p>
                   {addr.is_default && (
                     <Badge variant="info">Default</Badge>
                   )}
                 </div>
-                <div className="flex items-center gap-1 mt-1 text-[14px] text-muted-foreground">
+                <div className="flex items-center gap-1 mt-1 text-body text-muted-foreground">
                   <MapPin className="h-3 w-3 flex-shrink-0" />
                   <span className="truncate">{addr.address}</span>
                 </div>
@@ -85,7 +85,7 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
         <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
           <Plus className="h-4 w-4 text-foreground" />
         </div>
-        <span className="text-[14px] text-muted-foreground">Add new address</span>
+        <span className="text-body text-muted-foreground">Add new address</span>
       </Button>
     </div>
   );

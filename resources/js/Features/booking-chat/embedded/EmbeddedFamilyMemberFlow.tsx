@@ -915,22 +915,22 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     {state.step === 'choice' && (
                         <div className="space-y-4">
                             <div className="grid gap-3">
-                                <Button variant="ghost" onClick={() => handleInitialChoice('add_new_family')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 font-normal text-[14px]">
+                                <Button variant="ghost" onClick={() => handleInitialChoice('add_new_family')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 text-body">
                                     <div className="flex items-center gap-4">
                                         <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><Users className="h-5 w-5" /></div>
-                                        <div><h4 className="font-semibold">Add New Family Member</h4><p className="text-[14px] text-muted-foreground">Create a full family member profile</p></div>
+                                        <div><h4 className="font-semibold">Add New Family Member</h4><p className="text-card-title text-muted-foreground">Create a full family member profile</p></div>
                                     </div>
                                 </Button>
-                                <Button variant="ghost" onClick={() => handleInitialChoice('link_existing')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 font-normal text-[14px]">
+                                <Button variant="ghost" onClick={() => handleInitialChoice('link_existing')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 text-body">
                                     <div className="flex items-center gap-4">
                                         <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><Users className="h-5 w-5" /></div>
-                                        <div><h4 className="font-semibold">Link Existing Patient</h4><p className="text-[14px] text-muted-foreground">Connect to an existing hospital patient record</p></div>
+                                        <div><h4 className="font-semibold">Link Existing Patient</h4><p className="text-card-title text-muted-foreground">Connect to an existing hospital patient record</p></div>
                                     </div>
                                 </Button>
-                                <Button variant="ghost" onClick={() => handleInitialChoice('guest')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 font-normal text-[14px]">
+                                <Button variant="ghost" onClick={() => handleInitialChoice('guest')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 text-body">
                                     <div className="flex items-center gap-4">
                                         <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><User className="h-5 w-5" /></div>
-                                        <div><h4 className="font-semibold">Guest</h4><p className="text-[14px] text-muted-foreground">One-time booking only</p></div>
+                                        <div><h4 className="font-semibold">Guest</h4><p className="text-card-title text-muted-foreground">One-time booking only</p></div>
                                     </div>
                                 </Button>
                             </div>
@@ -941,23 +941,23 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         <div className="space-y-6">
                             <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <label htmlFor="guest_name_s" className="block text-[14px] font-medium text-foreground">Name <span className="text-destructive">*</span></label>
+                                    <label htmlFor="guest_name_s" className="block text-label text-foreground">Name <span className="text-destructive">*</span></label>
                                     <Input id="guest_name_s" value={state.guestName} onChange={(e) => setState((prev) => ({ ...prev, guestName: e.target.value }))} placeholder="Enter guest name" autoFocus />
                                 </div>
                                 <div className="space-y-2">
-                                    <label htmlFor="guest_phone_s" className="block text-[14px] font-medium text-foreground">Phone Number <span className="text-destructive">*</span></label>
+                                    <label htmlFor="guest_phone_s" className="block text-label text-foreground">Phone Number <span className="text-destructive">*</span></label>
                                     <PhoneInput id="guest_phone_s" value={state.guestPhone} onChange={(value) => setState((prev) => ({ ...prev, guestPhone: value }))} />
                                 </div>
                             </div>
                             <div className="space-y-4">
-                                <p className="text-[14px] text-muted-foreground uppercase tracking-wide pt-2">Optional</p>
+                                <p className="text-body text-muted-foreground uppercase tracking-wide pt-2">Optional</p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div className="space-y-2">
-                                        <label htmlFor="guest_dob_s" className="block text-[14px] font-medium text-foreground">Date of Birth</label>
+                                        <label htmlFor="guest_dob_s" className="block text-label text-foreground">Date of Birth</label>
                                         <DatePicker id="guest_dob_s" value={state.guestDOB} onChange={(value) => setState((prev) => ({ ...prev, guestDOB: value, guestAge: '' }))} max={new Date()} placeholder="Select date" />
                                     </div>
                                     <div className="space-y-2">
-                                        <label htmlFor="guest_age_s" className="block text-[14px] font-medium text-foreground">Age</label>
+                                        <label htmlFor="guest_age_s" className="block text-label text-foreground">Age</label>
                                         <Select value={state.guestAge} onValueChange={(value) => setState((prev) => ({ ...prev, guestAge: value, guestDOB: '' }))} disabled={!!state.guestDOB}>
                                             <SelectTrigger id="guest_age_s" className={state.guestDOB ? 'opacity-50 cursor-not-allowed' : ''}><SelectValue placeholder="Select age" /></SelectTrigger>
                                             <SelectContent className="max-h-[200px]">{Array.from({ length: 121 }, (_, i) => i).map((age) => (<SelectItem key={age} value={age.toString()}>{age} {age === 0 ? 'year' : 'years'}</SelectItem>))}</SelectContent>
@@ -965,7 +965,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <label htmlFor="guest_gender_s" className="block text-[14px] font-medium text-foreground">Gender</label>
+                                    <label htmlFor="guest_gender_s" className="block text-label text-foreground">Gender</label>
                                     <Select value={state.guestGender} onValueChange={(value) => setState((prev) => ({ ...prev, guestGender: value }))}>
                                         <SelectTrigger id="guest_gender_s"><SelectValue placeholder="Select gender (optional)" /></SelectTrigger>
                                         <SelectContent><SelectItem value="male">Male</SelectItem><SelectItem value="female">Female</SelectItem><SelectItem value="other">Other</SelectItem></SelectContent>
@@ -981,7 +981,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             <div className="space-y-4">
                                 {/* Relationship dropdown */}
                                 <div className="space-y-2">
-                                    <label htmlFor="relationship_s" className="block text-[14px] font-medium text-foreground">
+                                    <label htmlFor="relationship_s" className="block text-label text-foreground">
                                         Relationship <span className="text-destructive">*</span>
                                     </label>
                                     <Select
@@ -1012,7 +1012,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="new_member_name_s" className="block text-[14px] font-medium text-foreground">
+                                    <label htmlFor="new_member_name_s" className="block text-label text-foreground">
                                         Full Name <span className="text-destructive">*</span>
                                     </label>
                                     <Input
@@ -1026,7 +1026,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="new_member_phone_s" className="block text-[14px] font-medium text-foreground">
+                                    <label htmlFor="new_member_phone_s" className="block text-label text-foreground">
                                         Phone Number <span className="text-destructive">*</span>
                                     </label>
                                     <PhoneInput
@@ -1040,11 +1040,11 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                             {/* Optional Details Section */}
                             <div className="space-y-4">
-                                <p className="text-[14px] text-muted-foreground uppercase tracking-wide pt-2">Optional</p>
+                                <p className="text-body text-muted-foreground uppercase tracking-wide pt-2">Optional</p>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div className="space-y-2">
-                                        <label htmlFor="new_member_dob_s" className="block text-[14px] font-medium text-foreground">
+                                        <label htmlFor="new_member_dob_s" className="block text-label text-foreground">
                                             Date of Birth
                                         </label>
                                         <DatePicker
@@ -1062,7 +1062,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label htmlFor="new_member_age_s" className="block text-[14px] font-medium text-foreground">
+                                        <label htmlFor="new_member_age_s" className="block text-label text-foreground">
                                             Age
                                         </label>
                                         <Select
@@ -1092,7 +1092,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="new_member_gender_s" className="block text-[14px] font-medium text-foreground">
+                                    <label htmlFor="new_member_gender_s" className="block text-label text-foreground">
                                         Gender
                                     </label>
                                     <Select
@@ -1112,7 +1112,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="new_member_email_s" className="block text-[14px] font-medium text-foreground">
+                                    <label htmlFor="new_member_email_s" className="block text-label text-foreground">
                                         Email
                                     </label>
                                     <Input
@@ -1126,7 +1126,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="new_member_blood_group_s" className="block text-[14px] font-medium text-foreground">
+                                    <label htmlFor="new_member_blood_group_s" className="block text-label text-foreground">
                                         Blood Group
                                     </label>
                                     <Select
@@ -1157,7 +1157,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         <div className="space-y-6">
                             {/* Smart Single Input */}
                             <div className="space-y-2">
-                                <label htmlFor="search_value_s" className="block text-[14px] font-medium text-foreground">
+                                <label htmlFor="search_value_s" className="block text-label text-foreground">
                                     Search by phone, email, or patient ID
                                 </label>
                                 <Input
@@ -1168,7 +1168,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                     autoFocus
                                 />
                                 {state.searchValue.trim() && (
-                                    <p className="text-[14px] text-muted-foreground">
+                                    <p className="text-body text-muted-foreground">
                                         Detected: {detectSearchType(state.searchValue) === 'phone' ? 'Phone Number' : detectSearchType(state.searchValue) === 'email' ? 'Email' : 'Patient ID'}
                                     </p>
                                 )}
@@ -1203,7 +1203,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                     <div>
                                         <h4 className="font-semibold">{state.foundMember.name}</h4>
                                         {state.foundMember.patient_id && (
-                                            <p className="text-[14px] text-muted-foreground">Patient ID: {state.foundMember.patient_id}</p>
+                                            <p className="text-body text-muted-foreground">Patient ID: {state.foundMember.patient_id}</p>
                                         )}
                                     </div>
                                 </div>
@@ -1211,7 +1211,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                             {/* Relationship Selection */}
                             <div className="space-y-2">
-                                <label htmlFor="link_relation_s" className="block text-[14px] font-medium text-foreground">
+                                <label htmlFor="link_relation_s" className="block text-label text-foreground">
                                     Relationship to you <span className="text-destructive">*</span>
                                 </label>
                                 <Select
@@ -1238,7 +1238,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                             {/* Contact Method Selection */}
                             <div className="space-y-3">
-                                <p className="text-[14px] font-medium">Verify ownership by receiving OTP at:</p>
+                                <p className="text-label">Verify ownership by receiving OTP at:</p>
                                 <div className="space-y-2">
                                     {/* Phone option */}
                                     <label className={cn(
@@ -1312,7 +1312,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                     variant="link"
                                     size="sm"
                                     onClick={() => setState(prev => ({ ...prev, showContactUpdateModal: true }))}
-                                    className="h-auto p-0 w-full text-[14px] text-muted-foreground hover:text-foreground"
+                                    className="h-auto p-0 w-full text-body text-muted-foreground hover:text-foreground"
                                 >
                                     Contact info not correct? Request update
                                 </Button>
@@ -1325,10 +1325,10 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                             <div className="bg-background rounded-xl p-6 max-w-sm w-full space-y-4">
                                 <h3 className="text-lg font-semibold">Request Contact Update</h3>
-                                <p className="text-[14px] text-muted-foreground">
+                                <p className="text-body text-muted-foreground">
                                     For security, contact information can only be updated by visiting the hospital or calling our helpline.
                                 </p>
-                                <div className="space-y-2 text-[14px]">
+                                <div className="space-y-2 text-body">
                                     <p><strong>📞 Helpline:</strong> 1800-XXX-XXXX</p>
                                     <p><strong>🏥 Visit:</strong> Registration desk with valid ID</p>
                                 </div>
@@ -1347,7 +1347,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             {/* Show where OTP was sent */}
                             {state.otpSentTo && (
                                 <div className="text-center p-3 bg-primary/10 border border-primary/20 rounded-lg">
-                                    <p className="text-[14px] text-primary">
+                                    <p className="text-body text-primary">
                                         OTP sent to <strong>{state.otpSentTo}</strong>
                                     </p>
                                 </div>
@@ -1360,7 +1360,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 error={state.error}
                             />
                             {state.loading && (
-                                <div className="flex items-center justify-center gap-2 text-[14px] text-muted-foreground">
+                                <div className="flex items-center justify-center gap-2 text-body text-muted-foreground">
                                     <Loader2 className="h-4 w-4 animate-spin" />Verifying...
                                 </div>
                             )}
@@ -1379,7 +1379,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                         // Pass method directly to avoid stale state
                                         handleSendOtp(newMethod);
                                     }}
-                                    className="h-auto p-0 w-full text-[14px] text-primary hover:underline"
+                                    className="h-auto p-0 w-full text-body text-primary hover:underline"
                                     disabled={state.loading}
                                 >
                                     Try {state.selectedContactMethod === 'phone' ? 'Email' : 'Phone'} Instead →
@@ -1392,7 +1392,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         <div className="space-y-4 text-center py-8">
                             <div className="h-16 w-16 rounded-full bg-success/10 flex items-center justify-center mx-auto"><CheckCircle2 className="h-8 w-8 text-success" /></div>
                             <h3 className="text-lg font-semibold">Successfully Linked!</h3>
-                            <p className="text-[14px] text-muted-foreground">{state.foundMember?.name} has been added to your family members</p>
+                            <p className="text-body text-muted-foreground">{state.foundMember?.name} has been added to your family members</p>
                         </div>
                     )}
                 </div></SheetBody>
@@ -1411,7 +1411,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     variant="link"
                     size="sm"
                     onClick={handleBack}
-                    className="h-auto p-0 flex items-center gap-2 text-[14px] text-muted-foreground hover:text-foreground"
+                    className="h-auto p-0 flex items-center gap-2 text-body text-muted-foreground hover:text-foreground"
                 >
                     <ChevronLeft className="h-4 w-4" />
                     Back
@@ -1427,7 +1427,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             {state.step === 'choice' && (
                 <div className="space-y-4">
                     <h3 id="choice-heading" className="text-lg font-semibold">Add New Person</h3>
-                    <p className="text-[14px] text-muted-foreground">
+                    <p className="text-body text-muted-foreground">
                         Choose how you'd like to add this person
                     </p>
 
@@ -1438,7 +1438,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             role="radio"
                             aria-checked={state.flowType === 'guest'}
                             onClick={() => handleInitialChoice('guest')}
-                            className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 font-normal text-[14px]"
+                            className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 text-body"
                         >
                             <div className="flex items-center gap-4">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
@@ -1446,7 +1446,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 </div>
                                 <div>
                                     <h4 className="font-semibold">Guest</h4>
-                                    <p className="text-[14px] text-muted-foreground">
+                                    <p className="text-body text-muted-foreground">
                                         Quick booking for someone without medical history
                                     </p>
                                 </div>
@@ -1459,7 +1459,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             role="radio"
                             aria-checked={state.flowType === 'add_new_family'}
                             onClick={() => handleInitialChoice('add_new_family')}
-                            className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 font-normal text-[14px]"
+                            className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 text-body"
                         >
                             <div className="flex items-center gap-4">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
@@ -1467,7 +1467,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 </div>
                                 <div>
                                     <h4 className="font-semibold">Add New Family Member</h4>
-                                    <p className="text-[14px] text-muted-foreground">
+                                    <p className="text-body text-muted-foreground">
                                         Create a full family member profile
                                     </p>
                                 </div>
@@ -1478,7 +1478,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         <Button
                             variant="ghost"
                             onClick={() => handleInitialChoice('link_existing')}
-                            className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 font-normal text-[14px]"
+                            className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 text-body"
                         >
                             <div className="flex items-center gap-4">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
@@ -1486,7 +1486,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 </div>
                                 <div>
                                     <h4 className="font-semibold">Link Existing Patient</h4>
-                                    <p className="text-[14px] text-muted-foreground">
+                                    <p className="text-body text-muted-foreground">
                                         Connect to an existing hospital patient record
                                     </p>
                                 </div>
@@ -1504,12 +1504,12 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             {state.step === 'guest_form' && (
                 <div className="space-y-6">
                     <h3 className="text-lg font-semibold">Guest Information</h3>
-                    <p className="text-[14px] text-muted-foreground">Add a guest for this appointment</p>
+                    <p className="text-body text-muted-foreground">Add a guest for this appointment</p>
 
                     {/* Required Information */}
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <label htmlFor="guest_name" className="block text-[14px] font-medium text-foreground">
+                            <label htmlFor="guest_name" className="block text-label text-foreground">
                                 Name <span className="text-destructive">*</span>
                             </label>
                             <Input
@@ -1522,7 +1522,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         </div>
 
                         <div className="space-y-2">
-                            <label htmlFor="guest_phone" className="block text-[14px] font-medium text-foreground">
+                            <label htmlFor="guest_phone" className="block text-label text-foreground">
                                 Phone Number <span className="text-destructive">*</span>
                             </label>
                             <PhoneInput
@@ -1535,11 +1535,11 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     {/* Optional Details */}
                     <div className="space-y-4">
-                        <p className="text-[14px] text-muted-foreground uppercase tracking-wide pt-2">Optional</p>
+                        <p className="text-body text-muted-foreground uppercase tracking-wide pt-2">Optional</p>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div className="space-y-2">
-                                <label htmlFor="guest_dob" className="block text-[14px] font-medium text-foreground">
+                                <label htmlFor="guest_dob" className="block text-label text-foreground">
                                     Date of Birth
                                 </label>
                                 <DatePicker
@@ -1552,7 +1552,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             </div>
 
                             <div className="space-y-2">
-                                <label htmlFor="guest_age" className="block text-[14px] font-medium text-foreground">
+                                <label htmlFor="guest_age" className="block text-label text-foreground">
                                     Age
                                 </label>
                                 <Select
@@ -1575,7 +1575,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         </div>
 
                         <div className="space-y-2">
-                            <label htmlFor="guest_gender" className="block text-[14px] font-medium text-foreground">Gender</label>
+                            <label htmlFor="guest_gender" className="block text-label text-foreground">Gender</label>
                             <Select value={state.guestGender} onValueChange={(value) => setState((prev) => ({ ...prev, guestGender: value }))}>
                                 <SelectTrigger id="guest_gender">
                                     <SelectValue placeholder="Select gender (optional)" />
@@ -1610,13 +1610,13 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             {state.step === 'member_details' && (
                 <div className="space-y-6">
                     <h3 className="text-lg font-semibold">Add Family Member</h3>
-                    <p className="text-[14px] text-muted-foreground">Add a new family member to your account</p>
+                    <p className="text-body text-muted-foreground">Add a new family member to your account</p>
 
                     {/* SECTION 1: Required Fields */}
                     <div className="space-y-4">
                         {/* Relationship dropdown */}
                         <div className="space-y-2">
-                            <label htmlFor="relationship" className="block text-[14px] font-medium text-foreground">
+                            <label htmlFor="relationship" className="block text-label text-foreground">
                                 Relationship <span className="text-destructive">*</span>
                             </label>
                             <Select
@@ -1648,7 +1648,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         </div>
 
                         <div className="space-y-2">
-                            <label htmlFor="new_member_name" className="block text-[14px] font-medium text-foreground">
+                            <label htmlFor="new_member_name" className="block text-label text-foreground">
                                 Full Name <span className="text-destructive">*</span>
                             </label>
                             <Input
@@ -1662,7 +1662,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         </div>
 
                         <div className="space-y-2">
-                            <label htmlFor="new_member_phone" className="block text-[14px] font-medium text-foreground">
+                            <label htmlFor="new_member_phone" className="block text-label text-foreground">
                                 Phone Number <span className="text-destructive" aria-label="required">*</span>
                             </label>
                             <div className="relative">
@@ -1691,9 +1691,9 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 )}
                             </div>
                             {state.fieldErrors.memberPhone && (
-                                <p id="phone-error" role="alert" className="text-[14px] text-destructive">{state.fieldErrors.memberPhone}</p>
+                                <p id="phone-error" role="alert" className="text-body text-destructive">{state.fieldErrors.memberPhone}</p>
                             )}
-                            <p id="phone-help" className="text-[14px] text-muted-foreground">We'll check if this person has a patient record</p>
+                            <p id="phone-help" className="text-body text-muted-foreground">We'll check if this person has a patient record</p>
                         </div>
 
                         {/* Detection Card */}
@@ -1708,11 +1708,11 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     {/* Optional Details Section */}
                     <div className="space-y-4">
-                        <p className="text-[14px] text-muted-foreground uppercase tracking-wide pt-2">Optional</p>
+                        <p className="text-body text-muted-foreground uppercase tracking-wide pt-2">Optional</p>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div className="space-y-2">
-                                <label htmlFor="new_member_dob" className="block text-[14px] font-medium text-foreground">
+                                <label htmlFor="new_member_dob" className="block text-label text-foreground">
                                     Date of Birth
                                 </label>
                                 <DatePicker
@@ -1730,7 +1730,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             </div>
 
                             <div className="space-y-2">
-                                <label htmlFor="new_member_age" className="block text-[14px] font-medium text-foreground">
+                                <label htmlFor="new_member_age" className="block text-label text-foreground">
                                     Age
                                 </label>
                                 <Select
@@ -1760,7 +1760,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         </div>
 
                         <div className="space-y-2">
-                            <label htmlFor="new_member_gender" className="block text-[14px] font-medium text-foreground">
+                            <label htmlFor="new_member_gender" className="block text-label text-foreground">
                                 Gender
                             </label>
                             <Select
@@ -1780,7 +1780,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         </div>
 
                         <div className="space-y-2">
-                            <label htmlFor="new_member_email" className="block text-[14px] font-medium text-foreground">
+                            <label htmlFor="new_member_email" className="block text-label text-foreground">
                                 Email
                             </label>
                             <Input
@@ -1794,7 +1794,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         </div>
 
                         <div className="space-y-2">
-                            <label htmlFor="new_member_blood_group" className="block text-[14px] font-medium text-foreground">
+                            <label htmlFor="new_member_blood_group" className="block text-label text-foreground">
                                 Blood Group
                             </label>
                             <Select
@@ -1839,11 +1839,11 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             {state.step === 'search' && (
                 <div className="space-y-6">
                     <h3 className="text-lg font-semibold">Link Existing Patient</h3>
-                    <p className="text-[14px] text-muted-foreground">Search for an existing patient record to link</p>
+                    <p className="text-body text-muted-foreground">Search for an existing patient record to link</p>
 
                     {/* Smart Single Input */}
                     <div className="space-y-2">
-                        <label htmlFor="search_value" className="block text-[14px] font-medium text-foreground">
+                        <label htmlFor="search_value" className="block text-label text-foreground">
                             Search by phone, email, or patient ID
                         </label>
                         <Input
@@ -1854,7 +1854,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             autoFocus
                         />
                         {state.searchValue.trim() && (
-                            <p className="text-[14px] text-muted-foreground">
+                            <p className="text-body text-muted-foreground">
                                 Detected: {detectSearchType(state.searchValue) === 'phone' ? 'Phone Number' : detectSearchType(state.searchValue) === 'email' ? 'Email' : 'Patient ID'}
                             </p>
                         )}
@@ -1893,7 +1893,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             {state.step === 'contact_selection' && state.foundMember && (
                 <div className="space-y-6">
                     <h3 className="text-lg font-semibold">Verify Ownership</h3>
-                    <p className="text-[14px] text-muted-foreground">
+                    <p className="text-body text-muted-foreground">
                         Send OTP to verify you own {state.foundMember.name}'s record
                     </p>
 
@@ -1906,7 +1906,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             <div>
                                 <h4 className="font-semibold">{state.foundMember.name}</h4>
                                 {state.foundMember.patient_id && (
-                                    <p className="text-[14px] text-muted-foreground">Patient ID: {state.foundMember.patient_id}</p>
+                                    <p className="text-body text-muted-foreground">Patient ID: {state.foundMember.patient_id}</p>
                                 )}
                             </div>
                         </div>
@@ -1914,7 +1914,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     {/* Relationship Selection */}
                     <div className="space-y-2">
-                        <label htmlFor="link_relation" className="block text-[14px] font-medium text-foreground">
+                        <label htmlFor="link_relation" className="block text-label text-foreground">
                             Relationship to you <span className="text-destructive">*</span>
                         </label>
                         <Select
@@ -1941,7 +1941,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     {/* Contact Method Selection */}
                     <div className="space-y-3">
-                        <p className="text-[14px] font-medium">Verify ownership by receiving OTP at:</p>
+                        <p className="text-label">Verify ownership by receiving OTP at:</p>
                         <div className="space-y-2">
                             {/* Phone option */}
                             <label className={cn(
@@ -2015,7 +2015,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             variant="link"
                             size="sm"
                             onClick={() => setState(prev => ({ ...prev, showContactUpdateModal: true }))}
-                            className="h-auto p-0 w-full text-[14px] text-muted-foreground hover:text-foreground"
+                            className="h-auto p-0 w-full text-body text-muted-foreground hover:text-foreground"
                         >
                             Contact info not correct? Request update
                         </Button>
@@ -2028,10 +2028,10 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-background rounded-xl p-6 max-w-sm w-full space-y-4">
                         <h3 className="text-lg font-semibold">Request Contact Update</h3>
-                        <p className="text-[14px] text-muted-foreground">
+                        <p className="text-body text-muted-foreground">
                             For security, contact information can only be updated by visiting the hospital or calling our helpline.
                         </p>
-                        <div className="space-y-2 text-[14px]">
+                        <div className="space-y-2 text-body">
                             <p><strong>📞 Helpline:</strong> 1800-XXX-XXXX</p>
                             <p><strong>🏥 Visit:</strong> Registration desk with valid ID</p>
                         </div>
@@ -2063,7 +2063,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     />
 
                     {state.loading && (
-                        <div className="flex items-center justify-center gap-2 text-[14px] text-muted-foreground">
+                        <div className="flex items-center justify-center gap-2 text-body text-muted-foreground">
                             <Loader2 className="h-4 w-4 animate-spin" />
                             Verifying...
                         </div>
@@ -2084,7 +2084,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 // Pass method directly to avoid stale state
                                 handleSendOtp(newMethod);
                             }}
-                            className="h-auto p-0 w-full text-[14px] text-primary hover:underline"
+                            className="h-auto p-0 w-full text-body text-primary hover:underline"
                             disabled={state.loading}
                         >
                             Try {state.selectedContactMethod === 'phone' ? 'Email' : 'Phone'} Instead →
@@ -2099,7 +2099,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         <CheckCircle2 className="h-8 w-8 text-success" />
                     </div>
                     <h3 className="text-lg font-semibold">Successfully Linked!</h3>
-                    <p className="text-[14px] text-muted-foreground">
+                    <p className="text-body text-muted-foreground">
                         {state.foundMember?.name} has been added to your family members
                     </p>
                 </div>

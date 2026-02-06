@@ -149,7 +149,7 @@ export default function BookingIndex() {
           <div className="flex items-center justify-between px-6 py-4">
             <div className="flex items-center gap-2">
               <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-5 h-5" />
-              <span className="font-medium text-[14px]">Booking an appointment</span>
+              <span className="text-label">Booking an appointment</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1 border border-border rounded-full p-1 bg-muted">
@@ -214,10 +214,10 @@ export default function BookingIndex() {
               variant="ghost"
               onClick={() => setMode('ai')}
               className={cn(
-                'h-auto flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] transition-all',
+                'h-auto flex items-center gap-2 px-5 py-2.5 rounded-full transition-all',
                 mode === 'ai'
-                  ? 'bg-white shadow-md text-foreground font-semibold'
-                  : 'text-muted-foreground hover:text-foreground bg-transparent font-normal'
+                  ? 'bg-white shadow-md text-foreground text-card-title'
+                  : 'text-muted-foreground hover:text-foreground bg-transparent text-body'
               )}
             >
               <img
@@ -235,10 +235,10 @@ export default function BookingIndex() {
               variant="ghost"
               onClick={() => setMode('guided')}
               className={cn(
-                'h-auto flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] transition-all',
+                'h-auto flex items-center gap-2 px-5 py-2.5 rounded-full transition-all',
                 mode === 'guided'
-                  ? 'bg-white shadow-md text-foreground font-semibold'
-                  : 'text-muted-foreground hover:text-foreground bg-transparent font-normal'
+                  ? 'bg-white shadow-md text-foreground text-card-title'
+                  : 'text-muted-foreground hover:text-foreground bg-transparent text-body'
               )}
             >
               <img
@@ -255,7 +255,7 @@ export default function BookingIndex() {
           </div>
 
           {/* Title */}
-          <h1 className="text-3xl font-bold text-center mb-10 text-foreground">
+          <h1 className="text-page-title text-center mb-10 text-foreground">
             What would you like to book today?
           </h1>
 
@@ -282,7 +282,7 @@ export default function BookingIndex() {
                     <div className="flex items-center gap-3 flex-1">
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 bg-destructive rounded-full animate-pulse"></div>
-                        <span className="text-[14px] font-medium text-muted-foreground">
+                        <span className="text-label text-muted-foreground">
                           {formatRecordingTime(recordingTime)}
                         </span>
                       </div>
@@ -423,8 +423,8 @@ export default function BookingIndex() {
                     />
                   </div>
                   <div className="px-5 py-4">
-                    <p className="text-[16px] font-semibold text-foreground">Book a doctor</p>
-                    <p className="text-[14px] text-muted-foreground mt-1">
+                    <p className="text-subheading text-foreground">Book a doctor</p>
+                    <p className="text-body text-muted-foreground mt-1">
                       Schedule a consultation with a specialist or general physician
                     </p>
                   </div>
@@ -448,8 +448,8 @@ export default function BookingIndex() {
                     />
                   </div>
                   <div className="px-5 py-4">
-                    <p className="text-[16px] font-semibold text-foreground">Book a test</p>
-                    <p className="text-[14px] text-muted-foreground mt-1">
+                    <p className="text-subheading text-foreground">Book a test</p>
+                    <p className="text-body text-muted-foreground mt-1">
                       Lab tests, health packages, and home sample collection
                     </p>
                   </div>

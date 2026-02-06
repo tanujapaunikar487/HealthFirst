@@ -19,8 +19,8 @@ export function ErrorState({ onRetry, label = 'Unable to load page' }: { onRetry
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted">
         <AlertCircle className="h-7 w-7 text-muted-foreground" />
       </div>
-      <p className="text-[14px] font-medium text-muted-foreground">{label}</p>
-      <p className="text-[14px] text-muted-foreground">Please check your connection and try again.</p>
+      <p className="text-label text-muted-foreground">{label}</p>
+      <p className="text-body text-muted-foreground">Please check your connection and try again.</p>
       <Button variant="secondary" className="mt-2" onClick={onRetry}>
         <RefreshCw className="h-4 w-4" />
         Try Again

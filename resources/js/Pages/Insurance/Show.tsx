@@ -135,7 +135,7 @@ function Section({
     <div id={id} className="scroll-mt-24">
       <div className="flex items-center gap-2.5 mb-4">
         <Icon icon={SectionIcon} className="h-5 w-5 text-foreground" />
-        <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+        <h2 className="text-section-title text-foreground">
           {title}
         </h2>
       </div>
@@ -262,8 +262,8 @@ function InfoRow({ label, value, isLast }: { label: React.ReactNode; value: Reac
       className="grid items-start px-4 py-4"
       style={{ gridTemplateColumns: '130px 1fr', ...(isLast ? {} : { borderBottom: '1px solid hsl(var(--border))' }) }}
     >
-      <span className="text-[14px] text-muted-foreground pt-px">{label}</span>
-      <span className="text-[14px] font-medium">{value}</span>
+      <span className="text-body text-muted-foreground pt-px">{label}</span>
+      <span className="text-label">{value}</span>
     </div>
   );
 }
@@ -433,7 +433,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
         <Button
           variant="link"
           size="sm"
-          className="h-auto p-0 mb-6 flex items-center gap-1.5 text-[14px] font-medium text-muted-foreground hover:text-foreground"
+          className="h-auto p-0 mb-6 flex items-center gap-1.5 text-label text-muted-foreground hover:text-foreground"
           onClick={() => router.visit('/insurance')}
         >
           <ArrowLeft className="h-4 w-4" />
@@ -444,14 +444,14 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
         <div className="mb-6 flex items-start justify-between">
           <div className="flex items-center gap-4">
             <div
-              className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full text-[14px] font-bold"
+              className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full text-card-title"
               style={{ backgroundColor: 'hsl(var(--primary) / 0.2)', color: 'hsl(var(--primary))' }}
             >
               {getProviderInitials(policy.provider_name)}
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">{policy.plan_name}</h1>
-              <p className="text-[14px] text-muted-foreground">{policy.provider_name}</p>
+              <h1 className="text-detail-title text-foreground">{policy.plan_name}</h1>
+              <p className="text-body text-muted-foreground">{policy.provider_name}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
@@ -563,12 +563,12 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                     className="flex items-center gap-2.5 rounded-full border px-3 py-1.5"
                   >
                     <div
-                      className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-semibold"
+                      className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-micro"
                       style={{ backgroundColor: color.bg, color: color.text }}
                     >
                       {getMemberInitials(member.name)}
                     </div>
-                    <span className="text-[14px] font-medium text-foreground">{member.name}</span>
+                    <span className="text-label text-foreground">{member.name}</span>
                   </div>
                 );
               })}
@@ -595,13 +595,13 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                 >
                   <div className="min-w-0 flex-1">
                     <div className="mb-1 flex items-center gap-2">
-                      <span className="text-[14px] font-medium text-muted-foreground">
+                      <span className="text-label text-muted-foreground">
                         Claim #{claim.id}
                       </span>
                       {getStatusBadge(claim.status)}
                     </div>
-                    <p className="text-[14px] font-semibold text-foreground">{claim.treatment_name}</p>
-                    <p className="mt-0.5 text-[14px] text-muted-foreground">
+                    <p className="text-card-title text-foreground">{claim.treatment_name}</p>
+                    <p className="mt-0.5 text-body text-muted-foreground">
                       {claim.patient_name}
                       {claim.claim_date && ` \u00B7 ${formatDate(claim.claim_date)}`}
                     </p>
@@ -654,14 +654,14 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                         onClick={() => handlePreAuthPatientSelect(member.id)}
                       >
                         <div
-                          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-[14px] font-semibold"
+                          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-card-title"
                           style={{ backgroundColor: color.bg, color: color.text }}
                         >
                           {getMemberInitials(member.name)}
                         </div>
                         <div className="flex-1">
-                          <p className="text-[14px] font-semibold text-foreground">{member.name}</p>
-                          <p className="text-[14px] text-muted-foreground capitalize">{member.relation}</p>
+                          <p className="text-card-title text-foreground">{member.name}</p>
+                          <p className="text-body text-muted-foreground capitalize">{member.relation}</p>
                         </div>
                         <ChevronRight className="h-4 w-4 text-foreground" />
                       </Button>
@@ -675,7 +675,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
             {preAuthStep === 'details' && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-[14px] font-medium text-foreground mb-1.5">
+                  <label className="block text-label text-foreground mb-1.5">
                     Treatment / Reason <span className="text-destructive">*</span>
                   </label>
                   <Input
@@ -685,7 +685,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                   />
                 </div>
                 <div>
-                  <label className="block text-[14px] font-medium text-foreground mb-1.5">
+                  <label className="block text-label text-foreground mb-1.5">
                     Expected Admission Date <span className="text-destructive">*</span>
                   </label>
                   <DatePicker
@@ -696,7 +696,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                   />
                 </div>
                 <div>
-                  <label className="block text-[14px] font-medium text-foreground mb-1.5">
+                  <label className="block text-label text-foreground mb-1.5">
                     Expected Discharge Date
                   </label>
                   <DatePicker
@@ -707,7 +707,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                   />
                 </div>
                 <div>
-                  <label className="block text-[14px] font-medium text-foreground mb-1.5">
+                  <label className="block text-label text-foreground mb-1.5">
                     Room Type <span className="text-destructive">*</span>
                   </label>
                   <Select
@@ -725,7 +725,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                   </Select>
                 </div>
                 <div>
-                  <label className="block text-[14px] font-medium text-foreground mb-1.5">
+                  <label className="block text-label text-foreground mb-1.5">
                     Estimated Cost
                   </label>
                   <Input
@@ -737,7 +737,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                   />
                 </div>
                 <div>
-                  <label className="block text-[14px] font-medium text-foreground mb-1.5">
+                  <label className="block text-label text-foreground mb-1.5">
                     Doctor / Specialist Name
                   </label>
                   <Input
@@ -747,7 +747,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                   />
                 </div>
                 <div>
-                  <label className="block text-[14px] font-medium text-foreground mb-1.5">
+                  <label className="block text-label text-foreground mb-1.5">
                     Additional Notes
                   </label>
                   <Textarea
@@ -766,58 +766,58 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
               <div className="space-y-4">
                 {/* Policy summary */}
                 <div className="rounded-xl border px-4 py-3.5">
-                  <p className="text-[14px] font-medium text-muted-foreground mb-1">Policy</p>
-                  <p className="text-[14px] font-semibold text-foreground">{policy.plan_name}</p>
-                  <p className="text-[14px] text-muted-foreground">{policy.provider_name} &middot; {policy.policy_number}</p>
+                  <p className="text-label text-muted-foreground mb-1">Policy</p>
+                  <p className="text-card-title text-foreground">{policy.plan_name}</p>
+                  <p className="text-body text-muted-foreground">{policy.provider_name} &middot; {policy.policy_number}</p>
                 </div>
 
                 {/* Patient */}
                 {selectedPatient && (
                   <div className="rounded-xl border px-4 py-3.5">
-                    <p className="text-[14px] font-medium text-muted-foreground mb-1">Patient</p>
-                    <p className="text-[14px] font-semibold text-foreground">{selectedPatient.name}</p>
-                    <p className="text-[14px] text-muted-foreground capitalize">{selectedPatient.relation}</p>
+                    <p className="text-label text-muted-foreground mb-1">Patient</p>
+                    <p className="text-card-title text-foreground">{selectedPatient.name}</p>
+                    <p className="text-body text-muted-foreground capitalize">{selectedPatient.relation}</p>
                   </div>
                 )}
 
                 {/* Admission details */}
                 <div className="rounded-xl border px-4 py-3.5 space-y-2.5">
-                  <p className="text-[14px] font-medium text-muted-foreground">Admission Details</p>
+                  <p className="text-label text-muted-foreground">Admission Details</p>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-[14px] text-muted-foreground">Treatment</span>
-                      <span className="text-[14px] font-medium text-foreground">{preAuthForm.treatment_name}</span>
+                      <span className="text-body text-muted-foreground">Treatment</span>
+                      <span className="text-label text-foreground">{preAuthForm.treatment_name}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-[14px] text-muted-foreground">Admission Date</span>
-                      <span className="text-[14px] font-medium text-foreground">{preAuthForm.admission_date}</span>
+                      <span className="text-body text-muted-foreground">Admission Date</span>
+                      <span className="text-label text-foreground">{preAuthForm.admission_date}</span>
                     </div>
                     {preAuthForm.discharge_date && (
                       <div className="flex justify-between">
-                        <span className="text-[14px] text-muted-foreground">Discharge Date</span>
-                        <span className="text-[14px] font-medium text-foreground">{preAuthForm.discharge_date}</span>
+                        <span className="text-body text-muted-foreground">Discharge Date</span>
+                        <span className="text-label text-foreground">{preAuthForm.discharge_date}</span>
                       </div>
                     )}
                     <div className="flex justify-between">
-                      <span className="text-[14px] text-muted-foreground">Room Type</span>
-                      <span className="text-[14px] font-medium text-foreground">{selectedRoomLabel}</span>
+                      <span className="text-body text-muted-foreground">Room Type</span>
+                      <span className="text-label text-foreground">{selectedRoomLabel}</span>
                     </div>
                     {preAuthForm.estimated_cost && (
                       <div className="flex justify-between">
-                        <span className="text-[14px] text-muted-foreground">Estimated Cost</span>
-                        <span className="text-[14px] font-medium text-foreground">{formatCurrency(parseInt(preAuthForm.estimated_cost))}</span>
+                        <span className="text-body text-muted-foreground">Estimated Cost</span>
+                        <span className="text-label text-foreground">{formatCurrency(parseInt(preAuthForm.estimated_cost))}</span>
                       </div>
                     )}
                     {preAuthForm.doctor_name && (
                       <div className="flex justify-between">
-                        <span className="text-[14px] text-muted-foreground">Doctor</span>
-                        <span className="text-[14px] font-medium text-foreground">{preAuthForm.doctor_name}</span>
+                        <span className="text-body text-muted-foreground">Doctor</span>
+                        <span className="text-label text-foreground">{preAuthForm.doctor_name}</span>
                       </div>
                     )}
                     {preAuthForm.notes && (
                       <div>
-                        <span className="text-[14px] text-muted-foreground">Notes</span>
-                        <p className="text-[14px] text-foreground mt-0.5">{preAuthForm.notes}</p>
+                        <span className="text-body text-muted-foreground">Notes</span>
+                        <p className="text-body text-foreground mt-0.5">{preAuthForm.notes}</p>
                       </div>
                     )}
                   </div>

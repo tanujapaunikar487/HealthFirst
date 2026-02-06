@@ -21,7 +21,7 @@ export function EmergencyAlert({
     return (
         <div className="bg-destructive/10 border border-destructive rounded-xl p-6 my-4 shadow-lg">
             {/* Header */}
-            <div className="flex items-center gap-3 text-destructive font-bold text-xl mb-4">
+            <div className="flex items-center gap-3 text-destructive text-section-title mb-4">
                 <Icon icon={AlertTriangle} className="w-8 h-8 animate-pulse" />
                 <span>Medical Emergency Detected</span>
             </div>
@@ -31,7 +31,7 @@ export function EmergencyAlert({
                 {/* Primary Emergency */}
                 <a
                     href={`tel:${emergencyNumber}`}
-                    className="flex items-center justify-center gap-3 bg-destructive hover:bg-destructive/90 text-destructive-foreground py-4 px-6 rounded-lg font-bold text-lg shadow-md transition-colors"
+                    className="flex items-center justify-center gap-3 bg-destructive hover:bg-destructive/90 text-destructive-foreground py-4 px-6 rounded-lg text-subheading shadow-md transition-colors"
                 >
                     <Icon icon={Phone} className="w-6 h-6" />
                     <span>Call {emergencyNumber} (Emergency Services)</span>
@@ -40,7 +40,7 @@ export function EmergencyAlert({
                 {/* Ambulance */}
                 <a
                     href={`tel:${ambulanceNumber}`}
-                    className="flex items-center justify-center gap-3 bg-warning hover:bg-warning/90 text-warning-foreground py-4 px-6 rounded-lg font-bold text-lg shadow-md transition-colors"
+                    className="flex items-center justify-center gap-3 bg-warning hover:bg-warning/90 text-warning-foreground py-4 px-6 rounded-lg text-subheading shadow-md transition-colors"
                 >
                     <Icon icon={Ambulance} className="w-6 h-6" />
                     <span>Call {ambulanceNumber} (Ambulance)</span>
@@ -51,7 +51,7 @@ export function EmergencyAlert({
                     {policeNumber && (
                         <a
                             href={`tel:${policeNumber}`}
-                            className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground py-3 px-4 rounded-lg font-semibold text-[14px] shadow-sm transition-colors"
+                            className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground py-3 px-4 rounded-lg text-card-title shadow-sm transition-colors"
                         >
                             <Icon icon={Shield} className="w-4 h-4" />
                             <span>Police {policeNumber}</span>
@@ -60,7 +60,7 @@ export function EmergencyAlert({
                     {fireNumber && (
                         <a
                             href={`tel:${fireNumber}`}
-                            className="flex items-center justify-center gap-2 bg-warning hover:bg-warning/90 text-warning-foreground py-3 px-4 rounded-lg font-semibold text-[14px] shadow-sm transition-colors"
+                            className="flex items-center justify-center gap-2 bg-warning hover:bg-warning/90 text-warning-foreground py-3 px-4 rounded-lg text-card-title shadow-sm transition-colors"
                         >
                             <Icon icon={Flame} className="w-4 h-4" />
                             <span>Fire {fireNumber}</span>
@@ -98,7 +98,7 @@ export function EmergencyAlert({
 
             {/* Warning Text */}
             <div className="mt-4 p-4 bg-background rounded-lg border border-destructive/30">
-                <p className="text-[14px] text-destructive leading-relaxed">
+                <p className="text-body text-destructive leading-relaxed">
                     <strong>Important:</strong> This booking system cannot handle
                     medical emergencies. If you're experiencing a life-threatening
                     situation, please call the emergency numbers above or go
@@ -108,7 +108,7 @@ export function EmergencyAlert({
 
             {/* Disclaimer for Non-Emergency */}
             <div className="mt-3 text-center">
-                <p className="text-[14px] text-muted-foreground">
+                <p className="text-body text-muted-foreground">
                     If this is not an emergency and I misunderstood, please start a
                     new chat and describe your needs differently.
                 </p>

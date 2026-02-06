@@ -22,10 +22,10 @@ export default function VerifyEmail({ status }: VerifyEmailProps) {
             <Head title="Email Verification" />
 
             <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold text-foreground">
+                <h1 className="text-detail-title text-foreground">
                     Verify your email
                 </h1>
-                <p className="text-[14px] text-muted-foreground mt-1">
+                <p className="text-body text-muted-foreground mt-1">
                     Thanks for signing up! Please verify your email address by clicking the link we sent you.
                 </p>
             </div>
@@ -45,7 +45,7 @@ export default function VerifyEmail({ status }: VerifyEmailProps) {
                     href={route('logout')}
                     method="post"
                     as="button"
-                    className="w-full text-center block text-[14px] text-muted-foreground hover:underline"
+                    className="w-full text-center block text-body text-muted-foreground hover:underline"
                 >
                     Sign out
                 </Link>

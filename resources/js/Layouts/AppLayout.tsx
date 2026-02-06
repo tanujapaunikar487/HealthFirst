@@ -160,11 +160,11 @@ function NotificationCard({
         <NotificationIcon type={notification.type} />
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <p className="text-[13px] font-semibold truncate text-foreground">
+            <p className="text-card-title truncate text-foreground">
               {notification.title}
             </p>
             <div className="flex items-center gap-1.5 flex-shrink-0">
-              <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+              <span className="text-micro text-muted-foreground whitespace-nowrap">
                 {timeAgo(notification.created_at)}
               </span>
               {isUnread && (
@@ -172,7 +172,7 @@ function NotificationCard({
               )}
             </div>
           </div>
-          <p className="text-[14px] text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">
+          <p className="text-body text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">
             {notification.message}
           </p>
           <div className="flex items-center gap-1.5 mt-2">
@@ -349,7 +349,7 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
               ) : (
                 <img src="/assets/icons/home.svg" alt={pageTitle || 'Home'} className="h-6 w-6" />
               )}
-              <h2 className="text-base font-semibold text-foreground">{pageTitle || 'Home'}</h2>
+              <h2 className="text-subheading text-foreground">{pageTitle || 'Home'}</h2>
             </div>
 
             {/* Right Side Actions */}
@@ -432,7 +432,7 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
                   Notifications
                 </SheetTitle>
                 {unreadCount > 0 && (
-                  <span className="text-[11px] font-semibold text-destructive-foreground bg-destructive rounded-full px-2 py-0.5 leading-none">
+                  <span className="text-overline text-destructive-foreground bg-destructive rounded-full px-2 py-0.5 leading-none">
                     {unreadCount}
                   </span>
                 )}
@@ -441,7 +441,7 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
                 <Button
                   variant="link"
                   size="sm"
-                  className="h-auto p-0 flex items-center gap-1 text-[14px] font-medium text-primary hover:underline"
+                  className="h-auto p-0 flex items-center gap-1 text-label text-primary hover:underline"
                   onClick={handleMarkAllAsRead}
                 >
                   <Icon icon={CheckCheck} className="h-3.5 w-3.5" />
@@ -477,10 +477,10 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
                   alt=""
                   className="h-[120px] w-[120px] mx-auto mb-4"
                 />
-                <p className="text-[16px] font-medium text-foreground">
+                <p className="text-subheading text-foreground">
                   {notifFilter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
                 </p>
-                <p className="text-[14px] text-muted-foreground mt-1">
+                <p className="text-body text-muted-foreground mt-1">
                   {notifFilter === 'unread'
                     ? "You're all caught up!"
                     : 'Updates about appointments, billing, and more will appear here.'}
@@ -579,13 +579,13 @@ function Sidebar({ user }: { user: User | null }) {
           >
             <Avatar className="h-10 w-10 flex-shrink-0">
               <AvatarImage src={user.avatar_url} />
-              <AvatarFallback className="text-[14px]">{getInitials(user.name)}</AvatarFallback>
+              <AvatarFallback className="text-body">{getInitials(user.name)}</AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-[14px] font-semibold leading-5 truncate text-foreground">
+              <p className="text-card-title truncate text-foreground">
                 {user.name}
               </p>
-              <p className="text-[14px] leading-5 text-muted-foreground truncate">{user.email}</p>
+              <p className="text-body text-muted-foreground truncate">{user.email}</p>
             </div>
           </Link>
         </div>
@@ -618,7 +618,7 @@ interface NavLinkProps {
 
 function NavLink({ href, iconName, label, active = false }: NavLinkProps) {
   const baseClasses =
-    'flex items-center gap-3 px-4 py-3 font-semibold transition-all h-[50px]';
+    'flex items-center gap-3 px-4 py-3 text-subheading transition-all h-[50px]';
 
   const shapeClasses = 'rounded-full';
   const restClasses = !active ? 'text-foreground hover:bg-muted' : '';
@@ -635,7 +635,7 @@ function NavLink({ href, iconName, label, active = false }: NavLinkProps) {
     <Link
       href={href}
       className={`${baseClasses} ${shapeClasses} ${restClasses}`}
-      style={{ ...activeStyle, fontSize: '16px', lineHeight: '24px' }}
+      style={activeStyle}
     >
       <img src={iconSrc} alt={label} className="h-6 w-6 flex-shrink-0" />
       <span>{label}</span>

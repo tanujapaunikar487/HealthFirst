@@ -165,7 +165,7 @@ const SheetSection = ({
 }: SheetSectionProps) => (
   <div className={cn('space-y-0', className)} {...props}>
     {title && (
-      <h4 className="text-[14px] font-medium text-foreground mb-3">{title}</h4>
+      <h4 className="text-label text-foreground mb-3">{title}</h4>
     )}
     <div className="divide-y divide-border">
       {children}
@@ -193,8 +193,8 @@ const SheetSectionRow = ({
     className={cn('flex items-center justify-between py-3', className)}
     {...props}
   >
-    <span className="text-[14px] font-normal text-muted-foreground">{label}</span>
-    <span className="text-[14px] font-medium text-foreground text-right">
+    <span className="text-body text-muted-foreground">{label}</span>
+    <span className="text-label text-foreground text-right">
       {value ?? children ?? '—'}
     </span>
   </div>
@@ -207,13 +207,7 @@ const SheetTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Title
     ref={ref}
-    className={cn('font-semibold', className)}
-    style={{
-      color: 'hsl(var(--foreground))',
-      fontSize: '20px',
-      lineHeight: '28px',
-      letterSpacing: '0',
-    }}
+    className={cn('text-section-title text-foreground', className)}
     {...props}
   />
 ));
@@ -225,7 +219,7 @@ const SheetDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Description
     ref={ref}
-    className={cn('text-[14px] text-muted-foreground', className)}
+    className={cn('text-body text-muted-foreground', className)}
     {...props}
   />
 ));

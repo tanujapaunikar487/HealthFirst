@@ -20,7 +20,7 @@ Tests: `php artisan test` (92 tests, 265 assertions)
 
 **Layout**: Cards 20px radius/16px pad | Card rows `px-6 py-4` (24px H, 16px V) | Sheets 500px/20px radius/20px pad/right-side | Dialogs max-w-lg/20px radius/flex-col | Page 960px max/40px pad | Sections `space-y-12`
 
-**Typography**: Fixed pixels (`text-[14px]` not `text-sm`) | Card title: #0A0B0D/14px/500 | Card sub: #737373/14px/400 | Section title (page): #171717/20px/600 | Section title (sheet): #737373/14px/500 | Sentence case everywhere (exceptions: acronyms, proper nouns)
+**Typography**: Use token classes (defined in `app.css` `@layer base`) — never raw `text-[Xpx]`. Tokens: `text-display` (72/700) | `text-page-title` (36/700) | `text-detail-title` (24/700) | `text-banner-heading` (24/600) | `text-section-title` (20/600) | `text-step-title` (20/600) | `text-subheading` (16/600) | `text-card-title` (14/600) | `text-label` (14/500) | `text-body` (14/400) | `text-caption` (12/500) | `text-overline` (11/600/uppercase) | `text-micro` (10/600). Each sets font-size + font-weight + line-height. Sentence case everywhere (exceptions: acronyms, proper nouns)
 
 **Colors**: Primary blue (#1E40AF bg, #BFDBFE icons) | Success/Warning/Error = Green/Amber/Red | Warning = amber (#FDE68A border, #FFFBEB bg, #D97706 text) | Light text: #171717 primary, #737373 secondary | Dark text: #fff primary, white/70 secondary | Icons: light bg `text-neutral-900`, dark bg `text-white`, nav active `#2563EB`
 
@@ -68,9 +68,10 @@ Tests: `php artisan test` (92 tests, 265 assertions)
 ## Hard Rules (enforced by ESLint: `npm run lint`)
 
 **No raw values in app UI** — everything must use design tokens:
-- No arbitrary Tailwind: `p-[13px]`, `w-[200px]`, `bg-[#hex]` → use spacing scale or theme tokens. **Exception**: `text-[Xpx]` allowed (typography tokens handled separately)
+- No arbitrary Tailwind: `p-[13px]`, `w-[200px]`, `bg-[#hex]`, `text-[14px]` → use spacing scale, theme tokens, or typography tokens
+- No raw `text-[Xpx]` — use typography token classes (`text-body`, `text-label`, `text-card-title`, etc.) defined in `app.css`
 - No inline `style={{}}` for layout: `display`, `flexDirection`, `gap`, `padding`, `margin`, `width`, `height`, `borderRadius`, `gridTemplateColumns`, `alignItems`, `justifyContent`, `flexGrow` → use Tailwind classes or Stack components
-- Inline `style` allowed for: colors using `hsl(var(--*))` with alpha, `animation`, typography (temporary), Razorpay/PDF (can't use CSS vars)
+- Inline `style` allowed for: colors using `hsl(var(--*))` with alpha, `animation`, Razorpay/PDF (can't use CSS vars)
 - No raw hex colors in Tailwind or inline styles — use semantic tokens (`text-foreground`, `bg-primary`, etc.)
 
 **Stack components** (`Components/ui/stack.tsx`): Use `<VStack>` / `<HStack>` for flex layouts instead of inline styles

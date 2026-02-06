@@ -90,7 +90,7 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
       <>
         <div
           ref={ref}
-          className={cn('toast-notification', className)}
+          className={cn('toast-notification text-label', className)}
           style={{
             position: 'fixed',
             bottom: '32px',
@@ -101,9 +101,6 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
             color: 'hsl(var(--background))',
             padding: '16px 24px',
             borderRadius: '12px',
-            fontSize: '14px',
-            fontWeight: 500,
-            lineHeight: '20px',
             boxShadow:
               '0px 4px 16px rgba(0, 0, 0, 0.12), 0px 12px 32px rgba(0, 0, 0, 0.16)',
             zIndex: 1000,

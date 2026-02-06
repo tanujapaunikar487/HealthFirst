@@ -131,7 +131,7 @@ export function EmbeddedComponent({
               <div className="w-full">
                 <div className="font-semibold text-foreground">{option.label}</div>
                 {option.description && (
-                  <div className="text-[14px] text-muted-foreground mt-1">{option.description}</div>
+                  <div className="text-body text-muted-foreground mt-1">{option.description}</div>
                 )}
               </div>
             </Button>
@@ -158,7 +158,7 @@ export function EmbeddedComponent({
                 }
                 disabled={disabled || isSelected}
                 className={cn(
-                  "w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50",
+                  "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
                   optionSelected
                     ? "bg-primary/5 disabled:opacity-60"
                     : isSelected ? "disabled:opacity-30" : ""
@@ -168,9 +168,9 @@ export function EmbeddedComponent({
                 }}
               >
                 <div className="w-full text-left">
-                  <p className="font-medium text-[14px] text-foreground leading-tight mb-0.5">{option.label}</p>
+                  <p className="text-label text-foreground leading-tight mb-0.5">{option.label}</p>
                   {option.description && (
-                    <p className="text-[14px] text-muted-foreground leading-tight">{option.description}</p>
+                    <p className="text-body text-muted-foreground leading-tight">{option.description}</p>
                   )}
                 </div>
               </Button>
@@ -428,7 +428,7 @@ export function EmbeddedComponent({
             >
               <div className="w-full">
                 <div className="font-semibold text-foreground">See all available doctors</div>
-                <div className="text-[14px] text-muted-foreground mt-1">Browse our full list of doctors</div>
+                <div className="text-body text-muted-foreground mt-1">Browse our full list of doctors</div>
               </div>
             </Button>
           </div>
@@ -457,7 +457,7 @@ export function EmbeddedComponent({
                   }
                   disabled={disabled || isSelected}
                   className={cn(
-                    'w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50',
+                    'w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50',
                     doctorSelected
                       ? isSelected ? 'bg-primary/5 disabled:opacity-60' : 'bg-primary/5'
                       : isSelected ? 'disabled:opacity-30' : ''
@@ -476,10 +476,10 @@ export function EmbeddedComponent({
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
-                      <div className="font-medium text-[14px] text-foreground">{doctor.name}</div>
-                      <div className="text-[14px] text-muted-foreground">{doctor.specialization}</div>
+                      <div className="text-label text-foreground">{doctor.name}</div>
+                      <div className="text-body text-muted-foreground">{doctor.specialization}</div>
                       {doctor.last_visit && (
-                        <div className="text-[14px] text-primary mt-1">Last visit: {doctor.last_visit}</div>
+                        <div className="text-body text-primary mt-1">Last visit: {doctor.last_visit}</div>
                       )}
                     </div>
                   </div>
@@ -492,11 +492,11 @@ export function EmbeddedComponent({
                 onClick={() => onSelect({ show_all_doctors: true })}
                 disabled={disabled || isSelected}
                 className={cn(
-                  'w-full h-auto rounded-none justify-center px-6 py-4 font-normal text-[14px] hover:bg-muted/50',
+                  'w-full h-auto rounded-none justify-center px-6 py-4 text-body hover:bg-muted/50',
                   isSelected ? 'disabled:opacity-30' : ''
                 )}
               >
-                <div className="text-[14px] font-medium text-primary text-center">Or see all other doctors</div>
+                <div className="text-label text-primary text-center">Or see all other doctors</div>
               </Button>
             )}
           </Card>
@@ -573,7 +573,7 @@ export function EmbeddedComponent({
           {selectorDoctors.length === 0 ? (
             <div className="p-6 text-center rounded-xl border border-dashed">
               <p className="font-medium text-gray-900">No doctors available on this date</p>
-              <p className="text-[14px] text-gray-500 mt-1">Some doctors don't work on certain days. Try a different date.</p>
+              <p className="text-body text-gray-500 mt-1">Some doctors don't work on certain days. Try a different date.</p>
             </div>
           ) : (
             <EmbeddedDoctorList
@@ -619,10 +619,10 @@ export function EmbeddedComponent({
                   className="h-auto px-4 py-2 rounded-lg font-normal"
                 >
                   <div className="text-left">
-                    <div className="font-medium text-[14px]">{d.label}</div>
-                    <div className="text-[14px] opacity-75">{d.day}</div>
+                    <div className="text-label">{d.label}</div>
+                    <div className="text-body opacity-75">{d.day}</div>
                     {d.doctor_count !== undefined && (
-                      <div className={cn('text-[14px] mt-0.5', dateIsActive ? 'opacity-75' : 'opacity-50')}>
+                      <div className={cn('text-body mt-0.5', dateIsActive ? 'opacity-75' : 'opacity-50')}>
                         {d.doctor_count} dr{d.doctor_count !== 1 ? 's' : ''}
                       </div>
                     )}
@@ -646,14 +646,14 @@ export function EmbeddedComponent({
                 {/* Doctors heading */}
                 <div>
                   <h3 className="text-lg font-semibold">{filteredDoctors.length} doctor{filteredDoctors.length !== 1 ? 's' : ''} available</h3>
-                  <p className="text-[14px] text-gray-500">{data?.doctors_subtitle}</p>
+                  <p className="text-body text-gray-500">{data?.doctors_subtitle}</p>
                 </div>
 
                 {/* Doctor list */}
                 {filteredDoctors.length === 0 ? (
                   <div className="p-6 text-center rounded-xl border border-dashed">
                     <p className="font-medium text-gray-900">No doctors available on this date</p>
-                    <p className="text-[14px] text-gray-500 mt-1">Try selecting a different date above</p>
+                    <p className="text-body text-gray-500 mt-1">Try selecting a different date above</p>
                   </div>
                 ) : (
                   <EmbeddedDoctorList
@@ -694,7 +694,7 @@ export function EmbeddedComponent({
 
           {/* Date pills */}
           <div>
-            <h4 className="font-semibold text-[14px] mb-3 text-foreground">Pick a date</h4>
+            <h4 className="text-card-title mb-3 text-foreground">Pick a date</h4>
             <div className="flex gap-2 overflow-x-auto pb-2">
               {data?.dates?.map((d: any) => {
                 const dateValue = d.value || d.date;
@@ -716,10 +716,10 @@ export function EmbeddedComponent({
                     )}
                   >
                     <div className="text-left">
-                      <div className={cn('font-semibold text-[14px]', dateIsActive && 'text-background')}>
+                      <div className={cn('text-card-title', dateIsActive && 'text-background')}>
                         {d.label}
                       </div>
-                      <div className={cn('text-[14px]', dateIsActive ? 'text-background/70' : 'text-muted-foreground')}>
+                      <div className={cn('text-body', dateIsActive ? 'text-background/70' : 'text-muted-foreground')}>
                         {d.day}
                       </div>
                     </div>
@@ -749,8 +749,8 @@ export function EmbeddedComponent({
               className="h-auto px-4 py-2 rounded-lg font-normal"
             >
               <div className="text-left">
-                <div className="font-medium text-[14px]">{d.label}</div>
-                <div className="text-[14px] opacity-75">{d.day}</div>
+                <div className="text-label">{d.label}</div>
+                <div className="text-body opacity-75">{d.day}</div>
               </div>
             </Button>
           ))}
@@ -863,14 +863,14 @@ function PatientSelector({ patients, selected, defaultPatientId, onSelect, onAdd
           >
             <Avatar className="w-9 h-9 flex-shrink-0">
               <AvatarImage src={patient.avatar} />
-              <AvatarFallback className="bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700 text-[14px] font-medium">
+              <AvatarFallback className="bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700 text-label">
                 {patient.name.split(' ').map((n: string) => n[0]).join('')}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <div className="font-medium text-[14px] leading-tight text-foreground truncate">{patient.name}</div>
+              <div className="text-label leading-tight text-foreground truncate">{patient.name}</div>
               {patient.relation && (
-                <div className="text-[14px] leading-tight text-muted-foreground mt-0.5">{patient.relation}</div>
+                <div className="text-body leading-tight text-muted-foreground mt-0.5">{patient.relation}</div>
               )}
             </div>
           </Button>
@@ -881,7 +881,7 @@ function PatientSelector({ patients, selected, defaultPatientId, onSelect, onAdd
         variant="outline"
         onClick={() => !disabled && onAddMember?.()}
         disabled={disabled}
-        className="h-auto mt-2 px-4 py-2.5 rounded-full font-normal text-[14px] hover:border-primary/50 hover:bg-primary/5 disabled:opacity-30"
+        className="h-auto mt-2 px-4 py-2.5 rounded-full text-body hover:border-primary/50 hover:bg-primary/5 disabled:opacity-30"
       >
         Add family member or guest &rarr;
       </Button>
@@ -900,7 +900,7 @@ function OptionSelector({ options, selected, onSelect, disabled }: any) {
           onClick={() => !disabled && onSelect(option.id)}
           disabled={disabled}
           className={cn(
-            'h-auto px-5 py-2.5 rounded-full font-medium text-[14px]',
+            'h-auto px-5 py-2.5 rounded-full text-label',
             'hover:border-primary/50 hover:bg-primary/5',
             selected === option.id
               ? disabled ? 'border-primary bg-primary/5 disabled:opacity-60' : 'border-primary bg-primary/5'
@@ -938,7 +938,7 @@ function UrgencySelector({ levels, selected, onSelect, disabled }: any) {
           onClick={() => !disabled && onSelect(level.id)}
           disabled={disabled}
           className={cn(
-            'w-full h-auto flex items-start gap-3 p-4 rounded-2xl border text-left font-normal text-[14px] hover:bg-primary/5 disabled:opacity-60',
+            'w-full h-auto flex items-start gap-3 p-4 rounded-2xl border text-left text-body hover:bg-primary/5 disabled:opacity-60',
             selected === level.id
               ? 'border-primary bg-primary/5'
               : 'border-border'
@@ -946,9 +946,9 @@ function UrgencySelector({ levels, selected, onSelect, disabled }: any) {
         >
           <div className={cn('w-2 h-2 rounded-full mt-1.5 flex-shrink-0', getIndicatorColor(level.id))} />
           <div className="flex-1">
-            <div className="font-semibold text-[14px] text-foreground">{level.label}</div>
+            <div className="text-card-title text-foreground">{level.label}</div>
             {level.description && (
-              <div className="text-[14px] text-muted-foreground mt-0.5">{level.description}</div>
+              <div className="text-body text-muted-foreground mt-0.5">{level.description}</div>
             )}
           </div>
         </Button>
@@ -965,7 +965,7 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
     <div className="space-y-4 max-w-3xl">
       {/* Search and filter header */}
       <div className="flex items-center gap-3">
-        <Button variant="secondary" size="sm" className="rounded-lg gap-2 font-normal text-[14px]">
+        <Button variant="secondary" size="sm" className="rounded-lg gap-2 text-body">
           Recommended <ChevronDown className="w-4 h-4" />
         </Button>
         <div className="flex-1 flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg">
@@ -975,7 +975,7 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
             placeholder="Search patient, doctor, date"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 text-[14px] bg-transparent border-0 outline-none placeholder:text-gray-400"
+            className="flex-1 text-body bg-transparent border-0 outline-none placeholder:text-gray-400"
           />
         </div>
       </div>
@@ -1002,8 +1002,8 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <div className="font-semibold text-[14px] text-[#171717]">{doctor.name}</div>
-                  <div className="text-[14px] text-gray-600">{doctor.specialty} • {doctor.experience}</div>
+                  <div className="text-card-title text-[#171717]">{doctor.name}</div>
+                  <div className="text-body text-gray-600">{doctor.specialty} • {doctor.experience}</div>
                 </div>
               </div>
               <div className="flex items-start gap-2 flex-shrink-0">
@@ -1014,9 +1014,9 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
                   <Badge variant="success">In-hospital</Badge>
                 )}
                 <div className="text-right">
-                  <div className="font-semibold text-[14px] text-[#171717]">₹{doctor.fees?.video || doctor.fees}</div>
+                  <div className="text-card-title text-[#171717]">₹{doctor.fees?.video || doctor.fees}</div>
                   {doctor.fees?.in_person && doctor.fees.in_person !== doctor.fees.video && (
-                    <div className="text-[14px] text-gray-500">/ {doctor.fees.in_person}</div>
+                    <div className="text-body text-gray-500">/ {doctor.fees.in_person}</div>
                   )}
                 </div>
               </div>
@@ -1031,7 +1031,7 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
                     variant={selectedDoctorId === doctor.id && selectedTime === slot.time ? 'accent' : 'outline'}
                     onClick={() => !disabled && onSelect(doctor.id, slot.time)}
                     disabled={disabled}
-                    className="h-auto px-3 py-1.5 rounded-lg font-medium text-[14px] gap-1 disabled:opacity-60"
+                    className="h-auto px-3 py-1.5 rounded-lg text-label gap-1 disabled:opacity-60"
                   >
                     {slot.time}
                     {slot.priority && <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />}
@@ -1057,7 +1057,7 @@ function ConsultationModeSelector({ modes, selected, onSelect, disabled }: any) 
           onClick={() => !disabled && onSelect(mode.id)}
           disabled={disabled}
           className={cn(
-            'w-full h-auto flex items-center justify-between p-4 rounded-2xl border text-left font-normal text-[14px] hover:bg-primary/5 disabled:opacity-60',
+            'w-full h-auto flex items-center justify-between p-4 rounded-2xl border text-left text-body hover:bg-primary/5 disabled:opacity-60',
             selected === mode.id
               ? 'border-primary bg-primary/5'
               : 'border-border'
@@ -1072,11 +1072,11 @@ function ConsultationModeSelector({ modes, selected, onSelect, disabled }: any) 
               )}
             </div>
             <div>
-              <div className="font-semibold text-[14px] text-foreground">{mode.label}</div>
-              <div className="text-[14px] text-muted-foreground">{mode.description}</div>
+              <div className="text-card-title text-foreground">{mode.label}</div>
+              <div className="text-body text-muted-foreground">{mode.description}</div>
             </div>
           </div>
-          <div className="font-semibold text-[14px] text-foreground">₹{mode.price}</div>
+          <div className="text-card-title text-foreground">₹{mode.price}</div>
         </Button>
       ))}
     </div>
@@ -1094,24 +1094,24 @@ function BookingSummary({ summary, onPay, disabled }: any) {
 
             return (
               <div key={key} className="flex items-center justify-between">
-                <span className="text-[14px] text-gray-600 capitalize">{key.replace(/_/g, ' ')}</span>
+                <span className="text-body text-gray-600 capitalize">{key.replace(/_/g, ' ')}</span>
                 <div className="flex items-center gap-2">
                   {value.avatar && (
                     <Avatar className="w-6 h-6">
                       <AvatarImage src={value.avatar} />
-                      <AvatarFallback className="text-[14px]">{value.label?.[0]}</AvatarFallback>
+                      <AvatarFallback className="text-body">{value.label?.[0]}</AvatarFallback>
                     </Avatar>
                   )}
-                  <span className="text-[14px] font-semibold text-[#171717]">{value.label || String(value)}</span>
-                  <Button variant="link" size="sm" className="h-auto p-0 text-[14px]">Change</Button>
+                  <span className="text-card-title text-[#171717]">{value.label || String(value)}</span>
+                  <Button variant="link" size="sm" className="h-auto p-0 text-body">Change</Button>
                 </div>
               </div>
             );
           })}
           {(summary?.consultation_fee || summary?.total) && (
             <div className="flex items-center justify-between pt-2 border-t">
-              <span className="text-[14px] font-medium text-gray-600">Appointment Fee</span>
-              <span className="text-[14px] font-semibold text-[#171717]">
+              <span className="text-label text-gray-600">Appointment Fee</span>
+              <span className="text-card-title text-[#171717]">
                 ₹{summary.consultation_fee || summary.total}
               </span>
             </div>
@@ -1141,7 +1141,7 @@ function PackageList({ packages, selected, onSelect, disabled }: any) {
           onClick={() => !disabled && onSelect(pkg.id)}
           disabled={disabled}
           className={cn(
-            'w-full h-auto p-4 rounded-2xl border text-left font-normal text-[14px] hover:bg-primary/5 disabled:opacity-60',
+            'w-full h-auto p-4 rounded-2xl border text-left text-body hover:bg-primary/5 disabled:opacity-60',
             selected === pkg.id
               ? 'border-primary bg-primary/5'
               : 'border-border'
@@ -1149,14 +1149,14 @@ function PackageList({ packages, selected, onSelect, disabled }: any) {
         >
           <div className="flex items-start justify-between w-full">
             <div className="flex-1">
-              <div className="font-semibold text-[14px] text-foreground">{pkg.name}</div>
-              <div className="text-[14px] text-muted-foreground mt-1">
+              <div className="text-card-title text-foreground">{pkg.name}</div>
+              <div className="text-body text-muted-foreground mt-1">
                 {pkg.tests_included?.join(', ')}
               </div>
-              <div className="text-[10px] text-muted-foreground mt-2">Duration: {pkg.duration}</div>
+              <div className="text-micro text-muted-foreground mt-2">Duration: {pkg.duration}</div>
             </div>
             <div className="text-right flex-shrink-0 ml-4">
-              <div className="font-semibold text-[14px] text-foreground">₹{pkg.price}</div>
+              <div className="text-card-title text-foreground">₹{pkg.price}</div>
             </div>
           </div>
         </Button>
@@ -1176,7 +1176,7 @@ function LocationSelector({ locations, selected, onSelect, disabled }: any) {
           onClick={() => !disabled && onSelect(location.id)}
           disabled={disabled}
           className={cn(
-            'w-full h-auto p-3 rounded-xl border text-left font-normal text-[14px] hover:bg-primary/5 disabled:opacity-60',
+            'w-full h-auto p-3 rounded-xl border text-left text-body hover:bg-primary/5 disabled:opacity-60',
             selected === location.id
               ? 'border-primary bg-primary/5'
               : 'border-border'
@@ -1184,8 +1184,8 @@ function LocationSelector({ locations, selected, onSelect, disabled }: any) {
         >
           <div className="flex items-center justify-between w-full">
             <div>
-              <div className="font-semibold text-[14px] text-foreground">{location.name}</div>
-              <div className="text-[14px] text-muted-foreground">{location.address}</div>
+              <div className="text-card-title text-foreground">{location.name}</div>
+              <div className="text-body text-muted-foreground">{location.address}</div>
             </div>
           </div>
         </Button>
@@ -1276,7 +1276,7 @@ function DateTimePicker({ selectedDate, selectedTime, onSelect, disabled, warnin
       <Card className="overflow-hidden">
         {/* Date selection */}
         <div className="p-4" style={{ borderBottom: '1px solid hsl(var(--border))' }}>
-          <h4 className="font-semibold text-[14px] mb-3 text-foreground">Date</h4>
+          <h4 className="text-card-title mb-3 text-foreground">Date</h4>
           <div className="flex gap-2 overflow-x-auto pb-2">
             {dates.map((dateItem: any) => {
               const isSelected = tempDate === dateItem.value || selectedDate === dateItem.value;
@@ -1293,10 +1293,10 @@ function DateTimePicker({ selectedDate, selectedTime, onSelect, disabled, warnin
                   )}
                 >
                   <div className="text-left">
-                    <div className={cn('font-semibold text-[14px]', isSelected && 'text-background')}>
+                    <div className={cn('text-card-title', isSelected && 'text-background')}>
                       {dateItem.label}
                     </div>
-                    <div className={cn('text-[14px]', isSelected ? 'text-background/70' : 'text-muted-foreground')}>
+                    <div className={cn('text-body', isSelected ? 'text-background/70' : 'text-muted-foreground')}>
                       {dateItem.sublabel}
                     </div>
                   </div>
@@ -1308,8 +1308,8 @@ function DateTimePicker({ selectedDate, selectedTime, onSelect, disabled, warnin
 
         {/* Time selection */}
         <div className="p-4">
-          <h4 className="font-semibold text-[14px] mb-3 text-foreground">
-            Time {warning && <span className="text-[14px] font-normal text-muted-foreground">(morning recommended)</span>}
+          <h4 className="text-card-title mb-3 text-foreground">
+            Time {warning && <span className="text-body text-muted-foreground">(morning recommended)</span>}
           </h4>
           <div className="flex flex-wrap gap-2">
             {timeSlots.map((slot: any) => {
@@ -1322,7 +1322,7 @@ function DateTimePicker({ selectedDate, selectedTime, onSelect, disabled, warnin
                   onClick={() => handleTimeSelect(slot.time)}
                   disabled={disabled || !slot.available}
                   className={cn(
-                    'h-auto px-3.5 py-1.5 rounded-full font-medium text-[14px] gap-1.5 disabled:opacity-60',
+                    'h-auto px-3.5 py-1.5 rounded-full text-label gap-1.5 disabled:opacity-60',
                     isSelected && 'border-foreground'
                   )}
                 >
@@ -1350,7 +1350,7 @@ function ModeComparison({ modes, recommendation, onSelect, disabled }: any) {
           <h4 className="font-semibold text-base mb-3">{mode.title}</h4>
           <ul className="space-y-2">
             {mode.benefits.map((benefit: string, i: number) => (
-              <li key={i} className="text-[14px] text-muted-foreground flex items-start gap-2">
+              <li key={i} className="text-body text-muted-foreground flex items-start gap-2">
                 <span className="text-foreground">•</span>
                 <span>{benefit}</span>
               </li>
@@ -1360,7 +1360,7 @@ function ModeComparison({ modes, recommendation, onSelect, disabled }: any) {
       ))}
       {recommendation && (
         <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
-          <p className="text-[14px] text-blue-900" dangerouslySetInnerHTML={{ __html: recommendation }} />
+          <p className="text-body text-blue-900" dangerouslySetInnerHTML={{ __html: recommendation }} />
         </div>
       )}
     </div>
@@ -1378,7 +1378,7 @@ function ActionList({ actions, onSelect, disabled }: any) {
           onClick={() => !disabled && onSelect(action.id)}
           disabled={disabled}
           className={cn(
-            'w-full h-auto flex items-start gap-4 p-4 rounded-2xl border text-left font-normal text-[14px] hover:border-primary hover:bg-primary/5 disabled:opacity-60',
+            'w-full h-auto flex items-start gap-4 p-4 rounded-2xl border text-left text-body hover:border-primary hover:bg-primary/5 disabled:opacity-60',
             action.id === 'continue' ? 'bg-primary/5 border-primary' : 'border-border'
           )}
         >
@@ -1395,7 +1395,7 @@ function ActionList({ actions, onSelect, disabled }: any) {
           <div className="flex-1">
             <div className="font-semibold text-foreground mb-1">{action.label}</div>
             {action.description && (
-              <div className="text-[14px] text-muted-foreground">{action.description}</div>
+              <div className="text-body text-muted-foreground">{action.description}</div>
             )}
           </div>
           <svg className="w-5 h-5 text-neutral-900 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1417,7 +1417,7 @@ function InfoLinks({ links, onSelect, disabled }: any) {
           variant="ghost"
           onClick={() => !disabled && onSelect(link.id)}
           disabled={disabled}
-          className="w-full h-auto flex items-start gap-4 p-4 rounded-2xl border border-border text-left font-normal text-[14px] hover:border-primary hover:bg-primary/5 disabled:opacity-60"
+          className="w-full h-auto flex items-start gap-4 p-4 rounded-2xl border border-border text-left text-body hover:border-primary hover:bg-primary/5 disabled:opacity-60"
         >
           <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
             {link.icon === 'clock' && (
@@ -1438,14 +1438,14 @@ function InfoLinks({ links, onSelect, disabled }: any) {
           </div>
           <div className="flex-1">
             <div className="font-semibold text-foreground mb-1">{link.title}</div>
-            <div className="text-[14px] text-muted-foreground">{link.description}</div>
+            <div className="text-body text-muted-foreground">{link.description}</div>
           </div>
           <svg className="w-5 h-5 text-neutral-900 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </Button>
       ))}
-      <p className="text-[14px] text-muted-foreground text-center mt-4">
+      <p className="text-body text-muted-foreground text-center mt-4">
         Would you like to continue booking an appointment?
       </p>
     </div>
@@ -1495,14 +1495,14 @@ function ScheduleConflict({ existing, newAppointment, onSelect, disabled }: any)
       </Alert>
 
       <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200">
-        <p className="text-[14px] font-semibold text-gray-500 uppercase mb-2">Existing Appointment</p>
+        <p className="text-card-title text-gray-500 uppercase mb-2">Existing Appointment</p>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
             <span className="text-orange-600 font-bold text-lg">D</span>
           </div>
           <div>
             <p className="font-semibold text-gray-900">{existing?.doctor}</p>
-            <p className="text-[14px] text-gray-600">
+            <p className="text-body text-gray-600">
               {existing?.date && new Date(existing.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • {existing?.time}
             </p>
           </div>
@@ -1510,14 +1510,14 @@ function ScheduleConflict({ existing, newAppointment, onSelect, disabled }: any)
       </div>
 
       <div className="bg-blue-50 rounded-2xl p-4 border border-blue-400">
-        <p className="text-[14px] font-semibold text-blue-700 uppercase mb-2">New Appointment</p>
+        <p className="text-card-title text-blue-700 uppercase mb-2">New Appointment</p>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
             <span className="text-primary font-bold text-lg">D</span>
           </div>
           <div>
             <p className="font-semibold text-gray-900">{newAppointment?.doctor}</p>
-            <p className="text-[14px] text-gray-600">
+            <p className="text-body text-gray-600">
               {newAppointment?.date && new Date(newAppointment.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • {newAppointment?.time}
             </p>
           </div>
@@ -1600,7 +1600,7 @@ function EmergencyWarning({ emergencyNumbers, category, disabled }: any) {
         </ul>
       </div>
 
-      <div className="text-center text-[14px] text-red-700 pt-2">
+      <div className="text-center text-body text-red-700 pt-2">
         If this is not an emergency, you can continue booking a routine appointment below.
       </div>
     </div>

@@ -159,16 +159,16 @@ function PreviousDoctorCard({
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-1">
-            <p className="text-[14px] font-medium leading-none">{doctor.name}</p>
-            <p className="text-[14px] text-muted-foreground">
+            <p className="text-label leading-none">{doctor.name}</p>
+            <p className="text-body text-muted-foreground">
               {doctor.specialization} {doctor.experience_years ? `· ${doctor.experience_years} years` : ''}
             </p>
             {doctor.rating && (
               <div className="flex items-center gap-1">
                 <Star className="h-3.5 w-3.5 fill-warning text-warning" />
-                <span className="text-[14px] font-medium">{doctor.rating}</span>
+                <span className="text-label">{doctor.rating}</span>
                 {doctor.reviewCount && (
-                  <span className="text-[14px] text-muted-foreground">
+                  <span className="text-body text-muted-foreground">
                     ({doctor.reviewCount})
                   </span>
                 )}
@@ -207,14 +207,14 @@ function PreviousDoctorCard({
             </div>
           )}
 
-          <p className="text-[14px] font-medium">{getPrice()}</p>
+          <p className="text-label">{getPrice()}</p>
         </div>
       </div>
 
       {/* Previous symptoms (optional) */}
       {doctor.previousSymptoms && doctor.previousSymptoms.length > 0 && (
         <div className="bg-muted rounded-lg p-3 mb-3">
-          <p className="text-[14px]">
+          <p className="text-body">
             <span className="font-medium">Previous:</span>{' '}
             <span className="text-muted-foreground">
               {doctor.previousSymptoms.join(', ')}
@@ -225,7 +225,7 @@ function PreviousDoctorCard({
 
       {/* Quick time slots or full time slots */}
       {doctor.available_on_date === false ? (
-        <div className="text-[14px] text-muted-foreground italic">
+        <div className="text-body text-muted-foreground italic">
           No available slots on the selected date
         </div>
       ) : (
@@ -233,7 +233,7 @@ function PreviousDoctorCard({
           {/* Show quick times if available (from backend enhancement) */}
           {doctor.quick_times && doctor.quick_times.length > 0 ? (
             <>
-              <p className="text-[14px] text-muted-foreground">Quick available times:</p>
+              <p className="text-body text-muted-foreground">Quick available times:</p>
               <div className="flex flex-wrap gap-2">
                 {doctor.quick_times.map((time) => (
                   <Button
@@ -242,7 +242,7 @@ function PreviousDoctorCard({
                     onClick={() => !disabled && onSelectTime(time)}
                     disabled={disabled}
                     className={cn(
-                      "h-auto px-3 py-1.5 rounded-full font-medium text-[14px]",
+                      "h-auto px-3 py-1.5 rounded-full text-label",
                       "disabled:opacity-60",
                       selectedTime === time && "border-foreground"
                     )}
@@ -262,7 +262,7 @@ function PreviousDoctorCard({
                   onClick={() => !disabled && slot.available && onSelectTime(slot.time)}
                   disabled={disabled || !slot.available}
                   className={cn(
-                    "h-auto px-3 py-1.5 rounded-full font-medium text-[14px]",
+                    "h-auto px-3 py-1.5 rounded-full text-label",
                     "disabled:opacity-60",
                     selectedTime === slot.time && "border-foreground"
                   )}

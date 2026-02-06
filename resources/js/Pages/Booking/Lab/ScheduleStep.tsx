@@ -259,7 +259,7 @@ export default function ScheduleStep({
       <div className="space-y-12">
         {/* Date Selection */}
         <section>
-          <h2 className="text-xl font-semibold mb-4">Select Date</h2>
+          <h2 className="text-step-title mb-4">Select Date</h2>
 
           {requiresFasting && fastingHours && (
             <FastingAlert hours={fastingHours} className="mb-4" />
@@ -279,10 +279,10 @@ export default function ScheduleStep({
                 )}
               >
                 <div className="w-full text-left">
-                  <p className="font-medium text-[14px]">{dateOption.label}</p>
+                  <p className="text-label">{dateOption.label}</p>
                   <p
                     className={cn(
-                      'text-[14px]',
+                      'text-body',
                       selectedDate === dateOption.date
                         ? 'text-background/70'
                         : 'text-muted-foreground'
@@ -299,7 +299,7 @@ export default function ScheduleStep({
         {/* Time Selection */}
         {selectedDate && (
           <section ref={timeSectionRef}>
-            <h2 className="text-xl font-semibold mb-4">Select Time</h2>
+            <h2 className="text-step-title mb-4">Select Time</h2>
 
             <TimeSlotGrid
               slots={timeSlots}
@@ -307,14 +307,14 @@ export default function ScheduleStep({
               onSelect={(time) => setSelectedTime(time)}
             />
 
-            {errors.time && <p className="text-[14px] text-destructive mt-2">{errors.time}</p>}
+            {errors.time && <p className="text-body text-destructive mt-2">{errors.time}</p>}
           </section>
         )}
 
         {/* Section 4: Collection Method */}
         {selectedTime && (
           <section ref={collectionSectionRef}>
-            <h2 className="text-xl font-semibold mb-4">Where should we collect the sample?</h2>
+            <h2 className="text-step-title mb-4">Where should we collect the sample?</h2>
 
             <Card className="overflow-hidden">
               {locations.map((loc, index) => {
@@ -325,7 +325,7 @@ export default function ScheduleStep({
                     variant="ghost"
                     onClick={() => handleLocationChange(loc.type)}
                     className={cn(
-                      'w-full h-auto flex items-center gap-4 px-6 py-4 rounded-none justify-start text-left transition-all font-normal text-[14px]',
+                      'w-full h-auto flex items-center gap-4 px-6 py-4 rounded-none justify-start text-left transition-all text-body',
                       'hover:bg-muted/50',
                       isSelected && 'bg-primary/5'
                     )}
@@ -342,10 +342,10 @@ export default function ScheduleStep({
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-[14px] leading-tight mb-0.5">{loc.label}</p>
-                      <p className="text-[14px] text-muted-foreground leading-tight">{loc.description}</p>
+                      <p className="text-label leading-tight mb-0.5">{loc.label}</p>
+                      <p className="text-body text-muted-foreground leading-tight">{loc.description}</p>
                       {loc.fee > 0 && (
-                        <p className="text-[14px] text-muted-foreground mt-1">
+                        <p className="text-body text-muted-foreground mt-1">
                           +₹{loc.fee} collection fee
                         </p>
                       )}
@@ -356,13 +356,13 @@ export default function ScheduleStep({
             </Card>
 
             {errors.location && (
-              <p className="text-[14px] text-destructive mt-2">{errors.location}</p>
+              <p className="text-body text-destructive mt-2">{errors.location}</p>
             )}
 
             {/* Address Selection (Home Collection) */}
             {selectedLocation === 'home' && !showAddressForm && (
               <div className="mt-6">
-                <h3 className="text-base font-semibold mb-3">Select delivery address</h3>
+                <h3 className="text-subheading mb-3">Select delivery address</h3>
 
                 {userAddresses.length > 0 ? (
                   <EmbeddedAddressSelector
@@ -374,7 +374,7 @@ export default function ScheduleStep({
                   />
                 ) : (
                   <div className="text-center py-4">
-                    <p className="text-[14px] text-muted-foreground mb-3">No saved addresses yet</p>
+                    <p className="text-body text-muted-foreground mb-3">No saved addresses yet</p>
                     <Button
                       variant="secondary"
                       size="sm"
@@ -386,7 +386,7 @@ export default function ScheduleStep({
                 )}
 
                 {errors.address && (
-                  <p className="text-[14px] text-destructive mt-2">{errors.address}</p>
+                  <p className="text-body text-destructive mt-2">{errors.address}</p>
                 )}
               </div>
             )}
@@ -394,7 +394,7 @@ export default function ScheduleStep({
             {/* Add Address Form */}
             {selectedLocation === 'home' && showAddressForm && (
               <div className="mt-6">
-                <h3 className="text-base font-semibold mb-3">Add new address</h3>
+                <h3 className="text-subheading mb-3">Add new address</h3>
                 <EmbeddedAddressForm
                   onSelect={handleAddAddressSubmit}
                   disabled={false}
@@ -415,7 +415,7 @@ export default function ScheduleStep({
             {/* Center Selection (Hospital Visit) */}
             {selectedLocation === 'center' && (
               <div className="mt-6">
-                <h3 className="text-base font-semibold mb-3">Select lab center</h3>
+                <h3 className="text-subheading mb-3">Select lab center</h3>
 
                 <EmbeddedCenterList
                   centers={labCenters}
@@ -425,7 +425,7 @@ export default function ScheduleStep({
                 />
 
                 {errors.center && (
-                  <p className="text-[14px] text-destructive mt-2">{errors.center}</p>
+                  <p className="text-body text-destructive mt-2">{errors.center}</p>
                 )}
               </div>
             )}

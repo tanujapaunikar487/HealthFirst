@@ -48,7 +48,7 @@ export function EmbeddedLocationSelector({ locations, selectedLocationId, onSele
               onClick={() => !disabled && onSelect(location.id)}
               disabled={disabled}
               className={cn(
-                "w-full h-auto rounded-none justify-start px-6 py-4 font-normal text-[14px] hover:bg-muted/50",
+                "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
                 "flex items-start gap-4 text-left transition-all",
                 isSelected && "bg-primary/5 border-l-2 border-l-primary",
                 disabled && !isSelected && "opacity-60"
@@ -64,15 +64,15 @@ export function EmbeddedLocationSelector({ locations, selectedLocationId, onSele
 
               {/* Text */}
               <div className="flex-1 min-w-0 text-left">
-                <p className="font-medium text-[14px]">
+                <p className="text-label">
                   {location.name || config.label}
                   {location.distance_km && (
-                    <span className="text-[14px] text-muted-foreground ml-2">
+                    <span className="text-body text-muted-foreground ml-2">
                       ({location.distance_km} km away)
                     </span>
                   )}
                 </p>
-                <p className="text-[14px] text-muted-foreground">{location.address}</p>
+                <p className="text-body text-muted-foreground">{location.address}</p>
 
                 {/* Change link - always visible on the card */}
                 {!disabled && (
@@ -110,9 +110,9 @@ export function EmbeddedLocationSelector({ locations, selectedLocationId, onSele
 
               {/* Fee */}
               {isFree ? (
-                <span className="font-semibold text-[14px] text-success flex-shrink-0">Free</span>
+                <span className="text-card-title text-success flex-shrink-0">Free</span>
               ) : (
-                <span className="font-semibold text-[14px] flex-shrink-0">₹{typeof location.fee === 'number' ? location.fee.toLocaleString() : location.fee}</span>
+                <span className="text-card-title flex-shrink-0">₹{typeof location.fee === 'number' ? location.fee.toLocaleString() : location.fee}</span>
               )}
             </Button>
           </div>

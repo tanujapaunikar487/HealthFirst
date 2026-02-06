@@ -267,7 +267,7 @@ function AlertBanner({ alert }: { alert: Alert }) {
         variant="link"
         size="sm"
         onClick={() => router.visit(alert.url)}
-        className="h-auto p-0 flex items-center gap-1 text-[14px] font-medium text-foreground mt-2"
+        className="h-auto p-0 flex items-center gap-1 text-label text-foreground mt-2"
       >
         View details
         <ChevronRight className="h-4 w-4" />
@@ -613,7 +613,7 @@ export default function FamilyMemberShow({
           variant="link"
           size="sm"
           onClick={() => router.visit('/family-members')}
-          className="mb-6 h-auto p-0 flex items-center gap-1.5 text-[14px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+          className="mb-6 h-auto p-0 flex items-center gap-1.5 text-label text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Family Members
@@ -649,7 +649,7 @@ export default function FamilyMemberShow({
               )}
             </div>
             {member.patient_id && (
-              <p className="mt-0.5 text-[14px] text-muted-foreground">{member.patient_id}</p>
+              <p className="mt-0.5 text-body text-muted-foreground">{member.patient_id}</p>
             )}
           </div>
           {member.relation !== 'self' && (
@@ -791,7 +791,7 @@ export default function FamilyMemberShow({
                           ))}
                         </div>
                       ) : (
-                        <span className="text-[14px] text-muted-foreground">None recorded</span>
+                        <span className="text-body text-muted-foreground">None recorded</span>
                       ),
                     },
                     {
@@ -803,7 +803,7 @@ export default function FamilyMemberShow({
                           ))}
                         </div>
                       ) : (
-                        <span className="text-[14px] text-muted-foreground">None recorded</span>
+                        <span className="text-body text-muted-foreground">None recorded</span>
                       ),
                     },
                   ]}
@@ -875,8 +875,8 @@ export default function FamilyMemberShow({
                         <link.icon className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[14px] font-semibold text-foreground">{link.title}</p>
-                        <p className="text-[14px] font-normal text-muted-foreground">{link.subtitle}</p>
+                        <p className="text-card-title text-foreground">{link.title}</p>
+                        <p className="text-body text-muted-foreground">{link.subtitle}</p>
                       </div>
                       <span
                         className="flex items-center justify-center flex-shrink-0 rounded-full"
@@ -908,10 +908,10 @@ export default function FamilyMemberShow({
           <SheetBody>
             {/* Personal Details */}
             <div>
-              <p className="mb-3 text-[14px] font-medium text-muted-foreground">Personal details</p>
+              <p className="mb-3 text-label text-muted-foreground">Personal details</p>
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">
+                  <label className="mb-1.5 block text-label text-foreground">
                     Name <span className="text-destructive">*</span>
                   </label>
                   <Input
@@ -924,12 +924,12 @@ export default function FamilyMemberShow({
                     className={cn(formErrors.name && 'border-destructive/30 focus-visible:ring-destructive/40')}
                   />
                   {formErrors.name && (
-                    <p className="mt-1 text-[14px] text-destructive">{formErrors.name}</p>
+                    <p className="mt-1 text-body text-destructive">{formErrors.name}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">
+                  <label className="mb-1.5 block text-label text-foreground">
                     Relation <span className="text-destructive">*</span>
                   </label>
                   <Select
@@ -949,12 +949,12 @@ export default function FamilyMemberShow({
                     </SelectContent>
                   </Select>
                   {formErrors.relation && (
-                    <p className="mt-1 text-[14px] text-destructive">{formErrors.relation}</p>
+                    <p className="mt-1 text-body text-destructive">{formErrors.relation}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Date of Birth</label>
+                  <label className="mb-1.5 block text-label text-foreground">Date of Birth</label>
                   <DatePicker
                     value={formData.date_of_birth}
                     onChange={(value) => setFormData({ ...formData, date_of_birth: value })}
@@ -964,7 +964,7 @@ export default function FamilyMemberShow({
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Gender</label>
+                  <label className="mb-1.5 block text-label text-foreground">Gender</label>
                   <Select
                     value={formData.gender}
                     onValueChange={val => setFormData({ ...formData, gender: val })}
@@ -984,17 +984,17 @@ export default function FamilyMemberShow({
 
             {/* Contact & Address */}
             <div>
-              <p className="mb-3 text-[14px] font-medium text-muted-foreground">Contact & address</p>
+              <p className="mb-3 text-label text-muted-foreground">Contact & address</p>
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Phone</label>
+                  <label className="mb-1.5 block text-label text-foreground">Phone</label>
                   <PhoneInput
                     value={formData.phone || ''}
                     onChange={value => setFormData({ ...formData, phone: value })}
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Email</label>
+                  <label className="mb-1.5 block text-label text-foreground">Email</label>
                   <Input
                     type="email"
                     value={formData.email}
@@ -1003,7 +1003,7 @@ export default function FamilyMemberShow({
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Address Line 1</label>
+                  <label className="mb-1.5 block text-label text-foreground">Address Line 1</label>
                   <Input
                     value={formData.address_line_1}
                     onChange={e => setFormData({ ...formData, address_line_1: e.target.value })}
@@ -1011,7 +1011,7 @@ export default function FamilyMemberShow({
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Address Line 2</label>
+                  <label className="mb-1.5 block text-label text-foreground">Address Line 2</label>
                   <Input
                     value={formData.address_line_2}
                     onChange={e => setFormData({ ...formData, address_line_2: e.target.value })}
@@ -1020,7 +1020,7 @@ export default function FamilyMemberShow({
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="mb-1.5 block text-[14px] font-medium text-foreground">State</label>
+                    <label className="mb-1.5 block text-label text-foreground">State</label>
                     <Select value={formData.state} onValueChange={handleStateChange}>
                       <SelectTrigger className={!formData.state ? 'text-muted-foreground' : ''}>
                         <SelectValue placeholder="Select state" />
@@ -1033,7 +1033,7 @@ export default function FamilyMemberShow({
                     </Select>
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-[14px] font-medium text-foreground">City</label>
+                    <label className="mb-1.5 block text-label text-foreground">City</label>
                     <Select
                       value={formData.city}
                       onValueChange={(value: string) => setFormData({ ...formData, city: value })}
@@ -1050,7 +1050,7 @@ export default function FamilyMemberShow({
                     </Select>
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-[14px] font-medium text-foreground">Pincode</label>
+                    <label className="mb-1.5 block text-label text-foreground">Pincode</label>
                     <Input
                       value={formData.pincode}
                       onChange={e => setFormData({ ...formData, pincode: e.target.value })}
@@ -1063,10 +1063,10 @@ export default function FamilyMemberShow({
 
             {/* Health Information */}
             <div>
-              <p className="mb-3 text-[14px] font-medium text-muted-foreground">Health information</p>
+              <p className="mb-3 text-label text-muted-foreground">Health information</p>
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Blood Group</label>
+                  <label className="mb-1.5 block text-label text-foreground">Blood Group</label>
                   <Select
                     value={formData.blood_group}
                     onValueChange={val => setFormData({ ...formData, blood_group: val })}
@@ -1082,7 +1082,7 @@ export default function FamilyMemberShow({
                   </Select>
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Primary Doctor</label>
+                  <label className="mb-1.5 block text-label text-foreground">Primary Doctor</label>
                   <Select
                     value={formData.primary_doctor_id}
                     onValueChange={val => setFormData({ ...formData, primary_doctor_id: val })}
@@ -1100,7 +1100,7 @@ export default function FamilyMemberShow({
                   </Select>
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Conditions</label>
+                  <label className="mb-1.5 block text-label text-foreground">Conditions</label>
                   <TagInput
                     tags={formData.medical_conditions}
                     onChange={tags => setFormData({ ...formData, medical_conditions: tags })}
@@ -1108,7 +1108,7 @@ export default function FamilyMemberShow({
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Allergies</label>
+                  <label className="mb-1.5 block text-label text-foreground">Allergies</label>
                   <TagInput
                     tags={formData.allergies}
                     onChange={tags => setFormData({ ...formData, allergies: tags })}
@@ -1121,10 +1121,10 @@ export default function FamilyMemberShow({
 
             {/* Emergency Contact */}
             <div>
-              <p className="mb-3 text-[14px] font-medium text-muted-foreground">Emergency contact</p>
+              <p className="mb-3 text-label text-muted-foreground">Emergency contact</p>
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Contact Name</label>
+                  <label className="mb-1.5 block text-label text-foreground">Contact Name</label>
                   <Input
                     value={formData.emergency_contact_name}
                     onChange={e => setFormData({ ...formData, emergency_contact_name: e.target.value })}
@@ -1132,7 +1132,7 @@ export default function FamilyMemberShow({
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Contact Relation</label>
+                  <label className="mb-1.5 block text-label text-foreground">Contact Relation</label>
                   <Input
                     value={formData.emergency_contact_relation}
                     onChange={e => setFormData({ ...formData, emergency_contact_relation: e.target.value })}
@@ -1140,7 +1140,7 @@ export default function FamilyMemberShow({
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[14px] font-medium text-foreground">Contact Phone</label>
+                  <label className="mb-1.5 block text-label text-foreground">Contact Phone</label>
                   <PhoneInput
                     value={formData.emergency_contact_phone || ''}
                     onChange={value => setFormData({ ...formData, emergency_contact_phone: value })}
@@ -1220,7 +1220,7 @@ export default function FamilyMemberShow({
                 </ul>
               </AlertComponent>
               <div>
-                <label className="block text-[14px] font-medium text-foreground mb-2">
+                <label className="block text-label text-foreground mb-2">
                   Type <span className="font-semibold">{member.name}</span> to confirm
                 </label>
                 <Input

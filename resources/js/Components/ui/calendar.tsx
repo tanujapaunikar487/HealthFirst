@@ -24,7 +24,7 @@ function Calendar({
         month_caption: 'flex items-center justify-center relative h-10 mb-4',
         caption_label: 'hidden',
         dropdowns: 'flex items-center gap-2',
-        dropdown: 'appearance-none bg-transparent font-medium text-[14px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border border-input rounded-lg px-2 py-1',
+        dropdown: 'appearance-none bg-transparent text-label cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border border-input rounded-lg px-2 py-1',
         dropdown_root: 'relative inline-flex items-center',
         nav: 'absolute inset-x-0 flex items-center justify-between pointer-events-none',
         button_previous: cn(
@@ -39,7 +39,7 @@ function Calendar({
         weekdays: 'flex w-full',
         weekday: 'text-muted-foreground flex-1 font-normal text-[0.8rem] text-center',
         week: 'flex w-full mt-2',
-        day: 'flex-1 text-center text-[14px] p-0 relative [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20',
+        day: 'flex-1 text-center text-body p-0 relative [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20',
         day_button: cn(
           buttonVariants({ variant: 'ghost' }),
           'h-9 w-full p-0 font-normal aria-selected:opacity-100 rounded-md'

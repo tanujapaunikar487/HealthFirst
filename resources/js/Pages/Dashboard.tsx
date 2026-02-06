@@ -282,8 +282,8 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted">
           <Icon icon={AlertCircle} className="h-7 w-7 text-muted-foreground" />
         </div>
-        <p className="text-[14px] font-medium text-muted-foreground">Unable to load dashboard</p>
-        <p className="text-[14px] text-muted-foreground">Please check your connection and try again.</p>
+        <p className="text-label text-muted-foreground">Unable to load dashboard</p>
+        <p className="text-body text-muted-foreground">Please check your connection and try again.</p>
         <Button variant="secondary" className="mt-2" onClick={onRetry}>
           <Icon icon={RefreshCw} className="h-4 w-4" />
           Try Again
@@ -361,15 +361,15 @@ function DashboardCard({
         <div className="flex items-center gap-2">
           <div
             className="flex items-center justify-center flex-shrink-0 w-6 h-6 rounded-full bg-muted text-muted-foreground"
-            style={{ fontSize: '10px' }}
+            style={{ fontSize: '10px' }} /* typography-exception */
           >
             {patientInitials}
           </div>
-          <span className="text-[14px] font-medium text-muted-foreground">{patientName}</span>
+          <span className="text-label text-muted-foreground">{patientName}</span>
           {badge && (
             <span
-              className="text-[14px] font-medium px-2 py-0.5 rounded-full"
-              style={{ backgroundColor: badgeBg || 'hsl(var(--destructive) / 0.1)', color: badgeColor || 'hsl(var(--destructive))', fontSize: '11px' }}
+              className="text-overline px-2 py-0.5 rounded-full"
+              style={{ backgroundColor: badgeBg || 'hsl(var(--destructive) / 0.1)', color: badgeColor || 'hsl(var(--destructive))' }}
             >
               {badge}
             </span>
@@ -377,12 +377,12 @@ function DashboardCard({
         </div>
         {/* Title */}
         <h3
-          className="text-[14px] font-semibold leading-5 text-foreground truncate"
+          className="text-card-title text-foreground truncate"
         >
           {title}
         </h3>
         {/* Subtitle */}
-        <p className="text-[14px] font-normal leading-5 text-muted-foreground">{subtitle}</p>
+        <p className="text-body text-muted-foreground">{subtitle}</p>
       </VStack>
 
       {/* Action button */}
@@ -1102,10 +1102,10 @@ export default function Dashboard({
         {/* Page Header */}
         <HStack gap={3} align="start" className="w-full">
           <VStack gap={1} className="flex-1">
-            <h1 className="font-bold text-foreground truncate" style={{ fontSize: '36px', lineHeight: '44px', letterSpacing: '-1px' }}>
+            <h1 className="text-page-title text-foreground truncate">
               Hi, {firstName}
             </h1>
-            <p className="text-[14px] font-normal text-muted-foreground">
+            <p className="text-body text-muted-foreground">
               {formattedDate}
             </p>
           </VStack>
@@ -1124,7 +1124,7 @@ export default function Dashboard({
             {/* Up next section */}
             {hasUpNextItems && (
               <VStack gap={6} className="w-full">
-                <h2 className="text-[20px] font-semibold leading-7 text-foreground">
+                <h2 className="text-section-title text-foreground">
                   Up next
                 </h2>
                 <Card className="overflow-hidden w-full">
@@ -1137,7 +1137,7 @@ export default function Dashboard({
                         className="px-6 py-4 border-t border-border flex justify-center cursor-pointer hover:bg-accent transition-colors"
                         onClick={() => setUpNextExpanded(!upNextExpanded)}
                       >
-                        <span className="text-[14px] font-medium text-primary">
+                        <span className="text-label text-primary">
                           {upNextExpanded ? 'Show less' : `View all ${upNextCards.length}`}
                         </span>
                       </div>
@@ -1150,7 +1150,7 @@ export default function Dashboard({
             {/* Later this week section */}
             {hasLaterItems && (
               <VStack gap={6} className="w-full">
-                <h2 className="text-[20px] font-semibold leading-7 text-foreground">
+                <h2 className="text-section-title text-foreground">
                   Later this week
                 </h2>
                 <Card className="overflow-hidden w-full">
@@ -1163,7 +1163,7 @@ export default function Dashboard({
                         className="px-6 py-4 border-t border-border flex justify-center cursor-pointer hover:bg-accent transition-colors"
                         onClick={() => setLaterExpanded(!laterExpanded)}
                       >
-                        <span className="text-[14px] font-medium text-primary">
+                        <span className="text-label text-primary">
                           {laterExpanded ? 'Show less' : `View all ${laterCards.length}`}
                         </span>
                       </div>
@@ -1194,7 +1194,7 @@ export default function Dashboard({
             {upcomingAppointments.length > 0 && (
               <VStack gap={6} className="w-full">
                 <div className="flex items-center gap-3">
-                  <h2 className="text-[20px] font-semibold leading-7 text-foreground">
+                  <h2 className="text-section-title text-foreground">
                     Up next
                   </h2>
                 </div>
@@ -1224,10 +1224,10 @@ export default function Dashboard({
             {/* Profile completion steps */}
             <VStack gap={6} className="w-full">
               <div className="flex items-center gap-3">
-                <h2 className="text-[20px] font-semibold leading-7 text-foreground">
+                <h2 className="text-section-title text-foreground">
                   Complete your profile
                 </h2>
-                <span className="text-[14px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                <span className="text-label px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                   {profileSteps.filter(s => s.completed).length} of {profileSteps.length} done
                 </span>
               </div>
@@ -1466,17 +1466,17 @@ function ProfileStepItem({ step, isLast, onClick }: ProfileStepItemProps) {
         </div>
       ) : (
         <div className="flex items-center justify-center flex-shrink-0 w-10 h-10 rounded-full bg-muted">
-          <span className="text-[14px] font-semibold text-muted-foreground">
+          <span className="text-card-title text-muted-foreground">
             {step.number}
           </span>
         </div>
       )}
 
       <VStack gap={0.5} className="flex-1">
-        <h3 className="text-[14px] font-semibold leading-5 text-foreground truncate">
+        <h3 className="text-card-title text-foreground truncate">
           {step.title}
         </h3>
-        <p className="text-[14px] font-normal leading-5 text-muted-foreground truncate">
+        <p className="text-body text-muted-foreground truncate">
           {step.subtitle}
         </p>
       </VStack>

@@ -74,17 +74,17 @@ function Alert({
           {config.type === 'icon' ? (
             <Icon icon={config.icon} className="h-3.5 w-3.5 text-white" strokeWidth={3} />
           ) : (
-            <span className="text-white text-[12px] font-bold leading-none">{config.content}</span>
+            <span className="text-white text-caption">{config.content}</span>
           )}
         </div>
       )}
       <div className="flex-1 space-y-1">
         {title && (
-          <p className="text-[14px] font-semibold leading-5 text-foreground">
+          <p className="text-card-title text-foreground">
             {title}
           </p>
         )}
-        <div className="text-[14px] font-normal leading-5 text-muted-foreground">
+        <div className="text-body text-muted-foreground">
           {children}
         </div>
       </div>

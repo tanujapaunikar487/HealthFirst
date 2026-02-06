@@ -439,18 +439,10 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
       <div className="min-h-full flex flex-col" style={{ width: '100%', maxWidth: '960px' }}>
         {/* Header */}
         <div className="mb-8">
-          <h1
-            className="font-bold"
-            style={{
-              fontSize: '36px',
-              lineHeight: '44px',
-              letterSpacing: '-1px',
-              color: 'hsl(var(--foreground))',
-            }}
-          >
+          <h1 className="text-page-title text-foreground">
             Billing
           </h1>
-          <p className="text-muted-foreground text-[14px] mt-1">
+          <p className="text-muted-foreground text-body mt-1">
             View invoices and payment history for all your appointments.
           </p>
         </div>
@@ -463,10 +455,10 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                 <AlertCircle className="h-4.5 w-4.5 text-warning" />
               </div>
               <div>
-                <p className="text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
+                <p className="text-card-title text-foreground">
                   {stats.outstanding_count} outstanding {stats.outstanding_count === 1 ? 'bill' : 'bills'}
                 </p>
-                <p className="text-[14px] text-muted-foreground">
+                <p className="text-body text-muted-foreground">
                   Total due: ₹{stats.outstanding_total.toLocaleString()}
                 </p>
               </div>
@@ -546,13 +538,13 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
         {selectedIds.size > 0 && (
           <div className="flex items-center justify-between border rounded-lg px-4 py-3 mb-4" style={{ backgroundColor: 'hsl(var(--primary) / 0.1)' }}>
             <div className="flex items-center gap-3">
-              <p className="text-[14px] font-medium">
+              <p className="text-label">
                 {selectedIds.size} {selectedIds.size === 1 ? 'bill' : 'bills'} selected
               </p>
               <Button
                 variant="link"
                 size="sm"
-                className="h-auto p-0 text-[14px] text-muted-foreground hover:text-foreground flex items-center gap-1"
+                className="h-auto p-0 text-body text-muted-foreground hover:text-foreground flex items-center gap-1"
                 onClick={clearSelection}
               >
                 <X className="h-3 w-3" />
@@ -641,8 +633,8 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
 
                         {/* Date */}
                         <TableCell className="align-top">
-                          <p className="text-[14px] font-medium whitespace-nowrap">{formatDate(bill.date) || '—'}</p>
-                          <p className="text-[14px] text-muted-foreground">{formatTime(bill.date) || '—'}</p>
+                          <p className="text-label whitespace-nowrap">{formatDate(bill.date) || '—'}</p>
+                          <p className="text-body text-muted-foreground">{formatTime(bill.date) || '—'}</p>
                         </TableCell>
 
                         {/* Details */}
@@ -659,26 +651,26 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                               )}
                             </div>
                             <div>
-                              <p className="text-[14px] font-medium">{bill.appointment_title}</p>
-                              <p className="text-[11px] text-muted-foreground font-mono">{bill.invoice_number}</p>
+                              <p className="text-label">{bill.appointment_title}</p>
+                              <p className="text-overline text-muted-foreground font-mono">{bill.invoice_number}</p>
                             </div>
                           </div>
                         </TableCell>
 
                         {/* Member */}
                         <TableCell className="align-top">
-                          <p className="text-[14px]">{bill.patient_name}</p>
+                          <p className="text-body">{bill.patient_name}</p>
                         </TableCell>
 
                         {/* Amount */}
                         <TableCell className="align-top text-right">
                           {bill.due_amount > 0 && bill.due_amount !== bill.original_amount ? (
                             <div>
-                              <p className="text-[14px] font-medium">₹{bill.due_amount.toLocaleString()}</p>
-                              <p className="text-[14px] text-muted-foreground line-through">₹{bill.original_amount.toLocaleString()}</p>
+                              <p className="text-label">₹{bill.due_amount.toLocaleString()}</p>
+                              <p className="text-body text-muted-foreground line-through">₹{bill.original_amount.toLocaleString()}</p>
                             </div>
                           ) : (
-                            <p className="text-[14px] font-medium">₹{bill.total.toLocaleString()}</p>
+                            <p className="text-label">₹{bill.total.toLocaleString()}</p>
                           )}
                         </TableCell>
 
@@ -688,7 +680,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                             {statusLabel}
                           </Badge>
                           {bill.is_overdue && (
-                            <p className="text-[10px] text-destructive mt-0.5">Overdue {bill.days_overdue}d</p>
+                            <p className="text-micro text-destructive mt-0.5">Overdue {bill.days_overdue}d</p>
                           )}
                         </TableCell>
 
@@ -705,7 +697,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
               {/* Pagination */}
               {filtered.length > 0 && (
                 <div className="flex items-center justify-between px-6 py-4 border-t border-border">
-                  <p className="text-[14px] text-muted-foreground">
+                  <p className="text-body text-muted-foreground">
                     Showing {showingFrom}–{showingTo} of {filtered.length} bills
                   </p>
                   {filtered.length > ITEMS_PER_PAGE && (
@@ -725,7 +717,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                         variant={p === currentPage ? 'primary' : 'outline'}
                         iconOnly
                         size="md"
-                        className={cn('text-[14px]', p === currentPage && 'pointer-events-none')}
+                        className={cn('text-body', p === currentPage && 'pointer-events-none')}
                         onClick={() => setPage(p)}
                       >
                         {p}
@@ -767,8 +759,8 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                 <div className="h-16 w-16 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: 'hsl(var(--success) / 0.1)' }}>
                   <CheckCircle2 className="h-8 w-8 text-success" />
                 </div>
-                <h3 className="text-lg font-semibold mb-1" style={{ color: 'hsl(var(--foreground))' }}>Payment successful</h3>
-                <p className="text-[14px] text-muted-foreground">
+                <h3 className="text-subheading text-foreground mb-1">Payment successful</h3>
+                <p className="text-body text-muted-foreground">
                   {activePayBills.length} {activePayBills.length === 1 ? 'bill' : 'bills'} paid — ₹{activePayTotal.toLocaleString()}
                 </p>
               </div>
@@ -800,10 +792,10 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                       {/* Patient + Checkbox */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
+                          <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-card-title text-foreground">
                             {bill.patient_name.charAt(0)}
                           </div>
-                          <p className="text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{bill.patient_name}</p>
+                          <p className="text-card-title text-foreground">{bill.patient_name}</p>
                         </div>
                         {payBills.length > 1 && (
                           <input
@@ -831,22 +823,22 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                             <TestTube2 className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />
                           )}
                         </div>
-                        <p className="text-[14px]">{bill.appointment_title}</p>
+                        <p className="text-body">{bill.appointment_title}</p>
                       </div>
 
                       {/* Reference + Date + Amount */}
-                      <div className="flex items-center justify-between text-[14px] text-muted-foreground">
+                      <div className="flex items-center justify-between text-body text-muted-foreground">
                         <span className="font-mono">{bill.invoice_number}</span>
                         <span>{formatDate(bill.date)}</span>
                       </div>
                       <div className="flex justify-between items-baseline">
-                        <span className="text-[14px] text-muted-foreground">Amount</span>
+                        <span className="text-body text-muted-foreground">Amount</span>
                         <div className="text-right">
-                          <span className="text-[14px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
+                          <span className="text-card-title text-foreground">
                             ₹{bill.due_amount.toLocaleString()}
                           </span>
                           {bill.due_amount !== bill.original_amount && (
-                            <span className="text-[14px] text-muted-foreground ml-1">
+                            <span className="text-body text-muted-foreground ml-1">
                               of ₹{bill.original_amount.toLocaleString()}
                             </span>
                           )}
@@ -857,7 +849,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                       {bill.is_overdue && (
                         <div className="flex items-start gap-2 rounded-lg px-3 py-2" style={{ backgroundColor: 'hsl(var(--destructive) / 0.1)' }}>
                           <AlertCircle className="h-3.5 w-3.5 text-destructive mt-0.5 flex-shrink-0" />
-                          <p className="text-[14px] text-destructive">
+                          <p className="text-body text-destructive">
                             Overdue by {bill.days_overdue} days. Please pay immediately.
                           </p>
                         </div>
@@ -874,10 +866,10 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
               {/* Total */}
               <div className="px-1 pt-2">
                 <div className="flex justify-between items-baseline">
-                  <span className="text-[14px] font-medium">
+                  <span className="text-label">
                     Total ({activePayBills.length} {activePayBills.length === 1 ? 'bill' : 'bills'})
                   </span>
-                  <span className="text-xl font-bold" style={{ color: 'hsl(var(--foreground))' }}>
+                  <span className="text-section-title text-foreground">
                     ₹{activePayTotal.toLocaleString()}
                   </span>
                 </div>
@@ -934,7 +926,7 @@ function PaymentWarnings({ bills }: { bills: Bill[] }) {
       {disputedCount > 0 && (
         <div className="flex items-start gap-2 rounded-lg px-3 py-2.5" style={{ backgroundColor: 'hsl(var(--warning) / 0.1)' }}>
           <AlertCircle className="h-4 w-4 text-warning mt-0.5 flex-shrink-0" />
-          <p className="text-[14px] text-warning">
+          <p className="text-body text-warning">
             {disputedCount} {disputedCount === 1 ? 'bill is' : 'bills are'} under dispute. Payment may be held for review.
           </p>
         </div>
@@ -942,7 +934,7 @@ function PaymentWarnings({ bills }: { bills: Bill[] }) {
       {hasMultiplePatients && (
         <div className="flex items-start gap-2 rounded-lg px-3 py-2.5" style={{ backgroundColor: 'hsl(var(--primary) / 0.1)' }}>
           <AlertCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-          <p className="text-[14px] text-primary">
+          <p className="text-body text-primary">
             Bills for multiple family members selected.
           </p>
         </div>

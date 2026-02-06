@@ -143,14 +143,7 @@ export default function SettingsIndex({
             <Head title="Settings" />
 
             <div className="w-full max-w-page pb-20">
-                <h1
-                    className="font-bold mb-6 text-foreground"
-                    style={{
-                        fontSize: '36px',
-                        lineHeight: '44px',
-                        letterSpacing: '-1px',
-                    }}
-                >
+                <h1 className="text-page-title mb-6 text-foreground">
                     Settings
                 </h1>
 
@@ -169,8 +162,7 @@ export default function SettingsIndex({
                             <div className="mt-6 pt-6 border-t">
                                 <Button
                                     variant="ghost"
-                                    className="w-full flex items-center gap-3 text-[14px] font-medium transition-all text-left rounded-full cursor-pointer text-foreground hover:bg-destructive/10 hover:text-destructive h-auto py-2 px-3"
-                                    style={{ lineHeight: '20px' }}
+                                    className="w-full flex items-center gap-3 text-label transition-all text-left rounded-full cursor-pointer text-foreground hover:bg-destructive/10 hover:text-destructive h-auto py-2 px-3"
                                     onClick={handleLogout}
                                     disabled={loggingOut}
                                 >
