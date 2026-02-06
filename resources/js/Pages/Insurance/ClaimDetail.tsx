@@ -913,7 +913,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               {getStatusBadge(claim.status)}
               {/* Status-based primary button */}
               {claim.status === 'rejected' || claim.status === 'enhancement_rejected' ? (
-                <Button onClick={() => {
+                <Button size="lg" onClick={() => {
                   if (confirm('Would you like to file an appeal for this claim?')) {
                     router.post(`/insurance/claims/${claim.id}/appeal`, {}, {
                       onSuccess: () => toast('Appeal request submitted'),
@@ -925,7 +925,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   File appeal
                 </Button>
               ) : claim.status === 'approved' || claim.status === 'enhancement_approved' ? (
-                <Button onClick={() => {
+                <Button size="lg" onClick={() => {
                   const f = claim.financial;
                   downloadAsHtml(`eob-${claim.claim_reference}.pdf`, `
                     <h1>Explanation of Benefits</h1>
@@ -947,7 +947,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   Download EOB
                 </Button>
               ) : claim.status === 'settled' ? (
-                <Button onClick={() => {
+                <Button size="lg" onClick={() => {
                   const f = claim.financial;
                   downloadAsHtml(`settlement-${claim.claim_reference}.pdf`, `
                     <h1>Settlement Letter</h1>
@@ -968,12 +968,12 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   Download Settlement
                 </Button>
               ) : claim.status === 'dispute_resolved' ? (
-                <Button variant="secondary" onClick={() => document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+                <Button size="lg" onClick={() => document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
                   <FileText className="h-4 w-4" />
                   View resolution
                 </Button>
               ) : (claim.status === 'pending' || claim.status === 'enhancement_in_progress' || claim.status === 'dispute_under_review') ? (
-                <Button variant="secondary" onClick={() => document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+                <Button size="lg" onClick={() => document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
                   <Clock className="h-4 w-4" />
                   Track status
                 </Button>

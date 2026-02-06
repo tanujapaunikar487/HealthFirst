@@ -12,7 +12,6 @@ import { OtpInput } from '@/Components/OtpInput';
 import { MemberSearchCard } from '@/Components/MemberSearchCard';
 import { DetectionCard } from './DetectionCard';
 import { SheetHeader, SheetTitle, SheetFooter, SheetBody } from '@/Components/ui/sheet';
-import { Alert } from '@/Components/ui/alert';
 import { cn } from '@/Lib/utils';
 
 type Step =
