@@ -256,6 +256,18 @@ const EMPTY_PREAUTH_FORM: PreAuthForm = {
   notes: '',
 };
 
+function InfoRow({ label, value, isLast }: { label: React.ReactNode; value: React.ReactNode; isLast?: boolean }) {
+  return (
+    <div
+      className="flex items-center justify-between px-4 py-4"
+      style={isLast ? undefined : { borderBottom: '1px solid hsl(var(--border))' }}
+    >
+      <span className="text-[14px] text-muted-foreground">{label}</span>
+      <span className="text-[14px] font-medium">{value}</span>
+    </div>
+  );
+}
+
 function getStatusBadge(status: string) {
   const map: Record<string, { label: string; variant: 'success' | 'danger' | 'warning' | 'info' | 'neutral' }> = {
     current: { label: 'In Treatment', variant: 'warning' },
@@ -317,7 +329,7 @@ function InsuranceShowSkeleton() {
         <Pulse className="h-5 w-40" />
         {[0, 1].map((i) => (
           <div key={i} className="flex items-center gap-4 p-4 border border-border rounded-xl">
-            <Pulse className="h-10 w-10 rounded-xl flex-shrink-0" />
+            <Pulse className="h-10 w-10 rounded-full flex-shrink-0" />
             <div className="space-y-2 flex-1">
               <Pulse className="h-4 w-40" />
               <Pulse className="h-3 w-24" />
@@ -430,7 +442,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
         <div className="mb-6 flex items-start justify-between">
           <div className="flex items-center gap-4">
             <div
-              className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl text-[14px] font-bold"
+              className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full text-[14px] font-bold"
               style={{ backgroundColor: 'hsl(var(--primary) / 0.2)', color: 'hsl(var(--primary))' }}
             >
               {getProviderInitials(policy.provider_name)}
@@ -519,57 +531,22 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
           <div className="flex-1 min-w-0 space-y-12 pb-12">
 
         {/* Policy Details */}
-        <Section id="details" title="Policy Details" icon={ClipboardList}>
-          <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-              <div>
-                <p className="text-[14px] font-medium text-muted-foreground">Policy Number</p>
-                <p className="mt-1 text-[14px] font-semibold text-foreground">{policy.policy_number}</p>
-              </div>
-              <div>
-                <p className="text-[14px] font-medium text-muted-foreground">Valid</p>
-                <p className="mt-1 text-[14px] font-semibold text-foreground">
-                  {formatDate(policy.start_date)} &rarr; {formatDate(policy.end_date)}
-                </p>
-              </div>
-              {meta.icu_limit && (
-                <div>
-                  <p className="text-[14px] font-medium text-muted-foreground">ICU Limit</p>
-                  <p className="mt-1 text-[14px] font-semibold text-foreground">{meta.icu_limit}</p>
-                </div>
-              )}
-              {meta.copay && (
-                <div>
-                  <p className="text-[14px] font-medium text-muted-foreground">Co-pay</p>
-                  <p className="mt-1 text-[14px] font-semibold text-foreground">{meta.copay}</p>
-                </div>
-              )}
-              {meta.tpa && (
-                <div>
-                  <p className="text-[14px] font-medium text-muted-foreground">TPA</p>
-                  <p className="mt-1 text-[14px] font-semibold text-foreground">{meta.tpa}</p>
-                </div>
-              )}
-              {meta.tpa_contact && (
-                <div>
-                  <p className="text-[14px] font-medium text-muted-foreground">TPA Contact</p>
-                  <p className="mt-1 text-[14px] font-semibold text-foreground">{meta.tpa_contact}</p>
-                </div>
-              )}
-              <div>
-                <p className="text-[14px] font-medium text-muted-foreground">Sum Insured</p>
-                <p className="mt-1 text-[14px] font-semibold text-foreground">
-                  {formatCurrency(policy.sum_insured)}
-                </p>
-              </div>
-              {policy.premium_amount && (
-                <div>
-                  <p className="text-[14px] font-medium text-muted-foreground">Annual Premium</p>
-                  <p className="mt-1 text-[14px] font-semibold text-foreground">
-                    {formatCurrency(policy.premium_amount)}
-                  </p>
-                </div>
-              )}
-            </div>
+        <Section id="details" title="Policy Details" icon={ClipboardList} noPadding>
+          {(() => {
+            const rows: { label: string; value: React.ReactNode }[] = [
+              { label: 'Policy Number', value: policy.policy_number },
+              { label: 'Valid', value: `${formatDate(policy.start_date)} → ${formatDate(policy.end_date)}` },
+              { label: 'Sum Insured', value: formatCurrency(policy.sum_insured) },
+            ];
+            if (policy.premium_amount) rows.push({ label: 'Annual Premium', value: formatCurrency(policy.premium_amount) });
+            if (meta.icu_limit) rows.push({ label: 'ICU Limit', value: meta.icu_limit });
+            if (meta.copay) rows.push({ label: 'Co-pay', value: meta.copay });
+            if (meta.tpa) rows.push({ label: 'TPA', value: meta.tpa });
+            if (meta.tpa_contact) rows.push({ label: 'TPA Contact', value: meta.tpa_contact });
+            return rows.map((row, i) => (
+              <InfoRow key={row.label} label={row.label} value={row.value} isLast={i === rows.length - 1} />
+            ));
+          })()}
         </Section>
 
         {/* Covered Members */}

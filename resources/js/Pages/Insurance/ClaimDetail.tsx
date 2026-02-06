@@ -26,10 +26,8 @@ import {
   ChevronDown,
   Download,
   FileText,
-  User,
   Stethoscope,
   BedDouble,
-  DoorOpen,
   Calendar,
   MoreVertical,
   Phone,
@@ -884,7 +882,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   const TreatmentIcon = getTreatmentIcon(claim.procedure_type);
                   return (
                     <div
-                      className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl"
+                      className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full"
                       style={{ backgroundColor: 'hsl(var(--primary) / 0.2)' }}
                     >
                       <TreatmentIcon className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />
@@ -1084,10 +1082,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           <div className="divide-y">
             {/* Patient */}
             <div className="flex items-center gap-4 px-5 py-3.5">
-              <div className="flex w-24 flex-shrink-0 items-center gap-1.5 text-[14px] font-medium text-muted-foreground">
-                <User className="h-3.5 w-3.5" />
-                Patient
-              </div>
+              <span className="w-24 flex-shrink-0 text-[14px] text-muted-foreground">Patient</span>
               <button
                 className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
                 onClick={() => {
@@ -1115,10 +1110,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
             {/* Doctor */}
             <div className="flex items-center gap-4 px-5 py-3.5">
-              <div className="flex w-24 flex-shrink-0 items-center gap-1.5 text-[14px] font-medium text-muted-foreground">
-                <Stethoscope className="h-3.5 w-3.5" />
-                Doctor
-              </div>
+              <span className="w-24 flex-shrink-0 text-[14px] text-muted-foreground">Doctor</span>
               {doctor ? (
                 <div className="flex items-center gap-2.5 text-[14px]">
                   <div
@@ -1141,10 +1133,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
             {/* Stay */}
             <div className="flex items-center gap-4 px-5 py-3.5">
-              <div className="flex w-24 flex-shrink-0 items-center gap-1.5 text-[14px] font-medium text-muted-foreground">
-                <BedDouble className="h-3.5 w-3.5" />
-                Stay
-              </div>
+              <span className="w-24 flex-shrink-0 text-[14px] text-muted-foreground">Stay</span>
               {isOutpatient ? (
                 <span className="text-[14px] font-medium text-foreground">Outpatient</span>
               ) : (
@@ -1171,10 +1160,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
             {/* Room */}
             {!isOutpatient && (
               <div className="flex items-center gap-4 px-5 py-3.5">
-                <div className="flex w-24 flex-shrink-0 items-center gap-1.5 text-[14px] font-medium text-muted-foreground">
-                  <DoorOpen className="h-3.5 w-3.5" />
-                  Room
-                </div>
+                <span className="w-24 flex-shrink-0 text-[14px] text-muted-foreground">Room</span>
                 <div className="flex items-center gap-1.5 text-[14px]">
                   <span className="font-medium text-foreground">{stay!.room_type ?? 'General'}</span>
                   {stay!.room_number && (
