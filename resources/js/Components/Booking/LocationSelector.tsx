@@ -45,7 +45,7 @@ export function LocationSelector({
               <button
                 onClick={() => onSelect(location.type)}
                 className={cn(
-                  'w-full flex items-start gap-4 p-4 text-left transition-all',
+                  'w-full flex items-start gap-4 px-6 py-4 text-left transition-all',
                   'hover:bg-muted/50',
                   isSelected && 'bg-primary/5 border border-primary'
                 )}

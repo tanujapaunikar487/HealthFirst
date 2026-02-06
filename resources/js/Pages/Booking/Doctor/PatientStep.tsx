@@ -635,7 +635,7 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: D
   return (
     <div
       className={cn(
-        'p-4 bg-white transition-all',
+        'px-6 py-4 bg-white transition-all',
         isSelected && 'bg-primary/5 border border-primary'
       )}
     >

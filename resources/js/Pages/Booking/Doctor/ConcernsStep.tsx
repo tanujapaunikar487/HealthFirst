@@ -200,7 +200,7 @@ export default function ConcernsStep({
                     key={option.value}
                     onClick={() => setUrgency(option.value)}
                     className={cn(
-                      'w-full flex items-start gap-3 p-4 text-left transition-all',
+                      'w-full flex items-start gap-3 px-6 py-4 text-left transition-all',
                       'hover:bg-muted/50',
                       urgency === option.value && 'bg-primary/5'
                     )}

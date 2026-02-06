@@ -181,7 +181,7 @@ export function EmbeddedPackageList({
                         onClick={() => toggleTest(idStr)}
                         disabled={disabled || isLocked}
                         className={cn(
-                          'flex-1 text-left p-4 transition-colors',
+                          'flex-1 text-left px-6 py-4 transition-colors',
                           !isLocked && 'hover:bg-accent/50 cursor-pointer',
                           isChecked && 'bg-primary/5',
                           (disabled || isLocked) && !isChecked && 'opacity-60',
@@ -327,7 +327,7 @@ export function EmbeddedPackageList({
                       onClick={() => !disabled && !alreadySubmitted && onSelect(pkg.id)}
                       disabled={disabled || alreadySubmitted}
                       className={cn(
-                        'flex-1 text-left p-4 transition-colors',
+                        'flex-1 text-left px-6 py-4 transition-colors',
                         !alreadySubmitted && 'hover:bg-accent/50 cursor-pointer',
                         isSelected && 'bg-primary/5',
                         (disabled || alreadySubmitted) && !isSelected && 'opacity-60',

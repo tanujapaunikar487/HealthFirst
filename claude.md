@@ -18,13 +18,13 @@ Tests: `php artisan test` (92 tests, 265 assertions)
 
 ## Design System
 
-**Layout**: Cards 20px radius/16px pad | Sheets 500px/24px radius/20px pad/right-side | Dialogs max-w-lg/20px radius/flex-col | Page 960px max/40px pad | Sections `space-y-12`
+**Layout**: Cards 20px radius/16px pad | Card rows `px-6 py-4` (24px H, 16px V) | Sheets 500px/24px radius/20px pad/right-side | Dialogs max-w-lg/20px radius/flex-col | Page 960px max/40px pad | Sections `space-y-12`
 
 **Typography**: Fixed pixels (`text-[14px]` not `text-sm`) | Card title: #0A0B0D/14px/500 | Card sub: #737373/14px/400 | Section title (page): #171717/20px/600 | Section title (sheet): #737373/14px/500 | Sentence case everywhere (exceptions: acronyms, proper nouns)
 
 **Colors**: Primary blue (#1E40AF bg, #BFDBFE icons) | Success/Warning/Error = Green/Amber/Red | Light text: #171717 primary, #737373 secondary | Dark text: #fff primary, white/70 secondary | Icons: light bg `text-neutral-900`, dark bg `text-white`, nav active `#2563EB`
 
-**Components**: Badges = pastel bg + colored text | Skeleton 300ms min/10s timeout | EmptyState #F5F5F5/20px radius (always message+description) | CtaBanner dark gradient/white text | Borders always 1px (spinner/Switch 2px) | Icon bg always `rounded-full` | SideNav 14px/20px icons/6px gap/pill/#2563EB active/200px min
+**Components**: Badges = pastel bg + colored text | Skeleton 300ms min/10s timeout | EmptyState #F5F5F5/20px radius (always message+description) | CtaBanner dark gradient/white text | Borders always 1px (spinner/Switch 2px) | Icon bg always `h-10 w-10 rounded-full` (40x40) + `h-5 w-5` icons, semantic CSS vars only | SideNav 14px/20px icons/6px gap/pill/#2563EB active/200px min
 
 **Buttons**: Primary lg = 48px/16px font/8px gap/`icon` at 20px | Secondary icon = 40x40/8px pad/#E5E5E5 border/#F5F5F5 bg/16px icon | Default = 48px/14px/pill | CTA = white bg on dark
 

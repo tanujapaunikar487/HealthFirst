@@ -384,7 +384,7 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime, isL
   return (
     <div
       className={cn(
-        'p-4 transition-all',
+        'px-6 py-4 transition-all',
         'hover:bg-muted/50',
         isSelected && 'bg-primary/5'
       )}

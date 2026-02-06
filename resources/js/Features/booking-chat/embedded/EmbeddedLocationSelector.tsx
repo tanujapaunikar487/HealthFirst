@@ -46,7 +46,7 @@ export function EmbeddedLocationSelector({ locations, selectedLocationId, onSele
               onClick={() => !disabled && onSelect(location.id)}
               disabled={disabled}
               className={cn(
-                "w-full flex items-start gap-4 p-4 text-left transition-all",
+                "w-full flex items-start gap-4 px-6 py-4 text-left transition-all",
                 "hover:bg-muted/50",
                 isSelected && "bg-primary/5 border-l-2 border-l-primary",
                 disabled && !isSelected && "opacity-60"

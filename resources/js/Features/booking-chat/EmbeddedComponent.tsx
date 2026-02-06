@@ -152,7 +152,7 @@ export function EmbeddedComponent({
                 }
                 disabled={disabled || isSelected}
                 className={cn(
-                  "w-full p-4 text-left transition-all disabled:cursor-not-allowed",
+                  "w-full px-6 py-4 text-left transition-all disabled:cursor-not-allowed",
                   "hover:bg-muted/50",
                   optionSelected
                     ? "bg-primary/5 opacity-60"
