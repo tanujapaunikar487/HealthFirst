@@ -385,7 +385,7 @@ function StatusBadge({ status }: { status: RecordStatus }) {
     secondary: 'neutral',
   };
   return (
-    <Badge variant={variantMap[status.variant] || 'neutral'} className="text-[10px] px-2 py-0.5">
+    <Badge variant={variantMap[status.variant] || 'neutral'}>
       {status.label}
     </Badge>
   );
@@ -823,9 +823,9 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
           {activeFilters.length > 0 && (
             <div className="flex items-center gap-2 flex-wrap">
               {activeFilters.map((f) => (
-                <Badge key={f.key} variant="neutral" className="gap-1 pl-2.5 pr-1.5 py-1 h-7 font-medium">
+                <Badge key={f.key} variant="neutral" className="gap-1 pr-1">
                   {f.label}
-                  <button onClick={f.onRemove} className="ml-1 rounded-full hover:bg-muted-foreground/20 p-0.5">
+                  <button onClick={f.onRemove} className="rounded-full hover:bg-muted-foreground/20 p-0.5">
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
