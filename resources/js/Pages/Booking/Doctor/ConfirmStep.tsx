@@ -81,7 +81,7 @@ export default function ConfirmStep({ summary }: Props) {
           {rows.map((row, index) => (
             <div
               key={row.label}
-              className="flex items-center justify-between px-4 py-4"
+              className="flex items-center justify-between px-6 py-4"
               style={{
                 borderBottom: '1px solid hsl(var(--border))'
               }}
@@ -100,7 +100,7 @@ export default function ConfirmStep({ summary }: Props) {
             </div>
           ))}
           {/* Fee - no Change button */}
-          <div className="flex items-center justify-between px-4 py-4">
+          <div className="flex items-center justify-between px-6 py-4">
             <span className="text-body text-muted-foreground">Appointment Fee</span>
             <span className="text-label">₹{summary.fee.toLocaleString()}</span>
           </div>

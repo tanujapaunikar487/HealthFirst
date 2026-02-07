@@ -332,55 +332,57 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
       >
         {/* Header */}
         <header className="bg-white border-b border-border">
-          <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
-            <div className="flex items-center gap-2">
-              <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-4 h-4 sm:w-5 sm:h-5" />
+          <HStack className="justify-between px-6 py-4">
+            <HStack gap={2}>
+              <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-5 h-5" />
               <span className="text-label">Booking an appointment</span>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="flex items-center gap-1 border border-border rounded-full p-0.5 sm:p-1 bg-muted">
+            </HStack>
+            <HStack gap={3}>
+              <HStack gap={1} className="border border-border rounded-full p-1 bg-muted">
               <Button
                 variant="ghost"
                 className={cn(
-                  'h-auto p-1 sm:p-1.5 rounded-full transition-all',
+                  'h-auto p-2 rounded-full transition-all',
                   mode === 'ai' ? 'shadow-md' : ''
                 )}
                 onClick={() => setMode('ai')}
+                iconOnly
               >
                 <img
                   src={mode === 'ai' ? '/assets/icons/hugeicons/ai-magic.svg' : '/assets/icons/hugeicons/ai-magic-1.svg'}
                   alt=""
-                  className="w-3.5 h-3.5 sm:w-4 sm:h-4"
+                  className="w-4 h-4"
                 />
               </Button>
               <Button
                 variant="ghost"
                 className={cn(
-                  'h-auto p-1 sm:p-1.5 rounded-full transition-all',
+                  'h-auto p-2 rounded-full transition-all',
                   mode === 'guided' ? 'shadow-md' : ''
                 )}
                 onClick={() => setMode('guided')}
+                iconOnly
               >
                 <img
                   src={mode === 'guided' ? '/assets/icons/hugeicons/stairs-01-1.svg' : '/assets/icons/hugeicons/stairs-01.svg'}
                   alt=""
-                  className="w-3.5 h-3.5 sm:w-4 sm:h-4"
+                  className="w-4 h-4"
                 />
               </Button>
-            </div>
+            </HStack>
 
               {/* Cancel button */}
               <Button
                 variant="ghost"
                 onClick={() => router.visit('/')}
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full hover:bg-accent transition-colors"
+                className="w-8 h-8 rounded-full hover:bg-accent transition-colors"
                 iconOnly
                 title="Cancel booking"
               >
-                <Icon icon={X} className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
+                <Icon icon={X} className="text-muted-foreground" />
               </Button>
-            </div>
-          </div>
+            </HStack>
+          </HStack>
           {/* Progress bar */}
           <div className="h-1 bg-muted">
             <div
@@ -456,29 +458,29 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
               >
                 {isRecording ? (
                   // Recording mode - show waveform
-                  <div className="px-6 py-4 min-h-[80px] flex items-center justify-between">
-                    <div className="flex items-center gap-3 flex-1">
-                      <div className="flex items-center gap-2">
+                  <div className="px-6 py-4 min-h-20 flex items-center justify-between">
+                    <HStack gap={3} className="flex-1">
+                      <HStack gap={2}>
                         <div className="w-3 h-3 bg-destructive rounded-full animate-pulse"></div>
                         <span className="text-label text-muted-foreground">
                           {formatRecordingTime(recordingTime)}
                         </span>
-                      </div>
+                      </HStack>
                       <AudioWaveform isRecording={true} className="flex-1 max-w-md" />
-                    </div>
+                    </HStack>
                   </div>
                 ) : (
                   // Normal mode - show textarea
                   <PromptInputTextarea
                     placeholder={isCancelled ? "Booking cancelled" : getPlaceholder(conversation.current_step)}
-                    className="text-body text-foreground placeholder:text-muted-foreground min-h-[80px] px-4 pt-4 pb-16"
+                    className="text-body text-foreground placeholder:text-muted-foreground min-h-20 px-4 pt-4 pb-16"
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                     disabled={isCancelled}
                   />
                 )}
                 <PromptInputActions className="absolute bottom-4 left-4 right-4 flex justify-between">
-                  <div className="flex items-center gap-1">
+                  <HStack gap={1}>
                     {/* Add Button - hide when recording */}
                     {!isRecording && (
                       <PromptInputAction tooltip="Add attachment">
@@ -486,19 +488,16 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                           variant="outline"
                           iconOnly
                           size="md"
-                          style={{
-                            borderRadius: '50%',
-                            transition: 'all 0.2s ease',
-                          }}
+                          className="rounded-full transition-all duration-200"
                         >
-                          <Icon icon={Plus} className="w-[18px] h-[18px]" />
+                          <Icon icon={Plus} size="lg" />
                         </Button>
                       </PromptInputAction>
                     )}
-                  </div>
+                  </HStack>
 
                   {/* Right side buttons */}
-                  <div className="flex items-center gap-1">
+                  <HStack gap={1}>
                     {isRecording ? (
                       // Recording mode - show Cancel (X) and Submit (Check) icons
                       <>
@@ -510,12 +509,9 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                             onClick={() => {
                               cancelRecording();
                             }}
-                            style={{
-                              borderRadius: '50%',
-                              transition: 'all 0.2s ease',
-                            }}
+                            className="rounded-full transition-all duration-200"
                           >
-                            <Icon icon={X} className="w-[18px] h-[18px] text-destructive" />
+                            <Icon icon={X} className="text-destructive" size="lg" />
                           </Button>
                         </PromptInputAction>
 
@@ -525,12 +521,9 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                             iconOnly
                             size="md"
                             onClick={handleMicClick}
-                            style={{
-                              borderRadius: '50%',
-                              transition: 'all 0.2s ease',
-                            }}
+                            className="rounded-full transition-all duration-200"
                           >
-                            <Icon icon={Check} className="w-5 h-5 text-white" />
+                            <Icon icon={Check} className="text-inverse" size="lg" />
                           </Button>
                         </PromptInputAction>
                       </>
@@ -544,15 +537,11 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                             size="md"
                             onClick={handleMicClick}
                             disabled={isLoading}
-                            style={{
-                              borderRadius: '50%',
-                              transition: 'all 0.2s ease',
-                            }}
+                            className="rounded-full transition-all duration-200"
                           >
                             <Icon icon={Mic} className={cn(
-                              "w-[18px] h-[18px]",
                               isTranscribing && "animate-pulse text-primary"
-                            )} />
+                            )} size="lg" />
                           </Button>
                         </PromptInputAction>
 
@@ -563,18 +552,17 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                             size="md"
                             onClick={handleSubmit}
                             disabled={isLoading || !input.trim() || isCancelled}
-                            style={{
-                              borderRadius: '50%',
-                              backgroundColor: isLoading || !input.trim() || isCancelled ? 'hsl(var(--muted))' : undefined,
-                              transition: 'all 0.2s ease',
-                            }}
+                            className={cn(
+                              "rounded-full transition-all duration-200",
+                              (isLoading || !input.trim() || isCancelled) && "bg-muted"
+                            )}
                           >
-                            <Icon icon={ArrowUp} className="w-5 h-5 text-white" />
+                            <Icon icon={ArrowUp} className="text-inverse" size="lg" />
                           </Button>
                         </PromptInputAction>
                       </>
                     )}
-                  </div>
+                  </HStack>
                 </PromptInputActions>
               </PromptInput>
             </PromptInputContainer>

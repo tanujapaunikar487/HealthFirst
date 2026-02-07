@@ -302,7 +302,7 @@ export default function DoctorTimeStep({
             </HStack>
 
           {filteredDoctors.length === 0 ? (
-            <Card className="p-8 text-center">
+            <Card className="px-6 py-8 text-center">
               <VStack gap={1}>
                 <p className="text-label text-foreground">No doctors available on this date</p>
                 <p className="text-body text-muted-foreground">
