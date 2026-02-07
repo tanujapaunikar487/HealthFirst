@@ -470,9 +470,19 @@ export default function InsuranceIndex({
                         </TableCell>
                         <TableCell className="align-top">
                           <div className="flex items-center gap-2.5">
-                            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-card-title bg-icon-bg text-icon">
-                              {getProviderInitials(policy.provider_name)}
-                            </div>
+                            {policy.provider_logo ? (
+                              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center">
+                                <img
+                                  src={policy.provider_logo}
+                                  alt={policy.provider_name}
+                                  className="h-full w-full object-contain"
+                                />
+                              </div>
+                            ) : (
+                              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-card-title bg-icon-bg text-icon">
+                                {getProviderInitials(policy.provider_name)}
+                              </div>
+                            )}
                             <div>
                               <p className="text-label text-foreground">{policy.plan_name}</p>
                               <p className="text-body text-muted-foreground">{policy.policy_number}</p>
@@ -480,9 +490,39 @@ export default function InsuranceIndex({
                           </div>
                         </TableCell>
                         <TableCell className="align-top">
-                          <span className="text-label">
-                            {policy.member_count}
-                          </span>
+                          <div className="flex items-center -space-x-2">
+                            {(() => {
+                              const policyMembers = familyMembers.filter(m => policy.members.includes(m.id));
+                              const visibleMembers = policyMembers.slice(0, 3);
+                              const remainingCount = policyMembers.length - 3;
+
+                              return (
+                                <>
+                                  {visibleMembers.map((member) => {
+                                    const color = getAvatarColorByName(member.name);
+                                    return (
+                                      <div
+                                        key={member.id}
+                                        className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border-2 border-background text-caption font-medium"
+                                        style={{ backgroundColor: color.bg, color: color.text }}
+                                        title={member.name}
+                                      >
+                                        {getPatientInitials(member.name)}
+                                      </div>
+                                    );
+                                  })}
+                                  {remainingCount > 0 && (
+                                    <div
+                                      className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border-2 border-background bg-muted text-caption font-medium text-muted-foreground"
+                                      title={`+${remainingCount} more`}
+                                    >
+                                      +{remainingCount}
+                                    </div>
+                                  )}
+                                </>
+                              );
+                            })()}
+                          </div>
                         </TableCell>
                         <TableCell className="align-top text-right">
                           <p className="text-label">₹{policy.sum_insured.toLocaleString()}</p>
@@ -689,12 +729,22 @@ export default function InsuranceIndex({
                     className="flex w-full items-center gap-3 rounded-xl border px-4 py-3.5 text-left transition-colors hover:bg-accent h-auto"
                     onClick={() => handlePreAuthPolicySelect(p.id)}
                   >
-                    <div
-                      className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-card-title"
-                      style={{ backgroundColor: 'hsl(var(--primary) / 0.2)', color: 'hsl(var(--primary))' }}
-                    >
-                      {getProviderInitials(p.provider_name)}
-                    </div>
+                    {p.provider_logo ? (
+                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center">
+                        <img
+                          src={p.provider_logo}
+                          alt={p.provider_name}
+                          className="h-full w-full object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-card-title"
+                        style={{ backgroundColor: 'hsl(var(--primary) / 0.2)', color: 'hsl(var(--primary))' }}
+                      >
+                        {getProviderInitials(p.provider_name)}
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <p className="text-card-title text-foreground truncate">{p.plan_name}</p>
                       <p className="text-body text-muted-foreground">{p.provider_name} &middot; {formatCurrency(p.sum_insured)}</p>

@@ -621,22 +621,27 @@ class HospitalSeeder extends Seeder
             [
                 'name' => 'Star Health Insurance',
                 'plan_types' => ['individual', 'family', 'senior_citizen'],
+                'logo_url' => '/assets/images/star-health.png',
             ],
             [
                 'name' => 'HDFC ERGO Health',
                 'plan_types' => ['individual', 'family', 'corporate'],
+                'logo_url' => '/assets/images/hdfc-ergo.png',
             ],
             [
                 'name' => 'ICICI Lombard Health',
                 'plan_types' => ['individual', 'family'],
+                'logo_url' => null,
             ],
             [
                 'name' => 'Max Bupa Health Insurance',
                 'plan_types' => ['individual', 'family', 'corporate', 'senior_citizen'],
+                'logo_url' => null,
             ],
             [
                 'name' => 'Bajaj Allianz Health',
                 'plan_types' => ['individual', 'family'],
+                'logo_url' => null,
             ],
         ];
 

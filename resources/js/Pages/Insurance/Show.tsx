@@ -422,9 +422,19 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
         {/* Header */}
         <div className="mb-6 flex items-start justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full text-card-title bg-icon-bg text-icon">
-              {getProviderInitials(policy.provider_name)}
-            </div>
+            {policy.provider_logo ? (
+              <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center">
+                <img
+                  src={policy.provider_logo}
+                  alt={policy.provider_name}
+                  className="h-full w-full object-contain"
+                />
+              </div>
+            ) : (
+              <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full text-card-title bg-icon-bg text-icon">
+                {getProviderInitials(policy.provider_name)}
+              </div>
+            )}
             <div>
               <h1 className="text-detail-title text-foreground">{policy.plan_name}</h1>
               <p className="text-body text-muted-foreground">{policy.provider_name}</p>
