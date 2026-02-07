@@ -18,6 +18,15 @@ Laravel 11 + React 18 + TS + Inertia v2 + Tailwind v4 + shadcn/ui | `php artisan
 **Empty**: CtaBanner (action pages) | EmptyState (passive) | Filtered=EmptyState no CTA
 **Financial rows**: `flex justify-between` (NOT DetailRow). Pattern: `px-6 py-4`, label=`text-body text-muted-foreground`, value=`text-label`, total=`text-card-title`.
 
+## Booking Flow
+**Page Structure**: `VStack gap={12}` for sections | `VStack gap={4}` for section content | `VStack gap={1}` for title+subtitle pairs
+**List Pattern**: `Card` + `divide-y` | Items: `Button variant="ghost"` with `px-6 py-4` `rounded-none` `justify-start` | Selected: `bg-primary/5`
+**Doctor Cards**: Avatar with `getAvatarColorByName(name)` | `VStack gap={4}` for card content | `HStack gap={3}` for doctor info row | Fee: `text-card-title`
+**Selection Chips**: `HStack gap={2}` with `flex-wrap` | Buttons: `px-6 py-2` `rounded-full` | Selected: `bg-primary/10 border-primary text-label`
+**Time Slots**: `HStack gap={2}` with `flex-wrap` | Buttons: `px-4 py-2` `rounded-xl` | Selected: `variant="accent" border-foreground`
+**Typography**: Section headings=`text-section-title` | Labels=`text-label` | Body=`text-body` | Prices=`text-card-title`
+**Icons**: Use size props (`size="sm"`, `size="lg"`) never arbitrary className | Adjacent icons in `HStack gap={1}`
+
 ## Core Rules
 - UUIDs everywhere
 - Overlays: Sheets=forms (right 500px). Dialogs=security/search. AlertDialog=confirmations.
