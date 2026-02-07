@@ -125,7 +125,7 @@ export function EmbeddedPackageList({
                 : 'text-muted-foreground hover:text-foreground',
             )}
           >
-            <TestTube className="h-4 w-4" />
+            <Icon icon={TestTube} />
             Pick Tests
             {hasTests && (
               <Badge variant="neutral">{individualTests.length}</Badge>
@@ -140,7 +140,7 @@ export function EmbeddedPackageList({
                 : 'text-muted-foreground hover:text-foreground',
             )}
           >
-            <FlaskConical className="h-4 w-4" />
+            <Icon icon={FlaskConical} />
             Health Packages
             {hasPackages && (
               <Badge variant="neutral">{packages.length}</Badge>
@@ -156,7 +156,7 @@ export function EmbeddedPackageList({
             {!showTabs && (
               <div className="px-4 py-2.5 border-b bg-muted/30">
                 <div className="flex items-center gap-2">
-                  <TestTube className="h-4 w-4 text-primary" />
+                  <Icon icon={TestTube} className="text-primary" />
                   <span className="text-card-title text-muted-foreground uppercase tracking-wide">
                     Select one or more tests
                   </span>
@@ -188,9 +188,9 @@ export function EmbeddedPackageList({
                           {/* Checkbox */}
                           <div className="flex-shrink-0 mt-0.5">
                             {isChecked ? (
-                              <CheckSquare className="h-5 w-5 text-primary" />
+                              <Icon icon={CheckSquare} size={20} className="text-primary" />
                             ) : (
-                              <Square className="h-5 w-5 text-foreground/50" />
+                              <Icon icon={Square} size={20} className="text-foreground/50" />
                             )}
                           </div>
 
