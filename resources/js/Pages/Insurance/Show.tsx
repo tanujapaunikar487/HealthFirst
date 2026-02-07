@@ -3,13 +3,13 @@ import { router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { Alert } from '@/Components/ui/alert';
-import { Card } from '@/Components/ui/card';
+import { DetailRow } from '@/Components/ui/detail-row';
+import { DetailSection } from '@/Components/ui/detail-section';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { DatePicker } from '@/Components/ui/date-picker';
 import { Textarea } from '@/Components/ui/textarea';
-import { Icon } from '@/Components/ui/icon';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { cn } from '@/Lib/utils';
 import { getAvatarColor } from '@/Lib/avatar-colors';
@@ -115,12 +115,12 @@ function PolicySideNav() {
   );
 }
 
-/* ─── Section Wrapper ─── */
+/* ─── Section alias ─── */
 
 function Section({
   id,
   title,
-  icon: SectionIcon,
+  icon,
   noPadding,
   children,
 }: {
@@ -131,17 +131,9 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div id={id} className="scroll-mt-24">
-      <div className="flex items-center gap-2.5 mb-4">
-        <Icon icon={SectionIcon} className="h-5 w-5 text-foreground" />
-        <h2 className="text-section-title text-foreground">
-          {title}
-        </h2>
-      </div>
-      <Card className={noPadding ? '' : 'p-6'}>
-        {children}
-      </Card>
-    </div>
+    <DetailSection id={id} title={title} icon={icon} noPadding={noPadding}>
+      {children}
+    </DetailSection>
   );
 }
 
@@ -254,18 +246,6 @@ const EMPTY_PREAUTH_FORM: PreAuthForm = {
   doctor_name: '',
   notes: '',
 };
-
-function InfoRow({ label, value, isLast }: { label: React.ReactNode; value: React.ReactNode; isLast?: boolean }) {
-  return (
-    <div
-      className="grid items-start px-4 py-4"
-      style={{ gridTemplateColumns: '130px 1fr', ...(isLast ? {} : { borderBottom: '1px solid hsl(var(--border))' }) }}
-    >
-      <span className="text-body text-muted-foreground pt-px">{label}</span>
-      <span className="text-label">{value}</span>
-    </div>
-  );
-}
 
 function getStatusBadge(status: string) {
   const map: Record<string, { label: string; variant: 'success' | 'danger' | 'warning' | 'info' | 'neutral' }> = {
@@ -530,21 +510,23 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
 
         {/* Policy Details */}
         <Section id="details" title="Policy Details" icon={ClipboardList} noPadding>
-          {(() => {
-            const rows: { label: string; value: React.ReactNode }[] = [
-              { label: 'Policy Number', value: policy.policy_number },
-              { label: 'Valid', value: `${formatDate(policy.start_date)} → ${formatDate(policy.end_date)}` },
-              { label: 'Sum Insured', value: formatCurrency(policy.sum_insured) },
-            ];
-            if (policy.premium_amount) rows.push({ label: 'Annual Premium', value: formatCurrency(policy.premium_amount) });
-            if (meta.icu_limit) rows.push({ label: 'ICU Limit', value: meta.icu_limit });
-            if (meta.copay) rows.push({ label: 'Co-pay', value: meta.copay });
-            if (meta.tpa) rows.push({ label: 'TPA', value: meta.tpa });
-            if (meta.tpa_contact) rows.push({ label: 'TPA Contact', value: meta.tpa_contact });
-            return rows.map((row, i) => (
-              <InfoRow key={row.label} label={row.label} value={row.value} isLast={i === rows.length - 1} />
-            ));
-          })()}
+          <div className="divide-y">
+            {(() => {
+              const rows: { label: string; value: React.ReactNode }[] = [
+                { label: 'Policy Number', value: policy.policy_number },
+                { label: 'Valid', value: `${formatDate(policy.start_date)} → ${formatDate(policy.end_date)}` },
+                { label: 'Sum Insured', value: formatCurrency(policy.sum_insured) },
+              ];
+              if (policy.premium_amount) rows.push({ label: 'Annual Premium', value: formatCurrency(policy.premium_amount) });
+              if (meta.icu_limit) rows.push({ label: 'ICU Limit', value: meta.icu_limit });
+              if (meta.copay) rows.push({ label: 'Co-pay', value: meta.copay });
+              if (meta.tpa) rows.push({ label: 'TPA', value: meta.tpa });
+              if (meta.tpa_contact) rows.push({ label: 'TPA Contact', value: meta.tpa_contact });
+              return rows.map((row) => (
+                <DetailRow key={row.label} label={row.label}>{row.value}</DetailRow>
+              ));
+            })()}
+          </div>
         </Section>
 
         {/* Covered Members */}

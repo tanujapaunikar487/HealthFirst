@@ -41,20 +41,17 @@ export function InfoCard({ items, className }: InfoCardProps) {
   return (
     <div
       className={cn(
-        'rounded-3xl border border-border bg-white overflow-hidden',
+        'rounded-3xl border border-border bg-card overflow-hidden divide-y',
         className
       )}
     >
       {items.map((item, index) => (
         <div
           key={index}
-          className={cn(
-            'flex items-start px-6 py-4',
-            index !== items.length - 1 && 'border-b border-border'
-          )}
+          className="flex items-start px-6 py-4"
         >
           {/* Label */}
-          <div className="w-[140px] flex-shrink-0">
+          <div className="w-detail-label flex-shrink-0">
             <span className="text-body text-muted-foreground">{item.label}</span>
           </div>
 

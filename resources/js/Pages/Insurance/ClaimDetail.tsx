@@ -2,14 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
-import { Card } from '@/Components/ui/card';
+import { DetailRow } from '@/Components/ui/detail-row';
+import { DetailSection } from '@/Components/ui/detail-section';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Toast } from '@/Components/ui/toast';
 import { Alert } from '@/Components/ui/alert';
-import { Icon } from '@/Components/ui/icon';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
-import { cn } from '@/Lib/utils';
 import { getAvatarColor } from '@/Lib/avatar-colors';
 import { SideNav, SideNavItem } from '@/Components/SideNav';
 import {
@@ -108,12 +107,12 @@ function ClaimSideNav({ hasFinancial }: { hasFinancial: boolean }) {
   );
 }
 
-/* ─── Section Wrapper ─── */
+/* ─── Section alias ─── */
 
 function Section({
   id,
   title,
-  icon: SectionIcon,
+  icon,
   action,
   noPadding,
   children,
@@ -126,20 +125,9 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div id={id} className="scroll-mt-24">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2.5">
-          <Icon icon={SectionIcon} className="h-5 w-5 text-foreground" />
-          <h2 className="text-section-title text-foreground">
-            {title}
-          </h2>
-        </div>
-        {action}
-      </div>
-      <Card className={noPadding ? '' : 'p-6'}>
-        {children}
-      </Card>
-    </div>
+    <DetailSection id={id} title={title} icon={icon} action={action} noPadding={noPadding}>
+      {children}
+    </DetailSection>
   );
 }
 
@@ -1025,10 +1013,9 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
         {/* Overview Section */}
         <Section id="overview" title="Overview" icon={ClipboardList} noPadding>
-          <div>
+          <div className="divide-y">
             {/* Patient */}
-            <div className="grid grid-cols-[theme(spacing.detail-label)_1fr] items-start px-4 py-4 border-b border-border">
-              <span className="text-body text-muted-foreground pt-px">Patient</span>
+            <DetailRow label="Patient">
               <Button
                 variant="ghost"
                 className="flex items-center gap-2.5 h-auto p-0 hover:opacity-80 hover:bg-transparent transition-opacity"
@@ -1053,11 +1040,10 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   <span className="text-body capitalize text-muted-foreground">({patient.relation})</span>
                 )}
               </Button>
-            </div>
+            </DetailRow>
 
             {/* Doctor */}
-            <div className="grid grid-cols-[theme(spacing.detail-label)_1fr] items-start px-4 py-4 border-b border-border">
-              <span className="text-body text-muted-foreground pt-px">Doctor</span>
+            <DetailRow label="Doctor">
               {doctor ? (
                 <div className="flex items-center gap-2.5 text-body">
                   <div
@@ -1076,11 +1062,10 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               ) : (
                 <span className="text-body text-muted-foreground">N/A</span>
               )}
-            </div>
+            </DetailRow>
 
             {/* Stay */}
-            <div className={cn("grid grid-cols-[theme(spacing.detail-label)_1fr] items-start px-4 py-4", !isOutpatient && "border-b border-border")}>
-              <span className="text-body text-muted-foreground pt-px">Stay</span>
+            <DetailRow label="Stay">
               {isOutpatient ? (
                 <span className="text-label text-foreground">Outpatient</span>
               ) : (
@@ -1102,12 +1087,11 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   )}
                 </div>
               )}
-            </div>
+            </DetailRow>
 
             {/* Room */}
             {!isOutpatient && (
-              <div className="grid grid-cols-[theme(spacing.detail-label)_1fr] items-start px-4 py-4">
-                <span className="text-body text-muted-foreground pt-px">Room</span>
+              <DetailRow label="Room">
                 <div className="flex items-center gap-1.5 text-body">
                   <span className="text-label text-foreground">{stay!.room_type ?? 'General'}</span>
                   {stay!.room_number && (
@@ -1123,7 +1107,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                     </>
                   )}
                 </div>
-              </div>
+              </DetailRow>
             )}
           </div>
         </Section>

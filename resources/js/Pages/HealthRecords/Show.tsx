@@ -3,9 +3,9 @@ import AppLayout from '@/Layouts/AppLayout';
 import { Badge } from '@/Components/ui/badge';
 import { Button, buttonVariants } from '@/Components/ui/button';
 import { Alert } from '@/Components/ui/alert';
-import { Card, CardContent } from '@/Components/ui/card';
+import { DetailRow } from '@/Components/ui/detail-row';
+import { DetailSection } from '@/Components/ui/detail-section';
 import { Toast } from '@/Components/ui/toast';
-import { Icon } from '@/Components/ui/icon';
 import { SideNav } from '@/Components/SideNav';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { cn } from '@/Lib/utils';
@@ -396,15 +396,6 @@ function StatusBadge({ status }: { status: RecordStatus }) {
   );
 }
 
-function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="grid items-start py-2" style={{ gridTemplateColumns: '130px 1fr' }}>
-      <span className="text-body text-muted-foreground pt-px">{label}</span>
-      <span className="text-label">{children}</span>
-    </div>
-  );
-}
-
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return <h3 className="text-card-title text-muted-foreground uppercase tracking-wide mb-3">{children}</h3>;
 }
@@ -484,31 +475,27 @@ function RecordSideNav({ hasProvider }: { hasProvider: boolean }) {
   );
 }
 
-/* ─── Section Wrapper ─── */
+/* ─── Section alias (noPadding by default — rows handle own px-6 py-4) ─── */
 
 function Section({
   id,
   title,
-  icon: SectionIcon,
+  icon,
   children,
+  action,
+  noPadding = true,
 }: {
   id: string;
   title: string;
   icon: React.ElementType;
   children: React.ReactNode;
+  action?: React.ReactNode;
+  noPadding?: boolean;
 }) {
   return (
-    <div id={id} className="scroll-mt-24">
-      <div className="flex items-center gap-2.5 mb-4">
-        <Icon icon={SectionIcon} className="h-5 w-5 text-foreground" />
-        <h2 className="text-section-title text-foreground">
-          {title}
-        </h2>
-      </div>
-      <Card className="p-6">
-        {children}
-      </Card>
-    </div>
+    <DetailSection id={id} title={title} icon={icon} action={action} noPadding={noPadding}>
+      {children}
+    </DetailSection>
   );
 }
 
@@ -822,82 +809,84 @@ export default function Show({ user, record, familyMember }: Props) {
           <div className="flex-1 min-w-0 space-y-12 pb-12">
             {/* Summary Section */}
             <Section id="summary" title="Summary" icon={FileText}>
-              {record.description ? (
-                <p className="text-body leading-relaxed mb-6" style={{ color: 'hsl(var(--foreground))' }}>{record.description}</p>
-              ) : (
-                <p className="text-body text-muted-foreground mb-6">No description available.</p>
-              )}
+              <div className="p-6 space-y-6">
+                {record.description ? (
+                  <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{record.description}</p>
+                ) : (
+                  <p className="text-body text-muted-foreground">No description available.</p>
+                )}
 
-              {/* AI Summary */}
-              <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  <span className="text-card-title text-muted-foreground uppercase tracking-wide">AI Summary</span>
+                {/* AI Summary */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    <span className="text-card-title text-muted-foreground uppercase tracking-wide">AI Summary</span>
+                  </div>
+
+                  {aiSummaryLoading ? (
+                    <Alert variant="info" hideIcon>
+                      <div className="flex items-center gap-3">
+                        <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                        <span>Generating AI summary...</span>
+                      </div>
+                    </Alert>
+                  ) : aiSummaryError ? (
+                    <Alert variant="error">
+                      <p className="mb-3">{aiSummaryError}</p>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => generateAiSummary()}
+                      >
+                        Try Again
+                      </Button>
+                    </Alert>
+                  ) : aiSummary ? (
+                    <Alert variant="info" hideIcon>
+                      <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{aiSummary}</p>
+                      {summaryGeneratedAt && (
+                        <p className="text-body text-muted-foreground mt-3">
+                          Generated {new Date(summaryGeneratedAt).toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </p>
+                      )}
+                    </Alert>
+                  ) : (
+                    <Alert variant="info" hideIcon>
+                      <div className="flex items-center gap-3">
+                        <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                        <span>Generating AI summary...</span>
+                      </div>
+                    </Alert>
+                  )}
                 </div>
 
-                {aiSummaryLoading ? (
-                  <Alert variant="info" hideIcon>
-                    <div className="flex items-center gap-3">
-                      <Loader2 className="h-5 w-5 text-primary animate-spin" />
-                      <span>Generating AI summary...</span>
-                    </div>
-                  </Alert>
-                ) : aiSummaryError ? (
-                  <Alert variant="error">
-                    <p className="mb-3">{aiSummaryError}</p>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => generateAiSummary()}
-                    >
-                      Try Again
-                    </Button>
-                  </Alert>
-                ) : aiSummary ? (
-                  <Alert variant="info" hideIcon>
-                    <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{aiSummary}</p>
-                    {summaryGeneratedAt && (
-                      <p className="text-body text-muted-foreground mt-3">
-                        Generated {new Date(summaryGeneratedAt).toLocaleDateString('en-IN', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </p>
+                <div className="border-t -mx-6 pt-4 px-6">
+                  <SectionTitle>Record Information</SectionTitle>
+                  <div className="divide-y -mx-6">
+                    <DetailRow label="Record ID">#{record.id}</DetailRow>
+                    <DetailRow label="Date">{formatDate(record.record_date)}</DetailRow>
+                    <DetailRow label="Category">
+                      <Badge variant="info">
+                        {config.label}
+                      </Badge>
+                    </DetailRow>
+                    {record.status && (
+                      <DetailRow label="Status">
+                        <StatusBadge status={record.status} />
+                      </DetailRow>
                     )}
-                  </Alert>
-                ) : (
-                  <Alert variant="info" hideIcon>
-                    <div className="flex items-center gap-3">
-                      <Loader2 className="h-5 w-5 text-primary animate-spin" />
-                      <span>Generating AI summary...</span>
-                    </div>
-                  </Alert>
-                )}
-              </div>
-
-              <div className="border-t pt-4">
-                <SectionTitle>Record Information</SectionTitle>
-                <div className="space-y-0">
-                  <DetailRow label="Record ID">#{record.id}</DetailRow>
-                  <DetailRow label="Date">{formatDate(record.record_date)}</DetailRow>
-                  <DetailRow label="Category">
-                    <Badge variant="info">
-                      {config.label}
-                    </Badge>
-                  </DetailRow>
-                  {record.status && (
-                    <DetailRow label="Status">
-                      <StatusBadge status={record.status} />
-                    </DetailRow>
-                  )}
-                  {record.file_type && (
-                    <DetailRow label="File Type">
-                      <span className="uppercase text-label text-muted-foreground">{record.file_type}</span>
-                    </DetailRow>
-                  )}
+                    {record.file_type && (
+                      <DetailRow label="File Type">
+                        <span className="uppercase text-label text-muted-foreground">{record.file_type}</span>
+                      </DetailRow>
+                    )}
+                  </div>
                 </div>
               </div>
             </Section>
@@ -913,13 +902,13 @@ export default function Show({ user, record, familyMember }: Props) {
                   familyMember={familyMember}
                 />
               ) : (
-                <p className="text-body text-muted-foreground">No additional details available.</p>
+                <p className="p-6 text-body text-muted-foreground">No additional details available.</p>
               )}
             </Section>
 
             {/* Patient Section */}
             <Section id="patient" title="Patient" icon={User}>
-              <div className="space-y-0">
+              <div className="divide-y">
                 <DetailRow label="Name">{familyMember ? familyMember.name : user.name}</DetailRow>
                 {familyMember && (
                   <>
@@ -935,7 +924,7 @@ export default function Show({ user, record, familyMember }: Props) {
             {/* Provider Section (only if provider info exists) */}
             {hasProvider && (
               <Section id="provider" title="Provider" icon={Stethoscope}>
-                <div className="space-y-0">
+                <div className="divide-y">
                   {record.doctor_name && <DetailRow label="Doctor">{record.doctor_name}</DetailRow>}
                   {record.department_name && <DetailRow label="Department">{record.department_name}</DetailRow>}
                 </div>
@@ -944,7 +933,7 @@ export default function Show({ user, record, familyMember }: Props) {
 
             {/* Actions Section */}
             <Section id="actions" title="Actions" icon={Settings2}>
-              <div className="space-y-2">
+              <div className="p-6 space-y-2">
                 <Button variant="secondary" className="w-full justify-start gap-2" onClick={handleDownload}>
                   <Download className="h-4 w-4" />
                   Download Record
@@ -1023,11 +1012,11 @@ function CategoryDetail({ category, meta, onAction, record, familyMember }: { ca
 
 function ConsultationDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (msg: string) => void }) {
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       {(meta.visit_type_label || meta.opd_number || meta.duration || meta.location) && (
         <div>
           <SectionTitle>Visit Details</SectionTitle>
-          <div className="space-y-0">
+          <div className="divide-y -mx-6">
             {(meta.visit_type_label || meta.opd_number) && (
               <DetailRow label="Visit Type">
                 {meta.visit_type_label}{meta.opd_number ? ` | ${meta.opd_number}` : ''}
@@ -1126,10 +1115,12 @@ function ConsultationDetail({ meta, onAction }: { meta: RecordMetadata; onAction
 
 function ProcedureDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (msg: string) => void }) {
   return (
-    <div className="space-y-5">
-      {meta.procedure_name && <DetailRow label="Procedure">{meta.procedure_name}</DetailRow>}
-      {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-      {meta.anesthesia && <DetailRow label="Anesthesia">{meta.anesthesia}</DetailRow>}
+    <div className="p-6 space-y-6">
+      <div className="divide-y -mx-6">
+        {meta.procedure_name && <DetailRow label="Procedure">{meta.procedure_name}</DetailRow>}
+        {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+        {meta.anesthesia && <DetailRow label="Anesthesia">{meta.anesthesia}</DetailRow>}
+      </div>
       {meta.technique && (
         <div>
           <SectionTitle>Technique</SectionTitle>
@@ -1142,7 +1133,11 @@ function ProcedureDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (
           <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.findings}</p>
         </div>
       )}
-      {meta.complications && <DetailRow label="Complications">{meta.complications}</DetailRow>}
+      {meta.complications && (
+        <div className="divide-y -mx-6">
+          <DetailRow label="Complications">{meta.complications}</DetailRow>
+        </div>
+      )}
       {meta.post_op_instructions && (
         <div>
           <SectionTitle>Post-Procedure Instructions</SectionTitle>
@@ -1161,11 +1156,11 @@ function ProcedureDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (
 
 function ErVisitDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (msg: string) => void }) {
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       {(meta.er_number || meta.arrival_time || meta.triage_level || meta.mode_of_arrival) && (
         <div>
           <SectionTitle>Visit Details</SectionTitle>
-          <div className="space-y-0">
+          <div className="divide-y -mx-6">
             {meta.er_number && <DetailRow label="ER Number">{meta.er_number}</DetailRow>}
             {meta.arrival_time && <DetailRow label="Arrival">{meta.arrival_time}</DetailRow>}
             {meta.discharge_time && <DetailRow label="Discharge">{meta.discharge_time}</DetailRow>}
@@ -1252,7 +1247,11 @@ function ErVisitDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (ms
         </div>
       )}
 
-      {meta.follow_up && <DetailRow label="Follow-up">{meta.follow_up}</DetailRow>}
+      {meta.follow_up && (
+        <div className="divide-y -mx-6">
+          <DetailRow label="Follow-up">{meta.follow_up}</DetailRow>
+        </div>
+      )}
 
       {meta.linked_records && meta.linked_records.length > 0 && (
         <div>
@@ -1266,16 +1265,18 @@ function ErVisitDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (ms
 
 function ReferralDetail({ meta }: { meta: RecordMetadata }) {
   return (
-    <div className="space-y-4">
-      {meta.referred_to_doctor && <DetailRow label="Referred To">{meta.referred_to_doctor}</DetailRow>}
-      {meta.referred_to_department && <DetailRow label="Department">{meta.referred_to_department}</DetailRow>}
-      {meta.priority && (
-        <DetailRow label="Priority">
-          <Badge variant={meta.priority === 'urgent' ? 'danger' : 'neutral'} className="capitalize">
-            {meta.priority}
-          </Badge>
-        </DetailRow>
-      )}
+    <div className="p-6 space-y-6">
+      <div className="divide-y -mx-6">
+        {meta.referred_to_doctor && <DetailRow label="Referred To">{meta.referred_to_doctor}</DetailRow>}
+        {meta.referred_to_department && <DetailRow label="Department">{meta.referred_to_department}</DetailRow>}
+        {meta.priority && (
+          <DetailRow label="Priority">
+            <Badge variant={meta.priority === 'urgent' ? 'danger' : 'neutral'} className="capitalize">
+              {meta.priority}
+            </Badge>
+          </DetailRow>
+        )}
+      </div>
       {meta.reason && (
         <div>
           <SectionTitle>Reason</SectionTitle>
@@ -1288,10 +1289,10 @@ function ReferralDetail({ meta }: { meta: RecordMetadata }) {
 
 function DischargeDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (msg: string) => void }) {
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       <div>
         <SectionTitle>Admission Details</SectionTitle>
-        <div className="space-y-0">
+        <div className="divide-y -mx-6">
           {meta.admission_date && <DetailRow label="Admission Date">{fmtDate(meta.admission_date)}</DetailRow>}
           {meta.discharge_date && <DetailRow label="Discharge Date">{fmtDate(meta.discharge_date)}</DetailRow>}
           {meta.length_of_stay && <DetailRow label="Length of Stay">{meta.length_of_stay}</DetailRow>}
@@ -1318,7 +1319,9 @@ function DischargeDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (
               </div>
             )}
             {meta.procedure_performed && (
-              <DetailRow label="Procedure">{meta.procedure_performed}</DetailRow>
+              <div className="-mx-6">
+                <DetailRow label="Procedure">{meta.procedure_performed}</DetailRow>
+              </div>
             )}
           </div>
         </div>
@@ -1440,15 +1443,23 @@ function DischargeDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (
 
 function OtherVisitDetail({ meta }: { meta: RecordMetadata }) {
   return (
-    <div className="space-y-4">
-      {meta.visit_type && <DetailRow label="Visit Type">{meta.visit_type}</DetailRow>}
+    <div className="p-6 space-y-6">
+      {meta.visit_type && (
+        <div className="divide-y -mx-6">
+          <DetailRow label="Visit Type">{meta.visit_type}</DetailRow>
+        </div>
+      )}
       {meta.notes && (
         <div>
           <SectionTitle>Notes</SectionTitle>
           <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.notes}</p>
         </div>
       )}
-      {meta.follow_up && <DetailRow label="Follow-up">{meta.follow_up}</DetailRow>}
+      {meta.follow_up && (
+        <div className="divide-y -mx-6">
+          <DetailRow label="Follow-up">{meta.follow_up}</DetailRow>
+        </div>
+      )}
     </div>
   );
 }
@@ -1457,7 +1468,7 @@ function OtherVisitDetail({ meta }: { meta: RecordMetadata }) {
 
 function LabReportDetail({ meta }: { meta: RecordMetadata }) {
   return (
-    <div className="space-y-5">
+    <div className="p-6 space-y-6">
       {meta.test_name && (
         <div className="flex items-center gap-3 flex-wrap">
           {meta.test_category && <Badge variant="neutral">{meta.test_category}</Badge>}
@@ -1497,11 +1508,13 @@ function LabReportDetail({ meta }: { meta: RecordMetadata }) {
 
 function XrayDetail({ meta }: { meta: RecordMetadata }) {
   return (
-    <div className="space-y-5">
-      {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
-      {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-      {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
-      {meta.radiologist && <DetailRow label="Radiologist">{meta.radiologist}</DetailRow>}
+    <div className="p-6 space-y-6">
+      <div className="divide-y -mx-6">
+        {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
+        {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+        {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
+        {meta.radiologist && <DetailRow label="Radiologist">{meta.radiologist}</DetailRow>}
+      </div>
       <FindingsImpression findings={meta.findings} impression={meta.impression} />
     </div>
   );
@@ -1509,13 +1522,15 @@ function XrayDetail({ meta }: { meta: RecordMetadata }) {
 
 function MriDetail({ meta }: { meta: RecordMetadata }) {
   return (
-    <div className="space-y-5">
-      {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
-      {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-      {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
-      {meta.contrast && <DetailRow label="Contrast">{meta.contrast}</DetailRow>}
-      {meta.sequences && <DetailRow label="Sequences">{meta.sequences}</DetailRow>}
-      {meta.radiologist && <DetailRow label="Radiologist">{meta.radiologist}</DetailRow>}
+    <div className="p-6 space-y-6">
+      <div className="divide-y -mx-6">
+        {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
+        {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+        {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
+        {meta.contrast && <DetailRow label="Contrast">{meta.contrast}</DetailRow>}
+        {meta.sequences && <DetailRow label="Sequences">{meta.sequences}</DetailRow>}
+        {meta.radiologist && <DetailRow label="Radiologist">{meta.radiologist}</DetailRow>}
+      </div>
       <FindingsImpression findings={meta.findings} impression={meta.impression} impressionColor="hsl(var(--primary))" impressionBg="bg-primary/10" />
     </div>
   );
@@ -1523,10 +1538,12 @@ function MriDetail({ meta }: { meta: RecordMetadata }) {
 
 function UltrasoundDetail({ meta }: { meta: RecordMetadata }) {
   return (
-    <div className="space-y-5">
-      {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
-      {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-      {meta.sonographer && <DetailRow label="Sonographer">{meta.sonographer}</DetailRow>}
+    <div className="p-6 space-y-6">
+      <div className="divide-y -mx-6">
+        {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
+        {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+        {meta.sonographer && <DetailRow label="Sonographer">{meta.sonographer}</DetailRow>}
+      </div>
       <FindingsImpression findings={meta.findings} impression={meta.impression} impressionColor="hsl(var(--primary))" impressionBg="bg-primary/10" />
     </div>
   );
@@ -1534,11 +1551,13 @@ function UltrasoundDetail({ meta }: { meta: RecordMetadata }) {
 
 function EcgDetail({ meta }: { meta: RecordMetadata }) {
   return (
-    <div className="space-y-5">
-      {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-      {meta.heart_rate && <DetailRow label="Heart Rate">{meta.heart_rate} bpm</DetailRow>}
-      {meta.rhythm && <DetailRow label="Rhythm">{meta.rhythm}</DetailRow>}
-      {meta.axis && <DetailRow label="Axis">{meta.axis}</DetailRow>}
+    <div className="p-6 space-y-6">
+      <div className="divide-y -mx-6">
+        {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+        {meta.heart_rate && <DetailRow label="Heart Rate">{meta.heart_rate} bpm</DetailRow>}
+        {meta.rhythm && <DetailRow label="Rhythm">{meta.rhythm}</DetailRow>}
+        {meta.axis && <DetailRow label="Axis">{meta.axis}</DetailRow>}
+      </div>
       {meta.intervals && (
         <div>
           <SectionTitle>Intervals</SectionTitle>
@@ -1571,9 +1590,11 @@ function EcgDetail({ meta }: { meta: RecordMetadata }) {
 
 function PathologyDetail({ meta }: { meta: RecordMetadata }) {
   return (
-    <div className="space-y-5">
-      {meta.specimen_type && <DetailRow label="Specimen">{meta.specimen_type}</DetailRow>}
-      {meta.pathologist && <DetailRow label="Pathologist">{meta.pathologist}</DetailRow>}
+    <div className="p-6 space-y-6">
+      <div className="divide-y -mx-6">
+        {meta.specimen_type && <DetailRow label="Specimen">{meta.specimen_type}</DetailRow>}
+        {meta.pathologist && <DetailRow label="Pathologist">{meta.pathologist}</DetailRow>}
+      </div>
       {meta.gross_description && (
         <div>
           <SectionTitle>Gross Description</SectionTitle>
@@ -1601,8 +1622,10 @@ function PathologyDetail({ meta }: { meta: RecordMetadata }) {
 
 function PftDetail({ meta }: { meta: RecordMetadata }) {
   return (
-    <div className="space-y-5">
-      {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+    <div className="p-6 space-y-6">
+      <div className="divide-y -mx-6">
+        {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+      </div>
       {meta.results && meta.results.length > 0 && (
         <div>
           <SectionTitle>Results</SectionTitle>
@@ -1644,8 +1667,10 @@ function PftDetail({ meta }: { meta: RecordMetadata }) {
 
 function OtherReportDetail({ meta }: { meta: RecordMetadata }) {
   return (
-    <div className="space-y-5">
-      {meta.report_type && <DetailRow label="Report Type">{meta.report_type}</DetailRow>}
+    <div className="p-6 space-y-6">
+      <div className="divide-y -mx-6">
+        {meta.report_type && <DetailRow label="Report Type">{meta.report_type}</DetailRow>}
+      </div>
       <FindingsImpression findings={meta.findings} impression={meta.impression} />
     </div>
   );
@@ -1655,7 +1680,7 @@ function OtherReportDetail({ meta }: { meta: RecordMetadata }) {
 
 function PrescriptionDetail({ meta }: { meta: RecordMetadata }) {
   return (
-    <div className="space-y-5">
+    <div className="p-6 space-y-6">
       {meta.drugs && meta.drugs.length > 0 && (
         <div>
           <SectionTitle>Prescriptions</SectionTitle>
@@ -1684,7 +1709,7 @@ function PrescriptionDetail({ meta }: { meta: RecordMetadata }) {
 function MedicationActiveDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (msg: string) => void }) {
   const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       {meta.drug_name && (
         <Alert variant="success" hideIcon>
           <div className="flex items-center gap-2">
@@ -1697,7 +1722,7 @@ function MedicationActiveDetail({ meta, onAction }: { meta: RecordMetadata; onAc
       {(meta.dosage || meta.frequency || meta.timing || meta.medication_duration || meta.route) && (
         <div>
           <SectionTitle>Dosage Instructions</SectionTitle>
-          <div className="space-y-0">
+          <div className="divide-y -mx-6">
             {meta.dosage && <DetailRow label="Dose">{meta.dosage}</DetailRow>}
             {meta.frequency && <DetailRow label="Frequency">{meta.frequency}</DetailRow>}
             {meta.timing && <DetailRow label="Timing">{meta.timing}</DetailRow>}
@@ -1723,7 +1748,7 @@ function MedicationActiveDetail({ meta, onAction }: { meta: RecordMetadata; onAc
       {(meta.prescribing_doctor || meta.start_date || meta.original_quantity != null) && (
         <div>
           <SectionTitle>Prescription Details</SectionTitle>
-          <div className="space-y-0">
+          <div className="divide-y -mx-6">
             {meta.prescribing_doctor && <DetailRow label="Prescribed By">{meta.prescribing_doctor}</DetailRow>}
             {meta.start_date && <DetailRow label="Started">{fmtDate(meta.start_date)}</DetailRow>}
             {meta.original_quantity != null && <DetailRow label="Qty Dispensed">{meta.original_quantity} tablets</DetailRow>}
@@ -1806,7 +1831,7 @@ function MedicationActiveDetail({ meta, onAction }: { meta: RecordMetadata; onAc
 
 function MedicationPastDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (msg: string) => void }) {
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       {meta.drug_name && (
         <div className="rounded-lg bg-muted border border-border px-4 py-3">
           <div className="flex items-center gap-2">
@@ -1819,7 +1844,7 @@ function MedicationPastDetail({ meta, onAction }: { meta: RecordMetadata; onActi
       {(meta.dosage || meta.frequency || meta.timing || meta.medication_duration || meta.route) && (
         <div>
           <SectionTitle>Dosage Instructions</SectionTitle>
-          <div className="space-y-0">
+          <div className="divide-y -mx-6">
             {meta.dosage && <DetailRow label="Dose">{meta.dosage}</DetailRow>}
             {meta.frequency && <DetailRow label="Frequency">{meta.frequency}</DetailRow>}
             {meta.timing && <DetailRow label="Timing">{meta.timing}</DetailRow>}
@@ -1845,7 +1870,7 @@ function MedicationPastDetail({ meta, onAction }: { meta: RecordMetadata; onActi
       {(meta.prescribing_doctor || meta.start_date || meta.end_date || meta.original_quantity != null) && (
         <div>
           <SectionTitle>Prescription Details</SectionTitle>
-          <div className="space-y-0">
+          <div className="divide-y -mx-6">
             {meta.prescribing_doctor && <DetailRow label="Prescribed By">{meta.prescribing_doctor}</DetailRow>}
             {meta.start_date && <DetailRow label="Started">{fmtDate(meta.start_date)}</DetailRow>}
             {meta.end_date && <DetailRow label="Ended">{fmtDate(meta.end_date)}</DetailRow>}
@@ -1894,7 +1919,7 @@ function MedicationPastDetail({ meta, onAction }: { meta: RecordMetadata; onActi
 
 function VaccinationDetail({ meta, onAction, familyMember }: { meta: RecordMetadata; onAction: (msg: string) => void; familyMember: FamilyMember | null }) {
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       {meta.vaccine_name && (
         <Alert variant="success" hideIcon>
           <p className="text-base font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{meta.vaccine_name}</p>
@@ -1904,7 +1929,7 @@ function VaccinationDetail({ meta, onAction, familyMember }: { meta: RecordMetad
       {familyMember && (
         <div>
           <SectionTitle>Patient Details</SectionTitle>
-          <div className="space-y-0">
+          <div className="divide-y -mx-6">
             <DetailRow label="Name">{familyMember.name}</DetailRow>
             {familyMember.age && <DetailRow label="Age">{familyMember.age} years</DetailRow>}
             {familyMember.gender && <DetailRow label="Gender"><span className="capitalize">{familyMember.gender}</span></DetailRow>}
@@ -1917,15 +1942,17 @@ function VaccinationDetail({ meta, onAction, familyMember }: { meta: RecordMetad
         <SectionTitle>Administration Details</SectionTitle>
         {meta.dose_number != null && meta.total_doses != null && (
           <div className="mb-3">
-            <DetailRow label="Dose">
-              {meta.dose_number} of {meta.total_doses}
-            </DetailRow>
+            <div className="-mx-6">
+              <DetailRow label="Dose">
+                {meta.dose_number} of {meta.total_doses}
+              </DetailRow>
+            </div>
             <div className="mt-2 h-2.5 rounded-full bg-muted overflow-hidden">
               <div className="h-full rounded-full bg-success transition-all" style={{ width: `${(meta.dose_number / meta.total_doses) * 100}%` }} />
             </div>
           </div>
         )}
-        <div className="space-y-0">
+        <div className="divide-y -mx-6">
           {meta.batch_number && <DetailRow label="Batch Number">{meta.batch_number}</DetailRow>}
           {meta.administered_by && <DetailRow label="Administered By">{meta.administered_by}</DetailRow>}
           {meta.site && <DetailRow label="Injection Site">{meta.site}</DetailRow>}
@@ -2016,7 +2043,7 @@ function VaccinationDetail({ meta, onAction, familyMember }: { meta: RecordMetad
 
 function MedicalCertificateDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (msg: string) => void }) {
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       {meta.certificate_type && (
         <Alert variant="info" hideIcon>
           <p className="text-base font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{meta.certificate_type}</p>
@@ -2025,7 +2052,7 @@ function MedicalCertificateDetail({ meta, onAction }: { meta: RecordMetadata; on
 
       <div>
         <SectionTitle>Certificate Details</SectionTitle>
-        <div className="space-y-0">
+        <div className="divide-y -mx-6">
           {meta.certificate_number && <DetailRow label="Certificate No.">{meta.certificate_number}</DetailRow>}
           {meta.issued_for && <DetailRow label="Issued For">{meta.issued_for}</DetailRow>}
           {meta.issued_by && <DetailRow label="Issued By">{meta.issued_by}</DetailRow>}
@@ -2088,8 +2115,8 @@ function MedicalCertificateDetail({ meta, onAction }: { meta: RecordMetadata; on
 
 function InvoiceDetail({ meta }: { meta: RecordMetadata }) {
   return (
-    <div className="space-y-5">
-      <div className="space-y-2">
+    <div className="p-6 space-y-6">
+      <div className="divide-y -mx-6">
         {meta.invoice_number && <DetailRow label="Invoice">{meta.invoice_number}</DetailRow>}
         {meta.amount != null && (
           <DetailRow label="Amount"><span className="text-lg font-bold">₹{meta.amount.toLocaleString()}</span></DetailRow>

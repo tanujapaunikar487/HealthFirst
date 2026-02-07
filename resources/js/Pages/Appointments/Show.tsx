@@ -5,6 +5,8 @@ import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Alert } from '@/Components/ui/alert';
 import { Card } from '@/Components/ui/card';
+import { DetailRow } from '@/Components/ui/detail-row';
+import { DetailSection } from '@/Components/ui/detail-section';
 import { SideNav } from '@/Components/SideNav';
 import {
   Sheet,
@@ -346,7 +348,7 @@ export default function Show({ user, appointment }: Props) {
             {(appointment.vitals?.length ?? 0) > 0
               ? <VitalsSection vitals={appointment.vitals} />
               : <Section id="vitals" title="Vitals" icon={Heart}>
-                  <div className="px-4 py-6 text-center">
+                  <div className="px-6 py-6 text-center">
                     <p className="text-label text-muted-foreground">No vitals recorded for this appointment</p>
                     <p className="text-body text-muted-foreground mt-0.5">Vitals will be recorded during your appointment.</p>
                   </div>
@@ -359,7 +361,7 @@ export default function Show({ user, appointment }: Props) {
             {(appointment.prescriptions?.length ?? 0) > 0
               ? <PrescriptionsSection prescriptions={appointment.prescriptions} appointmentId={appointment.appointment_id} appointmentTitle={appointment.title} appointmentDate={appointment.date_formatted} appointmentTime={appointment.time} />
               : <Section id="prescriptions" title="Prescriptions" icon={Pill}>
-                  <div className="px-4 py-6 text-center">
+                  <div className="px-6 py-6 text-center">
                     <p className="text-label text-muted-foreground">No prescriptions for this appointment</p>
                     <p className="text-body text-muted-foreground mt-0.5">Prescriptions will appear here if prescribed by your doctor.</p>
                   </div>
@@ -547,46 +549,27 @@ function AppointmentSideNav() {
   );
 }
 
-/* ─── Section Card Wrapper ─── */
+/* ─── Section alias (noPadding by default for divide-y rows) ─── */
 
 function Section({
   id,
   title,
-  icon: SectionIcon,
+  icon,
   children,
   action,
+  noPadding = true,
 }: {
   id: string;
   title: string;
   icon: React.ElementType;
   children: React.ReactNode;
   action?: React.ReactNode;
+  noPadding?: boolean;
 }) {
   return (
-    <div id={id} className="scroll-mt-24">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2.5">
-          <Icon icon={SectionIcon} className="h-5 w-5 text-foreground" />
-          <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
-            {title}
-          </h2>
-        </div>
-        {action}
-      </div>
-      <Card className="overflow-hidden">{children}</Card>
-    </div>
-  );
-}
-
-function InfoRow({ label, value, isLast }: { label: React.ReactNode; value: React.ReactNode; isLast?: boolean }) {
-  return (
-    <div
-      className="grid items-start px-4 py-4"
-      style={{ gridTemplateColumns: '130px 1fr', ...(isLast ? {} : { borderBottom: '1px solid hsl(var(--border))' }) }}
-    >
-      <span className="text-body text-muted-foreground pt-px">{label}</span>
-      <span className="text-label">{value}</span>
-    </div>
+    <DetailSection id={id} title={title} icon={icon} action={action} noPadding={noPadding}>
+      {children}
+    </DetailSection>
   );
 }
 
@@ -604,19 +587,15 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
 
   return (
     <Section id="overview" title="Overview" icon={isDoctor ? Stethoscope : TestTube2}>
-      <InfoRow
-        label="Patient"
-        value={
+      <div className="divide-y">
+        <DetailRow label="Patient">
           <>
             <p className="text-label">{appointment.patient?.name ?? appointment.patient_name}</p>
             {patientSub && <p className="text-body text-muted-foreground">{patientSub}</p>}
           </>
-        }
-      />
-      {hasDoctor && (
-        <InfoRow
-          label="Doctor"
-          value={
+        </DetailRow>
+        {hasDoctor && (
+          <DetailRow label="Doctor">
             <>
               <p className="text-label">{appointment.doctor!.name}</p>
               <p className="text-body text-muted-foreground">
@@ -629,15 +608,12 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
                 </span>
               </div>
             </>
-          }
-        />
-      )}
-      <InfoRow label="Date" value={appointment.date_formatted} />
-      <InfoRow label="Time" value={`${appointment.time} · ${appointment.duration}`} />
-      <InfoRow label="Mode" value={appointment.mode} />
-      <InfoRow
-        label="Status"
-        value={
+          </DetailRow>
+        )}
+        <DetailRow label="Date">{appointment.date_formatted}</DetailRow>
+        <DetailRow label="Time">{`${appointment.time} · ${appointment.duration}`}</DetailRow>
+        <DetailRow label="Mode">{appointment.mode}</DetailRow>
+        <DetailRow label="Status">
           <div className="flex items-center gap-2">
             {appointment.notes && (
               <span className="text-body text-muted-foreground">{appointment.notes}</span>
@@ -648,9 +624,8 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
               {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
             </Badge>
           </div>
-        }
-        isLast
-      />
+        </DetailRow>
+      </div>
     </Section>
   );
 }
@@ -660,30 +635,27 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
 function VitalsSection({ vitals }: { vitals: Vital[] }) {
   return (
     <Section id="vitals" title="Vitals" icon={Heart}>
-      {vitals.map((v, i) => (
-        <div
-          key={v.label}
-          className="grid items-start px-4 py-4"
-          style={{ gridTemplateColumns: '130px 1fr', ...(i < vitals.length - 1 ? { borderBottom: '1px solid hsl(var(--border))' } : {}) }}
-        >
-          <span className="text-body text-muted-foreground pt-px">{v.label}</span>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-label">
-                {v.value}{v.unit ? ` ${v.unit}` : ''}
-              </span>
-              {v.status !== 'normal' && (
-                <Badge variant={v.status === 'elevated' ? 'danger' : 'warning'}>
-                  {v.status.charAt(0).toUpperCase() + v.status.slice(1)}
-                </Badge>
+      <div className="divide-y">
+        {vitals.map((v) => (
+          <DetailRow key={v.label} label={v.label}>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-label">
+                  {v.value}{v.unit ? ` ${v.unit}` : ''}
+                </span>
+                {v.status !== 'normal' && (
+                  <Badge variant={v.status === 'elevated' ? 'danger' : 'warning'}>
+                    {v.status.charAt(0).toUpperCase() + v.status.slice(1)}
+                  </Badge>
+                )}
+              </div>
+              {v.reference && (
+                <p className="text-body text-muted-foreground mt-0.5">Normal: {v.reference}</p>
               )}
             </div>
-            {v.reference && (
-              <p className="text-body text-muted-foreground mt-0.5">Normal: {v.reference}</p>
-            )}
-          </div>
-        </div>
-      ))}
+          </DetailRow>
+        ))}
+      </div>
     </Section>
   );
 }
@@ -695,7 +667,7 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
 
   return (
     <Section id="clinical" title="Clinical Summary" icon={FileText}>
-      <div className="p-4 space-y-4">
+      <div className="p-6 space-y-4">
         {/* Diagnosis */}
         {diagnosis && (
           <div className="rounded-lg bg-muted/50 p-4">
@@ -834,14 +806,9 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
       }
 
     >
-      {prescriptions.map((rx, i) => {
-        const isLast = i === prescriptions.length - 1;
-        return (
-          <div
-            key={i}
-            className="px-4 py-4"
-            style={isLast ? undefined : { borderBottom: '1px solid hsl(var(--border))' }}
-          >
+      <div className="divide-y">
+        {prescriptions.map((rx, i) => (
+          <div key={i} className="px-6 py-4">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-label">{rx.drug} {rx.strength}</p>
@@ -852,8 +819,8 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
               <span className="text-body text-muted-foreground shrink-0 ml-4">{rx.duration}</span>
             </div>
           </div>
-        );
-      })}
+        ))}
+      </div>
     </Section>
   );
 }
@@ -864,7 +831,7 @@ function LabTestsSection({ tests }: { tests: LabTest[] }) {
   if (tests.length === 0) {
     return (
       <Section id="lab-tests" title="Lab Tests" icon={FlaskConical}>
-        <div className="px-4 py-6 text-center">
+        <div className="px-6 py-6 text-center">
           <p className="text-label text-muted-foreground">No lab tests ordered for this appointment</p>
           <p className="text-body text-muted-foreground mt-0.5">Lab tests will appear here if ordered by your doctor.</p>
         </div>
@@ -887,33 +854,33 @@ function LabTestsSection({ tests }: { tests: LabTest[] }) {
         ) : undefined
       }
     >
-      {tests.map((t, i) => {
-        const isLast = i === tests.length - 1;
-        const canLink = t.status === 'completed' && t.health_record_id;
+      <div className="divide-y">
+        {tests.map((t, i) => {
+          const canLink = t.status === 'completed' && t.health_record_id;
 
-        const row = (
-          <div
-            key={i}
-            className={cn(
-              'flex items-center justify-between px-4 py-4',
-              canLink && 'cursor-pointer hover:bg-muted/50 transition-colors',
-            )}
-            style={isLast ? undefined : { borderBottom: '1px solid hsl(var(--border))' }}
-          >
-            <div>
-              <p className="text-label">{t.name}</p>
+          const row = (
+            <div
+              key={i}
+              className={cn(
+                'flex items-center justify-between px-6 py-4',
+                canLink && 'cursor-pointer hover:bg-muted/50 transition-colors',
+              )}
+            >
+              <div>
+                <p className="text-label">{t.name}</p>
+              </div>
+              <Badge variant={t.status === 'completed' ? 'neutral' : 'warning'}>
+                {t.status === 'completed' ? 'Completed' : 'Pending Test'}
+              </Badge>
             </div>
-            <Badge variant={t.status === 'completed' ? 'neutral' : 'warning'}>
-              {t.status === 'completed' ? 'Completed' : 'Pending Test'}
-            </Badge>
-          </div>
-        );
+          );
 
-        if (canLink) {
-          return <Link key={i} href={`/health-records/${t.health_record_id}`}>{row}</Link>;
-        }
-        return row;
-      })}
+          if (canLink) {
+            return <Link key={i} href={`/health-records/${t.health_record_id}`}>{row}</Link>;
+          }
+          return row;
+        })}
+      </div>
     </Section>
   );
 }
@@ -926,7 +893,7 @@ function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadIn
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
           <Icon icon={CreditCard} className="h-5 w-5 text-foreground" />
-          <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+          <h2 className="text-section-title text-foreground">
             Billing
           </h2>
         </div>
@@ -942,44 +909,33 @@ function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadIn
       </div>
 
       {/* Fee breakdown card */}
-      <Card className="overflow-hidden">
+      <Card className="divide-y">
         {billing.line_items.map((item, i) => (
-          <InfoRow
-            key={i}
-            label={item.label}
-            value={
-              <span className={item.amount < 0 ? 'text-success' : ''}>
-                {item.amount < 0 ? '-' : ''}₹{Math.abs(item.amount).toLocaleString()}
-              </span>
-            }
-          />
+          <DetailRow key={i} label={item.label}>
+            <span className={item.amount < 0 ? 'text-success' : ''}>
+              {item.amount < 0 ? '-' : ''}₹{Math.abs(item.amount).toLocaleString()}
+            </span>
+          </DetailRow>
         ))}
-        <div className="grid items-start px-4 py-4" style={{ gridTemplateColumns: '130px 1fr' }}>
-          <span className="text-card-title">Total</span>
+        <DetailRow label={<span className="text-card-title">Total</span>}>
           <span className="text-body font-bold text-right">₹{billing.total.toLocaleString()}</span>
-        </div>
+        </DetailRow>
       </Card>
 
       {/* Payment details card */}
-      <Card className="overflow-hidden">
-        <div
-          className="px-4 py-3"
-          style={{ borderBottom: '1px solid hsl(var(--border))', backgroundColor: 'hsl(var(--muted))' }}
-        >
+      <Card className="divide-y">
+        <div className="px-6 py-3 bg-muted">
           <span className="text-label text-muted-foreground">Payment details</span>
         </div>
-        <InfoRow
-          label="Status"
-          value={
-            <Badge variant={billing.payment_status === 'paid' ? 'success' : billing.payment_status === 'pending' ? 'warning' : 'danger'}>
-              {billing.payment_status.replace('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
-            </Badge>
-          }
-        />
-        <InfoRow label="Method" value={billing.payment_method} />
-        <InfoRow label="Invoice" value={<span className="font-mono">{billing.invoice_number}</span>} />
-        <InfoRow label="Paid on" value={billing.payment_date} />
-        <div className="px-4 py-3 flex items-center gap-4">
+        <DetailRow label="Status">
+          <Badge variant={billing.payment_status === 'paid' ? 'success' : billing.payment_status === 'pending' ? 'warning' : 'danger'}>
+            {billing.payment_status.replace('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+          </Badge>
+        </DetailRow>
+        <DetailRow label="Method">{billing.payment_method}</DetailRow>
+        <DetailRow label="Invoice"><span className="font-mono">{billing.invoice_number}</span></DetailRow>
+        <DetailRow label="Paid on">{billing.payment_date}</DetailRow>
+        <div className="px-6 py-3 flex items-center gap-4">
           <Link href={`/billing/${appointmentId}`} className="text-label text-primary hover:underline flex items-center gap-1">
             View Full Bill
             <ChevronRight className="h-3.5 w-3.5" />
@@ -1038,15 +994,13 @@ function DocumentsSection({ documents }: { documents: AppDocument[] }) {
         </Button>
       }
     >
-      {documents.map((doc, i) => {
-        const isLast = i === documents.length - 1;
-        return (
+      <div className="divide-y">
+        {documents.map((doc, i) => (
           <Button
             key={i}
             variant="ghost"
             onClick={() => handleDownloadOne(doc)}
-            className="w-full flex items-center justify-between px-4 py-4 h-auto rounded-none hover:bg-muted/30 transition-colors text-left"
-            style={isLast ? undefined : { borderBottom: '1px solid hsl(var(--border))' }}
+            className="w-full flex items-center justify-between px-6 py-4 h-auto rounded-none hover:bg-muted/30 transition-colors text-left"
           >
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-icon-bg flex items-center justify-center flex-shrink-0">
@@ -1061,8 +1015,8 @@ function DocumentsSection({ documents }: { documents: AppDocument[] }) {
             </div>
             <Download className="h-4 w-4 text-foreground" />
           </Button>
-        );
-      })}
+        ))}
+      </div>
     </Section>
   );
 }
@@ -1086,7 +1040,7 @@ function ActivitySection({ activity }: { activity: ActivityItem[] }) {
 
   return (
     <Section id="activity" title="Activity Log" icon={Activity}>
-      <div className="px-5 py-5">
+      <div className="px-6 py-6">
         <div>
           {activity.map((item, i) => {
             const isLast = i === activity.length - 1;

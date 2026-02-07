@@ -51,6 +51,7 @@ import {
   MoreVertical,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { DetailSection } from '@/Components/ui/detail-section';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -205,34 +206,6 @@ function MemberSideNav({ isGuest }: { isGuest: boolean }) {
       activeId={activeSection}
       onSelect={scrollTo}
     />
-  );
-}
-
-/* ─── Section Component ─── */
-
-function Section({
-  id,
-  title,
-  icon: SectionIcon,
-  children,
-  noPadding,
-}: {
-  id: string;
-  title: string;
-  icon: React.ElementType;
-  children: React.ReactNode;
-  noPadding?: boolean;
-}) {
-  return (
-    <div id={id} className="scroll-mt-24">
-      <div className="flex items-center gap-2.5 mb-4">
-        <Icon icon={SectionIcon} className="h-5 w-5 text-foreground" />
-        <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
-          {title}
-        </h2>
-      </div>
-      <Card className={noPadding ? '' : 'p-6'}>{children}</Card>
-    </div>
   );
 }
 
@@ -704,7 +677,7 @@ export default function FamilyMemberShow({
             <div id="personal" className="scroll-mt-24">
               <div className="flex items-center gap-2.5 mb-4">
                 <Icon icon={User} className="h-5 w-5 text-foreground" />
-                <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+                <h2 className="text-section-title text-foreground">
                   Personal Information
                 </h2>
               </div>
@@ -741,7 +714,7 @@ export default function FamilyMemberShow({
             <div id="contact" className="scroll-mt-24">
               <div className="flex items-center gap-2.5 mb-4">
                 <Icon icon={Phone} className="h-5 w-5 text-foreground" />
-                <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+                <h2 className="text-section-title text-foreground">
                   Contact & Address
                 </h2>
               </div>
@@ -768,7 +741,7 @@ export default function FamilyMemberShow({
               <div id="health-info" className="scroll-mt-24">
                 <div className="flex items-center gap-2.5 mb-4">
                   <Icon icon={Heart} className="h-5 w-5 text-foreground" />
-                  <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+                  <h2 className="text-section-title text-foreground">
                     Health Information
                   </h2>
                 </div>
@@ -816,7 +789,7 @@ export default function FamilyMemberShow({
               <div id="emergency" className="scroll-mt-24">
                 <div className="flex items-center gap-2.5 mb-4">
                   <Icon icon={Phone} className="h-5 w-5 text-foreground" />
-                  <h2 className="font-semibold" style={{ color: 'hsl(var(--foreground))', fontSize: '20px', lineHeight: '28px', letterSpacing: '0' }}>
+                  <h2 className="text-section-title text-foreground">
                     Emergency Contact
                   </h2>
                 </div>
@@ -859,7 +832,7 @@ export default function FamilyMemberShow({
 
             {/* Health Data Links Section - Hidden for guests */}
             {!member.is_guest && (
-              <Section id="health" title="Health Data" icon={Activity} noPadding>
+              <DetailSection id="health" title="Health Data" icon={Activity} noPadding>
                 <div className="divide-y">
                   {healthDataLinks.map((link, i) => (
                     <Button
@@ -889,7 +862,7 @@ export default function FamilyMemberShow({
                     </Button>
                   ))}
                 </div>
-              </Section>
+              </DetailSection>
             )}
           </div>
         </div>

@@ -6,6 +6,8 @@ import { Alert } from '@/Components/ui/alert';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Card } from '@/Components/ui/card';
+import { DetailRow } from '@/Components/ui/detail-row';
+import { DetailSection } from '@/Components/ui/detail-section';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -255,49 +257,11 @@ function BillingSideNav({ hasEmi, hasDispute, hasPayment }: { hasEmi: boolean; h
   );
 }
 
-/* ─── Section Component ─── */
-
-function Section({
-  id,
-  title,
-  icon: SectionIcon,
-  children,
-}: {
-  id: string;
-  title: string;
-  icon: React.ElementType;
-  children: React.ReactNode;
-}) {
-  return (
-    <div id={id} className="scroll-mt-24">
-      <div className="flex items-center gap-2.5 mb-4">
-        <Icon icon={SectionIcon} className="h-5 w-5 text-foreground" />
-        <h2 className="text-section-title text-foreground">
-          {title}
-        </h2>
-      </div>
-      <Card className="overflow-hidden">{children}</Card>
-    </div>
-  );
-}
-
 /* ─── Helpers ─── */
 
 function StatusBadge({ status }: { status: BillingStatus }) {
   const cfg = STATUS_CONFIG[status];
   return <Badge variant={cfg.variant}>{cfg.label}</Badge>;
-}
-
-function InfoRow({ label, value, isLast }: { label: React.ReactNode; value: React.ReactNode; isLast?: boolean }) {
-  return (
-    <div
-      className="grid items-start px-4 py-4"
-      style={{ gridTemplateColumns: '130px 1fr', ...(isLast ? {} : { borderBottom: '1px solid hsl(var(--border))' }) }}
-    >
-      <span className="text-body text-muted-foreground pt-px">{label}</span>
-      <span className="text-label">{value}</span>
-    </div>
-  );
 }
 
 /* ─── Status Alert Banner (embedded in header) ─── */
@@ -799,98 +763,87 @@ export default function Show({ user, bill }: Props) {
           <div className="flex-1 min-w-0 space-y-12 pb-12">
 
             {/* ─── Invoice Section ─── */}
-            <Section id="invoice" title="Invoice" icon={FileText}>
-              <div
-                className="px-4 py-4"
-                style={{ borderBottom: '1px solid hsl(var(--border))' }}
-              >
-                <p className="text-card-title text-foreground">HealthFirst Hospital</p>
-                <p className="text-body text-muted-foreground mt-0.5">123 Hospital Road, Pune 411001 &middot; GSTIN: 27AABCH1234P1ZP</p>
-              </div>
-              <InfoRow label="Invoice date" value={bill.generated_date} />
-              <InfoRow label="Reference" value={<span className="font-mono">{bill.reference_number}</span>} />
-              {bill.due_date && (
-                <InfoRow
-                  label="Due date"
-                  value={
+            <DetailSection id="invoice" title="Invoice" icon={FileText} noPadding>
+              <div className="divide-y">
+                <div className="px-6 py-4">
+                  <p className="text-card-title text-foreground">HealthFirst Hospital</p>
+                  <p className="text-body text-muted-foreground mt-0.5">123 Hospital Road, Pune 411001 &middot; GSTIN: 27AABCH1234P1ZP</p>
+                </div>
+                <DetailRow label="Invoice date">{bill.generated_date}</DetailRow>
+                <DetailRow label="Reference"><span className="font-mono">{bill.reference_number}</span></DetailRow>
+                {bill.due_date && (
+                  <DetailRow label="Due date">
                     <span className={`flex items-center gap-2 ${bill.is_overdue ? 'text-destructive' : ''}`}>
                       {bill.due_date}
                       {bill.is_overdue && (
                         <Badge variant="danger">{bill.days_overdue}d overdue</Badge>
                       )}
                     </span>
-                  }
-                />
-              )}
-              <InfoRow label="Patient" value={bill.patient_name} />
-              <InfoRow
-                label="Service"
-                value={
+                  </DetailRow>
+                )}
+                <DetailRow label="Patient">{bill.patient_name}</DetailRow>
+                <DetailRow label="Service">
                   <span className="flex items-center gap-2">
                     <span className="h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'hsl(var(--primary) / 0.2)' }}>
                       {isDoctor ? <Stethoscope className="h-2.5 w-2.5" style={{ color: 'hsl(var(--primary))' }} /> : <TestTube2 className="h-2.5 w-2.5" style={{ color: 'hsl(var(--primary))' }} />}
                     </span>
                     {bill.appointment_title}
                   </span>
-                }
-              />
-              {bill.doctor_name && (
-                <InfoRow
-                  label="Doctor"
-                  value={
+                </DetailRow>
+                {bill.doctor_name && (
+                  <DetailRow label="Doctor">
                     <>
                       {bill.doctor_name}
                       {bill.doctor_specialization && <span className="text-muted-foreground font-normal"> &middot; {bill.doctor_specialization}</span>}
                     </>
-                  }
-                />
-              )}
-              <InfoRow
-                label="Date of service"
-                value={<>{bill.service_date}<span className="text-muted-foreground font-normal"> &middot; {bill.appointment_mode}</span></>}
-                isLast
-              />
-            </Section>
+                  </DetailRow>
+                )}
+                <DetailRow label="Date of service">
+                  <>{bill.service_date}<span className="text-muted-foreground font-normal"> &middot; {bill.appointment_mode}</span></>
+                </DetailRow>
+              </div>
+            </DetailSection>
 
             {/* ─── Charges Section ─── */}
-            <Section id="charges" title="Charges" icon={Receipt}>
-              <div style={{ borderBottom: '1px solid hsl(var(--border))' }}>
-                <table className="w-full text-body">
-                  <thead>
-                    <tr style={{ backgroundColor: 'hsl(var(--muted))' }}>
-                      <th className="text-left font-medium text-muted-foreground pl-4 pr-2 py-3">Item</th>
-                      <th className="text-center font-medium text-muted-foreground px-2 py-3 w-16">Qty</th>
-                      <th className="text-right font-medium text-muted-foreground px-2 py-3 w-24">Unit Price</th>
-                      <th className="text-right font-medium text-muted-foreground pl-2 pr-4 py-3 w-24">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bill.line_items.map((item, i) => (
-                      <tr key={i} className="border-b last:border-b-0">
-                        <td className="pl-4 pr-2 py-3">{item.label}</td>
-                        <td className="text-center px-2 py-3 text-muted-foreground">{item.qty}</td>
-                        <td className="text-right px-2 py-3 text-muted-foreground">₹{item.unit_price.toLocaleString()}</td>
-                        <td className="text-right pl-2 pr-4 py-3">₹{item.total.toLocaleString()}</td>
+            <DetailSection id="charges" title="Charges" icon={Receipt} noPadding>
+              <div className="divide-y">
+                <div className="border-b border-border">
+                  <table className="w-full text-body">
+                    <thead>
+                      <tr className="bg-muted">
+                        <th className="text-left font-medium text-muted-foreground pl-6 pr-2 py-3">Item</th>
+                        <th className="text-center font-medium text-muted-foreground px-2 py-3 w-16">Qty</th>
+                        <th className="text-right font-medium text-muted-foreground px-2 py-3 w-24">Unit Price</th>
+                        <th className="text-right font-medium text-muted-foreground pl-2 pr-6 py-3 w-24">Total</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {bill.line_items.map((item, i) => (
+                        <tr key={i} className="border-b last:border-b-0">
+                          <td className="pl-6 pr-2 py-3">{item.label}</td>
+                          <td className="text-center px-2 py-3 text-muted-foreground">{item.qty}</td>
+                          <td className="text-right px-2 py-3 text-muted-foreground">₹{item.unit_price.toLocaleString()}</td>
+                          <td className="text-right pl-2 pr-6 py-3">₹{item.total.toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <DetailRow label="Subtotal">{`₹${bill.subtotal.toLocaleString()}`}</DetailRow>
+                {bill.discount > 0 && (
+                  <DetailRow label="Discount"><span className="text-success">-₹{bill.discount.toLocaleString()}</span></DetailRow>
+                )}
+                {bill.tax > 0 && (
+                  <DetailRow label="Tax">{`₹${bill.tax.toLocaleString()}`}</DetailRow>
+                )}
+                {bill.insurance_deduction > 0 && (
+                  <DetailRow label="Insurance coverage"><span className="text-success">-₹{bill.insurance_deduction.toLocaleString()}</span></DetailRow>
+                )}
+                <DetailRow label={<span className="text-card-title">{isPayable ? 'Amount due' : 'Amount paid'}</span>}>
+                  <span className="text-subheading text-right text-foreground">₹{bill.total.toLocaleString()}</span>
+                </DetailRow>
               </div>
-              <InfoRow label="Subtotal" value={`₹${bill.subtotal.toLocaleString()}`} />
-              {bill.discount > 0 && (
-                <InfoRow label="Discount" value={<span className="text-success">-₹{bill.discount.toLocaleString()}</span>} />
-              )}
-              {bill.tax > 0 && (
-                <InfoRow label="Tax" value={`₹${bill.tax.toLocaleString()}`} />
-              )}
-              {bill.insurance_deduction > 0 && (
-                <InfoRow label="Insurance coverage" value={<span className="text-success">-₹{bill.insurance_deduction.toLocaleString()}</span>} />
-              )}
-              <div className="grid items-start px-4 py-4" style={{ gridTemplateColumns: '130px 1fr' }}>
-                <span className="text-card-title">{isPayable ? 'Amount due' : 'Amount paid'}</span>
-                <span className="text-subheading text-right text-foreground">₹{bill.total.toLocaleString()}</span>
-              </div>
-            </Section>
+            </DetailSection>
 
             {/* ─── Payment & Insurance Section ─── */}
             {(bill.payment_info || bill.insurance_details) && (
@@ -902,47 +855,37 @@ export default function Show({ user, bill }: Props) {
                   </h2>
                 </div>
                 {bill.payment_info && (
-                  <Card className="overflow-hidden">
-                    <InfoRow label="Payment method" value={bill.payment_info.method} />
-                    <InfoRow label="Paid on" value={bill.payment_info.paid_at} />
-                    <InfoRow label="Transaction ID" value={<span className="font-mono">{bill.payment_info.transaction_id}</span>} />
-                    <InfoRow
-                      label="Receipt number"
-                      value={<span className="font-mono">{bill.payment_info.receipt_number}</span>}
-                      isLast
-                    />
+                  <Card className="divide-y">
+                    <DetailRow label="Payment method">{bill.payment_info.method}</DetailRow>
+                    <DetailRow label="Paid on">{bill.payment_info.paid_at}</DetailRow>
+                    <DetailRow label="Transaction ID"><span className="font-mono">{bill.payment_info.transaction_id}</span></DetailRow>
+                    <DetailRow label="Receipt number"><span className="font-mono">{bill.payment_info.receipt_number}</span></DetailRow>
                   </Card>
                 )}
                 {bill.insurance_details && (
-                  <Card className="overflow-hidden">
-                    <div
-                      className="px-4 py-3"
-                      style={{ borderBottom: '1px solid hsl(var(--border))', backgroundColor: 'hsl(var(--muted))' }}
-                    >
+                  <Card className="divide-y">
+                    <div className="px-6 py-3 bg-muted">
                       <p className="text-label text-muted-foreground">Insurance</p>
                     </div>
-                    <InfoRow label="Provider" value={bill.insurance_details.provider_name} />
-                    <InfoRow label="Policy number" value={<span className="font-mono">{bill.insurance_details.policy_number}</span>} />
-                    <InfoRow
-                      label="Claim"
-                      value={
-                        <span className="flex items-center gap-2">
-                          <span className="font-mono">{bill.insurance_details.claim_id}</span>
-                          <Badge variant={
-                            bill.insurance_details.claim_status === 'Approved' || bill.insurance_details.claim_status === 'Reimbursed'
-                              ? 'success' : 'warning'
-                          }>
-                            {bill.insurance_details.claim_status}
-                          </Badge>
-                        </span>
-                      }
-                    />
-                    <InfoRow label="Covered amount" value={<span className="text-success font-medium">₹{bill.insurance_details.covered_amount.toLocaleString()}</span>} isLast={bill.insurance_details.copay_amount <= 0 && !bill.insurance_details.insurance_claim_id} />
+                    <DetailRow label="Provider">{bill.insurance_details.provider_name}</DetailRow>
+                    <DetailRow label="Policy number"><span className="font-mono">{bill.insurance_details.policy_number}</span></DetailRow>
+                    <DetailRow label="Claim">
+                      <span className="flex items-center gap-2">
+                        <span className="font-mono">{bill.insurance_details.claim_id}</span>
+                        <Badge variant={
+                          bill.insurance_details.claim_status === 'Approved' || bill.insurance_details.claim_status === 'Reimbursed'
+                            ? 'success' : 'warning'
+                        }>
+                          {bill.insurance_details.claim_status}
+                        </Badge>
+                      </span>
+                    </DetailRow>
+                    <DetailRow label="Covered amount"><span className="text-success font-medium">₹{bill.insurance_details.covered_amount.toLocaleString()}</span></DetailRow>
                     {bill.insurance_details.copay_amount > 0 && (
-                      <InfoRow label="Co-pay" value={<span className="text-destructive font-medium">₹{bill.insurance_details.copay_amount.toLocaleString()}</span>} isLast={!bill.insurance_details.insurance_claim_id} />
+                      <DetailRow label="Co-pay"><span className="text-destructive font-medium">₹{bill.insurance_details.copay_amount.toLocaleString()}</span></DetailRow>
                     )}
                     {bill.insurance_details.insurance_claim_id && (
-                      <div className="px-4 py-4">
+                      <div className="px-6 py-4">
                         <Button
                           variant="link"
                           size="sm"
@@ -962,29 +905,27 @@ export default function Show({ user, bill }: Props) {
 
             {/* ─── EMI Section ─── */}
             {bill.emi_details && (
-              <Section id="emi" title="EMI Plan" icon={IndianRupee}>
-                <InfoRow
-                  label="Monthly payment"
-                  value={`₹${bill.emi_details.monthly_amount.toLocaleString()}/month for ${bill.emi_details.plan_months} months`}
-                />
-                <div
-                  className="px-4 py-4"
-                  style={{ borderBottom: '1px solid hsl(var(--border))' }}
-                >
-                  <div className="flex justify-between text-body text-muted-foreground mb-1.5">
-                    <span>{bill.emi_details.paid_installments} of {bill.emi_details.total_installments} paid</span>
-                    <span>{Math.round((bill.emi_details.paid_installments / bill.emi_details.total_installments) * 100)}%</span>
+              <DetailSection id="emi" title="EMI Plan" icon={IndianRupee} noPadding>
+                <div className="divide-y">
+                  <DetailRow label="Monthly payment">
+                    {`₹${bill.emi_details.monthly_amount.toLocaleString()}/month for ${bill.emi_details.plan_months} months`}
+                  </DetailRow>
+                  <div className="px-6 py-4">
+                    <div className="flex justify-between text-body text-muted-foreground mb-1.5">
+                      <span>{bill.emi_details.paid_installments} of {bill.emi_details.total_installments} paid</span>
+                      <span>{Math.round((bill.emi_details.paid_installments / bill.emi_details.total_installments) * 100)}%</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-primary transition-all"
+                        style={{ width: `${(bill.emi_details.paid_installments / bill.emi_details.total_installments) * 100}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="h-2 rounded-full bg-muted overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-primary transition-all"
-                      style={{ width: `${(bill.emi_details.paid_installments / bill.emi_details.total_installments) * 100}%` }}
-                    />
-                  </div>
+                  <DetailRow label="Next due"><span className="text-warning font-medium">{bill.emi_details.next_due_date}</span></DetailRow>
+                  <DetailRow label="Remaining balance"><span className="text-destructive font-medium">₹{bill.emi_details.remaining_balance.toLocaleString()}</span></DetailRow>
                 </div>
-                <InfoRow label="Next due" value={<span className="text-warning font-medium">{bill.emi_details.next_due_date}</span>} />
-                <InfoRow label="Remaining balance" value={<span className="text-destructive font-medium">₹{bill.emi_details.remaining_balance.toLocaleString()}</span>} isLast />
-              </Section>
+              </DetailSection>
             )}
 
             {/* ─── Dispute Section ─── */}
