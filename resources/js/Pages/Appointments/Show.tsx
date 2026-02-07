@@ -1049,8 +1049,8 @@ function DocumentsSection({ documents }: { documents: AppDocument[] }) {
             style={isLast ? undefined : { borderBottom: '1px solid hsl(var(--border))' }}
           >
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <FileText className="h-5 w-5 text-primary" />
+              <div className="h-10 w-10 rounded-full bg-icon-bg flex items-center justify-center flex-shrink-0">
+                <FileText className="h-5 w-5 text-icon" />
               </div>
               <div>
                 <p className="text-label">{doc.name}</p>

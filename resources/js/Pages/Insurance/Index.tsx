@@ -469,10 +469,7 @@ export default function InsuranceIndex({
                         </TableCell>
                         <TableCell className="align-top">
                           <div className="flex items-center gap-2.5">
-                            <div
-                              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-card-title"
-                              style={{ backgroundColor: 'hsl(var(--primary) / 0.2)', color: 'hsl(var(--primary))' }}
-                            >
+                            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-card-title bg-icon-bg text-icon">
                               {getProviderInitials(policy.provider_name)}
                             </div>
                             <div>
@@ -613,11 +610,8 @@ export default function InsuranceIndex({
                           </TableCell>
                           <TableCell className="align-top">
                             <div className="flex items-center gap-2.5">
-                              <div
-                                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full"
-                                style={{ backgroundColor: 'hsl(var(--primary) / 0.2)' }}
-                              >
-                                <Building2 className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />
+                              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-icon-bg">
+                                <Building2 className="h-5 w-5 text-icon" />
                               </div>
                               <div>
                                 <p className="text-label text-foreground">

@@ -61,7 +61,7 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled, isLast }
             </div>
             <ChevronDown
                 className={cn(
-                    'h-5 w-5 shrink-0 text-neutral-900 transition-transform duration-200',
+                    'h-5 w-5 shrink-0 text-foreground transition-transform duration-200',
                     isExpanded && 'rotate-180 text-primary'
                 )}
             />

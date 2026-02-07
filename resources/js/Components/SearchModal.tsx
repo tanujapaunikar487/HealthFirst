@@ -285,7 +285,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
 
         {/* Search Input */}
         <div className="flex items-center gap-2 px-4" style={{ borderBottom: '1px solid hsl(var(--border))', height: '56px' }}>
-          <Icon icon={Search} className="h-5 w-5 flex-shrink-0 text-neutral-900" />
+          <Icon icon={Search} className="h-5 w-5 flex-shrink-0 text-foreground" />
 
           {/* Category Tag */}
           {category !== 'all' && (
@@ -315,7 +315,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
             style={{ boxShadow: 'none' }}
             autoComplete="off"
           />
-          {loading && <Icon icon={Loader2} className="h-4 w-4 animate-spin text-neutral-900 flex-shrink-0" />}
+          {loading && <Icon icon={Loader2} className="h-4 w-4 animate-spin text-foreground flex-shrink-0" />}
           {/* Clear and Close buttons */}
           <div className="flex items-center gap-3 flex-shrink-0">
             {/* Clear Button - text only, clears query */}

@@ -572,8 +572,8 @@ export function EmbeddedComponent({
           )}
           {selectorDoctors.length === 0 ? (
             <div className="p-6 text-center rounded-xl border border-dashed">
-              <p className="font-medium text-gray-900">No doctors available on this date</p>
-              <p className="text-body text-gray-500 mt-1">Some doctors don't work on certain days. Try a different date.</p>
+              <p className="font-medium text-foreground">No doctors available on this date</p>
+              <p className="text-body text-muted-foreground mt-1">Some doctors don't work on certain days. Try a different date.</p>
             </div>
           ) : (
             <EmbeddedDoctorList
@@ -646,14 +646,14 @@ export function EmbeddedComponent({
                 {/* Doctors heading */}
                 <div>
                   <h3 className="text-lg font-semibold">{filteredDoctors.length} doctor{filteredDoctors.length !== 1 ? 's' : ''} available</h3>
-                  <p className="text-body text-gray-500">{data?.doctors_subtitle}</p>
+                  <p className="text-body text-muted-foreground">{data?.doctors_subtitle}</p>
                 </div>
 
                 {/* Doctor list */}
                 {filteredDoctors.length === 0 ? (
                   <div className="p-6 text-center rounded-xl border border-dashed">
-                    <p className="font-medium text-gray-900">No doctors available on this date</p>
-                    <p className="text-body text-gray-500 mt-1">Try selecting a different date above</p>
+                    <p className="font-medium text-foreground">No doctors available on this date</p>
+                    <p className="text-body text-muted-foreground mt-1">Try selecting a different date above</p>
                   </div>
                 ) : (
                   <EmbeddedDoctorList
@@ -925,7 +925,7 @@ function UrgencySelector({ levels, selected, onSelect, disabled }: any) {
       case 'specific_date':
         return 'bg-blue-500';
       default:
-        return 'bg-gray-400';
+        return 'bg-muted-foreground';
     }
   };
 
@@ -968,14 +968,14 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
         <Button variant="secondary" size="sm" className="rounded-lg gap-2 text-body">
           Recommended <ChevronDown className="w-4 h-4" />
         </Button>
-        <div className="flex-1 flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg">
-          <Search className="w-4 h-4 text-neutral-900" />
+        <div className="flex-1 flex items-center gap-2 px-3 py-2 border border-border rounded-lg">
+          <Search className="w-4 h-4 text-foreground" />
           <input
             type="text"
             placeholder="Search patient, doctor, date"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 text-body bg-transparent border-0 outline-none placeholder:text-gray-400"
+            className="flex-1 text-body bg-transparent border-0 outline-none placeholder:text-placeholder"
           />
         </div>
       </div>
@@ -989,7 +989,7 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
               'p-4 rounded-2xl border transition-all',
               selectedDoctorId === doctor.id
                 ? 'border-[#0052FF] bg-blue-50'
-                : 'border-gray-200 bg-white'
+                : 'border-border bg-background'
             )}
           >
             {/* Doctor info */}
@@ -1002,8 +1002,8 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <div className="text-card-title text-[#171717]">{doctor.name}</div>
-                  <div className="text-body text-gray-600">{doctor.specialty} • {doctor.experience}</div>
+                  <div className="text-card-title text-foreground">{doctor.name}</div>
+                  <div className="text-body text-muted-foreground">{doctor.specialty} • {doctor.experience}</div>
                 </div>
               </div>
               <div className="flex items-start gap-2 flex-shrink-0">
@@ -1014,9 +1014,9 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
                   <Badge variant="success">In-hospital</Badge>
                 )}
                 <div className="text-right">
-                  <div className="text-card-title text-[#171717]">₹{doctor.fees?.video || doctor.fees}</div>
+                  <div className="text-card-title text-foreground">₹{doctor.fees?.video || doctor.fees}</div>
                   {doctor.fees?.in_person && doctor.fees.in_person !== doctor.fees.video && (
-                    <div className="text-body text-gray-500">/ {doctor.fees.in_person}</div>
+                    <div className="text-body text-muted-foreground">/ {doctor.fees.in_person}</div>
                   )}
                 </div>
               </div>
@@ -1087,14 +1087,14 @@ function ConsultationModeSelector({ modes, selected, onSelect, disabled }: any) 
 function BookingSummary({ summary, onPay, disabled }: any) {
   return (
     <div className="space-y-6 max-w-2xl">
-      <div className="bg-white border border-gray-200 rounded-2xl p-5">
+      <div className="bg-background border border-border rounded-2xl p-5">
         <div className="space-y-4">
           {Object.entries(summary || {}).map(([key, value]: [string, any]) => {
             if (key === 'consultation_fee' || key === 'total') return null;
 
             return (
               <div key={key} className="flex items-center justify-between">
-                <span className="text-body text-gray-600 capitalize">{key.replace(/_/g, ' ')}</span>
+                <span className="text-body text-muted-foreground capitalize">{key.replace(/_/g, ' ')}</span>
                 <div className="flex items-center gap-2">
                   {value.avatar && (
                     <Avatar className="w-6 h-6">
@@ -1102,7 +1102,7 @@ function BookingSummary({ summary, onPay, disabled }: any) {
                       <AvatarFallback className="text-body">{value.label?.[0]}</AvatarFallback>
                     </Avatar>
                   )}
-                  <span className="text-card-title text-[#171717]">{value.label || String(value)}</span>
+                  <span className="text-card-title text-foreground">{value.label || String(value)}</span>
                   <Button variant="link" size="sm" className="h-auto p-0 text-body">Change</Button>
                 </div>
               </div>
@@ -1110,8 +1110,8 @@ function BookingSummary({ summary, onPay, disabled }: any) {
           })}
           {(summary?.consultation_fee || summary?.total) && (
             <div className="flex items-center justify-between pt-2 border-t">
-              <span className="text-label text-gray-600">Appointment Fee</span>
-              <span className="text-card-title text-[#171717]">
+              <span className="text-label text-muted-foreground">Appointment Fee</span>
+              <span className="text-card-title text-foreground">
                 ₹{summary.consultation_fee || summary.total}
               </span>
             </div>
@@ -1398,7 +1398,7 @@ function ActionList({ actions, onSelect, disabled }: any) {
               <div className="text-body text-muted-foreground">{action.description}</div>
             )}
           </div>
-          <svg className="w-5 h-5 text-neutral-900 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-foreground flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </Button>
@@ -1440,7 +1440,7 @@ function InfoLinks({ links, onSelect, disabled }: any) {
             <div className="font-semibold text-foreground mb-1">{link.title}</div>
             <div className="text-body text-muted-foreground">{link.description}</div>
           </div>
-          <svg className="w-5 h-5 text-neutral-900 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-foreground flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </Button>
@@ -1494,15 +1494,15 @@ function ScheduleConflict({ existing, newAppointment, onSelect, disabled }: any)
         You already have an appointment at this time.
       </Alert>
 
-      <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200">
-        <p className="text-card-title text-gray-500 uppercase mb-2">Existing Appointment</p>
+      <div className="bg-muted rounded-2xl p-4 border border-border">
+        <p className="text-card-title text-muted-foreground uppercase mb-2">Existing Appointment</p>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
             <span className="text-orange-600 font-bold text-lg">D</span>
           </div>
           <div>
-            <p className="font-semibold text-gray-900">{existing?.doctor}</p>
-            <p className="text-body text-gray-600">
+            <p className="font-semibold text-foreground">{existing?.doctor}</p>
+            <p className="text-body text-muted-foreground">
               {existing?.date && new Date(existing.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • {existing?.time}
             </p>
           </div>
@@ -1516,8 +1516,8 @@ function ScheduleConflict({ existing, newAppointment, onSelect, disabled }: any)
             <span className="text-primary font-bold text-lg">D</span>
           </div>
           <div>
-            <p className="font-semibold text-gray-900">{newAppointment?.doctor}</p>
-            <p className="text-body text-gray-600">
+            <p className="font-semibold text-foreground">{newAppointment?.doctor}</p>
+            <p className="text-body text-muted-foreground">
               {newAppointment?.date && new Date(newAppointment.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • {newAppointment?.time}
             </p>
           </div>
@@ -1648,7 +1648,7 @@ function TextInputComponent({
           }}
           placeholder={placeholder}
           disabled={disabled}
-          className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 px-4 py-3 border border-border rounded-xl focus:border-primary focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
         />
         <Button
           variant="primary"

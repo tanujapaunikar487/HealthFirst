@@ -525,14 +525,11 @@ function AppointmentsTable({
               </TableCell>
               <TableCell className="align-top">
                 <div className="flex items-center gap-2.5">
-                  <div
-                    className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: 'hsl(var(--primary) / 0.2)' }}
-                  >
+                  <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-icon-bg">
                     {appt.type === 'doctor' ? (
-                      <Icon icon={Stethoscope} className="h-5 w-5 text-primary" />
+                      <Icon icon={Stethoscope} className="h-5 w-5 text-icon" />
                     ) : (
-                      <Icon icon={TestTube2} className="h-5 w-5 text-primary" />
+                      <Icon icon={TestTube2} className="h-5 w-5 text-icon" />
                     )}
                   </div>
                   <div>

@@ -41,11 +41,11 @@ export function ThinkingIndicator({ steps = [], className }: ThinkingIndicatorPr
   return (
     <div className={cn('space-y-1.5', className)}>
       {/* Header */}
-      <div className="flex items-center gap-2 text-body text-gray-500">
+      <div className="flex items-center gap-2 text-body text-muted-foreground">
         <svg
           className={cn(
             'w-3.5 h-3.5',
-            isComplete ? 'text-blue-500' : 'text-gray-400 animate-spin'
+            isComplete ? 'text-blue-500' : 'text-placeholder animate-spin'
           )}
           fill="none"
           viewBox="0 0 24 24"
@@ -84,7 +84,7 @@ export function ThinkingIndicator({ steps = [], className }: ThinkingIndicatorPr
           <div
             key={index}
             className={cn(
-              'flex items-start gap-2 text-body text-gray-600 animate-in fade-in-50 slide-in-from-left-2',
+              'flex items-start gap-2 text-body text-muted-foreground animate-in fade-in-50 slide-in-from-left-2',
               'transition-opacity duration-200'
             )}
             style={{
@@ -100,11 +100,11 @@ export function ThinkingIndicator({ steps = [], className }: ThinkingIndicatorPr
 
       {/* Progress indicator when not complete */}
       {!isComplete && visibleSteps > 0 && (
-        <div className="ml-5 flex items-center gap-1.5 text-body text-gray-400">
+        <div className="ml-5 flex items-center gap-1.5 text-body text-placeholder">
           <div className="flex gap-0.5">
-            <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-            <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-            <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+            <span className="w-1 h-1 bg-placeholder rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+            <span className="w-1 h-1 bg-placeholder rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+            <span className="w-1 h-1 bg-placeholder rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
         </div>
       )}

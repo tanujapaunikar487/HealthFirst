@@ -331,27 +331,27 @@ interface Props {
 
 /* ─── Category Config ─── */
 
-const categoryConfig: Record<string, { label: string; icon: React.ComponentType<any>; color: string; bg: string }> = {
-  lab_report:         { label: 'Lab Report',   icon: TestTube2,      color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  xray_report:        { label: 'X-Ray',        icon: ScanLine,       color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  mri_report:         { label: 'MRI',          icon: BrainCircuit,   color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  ultrasound_report:  { label: 'Ultrasound',   icon: Radio,          color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  ecg_report:         { label: 'ECG',          icon: HeartPulse,     color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  pathology_report:   { label: 'Pathology',    icon: Microscope,     color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  pft_report:         { label: 'PFT',          icon: Wind,           color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  other_report:       { label: 'Other Report', icon: ClipboardList,  color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  consultation_notes: { label: 'Consultation', icon: Stethoscope,    color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  procedure_notes:    { label: 'Procedure',    icon: Syringe,        color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  discharge_summary:  { label: 'Discharge',    icon: FileText,       color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  er_visit:           { label: 'ER Visit',     icon: Ambulance,      color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  referral:           { label: 'Referral',     icon: UserPlus,       color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  other_visit:        { label: 'Other Visit',  icon: ClipboardCheck, color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  prescription:       { label: 'Prescription', icon: Pill,           color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  medication_active:  { label: 'Active Med',   icon: Pill,           color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  medication_past:    { label: 'Past Med',     icon: Archive,        color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  vaccination:        { label: 'Vaccination',  icon: Syringe,        color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  medical_certificate:{ label: 'Certificate',  icon: Award,          color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  invoice:            { label: 'Invoice',      icon: Receipt,        color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+const categoryConfig: Record<string, { label: string; icon: React.ComponentType<any> }> = {
+  lab_report:         { label: 'Lab Report',   icon: TestTube2 },
+  xray_report:        { label: 'X-Ray',        icon: ScanLine },
+  mri_report:         { label: 'MRI',          icon: BrainCircuit },
+  ultrasound_report:  { label: 'Ultrasound',   icon: Radio },
+  ecg_report:         { label: 'ECG',          icon: HeartPulse },
+  pathology_report:   { label: 'Pathology',    icon: Microscope },
+  pft_report:         { label: 'PFT',          icon: Wind },
+  other_report:       { label: 'Other Report', icon: ClipboardList },
+  consultation_notes: { label: 'Consultation', icon: Stethoscope },
+  procedure_notes:    { label: 'Procedure',    icon: Syringe },
+  discharge_summary:  { label: 'Discharge',    icon: FileText },
+  er_visit:           { label: 'ER Visit',     icon: Ambulance },
+  referral:           { label: 'Referral',     icon: UserPlus },
+  other_visit:        { label: 'Other Visit',  icon: ClipboardCheck },
+  prescription:       { label: 'Prescription', icon: Pill },
+  medication_active:  { label: 'Active Med',   icon: Pill },
+  medication_past:    { label: 'Past Med',     icon: Archive },
+  vaccination:        { label: 'Vaccination',  icon: Syringe },
+  medical_certificate:{ label: 'Certificate',  icon: Award },
+  invoice:            { label: 'Invoice',      icon: Receipt },
 };
 
 /* ─── Section Config ─── */

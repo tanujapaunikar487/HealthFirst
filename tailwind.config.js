@@ -21,7 +21,7 @@ export default {
         },
         extend: {
             fontFamily: {
-                sans: ['Inter var', ...defaultTheme.fontFamily.sans],
+                sans: ['Inter', ...defaultTheme.fontFamily.sans],
             },
             spacing: {
                 'page': '960px',
@@ -81,6 +81,15 @@ export default {
                 card: {
                     DEFAULT: 'hsl(var(--card) / <alpha-value>)',
                     foreground: 'hsl(var(--card-foreground) / <alpha-value>)',
+                },
+                icon: {
+                    DEFAULT: 'hsl(var(--icon) / <alpha-value>)',
+                    bg: 'hsl(var(--icon-bg) / <alpha-value>)',
+                },
+                placeholder: 'hsl(var(--placeholder) / <alpha-value>)',
+                inverse: {
+                    DEFAULT: 'hsl(var(--inverse) / <alpha-value>)',
+                    muted: 'hsl(var(--inverse-muted) / <alpha-value>)',
                 },
             },
             borderRadius: {

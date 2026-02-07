@@ -318,20 +318,19 @@ interface DashboardCardProps {
   iconOverride?: typeof Receipt;
 }
 
-const cardConfig: Record<CardType, { icon: typeof Receipt; iconColor: string; iconBg: string }> = {
-  overdue_bill: { icon: Receipt, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
-  health_alert: { icon: AlertCircle, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
-  appointment_today: { icon: Stethoscope, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
-  appointment_upcoming: { icon: Calendar, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
-  payment_due_soon: { icon: CreditCard, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
-  emi_due: { icon: CreditCard, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
-  insurance_claim_update: { icon: Shield, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
-
-  followup_due: { icon: RotateCcw, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
-  pre_appointment_reminder: { icon: Calendar, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
-  new_results_ready: { icon: CheckCircle2, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
-  vaccination_due: { icon: Syringe, iconColor: 'hsl(var(--primary))', iconBg: 'hsl(var(--primary) / 0.2)' },
-  prescription_expiring: { icon: Pill, iconColor: 'hsl(var(--warning))', iconBg: 'hsl(var(--warning) / 0.2)' },
+const cardConfig: Record<CardType, { icon: typeof Receipt; iconBgClass: string; iconColorClass: string }> = {
+  overdue_bill: { icon: Receipt, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
+  health_alert: { icon: AlertCircle, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
+  appointment_today: { icon: Stethoscope, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
+  appointment_upcoming: { icon: Calendar, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
+  payment_due_soon: { icon: CreditCard, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
+  emi_due: { icon: CreditCard, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
+  insurance_claim_update: { icon: Shield, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
+  followup_due: { icon: RotateCcw, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
+  pre_appointment_reminder: { icon: Calendar, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
+  new_results_ready: { icon: CheckCircle2, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
+  vaccination_due: { icon: Syringe, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
+  prescription_expiring: { icon: Pill, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
 };
 
 function DashboardCard({
@@ -348,11 +347,8 @@ function DashboardCard({
       className={`p-4 ${!isLast ? 'border-b border-border' : ''}`}
     >
       {/* Icon */}
-      <div
-        className="flex items-center justify-center flex-shrink-0 w-10 h-10 rounded-full"
-        style={{ backgroundColor: config.iconBg }}
-      >
-        <Icon icon={CardIcon} className="h-5 w-5" style={{ color: config.iconColor }} />
+      <div className={`flex items-center justify-center flex-shrink-0 w-10 h-10 rounded-full ${config.iconBgClass}`}>
+        <Icon icon={CardIcon} className={`h-5 w-5 ${config.iconColorClass}`} />
       </div>
 
       {/* Content */}
@@ -1111,7 +1107,7 @@ export default function Dashboard({
           </VStack>
 
           <HStack gap={2} align="center">
-            <Link href="/booking" className={buttonVariants({ size: 'lg' }) + ' font-semibold'}>
+            <Link href="/booking" className={buttonVariants({ size: 'lg' })}>
               <img src="/assets/icons/appointment-2.svg" alt="" className="w-5 h-5" />
               Book appointment
             </Link>

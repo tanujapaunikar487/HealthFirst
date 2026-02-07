@@ -71,8 +71,8 @@ export function ShareDialog({ open, onOpenChange, title, description, url }: Sha
                         {/* Preview Card */}
                         <div className="rounded-xl border bg-muted/30 p-4">
                             <div className="flex items-start gap-3">
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                                    <Icon icon={Link2} className="h-5 w-5 text-primary" />
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-icon-bg">
+                                    <Icon icon={Link2} className="h-5 w-5 text-icon" />
                                 </div>
                                 <div className="min-w-0 flex-1">
                                     <p className="font-medium text-foreground truncate">{title}</p>

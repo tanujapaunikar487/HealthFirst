@@ -245,13 +245,13 @@ export function DetailsSheet({
         <Collapsible open={detailsOpen} onOpenChange={setDetailsOpen}>
           <CollapsibleTrigger className="flex items-center justify-between w-full py-3 hover:bg-muted/50 transition-colors">
             <div className="flex items-center gap-2">
-              <Icon icon={Calendar} className="h-4 w-4 text-neutral-900" />
+              <Icon icon={Calendar} className="h-4 w-4 text-foreground" />
               <span className="text-label">Details</span>
             </div>
             <Icon
               icon={ChevronDown}
               className={cn(
-                "h-4 w-4 text-neutral-900 transition-transform",
+                "h-4 w-4 text-foreground transition-transform",
                 detailsOpen && "transform rotate-180"
               )}
             />
@@ -284,7 +284,7 @@ export function DetailsSheet({
         <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
           <CollapsibleTrigger className="flex items-center justify-between w-full py-3 hover:bg-muted/50 transition-colors">
             <div className="flex items-center gap-2">
-              <Icon icon={FileText} className="h-4 w-4 text-neutral-900" />
+              <Icon icon={FileText} className="h-4 w-4 text-foreground" />
               <span className="text-label">Notes</span>
             </div>
             <div className="flex items-center gap-2">
@@ -310,7 +310,7 @@ export function DetailsSheet({
               <Icon
                 icon={ChevronDown}
                 className={cn(
-                  "h-4 w-4 text-neutral-900 transition-transform",
+                  "h-4 w-4 text-foreground transition-transform",
                   notesOpen && "transform rotate-180"
                 )}
               />
@@ -363,13 +363,13 @@ export function DetailsSheet({
         <Collapsible open={preparationOpen} onOpenChange={setPreparationOpen}>
           <CollapsibleTrigger className="flex items-center justify-between w-full py-3 hover:bg-muted/50 transition-colors">
             <div className="flex items-center gap-2">
-              <Icon icon={ClipboardCheck} className="h-4 w-4 text-neutral-900" />
+              <Icon icon={ClipboardCheck} className="h-4 w-4 text-foreground" />
               <span className="text-label">Preparation</span>
             </div>
             <Icon
               icon={ChevronDown}
               className={cn(
-                "h-4 w-4 text-neutral-900 transition-transform",
+                "h-4 w-4 text-foreground transition-transform",
                 preparationOpen && "transform rotate-180"
               )}
             />

@@ -10,7 +10,6 @@ import { Input } from '@/Components/ui/input';
 import { DatePicker } from '@/Components/ui/date-picker';
 import { Textarea } from '@/Components/ui/textarea';
 import { Icon } from '@/Components/ui/icon';
-import { Alert } from '@/Components/ui/alert';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { cn } from '@/Lib/utils';
 import { getAvatarColor } from '@/Lib/avatar-colors';
@@ -443,10 +442,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
         {/* Header */}
         <div className="mb-6 flex items-start justify-between">
           <div className="flex items-center gap-4">
-            <div
-              className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full text-card-title"
-              style={{ backgroundColor: 'hsl(var(--primary) / 0.2)', color: 'hsl(var(--primary))' }}
-            >
+            <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full text-card-title bg-icon-bg text-icon">
               {getProviderInitials(policy.provider_name)}
             </div>
             <div>

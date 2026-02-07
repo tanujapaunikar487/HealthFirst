@@ -11,23 +11,23 @@ import { cn } from '@/Lib/utils';
  */
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 rounded-full whitespace-nowrap text-card-title transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center gap-2 rounded-full whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        primary: 'bg-blue-600 text-white hover:bg-blue-700',
-        secondary: 'border border-neutral-200 bg-neutral-100 text-neutral-900 hover:bg-neutral-200',
-        accent: 'bg-neutral-900 text-white hover:bg-neutral-800',
-        destructive: 'border border-red-600 bg-red-50 text-red-700 hover:bg-red-100',
+        primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        secondary: 'border border-border bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        accent: 'bg-accent-foreground text-accent hover:bg-accent-foreground/90',
+        destructive: 'border border-destructive bg-destructive/10 text-destructive hover:bg-destructive/20',
         outline: 'border border-border bg-transparent text-foreground hover:bg-muted',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
         white: 'bg-white text-foreground hover:bg-white/95',
       },
       size: {
-        lg: 'h-12 px-8 py-2',
-        md: 'h-10 px-6 py-2',
-        sm: 'h-8 px-4 py-1.5',
+        lg: 'h-12 px-8 py-2 text-subheading',
+        md: 'h-10 px-6 py-2 text-card-title',
+        sm: 'h-8 px-4 py-1.5 text-card-title',
         xs: 'h-6 px-3 py-0.5 text-caption',
       },
     },

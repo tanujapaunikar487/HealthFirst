@@ -1,12 +1,19 @@
 import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { extendTailwindMerge } from 'tailwind-merge';
 
-/**
- * Utility function to merge Tailwind classes
- *
- * Combines clsx for conditional classes with tailwind-merge
- * to properly handle Tailwind class conflicts.
- */
+const twMerge = extendTailwindMerge({
+  extend: {
+    classGroups: {
+      'font-size': [
+        'text-display', 'text-page-title', 'text-detail-title',
+        'text-banner-heading', 'text-section-title', 'text-step-title',
+        'text-subheading', 'text-card-title', 'text-label', 'text-body',
+        'text-caption', 'text-overline', 'text-micro',
+      ],
+    },
+  },
+});
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }

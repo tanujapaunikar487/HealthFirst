@@ -17,7 +17,7 @@ const variantClasses: Record<BadgeVariant, string> = {
   danger: 'border-red-200 bg-red-50 text-red-700',
   warning: 'border-amber-200 bg-amber-50 text-amber-600',
   info: 'border-sky-200 bg-sky-50 text-sky-700',
-  neutral: 'border-neutral-200 bg-neutral-100 text-neutral-600',
+  neutral: 'border-border bg-muted text-muted-foreground',
 };
 
 const sizeClasses: Record<BadgeSize, string> = {

@@ -193,7 +193,7 @@ export function EmbeddedPackageList({
                             {isChecked ? (
                               <CheckSquare className="h-5 w-5 text-primary" />
                             ) : (
-                              <Square className="h-5 w-5 text-neutral-900/50" />
+                              <Square className="h-5 w-5 text-foreground/50" />
                             )}
                           </div>
 
@@ -340,7 +340,7 @@ export function EmbeddedPackageList({
                           {isSelected ? (
                             <CheckSquare className="h-5 w-5 text-primary" />
                           ) : (
-                            <Square className="h-5 w-5 text-neutral-900/50" />
+                            <Square className="h-5 w-5 text-foreground/50" />
                           )}
                         </div>
 
@@ -430,7 +430,7 @@ export function EmbeddedPackageList({
                       {pkg.included_test_names && pkg.included_test_names.length > 0 && (
                         <div>
                           <div className="flex items-center gap-1.5 mb-2">
-                            <TestTube className="h-3.5 w-3.5 text-neutral-900" />
+                            <TestTube className="h-3.5 w-3.5 text-foreground" />
                             <span className="text-card-title text-muted-foreground uppercase tracking-wide">
                               Included Tests
                             </span>
@@ -450,7 +450,7 @@ export function EmbeddedPackageList({
                       {pkg.preparation_notes && (
                         <div>
                           <div className="flex items-center gap-1.5 mb-2">
-                            <ClipboardList className="h-3.5 w-3.5 text-neutral-900" />
+                            <ClipboardList className="h-3.5 w-3.5 text-foreground" />
                             <span className="text-card-title text-muted-foreground uppercase tracking-wide">
                               Preparation
                             </span>
