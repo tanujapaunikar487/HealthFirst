@@ -530,29 +530,19 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
         </Section>
 
         {/* Covered Members */}
-        <Section id="members" title="Covered Members" icon={Users}>
+        <Section id="members" title="Covered Members" icon={Users} noPadding>
           {coveredMembers.length > 0 ? (
-            <div className="flex flex-wrap gap-3">
-              {coveredMembers.map((member) => {
-                const color = getAvatarColorByName(member.name);
-                return (
-                  <div
-                    key={member.id}
-                    className="flex items-center gap-2.5 rounded-full border px-3 py-1.5"
-                  >
-                    <div
-                      className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-micro"
-                      style={{ backgroundColor: color.bg, color: color.text }}
-                    >
-                      {getMemberInitials(member.name)}
-                    </div>
-                    <span className="text-label text-foreground">{member.name}</span>
-                  </div>
-                );
-              })}
+            <div className="divide-y">
+              {coveredMembers.map((member) => (
+                <DetailRow key={member.id} label={member.relation ? member.relation.charAt(0).toUpperCase() + member.relation.slice(1) : 'Member'}>
+                  {member.name}
+                </DetailRow>
+              ))}
             </div>
           ) : (
-            <EmptyState icon={Users} message="No covered members" description="Add family members to this policy" />
+            <div className="p-6">
+              <EmptyState icon={Users} message="No covered members" description="Add family members to this policy" />
+            </div>
           )}
         </Section>
 

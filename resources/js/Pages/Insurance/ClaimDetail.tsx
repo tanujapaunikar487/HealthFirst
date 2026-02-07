@@ -1442,6 +1442,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           id="timeline"
           title="Timeline"
           icon={Clock}
+          noPadding
           action={
             lastUpdatedDate ? (
               <span className="text-body text-muted-foreground">Last Updated: {lastUpdatedDate}</span>
