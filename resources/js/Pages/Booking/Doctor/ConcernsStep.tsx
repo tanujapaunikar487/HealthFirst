@@ -4,6 +4,7 @@ import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { FollowUpBanner } from '@/Components/Booking/FollowUpBanner';
 import { SymptomChips } from '@/Components/Booking/SymptomChips';
 import { Card } from '@/Components/ui/card';
+import { HStack, VStack } from '@/Components/ui/stack';
 import { Textarea } from '@/Components/ui/textarea';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
@@ -140,7 +141,7 @@ export default function ConcernsStep({
       onContinue={handleContinue}
       continueDisabled={!urgency}
     >
-      <div className="space-y-12">
+      <VStack gap={12}>
         {/* Follow-up Banner */}
         {followUp && (
           <FollowUpBanner
@@ -152,12 +153,15 @@ export default function ConcernsStep({
 
         {/* Symptoms - Always visible */}
         <section>
-          <h2 className="text-step-title mb-2">What symptoms are you experiencing?</h2>
-          <p className="text-body text-muted-foreground mb-4">
-            Select all that apply, or describe in your own words
-          </p>
+          <VStack gap={4}>
+            <VStack gap={1}>
+              <h2 className="text-section-title">What symptoms are you experiencing?</h2>
+              <p className="text-body text-muted-foreground">
+                Select all that apply, or describe in your own words
+              </p>
+            </VStack>
 
-          <div className="space-y-4">
+            <VStack gap={4}>
             <SymptomChips
               symptoms={symptoms}
               selectedIds={selectedSymptoms}
@@ -181,16 +185,20 @@ export default function ConcernsStep({
                 Continue
               </Button>
             )}
-          </div>
+            </VStack>
+          </VStack>
         </section>
 
         {/* Urgency - Show after continue button is clicked */}
         {showUrgency && (
           <section ref={urgencySectionRef}>
-            <h2 className="text-step-title mb-2">How soon do you need to see a doctor?</h2>
-            <p className="text-body text-muted-foreground mb-4">
-              This determines which slots you'll see
-            </p>
+            <VStack gap={4}>
+              <VStack gap={1}>
+                <h2 className="text-section-title">How soon do you need to see a doctor?</h2>
+                <p className="text-body text-muted-foreground">
+                  This determines which slots you'll see
+                </p>
+              </VStack>
 
             <Card className="overflow-hidden">
               {urgencyOptions.map((option, index) => {
@@ -209,31 +217,34 @@ export default function ConcernsStep({
                       borderBottom: index < urgencyOptions.length - 1 ? '1px solid hsl(var(--border))' : 'none'
                     }}
                   >
-                    <div
-                      className={cn(
-                        'mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ring-4 ring-offset-0',
-                        style.dot,
-                        style.ring
+                    <HStack gap={3} className="items-start">
+                      <div
+                        className={cn(
+                          'mt-2 w-2 h-2 rounded-full flex-shrink-0 ring-4 ring-offset-0',
+                          style.dot,
+                          style.ring
+                        )}
+                      />
+                      <VStack gap={0} className="flex-1 min-w-0">
+                        <p className="text-label">{option.label}</p>
+                        <p className="text-body text-muted-foreground">{option.description}</p>
+                      </VStack>
+                      {option.doctorCount !== undefined ? (
+                        <span className="text-body text-muted-foreground">{option.doctorCount} doctors</span>
+                      ) : (
+                        <span className="text-body text-muted-foreground">Full flexibility</span>
                       )}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-label leading-tight mb-0.5">{option.label}</p>
-                      <p className="text-body text-muted-foreground leading-tight">{option.description}</p>
-                    </div>
-                    {option.doctorCount !== undefined ? (
-                      <span className="text-body text-muted-foreground">{option.doctorCount} doctors</span>
-                    ) : (
-                      <span className="text-body text-muted-foreground">Full flexibility</span>
-                    )}
+                    </HStack>
                   </Button>
                 );
               })}
             </Card>
 
-            {errors.urgency && <p className="text-body text-destructive mt-2">{errors.urgency}</p>}
+            {errors.urgency && <p className="text-body text-destructive">{errors.urgency}</p>}
+            </VStack>
           </section>
         )}
-      </div>
+      </VStack>
     </GuidedBookingLayout>
   );
 }

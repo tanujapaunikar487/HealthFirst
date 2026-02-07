@@ -3,7 +3,9 @@ import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { AppointmentModeSelector } from '@/Components/Booking/AppointmentModeSelector';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
+import { getAvatarColorByName } from '@/Lib/avatar-colors';
 import { Card } from '@/Components/ui/card';
+import { HStack, VStack } from '@/Components/ui/stack';
 import { Input } from '@/Components/ui/input';
 import {
   Select,
@@ -217,11 +219,12 @@ export default function DoctorTimeStep({
       continueDisabled={!selectedDoctorId || !selectedTime || !appointmentMode}
       priceEstimate={getPriceEstimate()}
     >
-      <div className="space-y-12">
+      <VStack gap={12}>
         {/* Date Selection - 14 date pills */}
         <section>
-          <h2 className="text-step-title mb-4">Available {selectedDateLabel}</h2>
-          <div className="flex gap-2 overflow-x-auto pb-2">
+          <VStack gap={4}>
+            <h2 className="text-section-title">Available {selectedDateLabel}</h2>
+            <HStack gap={2} className="overflow-x-auto pb-2">
             {availableDates.map((dateOption) => {
               const isSelected = selectedDate === dateOption.date;
               const noDoctors = dateOption.doctorCount === 0;
@@ -231,15 +234,15 @@ export default function DoctorTimeStep({
                   variant={isSelected ? 'accent' : 'outline'}
                   onClick={() => handleDateChange(dateOption.date)}
                   className={cn(
-                    'h-auto flex-shrink-0 px-6 py-3 rounded-2xl transition-all min-w-[100px] font-normal',
+                    'h-auto flex-shrink-0 px-6 py-3 rounded-2xl transition-all min-w-[100px]',
                     isSelected
                       ? 'border-foreground'
                       : noDoctors
-                        ? 'bg-background border-dashed opacity-60'
-                        : 'bg-background hover:border-primary/50'
+                        ? 'bg-card border-dashed opacity-60'
+                        : 'bg-card hover:border-primary/50'
                   )}
                 >
-                  <div className="w-full text-left">
+                  <VStack gap={0} className="w-full text-left">
                     <p className="text-label">{dateOption.label}</p>
                     <p className={cn(
                       'text-body',
@@ -249,30 +252,32 @@ export default function DoctorTimeStep({
                     </p>
                     {dateOption.doctorCount !== undefined && (
                       <p className={cn(
-                        'text-body mt-0.5',
+                        'text-body',
                         isSelected ? 'text-background/60' : noDoctors ? 'text-destructive/70' : 'text-muted-foreground'
                       )}>
                         {noDoctors ? 'No doctors' : `${dateOption.doctorCount} doctors`}
                       </p>
                     )}
-                  </div>
+                  </VStack>
                 </Button>
               );
             })}
-          </div>
+            </HStack>
+          </VStack>
         </section>
 
         {/* Doctor List */}
         <section>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-step-title">{filteredDoctors.length} doctors available</h2>
-              <p className="text-body text-muted-foreground">
-                Based on your symptoms and selected date
-              </p>
-            </div>
+          <VStack gap={4}>
+            <HStack className="justify-between">
+              <VStack gap={0}>
+                <h2 className="text-section-title">{filteredDoctors.length} doctors available</h2>
+                <p className="text-body text-muted-foreground">
+                  Based on your symptoms and selected date
+                </p>
+              </VStack>
 
-            <div className="flex items-center gap-2">
+              <HStack gap={2}>
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-36">
                   <SelectValue />
@@ -285,7 +290,7 @@ export default function DoctorTimeStep({
               </Select>
 
               <div className="relative">
-                <Icon icon={Search} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground" />
+                <Icon icon={Search} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground" />
                 <Input
                   placeholder="Search patient, doctor, date"
                   value={searchQuery}
@@ -293,15 +298,17 @@ export default function DoctorTimeStep({
                   className="pl-9 w-48"
                 />
               </div>
-            </div>
-          </div>
+              </HStack>
+            </HStack>
 
           {filteredDoctors.length === 0 ? (
             <Card className="p-8 text-center">
-              <p className="font-medium text-foreground">No doctors available on this date</p>
-              <p className="text-body text-muted-foreground mt-1">
-                Some doctors don't work on {selectedDateLabel}s. Try selecting a different date.
-              </p>
+              <VStack gap={1}>
+                <p className="text-label text-foreground">No doctors available on this date</p>
+                <p className="text-body text-muted-foreground">
+                  Some doctors don't work on {selectedDateLabel}s. Try selecting a different date.
+                </p>
+              </VStack>
             </Card>
           ) : (
             <Card className="overflow-hidden">
@@ -319,24 +326,27 @@ export default function DoctorTimeStep({
             </Card>
           )}
 
-          {errors.doctor && <p className="text-body text-destructive mt-2">{errors.doctor}</p>}
+          {errors.doctor && <p className="text-body text-destructive">{errors.doctor}</p>}
+          </VStack>
         </section>
 
         {/* Consultation Mode */}
         {selectedDoctor && (
           <section ref={appointmentModeSectionRef}>
-            <h2 className="text-step-title mb-4">How would you like to consult?</h2>
+            <VStack gap={4}>
+              <h2 className="text-section-title">How would you like to consult?</h2>
 
-            <AppointmentModeSelector
-              modes={getModes()}
-              selectedMode={appointmentMode}
-              onSelect={(mode) => setConsultationMode(mode as 'video' | 'in_person')}
-            />
+              <AppointmentModeSelector
+                modes={getModes()}
+                selectedMode={appointmentMode}
+                onSelect={(mode) => setConsultationMode(mode as 'video' | 'in_person')}
+              />
 
-            {errors.mode && <p className="text-body text-destructive mt-2">{errors.mode}</p>}
+              {errors.mode && <p className="text-body text-destructive">{errors.mode}</p>}
+            </VStack>
           </section>
         )}
-      </div>
+      </VStack>
     </GuidedBookingLayout>
   );
 }
@@ -352,8 +362,11 @@ interface DoctorCardProps {
 }
 
 function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime, isLast }: DoctorCardProps) {
-  const getInitial = (name: string) => {
-    return name.charAt(0).toUpperCase();
+  const getInitials = (name: string) => {
+    const parts = name.split(' ');
+    return parts.length > 1
+      ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+      : name.substring(0, 2).toUpperCase();
   };
 
   const formatConsultationModes = (modes: string[]) => {
@@ -385,6 +398,8 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime, isL
     return `₹${Math.min(...uniqueFees).toLocaleString()} / ${Math.max(...uniqueFees).toLocaleString()}`;
   };
 
+  const avatarColor = getAvatarColorByName(doctor.name);
+
   return (
     <div
       className={cn(
@@ -396,50 +411,58 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime, isL
         borderBottom: !isLast ? '1px solid hsl(var(--border))' : 'none'
       }}
     >
-      {/* Doctor Info */}
-      <div className="flex items-start gap-3 mb-4">
-        <Avatar className="h-12 w-12">
-          <AvatarImage src={doctor.avatar || undefined} />
-          <AvatarFallback className="bg-warning text-warning-foreground font-medium">
-            {getInitial(doctor.name)}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-foreground">{doctor.name}</h3>
-          <p className="text-body text-muted-foreground">
-            {doctor.specialization} • {doctor.experience_years} years of experience
-          </p>
-        </div>
-        <div className="flex flex-col items-end gap-1">
-          <span className="inline-block px-2 py-1 text-label text-primary bg-primary/10 rounded whitespace-nowrap">
-            {formatConsultationModes(doctor.appointment_modes)}
-          </span>
-          <span className="text-card-title">{getFeeRange()}</span>
-        </div>
-      </div>
+      <VStack gap={4}>
+        {/* Doctor Info */}
+        <HStack gap={3} className="items-start">
+          <Avatar className="h-12 w-12">
+            <AvatarImage src={doctor.avatar || undefined} />
+            <AvatarFallback
+              className="text-label"
+              style={{
+                backgroundColor: `hsl(${avatarColor.bg})`,
+                color: `hsl(${avatarColor.text})`,
+              }}
+            >
+              {getInitials(doctor.name)}
+            </AvatarFallback>
+          </Avatar>
+          <VStack gap={0} className="flex-1 min-w-0">
+            <h3 className="text-label text-foreground">{doctor.name}</h3>
+            <p className="text-body text-muted-foreground">
+              {doctor.specialization} • {doctor.experience_years} years of experience
+            </p>
+          </VStack>
+          <VStack gap={1} className="items-end">
+            <span className="px-2 py-1 text-label text-primary bg-primary/10 rounded whitespace-nowrap">
+              {formatConsultationModes(doctor.appointment_modes)}
+            </span>
+            <span className="text-card-title">{getFeeRange()}</span>
+          </VStack>
+        </HStack>
 
-      {/* Time Slots */}
-      <div className="flex flex-wrap gap-2">
-        {slots.map((slot) => (
-          <Button
-            key={slot.time}
-            variant={selectedTime === slot.time ? 'accent' : 'outline'}
-            onClick={() => slot.available && onSelectTime(slot.time)}
-            disabled={!slot.available}
-            className={cn(
-              'h-auto px-3 py-1.5 text-label rounded-full transition-all relative',
-              selectedTime !== slot.time && 'hover:border-primary/50 hover:bg-primary/5',
-              selectedTime === slot.time && 'border-foreground',
-              !slot.available && 'opacity-40 cursor-not-allowed'
-            )}
-          >
-            {slot.time}
-            {slot.preferred && selectedTime !== slot.time && (
-              <Icon icon={Star} className="absolute -top-1 -right-1 h-3 w-3 fill-black text-black" />
-            )}
-          </Button>
-        ))}
-      </div>
+        {/* Time Slots */}
+        <HStack gap={2} className="flex-wrap">
+          {slots.map((slot) => (
+            <Button
+              key={slot.time}
+              variant={selectedTime === slot.time ? 'accent' : 'outline'}
+              onClick={() => slot.available && onSelectTime(slot.time)}
+              disabled={!slot.available}
+              className={cn(
+                'h-auto px-4 py-2 text-label rounded-full transition-all relative',
+                selectedTime !== slot.time && 'hover:border-primary/50 hover:bg-primary/5',
+                selectedTime === slot.time && 'border-foreground',
+                !slot.available && 'opacity-40 cursor-not-allowed'
+              )}
+            >
+              {slot.time}
+              {slot.preferred && selectedTime !== slot.time && (
+                <Icon icon={Star} className="absolute -top-1 -right-1 fill-black text-black" size="sm" />
+              )}
+            </Button>
+          ))}
+        </HStack>
+      </VStack>
     </div>
   );
 }

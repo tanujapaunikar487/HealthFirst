@@ -455,15 +455,15 @@ export default function BookingIndex() {
                       className="absolute w-64 top-0 left-1/2 -translate-x-1/2"
                     />
                   </div>
-                  <div className="px-5 py-4">
-                    <p className="text-subheading text-foreground">Book a test</p>
-                    <p className="text-body text-muted-foreground mt-1">
+                  <VStack gap={1} className="px-6 py-4">
+                    <p className="text-section-title text-foreground">Book a test</p>
+                    <p className="text-body text-muted-foreground">
                       Lab tests, health packages, and home sample collection
                     </p>
-                  </div>
+                  </VStack>
                 </div>
               </Button>
-            </div>
+            </HStack>
           )}
         </main>
       </div>

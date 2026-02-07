@@ -1,8 +1,7 @@
 import { Badge } from '@/Components/ui/badge';
-import { Button } from '@/Components/ui/button';
 import { HStack, VStack } from '@/Components/ui/stack';
 import { cn } from '@/Lib/utils';
-import { Clock, FlaskConical, User, ChevronRight } from '@/Lib/icons';
+import { Clock, FlaskConical, User } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 
 interface Package {
@@ -28,10 +27,11 @@ export function PackageCard({ package: pkg, isSelected, onSelect, className }: P
   return (
     <div
       className={cn(
-        'px-6 py-4 transition-all bg-card',
-        isSelected && 'bg-primary/5 ring-2 ring-primary ring-inset',
+        'px-6 py-4 transition-all cursor-pointer hover:bg-muted/50',
+        isSelected && 'bg-primary/5',
         className
       )}
+      onClick={onSelect}
     >
       <VStack gap={3}>
         {/* Header */}
@@ -57,7 +57,7 @@ export function PackageCard({ package: pkg, isSelected, onSelect, className }: P
         {/* Description */}
         <p className="text-body text-muted-foreground">{pkg.description}</p>
 
-        {/* Metadata + Book button */}
+        {/* Metadata + Select indicator */}
         <HStack className="justify-between">
           <HStack gap={4} className="text-body text-muted-foreground">
             <HStack gap={1}>
@@ -74,21 +74,12 @@ export function PackageCard({ package: pkg, isSelected, onSelect, className }: P
             </HStack>
           </HStack>
 
-          <HStack gap={1}>
-            <Button
-              size="sm"
-              onClick={onSelect}
-              className={cn(
-                'rounded-full',
-                isSelected ? 'bg-foreground text-background hover:bg-foreground' : 'bg-foreground'
-              )}
-            >
-              Select
-            </Button>
-            <Button size="sm" variant="ghost" iconOnly>
-              <Icon icon={ChevronRight} />
-            </Button>
-          </HStack>
+          <span className={cn(
+            'px-4 py-2 rounded-full text-label transition-all',
+            isSelected ? 'bg-foreground text-inverse' : 'bg-muted text-foreground'
+          )}>
+            {isSelected ? 'Selected' : 'Select'}
+          </span>
         </HStack>
       </VStack>
     </div>
