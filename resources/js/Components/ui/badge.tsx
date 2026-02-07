@@ -13,10 +13,10 @@ export type BadgeVariant = 'success' | 'danger' | 'warning' | 'info' | 'neutral'
 export type BadgeSize = 'sm' | 'lg';
 
 const variantClasses: Record<BadgeVariant, string> = {
-  success: 'border-green-200 bg-green-50 text-green-700',
-  danger: 'border-red-200 bg-red-50 text-red-700',
-  warning: 'border-amber-200 bg-amber-50 text-amber-600',
-  info: 'border-sky-200 bg-sky-50 text-sky-700',
+  success: 'border-success-border bg-success-subtle text-success-subtle-foreground',
+  danger: 'border-destructive-border bg-destructive-subtle text-destructive-subtle-foreground',
+  warning: 'border-warning-border bg-warning-subtle text-warning-subtle-foreground',
+  info: 'border-info-border bg-info-subtle text-info-subtle-foreground',
   neutral: 'border-border bg-muted text-muted-foreground',
 };
 

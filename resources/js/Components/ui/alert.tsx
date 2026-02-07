@@ -17,10 +17,10 @@ const alertVariants = cva(
   {
     variants: {
       variant: {
-        info: 'bg-blue-50 border-b-sky-200',
-        success: 'bg-green-50 border-b-green-200',
-        warning: 'bg-amber-50 border-b-amber-200',
-        error: 'bg-red-50 border-b-red-200',
+        info: 'bg-info-subtle border-b-info-border',
+        success: 'bg-success-subtle border-b-success-border',
+        warning: 'bg-warning-subtle border-b-warning-border',
+        error: 'bg-destructive-subtle border-b-destructive-border',
       },
       mode: {
         standalone: 'rounded-3xl border-b-2',
@@ -35,10 +35,10 @@ const alertVariants = cva(
 );
 
 const alertIconConfig = {
-  info: { type: 'text' as const, content: 'i', bg: 'bg-blue-600' },
-  success: { type: 'icon' as const, icon: Check, bg: 'bg-green-700' },
-  warning: { type: 'text' as const, content: '!', bg: 'bg-amber-600' },
-  error: { type: 'icon' as const, icon: X, bg: 'bg-red-600' },
+  info: { type: 'text' as const, content: 'i', bg: 'bg-info' },
+  success: { type: 'icon' as const, icon: Check, bg: 'bg-success' },
+  warning: { type: 'text' as const, content: '!', bg: 'bg-warning' },
+  error: { type: 'icon' as const, icon: X, bg: 'bg-destructive' },
 };
 
 export interface AlertProps
