@@ -7,6 +7,7 @@
 
 import { useState } from 'react';
 import { SymptomChips } from './SymptomChips';
+import { Alert } from '@/Components/ui/alert';
 
 // Common symptoms list
 const commonSymptoms = [
@@ -94,7 +95,7 @@ export function FollowUpSymptomSelection() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-info-subtle border border-info-border rounded-lg p-4 mb-4">
+      <Alert variant="info" hideIcon className="mb-4">
         <p className="text-body">
           <span className="font-semibold">Following up on:</span> Headache, dizziness
           <br />
@@ -102,7 +103,7 @@ export function FollowUpSymptomSelection() {
             From Dr. Meera Iyer on 15 Jan. Add any new symptoms below.
           </span>
         </p>
-      </div>
+      </Alert>
 
       <div>
         <h3 className="text-lg font-semibold mb-2">What symptoms are you experiencing?</h3>

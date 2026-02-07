@@ -32,6 +32,7 @@ import {
   SheetFooter,
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
+import { Alert } from '@/Components/ui/alert';
 import { cn } from '@/Lib/utils';
 import {
   MoreHorizontal,
@@ -39,7 +40,6 @@ import {
   Stethoscope,
   TestTube2,
   CreditCard,
-  AlertCircle,
   ChevronLeft,
   ChevronRight,
   X,
@@ -449,34 +449,28 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
 
         {/* Outstanding Summary */}
         {stats.outstanding_count > 0 && (
-          <div className="flex items-center justify-between border rounded-lg px-6 py-4 mb-6" style={{ backgroundColor: 'hsl(var(--warning) / 0.1)' }}>
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-full flex items-center justify-center" style={{ backgroundColor: 'hsl(var(--warning) / 0.15)' }}>
-                <AlertCircle className="h-4.5 w-4.5 text-warning" />
-              </div>
-              <div>
-                <p className="text-card-title text-foreground">
-                  {stats.outstanding_count} outstanding {stats.outstanding_count === 1 ? 'bill' : 'bills'}
-                </p>
-                <p className="text-body text-muted-foreground">
-                  Total due: ₹{stats.outstanding_total.toLocaleString()}
-                </p>
-              </div>
-            </div>
-            <Button
-              size="md"
-              onClick={() => {
-                const outstandingPayable = bills.filter(
-                  (b) => OUTSTANDING_STATUSES.includes(b.billing_status) && PAYABLE_STATUSES.includes(b.billing_status)
-                );
-                if (outstandingPayable.length > 0) setPayBills(outstandingPayable);
-                else showToast('No payable bills found.');
-              }}
-            >
-              <CreditCard className="h-3.5 w-3.5" />
-              Pay all
-            </Button>
-          </div>
+          <Alert
+            variant="warning"
+            title={`${stats.outstanding_count} outstanding ${stats.outstanding_count === 1 ? 'bill' : 'bills'}`}
+            className="mb-6"
+            action={
+              <Button
+                size="md"
+                onClick={() => {
+                  const outstandingPayable = bills.filter(
+                    (b) => OUTSTANDING_STATUSES.includes(b.billing_status) && PAYABLE_STATUSES.includes(b.billing_status)
+                  );
+                  if (outstandingPayable.length > 0) setPayBills(outstandingPayable);
+                  else showToast('No payable bills found.');
+                }}
+              >
+                <CreditCard className="h-3.5 w-3.5" />
+                Pay all
+              </Button>
+            }
+          >
+            Total due: ₹{stats.outstanding_total.toLocaleString()}
+          </Alert>
         )}
 
         {/* Tabs */}
@@ -847,12 +841,9 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
 
                       {/* Overdue warning */}
                       {bill.is_overdue && (
-                        <div className="flex items-start gap-2 rounded-lg px-3 py-2" style={{ backgroundColor: 'hsl(var(--destructive) / 0.1)' }}>
-                          <AlertCircle className="h-3.5 w-3.5 text-destructive mt-0.5 flex-shrink-0" />
-                          <p className="text-body text-destructive">
-                            Overdue by {bill.days_overdue} days. Please pay immediately.
-                          </p>
-                        </div>
+                        <Alert variant="error">
+                          Overdue by {bill.days_overdue} days. Please pay immediately.
+                        </Alert>
                       )}
                     </div>
                   );
@@ -924,20 +915,14 @@ function PaymentWarnings({ bills }: { bills: Bill[] }) {
   return (
     <div className="space-y-2 mt-3">
       {disputedCount > 0 && (
-        <div className="flex items-start gap-2 rounded-lg px-3 py-2.5" style={{ backgroundColor: 'hsl(var(--warning) / 0.1)' }}>
-          <AlertCircle className="h-4 w-4 text-warning mt-0.5 flex-shrink-0" />
-          <p className="text-body text-warning">
-            {disputedCount} {disputedCount === 1 ? 'bill is' : 'bills are'} under dispute. Payment may be held for review.
-          </p>
-        </div>
+        <Alert variant="warning">
+          {disputedCount} {disputedCount === 1 ? 'bill is' : 'bills are'} under dispute. Payment may be held for review.
+        </Alert>
       )}
       {hasMultiplePatients && (
-        <div className="flex items-start gap-2 rounded-lg px-3 py-2.5" style={{ backgroundColor: 'hsl(var(--primary) / 0.1)' }}>
-          <AlertCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-          <p className="text-body text-primary">
-            Bills for multiple family members selected.
-          </p>
-        </div>
+        <Alert variant="info">
+          Bills for multiple family members selected.
+        </Alert>
       )}
     </div>
   );

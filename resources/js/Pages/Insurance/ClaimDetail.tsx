@@ -6,6 +6,7 @@ import { Card } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Toast } from '@/Components/ui/toast';
+import { Alert } from '@/Components/ui/alert';
 import { Icon } from '@/Components/ui/icon';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { cn } from '@/Lib/utils';
@@ -349,10 +350,7 @@ function groupTimelineByMonth(timeline: TimelineEvent[]): TimelineGroup[] {
 // --- Status Banner ---
 
 interface BannerConfig {
-  dotColor: string;
-  bg: string;
-  border: string;
-  textColor: string;
+  variant: 'info' | 'success' | 'warning' | 'error';
   title: string;
   subtitle?: string;
   breakdown?: string;
@@ -366,10 +364,7 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
   switch (s) {
     case 'pending':
       return {
-        dotColor: 'bg-warning',
-        bg: 'bg-warning/10',
-        border: 'border-warning/20',
-        textColor: 'text-warning',
+        variant: 'warning',
         title: f?.preauth_requested
           ? `Pre-authorization for ${formatCurrency(f.preauth_requested)} is in progress`
           : 'Claim submitted. Under review.',
@@ -381,10 +376,7 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'approved':
       return {
-        dotColor: 'bg-success',
-        bg: 'bg-success/10',
-        border: 'border-success/20',
-        textColor: 'text-success',
+        variant: 'success',
         title: f?.preauth_approved
           ? `Pre-authorization approved for ${formatCurrency(f.preauth_approved)}`
           : 'Pre-authorization approved.',
@@ -396,10 +388,7 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'partially_approved':
       return {
-        dotColor: 'bg-warning',
-        bg: 'bg-warning/10',
-        border: 'border-warning/20',
-        textColor: 'text-warning',
+        variant: 'warning',
         title: f?.not_covered
           ? `Partially approved — ${formatCurrency(f.not_covered)} not covered`
           : 'Partially approved.',
@@ -415,10 +404,7 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'rejected':
       return {
-        dotColor: 'bg-destructive',
-        bg: 'bg-destructive/10',
-        border: 'border-destructive/20',
-        textColor: 'text-destructive',
+        variant: 'error',
         title: claim.claim_date
           ? `Pre-authorisation rejected on ${formatDate(claim.claim_date)}`
           : 'Pre-authorisation rejected.',
@@ -428,10 +414,7 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'expired':
       return {
-        dotColor: 'bg-destructive',
-        bg: 'bg-destructive/10',
-        border: 'border-destructive/20',
-        textColor: 'text-destructive',
+        variant: 'error',
         title: claim.claim_date
           ? `Pre-authorization expired on ${formatDate(claim.claim_date)}`
           : 'Pre-authorization expired.',
@@ -441,10 +424,7 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'enhancement_required':
       return {
-        dotColor: 'bg-warning',
-        bg: 'bg-warning/10',
-        border: 'border-warning/20',
-        textColor: 'text-warning',
+        variant: 'warning',
         title: 'Enhancement required',
         subtitle:
           f?.current_bill && f?.original_approved
@@ -459,10 +439,7 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'enhancement_in_progress':
       return {
-        dotColor: 'bg-warning',
-        bg: 'bg-warning/10',
-        border: 'border-warning/20',
-        textColor: 'text-warning',
+        variant: 'warning',
         title: 'Enhancement request in progress',
         subtitle: f?.enhancement_requested
           ? `Requested ${formatCurrency(f.enhancement_requested)} additional coverage.`
@@ -476,10 +453,7 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'enhancement_approved':
       return {
-        dotColor: 'bg-success',
-        bg: 'bg-success/10',
-        border: 'border-success/20',
-        textColor: 'text-success',
+        variant: 'success',
         title: 'Enhancement approved!',
         subtitle:
           f?.enhancement_approved != null && f?.original_approved != null
@@ -490,10 +464,7 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'enhancement_rejected':
       return {
-        dotColor: 'bg-destructive',
-        bg: 'bg-destructive/10',
-        border: 'border-destructive/20',
-        textColor: 'text-destructive',
+        variant: 'error',
         title: 'Enhancement request rejected',
         subtitle: claim.rejection_reason ?? undefined,
         action: { label: 'File appeal', toastMsg: 'Opening appeal flow...' },
@@ -502,10 +473,7 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
     case 'current':
     case 'processing':
       return {
-        dotColor: 'bg-primary',
-        bg: 'bg-primary/10',
-        border: 'border-primary/20',
-        textColor: 'text-primary',
+        variant: 'info',
         title: f?.preauth_approved
           ? `${formatCurrency(f.preauth_approved)} pre-auth approved. Treatment in progress.`
           : 'Treatment in progress.',
@@ -513,10 +481,7 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'settled':
       return {
-        dotColor: 'bg-success',
-        bg: 'bg-success/10',
-        border: 'border-success/20',
-        textColor: 'text-success',
+        variant: 'success',
         title: claim.claim_date
           ? `Claim settled on ${formatDate(claim.claim_date)}`
           : 'Claim settled.',
@@ -529,10 +494,7 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'dispute_under_review':
       return {
-        dotColor: 'bg-warning',
-        bg: 'bg-warning/10',
-        border: 'border-warning/20',
-        textColor: 'text-warning',
+        variant: 'warning',
         title: 'Settlement disputed under review',
         subtitle: (claim.rejection_reason ?? 'Your dispute is being reviewed.') + ' Expected resolution: 5-7 days.',
         action: { label: 'Track dispute', toastMsg: 'Viewing dispute timeline...' },
@@ -540,10 +502,7 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     case 'dispute_resolved':
       return {
-        dotColor: 'bg-success',
-        bg: 'bg-success/10',
-        border: 'border-success/20',
-        textColor: 'text-success',
+        variant: 'success',
         title: claim.claim_date
           ? `Dispute resolved on ${formatDate(claim.claim_date)}`
           : 'Dispute resolved.',
@@ -555,10 +514,7 @@ function getBannerConfig(claim: ClaimData, formatDate: (d: string | Date | null 
 
     default:
       return {
-        dotColor: 'bg-warning',
-        bg: 'bg-warning/10',
-        border: 'border-warning/20',
-        textColor: 'text-warning',
+        variant: 'warning',
         title: 'Claim submitted. Under review.',
       };
   }
@@ -981,96 +937,86 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         </div>
 
         {/* Status Banner */}
-        <div className={`mb-8 rounded-xl border px-4 py-3 ${banner.bg} ${banner.border}`}>
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-start gap-2.5 min-w-0">
-              <div
-                className={`mt-1.5 h-2.5 w-2.5 flex-shrink-0 rounded-full ${banner.dotColor}`}
-              />
-              <div className="min-w-0">
-                <p className={`text-card-title ${banner.textColor}`}>{banner.title}</p>
-                {banner.subtitle && (
-                  <p className={`mt-0.5 text-body ${banner.textColor} opacity-80`}>
-                    {banner.subtitle}
-                  </p>
-                )}
-                {banner.breakdown && (
-                  <p className={`mt-1.5 text-label ${banner.textColor} opacity-70`}>
-                    {banner.breakdown}
-                  </p>
-                )}
-              </div>
-            </div>
-            {banner.action && (
-              <Button
-                size="sm"
-                variant="secondary"
-                className="flex-shrink-0 h-8 text-body"
-                onClick={() => {
-                  const label = banner.action!.label;
-                  if (label === 'Accept') {
-                    if (confirm('Accept the partially approved amount?')) {
-                      router.post(`/insurance/claims/${claim.id}/accept`, {}, {
-                        onSuccess: () => toast('Claim accepted successfully'),
-                        onError: () => toast('Failed to accept claim'),
-                      });
-                    }
-                  } else if (label === 'Try different policy') {
-                    router.visit('/insurance');
-                  } else if (label === 'Request new pre-auth') {
-                    router.post(`/insurance/claims/${claim.id}/new-preauth`, {}, {
-                      onSuccess: () => toast('New pre-authorization request submitted'),
-                      onError: () => toast('Failed to submit request'),
+        <Alert
+          variant={banner.variant}
+          title={banner.title}
+          className="mb-8"
+          action={banner.action ? (
+            <Button
+              size="sm"
+              variant="secondary"
+              className="flex-shrink-0 h-8 text-body"
+              onClick={() => {
+                const label = banner.action!.label;
+                if (label === 'Accept') {
+                  if (confirm('Accept the partially approved amount?')) {
+                    router.post(`/insurance/claims/${claim.id}/accept`, {}, {
+                      onSuccess: () => toast('Claim accepted successfully'),
+                      onError: () => toast('Failed to accept claim'),
                     });
-                  } else if (label === 'Request enhancement') {
-                    router.post(`/insurance/claims/${claim.id}/enhancement`, {}, {
-                      onSuccess: () => toast('Enhancement request submitted'),
-                      onError: () => toast('Failed to submit enhancement request'),
-                    });
-                  } else if (label === 'Raise dispute') {
-                    if (confirm('Are you sure you want to raise a dispute for this settled claim?')) {
-                      router.post(`/insurance/claims/${claim.id}/dispute`, {}, {
-                        onSuccess: () => toast('Dispute submitted successfully'),
-                        onError: () => toast('Failed to submit dispute'),
-                      });
-                    }
-                  } else if (label === 'File appeal') {
-                    if (confirm('Would you like to file an appeal for this claim?')) {
-                      router.post(`/insurance/claims/${claim.id}/appeal`, {}, {
-                        onSuccess: () => toast('Appeal request submitted'),
-                        onError: () => toast('Failed to submit appeal'),
-                      });
-                    }
-                  } else if (label === 'Download EOB') {
-                    const f = claim.financial;
-                    downloadAsHtml(`eob-${claim.claim_reference}.pdf`, `
-                      <h1>Explanation of Benefits</h1>
-                      <p class="subtitle">${claim.claim_reference}</p>
-                      <h2>Claim Details</h2>
-                      <div class="row"><span class="row-label">Treatment</span><span class="row-value">${claim.treatment_name}</span></div>
-                      <div class="row"><span class="row-label">Provider</span><span class="row-value">${claim.provider_name ?? 'N/A'}</span></div>
-                      <div class="row"><span class="row-label">Patient</span><span class="row-value">${patient.name}</span></div>
-                      <div class="row"><span class="row-label">Claim Date</span><span class="row-value">${formatDate(claim.claim_date) || 'N/A'}</span></div>
-                      <h2>Financial Summary</h2>
-                      ${f?.preauth_approved ? `<div class="row"><span class="row-label">Approved Amount</span><span class="row-value">₹${f.preauth_approved.toLocaleString()}</span></div>` : ''}
-                      ${f?.total_approved ? `<div class="row"><span class="row-label">Total Approved</span><span class="row-value">₹${f.total_approved.toLocaleString()}</span></div>` : ''}
-                      ${f?.not_covered ? `<div class="row"><span class="row-label">Not Covered</span><span class="row-value">₹${f.not_covered.toLocaleString()}</span></div>` : ''}
-                      <p style="margin-top:24px;font-size:12px;color:#6b7280">Generated on ${new Date().toLocaleDateString()}</p>
-                    `);
-                    toast('EOB downloaded');
-                  } else if (label === 'Track status' || label === 'Track enhancement' || label === 'Track dispute' || label === 'View resolution') {
-                    document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    toast(banner.action!.toastMsg);
-                  } else {
-                    toast(banner.action!.toastMsg);
                   }
-                }}
-              >
-                {banner.action.label}
-              </Button>
-            )}
-          </div>
-        </div>
+                } else if (label === 'Try different policy') {
+                  router.visit('/insurance');
+                } else if (label === 'Request new pre-auth') {
+                  router.post(`/insurance/claims/${claim.id}/new-preauth`, {}, {
+                    onSuccess: () => toast('New pre-authorization request submitted'),
+                    onError: () => toast('Failed to submit request'),
+                  });
+                } else if (label === 'Request enhancement') {
+                  router.post(`/insurance/claims/${claim.id}/enhancement`, {}, {
+                    onSuccess: () => toast('Enhancement request submitted'),
+                    onError: () => toast('Failed to submit enhancement request'),
+                  });
+                } else if (label === 'Raise dispute') {
+                  if (confirm('Are you sure you want to raise a dispute for this settled claim?')) {
+                    router.post(`/insurance/claims/${claim.id}/dispute`, {}, {
+                      onSuccess: () => toast('Dispute submitted successfully'),
+                      onError: () => toast('Failed to submit dispute'),
+                    });
+                  }
+                } else if (label === 'File appeal') {
+                  if (confirm('Would you like to file an appeal for this claim?')) {
+                    router.post(`/insurance/claims/${claim.id}/appeal`, {}, {
+                      onSuccess: () => toast('Appeal request submitted'),
+                      onError: () => toast('Failed to submit appeal'),
+                    });
+                  }
+                } else if (label === 'Download EOB') {
+                  const f = claim.financial;
+                  downloadAsHtml(`eob-${claim.claim_reference}.pdf`, `
+                    <h1>Explanation of Benefits</h1>
+                    <p class="subtitle">${claim.claim_reference}</p>
+                    <h2>Claim Details</h2>
+                    <div class="row"><span class="row-label">Treatment</span><span class="row-value">${claim.treatment_name}</span></div>
+                    <div class="row"><span class="row-label">Provider</span><span class="row-value">${claim.provider_name ?? 'N/A'}</span></div>
+                    <div class="row"><span class="row-label">Patient</span><span class="row-value">${patient.name}</span></div>
+                    <div class="row"><span class="row-label">Claim Date</span><span class="row-value">${formatDate(claim.claim_date) || 'N/A'}</span></div>
+                    <h2>Financial Summary</h2>
+                    ${f?.preauth_approved ? `<div class="row"><span class="row-label">Approved Amount</span><span class="row-value">₹${f.preauth_approved.toLocaleString()}</span></div>` : ''}
+                    ${f?.total_approved ? `<div class="row"><span class="row-label">Total Approved</span><span class="row-value">₹${f.total_approved.toLocaleString()}</span></div>` : ''}
+                    ${f?.not_covered ? `<div class="row"><span class="row-label">Not Covered</span><span class="row-value">₹${f.not_covered.toLocaleString()}</span></div>` : ''}
+                    <p style="margin-top:24px;font-size:12px;color:#6b7280">Generated on ${new Date().toLocaleDateString()}</p>
+                  `);
+                  toast('EOB downloaded');
+                } else if (label === 'Track status' || label === 'Track enhancement' || label === 'Track dispute' || label === 'View resolution') {
+                  document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  toast(banner.action!.toastMsg);
+                } else {
+                  toast(banner.action!.toastMsg);
+                }
+              }}
+            >
+              {banner.action.label}
+            </Button>
+          ) : undefined}
+        >
+          {(banner.subtitle || banner.breakdown) && (
+            <div className="space-y-1">
+              {banner.subtitle && <p>{banner.subtitle}</p>}
+              {banner.breakdown && <p className="text-label opacity-70">{banner.breakdown}</p>}
+            </div>
+          )}
+        </Alert>
 
         {/* Main Content with Side Nav */}
         <div className="flex gap-24">

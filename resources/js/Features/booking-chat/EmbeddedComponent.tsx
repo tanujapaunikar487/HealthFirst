@@ -919,11 +919,11 @@ function UrgencySelector({ levels, selected, onSelect, disabled }: any) {
   const getIndicatorColor = (urgency: string) => {
     switch (urgency.toLowerCase()) {
       case 'urgent':
-        return 'bg-red-500';
+        return 'bg-destructive';
       case 'this_week':
-        return 'bg-orange-500';
+        return 'bg-warning';
       case 'specific_date':
-        return 'bg-blue-500';
+        return 'bg-info';
       default:
         return 'bg-muted-foreground';
     }
@@ -988,7 +988,7 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
             className={cn(
               'p-4 rounded-2xl border transition-all',
               selectedDoctorId === doctor.id
-                ? 'border-[#0052FF] bg-blue-50'
+                ? 'border-primary bg-primary/5'
                 : 'border-border bg-background'
             )}
           >
@@ -997,7 +997,7 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
               <div className="flex items-start gap-3 flex-1">
                 <Avatar className="w-12 h-12 flex-shrink-0">
                   <AvatarImage src={doctor.avatar} />
-                  <AvatarFallback className="bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700 font-semibold">
+                  <AvatarFallback className="bg-primary/15 text-primary font-semibold">
                     {doctor.name.split(' ').slice(1).map((n: string) => n[0]).join('')}
                   </AvatarFallback>
                 </Avatar>
@@ -1497,8 +1497,8 @@ function ScheduleConflict({ existing, newAppointment, onSelect, disabled }: any)
       <div className="bg-muted rounded-2xl p-4 border border-border">
         <p className="text-card-title text-muted-foreground uppercase mb-2">Existing Appointment</p>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
-            <span className="text-orange-600 font-bold text-lg">D</span>
+          <div className="w-10 h-10 rounded-full bg-warning/15 flex items-center justify-center">
+            <span className="text-warning font-bold text-subheading">D</span>
           </div>
           <div>
             <p className="font-semibold text-foreground">{existing?.doctor}</p>

@@ -1688,7 +1688,7 @@ function MedicationActiveDetail({ meta, onAction }: { meta: RecordMetadata; onAc
       {meta.drug_name && (
         <Alert variant="success" hideIcon>
           <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-green-700 animate-pulse" />
+            <span className="h-2.5 w-2.5 rounded-full bg-success animate-pulse" />
             <p className="text-base font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{meta.drug_name}</p>
           </div>
         </Alert>

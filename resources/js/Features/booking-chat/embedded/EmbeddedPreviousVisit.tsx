@@ -45,7 +45,7 @@ export function EmbeddedPreviousVisit({ visit }: Props) {
       <div className="flex items-center gap-3">
         <Avatar className="h-10 w-10">
           <AvatarImage src={visit.doctor.avatar || undefined} />
-          <AvatarFallback className="bg-orange-400 text-white text-label">
+          <AvatarFallback className="bg-warning text-warning-foreground text-label">
             {getInitial(visit.doctor.name)}
           </AvatarFallback>
         </Avatar>

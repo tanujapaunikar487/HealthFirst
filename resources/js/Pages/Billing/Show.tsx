@@ -996,26 +996,22 @@ export default function Show({ user, bill }: Props) {
                     Dispute
                   </h2>
                 </div>
-                <Card className="p-5" style={{ backgroundColor: 'hsl(var(--destructive) / 0.1)', borderColor: 'hsl(var(--destructive) / 0.2)' }}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <AlertTriangle className="h-4 w-4 text-destructive" />
-                    <p className="text-card-title text-destructive">
-                      {bill.dispute_details.dispute_id} &middot; Raised {bill.dispute_details.raised_on}
+                <Alert variant="error" title={`${bill.dispute_details.dispute_id} · Raised ${bill.dispute_details.raised_on}`}>
+                  <div className="space-y-1">
+                    <p className="text-body text-muted-foreground">
+                      <span className="text-muted-foreground">Reason:</span> {bill.dispute_details.reason}
                     </p>
+                    <p className="text-body text-muted-foreground">
+                      <span className="text-muted-foreground">Status:</span>{' '}
+                      <span className="font-medium">{bill.dispute_details.status}</span>
+                    </p>
+                    {bill.dispute_details.resolution_notes && (
+                      <p className="text-body text-muted-foreground">
+                        <span className="text-muted-foreground">Resolution:</span> {bill.dispute_details.resolution_notes}
+                      </p>
+                    )}
                   </div>
-                  <p className="text-body text-destructive">
-                    <span className="text-muted-foreground">Reason:</span> {bill.dispute_details.reason}
-                  </p>
-                  <p className="text-body text-destructive mt-1">
-                    <span className="text-muted-foreground">Status:</span>{' '}
-                    <span className="font-medium">{bill.dispute_details.status}</span>
-                  </p>
-                  {bill.dispute_details.resolution_notes && (
-                    <p className="text-body text-destructive mt-1">
-                      <span className="text-muted-foreground">Resolution:</span> {bill.dispute_details.resolution_notes}
-                    </p>
-                  )}
-                </Card>
+                </Alert>
               </div>
             )}
 

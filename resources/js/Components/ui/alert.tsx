@@ -49,6 +49,7 @@ export interface AlertProps
   title?: string;
   hideIcon?: boolean;
   onDismiss?: () => void;
+  action?: React.ReactNode;
   children?: React.ReactNode;
 }
 
@@ -59,6 +60,7 @@ function Alert({
   title,
   hideIcon = false,
   onDismiss,
+  action,
   children,
   ...props
 }: AlertProps) {
@@ -95,6 +97,9 @@ function Alert({
           {children}
         </div>
       </div>
+      {action && (
+        <div className="flex-shrink-0 self-center">{action}</div>
+      )}
       {onDismiss && (
         <button
           onClick={onDismiss}
