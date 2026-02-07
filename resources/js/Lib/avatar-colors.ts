@@ -1,17 +1,17 @@
 /**
- * Shared avatar color palette using Tailwind v4 semantic tokens.
- * Uses -subtle backgrounds and -subtle-foreground text for consistency with Badge/Alert components.
- * Cycles through multiple colors for visual variety across family members, insurance members, etc.
+ * Shared avatar color palette using dedicated identity tokens (not semantic status colors).
+ * These are neutral colors for distinguishing people, not for communicating state.
+ * Automatically adapts to light/dark/high-contrast modes.
  */
 export const avatarColors = [
-  { bg: 'hsl(var(--primary-subtle))', text: 'hsl(var(--primary-subtle-foreground))' },
-  { bg: 'hsl(var(--success-subtle))', text: 'hsl(var(--success-subtle-foreground))' },
-  { bg: 'hsl(var(--warning-subtle))', text: 'hsl(var(--warning-subtle-foreground))' },
-  { bg: 'hsl(var(--destructive-subtle))', text: 'hsl(var(--destructive-subtle-foreground))' },
-  { bg: 'hsl(var(--info-subtle))', text: 'hsl(var(--info-subtle-foreground))' },
-  { bg: 'hsl(var(--muted))', text: 'hsl(var(--foreground))' },
-  { bg: 'hsl(var(--accent))', text: 'hsl(var(--accent-foreground))' },
-  { bg: 'hsl(var(--icon-bg))', text: 'hsl(var(--icon))' },
+  { bg: 'hsl(var(--avatar-1-bg))', text: 'hsl(var(--avatar-1))' },      // Cyan
+  { bg: 'hsl(var(--avatar-2-bg))', text: 'hsl(var(--avatar-2))' },      // Purple
+  { bg: 'hsl(var(--avatar-3-bg))', text: 'hsl(var(--avatar-3))' },      // Indigo
+  { bg: 'hsl(var(--avatar-4-bg))', text: 'hsl(var(--avatar-4))' },      // Pink
+  { bg: 'hsl(var(--avatar-5-bg))', text: 'hsl(var(--avatar-5))' },      // Emerald
+  { bg: 'hsl(var(--avatar-6-bg))', text: 'hsl(var(--avatar-6))' },      // Orange
+  { bg: 'hsl(var(--avatar-7-bg))', text: 'hsl(var(--avatar-7))' },      // Slate
+  { bg: 'hsl(var(--avatar-8-bg))', text: 'hsl(var(--avatar-8))' },      // Amber
 ];
 
 /**

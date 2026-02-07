@@ -95,6 +95,24 @@
     --color-icon: hsl(var(--icon));
     --color-icon-bg: hsl(var(--icon-bg));
 
+    /* Avatar identity colors */
+    --color-avatar-1: hsl(var(--avatar-1));
+    --color-avatar-1-bg: hsl(var(--avatar-1-bg));
+    --color-avatar-2: hsl(var(--avatar-2));
+    --color-avatar-2-bg: hsl(var(--avatar-2-bg));
+    --color-avatar-3: hsl(var(--avatar-3));
+    --color-avatar-3-bg: hsl(var(--avatar-3-bg));
+    --color-avatar-4: hsl(var(--avatar-4));
+    --color-avatar-4-bg: hsl(var(--avatar-4-bg));
+    --color-avatar-5: hsl(var(--avatar-5));
+    --color-avatar-5-bg: hsl(var(--avatar-5-bg));
+    --color-avatar-6: hsl(var(--avatar-6));
+    --color-avatar-6-bg: hsl(var(--avatar-6-bg));
+    --color-avatar-7: hsl(var(--avatar-7));
+    --color-avatar-7-bg: hsl(var(--avatar-7-bg));
+    --color-avatar-8: hsl(var(--avatar-8));
+    --color-avatar-8-bg: hsl(var(--avatar-8-bg));
+
     --color-placeholder: hsl(var(--placeholder));
     --color-inverse: hsl(var(--inverse));
     --color-inverse-muted: hsl(var(--inverse-muted));

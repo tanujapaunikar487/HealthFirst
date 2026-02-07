@@ -58,48 +58,50 @@ interface AppLayoutProps {
 
 // --- Notification Helpers ---
 
-const notificationIconMap: Record<string, { icon: React.ComponentType<any>; color: string; bg: string }> = {
+type NotificationVariant = 'success' | 'warning' | 'destructive' | 'info';
+
+const notificationIconMap: Record<string, { icon: React.ComponentType<any>; variant: NotificationVariant }> = {
   // Billing Notifications
-  bill_generated:           { icon: Receipt,        color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.1)' },
-  payment_due_reminder:     { icon: Clock,          color: 'hsl(var(--warning))', bg: 'hsl(var(--warning) / 0.1)' },
-  payment_successful:       { icon: CheckCircle2,   color: 'hsl(var(--success))', bg: 'hsl(var(--success) / 0.1)' },
-  payment_failed:           { icon: XCircle,        color: 'hsl(var(--destructive))', bg: 'hsl(var(--destructive) / 0.1)' },
-  dispute_update:           { icon: MessageSquare,  color: 'hsl(var(--warning))', bg: 'hsl(var(--warning) / 0.1)' },
-  emi_due_reminder:         { icon: CreditCard,     color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.1)' },
+  bill_generated:           { icon: Receipt,        variant: 'info' },
+  payment_due_reminder:     { icon: Clock,          variant: 'warning' },
+  payment_successful:       { icon: CheckCircle2,   variant: 'success' },
+  payment_failed:           { icon: XCircle,        variant: 'destructive' },
+  dispute_update:           { icon: MessageSquare,  variant: 'warning' },
+  emi_due_reminder:         { icon: CreditCard,     variant: 'info' },
 
   // Insurance Claims Notifications
-  insurance_claim_approved:       { icon: ShieldCheck,    color: 'hsl(var(--success))', bg: 'hsl(var(--success) / 0.1)' },
-  insurance_claim_rejected:       { icon: ShieldAlert,    color: 'hsl(var(--destructive))', bg: 'hsl(var(--destructive) / 0.1)' },
-  insurance_preauth_approved:     { icon: ShieldCheck,    color: 'hsl(var(--success))', bg: 'hsl(var(--success) / 0.1)' },
-  insurance_preauth_rejected:     { icon: ShieldAlert,    color: 'hsl(var(--destructive))', bg: 'hsl(var(--destructive) / 0.1)' },
-  insurance_enhancement_required: { icon: ShieldAlert,    color: 'hsl(var(--warning))', bg: 'hsl(var(--warning) / 0.1)' },
-  insurance_enhancement_approved: { icon: ShieldCheck,    color: 'hsl(var(--success))', bg: 'hsl(var(--success) / 0.1)' },
-  insurance_claim_settled:        { icon: ShieldCheck,    color: 'hsl(var(--success))', bg: 'hsl(var(--success) / 0.1)' },
+  insurance_claim_approved:       { icon: ShieldCheck,    variant: 'success' },
+  insurance_claim_rejected:       { icon: ShieldAlert,    variant: 'destructive' },
+  insurance_preauth_approved:     { icon: ShieldCheck,    variant: 'success' },
+  insurance_preauth_rejected:     { icon: ShieldAlert,    variant: 'destructive' },
+  insurance_enhancement_required: { icon: ShieldAlert,    variant: 'warning' },
+  insurance_enhancement_approved: { icon: ShieldCheck,    variant: 'success' },
+  insurance_claim_settled:        { icon: ShieldCheck,    variant: 'success' },
 
   // Appointment Notifications
-  appointment_reminder:     { icon: Calendar,       color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.1)' },
-  appointment_confirmed:    { icon: CheckCircle2,   color: 'hsl(var(--success))', bg: 'hsl(var(--success) / 0.1)' },
-  appointment_cancelled:    { icon: XCircle,        color: 'hsl(var(--destructive))', bg: 'hsl(var(--destructive) / 0.1)' },
-  appointment_rescheduled:  { icon: Calendar,       color: 'hsl(var(--warning))', bg: 'hsl(var(--warning) / 0.1)' },
-  checkin_available:        { icon: Clock,          color: 'hsl(var(--success))', bg: 'hsl(var(--success) / 0.1)' },
-  video_link_ready:         { icon: Video,          color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.1)' },
+  appointment_reminder:     { icon: Calendar,       variant: 'info' },
+  appointment_confirmed:    { icon: CheckCircle2,   variant: 'success' },
+  appointment_cancelled:    { icon: XCircle,        variant: 'destructive' },
+  appointment_rescheduled:  { icon: Calendar,       variant: 'warning' },
+  checkin_available:        { icon: Clock,          variant: 'success' },
+  video_link_ready:         { icon: Video,          variant: 'info' },
 
   // Health Records Notifications
-  lab_results_ready:        { icon: TestTube,       color: 'hsl(var(--success))', bg: 'hsl(var(--success) / 0.1)' },
-  abnormal_results:         { icon: AlertCircle,    color: 'hsl(var(--destructive))', bg: 'hsl(var(--destructive) / 0.1)' },
-  prescription_expiring:    { icon: Pill,           color: 'hsl(var(--warning))', bg: 'hsl(var(--warning) / 0.1)' },
-  followup_required:        { icon: Stethoscope,    color: 'hsl(var(--warning))', bg: 'hsl(var(--warning) / 0.1)' },
+  lab_results_ready:        { icon: TestTube,       variant: 'success' },
+  abnormal_results:         { icon: AlertCircle,    variant: 'destructive' },
+  prescription_expiring:    { icon: Pill,           variant: 'warning' },
+  followup_required:        { icon: Stethoscope,    variant: 'warning' },
 
   // Family Members Notifications
-  member_verification_pending: { icon: User,        color: 'hsl(var(--warning))', bg: 'hsl(var(--warning) / 0.1)' },
-  member_added:                { icon: UserPlus,    color: 'hsl(var(--success))', bg: 'hsl(var(--success) / 0.1)' },
+  member_verification_pending: { icon: User,        variant: 'warning' },
+  member_added:                { icon: UserPlus,    variant: 'success' },
 
   // Insurance Policy Notifications
-  policy_expiring_soon:     { icon: ShieldAlert,    color: 'hsl(var(--warning))', bg: 'hsl(var(--warning) / 0.1)' },
-  policy_expired:           { icon: ShieldAlert,    color: 'hsl(var(--destructive))', bg: 'hsl(var(--destructive) / 0.1)' },
+  policy_expiring_soon:     { icon: ShieldAlert,    variant: 'warning' },
+  policy_expired:           { icon: ShieldAlert,    variant: 'destructive' },
 
   // Promotions
-  promotion:                { icon: Sparkles,       color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.1)' },
+  promotion:                { icon: Sparkles,       variant: 'info' },
 };
 
 const channelLabels: Record<string, string> = {
@@ -126,13 +128,24 @@ function timeAgo(dateStr: string): string {
 }
 
 function NotificationIcon({ type }: { type: string }) {
-  const config = notificationIconMap[type] || { icon: Bell, color: 'hsl(var(--muted-foreground))', bg: 'hsl(var(--secondary))' };
+  const config = notificationIconMap[type] || { icon: Bell, variant: 'info' as const };
+
+  // Map variant to semantic token classes
+  const variantClasses = {
+    success: 'bg-success-subtle text-success-subtle-foreground',
+    warning: 'bg-warning-subtle text-warning-subtle-foreground',
+    destructive: 'bg-destructive-subtle text-destructive-subtle-foreground',
+    info: 'bg-info-subtle text-info-subtle-foreground',
+  };
+
   return (
     <div
-      className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0"
-      style={{ backgroundColor: config.bg }}
+      className={cn(
+        "h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0",
+        variantClasses[config.variant]
+      )}
     >
-      <Icon icon={config.icon} className="h-[18px] w-[18px]" style={{ color: config.color }} />
+      <Icon icon={config.icon} className="h-[18px] w-[18px]" />
     </div>
   );
 }
@@ -149,11 +162,12 @@ function NotificationCard({
   return (
     <Button
       variant="ghost"
-      className="w-full text-left rounded-xl p-4 transition-colors hover:bg-accent h-auto"
-      style={{
-        backgroundColor: isUnread ? 'hsl(var(--primary) / 0.05)' : 'hsl(var(--background))',
-        border: `1px solid ${isUnread ? 'hsl(var(--primary) / 0.15)' : 'hsl(var(--border))'}`,
-      }}
+      className={cn(
+        "w-full text-left rounded-xl p-4 transition-colors hover:bg-muted/50 h-auto border",
+        isUnread
+          ? "bg-info-subtle/50 border-info-border"
+          : "bg-background border-border"
+      )}
       onClick={onClick}
     >
       <div className="flex gap-3">
@@ -180,6 +194,7 @@ function NotificationCard({
               <Badge
                 key={ch}
                 variant="neutral"
+                size="sm"
               >
                 {channelLabels[ch] || ch}
               </Badge>
@@ -594,10 +609,10 @@ function Sidebar({ user }: { user: User | null }) {
       {/* Guest actions - not authenticated */}
       {!user && (
         <div className="px-6 py-4 border-t space-y-2" style={{ borderColor: 'hsl(var(--border))' }}>
-          <Link href={route('login')} className={cn(buttonVariants(), 'w-full')}>
+          <Link href="/login" className={cn(buttonVariants(), 'w-full')}>
             Sign In
           </Link>
-          <Link href={route('register')} className={cn(buttonVariants({ variant: 'secondary' }), 'w-full')}>
+          <Link href="/register" className={cn(buttonVariants({ variant: 'secondary' }), 'w-full')}>
             Create Account
           </Link>
         </div>
