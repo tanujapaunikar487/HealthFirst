@@ -21,6 +21,7 @@ import { ThinkingIndicator } from '@/Components/Booking/ThinkingIndicator';
 import { AudioWaveform } from '@/Components/ui/AudioWaveform';
 import { useAudioRecorder } from '@/Hooks/useAudioRecorder';
 import { Button } from '@/Components/ui/button';
+import { HStack, VStack } from '@/Components/ui/stack';
 import { cn } from '@/Lib/utils';
 
 interface ConversationMessage {
