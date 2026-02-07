@@ -58,7 +58,9 @@ Laravel 11.x + React 18 + TypeScript + Inertia.js v2.0 + Tailwind CSS v4 + shadc
 23. **Booking Entry**: AI=prompt pills (left, stacked, click populates, manual send). Guided=two option cards. `PromptSuggestion` from `Components/ui/prompt-suggestion.tsx`
 24. **Smart Patient**: `mergeEntities()` DB lookup by relation. Found→auto-select+skip. Not found→selector with "I don't see…" message. All relations incl `self`
 25. **Alerts**: All ad-hoc alert divs→`<Alert>` component. ESLint `no-ad-hoc-alert` catches inline `backgroundColor` with status tokens on `div`/`section`. Exceptions: EmergencyAlert, EmergencyWarning
-26. **Lab Tests**: Info-card rows (not table), 40x40 icons, Normal/Abnormal/Pending badges. Completed→`/health-records/{id}` via `health_record_id`. Backend: `HealthRecord` by `appointment_id`+`category='lab_report'`. Empty inside Section=centered text, not `EmptyState`
+26. **Lab Tests**: `noPadding` + `divide-y` rows. Completed→Normal/Abnormal badge + chevron→`/health-records/{id}` via `health_record_id`. Pending→muted name + "Pending" warning badge. "Book pending tests" header action (not per-row). Backend: `HealthRecord` by `appointment_id`+`category='lab_report'`. Empty inside Section=centered text, not `EmptyState`
+27. **Financial rows**: Billing fee breakdowns and payment details use `flex justify-between` (NOT DetailRow) — amounts/values right-aligned. `px-6 py-4`, label=`text-body text-muted-foreground`, value=`text-label text-foreground`. Total row uses `text-card-title`. Same pattern on Billing/Show.tsx and ClaimDetail financial section
+28. **Appointment Overview**: Merged Date+Time into single "Date & time" row. No Status row. Clinical Summary uses `noPadding` + DetailRow for diagnosis (inline ICD+severity badges) and allergies (danger badges). "If Symptoms Worsen" Alert stays at bottom with `p-6 pt-4` wrapper
 
 ---
 
