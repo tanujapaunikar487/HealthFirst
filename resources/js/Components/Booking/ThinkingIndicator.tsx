@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { HStack, VStack } from '@/Components/ui/stack';
 import { cn } from '@/Lib/utils';
 
 interface ThinkingIndicatorProps {
@@ -39,13 +40,13 @@ export function ThinkingIndicator({ steps = [], className }: ThinkingIndicatorPr
   }
 
   return (
-    <div className={cn('space-y-1.5', className)}>
+    <VStack gap={2} className={className}>
       {/* Header */}
-      <div className="flex items-center gap-2 text-body text-muted-foreground">
+      <HStack gap={2} className="text-body text-muted-foreground">
         <svg
           className={cn(
-            'w-3.5 h-3.5',
-            isComplete ? 'text-blue-500' : 'text-placeholder animate-spin'
+            'w-4 h-4',
+            isComplete ? 'text-primary' : 'text-placeholder animate-spin'
           )}
           fill="none"
           viewBox="0 0 24 24"
@@ -73,18 +74,19 @@ export function ThinkingIndicator({ steps = [], className }: ThinkingIndicatorPr
             </>
           )}
         </svg>
-        <span className="font-medium">
+        <span className="text-label">
           {isComplete ? 'Analysis complete' : 'Thinking...'}
         </span>
-      </div>
+      </HStack>
 
       {/* Thinking Steps */}
-      <div className="ml-5 space-y-1">
+      <VStack gap={1} className="ml-5">
         {steps.slice(0, visibleSteps).map((step, index) => (
-          <div
+          <HStack
             key={index}
+            gap={2}
             className={cn(
-              'flex items-start gap-2 text-body text-muted-foreground animate-in fade-in-50 slide-in-from-left-2',
+              'items-start text-body text-muted-foreground animate-in fade-in-50 slide-in-from-left-2',
               'transition-opacity duration-200'
             )}
             style={{
@@ -92,22 +94,22 @@ export function ThinkingIndicator({ steps = [], className }: ThinkingIndicatorPr
               animationFillMode: 'both',
             }}
           >
-            <span className="text-blue-500 font-mono mt-0.5">→</span>
+            <span className="text-primary font-mono">→</span>
             <span className="flex-1">{step}</span>
-          </div>
+          </HStack>
         ))}
-      </div>
+      </VStack>
 
       {/* Progress indicator when not complete */}
       {!isComplete && visibleSteps > 0 && (
-        <div className="ml-5 flex items-center gap-1.5 text-body text-placeholder">
-          <div className="flex gap-0.5">
+        <div className="ml-5 text-body text-placeholder">
+          <HStack gap={1}>
             <span className="w-1 h-1 bg-placeholder rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
             <span className="w-1 h-1 bg-placeholder rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
             <span className="w-1 h-1 bg-placeholder rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-          </div>
+          </HStack>
         </div>
       )}
-    </div>
+    </VStack>
   );
 }

@@ -1,4 +1,5 @@
 import { Star } from '@/Lib/icons';
+import { HStack } from '@/Components/ui/stack';
 import { Icon } from '@/Components/ui/icon';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
@@ -18,7 +19,7 @@ interface TimeSlotGridProps {
 
 export function TimeSlotGrid({ slots, selectedTime, onSelect, className }: TimeSlotGridProps) {
   return (
-    <div className={cn('flex flex-wrap gap-2', className)}>
+    <HStack gap={2} className={cn('flex-wrap', className)}>
       {slots.map((slot) => (
         <Button
           key={slot.time}
@@ -26,7 +27,7 @@ export function TimeSlotGrid({ slots, selectedTime, onSelect, className }: TimeS
           onClick={() => slot.available && onSelect(slot.time)}
           disabled={!slot.available}
           className={cn(
-            'h-auto px-3 py-1.5 rounded-lg text-label disabled:opacity-60 relative',
+            'h-auto px-4 py-2 rounded-xl text-label disabled:opacity-60 relative',
             'hover:border-primary/50',
             selectedTime === slot.time &&
               'hover:border-foreground'
@@ -34,10 +35,10 @@ export function TimeSlotGrid({ slots, selectedTime, onSelect, className }: TimeS
         >
           {slot.time}
           {slot.preferred && selectedTime !== slot.time && (
-            <Icon icon={Star} className="absolute -top-1 -right-1 h-3 w-3 fill-black text-black" />
+            <Icon icon={Star} className="absolute -top-1 -right-1 fill-black text-black" size="sm" />
           )}
         </Button>
       ))}
-    </div>
+    </HStack>
   );
 }

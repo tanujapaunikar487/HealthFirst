@@ -509,12 +509,10 @@ export default function AppLayout({
 
                     {/* Page Content */}
                     <main
-                        className="flex-1 overflow-y-auto flex flex-col"
+                        className="flex-1 overflow-y-auto flex flex-col pt-20 pb-5"
                         style={{
                             background:
                                 "linear-gradient(180deg, hsl(var(--primary) / 0.1) 0%, hsl(var(--background) / 0.5) 13.94%, hsl(var(--background)) 30.77%)",
-                            paddingTop: "40px",
-                            paddingBottom: "20px",
                         }}
                     >
                         <div className="flex-1 flex justify-center">
@@ -528,7 +526,7 @@ export default function AppLayout({
                 <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
                     <SheetContent side="right">
                         <SheetHeader>
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-2.5">
                                     <SheetTitle>Notifications</SheetTitle>
                                     {unreadCount > 0 && (

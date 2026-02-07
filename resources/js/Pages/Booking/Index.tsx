@@ -8,6 +8,7 @@ import {
 } from '@/Components/ui/prompt-input';
 import { PromptInputContainer } from '@/Components/ui/prompt-input-container';
 import { PromptSuggestion } from '@/Components/ui/prompt-suggestion';
+import { HStack, VStack } from '@/Components/ui/stack';
 import { ArrowUp, Plus, Mic, X, Check, ChevronRight, Stethoscope, TestTube2 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { AudioWaveform } from '@/Components/ui/AudioWaveform';
@@ -145,43 +146,45 @@ export default function BookingIndex() {
         }}
       >
         {/* Header */}
-        <header className="bg-white border-b border-border">
-          <div className="flex items-center justify-between px-6 py-4">
-            <div className="flex items-center gap-2">
+        <header className="bg-card border-b border-border">
+          <HStack className="justify-between px-6 py-4">
+            <HStack gap={2}>
               <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-5 h-5" />
               <span className="text-label">Booking an appointment</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1 border border-border rounded-full p-1 bg-muted">
-              <Button
-                variant="ghost"
-                className={cn(
-                  'h-auto p-1.5 rounded-full transition-all',
-                  mode === 'ai' ? 'shadow-md' : ''
-                )}
-                onClick={() => setMode('ai')}
-              >
-                <img
-                  src={mode === 'ai' ? '/assets/icons/hugeicons/ai-magic.svg' : '/assets/icons/hugeicons/ai-magic-1.svg'}
-                  alt=""
-                  className="w-4 h-4"
-                />
-              </Button>
-              <Button
-                variant="ghost"
-                className={cn(
-                  'h-auto p-1.5 rounded-full transition-all',
-                  mode === 'guided' ? 'shadow-md' : ''
-                )}
-                onClick={() => setMode('guided')}
-              >
-                <img
-                  src={mode === 'guided' ? '/assets/icons/hugeicons/stairs-01-1.svg' : '/assets/icons/hugeicons/stairs-01.svg'}
-                  alt=""
-                  className="w-4 h-4"
-                />
-              </Button>
-            </div>
+            </HStack>
+            <HStack gap={3}>
+              <HStack gap={1} className="border border-border rounded-full p-1 bg-muted">
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    'h-auto p-2 rounded-full transition-all',
+                    mode === 'ai' ? 'shadow-md' : ''
+                  )}
+                  onClick={() => setMode('ai')}
+                  iconOnly
+                >
+                  <img
+                    src={mode === 'ai' ? '/assets/icons/hugeicons/ai-magic.svg' : '/assets/icons/hugeicons/ai-magic-1.svg'}
+                    alt=""
+                    className="w-4 h-4"
+                  />
+                </Button>
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    'h-auto p-2 rounded-full transition-all',
+                    mode === 'guided' ? 'shadow-md' : ''
+                  )}
+                  onClick={() => setMode('guided')}
+                  iconOnly
+                >
+                  <img
+                    src={mode === 'guided' ? '/assets/icons/hugeicons/stairs-01-1.svg' : '/assets/icons/hugeicons/stairs-01.svg'}
+                    alt=""
+                    className="w-4 h-4"
+                  />
+                </Button>
+              </HStack>
 
               {/* Cancel button */}
               <Button
@@ -191,10 +194,10 @@ export default function BookingIndex() {
                 iconOnly
                 title="Cancel booking"
               >
-                <Icon icon={X} className="w-4 h-4 text-muted-foreground" />
+                <Icon icon={X} className="text-muted-foreground" />
               </Button>
-            </div>
-          </div>
+            </HStack>
+          </HStack>
           {/* Progress bar */}
           <div className="h-1 bg-muted">
             <div className="h-full w-[16%] bg-primary transition-all duration-300" />
@@ -203,61 +206,67 @@ export default function BookingIndex() {
 
         {/* Main content */}
         <main className="flex flex-col items-center justify-center px-6 py-20">
-          {/* AI Blob */}
-          <div className="relative w-28 h-28 mb-10">
-            <img src="/assets/images/ai-blob.png" alt="" className="w-full h-full object-contain" />
-          </div>
+          <VStack gap={10} className="items-center">
+            {/* AI Blob */}
+            <div className="relative w-28 h-28">
+              <img src="/assets/images/ai-blob.png" alt="" className="w-full h-full object-contain" />
+            </div>
 
-          {/* Mode toggle */}
-          <div className="flex items-center gap-1 border border-border rounded-full p-1 mb-10 bg-muted">
-            <Button
-              variant="ghost"
-              onClick={() => setMode('ai')}
-              className={cn(
-                'h-auto flex items-center gap-2 px-5 py-2.5 rounded-full transition-all',
-                mode === 'ai'
-                  ? 'bg-white shadow-md text-foreground text-card-title'
-                  : 'text-muted-foreground hover:text-foreground bg-transparent text-body'
-              )}
-            >
-              <img
-                src={
+            {/* Mode toggle */}
+            <HStack gap={1} className="border border-border rounded-full p-1 bg-muted">
+              <Button
+                variant="ghost"
+                onClick={() => setMode('ai')}
+                className={cn(
+                  'h-auto rounded-full transition-all',
                   mode === 'ai'
-                    ? '/assets/icons/hugeicons/ai-magic.svg'
-                    : '/assets/icons/hugeicons/ai-magic-1.svg'
-                }
-                alt=""
-                className="w-5 h-5"
-              />
-              AI assistant
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => setMode('guided')}
-              className={cn(
-                'h-auto flex items-center gap-2 px-5 py-2.5 rounded-full transition-all',
-                mode === 'guided'
-                  ? 'bg-white shadow-md text-foreground text-card-title'
-                  : 'text-muted-foreground hover:text-foreground bg-transparent text-body'
-              )}
-            >
-              <img
-                src={
+                    ? 'bg-card shadow-md text-foreground text-card-title'
+                    : 'text-muted-foreground hover:text-foreground bg-transparent text-body'
+                )}
+              >
+                <HStack gap={2} className="px-6 py-3">
+                  <img
+                    src={
+                      mode === 'ai'
+                        ? '/assets/icons/hugeicons/ai-magic.svg'
+                        : '/assets/icons/hugeicons/ai-magic-1.svg'
+                    }
+                    alt=""
+                    className="w-5 h-5"
+                  />
+                  AI assistant
+                </HStack>
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setMode('guided')}
+                className={cn(
+                  'h-auto rounded-full transition-all',
                   mode === 'guided'
-                    ? '/assets/icons/hugeicons/stairs-01-1.svg'
-                    : '/assets/icons/hugeicons/stairs-01.svg'
-                }
-                alt=""
-                className="w-5 h-5"
-              />
-              Guided Booking
-            </Button>
-          </div>
+                    ? 'bg-card shadow-md text-foreground text-card-title'
+                    : 'text-muted-foreground hover:text-foreground bg-transparent text-body'
+                )}
+              >
+                <HStack gap={2} className="px-6 py-3">
+                  <img
+                    src={
+                      mode === 'guided'
+                        ? '/assets/icons/hugeicons/stairs-01-1.svg'
+                        : '/assets/icons/hugeicons/stairs-01.svg'
+                    }
+                    alt=""
+                    className="w-5 h-5"
+                  />
+                  Guided Booking
+                </HStack>
+              </Button>
+            </HStack>
 
-          {/* Title */}
-          <h1 className="text-page-title text-center mb-10 text-foreground">
-            What would you like to book today?
-          </h1>
+            {/* Title */}
+            <h1 className="text-page-title text-center text-foreground">
+              What would you like to book today?
+            </h1>
+          </VStack>
 
           {/* AI Input - only show in AI mode */}
           {mode === 'ai' && (
@@ -279,15 +288,15 @@ export default function BookingIndex() {
                 {isRecording ? (
                   // Recording mode - show waveform
                   <div className="px-6 py-4 min-h-36 flex items-center justify-between">
-                    <div className="flex items-center gap-3 flex-1">
-                      <div className="flex items-center gap-2">
+                    <HStack gap={3} className="flex-1">
+                      <HStack gap={2}>
                         <div className="w-3 h-3 bg-destructive rounded-full animate-pulse"></div>
                         <span className="text-label text-muted-foreground">
                           {formatRecordingTime(recordingTime)}
                         </span>
-                      </div>
+                      </HStack>
                       <AudioWaveform isRecording={true} className="flex-1 max-w-md" />
-                    </div>
+                    </HStack>
                   </div>
                 ) : (
                   // Normal mode - show textarea
@@ -299,7 +308,7 @@ export default function BookingIndex() {
                   />
                 )}
                 <PromptInputActions className="absolute bottom-4 left-4 right-4 flex justify-between">
-                  <div className="flex items-center gap-1">
+                  <HStack gap={1}>
                     {/* Add Button - hide when recording */}
                     {!isRecording && (
                       <PromptInputAction tooltip="Add attachment">
@@ -309,14 +318,14 @@ export default function BookingIndex() {
                           size="md"
                           className="rounded-full transition-all duration-200"
                         >
-                          <Icon icon={Plus} className="w-5 h-5" />
+                          <Icon icon={Plus} size="lg" />
                         </Button>
                       </PromptInputAction>
                     )}
-                  </div>
+                  </HStack>
 
                   {/* Right side buttons */}
-                  <div className="flex items-center gap-1">
+                  <HStack gap={1}>
                     {isRecording ? (
                       // Recording mode - show Cancel (X) and Submit (Check) icons
                       <>
@@ -330,7 +339,7 @@ export default function BookingIndex() {
                             }}
                             className="rounded-full transition-all duration-200"
                           >
-                            <Icon icon={X} className="w-5 h-5 text-destructive" />
+                            <Icon icon={X} className="text-destructive" size="lg" />
                           </Button>
                         </PromptInputAction>
 
@@ -342,7 +351,7 @@ export default function BookingIndex() {
                             onClick={handleMicClick}
                             className="rounded-full transition-all duration-200"
                           >
-                            <Icon icon={Check} className="w-5 h-5 text-white" />
+                            <Icon icon={Check} className="text-inverse" size="lg" />
                           </Button>
                         </PromptInputAction>
                       </>
@@ -359,9 +368,8 @@ export default function BookingIndex() {
                             className="rounded-full transition-all duration-200"
                           >
                             <Icon icon={Mic} className={cn(
-                              "w-5 h-5",
                               isTranscribing && "animate-pulse text-primary"
-                            )} />
+                            )} size="lg" />
                           </Button>
                         </PromptInputAction>
 
@@ -377,12 +385,12 @@ export default function BookingIndex() {
                               (isLoading || !input.trim()) && "bg-muted"
                             )}
                           >
-                            <Icon icon={ArrowUp} className="w-5 h-5 text-white" />
+                            <Icon icon={ArrowUp} className="text-inverse" size="lg" />
                           </Button>
                         </PromptInputAction>
                       </>
                     )}
-                  </div>
+                  </HStack>
                 </PromptInputActions>
               </PromptInput>
             </PromptInputContainer>
@@ -390,7 +398,7 @@ export default function BookingIndex() {
 
           {/* AI mode — prompt suggestions */}
           {mode === 'ai' && (
-            <div className="flex flex-col items-start gap-3 mt-6 max-w-3xl w-full">
+            <VStack gap={3} className="items-start mt-6 max-w-3xl w-full">
               {PROMPT_SUGGESTIONS.map((suggestion, i) => (
                 <PromptSuggestion
                   key={i}
@@ -400,12 +408,12 @@ export default function BookingIndex() {
                   {suggestion.text}
                 </PromptSuggestion>
               ))}
-            </div>
+            </VStack>
           )}
 
           {/* Guided mode — booking type cards */}
           {mode === 'guided' && (
-            <div className="flex gap-4">
+            <HStack gap={4}>
               <Button
                 variant="ghost"
                 onClick={() => startGuidedBooking('doctor')}
@@ -422,12 +430,12 @@ export default function BookingIndex() {
                       className="absolute w-64 top-0 left-1/2 -translate-x-1/2"
                     />
                   </div>
-                  <div className="px-5 py-4">
-                    <p className="text-subheading text-foreground">Book a doctor</p>
-                    <p className="text-body text-muted-foreground mt-1">
+                  <VStack gap={1} className="px-6 py-4">
+                    <p className="text-section-title text-foreground">Book a doctor</p>
+                    <p className="text-body text-muted-foreground">
                       Schedule a consultation with a specialist or general physician
                     </p>
-                  </div>
+                  </VStack>
                 </div>
               </Button>
 

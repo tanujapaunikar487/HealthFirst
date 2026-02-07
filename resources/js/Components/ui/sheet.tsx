@@ -87,7 +87,7 @@ const SheetHeader = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & { onBack?: () => void }) => (
   <div
-    className={cn('flex items-center gap-3', className)}
+    className={cn('flex items-start gap-3', className)}
     style={{ padding: '16px 20px', borderBottom: '1px solid hsl(var(--border))', ...style }}
     {...props}
   >

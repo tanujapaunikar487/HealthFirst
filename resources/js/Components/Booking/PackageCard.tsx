@@ -1,5 +1,6 @@
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
+import { HStack, VStack } from '@/Components/ui/stack';
 import { cn } from '@/Lib/utils';
 import { Clock, FlaskConical, User, ChevronRight } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
@@ -27,67 +28,69 @@ export function PackageCard({ package: pkg, isSelected, onSelect, className }: P
   return (
     <div
       className={cn(
-        'p-4 transition-all bg-white',
+        'px-6 py-4 transition-all bg-card',
         isSelected && 'bg-primary/5 ring-2 ring-primary ring-inset',
         className
       )}
     >
-      {/* Header */}
-      <div className="flex items-start justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <span className="font-medium">{pkg.name}</span>
-          {pkg.is_recommended && (
-            <Badge variant="warning">
-              Recommended
-            </Badge>
-          )}
-        </div>
-        <div className="text-right">
-          <span className="font-semibold">₹{pkg.price.toLocaleString()}</span>
-          {pkg.original_price > pkg.price && (
-            <span className="text-body text-muted-foreground line-through ml-2">
-              ₹{pkg.original_price.toLocaleString()}
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Description */}
-      <p className="text-body text-muted-foreground mb-3">{pkg.description}</p>
-
-      {/* Metadata + Book button */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4 text-body text-muted-foreground">
-          <span className="flex items-center gap-1">
-            <Clock className="h-4 w-4" />
-            {pkg.duration_hours} hrs
-          </span>
-          <span className="flex items-center gap-1">
-            <FlaskConical className="h-4 w-4" />
-            {pkg.tests_count} tests
-          </span>
-          <span className="flex items-center gap-1">
-            <User className="h-4 w-4" />
-            {pkg.age_range} age
-          </span>
-        </div>
-
-        <div className="flex items-center gap-1">
-          <Button
-            size="sm"
-            onClick={onSelect}
-            className={cn(
-              'rounded-full h-8',
-              isSelected ? 'bg-foreground text-background hover:bg-foreground' : 'bg-foreground'
+      <VStack gap={3}>
+        {/* Header */}
+        <HStack className="justify-between">
+          <HStack gap={2}>
+            <span className="text-label">{pkg.name}</span>
+            {pkg.is_recommended && (
+              <Badge variant="warning">
+                Recommended
+              </Badge>
             )}
-          >
-            Select
-          </Button>
-          <Button size="sm" variant="ghost" className="w-8 h-8 p-0">
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+          </HStack>
+          <div className="text-right">
+            <span className="text-card-title">₹{pkg.price.toLocaleString()}</span>
+            {pkg.original_price > pkg.price && (
+              <span className="text-body text-muted-foreground line-through ml-2">
+                ₹{pkg.original_price.toLocaleString()}
+              </span>
+            )}
+          </div>
+        </HStack>
+
+        {/* Description */}
+        <p className="text-body text-muted-foreground">{pkg.description}</p>
+
+        {/* Metadata + Book button */}
+        <HStack className="justify-between">
+          <HStack gap={4} className="text-body text-muted-foreground">
+            <HStack gap={1}>
+              <Icon icon={Clock} />
+              {pkg.duration_hours} hrs
+            </HStack>
+            <HStack gap={1}>
+              <Icon icon={FlaskConical} />
+              {pkg.tests_count} tests
+            </HStack>
+            <HStack gap={1}>
+              <Icon icon={User} />
+              {pkg.age_range} age
+            </HStack>
+          </HStack>
+
+          <HStack gap={1}>
+            <Button
+              size="sm"
+              onClick={onSelect}
+              className={cn(
+                'rounded-full',
+                isSelected ? 'bg-foreground text-background hover:bg-foreground' : 'bg-foreground'
+              )}
+            >
+              Select
+            </Button>
+            <Button size="sm" variant="ghost" iconOnly>
+              <Icon icon={ChevronRight} />
+            </Button>
+          </HStack>
+        </HStack>
+      </VStack>
     </div>
   );
 }

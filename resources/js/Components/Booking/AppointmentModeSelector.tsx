@@ -1,5 +1,6 @@
 import { cn } from '@/Lib/utils';
 import { Card } from '@/Components/ui/card';
+import { HStack, VStack } from '@/Components/ui/stack';
 import { Video, User } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { Button } from '@/Components/ui/button';
@@ -30,8 +31,8 @@ export function AppointmentModeSelector({
   className,
 }: AppointmentModeSelectorProps) {
   return (
-    <Card className={cn('overflow-hidden', className)}>
-      {modes.map((mode, index) => {
+    <Card className={cn('overflow-hidden divide-y', className)}>
+      {modes.map((mode) => {
         const modeIcon = modeIcons[mode.type];
         const isSelected = selectedMode === mode.type;
 
@@ -42,28 +43,27 @@ export function AppointmentModeSelector({
             onClick={() => onSelect(mode.type)}
             className={cn(
               'w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50',
-              'flex items-center gap-4 text-left transition-all',
+              'text-left transition-all',
               isSelected && 'bg-primary/5'
             )}
-            style={{
-              borderBottom: index < modes.length - 1 ? '1px solid hsl(var(--border))' : 'none'
-            }}
           >
-            {/* Icon with rounded background */}
-            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-              <Icon icon={modeIcon} className="h-5 w-5 text-foreground" />
-            </div>
+            <HStack gap={4}>
+              {/* Icon with rounded background */}
+              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                <Icon icon={modeIcon} className="text-foreground" size="lg" />
+              </div>
 
-            {/* Text */}
-            <div className="flex-1 min-w-0">
-              <p className="text-label leading-tight mb-0.5">{mode.label}</p>
-              <p className="text-body text-muted-foreground leading-tight">{mode.description}</p>
-            </div>
+              {/* Text */}
+              <VStack gap={0} className="flex-1 min-w-0">
+                <p className="text-label">{mode.label}</p>
+                <p className="text-body text-muted-foreground">{mode.description}</p>
+              </VStack>
 
-            {/* Price */}
-            <span className="text-label flex-shrink-0">
-              ₹{mode.price.toLocaleString()}
-            </span>
+              {/* Price */}
+              <span className="text-label flex-shrink-0">
+                ₹{mode.price.toLocaleString()}
+              </span>
+            </HStack>
           </Button>
         );
       })}

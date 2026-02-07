@@ -225,17 +225,17 @@ export function DetailsSheet({
     <div className="flex flex-col h-full">
       {/* Header */}
       <SheetHeader>
-        <SheetTitle className="text-base">Upcoming Appointment</SheetTitle>
+        <SheetTitle>Upcoming Appointment</SheetTitle>
       </SheetHeader>
 
       {/* People Rows */}
-      <div className="space-y-3 pb-4">
+      <div className="space-y-3 px-5 py-4">
         {/* Patient Row */}
-        <PeopleRow label="Patient" name={appointment.patient_name} />
+        <PeopleRow label="Patient" name={appointment.patient_name} subtext="Self" />
 
         {/* Doctor Row - only for doctor appointments */}
         {isDoctor && (
-          <PeopleRow label="Doctor" name={appointment.title} type="doctor" />
+          <PeopleRow label="Doctor" name={appointment.title} subtext={appointment.subtitle || 'General Physician'} />
         )}
       </div>
 
@@ -244,7 +244,9 @@ export function DetailsSheet({
 
       {/* Scrollable Content */}
       <SheetBody>
+        <div className="divide-y divide-border">
         {/* Details Section */}
+        <div className="px-5">
         <Collapsible open={detailsOpen} onOpenChange={setDetailsOpen}>
           <CollapsibleTrigger className="flex items-center justify-between w-full py-3 hover:bg-muted/50 transition-colors">
             <div className="flex items-center gap-2">
@@ -282,8 +284,10 @@ export function DetailsSheet({
             )}
           </CollapsibleContent>
         </Collapsible>
+        </div>
 
         {/* Notes Section */}
+        <div className="px-5">
         <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
           <CollapsibleTrigger className="flex items-center justify-between w-full py-3 hover:bg-muted/50 transition-colors">
             <div className="flex items-center gap-2">
@@ -361,8 +365,10 @@ export function DetailsSheet({
             )}
           </CollapsibleContent>
         </Collapsible>
+        </div>
 
         {/* Preparation Section */}
+        <div className="px-5">
         <Collapsible open={preparationOpen} onOpenChange={setPreparationOpen}>
           <CollapsibleTrigger className="flex items-center justify-between w-full py-3 hover:bg-muted/50 transition-colors">
             <div className="flex items-center gap-2">
@@ -394,6 +400,8 @@ export function DetailsSheet({
             </ul>
           </CollapsibleContent>
         </Collapsible>
+        </div>
+        </div>
       </SheetBody>
 
       {/* Footer */}
@@ -552,19 +560,22 @@ export function CancelledDetailsSheet({
     <div className="flex flex-col h-full">
       {/* Header */}
       <SheetHeader>
-        <SheetTitle className="text-base">Cancelled Appointment</SheetTitle>
+        <SheetTitle>Cancelled Appointment</SheetTitle>
       </SheetHeader>
 
       {/* Cancelled Banner */}
-      <Alert variant="error" className="mb-4">
+      <Alert variant="error" className="mx-5 my-4">
         This appointment was cancelled
       </Alert>
 
+      {/* Edge-to-edge divider */}
+      <SheetDivider />
+
       {/* People Rows */}
-      <div className="space-y-3 pb-4">
-        <PeopleRow label="Patient" name={appointment.patient_name} />
+      <div className="space-y-3 px-5 py-4">
+        <PeopleRow label="Patient" name={appointment.patient_name} subtext="Self" />
         {isDoctor && (
-          <PeopleRow label="Doctor" name={appointment.title} type="doctor" />
+          <PeopleRow label="Doctor" name={appointment.title} subtext={appointment.subtitle || 'General Physician'} />
         )}
       </div>
 
@@ -573,6 +584,7 @@ export function CancelledDetailsSheet({
 
       {/* Scrollable Content */}
       <SheetBody>
+        <div className="space-y-6 px-5 py-5">
         {/* Original Details Section */}
         <div className="space-y-3">
           <p className="text-label text-muted-foreground uppercase tracking-wide">Original Details</p>
@@ -599,6 +611,7 @@ export function CancelledDetailsSheet({
               }
             />
           </div>
+        </div>
         </div>
       </SheetBody>
 
@@ -654,40 +667,19 @@ function getAvatarColorByName(name: string) {
   return getAvatarColor(Math.abs(hash));
 }
 
-function PeopleRow({ label, name, type = 'patient' }: { label: string; name: string; type?: 'patient' | 'doctor' }) {
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
-  const avatarStyle = type === 'doctor'
-    ? getAvatarColorByName(name)
-    : null;
-
+function PeopleRow({ label, name, subtext }: { label: string; name: string; subtext?: string }) {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-start gap-3">
       <span className="text-body text-muted-foreground w-[70px] flex-shrink-0">{label}</span>
-      <Avatar className="h-6 w-6">
-        <AvatarFallback
-          className={cn(
-            "text-label",
-            type === 'patient' && "bg-muted text-muted-foreground"
-          )}
-          style={avatarStyle ? { backgroundColor: avatarStyle.bg, color: avatarStyle.text } : undefined}
-        >
-          {getInitials(name)}
-        </AvatarFallback>
-      </Avatar>
-      <span className="text-label">{name}</span>
+      <div className="flex-1">
+        <p className="text-label text-foreground">{name}</p>
+        {subtext && <p className="text-body text-muted-foreground">{subtext}</p>}
+      </div>
     </div>
   );
 }
 
-function KeyValueRow({ label, value }: { label: string; value: string }) {
+function KeyValueRow({ label, value }: { label: string; value: string | React.ReactNode }) {
   return (
     <div className="flex items-start justify-between text-body">
       <span className="text-muted-foreground w-[70px] flex-shrink-0">{label}</span>
@@ -742,7 +734,7 @@ export function CancelSheet({
       </SheetHeader>
 
       <SheetBody>
-        <div className="space-y-6">
+        <div className="space-y-6 px-5 py-5">
         {/* Warning */}
         <Alert variant="warning" title="Are you sure?">
           Cancelling your appointment with{' '}
@@ -867,7 +859,7 @@ export function RescheduleSheet({
       </SheetHeader>
 
       <SheetBody>
-        <div className="space-y-6">
+        <div className="space-y-6 px-5 py-5">
         {/* Booking Summary */}
         <div className="rounded-lg bg-muted/50 p-4 space-y-3">
           <div className="flex items-center gap-3">
@@ -1140,7 +1132,7 @@ export function FollowUpSheet({
       ) : data ? (
         <>
           <SheetBody>
-            <div className="space-y-6">
+            <div className="space-y-6 px-5 py-5">
             {/* Doctor & Patient Card */}
             <div className="rounded-lg bg-muted/50 p-4 space-y-3">
               <div className="flex items-center gap-3">
@@ -1457,7 +1449,7 @@ export function BookAgainSheet({
       ) : data ? (
         <>
           <SheetBody>
-            <div className="space-y-6">
+            <div className="space-y-6 px-5 py-5">
             {/* Doctor & Patient Card */}
             <div className="rounded-lg bg-muted/50 p-4 space-y-3">
               <div className="flex items-center gap-3">
