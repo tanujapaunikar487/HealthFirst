@@ -4,7 +4,6 @@ import SearchModal from "@/Components/SearchModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { Button, buttonVariants } from "@/Components/ui/button";
 import { cn } from "@/Lib/utils";
-import { Badge } from "@/Components/ui/badge";
 import {
     Sheet,
     SheetContent,
@@ -14,35 +13,12 @@ import {
     SheetDescription,
 } from "@/Components/ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "@/Components/ui/tabs";
-import {
-    Bell,
-    Search,
-    CheckCheck,
-    Receipt,
-    Clock,
-    CheckCircle2,
-    XCircle,
-    X,
-    ShieldCheck,
-    ShieldAlert,
-    MessageSquare,
-    CreditCard,
-    AlertTriangle,
-    Sparkles,
-    // Notification icons
-    Calendar,
-    Video,
-    TestTube,
-    AlertCircle,
-    Pill,
-    User,
-    UserPlus,
-    Stethoscope,
-} from "@/Lib/icons";
+import { Bell, Search, CheckCheck } from "@/Lib/icons";
 import { Icon } from "@/Components/ui/icon";
 import { Alert } from "@/Components/ui/alert";
 import { SupportFooter } from "@/Components/SupportFooter";
 import { ToastProvider } from "@/Contexts/ToastContext";
+import { getAvatarColor } from "@/Lib/avatar-colors";
 
 // --- Types ---
 
@@ -76,61 +52,27 @@ interface AppLayoutProps {
 
 // --- Notification Helpers ---
 
-type NotificationVariant = "success" | "warning" | "destructive" | "info";
+type NotificationCategory = 'appointment' | 'update' | 'billing';
 
-const notificationIconMap: Record<
-    string,
-    { icon: React.ComponentType<any>; variant: NotificationVariant }
-> = {
-    // Billing Notifications
-    bill_generated: { icon: Receipt, variant: "info" },
-    payment_due_reminder: { icon: Clock, variant: "warning" },
-    payment_successful: { icon: CheckCircle2, variant: "success" },
-    payment_failed: { icon: XCircle, variant: "destructive" },
-    dispute_update: { icon: MessageSquare, variant: "warning" },
-    emi_due_reminder: { icon: CreditCard, variant: "info" },
-
-    // Insurance Claims Notifications
-    insurance_claim_approved: { icon: ShieldCheck, variant: "success" },
-    insurance_claim_rejected: { icon: ShieldAlert, variant: "destructive" },
-    insurance_preauth_approved: { icon: ShieldCheck, variant: "success" },
-    insurance_preauth_rejected: { icon: ShieldAlert, variant: "destructive" },
-    insurance_enhancement_required: { icon: ShieldAlert, variant: "warning" },
-    insurance_enhancement_approved: { icon: ShieldCheck, variant: "success" },
-    insurance_claim_settled: { icon: ShieldCheck, variant: "success" },
-
-    // Appointment Notifications
-    appointment_reminder: { icon: Calendar, variant: "info" },
-    appointment_confirmed: { icon: CheckCircle2, variant: "success" },
-    appointment_cancelled: { icon: XCircle, variant: "destructive" },
-    appointment_rescheduled: { icon: Calendar, variant: "warning" },
-    checkin_available: { icon: Clock, variant: "success" },
-    video_link_ready: { icon: Video, variant: "info" },
-
-    // Health Records Notifications
-    lab_results_ready: { icon: TestTube, variant: "success" },
-    abnormal_results: { icon: AlertCircle, variant: "destructive" },
-    prescription_expiring: { icon: Pill, variant: "warning" },
-    followup_required: { icon: Stethoscope, variant: "warning" },
-
-    // Family Members Notifications
-    member_verification_pending: { icon: User, variant: "warning" },
-    member_added: { icon: UserPlus, variant: "success" },
-
-    // Insurance Policy Notifications
-    policy_expiring_soon: { icon: ShieldAlert, variant: "warning" },
-    policy_expired: { icon: ShieldAlert, variant: "destructive" },
-
-    // Promotions
-    promotion: { icon: Sparkles, variant: "info" },
-};
-
-const channelLabels: Record<string, string> = {
-    push: "Push",
-    email: "Email",
-    sms: "SMS",
-    whatsapp: "WhatsApp",
-};
+function getNotificationCategory(type: string): NotificationCategory {
+    if (type.startsWith('appointment_') || type === 'checkin_available' || type === 'video_link_ready') {
+        return 'appointment';
+    }
+    if (
+        type === 'lab_results_ready' ||
+        type === 'abnormal_results' ||
+        type === 'prescription_expiring' ||
+        type === 'followup_required' ||
+        type.startsWith('insurance_') ||
+        type === 'policy_expiring_soon' ||
+        type === 'policy_expired' ||
+        type === 'member_verification_pending' ||
+        type === 'member_added'
+    ) {
+        return 'update';
+    }
+    return 'billing';
+}
 
 function timeAgo(dateStr: string): string {
     const now = new Date();
@@ -139,90 +81,78 @@ function timeAgo(dateStr: string): string {
 
     if (seconds < 60) return "Just now";
     const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}m ago`;
+    if (minutes < 60) return `${minutes}m`;
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
+    if (hours < 24) return `${hours}h`;
     const days = Math.floor(hours / 24);
-    if (days < 7) return `${days}d ago`;
-    if (days < 30) return `${Math.floor(days / 7)}w ago`;
+    if (days === 1) return "1 day";
+    if (days < 7) return `${days} days`;
     return date.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
 }
 
-function NotificationIcon({ type }: { type: string }) {
-    const config = notificationIconMap[type] || {
-        icon: Bell,
-        variant: "info" as const,
-    };
+function getTimeGroup(dateStr: string): 'today' | 'this-week' | 'older' {
+    const now = new Date();
+    const date = new Date(dateStr);
+    const daysDiff = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
 
-    // Map variant to semantic token classes
-    const variantClasses = {
-        success: "bg-success-subtle text-success-subtle-foreground",
-        warning: "bg-warning-subtle text-warning-subtle-foreground",
-        destructive: "bg-destructive-subtle text-destructive-subtle-foreground",
-        info: "bg-info-subtle text-info-subtle-foreground",
-    };
-
-    return (
-        <div
-            className={cn(
-                "h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0",
-                variantClasses[config.variant],
-            )}
-        >
-            <Icon icon={config.icon} className="h-[18px] w-[18px]" />
-        </div>
-    );
+    if (daysDiff === 0) return 'today';
+    if (daysDiff < 7) return 'this-week';
+    return 'older';
 }
 
-function NotificationCard({
+function NotificationItem({
     notification,
     onClick,
+    index,
 }: {
     notification: NotificationItem;
     onClick: () => void;
+    index: number;
 }) {
     const isUnread = !notification.read_at;
+    const { props } = usePage<{ auth: { user: User | null } }>();
+    const user = props.auth?.user;
+    const avatarColor = getAvatarColor(index);
+
+    // Generate initials from notification title (first letter of first two words)
+    const getInitials = (title: string) => {
+        const words = title.split(' ').filter(w => w.length > 0);
+        if (words.length >= 2) {
+            return (words[0][0] + words[1][0]).toUpperCase();
+        }
+        return words[0]?.slice(0, 2).toUpperCase() || '?';
+    };
 
     return (
-        <Button
-            variant="ghost"
-            className={cn(
-                "w-full text-left rounded-xl p-4 transition-colors hover:bg-muted/50 h-auto border",
-                isUnread
-                    ? "bg-info-subtle/50 border-info-border"
-                    : "bg-background border-border",
-            )}
+        <button
             onClick={onClick}
+            className="w-full flex items-start gap-3 px-5 py-4 hover:bg-muted/50 transition-colors text-left"
         >
-            <div className="flex gap-3">
-                <NotificationIcon type={notification.type} />
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                        <p className="text-card-title truncate text-foreground">
-                            {notification.title}
-                        </p>
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
-                            <span className="text-micro text-muted-foreground whitespace-nowrap">
-                                {timeAgo(notification.created_at)}
-                            </span>
-                            {isUnread && (
-                                <span className="h-2 w-2 rounded-full bg-primary flex-shrink-0" />
-                            )}
-                        </div>
-                    </div>
-                    <p className="text-body text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">
-                        {notification.message}
-                    </p>
-                    <div className="flex items-center gap-1.5 mt-2">
-                        {notification.channels.map((ch) => (
-                            <Badge key={ch} variant="neutral" size="sm">
-                                {channelLabels[ch] || ch}
-                            </Badge>
-                        ))}
-                    </div>
-                </div>
+            <Avatar className="h-10 w-10 flex-shrink-0">
+                <AvatarImage src={user?.avatar_url} />
+                <AvatarFallback
+                    className="text-body font-medium"
+                    style={{
+                        backgroundColor: avatarColor.bg,
+                        color: avatarColor.text,
+                    }}
+                >
+                    {getInitials(notification.title)}
+                </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+                <p className="text-label text-foreground mb-1">{notification.title}</p>
+                <p className="text-body text-muted-foreground">{notification.message}</p>
             </div>
-        </Button>
+            <div className="flex items-center gap-2 flex-shrink-0">
+                <span className="text-caption text-muted-foreground whitespace-nowrap">
+                    {timeAgo(notification.created_at)}
+                </span>
+                {isUnread && (
+                    <span className="h-2 w-2 rounded-full bg-primary flex-shrink-0" />
+                )}
+            </div>
+        </button>
     );
 }
 
@@ -254,7 +184,7 @@ export default function AppLayout({
     const user = props.auth?.user;
 
     const [notifOpen, setNotifOpen] = useState(false);
-    const [notifFilter, setNotifFilter] = useState<"all" | "unread">("all");
+    const [notifFilter, setNotifFilter] = useState<"all" | "appointments" | "updates">("all");
     const [searchOpen, setSearchOpen] = useState(false);
     const [profileBannerDismissed, setProfileBannerDismissed] = useState(() => {
         if (typeof window !== "undefined") {
@@ -308,10 +238,10 @@ export default function AppLayout({
     const allNotifications = props.allNotifications || [];
     const profileWarnings = props.profileWarnings || [];
 
-    const displayedNotifications =
-        notifFilter === "unread"
-            ? allNotifications.filter((n) => !n.read_at)
-            : allNotifications;
+    const displayedNotifications = allNotifications.filter((n) => {
+        if (notifFilter === 'all') return true;
+        return getNotificationCategory(n.type) === notifFilter.replace('s', '') as NotificationCategory;
+    });
 
     const handleNotificationClick = (notification: NotificationItem) => {
         if (!notification.read_at) {
@@ -557,28 +487,20 @@ export default function AppLayout({
                                 Billing notifications
                             </SheetDescription>
 
-                            {/* Filter Tabs — hide when no notifications at all */}
-                            {allNotifications.length > 0 && (
-                                <Tabs
-                                    value={notifFilter}
-                                    onValueChange={(v) =>
-                                        setNotifFilter(v as "all" | "unread")
-                                    }
-                                    className="mt-3"
-                                >
-                                    <TabsList>
-                                        <TabsTrigger value="all">
-                                            All
-                                        </TabsTrigger>
-                                        <TabsTrigger value="unread">
-                                            Unread
-                                            {unreadCount > 0
-                                                ? ` (${unreadCount})`
-                                                : ""}
-                                        </TabsTrigger>
-                                    </TabsList>
-                                </Tabs>
-                            )}
+                            {/* Filter Tabs */}
+                            <Tabs
+                                value={notifFilter}
+                                onValueChange={(v) =>
+                                    setNotifFilter(v as "all" | "appointments" | "updates")
+                                }
+                                className="mt-4"
+                            >
+                                <TabsList>
+                                    <TabsTrigger value="all">All</TabsTrigger>
+                                    <TabsTrigger value="appointments">Appointments</TabsTrigger>
+                                    <TabsTrigger value="updates">Updates</TabsTrigger>
+                                </TabsList>
+                            </Tabs>
                         </SheetHeader>
 
                         {/* Scrollable Notification List */}
@@ -591,27 +513,70 @@ export default function AppLayout({
                                         className="h-[120px] w-[120px] mx-auto mb-4"
                                     />
                                     <p className="text-subheading text-foreground">
-                                        {notifFilter === "unread"
-                                            ? "No unread notifications"
-                                            : "No notifications yet"}
+                                        No notifications yet
                                     </p>
                                     <p className="text-body text-muted-foreground mt-1">
-                                        {notifFilter === "unread"
-                                            ? "You're all caught up!"
-                                            : "Updates about appointments, billing, and more will appear here."}
+                                        Updates about appointments, billing, and more will appear here.
                                     </p>
                                 </div>
                             ) : (
-                                <div className="space-y-2.5">
-                                    {displayedNotifications.map((n) => (
-                                        <NotificationCard
-                                            key={n.id}
-                                            notification={n}
-                                            onClick={() =>
-                                                handleNotificationClick(n)
-                                            }
-                                        />
-                                    ))}
+                                <div className="-mx-5">
+                                    {/* Today */}
+                                    {displayedNotifications.filter((n) => getTimeGroup(n.created_at) === 'today').length > 0 && (
+                                        <div>
+                                            <h3 className="text-label text-muted-foreground px-5 py-3">Today</h3>
+                                            <div className="divide-y divide-border">
+                                                {displayedNotifications
+                                                    .filter((n) => getTimeGroup(n.created_at) === 'today')
+                                                    .map((n, idx) => (
+                                                        <NotificationItem
+                                                            key={n.id}
+                                                            notification={n}
+                                                            onClick={() => handleNotificationClick(n)}
+                                                            index={idx}
+                                                        />
+                                                    ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* This Week */}
+                                    {displayedNotifications.filter((n) => getTimeGroup(n.created_at) === 'this-week').length > 0 && (
+                                        <div className="mt-6">
+                                            <h3 className="text-label text-muted-foreground px-5 py-3">This Week</h3>
+                                            <div className="divide-y divide-border">
+                                                {displayedNotifications
+                                                    .filter((n) => getTimeGroup(n.created_at) === 'this-week')
+                                                    .map((n, idx) => (
+                                                        <NotificationItem
+                                                            key={n.id}
+                                                            notification={n}
+                                                            onClick={() => handleNotificationClick(n)}
+                                                            index={idx}
+                                                        />
+                                                    ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Older */}
+                                    {displayedNotifications.filter((n) => getTimeGroup(n.created_at) === 'older').length > 0 && (
+                                        <div className="mt-6">
+                                            <h3 className="text-label text-muted-foreground px-5 py-3">Older</h3>
+                                            <div className="divide-y divide-border">
+                                                {displayedNotifications
+                                                    .filter((n) => getTimeGroup(n.created_at) === 'older')
+                                                    .map((n, idx) => (
+                                                        <NotificationItem
+                                                            key={n.id}
+                                                            notification={n}
+                                                            onClick={() => handleNotificationClick(n)}
+                                                            index={idx}
+                                                        />
+                                                    ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </SheetBody>

@@ -110,8 +110,6 @@
     --color-avatar-6-bg: hsl(var(--avatar-6-bg));
     --color-avatar-7: hsl(var(--avatar-7));
     --color-avatar-7-bg: hsl(var(--avatar-7-bg));
-    --color-avatar-8: hsl(var(--avatar-8));
-    --color-avatar-8-bg: hsl(var(--avatar-8-bg));
 
     --color-placeholder: hsl(var(--placeholder));
     --color-inverse: hsl(var(--inverse));
@@ -191,23 +189,21 @@
     --icon: 226 71% 40%;
     --icon-bg: 213 97% 87%;
 
-    /* Avatar identity colors (neutral, non-semantic) */
-    --avatar-1: 189 94% 43%;        /* Cyan */
-    --avatar-1-bg: 187 92% 94%;
-    --avatar-2: 262 83% 58%;        /* Purple */
-    --avatar-2-bg: 263 90% 95%;
-    --avatar-3: 239 84% 67%;        /* Indigo */
-    --avatar-3-bg: 239 84% 95%;
-    --avatar-4: 330 81% 60%;        /* Pink */
-    --avatar-4-bg: 326 78% 95%;
-    --avatar-5: 160 84% 39%;        /* Emerald */
-    --avatar-5-bg: 152 76% 94%;
-    --avatar-6: 25 95% 53%;         /* Orange */
-    --avatar-6-bg: 24 100% 95%;
-    --avatar-7: 215 20% 65%;        /* Slate */
-    --avatar-7-bg: 210 20% 95%;
-    --avatar-8: 43 96% 56%;         /* Amber */
-    --avatar-8-bg: 48 100% 96%;
+    /* Avatar identity colors (neutral, non-semantic) - More vibrant */
+    --avatar-1: 189 100% 28%;       /* Cyan */
+    --avatar-1-bg: 187 95% 88%;
+    --avatar-2: 262 90% 32%;        /* Purple */
+    --avatar-2-bg: 263 92% 88%;
+    --avatar-3: 239 90% 35%;        /* Indigo */
+    --avatar-3-bg: 239 88% 88%;
+    --avatar-4: 330 88% 35%;        /* Pink */
+    --avatar-4-bg: 326 85% 88%;
+    --avatar-5: 160 90% 28%;        /* Emerald */
+    --avatar-5-bg: 152 82% 87%;
+    --avatar-6: 25 100% 32%;        /* Orange */
+    --avatar-6-bg: 24 100% 88%;
+    --avatar-7: 43 100% 30%;        /* Amber */
+    --avatar-7-bg: 48 100% 82%;
 
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;

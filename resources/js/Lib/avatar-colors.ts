@@ -10,8 +10,7 @@ export const avatarColors = [
   { bg: 'hsl(var(--avatar-4-bg))', text: 'hsl(var(--avatar-4))' },      // Pink
   { bg: 'hsl(var(--avatar-5-bg))', text: 'hsl(var(--avatar-5))' },      // Emerald
   { bg: 'hsl(var(--avatar-6-bg))', text: 'hsl(var(--avatar-6))' },      // Orange
-  { bg: 'hsl(var(--avatar-7-bg))', text: 'hsl(var(--avatar-7))' },      // Slate
-  { bg: 'hsl(var(--avatar-8-bg))', text: 'hsl(var(--avatar-8))' },      // Amber
+  { bg: 'hsl(var(--avatar-7-bg))', text: 'hsl(var(--avatar-7))' },      // Amber
 ];
 
 /**
