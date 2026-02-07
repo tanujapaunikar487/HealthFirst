@@ -24,7 +24,7 @@ Common: `text-page-title` `text-detail-title` `text-section-title` `text-card-ti
 
 **Button**: 8 variants, 4 sizes (lg/md/sm/xs). Use `buttonVariants()` on Links. Default: `primary lg`. Hierarchy: main=`primary lg`, secondary=`secondary md`, destructive=`destructive`. **Adjacent sizing**: Icon buttons next to `lg` buttons must also be `lg` for visual alignment.
 
-**Avatar**: Use `Avatar`/`AvatarImage`/`AvatarFallback` components. Fallback colors: `getAvatarColor(idx)` from `@/Lib/avatar-colors` for variety (uses `-subtle` tokens). User default: `bg-muted text-muted-foreground`. Doctor: `bg-warning text-warning-foreground`. Provider/org: `bg-icon-bg text-icon`.
+**Avatar**: Use `Avatar`/`AvatarImage`/`AvatarFallback` components. Fallback colors: `getAvatarColor(idx)` from `@/Lib/avatar-colors` for variety (uses `--avatar-*` identity tokens). User default: `bg-muted text-muted-foreground`. Doctor: `bg-warning text-warning-foreground`. Provider/org: `bg-icon-bg text-icon`.
 
 **DetailRow** (`Components/ui/`): Grid with `w-detail-label`, label=`text-body text-muted-foreground`, value=`text-label`. Pattern: `px-6 py-4`.
 
