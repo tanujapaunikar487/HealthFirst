@@ -916,6 +916,7 @@ class AppointmentsController extends Controller
             $data['title'] = $appt->doctor?->name ?? 'Doctor Appointment';
             $data['subtitle'] = $appt->doctor?->specialization ?? '';
             $data['mode'] = $appt->consultation_mode === 'video' ? 'Video' : 'In-Person';
+            $data['doctor_avatar_url'] = $appt->doctor?->avatar_url;
         } else {
             if ($appt->labPackage) {
                 $data['title'] = $appt->labPackage->name;

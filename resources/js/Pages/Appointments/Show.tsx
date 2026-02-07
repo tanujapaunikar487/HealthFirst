@@ -45,6 +45,7 @@ import {
   MoreVertical,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
 import { EmptyState } from '@/Components/ui/empty-state';
 import { Pulse } from '@/Components/ui/skeleton';
 
@@ -254,24 +255,38 @@ export default function Show({ user, appointment }: Props) {
 
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Badge variant="neutral">
-                {isDoctor ? 'Doctor' : 'Lab Test'}
-              </Badge>
-              <Badge variant="neutral">
-                {appointment.mode}
-              </Badge>
-              <span className="text-body text-muted-foreground font-mono">
-                #{appointment.appointment_id}
-              </span>
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'hsl(var(--foreground))' }}>
-              {appointment.title}
-            </h1>
-            {appointment.subtitle && (
-              <p className="text-muted-foreground mt-1">{appointment.subtitle}</p>
+          <div className="flex items-start gap-4">
+            {isDoctor && appointment.doctor ? (
+              <Avatar className="h-12 w-12 flex-shrink-0">
+                <AvatarImage src={appointment.doctor.avatar_url || undefined} alt={appointment.doctor.name} />
+                <AvatarFallback className="bg-warning text-warning-foreground text-label">
+                  {appointment.doctor.name.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            ) : (
+              <div className="h-12 w-12 rounded-full bg-info-subtle flex items-center justify-center flex-shrink-0">
+                <Icon icon={TestTube2} className="h-6 w-6 text-info-subtle-foreground" />
+              </div>
             )}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="neutral">
+                  {isDoctor ? 'Doctor' : 'Lab Test'}
+                </Badge>
+                <Badge variant="neutral">
+                  {appointment.mode}
+                </Badge>
+                <span className="text-body text-muted-foreground font-mono">
+                  #{appointment.appointment_id}
+                </span>
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'hsl(var(--foreground))' }}>
+                {appointment.title}
+              </h1>
+              {appointment.subtitle && (
+                <p className="text-muted-foreground mt-1">{appointment.subtitle}</p>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             {/* Past appointments: Book Again + menu with Share */}
@@ -796,24 +811,22 @@ function LabTestsSection({ tests }: { tests: LabTest[] }) {
         {tests.map((t, i) => {
           if (t.status === 'completed') {
             const href = t.health_record_id ? `/health-records/${t.health_record_id}` : undefined;
-            const content = (
-              <div className="flex items-center justify-between px-6 py-4">
+            return (
+              <div key={i} className="flex items-center justify-between px-6 py-4">
                 <p className="text-label">{t.name}</p>
                 <div className="flex items-center gap-2">
                   <Badge variant={t.is_normal === false ? 'danger' : 'success'}>
                     {t.is_normal === false ? 'Abnormal' : 'Normal'}
                   </Badge>
-                  {href && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+                  {href && (
+                    <Link href={href}>
+                      <Button variant="secondary" iconOnly size="md">
+                        <ChevronRight className="h-5 w-5" />
+                      </Button>
+                    </Link>
+                  )}
                 </div>
               </div>
-            );
-
-            return href ? (
-              <Link key={i} href={href} className="block hover:bg-muted/50 transition-colors">
-                {content}
-              </Link>
-            ) : (
-              <div key={i}>{content}</div>
             );
           }
 

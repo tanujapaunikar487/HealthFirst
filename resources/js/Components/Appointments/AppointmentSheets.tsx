@@ -65,6 +65,7 @@ export interface Appointment {
   is_upcoming: boolean;
   notes?: string | null;
   google_calendar_event_id?: string | null;
+  doctor_avatar_url?: string | null;
 }
 
 interface DateOption {

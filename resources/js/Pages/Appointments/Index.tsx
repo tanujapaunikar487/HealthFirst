@@ -38,12 +38,12 @@ import {
   AlertTriangle,
   Check,
   User,
-  Stethoscope,
   TestTube2,
   Search,
   ChevronRight,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
 import {
   DetailsSheet,
   CancelledDetailsSheet,
@@ -525,13 +525,18 @@ function AppointmentsTable({
               </TableCell>
               <TableCell className="align-top">
                 <div className="flex items-center gap-2.5">
-                  <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-icon-bg">
-                    {appt.type === 'doctor' ? (
-                      <Icon icon={Stethoscope} className="h-5 w-5 text-icon" />
-                    ) : (
+                  {appt.type === 'doctor' ? (
+                    <Avatar className="h-10 w-10 flex-shrink-0">
+                      <AvatarImage src={appt.doctor_avatar_url || undefined} alt={appt.title} />
+                      <AvatarFallback className="bg-warning text-warning-foreground text-label">
+                        {appt.title.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-icon-bg">
                       <Icon icon={TestTube2} className="h-5 w-5 text-icon" />
-                    )}
-                  </div>
+                    </div>
+                  )}
                   <div>
                     <p className="text-label">{appt.title}</p>
                     <p className="text-body text-muted-foreground">
