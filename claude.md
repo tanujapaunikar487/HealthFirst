@@ -17,7 +17,7 @@ Laravel 11.x + React 18 + TypeScript + Inertia.js v2.0 + Tailwind CSS + shadcn/u
 **Typography**: Token classes in `app.css @layer base` — never raw `text-[Xpx]`. Each sets size+weight+line-height. Sentence case (except acronyms/proper nouns).
 `text-display`(72/700) `text-page-title`(36/700) `text-detail-title`(24/700) `text-banner-heading`(24/600) `text-section-title`(20/600) `text-step-title`(20/600) `text-subheading`(16/600) `text-card-title`(14/600) `text-label`(14/500) `text-body`(14/400) `text-caption`(12/500) `text-overline`(11/600/uppercase) `text-micro`(10/600)
 
-**Colors**: Primary blue #1E40AF bg/#BFDBFE icons | Success/Warning/Error=Green/Amber/Red | Warning: #FDE68A border, #FFFBEB bg, #D97706 text | Light: #171717 primary, #737373 secondary | Dark: #fff primary, white/70 secondary | Icons: light=`text-neutral-900`, dark=`text-white`, nav active=#2563EB
+**Colors**: Semantic text tokens — `text-foreground`(#171717) `text-muted-foreground`(#737373) `text-placeholder`(#A1A1A1) `text-inverse`(#FFF, on dark bg) `text-inverse-muted`(white/70%, on dark bg). Never raw `text-neutral-*`/`text-gray-*`/`text-[#hex]` — use semantic tokens. Primary blue #1E40AF bg/#BFDBFE icons | Success/Warning/Error=Green/Amber/Red | Warning: #FDE68A border, #FFFBEB bg, #D97706 text | Icons: `text-foreground` (light), `text-inverse` (dark bg), nav active=#2563EB
 
 **Components**: Badges=pastel bg+colored text, `font-medium`, sizes `sm`(12px)/`lg`(14px), pad `py-1 px-2`/`py-1 pl-1 pr-2`(icon). Use `size="lg"` not className | Tabs=pill: TabsList transparent `gap-1`, TabsTrigger `rounded-full px-4 py-2`, active `shadow-[0_1px_3px_0_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)]`. Custom tab switchers match pill style | SupportFooter global fixed | Skeleton 300ms min/10s timeout | EmptyState #F5F5F5/20px radius (message+description) | CtaBanner dark gradient/white text | Borders 1px (spinner/Switch 2px) | Icon bg `h-10 w-10 rounded-full`+`h-5 w-5`, semantic CSS vars | SideNav 14px/20px icons/6px gap/pill/#2563EB active/200px min
 
@@ -68,6 +68,7 @@ Laravel 11.x + React 18 + TypeScript + Inertia.js v2.0 + Tailwind CSS + shadcn/u
 - No inline `style={{}}` for layout (`display`/`flexDirection`/`gap`/`padding`/`margin`/`width`/`height`/`borderRadius`/`gridTemplateColumns`/`alignItems`/`justifyContent`/`flexGrow`) → Tailwind or Stack
 - Inline `style` OK for: `hsl(var(--*))` colors with alpha, `animation`, Razorpay/PDF
 - No raw hex → semantic tokens (`text-foreground`, `bg-primary`, etc.)
+- No raw `text-neutral-*`/`text-gray-*`/`text-slate-*` → `text-foreground`/`text-muted-foreground`/`text-placeholder`/`text-inverse`/`text-inverse-muted`
 
 **Stack** (`Components/ui/stack.tsx`): `<VStack>`/`<HStack>` for flex layouts. `gap={6}`→`gap-6`=24px. `align`: start/center/end/stretch/baseline. `justify`: start/center/end/between. `<Spacer/>`=flex-1
 
