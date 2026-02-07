@@ -807,7 +807,7 @@ export default function Show({ user, bill }: Props) {
             {/* ─── Charges Section ─── */}
             <DetailSection id="charges" title="Charges" icon={Receipt} noPadding>
               <div className="divide-y">
-                <div className="border-b border-border">
+                <div>
                   <table className="w-full text-body">
                     <thead>
                       <tr className="bg-muted">

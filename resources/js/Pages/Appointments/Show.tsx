@@ -39,8 +39,6 @@ import {
   FolderOpen,
   Activity,
   Heart,
-  ChevronDown,
-  ChevronUp,
   ExternalLink,
   ShieldCheck,
   RotateCcw,
@@ -710,16 +708,16 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
           </Alert>
         )}
 
-        {/* Collapsible subsections */}
-        <div className="space-y-0 divide-y">
-          <CollapsibleRow label="Chief Complaint" content={summary.chief_complaint} defaultOpen />
-          <CollapsibleRow label="History of Present Illness" content={summary.history_of_present_illness} defaultOpen />
-          <CollapsibleRow label="Past Medical History" content={summary.past_medical_history} />
-          <CollapsibleRow label="Family History" content={summary.family_history} />
-          <CollapsibleRow label="Social History" content={summary.social_history} />
-          <CollapsibleRow label="Examination Findings" content={summary.examination_findings} />
-          <CollapsibleRow label="Assessment" content={summary.assessment} defaultOpen />
-          <CollapsibleRow label="Treatment Plan" content={summary.treatment_plan} defaultOpen />
+        {/* Clinical details */}
+        <div className="divide-y -mx-6">
+          {summary.chief_complaint && <DetailRow label="Chief complaint">{summary.chief_complaint}</DetailRow>}
+          {summary.history_of_present_illness && <DetailRow label="Present illness">{summary.history_of_present_illness}</DetailRow>}
+          {summary.past_medical_history && <DetailRow label="Past medical history">{summary.past_medical_history}</DetailRow>}
+          {summary.family_history && <DetailRow label="Family history">{summary.family_history}</DetailRow>}
+          {summary.social_history && <DetailRow label="Social history">{summary.social_history}</DetailRow>}
+          {summary.examination_findings && <DetailRow label="Exam findings">{summary.examination_findings}</DetailRow>}
+          {summary.assessment && <DetailRow label="Assessment">{summary.assessment}</DetailRow>}
+          {summary.treatment_plan && <DetailRow label="Treatment plan">{summary.treatment_plan}</DetailRow>}
         </div>
 
         {/* Symptoms worsen alert */}
@@ -728,41 +726,6 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
         </Alert>
       </div>
     </Section>
-  );
-}
-
-function CollapsibleRow({
-  label,
-  content,
-  defaultOpen = false,
-}: {
-  label: string;
-  content: string;
-  defaultOpen?: boolean;
-}) {
-  const [open, setOpen] = useState(defaultOpen);
-
-  // Skip rendering if content is empty
-  if (!content) return null;
-
-  return (
-    <div className="py-3">
-      <Button
-        variant="ghost"
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between h-auto p-0 text-left group hover:bg-transparent"
-      >
-        <span className="text-label text-foreground">{label}</span>
-        {open ? (
-          <ChevronUp className="h-4 w-4 text-foreground" />
-        ) : (
-          <ChevronDown className="h-4 w-4 text-foreground" />
-        )}
-      </Button>
-      <div className={open ? 'block' : 'hidden'}>
-        <p className="text-body text-muted-foreground mt-2 leading-relaxed">{content}</p>
-      </div>
-    </div>
   );
 }
 

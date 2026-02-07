@@ -1205,7 +1205,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           <Section id="financial" title="Financial Summary" icon={IndianRupee} noPadding>
             <div className="divide-y">
                 {fin.preauth_requested != null && (
-                  <div className="flex items-center justify-between px-5 py-3.5">
+                  <div className="flex items-center justify-between px-6 py-4">
                     <span className="text-body text-muted-foreground">
                       {hasEnhancements ? 'Original pre-auth' : 'Pre-auth requested'}
                     </span>
@@ -1215,7 +1215,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   </div>
                 )}
                 {fin.preauth_approved != null && !hasEnhancements && (
-                  <div className="flex items-center justify-between bg-success/10 px-5 py-3.5">
+                  <div className="flex items-center justify-between bg-success/10 px-6 py-4">
                     <span className="text-label text-success">Pre-auth approved</span>
                     <span className="text-card-title text-success">
                       {formatCurrency(fin.preauth_approved)}
@@ -1227,7 +1227,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 {hasEnhancements && fin.enhancements!.map((enh, idx) => (
                   <div
                     key={enh.id}
-                    className={`flex items-center justify-between px-5 py-3.5 ${
+                    className={`flex items-center justify-between px-6 py-4 ${
                       enh.status === 'approved' ? 'bg-success/10' : enh.status === 'rejected' ? 'bg-destructive/10' : ''
                     }`}
                   >
@@ -1248,7 +1248,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   </div>
                 ))}
                 {hasEnhancements && fin.total_approved != null && (
-                  <div className="flex items-center justify-between bg-success/10 px-5 py-3.5">
+                  <div className="flex items-center justify-between bg-success/10 px-6 py-4">
                     <span className="text-label text-success">Total approved</span>
                     <span className="text-card-title text-success">
                       {formatCurrency(fin.total_approved)}
@@ -1257,7 +1257,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 )}
 
                 {fin.not_covered != null && fin.not_covered > 0 && (
-                  <div className="flex items-center justify-between bg-destructive/10 px-5 py-3.5">
+                  <div className="flex items-center justify-between bg-destructive/10 px-6 py-4">
                     <span className="text-label text-destructive">Not covered</span>
                     <span className="text-card-title text-destructive">
                       {formatCurrency(fin.not_covered)}
@@ -1267,7 +1267,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
                 {/* Single enhancement (legacy) */}
                 {!hasEnhancements && fin.enhancement_requested != null && (
-                  <div className="flex items-center justify-between px-5 py-3.5">
+                  <div className="flex items-center justify-between px-6 py-4">
                     <span className="text-body text-muted-foreground">Enhancement requested</span>
                     <span className="text-card-title text-warning">
                       {formatCurrency(fin.enhancement_requested)}
@@ -1275,7 +1275,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   </div>
                 )}
                 {!hasEnhancements && fin.enhancement_approved != null && (
-                  <div className="flex items-center justify-between bg-success/10 px-5 py-3.5">
+                  <div className="flex items-center justify-between bg-success/10 px-6 py-4">
                     <span className="text-label text-success">Enhancement approved</span>
                     <span className="text-card-title text-success">
                       {formatCurrency(fin.enhancement_approved)}
@@ -1284,7 +1284,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 )}
 
                 {fin.current_bill != null && (
-                  <div className="flex items-center justify-between px-5 py-3.5">
+                  <div className="flex items-center justify-between px-6 py-4">
                     <span className="text-body text-muted-foreground">Current bill</span>
                     <span className="text-card-title text-foreground">
                       {formatCurrency(fin.current_bill)}
@@ -1293,7 +1293,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 )}
 
                 {fin.insurance_covered != null && (
-                  <div className="flex items-center justify-between px-5 py-3.5">
+                  <div className="flex items-center justify-between px-6 py-4">
                     <span className="text-body text-muted-foreground">Insurance covered</span>
                     <span className="text-card-title text-foreground">
                       {formatCurrency(fin.insurance_covered)}
@@ -1304,14 +1304,14 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 {/* Deductions */}
                 {fin.deductions && fin.deductions.length > 0 && (
                   <>
-                    <div className="flex items-center justify-between bg-destructive/10 px-5 py-3.5">
+                    <div className="flex items-center justify-between bg-destructive/10 px-6 py-4">
                       <span className="text-label text-destructive">Deductions</span>
                       <span className="text-card-title text-destructive">
                         -{formatCurrency(fin.deductions.reduce((sum, d) => sum + d.amount, 0))}
                       </span>
                     </div>
                     {fin.deductions.map((d, idx) => (
-                      <div key={idx} className="flex items-center justify-between px-5 py-2.5 pl-9">
+                      <div key={idx} className="flex items-center justify-between px-6 py-2.5 pl-10">
                         <span className="text-body text-muted-foreground">{d.label}</span>
                         <span className="text-label text-destructive">{formatCurrency(d.amount)}</span>
                       </div>
@@ -1321,7 +1321,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
                 {/* Co-pay */}
                 {fin.copay_percentage != null && (
-                  <div className="flex items-center justify-between px-5 py-3.5">
+                  <div className="flex items-center justify-between px-6 py-4">
                     <span className="text-body text-muted-foreground">Co-pay ({fin.copay_percentage}%)</span>
                     <span className="text-card-title text-foreground">
                       {fin.copay_amount != null ? formatCurrency(fin.copay_amount) : '-'}
@@ -1342,14 +1342,14 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 {/* Estimated remaining (in-treatment) */}
                 {isInTreatment && fin.estimated_remaining != null && (
                   <>
-                    <div className="flex items-center justify-between px-5 py-3.5">
+                    <div className="flex items-center justify-between px-6 py-4">
                       <span className="text-body text-muted-foreground">Estimated remaining</span>
                       <span className="text-label text-muted-foreground">
                         {formatCurrency(fin.estimated_remaining)}
                       </span>
                     </div>
                     {fin.estimated_out_of_pocket != null && (
-                      <div className="flex items-center justify-between px-5 py-3.5">
+                      <div className="flex items-center justify-between px-6 py-4">
                         <span className="text-body text-muted-foreground">Estimated out-of-pocket</span>
                         <span className="text-label text-muted-foreground">
                           {formatCurrency(fin.estimated_out_of_pocket)}
@@ -1360,7 +1360,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 )}
 
                 {fin.refunded != null && fin.refunded > 0 && (
-                  <div className="flex items-center justify-between bg-success/10 px-5 py-3.5">
+                  <div className="flex items-center justify-between bg-success/10 px-6 py-4">
                     <span className="text-label text-success">Refunded</span>
                     <span className="text-card-title text-success">
                       {formatCurrency(fin.refunded)}
@@ -1401,7 +1401,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           }
         >
           {claim.documents.length === 0 ? (
-            <div className="px-4 py-6 text-center">
+            <div className="px-6 py-6 text-center">
               <p className="text-label text-foreground">No documents uploaded</p>
               <p className="mt-1 text-body text-muted-foreground">Upload supporting documents for this claim</p>
             </div>
@@ -1449,7 +1449,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           }
         >
           {claim.timeline.length === 0 ? (
-            <div className="px-4 py-6 text-center">
+            <div className="px-6 py-6 text-center">
               <p className="text-label text-foreground">No timeline events</p>
               <p className="mt-1 text-body text-muted-foreground">Timeline updates will appear here as your claim progresses</p>
             </div>
