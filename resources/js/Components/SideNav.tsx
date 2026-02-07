@@ -34,7 +34,7 @@ export function SideNav({
         className
       )}
     >
-      <div className={cn('space-y-1', sticky && 'sticky top-6')}>
+      <div className={cn('space-y-1', sticky && 'sticky top-2')}>
         {items.map(({ id, label, icon: ItemIcon }) => {
           const isActive = activeId === id;
           return (

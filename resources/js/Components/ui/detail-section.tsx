@@ -20,7 +20,7 @@ function DetailSection({
   noPadding,
 }: DetailSectionProps) {
   return (
-    <div id={id} className="scroll-mt-24">
+    <div id={id} className="scroll-mt-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
           <Icon icon={SectionIcon} className="h-5 w-5 text-foreground" />

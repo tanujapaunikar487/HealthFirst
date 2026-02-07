@@ -846,7 +846,7 @@ function LabTestsSection({ tests }: { tests: LabTest[] }) {
 
 function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadInvoice }: { billing: Billing; appointmentId: number; insuranceClaimId?: number | null; onDownloadInvoice: () => void }) {
   return (
-    <div id="billing" className="scroll-mt-24 space-y-4">
+    <div id="billing" className="scroll-mt-6 space-y-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
           <Icon icon={CreditCard} className="h-5 w-5 text-foreground" />

@@ -497,23 +497,23 @@ function Section({
   );
 }
 
-function VitalsGrid({ vitals, statuses, painScore }: { vitals: Record<string, string>; statuses?: Record<string, string>; painScore?: string }) {
+function VitalsRows({ vitals, statuses, painScore }: { vitals: Record<string, string>; statuses?: Record<string, string>; painScore?: string }) {
   const allItems = [
     ...Object.entries(vitals).map(([key, val]) => ({ key, val })),
     ...(painScore ? [{ key: 'pain_score', val: painScore }] : []),
   ];
+  const fmtLabel = (key: string) => key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+    <div className="divide-y -mx-6">
       {allItems.map(({ key, val }) => {
         const status = statuses?.[key];
         return (
-          <div key={key} className="rounded-lg border px-4 py-3">
-            <p className="text-body text-muted-foreground uppercase mb-1">{key.replace(/_/g, ' ')}</p>
-            <div className="flex items-center gap-2">
-              <p className="text-subheading">{val}</p>
+          <DetailRow key={key} label={fmtLabel(key)}>
+            <span className="flex items-center gap-2">
+              {val}
               {status && <StatusDot status={status.toLowerCase()} />}
-            </div>
-          </div>
+            </span>
+          </DetailRow>
         );
       })}
     </div>
@@ -572,26 +572,6 @@ function LinkedRecordsList({ records, onView }: { records: LinkedRecord[]; onVie
   );
 }
 
-function FindingsImpression({ findings, impression, impressionColor = 'hsl(var(--primary))', impressionBg = 'bg-primary/10' }: { findings?: string; impression?: string; impressionColor?: string; impressionBg?: string }) {
-  return (
-    <>
-      {findings && (
-        <div>
-          <SectionTitle>Findings</SectionTitle>
-          <p className="text-body leading-relaxed text-foreground">{findings}</p>
-        </div>
-      )}
-      {impression && (
-        <div>
-          <SectionTitle>Impression</SectionTitle>
-          <div className={cn('rounded-lg px-4 py-3', impressionBg)}>
-            <p className="text-label" style={{ color: impressionColor }}>{impression}</p>
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
 
 /* ─── Main Page Component ─── */
 
@@ -998,59 +978,48 @@ function ConsultationDetail({ meta, onAction }: { meta: RecordMetadata; onAction
       {meta.vitals && Object.keys(meta.vitals).length > 0 && (
         <div>
           <SectionTitle>Vitals Recorded</SectionTitle>
-          <VitalsGrid vitals={meta.vitals} statuses={meta.vitals_status} />
+          <VitalsRows vitals={meta.vitals} statuses={meta.vitals_status} />
         </div>
       )}
 
-      <div className="space-y-4">
+      <div>
         <SectionTitle>Clinical Summary</SectionTitle>
-        {meta.chief_complaint && (
-          <div>
-            <p className="text-body text-muted-foreground uppercase mb-2">Chief Complaint</p>
-            <Alert variant="info" hideIcon>{meta.chief_complaint}</Alert>
-          </div>
-        )}
-        {meta.symptoms && meta.symptoms.length > 0 && (
-          <div>
-            <p className="text-body text-muted-foreground uppercase mb-2">Symptoms</p>
-            <div className="flex flex-wrap gap-2">
-              {meta.symptoms.map((s, i) => <Badge key={i} variant="neutral">{s}</Badge>)}
-            </div>
-          </div>
-        )}
-        {meta.history_of_present_illness && (
-          <div>
-            <p className="text-body text-muted-foreground uppercase mb-2">History of Present Illness</p>
-            <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.history_of_present_illness}</p>
-          </div>
-        )}
-        {(meta.clinical_examination || meta.examination_findings) && (
-          <div>
-            <p className="text-body text-muted-foreground uppercase mb-2">Examination</p>
-            <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.clinical_examination || meta.examination_findings}</p>
-          </div>
-        )}
-        {meta.diagnosis && (
-          <div>
-            <p className="text-body text-muted-foreground uppercase mb-2">Diagnosis</p>
-            <Alert variant="info" hideIcon>
-              <p className="text-card-title" style={{ color: 'hsl(var(--foreground))' }}>{meta.diagnosis}</p>
-              {meta.icd_code && <p className="text-body text-muted-foreground mt-1">ICD: {meta.icd_code}</p>}
-            </Alert>
-          </div>
-        )}
-      </div>
-
-      {(meta.treatment_plan_steps?.length || meta.treatment_plan) && (
-        <div>
-          <SectionTitle>Treatment Plan</SectionTitle>
-          {meta.treatment_plan_steps && meta.treatment_plan_steps.length > 0 ? (
-            <NumberedList items={meta.treatment_plan_steps} />
-          ) : meta.treatment_plan ? (
-            <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.treatment_plan}</p>
-          ) : null}
+        <div className="divide-y -mx-6">
+          {meta.chief_complaint && (
+            <DetailRow label="Chief complaint">{meta.chief_complaint}</DetailRow>
+          )}
+          {meta.symptoms && meta.symptoms.length > 0 && (
+            <DetailRow label="Symptoms">
+              <div className="flex flex-wrap gap-2">
+                {meta.symptoms.map((s, i) => <Badge key={i} variant="neutral">{s}</Badge>)}
+              </div>
+            </DetailRow>
+          )}
+          {meta.history_of_present_illness && (
+            <DetailRow label="History">{meta.history_of_present_illness}</DetailRow>
+          )}
+          {(meta.clinical_examination || meta.examination_findings) && (
+            <DetailRow label="Examination">{meta.clinical_examination || meta.examination_findings}</DetailRow>
+          )}
+          {meta.diagnosis && (
+            <DetailRow label="Diagnosis">
+              <div>
+                <span className="text-card-title">{meta.diagnosis}</span>
+                {meta.icd_code && <span className="text-body text-muted-foreground ml-2">ICD: {meta.icd_code}</span>}
+              </div>
+            </DetailRow>
+          )}
+          {(meta.treatment_plan_steps?.length || meta.treatment_plan) && (
+            <DetailRow label="Treatment plan">
+              {meta.treatment_plan_steps && meta.treatment_plan_steps.length > 0 ? (
+                <NumberedList items={meta.treatment_plan_steps} />
+              ) : meta.treatment_plan ? (
+                <span>{meta.treatment_plan}</span>
+              ) : null}
+            </DetailRow>
+          )}
         </div>
-      )}
+      </div>
 
       {meta.linked_records && meta.linked_records.length > 0 && (
         <div>
@@ -1087,30 +1056,11 @@ function ProcedureDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (
         {meta.procedure_name && <DetailRow label="Procedure">{meta.procedure_name}</DetailRow>}
         {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
         {meta.anesthesia && <DetailRow label="Anesthesia">{meta.anesthesia}</DetailRow>}
+        {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
+        {meta.findings && <DetailRow label="Findings">{meta.findings}</DetailRow>}
+        {meta.complications && <DetailRow label="Complications">{meta.complications}</DetailRow>}
+        {meta.post_op_instructions && <DetailRow label="Post-op instructions">{meta.post_op_instructions}</DetailRow>}
       </div>
-      {meta.technique && (
-        <div>
-          <SectionTitle>Technique</SectionTitle>
-          <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.technique}</p>
-        </div>
-      )}
-      {meta.findings && (
-        <div>
-          <SectionTitle>Findings</SectionTitle>
-          <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.findings}</p>
-        </div>
-      )}
-      {meta.complications && (
-        <div className="divide-y -mx-6">
-          <DetailRow label="Complications">{meta.complications}</DetailRow>
-        </div>
-      )}
-      {meta.post_op_instructions && (
-        <div>
-          <SectionTitle>Post-Procedure Instructions</SectionTitle>
-          <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.post_op_instructions}</p>
-        </div>
-      )}
       {meta.linked_records && meta.linked_records.length > 0 && (
         <div>
           <SectionTitle>Linked Records</SectionTitle>
@@ -1145,80 +1095,59 @@ function ErVisitDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (ms
         </div>
       )}
 
-      {meta.chief_complaint && (
-        <div>
-          <SectionTitle>Chief Complaint</SectionTitle>
-          <Alert variant="error" hideIcon>{meta.chief_complaint}</Alert>
-        </div>
-      )}
-
       {meta.vitals && Object.keys(meta.vitals).length > 0 && (
         <div>
           <SectionTitle>Vitals on Arrival</SectionTitle>
-          <VitalsGrid vitals={meta.vitals} statuses={meta.vitals_status} painScore={meta.pain_score} />
+          <VitalsRows vitals={meta.vitals} statuses={meta.vitals_status} painScore={meta.pain_score} />
         </div>
       )}
 
-      {meta.examination && (
-        <div>
-          <SectionTitle>Examination</SectionTitle>
-          <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.examination}</p>
-        </div>
-      )}
-
-      {meta.investigations && meta.investigations.length > 0 && (
-        <div>
-          <SectionTitle>Investigations Done</SectionTitle>
-          <div className="space-y-2">
-            {meta.investigations.map((inv, i) => (
-              <div key={i} className="flex items-start gap-3 text-body">
-                <span className="h-2 w-2 rounded-full bg-muted-foreground flex-shrink-0 mt-2" />
-                <div className="flex-1">
-                  <span className="font-medium">{inv.name}</span>
-                  <span className="text-muted-foreground"> — {inv.result}</span>
-                </div>
+      <div>
+        <SectionTitle>Clinical</SectionTitle>
+        <div className="divide-y -mx-6">
+          {meta.chief_complaint && (
+            <DetailRow label="Chief complaint">{meta.chief_complaint}</DetailRow>
+          )}
+          {meta.examination && (
+            <DetailRow label="Examination">{meta.examination}</DetailRow>
+          )}
+          {meta.investigations && meta.investigations.length > 0 && meta.investigations.map((inv, i) => (
+            <DetailRow key={i} label={inv.name}>
+              <span className="flex items-center gap-2">
+                <span className="text-muted-foreground">{inv.result}</span>
                 {inv.has_link && (
                   <Button variant="link" size="sm" className="h-auto p-0 text-body text-primary hover:underline flex-shrink-0" onClick={() => onAction(`Opening ${inv.name}...`)}>
                     View
                   </Button>
                 )}
+              </span>
+            </DetailRow>
+          ))}
+          {meta.diagnosis && (
+            <DetailRow label="Diagnosis">{meta.diagnosis}</DetailRow>
+          )}
+          {(meta.treatment_items?.length || meta.treatment_given) && (
+            <DetailRow label="Treatment given">
+              {meta.treatment_items && meta.treatment_items.length > 0 ? (
+                <NumberedList items={meta.treatment_items} />
+              ) : meta.treatment_given ? (
+                <span>{meta.treatment_given}</span>
+              ) : null}
+            </DetailRow>
+          )}
+          {(meta.disposition || meta.disposition_detail) && (
+            <DetailRow label="Disposition">
+              <div>
+                {meta.disposition && <span className="text-label">{meta.disposition}</span>}
+                {meta.disposition_detail && <p className="text-body text-muted-foreground mt-1">{meta.disposition_detail}</p>}
               </div>
-            ))}
-          </div>
+            </DetailRow>
+          )}
+          {meta.follow_up && (
+            <DetailRow label="Follow-up">{meta.follow_up}</DetailRow>
+          )}
         </div>
-      )}
-
-      {meta.diagnosis && (
-        <div>
-          <SectionTitle>Diagnosis</SectionTitle>
-          <Alert variant="warning" hideIcon>{meta.diagnosis}</Alert>
-        </div>
-      )}
-
-      {(meta.treatment_items?.length || meta.treatment_given) && (
-        <div>
-          <SectionTitle>Treatment Given in ER</SectionTitle>
-          {meta.treatment_items && meta.treatment_items.length > 0 ? (
-            <NumberedList items={meta.treatment_items} />
-          ) : meta.treatment_given ? (
-            <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.treatment_given}</p>
-          ) : null}
-        </div>
-      )}
-
-      {(meta.disposition || meta.disposition_detail) && (
-        <div>
-          <SectionTitle>Disposition</SectionTitle>
-          {meta.disposition && <p className="text-label" style={{ color: 'hsl(var(--foreground))' }}>{meta.disposition}</p>}
-          {meta.disposition_detail && <p className="text-body leading-relaxed text-muted-foreground mt-1">{meta.disposition_detail}</p>}
-        </div>
-      )}
-
-      {meta.follow_up && (
-        <div className="divide-y -mx-6">
-          <DetailRow label="Follow-up">{meta.follow_up}</DetailRow>
-        </div>
-      )}
+      </div>
 
       {meta.linked_records && meta.linked_records.length > 0 && (
         <div>
@@ -1232,24 +1161,17 @@ function ErVisitDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (ms
 
 function ReferralDetail({ meta }: { meta: RecordMetadata }) {
   return (
-    <div className="p-6 space-y-6">
-      <div className="divide-y -mx-6">
-        {meta.referred_to_doctor && <DetailRow label="Referred To">{meta.referred_to_doctor}</DetailRow>}
-        {meta.referred_to_department && <DetailRow label="Department">{meta.referred_to_department}</DetailRow>}
-        {meta.priority && (
-          <DetailRow label="Priority">
-            <Badge variant={meta.priority === 'urgent' ? 'danger' : 'neutral'} className="capitalize">
-              {meta.priority}
-            </Badge>
-          </DetailRow>
-        )}
-      </div>
-      {meta.reason && (
-        <div>
-          <SectionTitle>Reason</SectionTitle>
-          <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.reason}</p>
-        </div>
+    <div className="divide-y">
+      {meta.referred_to_doctor && <DetailRow label="Referred To">{meta.referred_to_doctor}</DetailRow>}
+      {meta.referred_to_department && <DetailRow label="Department">{meta.referred_to_department}</DetailRow>}
+      {meta.priority && (
+        <DetailRow label="Priority">
+          <Badge variant={meta.priority === 'urgent' ? 'danger' : 'neutral'} className="capitalize">
+            {meta.priority}
+          </Badge>
+        </DetailRow>
       )}
+      {meta.reason && <DetailRow label="Reason">{meta.reason}</DetailRow>}
     </div>
   );
 }
@@ -1269,55 +1191,35 @@ function DischargeDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (
         </div>
       </div>
 
-      {(meta.primary_diagnosis || meta.diagnosis || meta.secondary_diagnosis || meta.procedure_performed) && (
+      {(meta.primary_diagnosis || meta.diagnosis || meta.secondary_diagnosis || meta.procedure_performed || meta.hospital_course) && (
         <div>
-          <SectionTitle>Diagnosis</SectionTitle>
-          <div className="space-y-3">
+          <SectionTitle>Diagnosis & Course</SectionTitle>
+          <div className="divide-y -mx-6">
             {(meta.primary_diagnosis || meta.diagnosis) && (
-              <Alert variant="info" hideIcon>
-                <p className="text-body text-muted-foreground uppercase mb-1">Primary</p>
-                <p className="text-card-title" style={{ color: 'hsl(var(--foreground))' }}>{meta.primary_diagnosis || meta.diagnosis}</p>
-              </Alert>
+              <DetailRow label="Primary diagnosis">
+                <span className="text-card-title">{meta.primary_diagnosis || meta.diagnosis}</span>
+              </DetailRow>
             )}
             {meta.secondary_diagnosis && (
-              <div className="rounded-lg bg-muted px-4 py-3">
-                <p className="text-body text-muted-foreground uppercase mb-1">Secondary</p>
-                <p className="text-body" style={{ color: 'hsl(var(--foreground))' }}>{meta.secondary_diagnosis}</p>
-              </div>
+              <DetailRow label="Secondary diagnosis">{meta.secondary_diagnosis}</DetailRow>
             )}
             {meta.procedure_performed && (
-              <div className="-mx-6">
-                <DetailRow label="Procedure">{meta.procedure_performed}</DetailRow>
-              </div>
+              <DetailRow label="Procedure">{meta.procedure_performed}</DetailRow>
+            )}
+            {meta.hospital_course && (
+              <DetailRow label="Hospital course">{meta.hospital_course}</DetailRow>
+            )}
+            {meta.procedures && meta.procedures.length > 0 && (
+              <DetailRow label="Procedures">{meta.procedures.join(', ')}</DetailRow>
             )}
           </div>
-        </div>
-      )}
-
-      {meta.hospital_course && (
-        <div>
-          <SectionTitle>Hospital Course</SectionTitle>
-          <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.hospital_course}</p>
         </div>
       )}
 
       {meta.vitals_at_discharge && Object.keys(meta.vitals_at_discharge).length > 0 && (
         <div>
           <SectionTitle>Vitals at Discharge</SectionTitle>
-          <VitalsGrid vitals={meta.vitals_at_discharge} />
-        </div>
-      )}
-
-      {meta.procedures && meta.procedures.length > 0 && (
-        <div>
-          <SectionTitle>Procedures</SectionTitle>
-          <ul className="space-y-2">
-            {meta.procedures.map((p, i) => (
-              <li key={i} className="text-body flex items-center gap-3">
-                <span className="h-2 w-2 rounded-full bg-muted-foreground flex-shrink-0" />{p}
-              </li>
-            ))}
-          </ul>
+          <VitalsRows vitals={meta.vitals_at_discharge} />
         </div>
       )}
 
@@ -1410,23 +1312,10 @@ function DischargeDetail({ meta, onAction }: { meta: RecordMetadata; onAction: (
 
 function OtherVisitDetail({ meta }: { meta: RecordMetadata }) {
   return (
-    <div className="p-6 space-y-6">
-      {meta.visit_type && (
-        <div className="divide-y -mx-6">
-          <DetailRow label="Visit Type">{meta.visit_type}</DetailRow>
-        </div>
-      )}
-      {meta.notes && (
-        <div>
-          <SectionTitle>Notes</SectionTitle>
-          <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.notes}</p>
-        </div>
-      )}
-      {meta.follow_up && (
-        <div className="divide-y -mx-6">
-          <DetailRow label="Follow-up">{meta.follow_up}</DetailRow>
-        </div>
-      )}
+    <div className="divide-y">
+      {meta.visit_type && <DetailRow label="Visit Type">{meta.visit_type}</DetailRow>}
+      {meta.notes && <DetailRow label="Notes">{meta.notes}</DetailRow>}
+      {meta.follow_up && <DetailRow label="Follow-up">{meta.follow_up}</DetailRow>}
     </div>
   );
 }
@@ -1436,10 +1325,10 @@ function OtherVisitDetail({ meta }: { meta: RecordMetadata }) {
 function LabReportDetail({ meta }: { meta: RecordMetadata }) {
   return (
     <div className="p-6 space-y-6">
-      {meta.test_name && (
-        <div className="flex items-center gap-3 flex-wrap">
-          {meta.test_category && <Badge variant="neutral">{meta.test_category}</Badge>}
-          {meta.lab_name && <span className="text-body text-muted-foreground">{meta.lab_name}</span>}
+      {(meta.test_category || meta.lab_name) && (
+        <div className="divide-y -mx-6">
+          {meta.test_category && <DetailRow label="Category"><Badge variant="neutral">{meta.test_category}</Badge></DetailRow>}
+          {meta.lab_name && <DetailRow label="Lab">{meta.lab_name}</DetailRow>}
         </div>
       )}
       {meta.results && meta.results.length > 0 && (
@@ -1475,113 +1364,78 @@ function LabReportDetail({ meta }: { meta: RecordMetadata }) {
 
 function XrayDetail({ meta }: { meta: RecordMetadata }) {
   return (
-    <div className="p-6 space-y-6">
-      <div className="divide-y -mx-6">
-        {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
-        {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-        {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
-        {meta.radiologist && <DetailRow label="Radiologist">{meta.radiologist}</DetailRow>}
-      </div>
-      <FindingsImpression findings={meta.findings} impression={meta.impression} />
+    <div className="divide-y">
+      {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
+      {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+      {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
+      {meta.radiologist && <DetailRow label="Radiologist">{meta.radiologist}</DetailRow>}
+      {meta.findings && <DetailRow label="Findings">{meta.findings}</DetailRow>}
+      {meta.impression && <DetailRow label="Impression">{meta.impression}</DetailRow>}
     </div>
   );
 }
 
 function MriDetail({ meta }: { meta: RecordMetadata }) {
   return (
-    <div className="p-6 space-y-6">
-      <div className="divide-y -mx-6">
-        {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
-        {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-        {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
-        {meta.contrast && <DetailRow label="Contrast">{meta.contrast}</DetailRow>}
-        {meta.sequences && <DetailRow label="Sequences">{meta.sequences}</DetailRow>}
-        {meta.radiologist && <DetailRow label="Radiologist">{meta.radiologist}</DetailRow>}
-      </div>
-      <FindingsImpression findings={meta.findings} impression={meta.impression} impressionColor="hsl(var(--primary))" impressionBg="bg-primary/10" />
+    <div className="divide-y">
+      {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
+      {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+      {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
+      {meta.contrast && <DetailRow label="Contrast">{meta.contrast}</DetailRow>}
+      {meta.sequences && <DetailRow label="Sequences">{meta.sequences}</DetailRow>}
+      {meta.radiologist && <DetailRow label="Radiologist">{meta.radiologist}</DetailRow>}
+      {meta.findings && <DetailRow label="Findings">{meta.findings}</DetailRow>}
+      {meta.impression && <DetailRow label="Impression">{meta.impression}</DetailRow>}
     </div>
   );
 }
 
 function UltrasoundDetail({ meta }: { meta: RecordMetadata }) {
   return (
-    <div className="p-6 space-y-6">
-      <div className="divide-y -mx-6">
-        {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
-        {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-        {meta.sonographer && <DetailRow label="Sonographer">{meta.sonographer}</DetailRow>}
-      </div>
-      <FindingsImpression findings={meta.findings} impression={meta.impression} impressionColor="hsl(var(--primary))" impressionBg="bg-primary/10" />
+    <div className="divide-y">
+      {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
+      {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+      {meta.sonographer && <DetailRow label="Sonographer">{meta.sonographer}</DetailRow>}
+      {meta.findings && <DetailRow label="Findings">{meta.findings}</DetailRow>}
+      {meta.impression && <DetailRow label="Impression">{meta.impression}</DetailRow>}
     </div>
   );
 }
 
 function EcgDetail({ meta }: { meta: RecordMetadata }) {
   return (
-    <div className="p-6 space-y-6">
-      <div className="divide-y -mx-6">
-        {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-        {meta.heart_rate && <DetailRow label="Heart Rate">{meta.heart_rate} bpm</DetailRow>}
-        {meta.rhythm && <DetailRow label="Rhythm">{meta.rhythm}</DetailRow>}
-        {meta.axis && <DetailRow label="Axis">{meta.axis}</DetailRow>}
-      </div>
-      {meta.intervals && (
-        <div>
-          <SectionTitle>Intervals</SectionTitle>
-          <div className="grid grid-cols-3 gap-3">
-            {meta.intervals.pr && (
-              <div className="rounded-lg border px-4 py-3 text-center">
-                <p className="text-body text-muted-foreground mb-1">PR</p>
-                <p className="text-base font-semibold">{meta.intervals.pr}</p>
-              </div>
-            )}
-            {meta.intervals.qrs && (
-              <div className="rounded-lg border px-4 py-3 text-center">
-                <p className="text-body text-muted-foreground mb-1">QRS</p>
-                <p className="text-base font-semibold">{meta.intervals.qrs}</p>
-              </div>
-            )}
-            {meta.intervals.qt && (
-              <div className="rounded-lg border px-4 py-3 text-center">
-                <p className="text-body text-muted-foreground mb-1">QT</p>
-                <p className="text-base font-semibold">{meta.intervals.qt}</p>
-              </div>
-            )}
-          </div>
-        </div>
+    <div className="divide-y">
+      {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+      {meta.heart_rate && <DetailRow label="Heart Rate">{meta.heart_rate} bpm</DetailRow>}
+      {meta.rhythm && <DetailRow label="Rhythm">{meta.rhythm}</DetailRow>}
+      {meta.axis && <DetailRow label="Axis">{meta.axis}</DetailRow>}
+      {meta.intervals?.pr && <DetailRow label="PR Interval">{meta.intervals.pr}</DetailRow>}
+      {meta.intervals?.qrs && <DetailRow label="QRS Interval">{meta.intervals.qrs}</DetailRow>}
+      {meta.intervals?.qt && <DetailRow label="QT Interval">{meta.intervals.qt}</DetailRow>}
+      {meta.findings && <DetailRow label="Findings">{meta.findings}</DetailRow>}
+      {meta.impression && (
+        <DetailRow label="Impression">
+          <span style={{ color: 'hsl(var(--destructive))' }}>{meta.impression}</span>
+        </DetailRow>
       )}
-      <FindingsImpression findings={meta.findings} impression={meta.impression} impressionColor="hsl(var(--destructive))" impressionBg="bg-destructive/10" />
     </div>
   );
 }
 
 function PathologyDetail({ meta }: { meta: RecordMetadata }) {
   return (
-    <div className="p-6 space-y-6">
-      <div className="divide-y -mx-6">
-        {meta.specimen_type && <DetailRow label="Specimen">{meta.specimen_type}</DetailRow>}
-        {meta.pathologist && <DetailRow label="Pathologist">{meta.pathologist}</DetailRow>}
-      </div>
-      {meta.gross_description && (
-        <div>
-          <SectionTitle>Gross Description</SectionTitle>
-          <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.gross_description}</p>
-        </div>
-      )}
-      {meta.microscopic_findings && (
-        <div>
-          <SectionTitle>Microscopic Findings</SectionTitle>
-          <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.microscopic_findings}</p>
-        </div>
-      )}
+    <div className="divide-y">
+      {meta.specimen_type && <DetailRow label="Specimen">{meta.specimen_type}</DetailRow>}
+      {meta.pathologist && <DetailRow label="Pathologist">{meta.pathologist}</DetailRow>}
+      {meta.gross_description && <DetailRow label="Gross description">{meta.gross_description}</DetailRow>}
+      {meta.microscopic_findings && <DetailRow label="Microscopic findings">{meta.microscopic_findings}</DetailRow>}
       {meta.diagnosis && (
-        <div>
-          <SectionTitle>Diagnosis</SectionTitle>
-          <Alert variant="warning" hideIcon>
-            <p className="text-card-title" style={{ color: 'hsl(var(--foreground))' }}>{meta.diagnosis}</p>
-            {meta.grade && <p className="text-body text-muted-foreground mt-1">Grade: {meta.grade}</p>}
-          </Alert>
-        </div>
+        <DetailRow label="Diagnosis">
+          <div>
+            <span className="text-card-title">{meta.diagnosis}</span>
+            {meta.grade && <span className="text-body text-muted-foreground ml-2">Grade: {meta.grade}</span>}
+          </div>
+        </DetailRow>
       )}
     </div>
   );
@@ -1592,6 +1446,7 @@ function PftDetail({ meta }: { meta: RecordMetadata }) {
     <div className="p-6 space-y-6">
       <div className="divide-y -mx-6">
         {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+        {meta.interpretation && <DetailRow label="Interpretation">{meta.interpretation}</DetailRow>}
       </div>
       {meta.results && meta.results.length > 0 && (
         <div>
@@ -1622,23 +1477,16 @@ function PftDetail({ meta }: { meta: RecordMetadata }) {
           </div>
         </div>
       )}
-      {meta.interpretation && (
-        <div>
-          <SectionTitle>Interpretation</SectionTitle>
-          <Alert variant="info" hideIcon>{meta.interpretation}</Alert>
-        </div>
-      )}
     </div>
   );
 }
 
 function OtherReportDetail({ meta }: { meta: RecordMetadata }) {
   return (
-    <div className="p-6 space-y-6">
-      <div className="divide-y -mx-6">
-        {meta.report_type && <DetailRow label="Report Type">{meta.report_type}</DetailRow>}
-      </div>
-      <FindingsImpression findings={meta.findings} impression={meta.impression} />
+    <div className="divide-y">
+      {meta.report_type && <DetailRow label="Report Type">{meta.report_type}</DetailRow>}
+      {meta.findings && <DetailRow label="Findings">{meta.findings}</DetailRow>}
+      {meta.impression && <DetailRow label="Impression">{meta.impression}</DetailRow>}
     </div>
   );
 }
@@ -1648,26 +1496,21 @@ function OtherReportDetail({ meta }: { meta: RecordMetadata }) {
 function PrescriptionDetail({ meta }: { meta: RecordMetadata }) {
   return (
     <div className="p-6 space-y-6">
-      {meta.drugs && meta.drugs.length > 0 && (
-        <div>
-          <SectionTitle>Prescriptions</SectionTitle>
-          <div className="space-y-4">
-            {meta.drugs.map((drug, i) => (
-              <div key={i} className="rounded-lg border p-4">
-                <p className="text-base font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{drug.name}</p>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-2">
-                  <p className="text-body text-muted-foreground">Dosage: <span className="text-foreground">{drug.dosage}</span></p>
-                  <p className="text-body text-muted-foreground">Frequency: <span className="text-foreground">{drug.frequency}</span></p>
-                  <p className="text-body text-muted-foreground">Duration: <span className="text-foreground">{drug.duration}</span></p>
-                </div>
-                {drug.instructions && <p className="text-body text-muted-foreground mt-2 italic">{drug.instructions}</p>}
-              </div>
-            ))}
+      {meta.drugs && meta.drugs.length > 0 && meta.drugs.map((drug, i) => (
+        <div key={i}>
+          <SectionTitle>{drug.name}</SectionTitle>
+          <div className="divide-y -mx-6">
+            {drug.dosage && <DetailRow label="Dosage">{drug.dosage}</DetailRow>}
+            {drug.frequency && <DetailRow label="Frequency">{drug.frequency}</DetailRow>}
+            {drug.duration && <DetailRow label="Duration">{drug.duration}</DetailRow>}
+            {drug.instructions && <DetailRow label="Instructions">{drug.instructions}</DetailRow>}
           </div>
         </div>
-      )}
+      ))}
       {meta.valid_until && (
-        <p className="text-label text-muted-foreground">Valid until: <span className="text-foreground">{fmtDate(meta.valid_until)}</span></p>
+        <div className="divide-y -mx-6">
+          <DetailRow label="Valid until">{fmtDate(meta.valid_until)}</DetailRow>
+        </div>
       )}
     </div>
   );
@@ -1704,36 +1547,19 @@ function MedicationActiveDetail({ meta, onAction }: { meta: RecordMetadata; onAc
         </div>
       )}
 
-      {(meta.condition || meta.how_it_works) && (
+      {(meta.condition || meta.how_it_works || meta.prescribing_doctor || meta.start_date || meta.original_quantity != null || (meta.side_effects && meta.side_effects.length > 0)) && (
         <div>
-          <SectionTitle>Purpose</SectionTitle>
-          {meta.condition && <p className="text-label mb-2" style={{ color: 'hsl(var(--foreground))' }}>{meta.condition}</p>}
-          {meta.how_it_works && <p className="text-body leading-relaxed text-muted-foreground">{meta.how_it_works}</p>}
-        </div>
-      )}
-
-      {(meta.prescribing_doctor || meta.start_date || meta.original_quantity != null) && (
-        <div>
-          <SectionTitle>Prescription Details</SectionTitle>
+          <SectionTitle>Details</SectionTitle>
           <div className="divide-y -mx-6">
-            {meta.prescribing_doctor && <DetailRow label="Prescribed By">{meta.prescribing_doctor}</DetailRow>}
+            {meta.condition && <DetailRow label="Condition">{meta.condition}</DetailRow>}
+            {meta.how_it_works && <DetailRow label="How it works">{meta.how_it_works}</DetailRow>}
+            {meta.prescribing_doctor && <DetailRow label="Prescribed by">{meta.prescribing_doctor}</DetailRow>}
             {meta.start_date && <DetailRow label="Started">{fmtDate(meta.start_date)}</DetailRow>}
-            {meta.original_quantity != null && <DetailRow label="Qty Dispensed">{meta.original_quantity} tablets</DetailRow>}
+            {meta.original_quantity != null && <DetailRow label="Qty dispensed">{meta.original_quantity} tablets</DetailRow>}
+            {meta.side_effects && meta.side_effects.length > 0 && (
+              <DetailRow label="Side effects">{meta.side_effects.join(', ')}</DetailRow>
+            )}
           </div>
-        </div>
-      )}
-
-      {meta.side_effects && meta.side_effects.length > 0 && (
-        <div>
-          <SectionTitle>Common Side Effects</SectionTitle>
-          <ul className="space-y-2">
-            {meta.side_effects.map((se, i) => (
-              <li key={i} className="text-body flex items-start gap-3 leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>
-                <span className="h-2 w-2 rounded-full bg-muted-foreground flex-shrink-0 mt-1.5" />
-                {se}
-              </li>
-            ))}
-          </ul>
           {meta.side_effects_warning && (
             <div className="mt-3">
               <Alert variant="warning">{meta.side_effects_warning}</Alert>
@@ -1826,44 +1652,21 @@ function MedicationPastDetail({ meta, onAction }: { meta: RecordMetadata; onActi
         </div>
       )}
 
-      {(meta.condition || meta.how_it_works) && (
+      {(meta.condition || meta.how_it_works || meta.prescribing_doctor || meta.start_date || meta.end_date || meta.original_quantity != null || meta.reason_stopped || (meta.side_effects && meta.side_effects.length > 0)) && (
         <div>
-          <SectionTitle>Purpose</SectionTitle>
-          {meta.condition && <p className="text-label mb-2" style={{ color: 'hsl(var(--foreground))' }}>{meta.condition}</p>}
-          {meta.how_it_works && <p className="text-body leading-relaxed text-muted-foreground">{meta.how_it_works}</p>}
-        </div>
-      )}
-
-      {(meta.prescribing_doctor || meta.start_date || meta.end_date || meta.original_quantity != null) && (
-        <div>
-          <SectionTitle>Prescription Details</SectionTitle>
+          <SectionTitle>Details</SectionTitle>
           <div className="divide-y -mx-6">
-            {meta.prescribing_doctor && <DetailRow label="Prescribed By">{meta.prescribing_doctor}</DetailRow>}
+            {meta.condition && <DetailRow label="Condition">{meta.condition}</DetailRow>}
+            {meta.how_it_works && <DetailRow label="How it works">{meta.how_it_works}</DetailRow>}
+            {meta.prescribing_doctor && <DetailRow label="Prescribed by">{meta.prescribing_doctor}</DetailRow>}
             {meta.start_date && <DetailRow label="Started">{fmtDate(meta.start_date)}</DetailRow>}
             {meta.end_date && <DetailRow label="Ended">{fmtDate(meta.end_date)}</DetailRow>}
-            {meta.original_quantity != null && <DetailRow label="Qty Dispensed">{meta.original_quantity} tablets</DetailRow>}
+            {meta.original_quantity != null && <DetailRow label="Qty dispensed">{meta.original_quantity} tablets</DetailRow>}
+            {meta.reason_stopped && <DetailRow label="Reason stopped">{meta.reason_stopped}</DetailRow>}
+            {meta.side_effects && meta.side_effects.length > 0 && (
+              <DetailRow label="Side effects">{meta.side_effects.join(', ')}</DetailRow>
+            )}
           </div>
-        </div>
-      )}
-
-      {meta.reason_stopped && (
-        <div>
-          <SectionTitle>Reason Stopped</SectionTitle>
-          <Alert variant="warning" hideIcon>{meta.reason_stopped}</Alert>
-        </div>
-      )}
-
-      {meta.side_effects && meta.side_effects.length > 0 && (
-        <div>
-          <SectionTitle>Common Side Effects</SectionTitle>
-          <ul className="space-y-2">
-            {meta.side_effects.map((se, i) => (
-              <li key={i} className="text-body flex items-start gap-3 leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>
-                <span className="h-2 w-2 rounded-full bg-muted-foreground flex-shrink-0 mt-1.5" />
-                {se}
-              </li>
-            ))}
-          </ul>
           {meta.side_effects_warning && (
             <div className="mt-3">
               <Alert variant="warning">{meta.side_effects_warning}</Alert>
@@ -2028,16 +1831,19 @@ function MedicalCertificateDetail({ meta, onAction }: { meta: RecordMetadata; on
         </div>
       </div>
 
-      {(meta.certificate_content || meta.notes) && (
+      {(meta.certificate_content || meta.notes || (meta.examination_findings_list && meta.examination_findings_list.length > 0)) && (
         <div>
-          <SectionTitle>Certificate Content</SectionTitle>
-          <p className="text-body leading-relaxed mb-3" style={{ color: 'hsl(var(--foreground))' }}>{meta.certificate_content || meta.notes}</p>
-          {meta.examination_findings_list && meta.examination_findings_list.length > 0 && (
-            <div className="mt-3">
-              <p className="text-label text-muted-foreground mb-2">Examination Findings</p>
-              <NumberedList items={meta.examination_findings_list} variant="check" />
-            </div>
-          )}
+          <SectionTitle>Content</SectionTitle>
+          <div className="divide-y -mx-6">
+            {(meta.certificate_content || meta.notes) && (
+              <DetailRow label="Content">{meta.certificate_content || meta.notes}</DetailRow>
+            )}
+            {meta.examination_findings_list && meta.examination_findings_list.length > 0 && (
+              <DetailRow label="Examination findings">
+                <NumberedList items={meta.examination_findings_list} variant="check" />
+              </DetailRow>
+            )}
+          </div>
         </div>
       )}
 

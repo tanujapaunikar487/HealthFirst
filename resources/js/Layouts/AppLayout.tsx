@@ -411,7 +411,7 @@ export default function AppLayout({ children, pageTitle, pageIcon }: AppLayoutPr
           className="flex-1 overflow-y-auto flex flex-col"
           style={{
             background: 'linear-gradient(180deg, hsl(var(--primary) / 0.1) 0%, hsl(var(--background) / 0.5) 13.94%, hsl(var(--background)) 30.77%)',
-            paddingTop: '80px',
+            paddingTop: '40px',
             paddingBottom: '20px'
           }}
         >

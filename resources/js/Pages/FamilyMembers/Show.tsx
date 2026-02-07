@@ -674,7 +674,7 @@ export default function FamilyMemberShow({
           <MemberSideNav isGuest={!!member.is_guest} />
           <div className="flex-1 min-w-0 space-y-12 pb-12">
             {/* Personal Information Section */}
-            <div id="personal" className="scroll-mt-24">
+            <div id="personal" className="scroll-mt-6">
               <div className="flex items-center gap-2.5 mb-4">
                 <Icon icon={User} className="h-5 w-5 text-foreground" />
                 <h2 className="text-section-title text-foreground">
@@ -711,7 +711,7 @@ export default function FamilyMemberShow({
             </div>
 
             {/* Contact & Address Section */}
-            <div id="contact" className="scroll-mt-24">
+            <div id="contact" className="scroll-mt-6">
               <div className="flex items-center gap-2.5 mb-4">
                 <Icon icon={Phone} className="h-5 w-5 text-foreground" />
                 <h2 className="text-section-title text-foreground">
@@ -738,7 +738,7 @@ export default function FamilyMemberShow({
 
             {/* Health Information Section - Hidden for guests */}
             {!member.is_guest && (
-              <div id="health-info" className="scroll-mt-24">
+              <div id="health-info" className="scroll-mt-6">
                 <div className="flex items-center gap-2.5 mb-4">
                   <Icon icon={Heart} className="h-5 w-5 text-foreground" />
                   <h2 className="text-section-title text-foreground">
@@ -786,7 +786,7 @@ export default function FamilyMemberShow({
 
             {/* Emergency Contact Section - Hidden for guests */}
             {!member.is_guest && (
-              <div id="emergency" className="scroll-mt-24">
+              <div id="emergency" className="scroll-mt-6">
                 <div className="flex items-center gap-2.5 mb-4">
                   <Icon icon={Phone} className="h-5 w-5 text-foreground" />
                   <h2 className="text-section-title text-foreground">

@@ -860,7 +860,7 @@ export default function Show({ user, bill }: Props) {
 
             {/* ─── Payment & Insurance Section ─── */}
             {(bill.payment_info || bill.insurance_details) && (
-              <div id="payment" className="scroll-mt-24 space-y-4">
+              <div id="payment" className="scroll-mt-6 space-y-4">
                 <div className="flex items-center gap-2.5 mb-4">
                   <Icon icon={CreditCard} className="h-5 w-5 text-foreground" />
                   <h2 className="text-section-title text-foreground">
@@ -943,7 +943,7 @@ export default function Show({ user, bill }: Props) {
 
             {/* ─── Dispute Section ─── */}
             {bill.dispute_details && (
-              <div id="dispute" className="scroll-mt-24">
+              <div id="dispute" className="scroll-mt-6">
                 <div className="flex items-center gap-2.5 mb-4">
                   <Icon icon={AlertTriangle} className="h-5 w-5 text-foreground" />
                   <h2 className="text-section-title text-foreground">
