@@ -5,12 +5,204 @@
  * for generating properly formatted PDF content.
  */
 
-import type {
-  HealthRecord,
-  RecordMetadata,
-  LabResult,
-  PftResult,
-} from '@/Pages/HealthRecords/types';
+/* ─── Types (mirrored from HealthRecords/Show.tsx) ─── */
+
+interface LabResult {
+  parameter: string;
+  value: string;
+  unit: string;
+  reference_range: string;
+  status: string;
+}
+
+interface PftResult {
+  parameter: string;
+  value: string;
+  predicted: string;
+  percent_predicted: string;
+  status: string;
+}
+
+interface Drug {
+  name: string;
+  dosage: string;
+  frequency: string;
+  duration: string;
+  instructions: string;
+}
+
+interface DischargeMedication {
+  name: string;
+  dosage: string;
+  duration: string;
+}
+
+interface FollowUpItem {
+  description: string;
+  date: string;
+  booked: boolean;
+}
+
+interface Investigation {
+  name: string;
+  result: string;
+  has_link: boolean;
+}
+
+interface VaccinationEntry {
+  vaccine_name: string;
+  date: string;
+  dose_label: string;
+  administered_by: string;
+  batch_number: string;
+  site: string;
+}
+
+interface UpcomingVaccine {
+  vaccine_name: string;
+  due_date: string;
+  dose_label: string;
+}
+
+interface RecordMetadata {
+  ai_summary?: string;
+  ai_summary_generated_at?: string;
+  diagnosis?: string;
+  icd_code?: string;
+  symptoms?: string[];
+  examination_findings?: string;
+  treatment_plan?: string;
+  visit_type_label?: string;
+  opd_number?: string;
+  duration?: string;
+  location?: string;
+  history_of_present_illness?: string;
+  clinical_examination?: string;
+  treatment_plan_steps?: string[];
+  follow_up_date?: string;
+  follow_up_recommendation?: string;
+  drugs?: Drug[];
+  valid_until?: string;
+  test_name?: string;
+  test_category?: string;
+  results?: (LabResult | PftResult)[];
+  lab_name?: string;
+  modality?: string;
+  body_part?: string;
+  indication?: string;
+  technique?: string;
+  findings?: string;
+  impression?: string;
+  radiologist?: string;
+  contrast?: string;
+  sequences?: string;
+  sonographer?: string;
+  heart_rate?: number;
+  rhythm?: string;
+  intervals?: { pr?: string; qrs?: string; qt?: string };
+  axis?: string;
+  specimen_type?: string;
+  gross_description?: string;
+  microscopic_findings?: string;
+  grade?: string | null;
+  pathologist?: string;
+  interpretation?: string;
+  report_type?: string;
+  referred_to_doctor?: string;
+  referred_to_department?: string;
+  reason?: string;
+  priority?: string;
+  admission_date?: string;
+  discharge_date?: string;
+  procedures?: string[];
+  discharge_instructions?: string;
+  length_of_stay?: string;
+  treating_doctor?: string;
+  room_info?: string;
+  ipd_number?: string;
+  primary_diagnosis?: string;
+  secondary_diagnosis?: string;
+  procedure_performed?: string;
+  hospital_course?: string;
+  vitals_at_discharge?: Record<string, string>;
+  discharge_medications?: DischargeMedication[];
+  discharge_dos?: string[];
+  discharge_donts?: string[];
+  warning_signs?: string[];
+  emergency_contact?: string;
+  follow_up_schedule?: FollowUpItem[];
+  procedure_name?: string;
+  anesthesia?: string;
+  complications?: string;
+  post_op_instructions?: string;
+  chief_complaint?: string;
+  triage_level?: string;
+  vitals?: Record<string, string>;
+  examination?: string;
+  treatment_given?: string;
+  disposition?: string;
+  follow_up?: string;
+  er_number?: string;
+  arrival_time?: string;
+  discharge_time?: string;
+  mode_of_arrival?: string;
+  attending_doctor?: string;
+  pain_score?: string;
+  investigations?: Investigation[];
+  treatment_items?: string[];
+  disposition_detail?: string;
+  visit_type?: string;
+  notes?: string;
+  drug_name?: string;
+  dosage?: string;
+  frequency?: string;
+  route?: string;
+  start_date?: string;
+  end_date?: string;
+  prescribing_doctor?: string;
+  condition?: string;
+  reason_stopped?: string;
+  timing?: string;
+  with_food?: boolean;
+  medication_duration?: string;
+  how_it_works?: string;
+  original_quantity?: number;
+  side_effects?: string[];
+  side_effects_warning?: string;
+  vaccine_name?: string;
+  dose_number?: number;
+  total_doses?: number;
+  batch_number?: string;
+  administered_by?: string;
+  site?: string;
+  next_due_date?: string | null;
+  vaccination_history?: VaccinationEntry[];
+  upcoming_vaccinations?: UpcomingVaccine[];
+  certificate_type?: string;
+  issued_for?: string;
+  valid_from?: string;
+  issued_by?: string;
+  certificate_number?: string;
+  certificate_content?: string;
+  examination_findings_list?: string[];
+  digitally_signed?: boolean;
+  verification_url?: string;
+  invoice_number?: string;
+  amount?: number;
+  payment_status?: string;
+  line_items?: { label: string; amount: number }[];
+}
+
+interface HealthRecord {
+  id: number;
+  category: string;
+  title: string;
+  description: string | null;
+  doctor_name: string | null;
+  department_name: string | null;
+  record_date_formatted: string;
+  metadata: RecordMetadata | null;
+}
 
 /* ─── Hidden Fields (internal/UI-only, should not appear in PDF) ─── */
 
@@ -21,20 +213,6 @@ const HIDDEN_FIELDS = new Set([
   'adherence_this_week',
   'vitals_status',
   'attached_certificates',
-  'qr_code_data',
-  'adherence_rate',
-  'images',
-  'patient_dob',
-  'id_type',
-  'id_number',
-  'structured_findings',
-  'ecg_results',
-  'patient_status',
-  'surgical_team',
-  'system_findings',
-  'tests_performed',
-  'clearance_conditions',
-  'structured_examination',
 ]);
 
 /* ─── Acronyms to preserve ─── */
@@ -164,34 +342,15 @@ function buildVitalsGrid(vitals: Record<string, string> | undefined): string {
 
 /* ─── Category-Specific Generators ─── */
 
-/** Source info row */
-function buildSourceInfo(meta: RecordMetadata): string {
-  const source = meta.source || meta.facility;
-  if (!source) return '';
-  const rows = [
-    buildKeyValueRow('Facility', source.name),
-    buildKeyValueRow('Location', source.location),
-  ].filter(Boolean).join('');
-  return rows ? buildSection('Source', rows) : '';
-}
-
 /** Lab Report - Results table with status dots */
 function generateLabReportContent(meta: RecordMetadata): string {
   let html = '';
-
-  html += buildSourceInfo(meta);
 
   // Test info
   const testInfo = [
     buildKeyValueRow('Test Name', meta.test_name),
     buildKeyValueRow('Category', meta.test_category),
-    buildKeyValueRow('Laboratory', meta.lab_name || meta.source?.name),
-    buildKeyValueRow('Report ID', meta.report_id),
-    buildKeyValueRow('Sample Type', meta.sample_type),
-    buildKeyValueRow('Collected', formatDateForPdf(meta.collected_date)),
-    buildKeyValueRow('Reported', formatDateForPdf(meta.reported_date)),
-    buildKeyValueRow('Verified By', meta.verified_by),
-    buildKeyValueRow('Fasting', meta.fasting === true ? 'Yes' : meta.fasting === false ? 'No' : undefined),
+    buildKeyValueRow('Laboratory', meta.lab_name),
   ].filter(Boolean).join('');
 
   if (testInfo) {
@@ -230,17 +389,6 @@ function generateLabReportContent(meta: RecordMetadata): string {
 function generatePrescriptionContent(meta: RecordMetadata): string {
   let html = '';
 
-  // Prescriber info
-  const prescriberInfo = [
-    buildKeyValueRow('Prescriber', meta.prescribing_doctor),
-    buildKeyValueRow('Specialty', meta.prescriber_specialty),
-    buildKeyValueRow('Diagnosis', meta.prescription_diagnosis),
-  ].filter(Boolean).join('');
-
-  if (prescriberInfo) {
-    html += buildSection('Prescriber', prescriberInfo);
-  }
-
   if (meta.drugs?.length) {
     const rows = meta.drugs.map(drug => [
       escapeHtml(drug.name),
@@ -249,11 +397,7 @@ function generatePrescriptionContent(meta: RecordMetadata): string {
       escapeHtml(drug.duration || '-'),
       escapeHtml(drug.instructions || '-'),
     ]);
-    html += buildSection('Medications', buildTableHtml(['Medication', 'Dosage', 'Frequency', 'Duration', 'Instructions'], rows));
-  }
-
-  if (meta.general_instructions?.length) {
-    html += buildSection('Instructions', buildList(meta.general_instructions));
+    html += buildSection('Prescriptions', buildTableHtml(['Prescription', 'Dosage', 'Frequency', 'Duration', 'Instructions'], rows));
   }
 
   if (meta.valid_until) {
@@ -267,47 +411,26 @@ function generatePrescriptionContent(meta: RecordMetadata): string {
 function generateImagingContent(meta: RecordMetadata): string {
   let html = '';
 
-  html += buildSourceInfo(meta);
-
   const details = [
-    buildKeyValueRow('Modality', meta.modality),
     buildKeyValueRow('Body Part', meta.body_part),
-    buildKeyValueRow('Views', meta.views),
     buildKeyValueRow('Indication', meta.indication),
     buildKeyValueRow('Technique', meta.technique),
     buildKeyValueRow('Contrast', meta.contrast),
     buildKeyValueRow('Sequences', meta.sequences),
+    buildKeyValueRow('Radiologist', meta.radiologist),
+    buildKeyValueRow('Sonographer', meta.sonographer),
   ].filter(Boolean).join('');
 
   if (details) {
-    html += buildSection('Study Information', details);
+    html += buildSection('Study Details', details);
   }
 
-  if (meta.indication) {
-    html += buildSection('Clinical Indication', `<p>${escapeHtml(meta.indication)}</p>`);
-  }
-
-  // Structured findings
-  if (meta.structured_findings?.length) {
-    const findingsHtml = meta.structured_findings.map(f =>
-      `<p><strong>${escapeHtml(f.region)}:</strong> ${escapeHtml(f.description)}</p>`
-    ).join('');
-    html += buildSection('Findings', findingsHtml);
-  } else if (meta.findings) {
+  if (meta.findings) {
     html += buildSection('Findings', `<p>${escapeHtml(meta.findings)}</p>`);
   }
 
   if (meta.impression) {
     html += buildSection('Impression', buildCallout(meta.impression, 'blue'));
-  }
-
-  // Specialist
-  const specialist = [
-    buildKeyValueRow('Radiologist', meta.radiologist),
-    buildKeyValueRow('Credentials', meta.radiologist_credentials),
-  ].filter(Boolean).join('');
-  if (specialist) {
-    html += buildSection('Reporting Specialist', specialist);
   }
 
   return html;
@@ -316,16 +439,6 @@ function generateImagingContent(meta: RecordMetadata): string {
 /** ECG Report */
 function generateEcgContent(meta: RecordMetadata): string {
   let html = '';
-
-  html += buildSourceInfo(meta);
-
-  // Patient status
-  if (meta.patient_status) {
-    const statusRows = Object.entries(meta.patient_status).map(([key, value]) =>
-      buildKeyValueRow(toTitleCase(key), value)
-    ).filter(Boolean).join('');
-    if (statusRows) html += buildSection('Patient Status', statusRows);
-  }
 
   const details = [
     buildKeyValueRow('Indication', meta.indication),
@@ -351,37 +464,13 @@ function generateEcgContent(meta: RecordMetadata): string {
     }
   }
 
-  // ECG results table
-  if (meta.ecg_results?.length) {
-    const rows = meta.ecg_results.map(r => [
-      escapeHtml(r.parameter),
-      `${escapeHtml(r.value)} ${escapeHtml(r.unit || '')}`.trim(),
-      escapeHtml(r.reference_range || '-'),
-      buildStatusDot(r.status),
-    ]);
-    html += buildSection('ECG Parameters', buildTableHtml(['Parameter', 'Value', 'Reference', 'Status'], rows));
-  }
-
-  // Structured findings
-  if (meta.structured_findings?.length) {
-    const findingsHtml = meta.structured_findings.map(f =>
-      `<p><strong>${escapeHtml(f.region)}:</strong> ${escapeHtml(f.description)}</p>`
-    ).join('');
-    html += buildSection('Detailed Findings', findingsHtml);
-  } else if (meta.findings) {
+  if (meta.findings) {
     html += buildSection('Findings', `<p>${escapeHtml(meta.findings)}</p>`);
   }
 
-  if (meta.impression || meta.interpretation) {
-    html += buildSection('Interpretation', buildCallout(meta.impression || meta.interpretation || '', 'blue'));
+  if (meta.impression) {
+    html += buildSection('Impression', buildCallout(meta.impression, 'blue'));
   }
-
-  // Cardiologist
-  const cardiologist = [
-    buildKeyValueRow('Cardiologist', meta.cardiologist),
-    buildKeyValueRow('Credentials', meta.cardiologist_credentials),
-  ].filter(Boolean).join('');
-  if (cardiologist) html += buildSection('Reporting Specialist', cardiologist);
 
   return html;
 }
@@ -390,29 +479,13 @@ function generateEcgContent(meta: RecordMetadata): string {
 function generatePathologyContent(meta: RecordMetadata): string {
   let html = '';
 
-  html += buildSourceInfo(meta);
-
   const details = [
     buildKeyValueRow('Specimen Type', meta.specimen_type),
-    buildKeyValueRow('Method', meta.method),
-    buildKeyValueRow('Collected', formatDateForPdf(meta.collected_date)),
     buildKeyValueRow('Pathologist', meta.pathologist),
   ].filter(Boolean).join('');
 
   if (details) {
     html += buildSection('Specimen Details', details);
-  }
-
-  if (meta.adequacy) {
-    html += buildSection('Specimen Adequacy', buildCallout(meta.adequacy, 'green'));
-  }
-
-  // Result
-  if (meta.result_text) {
-    html += buildSection('Result', buildCallout(meta.result_text, 'blue'));
-    if (meta.result_interpretation) {
-      html += `<p class="small-text">${escapeHtml(meta.result_interpretation)}</p>`;
-    }
   }
 
   if (meta.gross_description) {
@@ -423,11 +496,6 @@ function generatePathologyContent(meta: RecordMetadata): string {
     html += buildSection('Microscopic Findings', `<p>${escapeHtml(meta.microscopic_findings)}</p>`);
   }
 
-  // Structured findings
-  if (meta.structured_findings?.length) {
-    html += buildSection('Findings', buildList(meta.structured_findings.map(f => `${f.region}: ${f.description}`)));
-  }
-
   if (meta.diagnosis) {
     html += buildSection('Diagnosis', buildCallout(meta.diagnosis, 'purple'));
   }
@@ -435,17 +503,6 @@ function generatePathologyContent(meta: RecordMetadata): string {
   if (meta.grade) {
     html += buildKeyValueRow('Grade', meta.grade);
   }
-
-  if (meta.recommendation) {
-    html += buildSection('Recommendation', buildCallout(meta.recommendation, 'amber'));
-  }
-
-  // Pathologist credentials
-  const pathologist = [
-    buildKeyValueRow('Pathologist', meta.pathologist),
-    buildKeyValueRow('Credentials', meta.pathologist_credentials),
-  ].filter(Boolean).join('');
-  if (pathologist) html += buildSection('Reporting Specialist', pathologist);
 
   return html;
 }
@@ -458,8 +515,7 @@ function generateConsultationContent(meta: RecordMetadata): string {
     buildKeyValueRow('Visit Type', meta.visit_type_label),
     buildKeyValueRow('OPD Number', meta.opd_number),
     buildKeyValueRow('Duration', meta.duration),
-    buildKeyValueRow('Location', meta.location || meta.clinic_name),
-    buildKeyValueRow('Specialty', meta.doctor_specialty),
+    buildKeyValueRow('Location', meta.location),
   ].filter(Boolean).join('');
 
   if (details) {
@@ -511,8 +567,6 @@ function generateConsultationContent(meta: RecordMetadata): string {
 function generateDischargeContent(meta: RecordMetadata): string {
   let html = '';
 
-  html += buildSourceInfo(meta);
-
   // Admission info
   const admissionInfo = [
     buildKeyValueRow('IPD Number', meta.ipd_number),
@@ -552,11 +606,6 @@ function generateDischargeContent(meta: RecordMetadata): string {
       procContent += buildList(meta.procedures);
     }
     html += buildSection('Procedures', procContent);
-  }
-
-  // Condition at discharge
-  if (meta.condition_at_discharge) {
-    html += buildSection('Condition at Discharge', buildCallout(meta.condition_at_discharge, 'green'));
   }
 
   // Hospital course
@@ -617,8 +666,6 @@ function generateDischargeContent(meta: RecordMetadata): string {
 function generateErVisitContent(meta: RecordMetadata): string {
   let html = '';
 
-  html += buildSourceInfo(meta);
-
   const visitInfo = [
     buildKeyValueRow('ER Number', meta.er_number),
     buildKeyValueRow('Arrival Time', meta.arrival_time),
@@ -646,10 +693,6 @@ function generateErVisitContent(meta: RecordMetadata): string {
 
   if (meta.examination) {
     html += buildSection('Examination', `<p>${escapeHtml(meta.examination)}</p>`);
-  }
-
-  if (meta.structured_examination?.length) {
-    html += buildSection('Examination Findings', buildList(meta.structured_examination));
   }
 
   if (meta.investigations?.length) {
@@ -690,36 +733,21 @@ function generateErVisitContent(meta: RecordMetadata): string {
 function generateProcedureContent(meta: RecordMetadata): string {
   let html = '';
 
-  html += buildSourceInfo(meta);
-
-  // Surgical team
-  if (meta.surgical_team?.length) {
-    const teamRows = meta.surgical_team.map(member => [
-      escapeHtml(member.role),
-      escapeHtml(member.name),
-      escapeHtml(member.credentials || '-'),
-    ]);
-    html += buildSection('Surgical Team', buildTableHtml(['Role', 'Name', 'Credentials'], teamRows));
-  }
-
   const details = [
     buildKeyValueRow('Procedure', meta.procedure_name),
-    buildKeyValueRow('Indication', meta.indication),
     buildKeyValueRow('Anesthesia', meta.anesthesia),
-    buildKeyValueRow('Duration', meta.duration),
-    buildKeyValueRow('Blood Loss', meta.blood_loss),
-    buildKeyValueRow('Complications', meta.complications),
   ].filter(Boolean).join('');
 
   if (details) {
     html += buildSection('Procedure Details', details);
   }
 
-  // Structured findings
-  if (meta.structured_findings?.length) {
-    html += buildSection('Operative Findings', buildList(meta.structured_findings.map(f => `${f.region}: ${f.description}`)));
-  } else if (meta.findings) {
+  if (meta.findings) {
     html += buildSection('Findings', `<p>${escapeHtml(meta.findings)}</p>`);
+  }
+
+  if (meta.complications) {
+    html += buildSection('Complications', `<p>${escapeHtml(meta.complications)}</p>`);
   }
 
   if (meta.post_op_instructions) {
@@ -759,7 +787,7 @@ function generateMedicationContent(meta: RecordMetadata, isActive: boolean): str
   let html = '';
 
   const details = [
-    buildKeyValueRow('Drug Name', meta.drug_name || meta.medication),
+    buildKeyValueRow('Drug Name', meta.drug_name),
     buildKeyValueRow('Dosage', meta.dosage),
     buildKeyValueRow('Frequency', meta.frequency),
     buildKeyValueRow('Route', meta.route),
@@ -769,7 +797,6 @@ function generateMedicationContent(meta: RecordMetadata, isActive: boolean): str
     buildKeyValueRow('Start Date', formatDateForPdf(meta.start_date)),
     buildKeyValueRow('End Date', formatDateForPdf(meta.end_date)),
     buildKeyValueRow('Prescribing Doctor', meta.prescribing_doctor),
-    buildKeyValueRow('Specialty', meta.prescriber_specialty),
     buildKeyValueRow('Condition', meta.condition),
   ].filter(Boolean).join('');
 
@@ -779,14 +806,6 @@ function generateMedicationContent(meta: RecordMetadata, isActive: boolean): str
 
   if (!isActive && meta.reason_stopped) {
     html += buildSection('Reason Stopped', `<p>${escapeHtml(meta.reason_stopped)}</p>`);
-  }
-
-  if (isActive && meta.refills_remaining !== undefined) {
-    const refillInfo = [
-      buildKeyValueRow('Refills Remaining', String(meta.refills_remaining)),
-      buildKeyValueRow('Refill Due', formatDateForPdf(meta.refill_due_date)),
-    ].filter(Boolean).join('');
-    if (refillInfo) html += buildSection('Refill Information', refillInfo);
   }
 
   if (meta.how_it_works) {
@@ -804,12 +823,8 @@ function generateMedicationContent(meta: RecordMetadata, isActive: boolean): str
 function generateVaccinationContent(meta: RecordMetadata): string {
   let html = '';
 
-  html += buildSourceInfo(meta);
-
   const details = [
     buildKeyValueRow('Vaccine', meta.vaccine_name),
-    buildKeyValueRow('Manufacturer', meta.manufacturer),
-    buildKeyValueRow('Target Disease', meta.target_disease),
     buildKeyValueRow('Dose', meta.dose_number && meta.total_doses ? `${meta.dose_number} of ${meta.total_doses}` : undefined),
     buildKeyValueRow('Batch Number', meta.batch_number),
     buildKeyValueRow('Site', meta.site),
@@ -818,7 +833,7 @@ function generateVaccinationContent(meta: RecordMetadata): string {
   ].filter(Boolean).join('');
 
   if (details) {
-    html += buildSection('Vaccine Details', details);
+    html += buildSection('Vaccination Details', details);
   }
 
   // Vaccination history
@@ -829,7 +844,7 @@ function generateVaccinationContent(meta: RecordMetadata): string {
       escapeHtml(v.date),
       escapeHtml(v.administered_by || '-'),
     ]);
-    html += buildSection('Dose History', buildTableHtml(['Vaccine', 'Dose', 'Date', 'Administered By'], rows));
+    html += buildSection('Vaccination History', buildTableHtml(['Vaccine', 'Dose', 'Date', 'Administered By'], rows));
   }
 
   // Upcoming vaccinations
@@ -842,16 +857,6 @@ function generateVaccinationContent(meta: RecordMetadata): string {
     html += buildSection('Upcoming Vaccinations', buildTableHtml(['Vaccine', 'Dose', 'Due Date'], rows));
   }
 
-  // Certificate info
-  const certInfo = [
-    buildKeyValueRow('Certificate Number', meta.certificate_number),
-    buildKeyValueRow('Issued', formatDateForPdf(meta.certificate_issued_date)),
-    buildKeyValueRow('Valid For', meta.certificate_valid_for),
-  ].filter(Boolean).join('');
-  if (certInfo) {
-    html += buildSection('Certificate', certInfo);
-  }
-
   return html;
 }
 
@@ -859,11 +864,8 @@ function generateVaccinationContent(meta: RecordMetadata): string {
 function generateCertificateContent(meta: RecordMetadata): string {
   let html = '';
 
-  html += buildSourceInfo(meta);
-
   const details = [
     buildKeyValueRow('Certificate Type', meta.certificate_type),
-    buildKeyValueRow('Sub-Type', meta.certificate_sub_type ? toTitleCase(meta.certificate_sub_type) : undefined),
     buildKeyValueRow('Certificate Number', meta.certificate_number),
     buildKeyValueRow('Issued For', meta.issued_for),
     buildKeyValueRow('Valid From', formatDateForPdf(meta.valid_from)),
@@ -874,39 +876,6 @@ function generateCertificateContent(meta: RecordMetadata): string {
     html += buildSection('Certificate Details', details);
   }
 
-  // Patient info
-  const patientInfo = [
-    buildKeyValueRow('Age', meta.patient_age_cert),
-    buildKeyValueRow('Gender', meta.patient_gender),
-    buildKeyValueRow('ID', meta.patient_id),
-  ].filter(Boolean).join('');
-  if (patientInfo) html += buildSection('Patient Details', patientInfo);
-
-  // Sub-type specific content
-  if (meta.certificate_sub_type === 'fitness') {
-    if (meta.purpose) html += buildKeyValueRow('Purpose', meta.purpose);
-    if (meta.examination_date) html += buildKeyValueRow('Examination Date', formatDateForPdf(meta.examination_date));
-    if (meta.system_findings?.length) html += buildSection('System Findings', buildList(meta.system_findings.map(f => `${f.system}: ${f.status}`)));
-    if (meta.conclusion) html += buildSection('Conclusion', buildCallout(meta.conclusion, 'green'));
-  } else if (meta.certificate_sub_type === 'sick_leave') {
-    if (meta.leave_diagnosis) html += buildKeyValueRow('Diagnosis', meta.leave_diagnosis);
-    const leaveInfo = [
-      buildKeyValueRow('From', formatDateForPdf(meta.leave_from)),
-      buildKeyValueRow('To', formatDateForPdf(meta.leave_to)),
-      buildKeyValueRow('Duration', meta.leave_duration),
-    ].filter(Boolean).join('');
-    if (leaveInfo) html += buildSection('Leave Period', leaveInfo);
-  } else if (meta.certificate_sub_type === 'medical_clearance') {
-    if (meta.clearance_for) html += buildKeyValueRow('Clearance For', meta.clearance_for);
-    if (meta.relevant_history) html += buildSection('Relevant History', `<p>${escapeHtml(meta.relevant_history)}</p>`);
-    if (meta.tests_performed?.length) {
-      const rows = meta.tests_performed.map(t => [escapeHtml(t.name), escapeHtml(t.result)]);
-      html += buildSection('Tests Performed', buildTableHtml(['Test', 'Result'], rows));
-    }
-    if (meta.clearance_status) html += buildSection('Status', buildCallout(meta.clearance_status, 'blue'));
-    if (meta.clearance_conditions?.length) html += buildSection('Conditions', buildList(meta.clearance_conditions));
-  }
-
   if (meta.certificate_content) {
     html += buildSection('Certificate Content', `<p>${escapeHtml(meta.certificate_content)}</p>`);
   }
@@ -914,13 +883,6 @@ function generateCertificateContent(meta: RecordMetadata): string {
   if (meta.examination_findings_list?.length) {
     html += buildSection('Examination Findings', buildList(meta.examination_findings_list));
   }
-
-  // Issuing authority
-  const issuer = [
-    buildKeyValueRow('Issued By', meta.issued_by),
-    buildKeyValueRow('Registration No', meta.registration_no),
-  ].filter(Boolean).join('');
-  if (issuer) html += buildSection('Issuing Authority', issuer);
 
   if (meta.digitally_signed) {
     html += `<p class="small-text"><em>This certificate is digitally signed.</em></p>`;
@@ -949,57 +911,6 @@ function generateInvoiceContent(meta: RecordMetadata): string {
       `₹${item.amount.toLocaleString()}`,
     ]);
     html += buildSection('Line Items', buildTableHtml(['Item', 'Amount'], rows));
-  }
-
-  return html;
-}
-
-/** Document Upload */
-function generateDocumentContent(meta: RecordMetadata): string {
-  let html = '';
-
-  const details = [
-    buildKeyValueRow('Document Type', meta.document_type),
-    buildKeyValueRow('Original Date', formatDateForPdf(meta.original_date)),
-    buildKeyValueRow('Uploaded', formatDateForPdf(meta.upload_date)),
-    buildKeyValueRow('File Name', meta.file_name),
-    buildKeyValueRow('File Size', meta.file_size),
-  ].filter(Boolean).join('');
-
-  if (details) {
-    html += buildSection('Document Information', details);
-  }
-
-  if (meta.user_notes) {
-    html += buildSection('Notes', `<p>${escapeHtml(meta.user_notes)}</p>`);
-  }
-
-  if (meta.tags?.length) {
-    html += buildSection('Tags', `<p>${meta.tags.map(t => escapeHtml(t)).join(', ')}</p>`);
-  }
-
-  return html;
-}
-
-/** Other Visit */
-function generateOtherVisitContent(meta: RecordMetadata): string {
-  let html = '';
-
-  const details = [
-    buildKeyValueRow('Visit Type', meta.visit_type),
-    buildKeyValueRow('Duration', meta.duration),
-  ].filter(Boolean).join('');
-
-  if (details) {
-    html += buildSection('Visit Details', details);
-  }
-
-  if (meta.notes) {
-    html += buildSection('Notes', `<p>${escapeHtml(meta.notes)}</p>`);
-  }
-
-  if (meta.follow_up) {
-    html += buildSection('Follow-Up', `<p>${escapeHtml(meta.follow_up)}</p>`);
   }
 
   return html;
@@ -1082,21 +993,12 @@ export function generateHealthRecordPdfContent(
     case 'pathology_report':
       content += generatePathologyContent(meta);
       break;
-    case 'pft_report': {
-      content += buildSourceInfo(meta);
-      // Patient data
-      const pftPatient = [
-        buildKeyValueRow('Age', meta.patient_age),
-        buildKeyValueRow('Height', meta.patient_height),
-        buildKeyValueRow('Weight', meta.patient_weight),
-      ].filter(Boolean).join('');
-      if (pftPatient) content += buildSection('Patient Data', pftPatient);
+    case 'pft_report':
       content += generateLabReportContent(meta); // PFT uses similar table format
       if (meta.interpretation) {
         content += buildSection('Interpretation', buildCallout(meta.interpretation, 'blue'));
       }
       break;
-    }
     case 'consultation_notes':
       content += generateConsultationContent(meta);
       break;
@@ -1127,13 +1029,8 @@ export function generateHealthRecordPdfContent(
     case 'invoice':
       content += generateInvoiceContent(meta);
       break;
-    case 'document':
     case 'other_report':
-      content += generateDocumentContent(meta);
-      break;
     case 'other_visit':
-      content += generateOtherVisitContent(meta);
-      break;
     default:
       content += generateGenericContent(meta);
       break;
