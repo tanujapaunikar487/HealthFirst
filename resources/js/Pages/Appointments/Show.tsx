@@ -48,6 +48,7 @@ import { Icon } from '@/Components/ui/icon';
 import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
 import { EmptyState } from '@/Components/ui/empty-state';
 import { Pulse } from '@/Components/ui/skeleton';
+import { getAvatarColor } from '@/Lib/avatar-colors';
 
 /* ─── Types ─── */
 
@@ -200,6 +201,14 @@ const SECTIONS = [
 
 /* ─── Main Page ─── */
 
+function getAvatarColorByName(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return getAvatarColor(Math.abs(hash));
+}
+
 export default function Show({ user, appointment }: Props) {
   const [toastMessage, setToastMessage] = useState('');
   const [showFollowUpSheet, setShowFollowUpSheet] = useState(false);
@@ -259,7 +268,13 @@ export default function Show({ user, appointment }: Props) {
             {isDoctor && appointment.doctor ? (
               <Avatar className="h-12 w-12 flex-shrink-0">
                 <AvatarImage src={appointment.doctor.avatar_url || undefined} alt={appointment.doctor.name} />
-                <AvatarFallback className="bg-warning text-warning-foreground text-label">
+                <AvatarFallback
+                  className="text-label"
+                  style={(() => {
+                    const color = getAvatarColorByName(appointment.doctor.name);
+                    return { backgroundColor: color.bg, color: color.text };
+                  })()}
+                >
                   {appointment.doctor.name.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>

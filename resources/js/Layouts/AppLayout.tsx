@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import SearchModal from "@/Components/SearchModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { Button, buttonVariants } from "@/Components/ui/button";
+import { Badge } from "@/Components/ui/badge";
 import { cn } from "@/Lib/utils";
 import {
     Sheet,
@@ -13,7 +14,24 @@ import {
     SheetDescription,
 } from "@/Components/ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "@/Components/ui/tabs";
-import { Bell, Search, CheckCheck } from "@/Lib/icons";
+import {
+    Bell,
+    Search,
+    CheckCheck,
+    Calendar,
+    CalendarClock,
+    Video,
+    ClipboardCheck,
+    TestTube2,
+    FlaskConical,
+    ShieldCheck,
+    Pill,
+    Users,
+    UserPlus,
+    Receipt,
+    CreditCard,
+    Info,
+} from "@/Lib/icons";
 import { Icon } from "@/Components/ui/icon";
 import { Alert } from "@/Components/ui/alert";
 import { SupportFooter } from "@/Components/SupportFooter";
@@ -42,6 +60,10 @@ interface NotificationItem {
     health_record_id?: number | null;
     family_member_id?: number | null;
     insurance_policy_id?: number | null;
+    doctor?: {
+        name: string;
+        avatar_url?: string | null;
+    } | null;
 }
 
 interface AppLayoutProps {
@@ -100,6 +122,37 @@ function getTimeGroup(dateStr: string): 'today' | 'this-week' | 'older' {
     return 'older';
 }
 
+function getNotificationIcon(type: string) {
+    // Map notification types to their corresponding icons
+    if (type.startsWith('appointment_')) {
+        if (type === 'appointment_confirmed') return Calendar;
+        if (type === 'appointment_reminder') return CalendarClock;
+        if (type === 'appointment_cancelled') return CalendarClock;
+        return Calendar;
+    }
+    if (type === 'checkin_available') return ClipboardCheck;
+    if (type === 'video_link_ready') return Video;
+    if (type === 'lab_results_ready') return TestTube2;
+    if (type === 'abnormal_results') return FlaskConical;
+    if (type === 'prescription_expiring') return Pill;
+    if (type === 'followup_required') return CalendarClock;
+    if (type.startsWith('insurance_')) return ShieldCheck;
+    if (type === 'policy_expiring_soon' || type === 'policy_expired') return ShieldCheck;
+    if (type === 'member_verification_pending') return UserPlus;
+    if (type === 'member_added') return Users;
+    if (type.startsWith('billing_') || type.startsWith('payment_')) return Receipt;
+    // Default icon for unknown types
+    return Info;
+}
+
+function getAvatarColorByName(name: string) {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return getAvatarColor(Math.abs(hash));
+}
+
 function NotificationItem({
     notification,
     onClick,
@@ -110,17 +163,23 @@ function NotificationItem({
     index: number;
 }) {
     const isUnread = !notification.read_at;
-    const { props } = usePage<{ auth: { user: User | null } }>();
-    const user = props.auth?.user;
-    const avatarColor = getAvatarColor(index);
 
-    // Generate initials from notification title (first letter of first two words)
-    const getInitials = (title: string) => {
-        const words = title.split(' ').filter(w => w.length > 0);
+    // Check if this is a doctor appointment notification (not lab test)
+    const isAppointmentNotification =
+        notification.type.startsWith('appointment_') ||
+        notification.type === 'checkin_available' ||
+        notification.type === 'video_link_ready';
+
+    const isDoctorNotification = isAppointmentNotification;
+    const NotificationIcon = getNotificationIcon(notification.type);
+
+    // Generate initials from doctor name or notification title
+    const getInitials = (name: string) => {
+        const words = name.split(' ').filter(w => w.length > 0);
         if (words.length >= 2) {
             return (words[0][0] + words[1][0]).toUpperCase();
         }
-        return words[0]?.slice(0, 2).toUpperCase() || '?';
+        return words[0]?.slice(0, 2).toUpperCase() || 'D';
     };
 
     return (
@@ -128,18 +187,28 @@ function NotificationItem({
             onClick={onClick}
             className="w-full flex items-start gap-3 px-5 py-4 hover:bg-muted/50 transition-colors text-left"
         >
-            <Avatar className="h-10 w-10 flex-shrink-0">
-                <AvatarImage src={user?.avatar_url} />
-                <AvatarFallback
-                    className="text-body font-medium"
-                    style={{
-                        backgroundColor: avatarColor.bg,
-                        color: avatarColor.text,
-                    }}
-                >
-                    {getInitials(notification.title)}
-                </AvatarFallback>
-            </Avatar>
+            {/* Show avatar for doctor appointment notifications, otherwise show icon */}
+            {isDoctorNotification ? (
+                <Avatar className="h-10 w-10 flex-shrink-0">
+                    {notification.doctor?.avatar_url && (
+                        <AvatarImage src={notification.doctor.avatar_url} alt={notification.doctor.name} />
+                    )}
+                    <AvatarFallback
+                        className="text-body font-medium"
+                        style={(() => {
+                            const name = notification.doctor?.name || notification.title;
+                            const color = getAvatarColorByName(name);
+                            return { backgroundColor: color.bg, color: color.text };
+                        })()}
+                    >
+                        {getInitials(notification.doctor?.name || notification.title)}
+                    </AvatarFallback>
+                </Avatar>
+            ) : (
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Icon icon={NotificationIcon} className="h-5 w-5 text-primary" />
+                </div>
+            )}
             <div className="flex-1 min-w-0">
                 <p className="text-label text-foreground mb-1">{notification.title}</p>
                 <p className="text-body text-muted-foreground">{notification.message}</p>
@@ -463,31 +532,22 @@ export default function AppLayout({
                                 <div className="flex items-center gap-2.5">
                                     <SheetTitle>Notifications</SheetTitle>
                                     {unreadCount > 0 && (
-                                        <span className="text-overline text-destructive-foreground bg-destructive rounded-full px-2 py-0.5 leading-none">
+                                        <Badge variant="danger" size="sm">
                                             {unreadCount}
-                                        </span>
+                                        </Badge>
                                     )}
                                 </div>
                                 {unreadCount > 0 && (
-                                    <Button
-                                        variant="link"
-                                        size="sm"
-                                        className="h-auto p-0 flex items-center gap-1 text-label text-primary hover:underline"
-                                        onClick={handleMarkAllAsRead}
-                                    >
-                                        <Icon
-                                            icon={CheckCheck}
-                                            className="h-3.5 w-3.5"
-                                        />
-                                        Mark all read
-                                    </Button>
+                                    <div className="flex items-center gap-1.5 text-label text-primary cursor-pointer hover:underline" onClick={handleMarkAllAsRead}>
+                                        <Icon icon={CheckCheck} className="h-3.5 w-3.5" />
+                                        <span>Mark all read</span>
+                                    </div>
                                 )}
                             </div>
                             <SheetDescription className="sr-only">
                                 Billing notifications
                             </SheetDescription>
 
-                            {/* Filter Tabs */}
                             <Tabs
                                 value={notifFilter}
                                 onValueChange={(v) =>

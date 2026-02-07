@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { cn } from '@/Lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
+import { getAvatarColor } from '@/Lib/avatar-colors';
 import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
 import { Card } from '@/Components/ui/card';
@@ -61,6 +62,14 @@ function generateTimeSlots() {
     { time: '5:00 PM', available: true, preferred: false },
   ];
   return [...morningSlots, ...afternoonSlots];
+}
+
+function getAvatarColorByName(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return getAvatarColor(Math.abs(hash));
 }
 
 export function EmbeddedComponent({
@@ -471,7 +480,12 @@ export function EmbeddedComponent({
                   <div className="flex items-start gap-3 w-full text-left">
                     <Avatar className="h-12 w-12">
                       <AvatarImage src={doctor.avatar || undefined} />
-                      <AvatarFallback className="bg-warning text-warning-foreground">
+                      <AvatarFallback
+                        style={(() => {
+                          const color = getAvatarColorByName(doctor.name || 'Doctor');
+                          return { backgroundColor: color.bg, color: color.text };
+                        })()}
+                      >
                         {doctor.name?.charAt(0) || 'D'}
                       </AvatarFallback>
                     </Avatar>

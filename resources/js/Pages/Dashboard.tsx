@@ -13,6 +13,7 @@ import {
 import { Icon } from '@/Components/ui/icon';
 import { Toast } from '@/Components/ui/toast';
 import { getAvatarColor } from '@/Lib/avatar-colors';
+import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { CtaBanner } from '@/Components/ui/cta-banner';
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator,
@@ -316,6 +317,16 @@ interface DashboardCardProps {
   menuItems: { label: string; onClick: () => void; destructive?: boolean }[];
   isLast: boolean;
   iconOverride?: typeof Receipt;
+  doctorName?: string;
+  doctorAvatarUrl?: string;
+}
+
+function getAvatarColorByName(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return getAvatarColor(Math.abs(hash));
 }
 
 const cardConfig: Record<CardType, { icon: typeof Receipt; iconBgClass: string; iconColorClass: string }> = {
@@ -336,9 +347,20 @@ const cardConfig: Record<CardType, { icon: typeof Receipt; iconBgClass: string; 
 function DashboardCard({
   type, title, subtitle, patientName, patientInitials, badge, badgeVariant,
   actionLabel, actionVariant = 'secondary', onAction, menuItems, isLast, iconOverride,
+  doctorName, doctorAvatarUrl,
 }: DashboardCardProps) {
   const config = cardConfig[type];
   const CardIcon = iconOverride || config.icon;
+
+  const isDoctorAppointment = (type === 'appointment_today' || type === 'appointment_upcoming' || type === 'pre_appointment_reminder') && doctorName && !iconOverride;
+
+  const getInitials = (name: string) => {
+    const words = name.split(' ').filter(w => w.length > 0);
+    if (words.length >= 2) {
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
+    return words[0]?.slice(0, 2).toUpperCase() || 'D';
+  };
 
   return (
     <HStack
@@ -346,10 +368,27 @@ function DashboardCard({
       align="start"
       className={`p-4 ${!isLast ? 'border-b border-border' : ''}`}
     >
-      {/* Icon */}
-      <div className={`flex items-center justify-center flex-shrink-0 w-10 h-10 rounded-full ${config.iconBgClass}`}>
-        <Icon icon={CardIcon} className={`h-5 w-5 ${config.iconColorClass}`} />
-      </div>
+      {/* Avatar for doctor appointments, Icon for everything else */}
+      {isDoctorAppointment ? (
+        <Avatar className="h-10 w-10 flex-shrink-0">
+          {doctorAvatarUrl && (
+            <AvatarImage src={doctorAvatarUrl} alt={doctorName} />
+          )}
+          <AvatarFallback
+            className="text-body font-medium"
+            style={(() => {
+              const color = getAvatarColorByName(doctorName!);
+              return { backgroundColor: color.bg, color: color.text };
+            })()}
+          >
+            {getInitials(doctorName!)}
+          </AvatarFallback>
+        </Avatar>
+      ) : (
+        <div className={`flex items-center justify-center flex-shrink-0 w-10 h-10 rounded-full ${config.iconBgClass}`}>
+          <Icon icon={CardIcon} className={`h-5 w-5 ${config.iconColorClass}`} />
+        </div>
+      )}
 
       {/* Content */}
       <VStack gap={0.5} className="flex-1 min-w-0">
@@ -915,7 +954,7 @@ export default function Dashboard({
             type="appointment_today"
             title={appt.title}
             subtitle={`Today · ${appt.time ? formatTime(appt.time) : ''} · ${appt.subtitle}`}
-            iconOverride={appt.type === 'lab_test' ? FlaskConical : Stethoscope}
+            iconOverride={appt.type === 'lab_test' ? FlaskConical : undefined}
             patientName={appt.patient_name}
             patientInitials={appt.patient_initials}
             badge={appt.mode === 'video' ? 'Video' : appt.type === 'lab_test' ? 'Lab Test' : undefined}
@@ -928,6 +967,8 @@ export default function Dashboard({
               { label: 'Add to calendar', onClick: () => { generateICSFile(appt); setToastMessage('Calendar file downloaded'); setShowToast(true); } },
             ]}
             isLast={isLast}
+            doctorName={appt.type === 'doctor' ? appt.title : undefined}
+            doctorAvatarUrl={undefined}
           />
         );
       }
@@ -962,6 +1003,8 @@ export default function Dashboard({
               { label: 'Cancel', onClick: () => router.visit(`/appointments/${reminder.appointment_id}`), destructive: true },
             ]}
             isLast={isLast}
+            doctorName={reminder.title}
+            doctorAvatarUrl={undefined}
           />
         );
       }
@@ -973,7 +1016,7 @@ export default function Dashboard({
             type="appointment_upcoming"
             title={appt.title}
             subtitle={`${appt.date_formatted} · ${appt.time ? formatTime(appt.time) : ''} · ${appt.subtitle}`}
-            iconOverride={appt.type === 'lab_test' ? FlaskConical : Calendar}
+            iconOverride={appt.type === 'lab_test' ? FlaskConical : undefined}
             patientName={appt.patient_name}
             patientInitials={appt.patient_initials}
             badge={appt.type === 'lab_test' ? 'Lab Test' : appt.mode === 'video' ? 'Video' : undefined}
@@ -987,6 +1030,8 @@ export default function Dashboard({
               { label: 'Add to calendar', onClick: () => { generateICSFile(appt); setToastMessage('Calendar file downloaded'); setShowToast(true); } },
             ]}
             isLast={isLast}
+            doctorName={appt.type === 'doctor' ? appt.title : undefined}
+            doctorAvatarUrl={undefined}
           />
         );
       }
@@ -1180,7 +1225,7 @@ export default function Dashboard({
                         type="appointment_upcoming"
                         title={appt.title}
                         subtitle={`${appt.date_formatted} · ${appt.patient_name}`}
-                        iconOverride={appt.type === 'lab_test' ? FlaskConical : Stethoscope}
+                        iconOverride={appt.type === 'lab_test' ? FlaskConical : undefined}
                         patientName={appt.patient_name}
                         patientInitials={appt.patient_initials}
                         actionLabel="View"
@@ -1188,6 +1233,8 @@ export default function Dashboard({
                         onAction={() => router.visit('/appointments')}
                         menuItems={[]}
                         isLast={i === arr.length - 1}
+                        doctorName={appt.type === 'doctor' ? appt.title : undefined}
+                        doctorAvatarUrl={undefined}
                       />
                     ))}
                   </CardContent>

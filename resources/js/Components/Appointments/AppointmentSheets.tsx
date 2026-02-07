@@ -44,6 +44,7 @@ import {
   CalendarPlus,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { getAvatarColor } from '@/Lib/avatar-colors';
 
 /* ─── Types ─── */
 
@@ -234,7 +235,7 @@ export function DetailsSheet({
 
         {/* Doctor Row - only for doctor appointments */}
         {isDoctor && (
-          <PeopleRow label="Doctor" name={appointment.title} />
+          <PeopleRow label="Doctor" name={appointment.title} type="doctor" />
         )}
       </div>
 
@@ -563,7 +564,7 @@ export function CancelledDetailsSheet({
       <div className="space-y-3 pb-4">
         <PeopleRow label="Patient" name={appointment.patient_name} />
         {isDoctor && (
-          <PeopleRow label="Doctor" name={appointment.title} />
+          <PeopleRow label="Doctor" name={appointment.title} type="doctor" />
         )}
       </div>
 
@@ -645,7 +646,15 @@ export function CancelledDetailsSheet({
 
 /* ─── Helper Components ─── */
 
-function PeopleRow({ label, name }: { label: string; name: string }) {
+function getAvatarColorByName(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return getAvatarColor(Math.abs(hash));
+}
+
+function PeopleRow({ label, name, type = 'patient' }: { label: string; name: string; type?: 'patient' | 'doctor' }) {
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -655,11 +664,21 @@ function PeopleRow({ label, name }: { label: string; name: string }) {
       .slice(0, 2);
   };
 
+  const avatarStyle = type === 'doctor'
+    ? getAvatarColorByName(name)
+    : null;
+
   return (
     <div className="flex items-center gap-3">
       <span className="text-body text-muted-foreground w-[70px] flex-shrink-0">{label}</span>
       <Avatar className="h-6 w-6">
-        <AvatarFallback className="bg-warning text-warning-foreground text-label">
+        <AvatarFallback
+          className={cn(
+            "text-label",
+            type === 'patient' && "bg-muted text-muted-foreground"
+          )}
+          style={avatarStyle ? { backgroundColor: avatarStyle.bg, color: avatarStyle.text } : undefined}
+        >
           {getInitials(name)}
         </AvatarFallback>
       </Avatar>
@@ -1129,7 +1148,13 @@ export function FollowUpSheet({
                   {data.doctor.avatar_url ? (
                     <AvatarImage src={data.doctor.avatar_url} alt={data.doctor.name} />
                   ) : null}
-                  <AvatarFallback className="bg-warning text-warning-foreground font-medium">
+                  <AvatarFallback
+                    className="font-medium"
+                    style={(() => {
+                      const color = getAvatarColorByName(data.doctor.name);
+                      return { backgroundColor: color.bg, color: color.text };
+                    })()}
+                  >
                     {getInitials(data.doctor.name)}
                   </AvatarFallback>
                 </Avatar>
@@ -1440,7 +1465,13 @@ export function BookAgainSheet({
                   {data.doctor.avatar_url ? (
                     <AvatarImage src={data.doctor.avatar_url} alt={data.doctor.name} />
                   ) : null}
-                  <AvatarFallback className="bg-warning text-warning-foreground font-medium">
+                  <AvatarFallback
+                    className="font-medium"
+                    style={(() => {
+                      const color = getAvatarColorByName(data.doctor.name);
+                      return { backgroundColor: color.bg, color: color.text };
+                    })()}
+                  >
                     {getInitials(data.doctor.name)}
                   </AvatarFallback>
                 </Avatar>

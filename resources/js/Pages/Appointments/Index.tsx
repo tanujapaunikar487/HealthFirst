@@ -47,6 +47,7 @@ import {
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
+import { getAvatarColor } from '@/Lib/avatar-colors';
 import {
   DetailsSheet,
   CancelledDetailsSheet,
@@ -458,6 +459,14 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
 
 /* ─── Table ─── */
 
+function getAvatarColorByName(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return getAvatarColor(Math.abs(hash));
+}
+
 function AppointmentsTable({
   appointments,
   tab,
@@ -530,7 +539,13 @@ function AppointmentsTable({
                   {appt.type === 'doctor' ? (
                     <Avatar className="h-10 w-10 flex-shrink-0">
                       <AvatarImage src={appt.doctor_avatar_url || undefined} alt={appt.title} />
-                      <AvatarFallback className="bg-warning text-warning-foreground text-label">
+                      <AvatarFallback
+                        className="text-label"
+                        style={(() => {
+                          const color = getAvatarColorByName(appt.title);
+                          return { backgroundColor: color.bg, color: color.text };
+                        })()}
+                      >
                         {appt.title.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>

@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Clock } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { format, parseISO } from 'date-fns';
+import { getAvatarColor } from '@/Lib/avatar-colors';
 
 interface PreviousVisitData {
   doctor: {
@@ -17,6 +18,14 @@ interface PreviousVisitData {
 
 interface Props {
   visit: PreviousVisitData;
+}
+
+function getAvatarColorByName(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return getAvatarColor(Math.abs(hash));
 }
 
 export function EmbeddedPreviousVisit({ visit }: Props) {
@@ -45,7 +54,13 @@ export function EmbeddedPreviousVisit({ visit }: Props) {
       <div className="flex items-center gap-3">
         <Avatar className="h-10 w-10">
           <AvatarImage src={visit.doctor.avatar || undefined} />
-          <AvatarFallback className="bg-warning text-warning-foreground text-label">
+          <AvatarFallback
+            className="text-label"
+            style={(() => {
+              const color = getAvatarColorByName(visit.doctor.name);
+              return { backgroundColor: color.bg, color: color.text };
+            })()}
+          >
             {getInitial(visit.doctor.name)}
           </AvatarFallback>
         </Avatar>

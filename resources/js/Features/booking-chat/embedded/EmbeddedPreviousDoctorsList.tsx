@@ -6,6 +6,7 @@ import { Star, Plus } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { cn } from '@/Lib/utils';
 import { format, parseISO } from 'date-fns';
+import { getAvatarColor } from '@/Lib/avatar-colors';
 
 interface TimeSlot {
   time: string;
@@ -42,6 +43,14 @@ interface Props {
   onSelect: (doctorId: string, time: string) => void;
   onSeeOtherDoctors: () => void;
   disabled: boolean;
+}
+
+function getAvatarColorByName(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return getAvatarColor(Math.abs(hash));
 }
 
 export function EmbeddedPreviousDoctorsList({
@@ -154,7 +163,12 @@ function PreviousDoctorCard({
         <div className="flex items-start gap-3 flex-1">
           <Avatar className="h-12 w-12">
             <AvatarImage src={doctor.avatar || undefined} />
-            <AvatarFallback className="bg-warning text-warning-foreground">
+            <AvatarFallback
+              style={(() => {
+                const color = getAvatarColorByName(doctor.name);
+                return { backgroundColor: color.bg, color: color.text };
+              })()}
+            >
               {getInitial(doctor.name)}
             </AvatarFallback>
           </Avatar>
