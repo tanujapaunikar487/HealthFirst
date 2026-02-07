@@ -5,7 +5,6 @@ import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton'
 import { Alert } from '@/Components/ui/alert';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
-import { Card } from '@/Components/ui/card';
 import { DetailRow } from '@/Components/ui/detail-row';
 import { DetailSection } from '@/Components/ui/detail-section';
 import {
@@ -860,60 +859,62 @@ export default function Show({ user, bill }: Props) {
 
             {/* ─── Payment & Insurance Section ─── */}
             {(bill.payment_info || bill.insurance_details) && (
-              <div id="payment" className="scroll-mt-6 space-y-4">
-                <div className="flex items-center gap-2.5 mb-4">
-                  <Icon icon={CreditCard} className="h-5 w-5 text-foreground" />
-                  <h2 className="text-section-title text-foreground">
-                    Payment Details
-                  </h2>
-                </div>
-                {bill.payment_info && (
-                  <Card className="divide-y">
-                    <DetailRow label="Payment method">{bill.payment_info.method}</DetailRow>
-                    <DetailRow label="Paid on">{bill.payment_info.paid_at}</DetailRow>
-                    <DetailRow label="Transaction ID"><span className="font-mono">{bill.payment_info.transaction_id}</span></DetailRow>
-                    <DetailRow label="Receipt number"><span className="font-mono">{bill.payment_info.receipt_number}</span></DetailRow>
-                  </Card>
-                )}
-                {bill.insurance_details && (
-                  <Card className="divide-y">
-                    <div className="px-6 py-3 bg-muted">
-                      <p className="text-label text-muted-foreground">Insurance</p>
-                    </div>
-                    <DetailRow label="Provider">{bill.insurance_details.provider_name}</DetailRow>
-                    <DetailRow label="Policy number"><span className="font-mono">{bill.insurance_details.policy_number}</span></DetailRow>
-                    <DetailRow label="Claim">
-                      <span className="flex items-center gap-2">
-                        <span className="font-mono">{bill.insurance_details.claim_id}</span>
-                        <Badge variant={
-                          bill.insurance_details.claim_status === 'Approved' || bill.insurance_details.claim_status === 'Reimbursed'
-                            ? 'success' : 'warning'
-                        }>
-                          {bill.insurance_details.claim_status}
-                        </Badge>
-                      </span>
-                    </DetailRow>
-                    <DetailRow label="Covered amount"><span className="text-success font-medium">₹{bill.insurance_details.covered_amount.toLocaleString()}</span></DetailRow>
-                    {bill.insurance_details.copay_amount > 0 && (
-                      <DetailRow label="Co-pay"><span className="text-destructive font-medium">₹{bill.insurance_details.copay_amount.toLocaleString()}</span></DetailRow>
-                    )}
-                    {bill.insurance_details.insurance_claim_id && (
-                      <div className="px-6 py-4">
-                        <Button
-                          variant="link"
-                          size="sm"
-                          className="h-auto p-0 text-label hover:underline flex items-center gap-1"
-                          style={{ color: 'hsl(var(--primary))' }}
-                          onClick={() => router.visit(`/insurance/claims/${bill.insurance_details!.insurance_claim_id}`)}
-                        >
-                          View claim details
-                          <ChevronRight className="h-3 w-3" />
-                        </Button>
+              <DetailSection id="payment" title="Payment Details" icon={CreditCard} noPadding>
+                <div className="divide-y">
+                  {bill.payment_info && (
+                    <>
+                      <DetailRow label="Payment method">{bill.payment_info.method}</DetailRow>
+                      <DetailRow label="Paid on">{bill.payment_info.paid_at}</DetailRow>
+                      <DetailRow label="Transaction ID"><span className="font-mono">{bill.payment_info.transaction_id}</span></DetailRow>
+                      <DetailRow label="Receipt number"><span className="font-mono">{bill.payment_info.receipt_number}</span></DetailRow>
+                    </>
+                  )}
+                  {bill.insurance_details && (
+                    <>
+                      <div className="px-6 py-3 bg-muted">
+                        <p className="text-label text-muted-foreground">Insurance</p>
                       </div>
-                    )}
-                  </Card>
-                )}
-              </div>
+                      <DetailRow label="Provider">{bill.insurance_details.provider_name}</DetailRow>
+                      <DetailRow label="Policy number"><span className="font-mono">{bill.insurance_details.policy_number}</span></DetailRow>
+                      <DetailRow label="Claim">
+                        <span className="flex items-center gap-2">
+                          <span className="font-mono">{bill.insurance_details.claim_id}</span>
+                          <Badge variant={
+                            bill.insurance_details.claim_status === 'Approved' || bill.insurance_details.claim_status === 'Reimbursed'
+                              ? 'success' : 'warning'
+                          }>
+                            {bill.insurance_details.claim_status}
+                          </Badge>
+                        </span>
+                      </DetailRow>
+                      <div className="flex items-center justify-between px-6 py-4">
+                        <span className="text-body text-muted-foreground">Covered amount</span>
+                        <span className="text-label text-success">₹{bill.insurance_details.covered_amount.toLocaleString()}</span>
+                      </div>
+                      {bill.insurance_details.copay_amount > 0 && (
+                        <div className="flex items-center justify-between px-6 py-4">
+                          <span className="text-body text-muted-foreground">Co-pay</span>
+                          <span className="text-label text-destructive">₹{bill.insurance_details.copay_amount.toLocaleString()}</span>
+                        </div>
+                      )}
+                      {bill.insurance_details.insurance_claim_id && (
+                        <div className="px-6 py-4">
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="h-auto p-0 text-label hover:underline flex items-center gap-1"
+                            style={{ color: 'hsl(var(--primary))' }}
+                            onClick={() => router.visit(`/insurance/claims/${bill.insurance_details!.insurance_claim_id}`)}
+                          >
+                            View claim details
+                            <ChevronRight className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </DetailSection>
             )}
 
             {/* ─── EMI Section ─── */}

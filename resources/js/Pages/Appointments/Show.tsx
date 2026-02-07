@@ -846,14 +846,11 @@ function LabTestsSection({ tests }: { tests: LabTest[] }) {
 
 function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadInvoice }: { billing: Billing; appointmentId: number; insuranceClaimId?: number | null; onDownloadInvoice: () => void }) {
   return (
-    <div id="billing" className="scroll-mt-6 space-y-4">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2.5">
-          <Icon icon={CreditCard} className="h-5 w-5 text-foreground" />
-          <h2 className="text-section-title text-foreground">
-            Billing
-          </h2>
-        </div>
+    <Section
+      id="billing"
+      title="Billing"
+      icon={CreditCard}
+      action={
         <Button
           variant="secondary"
           size="md"
@@ -863,10 +860,10 @@ function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadIn
           <Download className="h-3.5 w-3.5" />
           Download Invoice
         </Button>
-      </div>
-
-      {/* Fee breakdown card */}
-      <Card className="divide-y">
+      }
+    >
+      <div className="divide-y">
+        {/* Fee breakdown */}
         {billing.line_items.map((item, i) => (
           <div key={i} className="flex items-center justify-between px-6 py-4">
             <span className="text-body text-muted-foreground">{item.label}</span>
@@ -877,33 +874,20 @@ function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadIn
         ))}
         <div className="flex items-center justify-between px-6 py-4">
           <span className="text-card-title text-foreground">Total</span>
-          <span className="text-card-title text-foreground">₹{billing.total.toLocaleString()}</span>
+          <span className="text-subheading text-foreground">₹{billing.total.toLocaleString()}</span>
         </div>
-      </Card>
-
-      {/* Payment details card */}
-      <Card className="divide-y">
+        {/* Payment details */}
         <div className="px-6 py-3 bg-muted">
           <span className="text-label text-muted-foreground">Payment details</span>
         </div>
-        <div className="flex items-center justify-between px-6 py-4">
-          <span className="text-body text-muted-foreground">Status</span>
+        <DetailRow label="Status">
           <Badge variant={billing.payment_status === 'paid' ? 'success' : billing.payment_status === 'pending' ? 'warning' : 'danger'}>
             {billing.payment_status.replace('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
           </Badge>
-        </div>
-        <div className="flex items-center justify-between px-6 py-4">
-          <span className="text-body text-muted-foreground">Method</span>
-          <span className="text-label text-foreground">{billing.payment_method}</span>
-        </div>
-        <div className="flex items-center justify-between px-6 py-4">
-          <span className="text-body text-muted-foreground">Invoice</span>
-          <span className="text-label text-foreground font-mono">{billing.invoice_number}</span>
-        </div>
-        <div className="flex items-center justify-between px-6 py-4">
-          <span className="text-body text-muted-foreground">Paid on</span>
-          <span className="text-label text-foreground">{billing.payment_date}</span>
-        </div>
+        </DetailRow>
+        <DetailRow label="Method">{billing.payment_method}</DetailRow>
+        <DetailRow label="Invoice"><span className="font-mono">{billing.invoice_number}</span></DetailRow>
+        <DetailRow label="Paid on">{billing.payment_date}</DetailRow>
         <div className="px-6 py-3 flex items-center gap-4">
           <Link href={`/billing/${appointmentId}`} className="text-label text-primary hover:underline flex items-center gap-1">
             View Invoice
@@ -916,8 +900,8 @@ function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadIn
             </Link>
           )}
         </div>
-      </Card>
-    </div>
+      </div>
+    </Section>
   );
 }
 

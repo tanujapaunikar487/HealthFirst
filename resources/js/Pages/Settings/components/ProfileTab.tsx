@@ -394,10 +394,6 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                         {
                             label: 'Name',
                             value: user.name,
-                            avatar: {
-                                url: user.avatar_url ?? undefined,
-                                initials: getInitials(user.name),
-                            },
                         },
                         {
                             label: 'Email',

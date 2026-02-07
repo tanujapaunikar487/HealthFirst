@@ -1958,15 +1958,18 @@ function getInvoiceSections(meta: RecordMetadata): CategorySection[] {
     content: (
       <div className="divide-y">
         {meta.invoice_number && <DetailRow label="Invoice">{meta.invoice_number}</DetailRow>}
-        {meta.amount != null && (
-          <DetailRow label="Amount"><span className="text-subheading">₹{meta.amount.toLocaleString()}</span></DetailRow>
-        )}
         {meta.payment_status && (
           <DetailRow label="Status">
             <Badge variant={meta.payment_status === 'paid' ? 'success' : meta.payment_status === 'pending' ? 'warning' : meta.payment_status === 'due' ? 'danger' : 'neutral'} className="capitalize">
               {meta.payment_status}
             </Badge>
           </DetailRow>
+        )}
+        {meta.amount != null && (
+          <div className="flex items-center justify-between px-6 py-4">
+            <span className="text-body text-muted-foreground">Amount</span>
+            <span className="text-subheading text-foreground">₹{meta.amount.toLocaleString()}</span>
+          </div>
         )}
       </div>
     ),
@@ -1983,6 +1986,12 @@ function getInvoiceSections(meta: RecordMetadata): CategorySection[] {
               <span className="text-label text-foreground">₹{item.amount.toLocaleString()}</span>
             </div>
           ))}
+          {meta.amount != null && (
+            <div className="flex items-center justify-between px-6 py-4">
+              <span className="text-card-title text-foreground">Total</span>
+              <span className="text-subheading text-foreground">₹{meta.amount.toLocaleString()}</span>
+            </div>
+          )}
         </div>
       ),
     });

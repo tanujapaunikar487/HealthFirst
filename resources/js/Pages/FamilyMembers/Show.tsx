@@ -606,15 +606,7 @@ export default function FamilyMemberShow({
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <h1
-                className="font-bold"
-                style={{
-                  fontSize: '28px',
-                  lineHeight: '36px',
-                  letterSpacing: '-0.5px',
-                  color: 'hsl(var(--foreground))',
-                }}
-              >
+              <h1 className="text-detail-title text-foreground">
                 {member.name}
               </h1>
               {member.relation === 'self' && (
@@ -686,12 +678,6 @@ export default function FamilyMemberShow({
                   {
                     label: 'Name',
                     value: member.name,
-                    avatar: {
-                      url: member.avatar_url ?? undefined,
-                      initials: getInitials(member.name),
-                      bgColor: colors.bg,
-                      textColor: colors.text,
-                    },
                   },
                   {
                     label: 'Relationship',
@@ -799,9 +785,6 @@ export default function FamilyMemberShow({
                       {
                         label: 'Name',
                         value: member.emergency_contact_name,
-                        avatar: {
-                          initials: getInitials(member.emergency_contact_name),
-                        },
                       },
                       {
                         label: 'Relationship',
@@ -848,17 +831,9 @@ export default function FamilyMemberShow({
                         <p className="text-card-title text-foreground">{link.title}</p>
                         <p className="text-body text-muted-foreground">{link.subtitle}</p>
                       </div>
-                      <span
-                        className="flex items-center justify-center flex-shrink-0 rounded-full"
-                        style={{
-                          width: '40px', height: '40px',
-                          border: '1px solid hsl(var(--border))',
-                          background: 'hsl(var(--secondary))',
-                          color: 'hsl(var(--foreground))',
-                        }}
-                      >
+                      <Button variant="secondary" iconOnly size="md">
                         <ChevronRight className="h-5 w-5" />
-                      </span>
+                      </Button>
                     </Button>
                   ))}
                 </div>
