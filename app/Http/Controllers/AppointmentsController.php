@@ -932,6 +932,11 @@ class AppointmentsController extends Controller
             }
             $data['subtitle'] = $appt->collection_type === 'home' ? 'Home Collection' : 'Lab Visit';
             $data['mode'] = $appt->collection_type === 'home' ? 'Home' : 'Center';
+
+            // Link to first health record for completed lab tests
+            $data['health_record_id'] = HealthRecord::where('appointment_id', $appt->id)
+                ->where('category', 'lab_report')
+                ->value('id');
         }
 
         return $data;

@@ -66,6 +66,7 @@ export interface Appointment {
   notes?: string | null;
   google_calendar_event_id?: string | null;
   doctor_avatar_url?: string | null;
+  health_record_id?: number | null;
 }
 
 interface DateOption {

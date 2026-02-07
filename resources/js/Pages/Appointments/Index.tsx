@@ -39,6 +39,7 @@ import {
   Check,
   User,
   TestTube2,
+  FileText,
   Search,
   ChevronRight,
 } from '@/Lib/icons';
@@ -136,6 +137,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
   const { formatDate, formatTime } = useFormatPreferences();
   const [memberFilter, setMemberFilter] = useState<string>('all');
   const [doctorFilter, setDoctorFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sheetView, setSheetView] = useState<SheetView>(null);
   const [shareAppointment, setShareAppointment] = useState<Appointment | null>(null);
@@ -193,6 +195,9 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
 
   const applyFilters = (list: Appointment[]) => {
     let filtered = list;
+    if (typeFilter !== 'all') {
+      filtered = filtered.filter((a) => a.type === typeFilter);
+    }
     if (doctorFilter !== 'all') {
       filtered = filtered.filter((a) => String(a.doctor_id) === doctorFilter);
     }
@@ -323,6 +328,16 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
           {/* Filters + Search */}
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger className="w-44 h-9">
+                  <SelectValue placeholder="All types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All types</SelectItem>
+                  <SelectItem value="doctor">Doctor visit</SelectItem>
+                  <SelectItem value="lab_test">Lab test</SelectItem>
+                </SelectContent>
+              </Select>
               {doctors.length > 0 && (
                 <Select value={doctorFilter} onValueChange={setDoctorFilter}>
                   <SelectTrigger className="w-44 h-9">
@@ -556,7 +571,17 @@ function AppointmentsTable({
                 <PaymentStatusTag status={appt.payment_status} />
               </TableCell>
               <TableCell className="align-top">
-                <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
+                {tab === 'past' && appt.type === 'lab_test' && appt.health_record_id ? (
+                  <Link
+                    href={`/health-records/${appt.health_record_id}`}
+                    className={buttonVariants({ variant: 'secondary', size: 'md' })}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <FileText className="h-5 w-5" />
+                  </Link>
+                ) : (
+                  <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
+                )}
               </TableCell>
             </TableRow>
             );

@@ -1,7 +1,7 @@
 import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Badge } from '@/Components/ui/badge';
-import { Button, buttonVariants } from '@/Components/ui/button';
+import { Button } from '@/Components/ui/button';
 import { Alert } from '@/Components/ui/alert';
 import { DetailRow } from '@/Components/ui/detail-row';
 import { DetailSection } from '@/Components/ui/detail-section';
@@ -52,7 +52,6 @@ import {
   FileDown,
   Link2,
   User,
-  Settings2,
   Sparkles,
   Loader2,
   Pencil,
@@ -361,7 +360,6 @@ const SECTIONS = [
   { id: 'details', label: 'Details', icon: ClipboardList },
   { id: 'patient', label: 'Patient', icon: User },
   { id: 'provider', label: 'Provider', icon: Stethoscope },
-  { id: 'actions', label: 'Actions', icon: Settings2 },
 ] as const;
 
 /* ─── Helpers ─── */
@@ -931,37 +929,6 @@ export default function Show({ user, record, familyMember }: Props) {
               </Section>
             )}
 
-            {/* Actions Section */}
-            <Section id="actions" title="Actions" icon={Settings2}>
-              <div className="p-6 space-y-2">
-                <Button variant="secondary" className="w-full justify-start gap-2" onClick={handleDownload}>
-                  <Download className="h-4 w-4" />
-                  Download Record
-                </Button>
-                <Button variant="secondary" className="w-full justify-start gap-2" onClick={handleShare}>
-                  <Share2 className="h-4 w-4" />
-                  Share Record
-                </Button>
-                {record.appointment_id && (
-                  <Link href={`/appointments/${record.appointment_id}`} className={cn(buttonVariants({ variant: "secondary" }), "w-full justify-start gap-2")}>
-                    <ExternalLink className="h-4 w-4" />
-                    View Appointment
-                  </Link>
-                )}
-                {record.insurance_claim_id && (
-                  <Link href={`/insurance/claims/${record.insurance_claim_id}`} className={cn(buttonVariants({ variant: "secondary" }), "w-full justify-start gap-2")}>
-                    <ShieldCheck className="h-4 w-4" />
-                    View Insurance Claim
-                  </Link>
-                )}
-                {record.category === 'invoice' && record.appointment_id && (
-                  <Link href={`/billing/${record.appointment_id}`} className={cn(buttonVariants({ variant: "secondary" }), "w-full justify-start gap-2")}>
-                    <Receipt className="h-4 w-4" />
-                    View Bill
-                  </Link>
-                )}
-              </div>
-            </Section>
           </div>
         </div>
 
