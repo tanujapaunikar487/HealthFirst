@@ -11,7 +11,7 @@ Laravel 11 + React 18 + TS + Inertia v2 + Tailwind v4 + shadcn/ui | `php artisan
 **Alert**: 4 variants (info/success/warning/error), 2 modes (standalone/sticky). Props: title, hideIcon, onDismiss, action, children. No ad-hoc alert divs.
 **Toast**: Global notification system. 4 variants (success/error/warning/info). Dark bg with colored circle icons. Usage: `useToast()` hook → `showToast(message, variant)`. Auto-dismisses 3s.
 **Button**: 8 variants, 4 sizes (lg/md/sm/xs). Use `buttonVariants()` on Links. Default: primary lg. Adjacent icons match parent size (lg→lg).
-**Avatar**: `getAvatarColor(idx)` from `@/Lib/avatar-colors` for identity. User=`bg-muted text-muted-foreground`. Doctor=`bg-warning text-warning-foreground`. Provider=`bg-icon-bg text-icon`.
+**Avatar**: `getAvatarColor(idx)` from `@/Lib/avatar-colors` for identity (7 colors: Cyan, Purple, Indigo, Pink, Emerald, Orange, Amber). User=`bg-muted text-muted-foreground`. Doctor=`bg-warning text-warning-foreground`. Provider=`bg-icon-bg text-icon`.
 **DetailRow/Section** (`Components/ui/`): Grid with `w-detail-label`, `px-6 py-4`. Edge-to-edge dividers: `noPadding` + `p-6` + `divide-y -mx-6`. No card-in-card—list items use `divide-y`, tables direct content.
 **Tables**: `TableContainer` wrap + `TablePagination` + `w-col-*` tokens. Rows: `cursor-pointer hover:bg-muted/50 align-top`. Icons from `@/Lib/icons` not `lucide-react`.
 **Empty**: CtaBanner (action pages) | EmptyState (passive) | Filtered=EmptyState no CTA
