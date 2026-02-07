@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from '@/Components/ui/select';
 import {
+  TableContainer,
   Table,
   TableBody,
   TableCell,
@@ -24,6 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/Components/ui/table';
+import { TablePagination } from '@/Components/ui/table-pagination';
 import { Tabs, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
@@ -47,7 +49,6 @@ import {
   Ambulance,
   BrainCircuit,
   Share2,
-  ChevronLeft,
   ChevronRight,
   X,
 } from '@/Lib/icons';
@@ -863,22 +864,22 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
         {/* Table */}
         {filteredRecords.length > 0 ? (
           <div className={selectedIds.size === 0 ? 'mt-4' : ''}>
-            <div className="border" style={{ borderRadius: '24px' }}>
+            <TableContainer>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[40px]">
+                    <TableHead className="w-col-checkbox">
                       <Checkbox
                         checked={allSelected}
                         onCheckedChange={toggleSelectAll}
                         aria-label="Select all"
                       />
                     </TableHead>
-                    <TableHead className="w-[120px]">Date</TableHead>
+                    <TableHead className="w-col-date">Date</TableHead>
                     <TableHead>Details</TableHead>
-                    <TableHead className="w-[120px]">Family member</TableHead>
-                    <TableHead className="w-[180px]">Status</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
+                    <TableHead className="w-col-member">Family member</TableHead>
+                    <TableHead className="w-col-status">Status</TableHead>
+                    <TableHead className="w-col-actions"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -891,39 +892,39 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                       <TableRow
                         key={record.id}
                         data-state={isSelected ? 'selected' : undefined}
-                        className="cursor-pointer"
+                        className="cursor-pointer hover:bg-muted/50"
                         onClick={() => router.visit(`/health-records/${record.id}`)}
                       >
-                        <TableCell onClick={(e) => e.stopPropagation()}>
+                        <TableCell className="align-top" onClick={(e) => e.stopPropagation()}>
                           <Checkbox
                             checked={isSelected}
                             onCheckedChange={() => toggleSelect(record.id)}
                             aria-label={`Select ${record.title}`}
                           />
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="align-top">
                           <p className="text-label whitespace-nowrap">{formatDate(record.record_date) || '—'}</p>
                         </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
+                        <TableCell className="align-top">
+                          <div className="flex items-center gap-2.5">
                             <CategoryIcon category={record.category} size="sm" />
                             <div className="min-w-0">
                               <p className="text-label truncate">{record.title}</p>
-                              <p className="text-body text-muted-foreground mt-0.5 truncate">
+                              <p className="text-body text-muted-foreground truncate">
                                 {config.label}{record.doctor_name && ` • ${record.doctor_name}`}
                               </p>
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <span className="text-body">
+                        <TableCell className="align-top">
+                          <span className="text-label whitespace-nowrap">
                             {member ? member.name : 'You'}
                           </span>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="align-top">
                           {record.status ? <StatusBadge status={record.status} /> : <span className="text-body text-muted-foreground">—</span>}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="align-top">
                           <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
                         </TableCell>
                       </TableRow>
@@ -932,46 +933,16 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
                 </TableBody>
               </Table>
 
-              {/* Pagination Footer */}
-              <div className="flex items-center justify-between px-6 py-4 border-t border-border">
-                <p className="text-body text-muted-foreground">
-                  Showing {startIdx + 1}–{Math.min(startIdx + RECORDS_PER_PAGE, filteredRecords.length)} of {filteredRecords.length} records
-                </p>
-                {totalPages > 1 && (
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="secondary"
-                      iconOnly
-                      size="md"
-                      disabled={currentPage === 1}
-                      onClick={() => setCurrentPage((p) => p - 1)}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                      <Button
-                        key={page}
-                        variant={page === currentPage ? 'primary' : 'outline'}
-                        iconOnly
-                        size="md"
-                        onClick={() => setCurrentPage(page)}
-                      >
-                        {page}
-                      </Button>
-                    ))}
-                    <Button
-                      variant="secondary"
-                      iconOnly
-                      size="md"
-                      disabled={currentPage === totalPages}
-                      onClick={() => setCurrentPage((p) => p + 1)}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
+              <TablePagination
+                from={startIdx + 1}
+                to={Math.min(startIdx + RECORDS_PER_PAGE, filteredRecords.length)}
+                total={filteredRecords.length}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                itemLabel="records"
+              />
+            </TableContainer>
 
           </div>
         ) : (

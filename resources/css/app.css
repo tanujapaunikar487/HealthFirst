@@ -25,6 +25,14 @@
     --spacing-sidebar: 200px;
     --spacing-detail-label: 130px;
 
+    /* Table column widths */
+    --spacing-col-checkbox: 40px;
+    --spacing-col-date: 144px;
+    --spacing-col-member: 160px;
+    --spacing-col-amount: 128px;
+    --spacing-col-status: 140px;
+    --spacing-col-actions: 48px;
+
     /* Max/min widths */
     --max-width-page: 960px;
     --max-width-content: 800px;

@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from '@/Components/ui/select';
 import {
+  TableContainer,
   Table,
   TableBody,
   TableCell,
@@ -22,6 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/Components/ui/table';
+import { TablePagination } from '@/Components/ui/table-pagination';
 import { Tabs, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import {
   Sheet,
@@ -40,7 +42,6 @@ import {
   Stethoscope,
   TestTube2,
   CreditCard,
-  ChevronLeft,
   ChevronRight,
   X,
   Loader2,
@@ -575,11 +576,11 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
           )
         ) : (
           <>
-            <div className="border" style={{ borderRadius: '24px' }}>
+            <TableContainer>
               <Table>
                 <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className="w-[40px]">
+                  <TableRow>
+                    <TableHead className="w-col-checkbox">
                       {payableBills.length > 0 && (
                         <input
                           type="checkbox"
@@ -589,12 +590,12 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                         />
                       )}
                     </TableHead>
-                    <TableHead className="w-[150px]">Date</TableHead>
+                    <TableHead className="w-col-date">Date</TableHead>
                     <TableHead>Details</TableHead>
-                    <TableHead className="w-[120px]">Family member</TableHead>
-                    <TableHead className="w-[130px] text-right">Amount</TableHead>
-                    <TableHead className="w-[140px]">Status</TableHead>
-                    <TableHead className="w-[50px]" />
+                    <TableHead className="w-col-member">Family member</TableHead>
+                    <TableHead className="w-col-amount text-right">Amount</TableHead>
+                    <TableHead className="w-col-status">Status</TableHead>
+                    <TableHead className="w-col-actions" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -653,7 +654,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
 
                         {/* Member */}
                         <TableCell className="align-top">
-                          <p className="text-body">{bill.patient_name}</p>
+                          <p className="text-label whitespace-nowrap">{bill.patient_name}</p>
                         </TableCell>
 
                         {/* Amount */}
@@ -688,49 +689,16 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                 </TableBody>
               </Table>
 
-              {/* Pagination */}
-              {filtered.length > 0 && (
-                <div className="flex items-center justify-between px-6 py-4 border-t border-border">
-                  <p className="text-body text-muted-foreground">
-                    Showing {showingFrom}–{showingTo} of {filtered.length} bills
-                  </p>
-                  {filtered.length > ITEMS_PER_PAGE && (
-                    <div className="flex items-center gap-1">
-                    <Button
-                      variant="secondary"
-                      iconOnly
-                      size="md"
-                      disabled={currentPage <= 1}
-                      onClick={() => setPage(currentPage - 1)}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                      <Button
-                        key={p}
-                        variant={p === currentPage ? 'primary' : 'outline'}
-                        iconOnly
-                        size="md"
-                        className={cn('text-body', p === currentPage && 'pointer-events-none')}
-                        onClick={() => setPage(p)}
-                      >
-                        {p}
-                      </Button>
-                    ))}
-                    <Button
-                      variant="secondary"
-                      iconOnly
-                      size="md"
-                      disabled={currentPage >= totalPages}
-                      onClick={() => setPage(currentPage + 1)}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  )}
-                </div>
-              )}
-            </div>
+              <TablePagination
+                from={showingFrom}
+                to={showingTo}
+                total={filtered.length}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setPage}
+                itemLabel="bills"
+              />
+            </TableContainer>
           </>
         )}
       </div>

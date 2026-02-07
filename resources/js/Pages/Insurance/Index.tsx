@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from '@/Components/ui/select';
 import {
+  TableContainer,
   Table,
   TableBody,
   TableCell,
@@ -26,6 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/Components/ui/table';
+import { TablePagination } from '@/Components/ui/table-pagination';
 import {
   Sheet,
   SheetContent,
@@ -43,7 +45,6 @@ import {
   ShieldCheck,
   Plus,
   Search,
-  AlertTriangle,
   Users,
   ClipboardList,
   ChevronRight,
@@ -443,16 +444,16 @@ export default function InsuranceIndex({
             {/* Policies on file */}
             <div className="mb-10">
               <h2 className="mb-4 text-card-title text-muted-foreground">Policies on file</h2>
-              <div className="border" style={{ borderRadius: '24px' }}>
+              <TableContainer>
                 <Table>
                   <TableHeader>
-                    <TableRow className="hover:bg-transparent">
-                      <TableHead className="w-[140px]">Date</TableHead>
+                    <TableRow>
+                      <TableHead className="w-col-date">Date</TableHead>
                       <TableHead>Details</TableHead>
-                      <TableHead className="w-[100px]">Family members</TableHead>
-                      <TableHead className="w-[140px] text-right">Amount</TableHead>
-                      <TableHead className="w-[140px]">Status</TableHead>
-                      <TableHead className="w-[50px]" />
+                      <TableHead className="w-col-member">Family members</TableHead>
+                      <TableHead className="w-col-amount text-right">Amount</TableHead>
+                      <TableHead className="w-col-status">Status</TableHead>
+                      <TableHead className="w-col-actions" />
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -463,7 +464,7 @@ export default function InsuranceIndex({
                         onClick={() => router.visit('/insurance/' + policy.id)}
                       >
                         <TableCell className="align-top">
-                          <p className="text-body text-muted-foreground whitespace-nowrap">
+                          <p className="text-label whitespace-nowrap">
                             {policy.end_date ? `Valid until ${formatDate(policy.end_date)}` : '—'}
                           </p>
                         </TableCell>
@@ -479,8 +480,7 @@ export default function InsuranceIndex({
                           </div>
                         </TableCell>
                         <TableCell className="align-top">
-                          <span className="text-body flex items-center gap-1">
-                            <Users className="h-3.5 w-3.5 text-foreground" />
+                          <span className="text-label">
                             {policy.member_count}
                           </span>
                         </TableCell>
@@ -489,10 +489,7 @@ export default function InsuranceIndex({
                         </TableCell>
                         <TableCell className="align-top">
                           {policy.is_expiring_soon ? (
-                            <Badge
-                              variant="warning"
-                              icon={AlertTriangle}
-                            >
+                            <Badge variant="warning">
                               Expires in {policy.days_until_expiry}d
                             </Badge>
                           ) : (
@@ -509,13 +506,13 @@ export default function InsuranceIndex({
                   </TableBody>
                 </Table>
 
-                {/* Table Footer */}
-                {policies.length > 0 && (
-                  <div className="flex items-center justify-center px-6 py-4 border-t border-border text-body text-muted-foreground">
-                    <span>Showing {policies.length} {policies.length === 1 ? 'policy' : 'policies'}</span>
-                  </div>
-                )}
-              </div>
+                <TablePagination
+                  from={1}
+                  to={policies.length}
+                  total={policies.length}
+                  itemLabel={policies.length === 1 ? 'policy' : 'policies'}
+                />
+              </TableContainer>
             </div>
 
             {/* Past Claims Section */}
@@ -584,16 +581,16 @@ export default function InsuranceIndex({
                   description="Claims filed against your policies will appear here."
                 />
               ) : (
-                <div className="border" style={{ borderRadius: '24px' }}>
+                <TableContainer>
                   <Table>
                     <TableHeader>
-                      <TableRow className="hover:bg-transparent">
-                        <TableHead className="w-[120px]">Date</TableHead>
+                      <TableRow>
+                        <TableHead className="w-col-date">Date</TableHead>
                         <TableHead>Details</TableHead>
-                        <TableHead className="w-[150px]">Family member</TableHead>
-                        <TableHead className="w-[120px] text-right">Amount</TableHead>
-                        <TableHead className="w-[120px]">Status</TableHead>
-                        <TableHead className="w-[50px]" />
+                        <TableHead className="w-col-member">Family member</TableHead>
+                        <TableHead className="w-col-amount text-right">Amount</TableHead>
+                        <TableHead className="w-col-status">Status</TableHead>
+                        <TableHead className="w-col-actions" />
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -604,7 +601,7 @@ export default function InsuranceIndex({
                           onClick={() => router.visit(`/insurance/claims/${claim.id}`)}
                         >
                           <TableCell className="align-top">
-                            <p className="text-body text-muted-foreground whitespace-nowrap">
+                            <p className="text-label whitespace-nowrap">
                               {formatDate(claim.claim_date) || '—'}
                             </p>
                           </TableCell>
@@ -624,7 +621,7 @@ export default function InsuranceIndex({
                             </div>
                           </TableCell>
                           <TableCell className="align-top">
-                            <span className="text-body text-muted-foreground">{claim.patient_name}</span>
+                            <span className="text-label whitespace-nowrap">{claim.patient_name}</span>
                           </TableCell>
                           <TableCell className="align-top text-right">
                             <p className="text-label text-foreground">
@@ -642,15 +639,13 @@ export default function InsuranceIndex({
                     </TableBody>
                   </Table>
 
-                  {/* Table Footer */}
-                  {claims.length > 0 && (
-                    <div className="flex items-center justify-center px-6 py-4 border-t border-border text-body text-muted-foreground">
-                      <span>
-                        Showing {filteredClaims.length} of {claims.length}
-                      </span>
-                    </div>
-                  )}
-                </div>
+                  <TablePagination
+                    from={1}
+                    to={filteredClaims.length}
+                    total={claims.length}
+                    itemLabel="claims"
+                  />
+                </TableContainer>
               )}
             </div>
           </>

@@ -27,7 +27,7 @@ Laravel 11.x + React 18 + TypeScript + Inertia.js v2.0 + Tailwind CSS v4 + shadc
 
 **Empty states**: CtaBanner for action pages (Appointments/Insurance/Family) | EmptyState for passive (Records/Billing) | Filtered=EmptyState no CTA
 
-**Tables**: Date→Details→Member→Amount→Status→Actions | `useFormatPreferences()` for dates | Details=Icon+Title+Subtitle | Status=pill badge | Row click+ChevronRight | Empty=`—` | Amount right `₹X,XXX`
+**Tables**: `TableContainer` wraps all list tables (rounded-3xl border bg-card overflow-hidden). Column order: Date→Details→Member→Amount→Status→Actions. Column widths via tokens: `w-col-checkbox`(40px) `w-col-date`(144px) `w-col-member`(160px) `w-col-amount`(128px) `w-col-status`(140px) `w-col-actions`(48px). Details=flex, no fixed width. `useFormatPreferences()` for dates. Cell pattern: all `align-top`, date=`text-label whitespace-nowrap`+`text-body text-muted-foreground`(time), details=Icon(`h-10 w-10 rounded-full`)+Title(`text-label`)+Subtitle(`text-body text-muted-foreground`) gap-2.5, member=`text-label whitespace-nowrap`, amount=`text-label text-right`, status=pill Badge, actions=`Button secondary iconOnly md`+ChevronRight. Rows: `cursor-pointer hover:bg-muted/50`. Empty=`—`. Amount `₹X,XXX`. `TablePagination` component for footers (`from`/`to`/`total`/`currentPage`/`totalPages`/`onPageChange`/`itemLabel`). **Inline tables** (detail pages): raw `<table className="w-full text-body">`, header `bg-muted/50`, th `px-4 py-3 text-label text-muted-foreground`, rows `border-t`, td `px-4 py-3`
 
 ---
 
@@ -79,7 +79,7 @@ Laravel 11.x + React 18 + TypeScript + Inertia.js v2.0 + Tailwind CSS v4 + shadc
 
 **Stack** (`Components/ui/stack.tsx`): `<VStack>`/`<HStack>` for flex layouts. `gap={6}`→`gap-6`=24px. `align`: start/center/end/stretch/baseline. `justify`: start/center/end/between. `<Spacer/>`=flex-1
 
-**Theme tokens** (`app.css @theme inline`): `max-w-page`(960px) `max-w-content`(800px) `min-w-sidebar`(200px) `spacing.detail-label`(130px)
+**Theme tokens** (`app.css @theme inline`): `max-w-page`(960px) `max-w-content`(800px) `min-w-sidebar`(200px) `spacing.detail-label`(130px) `spacing.col-checkbox`(40px) `spacing.col-date`(144px) `spacing.col-member`(160px) `spacing.col-amount`(128px) `spacing.col-status`(140px) `spacing.col-actions`(48px)
 
 **No ad-hoc alerts** — `div`/`section` with inline `backgroundColor` using status tokens (`--warning`/`--destructive`/`--info`/`--success`) → use `<Alert>` component. ESLint `no-ad-hoc-alert` enforces this
 

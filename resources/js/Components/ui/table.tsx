@@ -1,28 +1,27 @@
 import * as React from 'react';
 import { cn } from '@/Lib/utils';
 
+const TableContainer = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn('rounded-3xl border border-border bg-card overflow-hidden', className)}
+    {...props}
+  />
+));
+TableContainer.displayName = 'TableContainer';
+
 const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
-  <div
-    className="overflow-hidden"
-    style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'flex-start',
-      gap: '1px',
-      alignSelf: 'stretch',
-      borderRadius: 'var(--radius-radius-2xl, 24px)',
-      background: 'hsl(var(--card))',
-    }}
-  >
-    <table
-      ref={ref}
-      className={cn('w-full caption-bottom text-body', className)}
-      {...props}
-    />
-  </div>
+  <table
+    ref={ref}
+    className={cn('w-full caption-bottom text-body', className)}
+    {...props}
+  />
 ));
 Table.displayName = 'Table';
 
@@ -68,7 +67,7 @@ const TableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cn(
-      'transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted',
+      'transition-colors data-[state=selected]:bg-muted',
       className
     )}
     {...props}
@@ -119,6 +118,7 @@ const TableCaption = React.forwardRef<
 TableCaption.displayName = 'TableCaption';
 
 export {
+  TableContainer,
   Table,
   TableHeader,
   TableBody,

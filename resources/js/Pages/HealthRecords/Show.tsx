@@ -1,6 +1,6 @@
 import { Link } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
-import { Badge } from '@/Components/ui/badge';
+import { Badge, type BadgeVariant } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Alert } from '@/Components/ui/alert';
 import { DetailRow } from '@/Components/ui/detail-row';
@@ -154,11 +154,13 @@ interface RecordMetadata {
   // prescription
   drugs?: Drug[];
   valid_until?: string;
+  pharmacy_notes?: string;
   // lab_report
   test_name?: string;
   test_category?: string;
   results?: (LabResult | PftResult)[];
   lab_name?: string;
+  ordering_doctor?: string;
   // xray_report, mri_report, ultrasound_report
   modality?: string;
   body_part?: string;
@@ -190,6 +192,9 @@ interface RecordMetadata {
   referred_to_department?: string;
   reason?: string;
   priority?: string;
+  clinical_summary?: string;
+  referral_status?: string;
+  appointment_date?: string;
   // discharge_summary
   admission_date?: string;
   discharge_date?: string;
@@ -235,6 +240,9 @@ interface RecordMetadata {
   // other_visit
   visit_type?: string;
   notes?: string;
+  session_number?: number;
+  total_sessions?: number;
+  progress?: string;
   // medication_active / medication_past
   drug_name?: string;
   dosage?: string;
@@ -280,6 +288,9 @@ interface RecordMetadata {
   amount?: number;
   payment_status?: string;
   line_items?: { label: string; amount: number }[];
+  invoice_date?: string;
+  payment_method?: string;
+  payment_date?: string;
 }
 
 interface RecordStatus {
@@ -392,21 +403,28 @@ function StatusBadge({ status }: { status: RecordStatus }) {
   );
 }
 
-function StatusDot({ status }: { status: string }) {
-  const colors: Record<string, { bg: string; text: string; label: string }> = {
-    normal:     { bg: 'hsl(var(--success) / 0.1)', text: 'hsl(var(--success))', label: 'Normal' },
-    borderline: { bg: 'hsl(var(--warning) / 0.1)', text: 'hsl(var(--warning))', label: 'Borderline' },
-    abnormal:   { bg: 'hsl(var(--destructive) / 0.1)', text: 'hsl(var(--destructive))', label: 'Abnormal' },
-    high:       { bg: 'hsl(var(--destructive) / 0.1)', text: 'hsl(var(--destructive))', label: 'High' },
-    low:        { bg: 'hsl(var(--warning) / 0.1)', text: 'hsl(var(--warning))', label: 'Low' },
-    elevated:   { bg: 'hsl(var(--warning) / 0.1)', text: 'hsl(var(--warning))', label: 'Elevated' },
+function getStatusBadgeVariant(status: string): BadgeVariant {
+  const statusMap: Record<string, BadgeVariant> = {
+    normal: 'success',
+    borderline: 'warning',
+    abnormal: 'danger',
+    high: 'danger',
+    low: 'warning',
+    elevated: 'warning',
   };
-  const c = colors[status] || { bg: 'hsl(var(--secondary))', text: 'hsl(var(--muted-foreground))', label: status };
-  return (
-    <span className="text-micro px-2 py-0.5 rounded" style={{ backgroundColor: c.bg, color: c.text }}>
-      {c.label}
-    </span>
-  );
+  return statusMap[status.toLowerCase()] || 'neutral';
+}
+
+function getStatusLabel(status: string): string {
+  const labelMap: Record<string, string> = {
+    normal: 'Normal',
+    borderline: 'Borderline',
+    abnormal: 'Abnormal',
+    high: 'High',
+    low: 'Low',
+    elevated: 'Elevated',
+  };
+  return labelMap[status.toLowerCase()] || status;
 }
 
 const fmtDate = (d?: string) => d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
@@ -497,7 +515,11 @@ function VitalsRows({ vitals, statuses, painScore }: { vitals: Record<string, st
           <DetailRow key={key} label={fmtLabel(key)}>
             <span className="flex items-center gap-2">
               {val}
-              {status && <StatusDot status={status.toLowerCase()} />}
+              {status && (
+                <Badge variant={getStatusBadgeVariant(status)} size="sm">
+                  {getStatusLabel(status)}
+                </Badge>
+              )}
             </span>
           </DetailRow>
         );
@@ -660,17 +682,13 @@ export default function Show({ user, record, familyMember }: Props) {
     toast('Amendment request submitted. You will be contacted within 48 hours.');
   };
 
-  const hasProvider = !!(record.doctor_name || record.department_name);
-
   const categorySections = record.metadata
     ? getCategorySections(record.category, record.metadata, toast)
     : [];
 
   const navItems = [
-    { id: 'summary', label: 'Summary', icon: FileText },
+    { id: 'overview', label: 'Overview', icon: FileText },
     ...categorySections.map(s => ({ id: s.id, label: s.title, icon: s.icon })),
-    { id: 'patient', label: 'Patient', icon: User },
-    ...(hasProvider ? [{ id: 'provider', label: 'Provider', icon: Stethoscope }] : []),
   ];
 
   return (
@@ -779,22 +797,31 @@ export default function Show({ user, record, familyMember }: Props) {
         <div className="flex gap-24">
           <RecordSideNav items={navItems} />
           <div className="flex-1 min-w-0 space-y-12 pb-12">
-            {/* Summary Section */}
-            <Section id="summary" title="Summary" icon={FileText}>
+            {/* Overview Section */}
+            <Section id="overview" title="Overview" icon={FileText}>
               <div className="divide-y">
                 <DetailRow label="Record ID">#{record.id}</DetailRow>
                 <DetailRow label="Date">{formatDate(record.record_date)}</DetailRow>
                 <DetailRow label="Category">
-                  <Badge variant="info">{config.label}</Badge>
+                  <Badge variant="neutral">{config.label}</Badge>
                 </DetailRow>
                 {record.status && (
                   <DetailRow label="Status">
                     <StatusBadge status={record.status} />
                   </DetailRow>
                 )}
-                {record.file_type && (
-                  <DetailRow label="File Type">
-                    <span className="uppercase text-label text-muted-foreground">{record.file_type}</span>
+                <DetailRow label="Patient">
+                  {familyMember ? `${familyMember.name} (${familyMember.relation})` : user.name}
+                </DetailRow>
+                {familyMember?.age && <DetailRow label="Age">{familyMember.age} years</DetailRow>}
+                {record.doctor_name && (
+                  <DetailRow label="Doctor">
+                    <>
+                      <p className="text-label">{record.doctor_name}</p>
+                      {record.department_name && (
+                        <p className="text-body text-muted-foreground">{record.department_name}</p>
+                      )}
+                    </>
                   </DetailRow>
                 )}
               </div>
@@ -864,31 +891,6 @@ export default function Show({ user, record, familyMember }: Props) {
               </Section>
             ))}
 
-            {/* Patient Section */}
-            <Section id="patient" title="Patient" icon={User}>
-              <div className="divide-y">
-                <DetailRow label="Name">{familyMember ? familyMember.name : user.name}</DetailRow>
-                {familyMember && (
-                  <>
-                    <DetailRow label="Relation">{familyMember.relation}</DetailRow>
-                    {familyMember.age && <DetailRow label="Age">{familyMember.age} years</DetailRow>}
-                    {familyMember.gender && <DetailRow label="Gender"><span className="capitalize">{familyMember.gender}</span></DetailRow>}
-                    {familyMember.blood_group && <DetailRow label="Blood Group">{familyMember.blood_group}</DetailRow>}
-                  </>
-                )}
-              </div>
-            </Section>
-
-            {/* Provider Section (only if provider info exists) */}
-            {hasProvider && (
-              <Section id="provider" title="Provider" icon={Stethoscope}>
-                <div className="divide-y">
-                  {record.doctor_name && <DetailRow label="Doctor">{record.doctor_name}</DetailRow>}
-                  {record.department_name && <DetailRow label="Department">{record.department_name}</DetailRow>}
-                </div>
-              </Section>
-            )}
-
           </div>
         </div>
 
@@ -940,10 +942,10 @@ function getCategorySections(category: string, meta: RecordMetadata, onAction: (
 function getConsultationSections(meta: RecordMetadata, onAction: (msg: string) => void): CategorySection[] {
   const sections: CategorySection[] = [];
 
-  if (meta.visit_type_label || meta.opd_number || meta.duration || meta.location) {
-    sections.push({
-      id: 'visit-details', title: 'Visit Details', icon: ClipboardList,
-      content: (
+  sections.push({
+    id: 'visit-details', title: 'Visit Details', icon: ClipboardList,
+    content: (
+      <>
         <div className="divide-y">
           {(meta.visit_type_label || meta.opd_number) && (
             <DetailRow label="Visit Type">
@@ -953,16 +955,17 @@ function getConsultationSections(meta: RecordMetadata, onAction: (msg: string) =
           {meta.duration && <DetailRow label="Duration">{meta.duration}</DetailRow>}
           {meta.location && <DetailRow label="Location">{meta.location}</DetailRow>}
         </div>
-      ),
-    });
-  }
-
-  if (meta.vitals && Object.keys(meta.vitals).length > 0) {
-    sections.push({
-      id: 'vitals', title: 'Vitals', icon: HeartPulse,
-      content: <VitalsRows vitals={meta.vitals} statuses={meta.vitals_status} />,
-    });
-  }
+        {meta.vitals && Object.keys(meta.vitals).length > 0 && (
+          <>
+            <div className="px-6 pt-6 pb-2">
+              <span className="text-overline text-muted-foreground">Vitals</span>
+            </div>
+            <VitalsRows vitals={meta.vitals} statuses={meta.vitals_status} />
+          </>
+        )}
+      </>
+    ),
+  });
 
   sections.push({
     id: 'clinical-summary', title: 'Clinical Summary', icon: Stethoscope,
@@ -1005,15 +1008,6 @@ function getConsultationSections(meta: RecordMetadata, onAction: (msg: string) =
     ),
   });
 
-  if (meta.linked_records && meta.linked_records.length > 0) {
-    sections.push({
-      id: 'linked-records', title: 'Linked Records', icon: Link2,
-      content: (
-        <LinkedRecordsList records={meta.linked_records} onView={(title) => onAction(`Opening ${title}...`)} />
-      ),
-    });
-  }
-
   if (meta.follow_up_recommendation || meta.follow_up_date || meta.follow_up) {
     sections.push({
       id: 'follow-up', title: 'Follow-up', icon: Calendar,
@@ -1036,6 +1030,15 @@ function getConsultationSections(meta: RecordMetadata, onAction: (msg: string) =
     });
   }
 
+  if (meta.linked_records && meta.linked_records.length > 0) {
+    sections.push({
+      id: 'linked-records', title: 'Linked Records', icon: Link2,
+      content: (
+        <LinkedRecordsList records={meta.linked_records} onView={(title) => onAction(`Opening ${title}...`)} />
+      ),
+    });
+  }
+
   return sections;
 }
 
@@ -1045,17 +1048,48 @@ function getProcedureSections(meta: RecordMetadata, onAction: (msg: string) => v
   sections.push({
     id: 'procedure-details', title: 'Procedure Details', icon: Syringe,
     content: (
-      <div className="divide-y">
-        {meta.procedure_name && <DetailRow label="Procedure">{meta.procedure_name}</DetailRow>}
-        {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-        {meta.anesthesia && <DetailRow label="Anesthesia">{meta.anesthesia}</DetailRow>}
-        {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
-        {meta.findings && <DetailRow label="Findings">{meta.findings}</DetailRow>}
-        {meta.complications && <DetailRow label="Complications">{meta.complications}</DetailRow>}
-        {meta.post_op_instructions && <DetailRow label="Post-op instructions">{meta.post_op_instructions}</DetailRow>}
-      </div>
+      <>
+        <div className="divide-y">
+          {meta.procedure_name && <DetailRow label="Procedure">{meta.procedure_name}</DetailRow>}
+          {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+          {meta.anesthesia && <DetailRow label="Anesthesia">{meta.anesthesia}</DetailRow>}
+        </div>
+        {(meta.technique || meta.findings || meta.complications) && (
+          <div className="p-6 space-y-4">
+            {meta.technique && (
+              <div>
+                <p className="text-overline text-muted-foreground mb-1">Technique</p>
+                <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.technique}</p>
+              </div>
+            )}
+            {meta.findings && (
+              <div>
+                <p className="text-overline text-muted-foreground mb-1">Findings</p>
+                <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.findings}</p>
+              </div>
+            )}
+            {meta.complications && (
+              <div>
+                <p className="text-overline text-muted-foreground mb-1">Complications</p>
+                <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.complications}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </>
     ),
   });
+
+  if (meta.post_op_instructions) {
+    sections.push({
+      id: 'post-operative-care', title: 'Post-operative Care', icon: ClipboardCheck,
+      content: (
+        <div className="p-6">
+          <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.post_op_instructions}</p>
+        </div>
+      ),
+    });
+  }
 
   if (meta.linked_records && meta.linked_records.length > 0) {
     sections.push({
@@ -1072,10 +1106,10 @@ function getProcedureSections(meta: RecordMetadata, onAction: (msg: string) => v
 function getErVisitSections(meta: RecordMetadata, onAction: (msg: string) => void): CategorySection[] {
   const sections: CategorySection[] = [];
 
-  if (meta.er_number || meta.arrival_time || meta.triage_level || meta.mode_of_arrival) {
-    sections.push({
-      id: 'visit-details', title: 'Visit Details', icon: Ambulance,
-      content: (
+  sections.push({
+    id: 'visit-details', title: 'Visit Details', icon: Ambulance,
+    content: (
+      <>
         <div className="divide-y">
           {meta.er_number && <DetailRow label="ER Number">{meta.er_number}</DetailRow>}
           {meta.arrival_time && <DetailRow label="Arrival">{meta.arrival_time}</DetailRow>}
@@ -1090,20 +1124,22 @@ function getErVisitSections(meta: RecordMetadata, onAction: (msg: string) => voi
           )}
           {meta.attending_doctor && <DetailRow label="Attending">{meta.attending_doctor}</DetailRow>}
           {meta.mode_of_arrival && <DetailRow label="Mode of Arrival">{meta.mode_of_arrival}</DetailRow>}
+          {meta.pain_score && <DetailRow label="Pain Score">{meta.pain_score}</DetailRow>}
         </div>
-      ),
-    });
-  }
-
-  if (meta.vitals && Object.keys(meta.vitals).length > 0) {
-    sections.push({
-      id: 'vitals', title: 'Vitals on Arrival', icon: HeartPulse,
-      content: <VitalsRows vitals={meta.vitals} statuses={meta.vitals_status} painScore={meta.pain_score} />,
-    });
-  }
+        {meta.vitals && Object.keys(meta.vitals).length > 0 && (
+          <>
+            <div className="px-6 pt-6 pb-2">
+              <span className="text-overline text-muted-foreground">Vitals on Arrival</span>
+            </div>
+            <VitalsRows vitals={meta.vitals} statuses={meta.vitals_status} />
+          </>
+        )}
+      </>
+    ),
+  });
 
   sections.push({
-    id: 'clinical', title: 'Clinical', icon: Stethoscope,
+    id: 'clinical-treatment', title: 'Clinical & Treatment', icon: Stethoscope,
     content: (
       <div className="divide-y">
         {meta.chief_complaint && (
@@ -1164,23 +1200,49 @@ function getErVisitSections(meta: RecordMetadata, onAction: (msg: string) => voi
 }
 
 function getReferralSections(meta: RecordMetadata): CategorySection[] {
-  return [{
-    id: 'referral-details', title: 'Referral Details', icon: UserPlus,
+  const sections: CategorySection[] = [];
+
+  sections.push({
+    id: 'referral', title: 'Referral', icon: UserPlus,
     content: (
-      <div className="divide-y">
-        {meta.referred_to_doctor && <DetailRow label="Referred To">{meta.referred_to_doctor}</DetailRow>}
-        {meta.referred_to_department && <DetailRow label="Department">{meta.referred_to_department}</DetailRow>}
-        {meta.priority && (
-          <DetailRow label="Priority">
-            <Badge variant={meta.priority === 'urgent' ? 'danger' : 'neutral'} className="capitalize">
-              {meta.priority}
-            </Badge>
-          </DetailRow>
+      <>
+        <div className="divide-y">
+          {meta.referred_to_doctor && <DetailRow label="Referred To">{meta.referred_to_doctor}</DetailRow>}
+          {meta.referred_to_department && <DetailRow label="Department">{meta.referred_to_department}</DetailRow>}
+          {meta.priority && (
+            <DetailRow label="Priority">
+              <Badge variant={meta.priority === 'urgent' ? 'danger' : 'neutral'} className="capitalize">
+                {meta.priority}
+              </Badge>
+            </DetailRow>
+          )}
+          {meta.referral_status && (
+            <DetailRow label="Status">
+              <Badge variant={meta.referral_status === 'scheduled' ? 'success' : meta.referral_status === 'accepted' ? 'info' : 'warning'} className="capitalize">
+                {meta.referral_status}
+              </Badge>
+            </DetailRow>
+          )}
+          {meta.appointment_date && <DetailRow label="Appointment Date">{fmtDate(meta.appointment_date)}</DetailRow>}
+        </div>
+        {(meta.reason || meta.clinical_summary) && (
+          <div className="p-6 space-y-4">
+            {meta.reason && (
+              <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.reason}</p>
+            )}
+            {meta.clinical_summary && (
+              <div>
+                <p className="text-overline text-muted-foreground mb-1">Clinical Summary</p>
+                <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.clinical_summary}</p>
+              </div>
+            )}
+          </div>
         )}
-        {meta.reason && <DetailRow label="Reason">{meta.reason}</DetailRow>}
-      </div>
+      </>
     ),
-  }];
+  });
+
+  return sections;
 }
 
 function getDischargeSections(meta: RecordMetadata, onAction: (msg: string) => void): CategorySection[] {
@@ -1200,7 +1262,7 @@ function getDischargeSections(meta: RecordMetadata, onAction: (msg: string) => v
     ),
   });
 
-  if (meta.primary_diagnosis || meta.diagnosis || meta.secondary_diagnosis || meta.procedure_performed || meta.hospital_course) {
+  if (meta.primary_diagnosis || meta.diagnosis || meta.secondary_diagnosis || meta.procedure_performed || meta.procedures || meta.hospital_course) {
     sections.push({
       id: 'diagnosis', title: 'Diagnosis & Course', icon: Stethoscope,
       content: (
@@ -1213,14 +1275,13 @@ function getDischargeSections(meta: RecordMetadata, onAction: (msg: string) => v
           {meta.secondary_diagnosis && (
             <DetailRow label="Secondary diagnosis">{meta.secondary_diagnosis}</DetailRow>
           )}
-          {meta.procedure_performed && (
+          {(meta.procedures && meta.procedures.length > 0) ? (
+            <DetailRow label="Procedures">{meta.procedures.join(', ')}</DetailRow>
+          ) : meta.procedure_performed ? (
             <DetailRow label="Procedure">{meta.procedure_performed}</DetailRow>
-          )}
+          ) : null}
           {meta.hospital_course && (
             <DetailRow label="Hospital course">{meta.hospital_course}</DetailRow>
-          )}
-          {meta.procedures && meta.procedures.length > 0 && (
-            <DetailRow label="Procedures">{meta.procedures.join(', ')}</DetailRow>
           )}
         </div>
       ),
@@ -1336,16 +1397,45 @@ function getDischargeSections(meta: RecordMetadata, onAction: (msg: string) => v
 }
 
 function getOtherVisitSections(meta: RecordMetadata): CategorySection[] {
-  return [{
-    id: 'visit-details', title: 'Visit Details', icon: ClipboardCheck,
+  const sections: CategorySection[] = [];
+
+  sections.push({
+    id: 'session', title: 'Session', icon: ClipboardCheck,
     content: (
-      <div className="divide-y">
-        {meta.visit_type && <DetailRow label="Visit Type">{meta.visit_type}</DetailRow>}
-        {meta.notes && <DetailRow label="Notes">{meta.notes}</DetailRow>}
-        {meta.follow_up && <DetailRow label="Follow-up">{meta.follow_up}</DetailRow>}
-      </div>
+      <>
+        {meta.session_number != null && meta.total_sessions != null && (
+          <div className="px-6 pt-6 pb-2">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-body text-muted-foreground">Session progress</span>
+              <span className="text-label">{meta.session_number} of {meta.total_sessions}</span>
+            </div>
+            <div className="h-2.5 rounded-full bg-muted overflow-hidden">
+              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(meta.session_number / meta.total_sessions) * 100}%` }} />
+            </div>
+          </div>
+        )}
+        <div className="divide-y">
+          {meta.visit_type && <DetailRow label="Visit Type">{meta.visit_type}</DetailRow>}
+          {meta.follow_up && <DetailRow label="Follow-up">{meta.follow_up}</DetailRow>}
+        </div>
+        {(meta.notes || meta.progress) && (
+          <div className="p-6 space-y-4">
+            {meta.notes && (
+              <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.notes}</p>
+            )}
+            {meta.progress && (
+              <div>
+                <p className="text-overline text-muted-foreground mb-1">Progress</p>
+                <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.progress}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </>
     ),
-  }];
+  });
+
+  return sections;
 }
 
 /* ─── Report Detail Sections ─── */
@@ -1353,42 +1443,52 @@ function getOtherVisitSections(meta: RecordMetadata): CategorySection[] {
 function getLabReportSections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
-  if (meta.test_category || meta.lab_name) {
-    sections.push({
-      id: 'test-info', title: 'Test Info', icon: ClipboardList,
-      content: (
-        <div className="divide-y">
-          {meta.test_category && <DetailRow label="Category"><Badge variant="neutral">{meta.test_category}</Badge></DetailRow>}
-          {meta.lab_name && <DetailRow label="Lab">{meta.lab_name}</DetailRow>}
-        </div>
-      ),
-    });
-  }
-
-  if (meta.results && meta.results.length > 0) {
-    sections.push({
-      id: 'results', title: 'Results', icon: TestTube2,
-      content: (
-        <table className="w-full text-body">
-          <thead>
-            <tr className="bg-muted/50">
-              <th className="text-left px-4 py-3 text-label text-muted-foreground">Parameter</th>
-              <th className="text-left px-4 py-3 text-label text-muted-foreground">Value</th>
-              <th className="text-left px-4 py-3 text-label text-muted-foreground">Reference</th>
-              <th className="text-center px-4 py-3 text-label text-muted-foreground w-20">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(meta.results as LabResult[]).map((r, i) => (
-              <tr key={i} className="border-t">
-                <td className="px-4 py-3 text-label">{r.parameter}</td>
-                <td className="px-4 py-3">{r.value} {r.unit}</td>
-                <td className="px-4 py-3 text-muted-foreground">{r.reference_range}</td>
-                <td className="px-4 py-3 text-center"><StatusDot status={r.status} /></td>
+  sections.push({
+    id: 'results', title: 'Results', icon: TestTube2,
+    content: (
+      <>
+        {meta.ordering_doctor && (
+          <div className="divide-y">
+            <DetailRow label="Ordered By">{meta.ordering_doctor}</DetailRow>
+          </div>
+        )}
+        {meta.results && meta.results.length > 0 && (
+          <table className="w-full text-body">
+            <thead>
+              <tr className="bg-muted/50">
+                <th className="text-left px-4 py-3 text-label text-muted-foreground">Parameter</th>
+                <th className="text-left px-4 py-3 text-label text-muted-foreground">Value</th>
+                <th className="text-left px-4 py-3 text-label text-muted-foreground">Reference</th>
+                <th className="text-center px-4 py-3 text-label text-muted-foreground w-20">Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {(meta.results as LabResult[]).map((r, i) => (
+                <tr key={i} className="border-t">
+                  <td className="px-4 py-3 text-label">{r.parameter}</td>
+                  <td className="px-4 py-3">{r.value} {r.unit}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{r.reference_range}</td>
+                  <td className="px-4 py-3 text-center">
+                    <Badge variant={getStatusBadgeVariant(r.status)} size="sm">
+                      {getStatusLabel(r.status)}
+                    </Badge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </>
+    ),
+  });
+
+  if (meta.interpretation) {
+    sections.push({
+      id: 'interpretation', title: 'Interpretation', icon: Stethoscope,
+      content: (
+        <div className="p-6">
+          <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.interpretation}</p>
+        </div>
       ),
     });
   }
@@ -1397,24 +1497,50 @@ function getLabReportSections(meta: RecordMetadata): CategorySection[] {
 }
 
 function getXraySections(meta: RecordMetadata): CategorySection[] {
-  return [{
-    id: 'findings', title: 'Findings', icon: ScanLine,
+  const sections: CategorySection[] = [];
+
+  sections.push({
+    id: 'study-details', title: 'Study Details', icon: ScanLine,
     content: (
       <div className="divide-y">
         {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
         {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
         {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
         {meta.radiologist && <DetailRow label="Radiologist">{meta.radiologist}</DetailRow>}
-        {meta.findings && <DetailRow label="Findings">{meta.findings}</DetailRow>}
-        {meta.impression && <DetailRow label="Impression">{meta.impression}</DetailRow>}
       </div>
     ),
-  }];
+  });
+
+  if (meta.findings || meta.impression) {
+    sections.push({
+      id: 'findings', title: 'Findings', icon: FileText,
+      content: (
+        <div className="p-6 space-y-4">
+          {meta.findings && (
+            <div>
+              <p className="text-overline text-muted-foreground mb-1">Observations</p>
+              <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.findings}</p>
+            </div>
+          )}
+          {meta.impression && (
+            <div>
+              <p className="text-overline text-muted-foreground mb-1">Impression</p>
+              <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.impression}</p>
+            </div>
+          )}
+        </div>
+      ),
+    });
+  }
+
+  return sections;
 }
 
 function getMriSections(meta: RecordMetadata): CategorySection[] {
-  return [{
-    id: 'findings', title: 'Findings', icon: BrainCircuit,
+  const sections: CategorySection[] = [];
+
+  sections.push({
+    id: 'study-details', title: 'Study Details', icon: BrainCircuit,
     content: (
       <div className="divide-y">
         {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
@@ -1423,31 +1549,79 @@ function getMriSections(meta: RecordMetadata): CategorySection[] {
         {meta.contrast && <DetailRow label="Contrast">{meta.contrast}</DetailRow>}
         {meta.sequences && <DetailRow label="Sequences">{meta.sequences}</DetailRow>}
         {meta.radiologist && <DetailRow label="Radiologist">{meta.radiologist}</DetailRow>}
-        {meta.findings && <DetailRow label="Findings">{meta.findings}</DetailRow>}
-        {meta.impression && <DetailRow label="Impression">{meta.impression}</DetailRow>}
       </div>
     ),
-  }];
+  });
+
+  if (meta.findings || meta.impression) {
+    sections.push({
+      id: 'findings', title: 'Findings', icon: FileText,
+      content: (
+        <div className="p-6 space-y-4">
+          {meta.findings && (
+            <div>
+              <p className="text-overline text-muted-foreground mb-1">Observations</p>
+              <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.findings}</p>
+            </div>
+          )}
+          {meta.impression && (
+            <div>
+              <p className="text-overline text-muted-foreground mb-1">Impression</p>
+              <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.impression}</p>
+            </div>
+          )}
+        </div>
+      ),
+    });
+  }
+
+  return sections;
 }
 
 function getUltrasoundSections(meta: RecordMetadata): CategorySection[] {
-  return [{
-    id: 'findings', title: 'Findings', icon: Radio,
+  const sections: CategorySection[] = [];
+
+  sections.push({
+    id: 'study-details', title: 'Study Details', icon: Radio,
     content: (
       <div className="divide-y">
         {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
         {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
         {meta.sonographer && <DetailRow label="Sonographer">{meta.sonographer}</DetailRow>}
-        {meta.findings && <DetailRow label="Findings">{meta.findings}</DetailRow>}
-        {meta.impression && <DetailRow label="Impression">{meta.impression}</DetailRow>}
       </div>
     ),
-  }];
+  });
+
+  if (meta.findings || meta.impression) {
+    sections.push({
+      id: 'findings', title: 'Findings', icon: FileText,
+      content: (
+        <div className="p-6 space-y-4">
+          {meta.findings && (
+            <div>
+              <p className="text-overline text-muted-foreground mb-1">Observations</p>
+              <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.findings}</p>
+            </div>
+          )}
+          {meta.impression && (
+            <div>
+              <p className="text-overline text-muted-foreground mb-1">Impression</p>
+              <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.impression}</p>
+            </div>
+          )}
+        </div>
+      ),
+    });
+  }
+
+  return sections;
 }
 
 function getEcgSections(meta: RecordMetadata): CategorySection[] {
-  return [{
-    id: 'findings', title: 'Findings', icon: HeartPulse,
+  const sections: CategorySection[] = [];
+
+  sections.push({
+    id: 'measurements', title: 'Measurements', icon: HeartPulse,
     content: (
       <div className="divide-y">
         {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
@@ -1457,80 +1631,134 @@ function getEcgSections(meta: RecordMetadata): CategorySection[] {
         {meta.intervals?.pr && <DetailRow label="PR Interval">{meta.intervals.pr}</DetailRow>}
         {meta.intervals?.qrs && <DetailRow label="QRS Interval">{meta.intervals.qrs}</DetailRow>}
         {meta.intervals?.qt && <DetailRow label="QT Interval">{meta.intervals.qt}</DetailRow>}
-        {meta.findings && <DetailRow label="Findings">{meta.findings}</DetailRow>}
-        {meta.impression && (
-          <DetailRow label="Impression">
-            <span style={{ color: 'hsl(var(--destructive))' }}>{meta.impression}</span>
-          </DetailRow>
-        )}
       </div>
     ),
-  }];
-}
+  });
 
-function getPathologySections(meta: RecordMetadata): CategorySection[] {
-  return [{
-    id: 'findings', title: 'Findings', icon: Microscope,
-    content: (
-      <div className="divide-y">
-        {meta.specimen_type && <DetailRow label="Specimen">{meta.specimen_type}</DetailRow>}
-        {meta.pathologist && <DetailRow label="Pathologist">{meta.pathologist}</DetailRow>}
-        {meta.gross_description && <DetailRow label="Gross description">{meta.gross_description}</DetailRow>}
-        {meta.microscopic_findings && <DetailRow label="Microscopic findings">{meta.microscopic_findings}</DetailRow>}
-        {meta.diagnosis && (
-          <DetailRow label="Diagnosis">
-            <div>
-              <span className="text-card-title">{meta.diagnosis}</span>
-              {meta.grade && <span className="text-body text-muted-foreground ml-2">Grade: {meta.grade}</span>}
-            </div>
-          </DetailRow>
-        )}
-      </div>
-    ),
-  }];
-}
+  if (meta.findings || meta.impression) {
+    const isAbnormal = meta.impression?.toLowerCase().includes('abnormal') ||
+                       meta.impression?.toLowerCase().includes('ischemia') ||
+                       meta.impression?.toLowerCase().includes('arrhythmia');
 
-function getPftSections(meta: RecordMetadata): CategorySection[] {
-  const sections: CategorySection[] = [];
-
-  if (meta.indication || meta.interpretation) {
     sections.push({
-      id: 'test-info', title: 'Test Info', icon: ClipboardList,
+      id: 'findings', title: 'Findings', icon: FileText,
       content: (
-        <div className="divide-y">
-          {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-          {meta.interpretation && <DetailRow label="Interpretation">{meta.interpretation}</DetailRow>}
+        <div className="p-6 space-y-4">
+          {meta.findings && (
+            <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.findings}</p>
+          )}
+          {meta.impression && (
+            <p className={`text-body leading-relaxed ${isAbnormal ? 'text-destructive' : ''}`} style={!isAbnormal ? { color: 'hsl(var(--foreground))' } : undefined}>
+              {meta.impression}
+            </p>
+          )}
         </div>
       ),
     });
   }
 
-  if (meta.results && meta.results.length > 0) {
+  return sections;
+}
+
+function getPathologySections(meta: RecordMetadata): CategorySection[] {
+  const sections: CategorySection[] = [];
+
+  sections.push({
+    id: 'specimen-analysis', title: 'Specimen & Analysis', icon: Microscope,
+    content: (
+      <>
+        <div className="divide-y">
+          {meta.specimen_type && <DetailRow label="Specimen">{meta.specimen_type}</DetailRow>}
+          {meta.pathologist && <DetailRow label="Pathologist">{meta.pathologist}</DetailRow>}
+        </div>
+        {(meta.gross_description || meta.microscopic_findings) && (
+          <div className="p-6 space-y-4">
+            {meta.gross_description && (
+              <div>
+                <p className="text-overline text-muted-foreground mb-1">Gross Description</p>
+                <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.gross_description}</p>
+              </div>
+            )}
+            {meta.microscopic_findings && (
+              <div>
+                <p className="text-overline text-muted-foreground mb-1">Microscopic Findings</p>
+                <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.microscopic_findings}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </>
+    ),
+  });
+
+  if (meta.diagnosis) {
     sections.push({
-      id: 'results', title: 'Results', icon: Wind,
+      id: 'diagnosis', title: 'Diagnosis', icon: ClipboardCheck,
       content: (
-        <table className="w-full text-body">
-          <thead>
-            <tr className="bg-muted/50">
-              <th className="text-left px-4 py-3 text-label text-muted-foreground">Parameter</th>
-              <th className="text-right px-4 py-3 text-label text-muted-foreground">Actual</th>
-              <th className="text-right px-4 py-3 text-label text-muted-foreground">Predicted</th>
-              <th className="text-right px-4 py-3 text-label text-muted-foreground">%</th>
-              <th className="text-center px-4 py-3 text-label text-muted-foreground w-20">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(meta.results as PftResult[]).map((r, i) => (
-              <tr key={i} className="border-t">
-                <td className="px-4 py-3 text-label">{r.parameter}</td>
-                <td className="px-4 py-3 text-right">{r.value}</td>
-                <td className="px-4 py-3 text-right text-muted-foreground">{r.predicted}</td>
-                <td className="px-4 py-3 text-right">{r.percent_predicted}%</td>
-                <td className="px-4 py-3 text-center"><StatusDot status={r.status} /></td>
+        <div className="p-6">
+          <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>
+            {meta.diagnosis}
+            {meta.grade && <span className="text-muted-foreground ml-2">— Grade: {meta.grade}</span>}
+          </p>
+        </div>
+      ),
+    });
+  }
+
+  return sections;
+}
+
+function getPftSections(meta: RecordMetadata): CategorySection[] {
+  const sections: CategorySection[] = [];
+
+  sections.push({
+    id: 'results', title: 'Results', icon: Wind,
+    content: (
+      <>
+        {meta.indication && (
+          <div className="divide-y">
+            <DetailRow label="Indication">{meta.indication}</DetailRow>
+          </div>
+        )}
+        {meta.results && meta.results.length > 0 && (
+          <table className="w-full text-body">
+            <thead>
+              <tr className="bg-muted/50">
+                <th className="text-left px-4 py-3 text-label text-muted-foreground">Parameter</th>
+                <th className="text-right px-4 py-3 text-label text-muted-foreground">Actual</th>
+                <th className="text-right px-4 py-3 text-label text-muted-foreground">Predicted</th>
+                <th className="text-right px-4 py-3 text-label text-muted-foreground">%</th>
+                <th className="text-center px-4 py-3 text-label text-muted-foreground w-20">Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {(meta.results as PftResult[]).map((r, i) => (
+                <tr key={i} className="border-t">
+                  <td className="px-4 py-3 text-label">{r.parameter}</td>
+                  <td className="px-4 py-3 text-right">{r.value}</td>
+                  <td className="px-4 py-3 text-right text-muted-foreground">{r.predicted}</td>
+                  <td className="px-4 py-3 text-right">{r.percent_predicted}%</td>
+                  <td className="px-4 py-3 text-center">
+                    <Badge variant={getStatusBadgeVariant(r.status)} size="sm">
+                      {getStatusLabel(r.status)}
+                    </Badge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </>
+    ),
+  });
+
+  if (meta.interpretation) {
+    sections.push({
+      id: 'interpretation', title: 'Interpretation', icon: Stethoscope,
+      content: (
+        <div className="p-6">
+          <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.interpretation}</p>
+        </div>
       ),
     });
   }
@@ -1539,16 +1767,34 @@ function getPftSections(meta: RecordMetadata): CategorySection[] {
 }
 
 function getOtherReportSections(meta: RecordMetadata): CategorySection[] {
-  return [{
-    id: 'findings', title: 'Findings', icon: ClipboardList,
+  const sections: CategorySection[] = [];
+
+  sections.push({
+    id: 'report', title: 'Report', icon: ClipboardList,
     content: (
-      <div className="divide-y">
-        {meta.report_type && <DetailRow label="Report Type">{meta.report_type}</DetailRow>}
-        {meta.findings && <DetailRow label="Findings">{meta.findings}</DetailRow>}
-        {meta.impression && <DetailRow label="Impression">{meta.impression}</DetailRow>}
-      </div>
+      <>
+        <div className="divide-y">
+          {meta.report_type && <DetailRow label="Report Type">{meta.report_type}</DetailRow>}
+          {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+        </div>
+        {(meta.findings || meta.impression) && (
+          <div className="p-6 space-y-4">
+            {meta.findings && (
+              <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.findings}</p>
+            )}
+            {meta.impression && (
+              <div>
+                <p className="text-overline text-muted-foreground mb-1">Impression</p>
+                <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.impression}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </>
     ),
-  }];
+  });
+
+  return sections;
 }
 
 /* ─── Medication Detail Sections ─── */
@@ -1556,32 +1802,64 @@ function getOtherReportSections(meta: RecordMetadata): CategorySection[] {
 function getPrescriptionSections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
-  if (meta.drugs && meta.drugs.length > 0) {
-    meta.drugs.forEach((drug, i) => {
-      sections.push({
-        id: `medication-${i}`, title: drug.name, icon: Pill,
-        content: (
-          <div className="divide-y">
-            {drug.dosage && <DetailRow label="Dosage">{drug.dosage}</DetailRow>}
-            {drug.frequency && <DetailRow label="Frequency">{drug.frequency}</DetailRow>}
-            {drug.duration && <DetailRow label="Duration">{drug.duration}</DetailRow>}
-            {drug.instructions && <DetailRow label="Instructions">{drug.instructions}</DetailRow>}
+  sections.push({
+    id: 'prescription', title: 'Prescription', icon: Pill,
+    content: (
+      <>
+        {meta.diagnosis && (
+          <div className="px-6 py-4 border-b">
+            <DetailRow label="Diagnosis">
+              <div>
+                <span className="text-card-title">{meta.diagnosis}</span>
+                {meta.icd_code && <span className="text-body text-muted-foreground ml-2">ICD: {meta.icd_code}</span>}
+              </div>
+            </DetailRow>
           </div>
-        ),
-      });
-    });
-  }
-
-  if (meta.valid_until) {
-    sections.push({
-      id: 'prescription-info', title: 'Prescription Info', icon: ClipboardList,
-      content: (
-        <div className="divide-y">
-          <DetailRow label="Valid until">{fmtDate(meta.valid_until)}</DetailRow>
-        </div>
-      ),
-    });
-  }
+        )}
+        {meta.drugs && meta.drugs.length > 0 && (
+          <div className="divide-y">
+            {meta.drugs.map((drug, i) => (
+              <div key={i} className="px-6 py-4">
+                <p className="text-card-title mb-3">{drug.name}</p>
+                <div className="space-y-2">
+                  {drug.dosage && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-body text-muted-foreground w-24 flex-shrink-0">Dosage:</span>
+                      <span className="text-body text-foreground">{drug.dosage}</span>
+                    </div>
+                  )}
+                  {drug.frequency && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-body text-muted-foreground w-24 flex-shrink-0">Frequency:</span>
+                      <span className="text-body text-foreground">{drug.frequency}</span>
+                    </div>
+                  )}
+                  {drug.duration && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-body text-muted-foreground w-24 flex-shrink-0">Duration:</span>
+                      <span className="text-body text-foreground">{drug.duration}</span>
+                    </div>
+                  )}
+                  {drug.instructions && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-body text-muted-foreground w-24 flex-shrink-0">Instructions:</span>
+                      <span className="text-body text-foreground">{drug.instructions}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {(meta.valid_until || meta.pharmacy_notes) && (
+          <div className="divide-y border-t">
+            {meta.valid_until && <DetailRow label="Valid until">{fmtDate(meta.valid_until)}</DetailRow>}
+            {meta.pharmacy_notes && <DetailRow label="Pharmacy Notes">{meta.pharmacy_notes}</DetailRow>}
+          </div>
+        )}
+      </>
+    ),
+  });
 
   return sections;
 }
@@ -1590,11 +1868,11 @@ function getMedicationActiveSections(meta: RecordMetadata, onAction: (msg: strin
   const sections: CategorySection[] = [];
   const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  if (meta.dosage || meta.frequency || meta.timing || meta.medication_duration || meta.route) {
-    sections.push({
-      id: 'dosage', title: meta.drug_name || 'Dosage', icon: Pill,
-      action: <Badge variant="success">Active</Badge>,
-      content: (
+  sections.push({
+    id: 'medication', title: 'Medication', icon: Pill,
+    action: <Badge variant="success">Active</Badge>,
+    content: (
+      <>
         <div className="divide-y">
           {meta.dosage && <DetailRow label="Dose">{meta.dosage}</DetailRow>}
           {meta.frequency && <DetailRow label="Frequency">{meta.frequency}</DetailRow>}
@@ -1606,39 +1884,23 @@ function getMedicationActiveSections(meta: RecordMetadata, onAction: (msg: strin
           )}
           {meta.medication_duration && <DetailRow label="Duration">{meta.medication_duration}</DetailRow>}
           {meta.route && <DetailRow label="Route">{meta.route}</DetailRow>}
-        </div>
-      ),
-    });
-  }
-
-  if (meta.condition || meta.how_it_works || meta.prescribing_doctor || meta.start_date || meta.original_quantity != null || (meta.side_effects && meta.side_effects.length > 0)) {
-    sections.push({
-      id: 'details', title: 'Details', icon: ClipboardList,
-      content: (
-        <>
-          <div className="divide-y">
-            {meta.condition && <DetailRow label="Condition">{meta.condition}</DetailRow>}
-            {meta.how_it_works && <DetailRow label="How it works">{meta.how_it_works}</DetailRow>}
-            {meta.prescribing_doctor && <DetailRow label="Prescribed by">{meta.prescribing_doctor}</DetailRow>}
-            {meta.start_date && <DetailRow label="Started">{fmtDate(meta.start_date)}</DetailRow>}
-            {meta.original_quantity != null && <DetailRow label="Qty dispensed">{meta.original_quantity} tablets</DetailRow>}
-            {meta.side_effects && meta.side_effects.length > 0 && (
-              <DetailRow label="Side effects">{meta.side_effects.join(', ')}</DetailRow>
-            )}
-          </div>
-          {meta.side_effects_warning && (
-            <div className="p-6 pt-4">
-              <Alert variant="warning">{meta.side_effects_warning}</Alert>
-            </div>
+          {meta.condition && <DetailRow label="Condition">{meta.condition}</DetailRow>}
+          {meta.side_effects && meta.side_effects.length > 0 && (
+            <DetailRow label="Side effects">{meta.side_effects.join(', ')}</DetailRow>
           )}
-        </>
-      ),
-    });
-  }
+        </div>
+        {meta.side_effects_warning && (
+          <div className="p-6 pt-4">
+            <Alert variant="warning">{meta.side_effects_warning}</Alert>
+          </div>
+        )}
+      </>
+    ),
+  });
 
   if (meta.adherence_this_week && meta.adherence_this_week.length > 0) {
     sections.push({
-      id: 'adherence', title: 'Adherence This Week', icon: Calendar,
+      id: 'adherence', title: 'Adherence', icon: Calendar,
       content: (
         <div className="p-6 space-y-4">
           <div className="flex items-center gap-2">
@@ -1699,11 +1961,11 @@ function getMedicationActiveSections(meta: RecordMetadata, onAction: (msg: strin
 function getMedicationPastSections(meta: RecordMetadata, onAction: (msg: string) => void): CategorySection[] {
   const sections: CategorySection[] = [];
 
-  if (meta.dosage || meta.frequency || meta.timing || meta.medication_duration || meta.route) {
-    sections.push({
-      id: 'dosage', title: meta.drug_name || 'Dosage', icon: Pill,
-      action: <Badge variant="neutral">Inactive</Badge>,
-      content: (
+  sections.push({
+    id: 'medication', title: 'Medication', icon: Pill,
+    action: <Badge variant="neutral">Inactive</Badge>,
+    content: (
+      <>
         <div className="divide-y">
           {meta.dosage && <DetailRow label="Dose">{meta.dosage}</DetailRow>}
           {meta.frequency && <DetailRow label="Frequency">{meta.frequency}</DetailRow>}
@@ -1715,46 +1977,20 @@ function getMedicationPastSections(meta: RecordMetadata, onAction: (msg: string)
           )}
           {meta.medication_duration && <DetailRow label="Duration">{meta.medication_duration}</DetailRow>}
           {meta.route && <DetailRow label="Route">{meta.route}</DetailRow>}
+          {meta.condition && <DetailRow label="Condition">{meta.condition}</DetailRow>}
+          {meta.prescribing_doctor && <DetailRow label="Prescribed by">{meta.prescribing_doctor}</DetailRow>}
+          {meta.start_date && <DetailRow label="Started">{fmtDate(meta.start_date)}</DetailRow>}
+          {meta.end_date && <DetailRow label="Ended">{fmtDate(meta.end_date)}</DetailRow>}
+          {meta.reason_stopped && <DetailRow label="Reason stopped">{meta.reason_stopped}</DetailRow>}
         </div>
-      ),
-    });
-  }
-
-  if (meta.condition || meta.how_it_works || meta.prescribing_doctor || meta.start_date || meta.end_date || meta.original_quantity != null || meta.reason_stopped || (meta.side_effects && meta.side_effects.length > 0)) {
-    sections.push({
-      id: 'details', title: 'Details', icon: ClipboardList,
-      content: (
-        <>
-          <div className="divide-y">
-            {meta.condition && <DetailRow label="Condition">{meta.condition}</DetailRow>}
-            {meta.how_it_works && <DetailRow label="How it works">{meta.how_it_works}</DetailRow>}
-            {meta.prescribing_doctor && <DetailRow label="Prescribed by">{meta.prescribing_doctor}</DetailRow>}
-            {meta.start_date && <DetailRow label="Started">{fmtDate(meta.start_date)}</DetailRow>}
-            {meta.end_date && <DetailRow label="Ended">{fmtDate(meta.end_date)}</DetailRow>}
-            {meta.original_quantity != null && <DetailRow label="Qty dispensed">{meta.original_quantity} tablets</DetailRow>}
-            {meta.reason_stopped && <DetailRow label="Reason stopped">{meta.reason_stopped}</DetailRow>}
-            {meta.side_effects && meta.side_effects.length > 0 && (
-              <DetailRow label="Side effects">{meta.side_effects.join(', ')}</DetailRow>
-            )}
+        {meta.side_effects_warning && (
+          <div className="p-6 pt-4">
+            <Alert variant="warning">{meta.side_effects_warning}</Alert>
           </div>
-          {meta.side_effects_warning && (
-            <div className="p-6 pt-4">
-              <Alert variant="warning">{meta.side_effects_warning}</Alert>
-            </div>
-          )}
-        </>
-      ),
-    });
-  }
-
-  if (meta.linked_records && meta.linked_records.length > 0) {
-    sections.push({
-      id: 'related-records', title: 'Related Records', icon: Link2,
-      content: (
-        <LinkedRecordsList records={meta.linked_records} onView={(title) => onAction(`Opening ${title}...`)} />
-      ),
-    });
-  }
+        )}
+      </>
+    ),
+  });
 
   return sections;
 }
@@ -1765,7 +2001,7 @@ function getVaccinationSections(meta: RecordMetadata, onAction: (msg: string) =>
   const sections: CategorySection[] = [];
 
   sections.push({
-    id: 'administration', title: meta.vaccine_name || 'Administration', icon: Syringe,
+    id: 'administration', title: 'Administration', icon: Syringe,
     content: (
       <>
         {meta.dose_number != null && meta.total_doses != null && (
@@ -1794,80 +2030,70 @@ function getVaccinationSections(meta: RecordMetadata, onAction: (msg: string) =>
     ),
   });
 
-  if (meta.vaccination_history && meta.vaccination_history.length > 0) {
-    sections.push({
-      id: 'history', title: 'Vaccination History', icon: Archive,
-      content: (
-        <table className="w-full text-body">
-          <thead>
-            <tr className="bg-muted/50">
-              <th className="text-left px-4 py-3 text-label text-muted-foreground">Vaccine</th>
-              <th className="text-left px-4 py-3 text-label text-muted-foreground">Date</th>
-              <th className="text-left px-4 py-3 text-label text-muted-foreground">Dose</th>
-            </tr>
-          </thead>
-          <tbody>
-            {meta.vaccination_history.map((entry, i) => (
-              <tr key={i} className="border-t">
-                <td className="px-4 py-3">
-                  <div className="text-label">{entry.vaccine_name}</div>
-                  <div className="text-muted-foreground text-body">{entry.site}</div>
-                </td>
-                <td className="px-4 py-3">{fmtDate(entry.date)}</td>
-                <td className="px-4 py-3">{entry.dose_label}</td>
+  sections.push({
+    id: 'history-schedule', title: 'History & Schedule', icon: Archive,
+    content: (
+      <>
+        {meta.vaccination_history && meta.vaccination_history.length > 0 && (
+          <table className="w-full text-body">
+            <thead>
+              <tr className="bg-muted/50">
+                <th className="text-left px-4 py-3 text-label text-muted-foreground">Vaccine</th>
+                <th className="text-left px-4 py-3 text-label text-muted-foreground">Date</th>
+                <th className="text-left px-4 py-3 text-label text-muted-foreground">Dose</th>
               </tr>
+            </thead>
+            <tbody>
+              {meta.vaccination_history.map((entry, i) => (
+                <tr key={i} className="border-t">
+                  <td className="px-4 py-3">
+                    <div className="text-label">{entry.vaccine_name}</div>
+                    <div className="text-muted-foreground text-body">{entry.site}</div>
+                  </td>
+                  <td className="px-4 py-3">{fmtDate(entry.date)}</td>
+                  <td className="px-4 py-3">{entry.dose_label}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {meta.upcoming_vaccinations && meta.upcoming_vaccinations.length > 0 && (
+          <div className="divide-y border-t">
+            {meta.upcoming_vaccinations.map((vac, i) => (
+              <div key={i} className="flex items-center justify-between px-6 py-4">
+                <div>
+                  <p className="text-label">{vac.vaccine_name}</p>
+                  <p className="text-body text-muted-foreground">{vac.dose_label} · Due {fmtDate(vac.due_date)}</p>
+                </div>
+                <Button variant="secondary" size="sm" className="gap-2" onClick={() => onAction(`Scheduling ${vac.vaccine_name}...`)}>
+                  <Calendar className="h-4 w-4" />
+                  Schedule
+                </Button>
+              </div>
             ))}
-          </tbody>
-        </table>
-      ),
-    });
-  }
-
-  if (meta.upcoming_vaccinations && meta.upcoming_vaccinations.length > 0) {
-    sections.push({
-      id: 'upcoming', title: 'Upcoming Vaccinations', icon: Calendar,
-      content: (
-        <div className="divide-y">
-          {meta.upcoming_vaccinations.map((vac, i) => (
-            <div key={i} className="flex items-center justify-between px-6 py-4">
-              <div>
-                <p className="text-label">{vac.vaccine_name}</p>
-                <p className="text-body text-muted-foreground">{vac.dose_label} · Due {fmtDate(vac.due_date)}</p>
+          </div>
+        )}
+        {meta.attached_certificates && meta.attached_certificates.length > 0 && (
+          <div className="divide-y border-t">
+            {meta.attached_certificates.map((file, i) => (
+              <div key={i} className="flex items-center gap-4 px-6 py-4">
+                <div className="h-10 w-10 rounded-full bg-destructive/10 flex items-center justify-center flex-shrink-0">
+                  <FileDown className="h-5 w-5 text-destructive" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-label truncate">{file.name}</p>
+                  <p className="text-body text-muted-foreground uppercase">{file.type}{file.size ? ` · ${file.size}` : ''}</p>
+                </div>
+                <Button variant="ghost" iconOnly size="md" onClick={() => onAction(`Downloading ${file.name}...`)}>
+                  <Download className="h-4 w-4" />
+                </Button>
               </div>
-              <Button variant="secondary" size="sm" className="gap-2" onClick={() => onAction(`Scheduling ${vac.vaccine_name}...`)}>
-                <Calendar className="h-4 w-4" />
-                Schedule
-              </Button>
-            </div>
-          ))}
-        </div>
-      ),
-    });
-  }
-
-  if (meta.attached_certificates && meta.attached_certificates.length > 0) {
-    sections.push({
-      id: 'certificates', title: 'Certificates', icon: Award,
-      content: (
-        <div className="divide-y">
-          {meta.attached_certificates.map((file, i) => (
-            <div key={i} className="flex items-center gap-4 px-6 py-4">
-              <div className="h-10 w-10 rounded-full bg-destructive/10 flex items-center justify-center flex-shrink-0">
-                <FileDown className="h-5 w-5 text-destructive" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-label truncate">{file.name}</p>
-                <p className="text-body text-muted-foreground uppercase">{file.type}{file.size ? ` · ${file.size}` : ''}</p>
-              </div>
-              <Button variant="ghost" iconOnly size="md" onClick={() => onAction(`Downloading ${file.name}...`)}>
-                <Download className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
-        </div>
-      ),
-    });
-  }
+            ))}
+          </div>
+        )}
+      </>
+    ),
+  });
 
   return sections;
 }
@@ -1876,67 +2102,54 @@ function getMedicalCertificateSections(meta: RecordMetadata, onAction: (msg: str
   const sections: CategorySection[] = [];
 
   sections.push({
-    id: 'certificate-details', title: meta.certificate_type || 'Certificate Details', icon: Award,
+    id: 'certificate-details', title: 'Certificate Details', icon: Award,
     content: (
-      <div className="divide-y">
-        {meta.certificate_number && <DetailRow label="Certificate No.">{meta.certificate_number}</DetailRow>}
-        {meta.issued_for && <DetailRow label="Issued For">{meta.issued_for}</DetailRow>}
-        {meta.issued_by && <DetailRow label="Issued By">{meta.issued_by}</DetailRow>}
-        {meta.valid_from && <DetailRow label="Valid From">{fmtDate(meta.valid_from)}</DetailRow>}
-        {meta.valid_until && <DetailRow label="Valid Until">{fmtDate(meta.valid_until)}</DetailRow>}
-      </div>
-    ),
-  });
-
-  if (meta.certificate_content || meta.notes || (meta.examination_findings_list && meta.examination_findings_list.length > 0)) {
-    sections.push({
-      id: 'content', title: 'Content', icon: FileText,
-      content: (
+      <>
         <div className="divide-y">
+          {meta.certificate_type && <DetailRow label="Type">{meta.certificate_type}</DetailRow>}
+          {meta.certificate_number && <DetailRow label="Certificate No.">{meta.certificate_number}</DetailRow>}
+          {meta.issued_for && <DetailRow label="Issued For">{meta.issued_for}</DetailRow>}
+          {meta.issued_by && <DetailRow label="Issued By">{meta.issued_by}</DetailRow>}
+          {meta.valid_from && meta.valid_until && (
+            <DetailRow label="Validity">{fmtDate(meta.valid_from)} – {fmtDate(meta.valid_until)}</DetailRow>
+          )}
           {(meta.certificate_content || meta.notes) && (
             <DetailRow label="Content">{meta.certificate_content || meta.notes}</DetailRow>
           )}
-          {meta.examination_findings_list && meta.examination_findings_list.length > 0 && (
-            <DetailRow label="Examination findings">
-              <NumberedList items={meta.examination_findings_list} variant="check" />
-            </DetailRow>
-          )}
         </div>
-      ),
-    });
-  }
+      </>
+    ),
+  });
 
-  if (meta.digitally_signed != null || meta.verification_url) {
-    sections.push({
-      id: 'verification', title: 'Verification', icon: ShieldCheck,
-      content: (
-        <div className="divide-y">
-          <DetailRow label="Status">
-            <span className="flex items-center gap-2">
-              {meta.digitally_signed ? (
-                <>
-                  <ShieldCheck className="h-5 w-5 text-success" />
-                  <span className="text-label text-success">Digitally Signed & Verified</span>
-                </>
-              ) : (
-                <>
-                  <ShieldCheck className="h-5 w-5 text-foreground" />
-                  <span className="text-label text-muted-foreground">Not digitally signed</span>
-                </>
-              )}
-            </span>
+  sections.push({
+    id: 'verification', title: 'Verification', icon: ShieldCheck,
+    content: (
+      <div className="divide-y">
+        <DetailRow label="Status">
+          <span className="flex items-center gap-2">
+            {meta.digitally_signed ? (
+              <>
+                <ShieldCheck className="h-5 w-5 text-success" />
+                <span className="text-label text-success">Digitally Signed & Verified</span>
+              </>
+            ) : (
+              <>
+                <ShieldCheck className="h-5 w-5 text-foreground" />
+                <span className="text-label text-muted-foreground">Not digitally signed</span>
+              </>
+            )}
+          </span>
+        </DetailRow>
+        {meta.verification_url && (
+          <DetailRow label="Verify at">
+            <Button variant="link" size="sm" className="h-auto p-0 text-primary hover:underline" onClick={() => onAction(`Verification URL: ${meta.verification_url}`)}>
+              {meta.verification_url}
+            </Button>
           </DetailRow>
-          {meta.verification_url && (
-            <DetailRow label="Verify at">
-              <Button variant="link" size="sm" className="h-auto p-0 text-primary hover:underline" onClick={() => onAction(`Verification URL: ${meta.verification_url}`)}>
-                {meta.verification_url}
-              </Button>
-            </DetailRow>
-          )}
-        </div>
-      ),
-    });
-  }
+        )}
+      </div>
+    ),
+  });
 
   if (meta.linked_records && meta.linked_records.length > 0) {
     sections.push({
@@ -1954,48 +2167,41 @@ function getInvoiceSections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
   sections.push({
-    id: 'invoice-info', title: 'Invoice Info', icon: Receipt,
+    id: 'billing', title: 'Billing', icon: Receipt,
     content: (
-      <div className="divide-y">
-        {meta.invoice_number && <DetailRow label="Invoice">{meta.invoice_number}</DetailRow>}
-        {meta.payment_status && (
-          <DetailRow label="Status">
-            <Badge variant={meta.payment_status === 'paid' ? 'success' : meta.payment_status === 'pending' ? 'warning' : meta.payment_status === 'due' ? 'danger' : 'neutral'} className="capitalize">
-              {meta.payment_status}
-            </Badge>
-          </DetailRow>
-        )}
-        {meta.amount != null && (
-          <div className="flex items-center justify-between px-6 py-4">
-            <span className="text-body text-muted-foreground">Amount</span>
-            <span className="text-subheading text-foreground">₹{meta.amount.toLocaleString()}</span>
+      <>
+        <div className="divide-y">
+          {meta.invoice_number && <DetailRow label="Invoice">{meta.invoice_number}</DetailRow>}
+          {meta.invoice_date && <DetailRow label="Invoice Date">{fmtDate(meta.invoice_date)}</DetailRow>}
+          {meta.payment_status && (
+            <DetailRow label="Status">
+              <Badge variant={meta.payment_status === 'paid' ? 'success' : meta.payment_status === 'pending' ? 'warning' : meta.payment_status === 'due' ? 'danger' : 'neutral'} className="capitalize">
+                {meta.payment_status}
+              </Badge>
+            </DetailRow>
+          )}
+          {meta.payment_method && <DetailRow label="Payment Method">{meta.payment_method}</DetailRow>}
+          {meta.payment_date && <DetailRow label="Payment Date">{fmtDate(meta.payment_date)}</DetailRow>}
+        </div>
+        {meta.line_items && meta.line_items.length > 0 && (
+          <div className="divide-y border-t">
+            {meta.line_items.map((item, i) => (
+              <div key={i} className="flex items-center justify-between px-6 py-4">
+                <span className="text-body text-muted-foreground">{item.label}</span>
+                <span className="text-label text-foreground">₹{item.amount.toLocaleString()}</span>
+              </div>
+            ))}
+            {meta.amount != null && (
+              <div className="flex items-center justify-between px-6 py-4">
+                <span className="text-card-title text-foreground">Total</span>
+                <span className="text-subheading text-foreground">₹{meta.amount.toLocaleString()}</span>
+              </div>
+            )}
           </div>
         )}
-      </div>
+      </>
     ),
   });
-
-  if (meta.line_items && meta.line_items.length > 0) {
-    sections.push({
-      id: 'line-items', title: 'Line Items', icon: Receipt,
-      content: (
-        <div className="divide-y">
-          {meta.line_items.map((item, i) => (
-            <div key={i} className="flex items-center justify-between px-6 py-4">
-              <span className="text-body text-muted-foreground">{item.label}</span>
-              <span className="text-label text-foreground">₹{item.amount.toLocaleString()}</span>
-            </div>
-          ))}
-          {meta.amount != null && (
-            <div className="flex items-center justify-between px-6 py-4">
-              <span className="text-card-title text-foreground">Total</span>
-              <span className="text-subheading text-foreground">₹{meta.amount.toLocaleString()}</span>
-            </div>
-          )}
-        </div>
-      ),
-    });
-  }
 
   return sections;
 }

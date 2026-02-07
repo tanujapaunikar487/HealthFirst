@@ -10,6 +10,7 @@ import { Button, buttonVariants } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/Components/ui/tabs';
 import {
+  TableContainer,
   Table,
   TableBody,
   TableCell,
@@ -17,6 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/Components/ui/table';
+import { TablePagination } from '@/Components/ui/table-pagination';
 import {
   Select,
   SelectContent,
@@ -504,16 +506,16 @@ function AppointmentsTable({
   }
 
   return (
-    <div className="border rounded-3xl">
+    <TableContainer>
       <Table>
         <TableHeader>
-          <TableRow className="hover:bg-transparent">
-            <TableHead className="w-44">Date</TableHead>
+          <TableRow>
+            <TableHead className="w-col-date">Date</TableHead>
             <TableHead>Details</TableHead>
-            <TableHead className="w-32">Family member</TableHead>
-            <TableHead className="w-32 text-right">Amount</TableHead>
-            <TableHead className="w-24">Status</TableHead>
-            <TableHead className="w-12" />
+            <TableHead className="w-col-member">Family member</TableHead>
+            <TableHead className="w-col-amount text-right">Amount</TableHead>
+            <TableHead className="w-col-status">Status</TableHead>
+            <TableHead className="w-col-actions" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -562,7 +564,7 @@ function AppointmentsTable({
                 </div>
               </TableCell>
               <TableCell className="align-top">
-                <p className="text-body">{appt.patient_name}</p>
+                <p className="text-label whitespace-nowrap">{appt.patient_name}</p>
               </TableCell>
               <TableCell className="align-top text-right">
                 <p className="text-label">₹{appt.fee.toLocaleString()}</p>
@@ -589,15 +591,13 @@ function AppointmentsTable({
         </TableBody>
       </Table>
 
-      {/* Table Footer */}
-      {appointments.length > 0 && (
-        <div className="flex items-center justify-between px-6 py-4 border-t border-border">
-          <p className="text-body text-muted-foreground">
-            Showing {appointments.length} {appointments.length === 1 ? 'appointment' : 'appointments'}
-          </p>
-        </div>
-      )}
-    </div>
+      <TablePagination
+        from={1}
+        to={appointments.length}
+        total={appointments.length}
+        itemLabel={appointments.length === 1 ? 'appointment' : 'appointments'}
+      />
+    </TableContainer>
   );
 }
 

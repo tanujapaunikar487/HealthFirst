@@ -2265,6 +2265,9 @@ class HospitalSeeder extends Seeder
                     'referred_to_department' => 'Psychiatry',
                     'reason' => 'Anxiety-related chest pain. Needs stress management counseling and possible long-term anxiolytic management.',
                     'priority' => 'routine',
+                    'clinical_summary' => 'Patient presenting with persistent anxiety-related chest pain. Cardiac workup negative (ECG normal, Chest X-ray clear). Patient reports significant stress at work and home. Needs behavioral therapy and possible anxiolytic medication management.',
+                    'referral_status' => 'scheduled',
+                    'appointment_date' => Carbon::today()->subDays(23)->format('Y-m-d'),
                 ],
             ];
             $records[] = [
@@ -2278,6 +2281,9 @@ class HospitalSeeder extends Seeder
                     'invoice_number' => 'INV-000002',
                     'amount' => 1500,
                     'payment_status' => 'paid',
+                    'invoice_date' => Carbon::today()->subDays(30)->format('Y-m-d'),
+                    'payment_method' => 'UPI',
+                    'payment_date' => Carbon::today()->subDays(30)->format('Y-m-d'),
                     'line_items' => [
                         ['label' => 'In-person Consultation — Dr. Emily Chen', 'amount' => 1200],
                         ['label' => 'ECG', 'amount' => 200],
@@ -2335,11 +2341,13 @@ class HospitalSeeder extends Seeder
                 'department_name' => 'Dermatology',
                 'record_date' => Carbon::today()->subDays(45)->format('Y-m-d'),
                 'metadata' => [
+                    'diagnosis' => 'Mild Eczema (Atopic Dermatitis)',
                     'drugs' => [
                         ['name' => 'Hydrocortisone Cream 1%', 'dosage' => 'Thin layer', 'frequency' => 'Twice daily', 'duration' => '2 weeks', 'instructions' => 'Apply on affected areas only. Do not use on face.'],
                         ['name' => 'Cetaphil Moisturizing Lotion', 'dosage' => 'Liberal application', 'frequency' => 'Three times daily', 'duration' => '4 weeks', 'instructions' => 'Apply after bathing and throughout the day to prevent dryness.'],
                     ],
                     'valid_until' => Carbon::today()->subDays(31)->format('Y-m-d'),
+                    'pharmacy_notes' => 'Apply topical medications in thin layer. Avoid occlusive dressings unless specifically directed.',
                 ],
                 'file_type' => 'pdf',
             ];
@@ -2354,6 +2362,9 @@ class HospitalSeeder extends Seeder
                     'invoice_number' => 'INV-000003',
                     'amount' => 1000,
                     'payment_status' => 'paid',
+                    'invoice_date' => Carbon::today()->subDays(45)->format('Y-m-d'),
+                    'payment_method' => 'Credit Card',
+                    'payment_date' => Carbon::today()->subDays(45)->format('Y-m-d'),
                     'line_items' => [
                         ['label' => 'Video Consultation — Dr. Anita Deshmukh', 'amount' => 1000],
                     ],
@@ -2369,6 +2380,8 @@ class HospitalSeeder extends Seeder
                     'description' => 'Annual health checkup — hematology panel. All parameters normal.',
                     'test_name' => 'Complete Blood Count',
                     'test_category' => 'Hematology',
+                    'ordering_doctor' => 'Dr. Sarah Johnson',
+                    'interpretation' => 'All hematology parameters within normal limits. No evidence of infection, anemia, or thrombocytopenia. Continue regular health monitoring.',
                     'results' => [
                         ['parameter' => 'Hemoglobin', 'value' => '14.5', 'unit' => 'g/dL', 'reference_range' => '13.0-17.0', 'status' => 'normal'],
                         ['parameter' => 'WBC Count', 'value' => '6,800', 'unit' => 'cells/mcL', 'reference_range' => '4,500-11,000', 'status' => 'normal'],
@@ -2380,6 +2393,8 @@ class HospitalSeeder extends Seeder
                     'description' => 'Annual health checkup — lipid panel. All within normal limits.',
                     'test_name' => 'Lipid Profile',
                     'test_category' => 'Biochemistry',
+                    'ordering_doctor' => 'Dr. Sarah Johnson',
+                    'interpretation' => 'Lipid levels within desirable range. Total cholesterol and LDL well controlled. HDL at protective levels. Continue current diet and exercise regimen. Recheck in 1 year.',
                     'results' => [
                         ['parameter' => 'Total Cholesterol', 'value' => '185', 'unit' => 'mg/dL', 'reference_range' => '<200', 'status' => 'normal'],
                         ['parameter' => 'LDL Cholesterol', 'value' => '110', 'unit' => 'mg/dL', 'reference_range' => '<130', 'status' => 'normal'],
@@ -2658,6 +2673,7 @@ class HospitalSeeder extends Seeder
             'record_date' => Carbon::today()->subMonths(3)->format('Y-m-d'),
             'metadata' => [
                 'report_type' => 'Pure Tone Audiometry',
+                'indication' => 'Routine hearing assessment as part of annual health checkup',
                 'findings' => 'Right ear: Air conduction thresholds 10-20 dB HL across 250-8000 Hz. Bone conduction normal. Left ear: Air conduction thresholds 10-15 dB HL across 250-8000 Hz. Bone conduction normal. No air-bone gap bilaterally.',
                 'impression' => 'Normal hearing sensitivity bilaterally. No conductive or sensorineural hearing loss.',
             ],
@@ -2820,7 +2836,10 @@ class HospitalSeeder extends Seeder
             'record_date' => Carbon::today()->subMonths(3)->format('Y-m-d'),
             'metadata' => [
                 'visit_type' => 'Physiotherapy Session',
-                'notes' => 'Session 4 of 8. Performed quadriceps strengthening exercises, hamstring stretches, and knee ROM exercises. Ultrasound therapy applied to right knee (10 min). Patient reports 40% improvement in pain since starting therapy. Advised home exercises: straight leg raises 3x15, wall squats 3x10.',
+                'session_number' => 4,
+                'total_sessions' => 8,
+                'notes' => 'Performed quadriceps strengthening exercises, hamstring stretches, and knee ROM exercises. Ultrasound therapy applied to right knee (10 min). Advised home exercises: straight leg raises 3x15, wall squats 3x10.',
+                'progress' => '40% improvement in pain since starting therapy. Range of motion improved from 90° to 120° flexion.',
                 'follow_up' => 'Next session in 4 days. Continue home exercises daily.',
             ],
         ];

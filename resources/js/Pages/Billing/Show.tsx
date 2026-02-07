@@ -809,20 +809,20 @@ export default function Show({ user, bill }: Props) {
                 <div>
                   <table className="w-full text-body">
                     <thead>
-                      <tr className="bg-muted">
-                        <th className="text-left font-medium text-muted-foreground pl-6 pr-2 py-3">Item</th>
-                        <th className="text-center font-medium text-muted-foreground px-2 py-3 w-16">Qty</th>
-                        <th className="text-right font-medium text-muted-foreground px-2 py-3 w-24">Unit Price</th>
-                        <th className="text-right font-medium text-muted-foreground pl-2 pr-6 py-3 w-24">Total</th>
+                      <tr className="bg-muted/50">
+                        <th className="text-left px-4 py-3 text-label text-muted-foreground">Item</th>
+                        <th className="text-center px-4 py-3 text-label text-muted-foreground w-16">Qty</th>
+                        <th className="text-right px-4 py-3 text-label text-muted-foreground w-24">Unit Price</th>
+                        <th className="text-right px-4 py-3 text-label text-muted-foreground w-24">Total</th>
                       </tr>
                     </thead>
                     <tbody>
                       {bill.line_items.map((item, i) => (
-                        <tr key={i} className="border-b last:border-b-0">
-                          <td className="pl-6 pr-2 py-3">{item.label}</td>
-                          <td className="text-center px-2 py-3 text-muted-foreground">{item.qty}</td>
-                          <td className="text-right px-2 py-3 text-muted-foreground">₹{item.unit_price.toLocaleString()}</td>
-                          <td className="text-right pl-2 pr-6 py-3">₹{item.total.toLocaleString()}</td>
+                        <tr key={i} className="border-t">
+                          <td className="px-4 py-3">{item.label}</td>
+                          <td className="text-center px-4 py-3 text-muted-foreground">{item.qty}</td>
+                          <td className="text-right px-4 py-3 text-muted-foreground">₹{item.unit_price.toLocaleString()}</td>
+                          <td className="text-right px-4 py-3">₹{item.total.toLocaleString()}</td>
                         </tr>
                       ))}
                     </tbody>
