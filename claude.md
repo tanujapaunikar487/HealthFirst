@@ -1,6 +1,6 @@
 # Healthcare Platform
 
-Laravel 11.x + React 18 + TypeScript + Inertia.js v2.0 + Tailwind CSS + shadcn/ui + Vite 7.3.1. AI: Ollama qwen2.5:7b (pluggable). Razorpay (mock mode).
+Laravel 11.x + React 18 + TypeScript + Inertia.js v2.0 + Tailwind CSS v4 + shadcn/ui + Vite 7.3.1. AI: Ollama qwen2.5:7b (pluggable). Razorpay (mock mode).
 
 ## Architecture
 `app/Models, Http/Controllers, Services/{AI,Booking,Calendar}` | `resources/js/{Pages, Components/ui, Features/booking-chat, Layouts}`
@@ -14,10 +14,10 @@ Laravel 11.x + React 18 + TypeScript + Inertia.js v2.0 + Tailwind CSS + shadcn/u
 
 **Layout**: Cards 20px radius/16px pad, rows `px-6 py-4` | Sheets 500px/20px radius/20px pad/right-side | Dialogs max-w-lg/20px radius/flex-col | Page 960px max/40px pad | Sections `space-y-12`
 
-**Typography**: Token classes in `app.css @layer base` — never raw `text-[Xpx]`. Each sets size+weight+line-height. Sentence case (except acronyms/proper nouns).
+**Typography**: Token classes in `app.css` via `@utility` — never raw `text-[Xpx]`. Each sets size+weight+line-height. Sentence case (except acronyms/proper nouns).
 `text-display`(72/700) `text-page-title`(36/700) `text-detail-title`(24/700) `text-banner-heading`(24/600) `text-section-title`(20/600) `text-step-title`(20/600) `text-subheading`(16/600) `text-card-title`(14/600) `text-label`(14/500) `text-body`(14/400) `text-caption`(12/500) `text-overline`(11/600/uppercase) `text-micro`(10/600)
 
-**Colors**: Semantic text tokens — `text-foreground`(#171717) `text-muted-foreground`(#737373) `text-placeholder`(#A1A1A1) `text-inverse`(#FFF, on dark bg) `text-inverse-muted`(white/70%, on dark bg). Never raw `text-neutral-*`/`text-gray-*`/`text-[#hex]` — use semantic tokens. Primary blue #1E40AF bg/#BFDBFE icons | Success/Warning/Error=Green/Amber/Red | Warning: #FDE68A border, #FFFBEB bg, #D97706 text | Icons: `text-foreground` (light), `text-inverse` (dark bg), nav active=#2563EB
+**Colors**: Semantic text tokens — `text-foreground`(#171717) `text-muted-foreground`(#737373) `text-placeholder`(#A1A1A1) `text-inverse`(#FFF, on dark bg) `text-inverse-muted`(white/70%, on dark bg). Never raw `text-neutral-*`/`text-gray-*`/`text-[#hex]` — use semantic tokens. Primary blue #1E40AF bg/#BFDBFE icons | Icons: `text-foreground` (light), `text-inverse` (dark bg), nav active=#2563EB | **Status colors** (4 statuses × 5 tokens each): `bg-success`/`text-success-foreground` (strong), `bg-success-subtle`/`text-success-subtle-foreground`/`border-success-border` (pastel). Same pattern for `destructive`, `warning`, `info`. Badges/Alerts use pastel variants. All defined in `app.css` with `:root`/`.dark`/`.high-contrast` overrides
 
 **Components**: Badges=pastel bg+colored text, `font-medium`, sizes `sm`(12px)/`lg`(14px), pad `py-1 px-2`/`py-1 pl-1 pr-2`(icon). Use `size="lg"` not className | Tabs=pill: TabsList transparent `gap-1`, TabsTrigger `rounded-full px-4 py-2`, active `shadow-[0_1px_3px_0_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)]`. Custom tab switchers match pill style | SupportFooter global fixed | Skeleton 300ms min/10s timeout | EmptyState #F5F5F5/20px radius (message+description) | CtaBanner dark gradient/white text | Borders 1px (spinner/Switch 2px) | Icon bg `h-10 w-10 rounded-full`+`h-5 w-5`, semantic CSS vars | SideNav 14px/20px icons/6px gap/pill/#2563EB active/200px min
 
@@ -50,7 +50,7 @@ Laravel 11.x + React 18 + TypeScript + Inertia.js v2.0 + Tailwind CSS + shadcn/u
 17. **Google Calendar**: OAuth+mock. Auto sync on book/reschedule/cancel. `calendar_sync` in user_settings. Privacy-safe. 7 controller hooks in try/catch
 18. Calendar `preferred` field (`'google'|'apple'|null`). Connect auto-sets; disconnect clears. Confirmation adapts per preference
 19. Toast: #171717 text, status-colored icons, `fit-content` width. No `richColors`
-20. **High Contrast**: CSS vars in `app.css` (`:root` defaults, `.high-contrast` overrides). Tailwind `hsl(var(--*) / <alpha-value>)`. 55 files use semantic classes. Avatar palette in `Lib/avatar-colors.ts`. Exceptions: Razorpay/PDF/print keep hex (no CSS vars)
+20. **High Contrast**: CSS vars in `app.css` (`:root` defaults, `.high-contrast` overrides). Tailwind v4 `@theme inline` maps `--color-*: hsl(var(--*))`. 55 files use semantic classes. Avatar palette in `Lib/avatar-colors.ts`. Exceptions: Razorpay/PDF/print keep hex (no CSS vars)
 21. **Download Data**: PDF via `barryvdh/laravel-dompdf`. Blade: `resources/views/pdf/data-export.blade.php`. Standalone HTML/CSS. `window.location.href` (no page nav)
 22. **Dashboard Onboarding**: 3-step checklist opens Sheets (health/insurance/family). `AddInsuranceSheet` in `Components/Insurance/`. `_from_dashboard` flag→`back()`. `EmbeddedFamilyMemberFlow` `mode="standalone"`
 23. **Booking Entry**: AI=prompt pills (left, stacked, click populates, manual send). Guided=two option cards. `PromptSuggestion` from `Components/ui/prompt-suggestion.tsx`
@@ -72,6 +72,6 @@ Laravel 11.x + React 18 + TypeScript + Inertia.js v2.0 + Tailwind CSS + shadcn/u
 
 **Stack** (`Components/ui/stack.tsx`): `<VStack>`/`<HStack>` for flex layouts. `gap={6}`→`gap-6`=24px. `align`: start/center/end/stretch/baseline. `justify`: start/center/end/between. `<Spacer/>`=flex-1
 
-**Theme tokens** (`tailwind.config.js`): `max-w-page`(960px) `max-w-content`(800px) `min-w-sidebar`(200px) `spacing.detail-label`(130px)
+**Theme tokens** (`app.css @theme inline`): `max-w-page`(960px) `max-w-content`(800px) `min-w-sidebar`(200px) `spacing.detail-label`(130px)
 
 **Only use existing component variants** — no ad-hoc styling duplicating Button/Badge/Alert/Card APIs
