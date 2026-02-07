@@ -6,6 +6,7 @@ import { Button } from '@/Components/ui/button';
 import { Alert } from '@/Components/ui/alert';
 import { EmbeddedPackageList } from '@/Features/booking-chat/embedded/EmbeddedPackageList';
 import { Search, Loader2 } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 const labSteps = [
   { id: 'patient', label: 'Patient' },
