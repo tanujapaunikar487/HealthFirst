@@ -660,7 +660,7 @@ export default function Show({ user, bill }: Props) {
             {/* 3-dot Menu by Status */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="secondary" iconOnly size="md" className="text-muted-foreground">
+                <Button variant="secondary" iconOnly size="lg" className="text-muted-foreground">
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>

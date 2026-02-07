@@ -227,7 +227,17 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                 {step === 'create' && (
                     <>
                         <DialogHeader>
-                            <DialogTitle>Create new password</DialogTitle>
+                            <div className="flex items-center gap-3">
+                                <Button
+                                    variant="ghost"
+                                    iconOnly
+                                    onClick={() => setStep('verify')}
+                                    className="h-auto p-0 text-foreground hover:bg-transparent"
+                                >
+                                    <ArrowLeft className="h-5 w-5" />
+                                </Button>
+                                <DialogTitle>Create new password</DialogTitle>
+                            </div>
                             <DialogDescription className="sr-only">Create a new password for your account</DialogDescription>
                         </DialogHeader>
 
@@ -327,16 +337,9 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
 
                         <DialogFooter>
                             <Button
-                                variant="secondary"
-                                onClick={() => setStep('verify')}
-                            >
-                                <ArrowLeft className="h-4 w-4" />
-                                Back
-                            </Button>
-                            <Button
                                 onClick={handleChangePassword}
                                 disabled={!canCreate || loading}
-                                className="flex-1"
+                                size="lg"
                             >
                                 {loading ? (
                                     <>

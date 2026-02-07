@@ -322,7 +322,6 @@ interface Props {
   user: User;
   records: HealthRecord[];
   familyMembers: FamilyMember[];
-  abnormalCount: number;
   preSelectedRecordId?: number | null;
   preSelectedMemberId?: number | null;
 }
@@ -363,7 +362,7 @@ const typeGroups: Record<string, string[]> = {
 const RECORDS_PER_PAGE = 10;
 
 function CategoryIcon({ category, size = 'md' }: { category: string; size?: 'sm' | 'md' }) {
-  const config = categoryConfig[category] || { icon: FileText, color: 'hsl(var(--muted-foreground))', bg: 'hsl(var(--secondary))' };
+  const config = categoryConfig[category] || { icon: FileText, color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' };
   const Icon = config.icon;
   const dim = size === 'sm' ? 'h-10 w-10' : 'h-10 w-10';
   const iconDim = size === 'sm' ? 'h-5 w-5' : 'h-[18px] w-[18px]';
@@ -443,7 +442,7 @@ function HealthRecordsSkeleton() {
 
 /* ─── Page ─── */
 
-export default function Index({ user, records, familyMembers, abnormalCount, preSelectedRecordId, preSelectedMemberId }: Props) {
+export default function Index({ user, records, familyMembers, preSelectedRecordId, preSelectedMemberId }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(records);
   const { formatDate } = useFormatPreferences();
   const [activeTab, setActiveTab] = useState('all');
@@ -515,15 +514,6 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
     return map;
   }, [familyMembers]);
 
-  const groupCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: records.length, reports: 0, visits: 0, prescriptions: 0, documents: 0 };
-    for (const r of records) {
-      for (const [group, cats] of Object.entries(typeGroups)) {
-        if (cats.includes(r.category)) { counts[group]++; break; }
-      }
-    }
-    return counts;
-  }, [records]);
 
   const effectiveDateRange = useMemo(() => {
     if (datePreset === 'any') return { computedFrom: '', computedTo: '' };
@@ -661,17 +651,6 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
     setSelectedIds(newSet);
   }
 
-  function handleFilterToAttention() {
-    setActiveTab('all');
-    setSubCategoryFilter('all');
-    setStatusFilter('needs_attention');
-    setMemberFilter('all');
-    setDatePreset('any');
-    setDateFrom('');
-    setDateTo('');
-    setSearchQuery('');
-  }
-
   const toast = (msg: string) => setToastMessage(msg);
 
   if (hasError) {
@@ -717,11 +696,8 @@ export default function Index({ user, records, familyMembers, abnormalCount, pre
               { value: 'prescriptions', label: 'Prescriptions' },
               { value: 'documents', label: 'Documents' },
             ].map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value} className="gap-1.5">
+              <TabsTrigger key={tab.value} value={tab.value}>
                 {tab.label}
-                <Badge variant="neutral" className="ml-1">
-                  {groupCounts[tab.value]}
-                </Badge>
               </TabsTrigger>
             ))}
           </TabsList>

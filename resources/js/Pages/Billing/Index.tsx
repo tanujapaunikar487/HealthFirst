@@ -443,9 +443,6 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
           <h1 className="text-page-title text-foreground">
             Billing
           </h1>
-          <p className="text-muted-foreground text-body mt-1">
-            View invoices and payment history for all your appointments.
-          </p>
         </div>
 
         {/* Outstanding Summary */}

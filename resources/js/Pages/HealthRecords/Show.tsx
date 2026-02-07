@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Badge, type BadgeVariant } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
@@ -694,17 +694,19 @@ export default function Show({ user, record, familyMember }: Props) {
   return (
     <AppLayout user={user} pageTitle="Health Records" pageIcon="/assets/icons/records.svg">
       <div className="w-full max-w-page min-h-full flex flex-col pb-10">
-        {/* Header */}
-        <div className="mb-8">
-          <Link
-            href="/health-records"
-            className="inline-flex items-center gap-1 text-body text-muted-foreground hover:text-foreground mb-4"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Health Records
-          </Link>
+        {/* Breadcrumb */}
+        <Button
+          variant="link"
+          size="sm"
+          className="h-auto p-0 mb-6 flex items-center gap-1.5 text-label text-muted-foreground hover:text-foreground"
+          onClick={() => router.visit('/health-records')}
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Health Records
+        </Button>
 
-          <div className="flex items-start justify-between gap-4">
+        {/* Header */}
+        <div className="mb-6 flex items-start justify-between gap-4">
             <div className="flex items-start gap-4">
               <CategoryIcon category={record.category} size="lg" />
               <div>
@@ -734,7 +736,7 @@ export default function Show({ user, record, familyMember }: Props) {
               )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="secondary" iconOnly size="md">
+                  <Button variant="secondary" iconOnly size="lg">
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -790,7 +792,6 @@ export default function Show({ user, record, familyMember }: Props) {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-          </div>
         </div>
 
         {/* Main Content with Side Nav */}
@@ -832,55 +833,57 @@ export default function Show({ user, record, familyMember }: Props) {
                   <p className="text-body text-muted-foreground">No description available.</p>
                 )}
 
-                {/* AI Summary */}
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Sparkles className="h-4 w-4 text-primary" />
-                    <span className="text-overline text-muted-foreground">AI Summary</span>
-                  </div>
+                {/* AI Summary - excluded for prescription and documents categories */}
+                {!['prescription', 'vaccination', 'medical_certificate'].includes(record.category) && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                      <span className="text-overline text-muted-foreground">AI Summary</span>
+                    </div>
 
-                  {aiSummaryLoading ? (
-                    <Alert variant="info" hideIcon>
-                      <div className="flex items-center gap-3">
-                        <Loader2 className="h-5 w-5 text-primary animate-spin" />
-                        <span>Generating AI summary...</span>
-                      </div>
-                    </Alert>
-                  ) : aiSummaryError ? (
-                    <Alert variant="error">
-                      <p className="mb-3">{aiSummaryError}</p>
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => generateAiSummary()}
-                      >
-                        Try Again
-                      </Button>
-                    </Alert>
-                  ) : aiSummary ? (
-                    <Alert variant="info" hideIcon>
-                      <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{aiSummary}</p>
-                      {summaryGeneratedAt && (
-                        <p className="text-body text-muted-foreground mt-3">
-                          Generated {new Date(summaryGeneratedAt).toLocaleDateString('en-IN', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </p>
-                      )}
-                    </Alert>
-                  ) : (
-                    <Alert variant="info" hideIcon>
-                      <div className="flex items-center gap-3">
-                        <Loader2 className="h-5 w-5 text-primary animate-spin" />
-                        <span>Generating AI summary...</span>
-                      </div>
-                    </Alert>
-                  )}
-                </div>
+                    {aiSummaryLoading ? (
+                      <Alert variant="info" hideIcon>
+                        <div className="flex items-center gap-3">
+                          <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                          <span>Generating AI summary...</span>
+                        </div>
+                      </Alert>
+                    ) : aiSummaryError ? (
+                      <Alert variant="error">
+                        <p className="mb-3">{aiSummaryError}</p>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => generateAiSummary()}
+                        >
+                          Try Again
+                        </Button>
+                      </Alert>
+                    ) : aiSummary ? (
+                      <Alert variant="info" hideIcon>
+                        <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{aiSummary}</p>
+                        {summaryGeneratedAt && (
+                          <p className="text-body text-muted-foreground mt-3">
+                            Generated {new Date(summaryGeneratedAt).toLocaleDateString('en-IN', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </p>
+                        )}
+                      </Alert>
+                    ) : (
+                      <Alert variant="info" hideIcon>
+                        <div className="flex items-center gap-3">
+                          <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                          <span>Generating AI summary...</span>
+                        </div>
+                      </Alert>
+                    )}
+                  </div>
+                )}
               </div>
             </Section>
 

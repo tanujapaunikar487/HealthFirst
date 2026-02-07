@@ -162,7 +162,7 @@ export default function SettingsIndex({
                             <div className="mt-6 pt-6 border-t">
                                 <Button
                                     variant="ghost"
-                                    className="w-full flex items-center gap-3 text-label transition-all text-left rounded-full cursor-pointer text-foreground hover:bg-destructive/10 hover:text-destructive h-auto py-2 px-3"
+                                    className="w-full flex items-center gap-3 text-label transition-all text-left rounded-full cursor-pointer bg-destructive/10 text-destructive hover:bg-destructive/15 h-auto py-2 px-3"
                                     onClick={handleLogout}
                                     disabled={loggingOut}
                                 >

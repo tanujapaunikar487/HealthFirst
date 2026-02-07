@@ -8,7 +8,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { InfoCard } from '@/Components/ui/info-card';
 import { Input } from '@/Components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetBody } from '@/Components/ui/sheet';
 import { PhoneInput } from '@/Components/ui/phone-input';
 import { DatePicker } from '@/Components/ui/date-picker';
 import { toast } from 'sonner';
@@ -154,7 +153,7 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
     const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatar_url);
     const [uploading, setUploading] = useState(false);
     const [removing, setRemoving] = useState(false);
-    const [showEditForm, setShowEditForm] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
     const [saving, setSaving] = useState(false);
 
     // Form state
@@ -279,7 +278,7 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
             preserveScroll: true,
             onSuccess: () => {
                 toast.success('Profile updated successfully');
-                setShowEditForm(false);
+                setIsEditing(false);
                 setSaving(false);
             },
             onError: (errors) => {
@@ -288,6 +287,30 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                 setSaving(false);
             },
         });
+    };
+
+    const handleCancel = () => {
+        setFormData({
+            name: user.name,
+            email: user.email,
+            phone: user.phone || '',
+            date_of_birth: user.date_of_birth || '',
+            gender: user.gender || '',
+            blood_group: user.blood_group || '',
+            address_line_1: user.address_line_1 || '',
+            address_line_2: user.address_line_2 || '',
+            city: user.city || '',
+            state: user.state || '',
+            pincode: user.pincode || '',
+            primary_doctor_id: user.primary_doctor_id?.toString() || '',
+            medical_conditions: user.medical_conditions || [],
+            allergies: user.allergies || [],
+            emergency_contact_type: user.emergency_contact_type || 'custom',
+            emergency_contact_name: user.emergency_contact_name || '',
+            emergency_contact_phone: user.emergency_contact_phone || '',
+            emergency_contact_relation: user.emergency_contact_relation || '',
+        });
+        setIsEditing(false);
     };
 
     // Format date for display
@@ -341,11 +364,10 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                             </AvatarFallback>
                         </Avatar>
                         <Button
-                            variant="ghost"
                             iconOnly
                             onClick={() => fileInputRef.current?.click()}
                             disabled={uploading || removing}
-                            className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+                            className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full shadow-lg"
                         >
                             <Camera className="h-4 w-4" />
                         </Button>
@@ -375,13 +397,24 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                         )}
                     </div>
                 </div>
-                <Button size="lg" onClick={() => setShowEditForm(true)}>
-                    <Pencil className="h-5 w-5" />
-                    Edit profile
-                </Button>
+                {!isEditing ? (
+                    <Button size="lg" onClick={() => setIsEditing(true)}>
+                        <Pencil className="h-5 w-5" />
+                        Edit profile
+                    </Button>
+                ) : (
+                    <div className="flex items-center gap-3">
+                        <Button size="lg" variant="secondary" onClick={handleCancel} disabled={saving}>
+                            Cancel
+                        </Button>
+                        <Button size="lg" onClick={handleSave} disabled={saving}>
+                            {saving ? 'Saving...' : 'Save changes'}
+                        </Button>
+                    </div>
+                )}
             </div>
 
-            {/* Personal Information - InfoCard Style */}
+            {/* Personal Information */}
             <div>
                 <div className="flex items-center gap-2.5 mb-4">
                     <Icon icon={User} className="h-5 w-5 text-foreground" />
@@ -389,33 +422,88 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                         Personal information
                     </h2>
                 </div>
-                <InfoCard
-                    items={[
-                        {
-                            label: 'Name',
-                            value: user.name,
-                        },
-                        {
-                            label: 'Email',
-                            value: user.email,
-                        },
-                        {
-                            label: 'Phone',
-                            value: user.phone ?? undefined,
-                        },
-                        {
-                            label: 'Date of birth',
-                            value: formatDate(user.date_of_birth),
-                        },
-                        {
-                            label: 'Gender',
-                            value: capitalize(user.gender),
-                        },
-                    ]}
-                />
+                {!isEditing ? (
+                    <InfoCard
+                        items={[
+                            {
+                                label: 'Name',
+                                value: user.name,
+                            },
+                            {
+                                label: 'Email',
+                                value: user.email,
+                            },
+                            {
+                                label: 'Phone',
+                                value: user.phone ?? undefined,
+                            },
+                            {
+                                label: 'Date of birth',
+                                value: formatDate(user.date_of_birth),
+                            },
+                            {
+                                label: 'Gender',
+                                value: capitalize(user.gender),
+                            },
+                        ]}
+                    />
+                ) : (
+                    <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                        <div>
+                            <label className="mb-1.5 block text-label text-muted-foreground">
+                                Name <span className="text-destructive">*</span>
+                            </label>
+                            <Input
+                                value={formData.name}
+                                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                placeholder="Full name"
+                            />
+                        </div>
+                        <div>
+                            <label className="mb-1.5 block text-label text-muted-foreground">Email</label>
+                            <Input
+                                value={formData.email}
+                                disabled
+                                className="bg-muted cursor-not-allowed"
+                            />
+                        </div>
+                        <div>
+                            <label className="mb-1.5 block text-label text-muted-foreground">Phone</label>
+                            <PhoneInput
+                                value={formData.phone}
+                                onChange={value => setFormData({ ...formData, phone: value })}
+                            />
+                        </div>
+                        <div>
+                            <label className="mb-1.5 block text-label text-muted-foreground">Date of birth</label>
+                            <DatePicker
+                                value={formData.date_of_birth}
+                                onChange={(value) => setFormData({ ...formData, date_of_birth: value })}
+                                max={new Date()}
+                                placeholder="Select date of birth"
+                            />
+                        </div>
+                        <div>
+                            <label className="mb-1.5 block text-label text-muted-foreground">Gender</label>
+                            <Select
+                                value={formData.gender}
+                                onValueChange={val => setFormData({ ...formData, gender: val })}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select gender" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {genderOptions.map(g => (
+                                        <SelectItem key={g} value={g}>{capitalize(g)}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                )}
             </div>
 
-            {/* Contact & Address - InfoCard Style */}
+            {/* Contact & Address */}
             <div>
                 <div className="flex items-center gap-2.5 mb-4">
                     <Icon icon={Phone} className="h-5 w-5 text-foreground" />
@@ -423,25 +511,87 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                         Contact & address
                     </h2>
                 </div>
-                <InfoCard
-                    items={[
-                        {
-                            label: 'Phone',
-                            value: user.phone ?? undefined,
-                        },
-                        {
-                            label: 'Email',
-                            value: user.email ?? undefined,
-                        },
-                        {
-                            label: 'Address',
-                            value: getFullAddress(),
-                        },
-                    ]}
-                />
+                {!isEditing ? (
+                    <InfoCard
+                        items={[
+                            {
+                                label: 'Phone',
+                                value: user.phone ?? undefined,
+                            },
+                            {
+                                label: 'Email',
+                                value: user.email ?? undefined,
+                            },
+                            {
+                                label: 'Address',
+                                value: getFullAddress(),
+                            },
+                        ]}
+                    />
+                ) : (
+                    <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                        <div>
+                            <label className="mb-1.5 block text-label text-muted-foreground">Address line 1</label>
+                            <Input
+                                value={formData.address_line_1}
+                                onChange={e => setFormData({ ...formData, address_line_1: e.target.value })}
+                                placeholder="Street address"
+                            />
+                        </div>
+                        <div>
+                            <label className="mb-1.5 block text-label text-muted-foreground">Address line 2</label>
+                            <Input
+                                value={formData.address_line_2}
+                                onChange={e => setFormData({ ...formData, address_line_2: e.target.value })}
+                                placeholder="Landmark, area"
+                            />
+                        </div>
+                        <div className="grid grid-cols-3 gap-3">
+                            <div>
+                                <label className="mb-1.5 block text-label text-muted-foreground">State</label>
+                                <Select value={formData.state} onValueChange={handleStateChange}>
+                                    <SelectTrigger className={!formData.state ? 'text-muted-foreground' : ''}>
+                                        <SelectValue placeholder="Select" />
+                                    </SelectTrigger>
+                                    <SelectContent className="max-h-[300px]">
+                                        {INDIAN_STATES.map((s) => (
+                                            <SelectItem key={s} value={s}>{s}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <label className="mb-1.5 block text-label text-muted-foreground">City</label>
+                                <Select
+                                    value={formData.city}
+                                    onValueChange={(value: string) => setFormData({ ...formData, city: value })}
+                                    disabled={!formData.state}
+                                >
+                                    <SelectTrigger className={!formData.city && formData.state ? 'text-muted-foreground' : ''}>
+                                        <SelectValue placeholder="Select" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {availableCities.map((c) => (
+                                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <label className="mb-1.5 block text-label text-muted-foreground">Pincode</label>
+                                <Input
+                                    value={formData.pincode}
+                                    onChange={e => setFormData({ ...formData, pincode: e.target.value })}
+                                    placeholder="Pincode"
+                                    maxLength={6}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
-            {/* Health Information - InfoCard Style */}
+            {/* Health Information */}
             <div>
                 <div className="flex items-center gap-2.5 mb-4">
                     <Icon icon={Heart} className="h-5 w-5 text-foreground" />
@@ -449,41 +599,97 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                         Health information
                     </h2>
                 </div>
-                <InfoCard
-                    items={[
-                        {
-                            label: 'Blood group',
-                            value: user.blood_group ?? undefined,
-                        },
-                        {
-                            label: 'Primary doctor',
-                            value: getPrimaryDoctorName(),
-                        },
-                        {
-                            label: 'Conditions',
-                            value: user.medical_conditions && user.medical_conditions.length > 0 ? (
-                                <div className="flex flex-wrap gap-1.5">
-                                    {user.medical_conditions.map((c, i) => (
-                                        <Badge key={i} variant="neutral">{c}</Badge>
+                {!isEditing ? (
+                    <InfoCard
+                        items={[
+                            {
+                                label: 'Blood group',
+                                value: user.blood_group ?? undefined,
+                            },
+                            {
+                                label: 'Primary doctor',
+                                value: getPrimaryDoctorName(),
+                            },
+                            {
+                                label: 'Conditions',
+                                value: user.medical_conditions && user.medical_conditions.length > 0 ? (
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {user.medical_conditions.map((c, i) => (
+                                            <Badge key={i} variant="neutral">{c}</Badge>
+                                        ))}
+                                    </div>
+                                ) : undefined,
+                            },
+                            {
+                                label: 'Allergies',
+                                value: user.allergies && user.allergies.length > 0 ? (
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {user.allergies.map((a, i) => (
+                                            <Badge key={i} variant="danger">{a}</Badge>
+                                        ))}
+                                    </div>
+                                ) : undefined,
+                            },
+                        ]}
+                    />
+                ) : (
+                    <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                        <div>
+                            <label className="mb-1.5 block text-label text-muted-foreground">Blood group</label>
+                            <Select
+                                value={formData.blood_group}
+                                onValueChange={val => setFormData({ ...formData, blood_group: val })}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select blood group" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {bloodGroupOptions.map(bg => (
+                                        <SelectItem key={bg} value={bg}>{bg}</SelectItem>
                                     ))}
-                                </div>
-                            ) : undefined,
-                        },
-                        {
-                            label: 'Allergies',
-                            value: user.allergies && user.allergies.length > 0 ? (
-                                <div className="flex flex-wrap gap-1.5">
-                                    {user.allergies.map((a, i) => (
-                                        <Badge key={i} variant="danger">{a}</Badge>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div>
+                            <label className="mb-1.5 block text-label text-muted-foreground">Primary doctor</label>
+                            <Select
+                                value={formData.primary_doctor_id}
+                                onValueChange={val => setFormData({ ...formData, primary_doctor_id: val })}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select doctor" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {doctors.map(d => (
+                                        <SelectItem key={d.id} value={d.id.toString()}>
+                                            {d.name} - {d.specialization}
+                                        </SelectItem>
                                     ))}
-                                </div>
-                            ) : undefined,
-                        },
-                    ]}
-                />
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div>
+                            <label className="mb-1.5 block text-label text-muted-foreground">Medical conditions</label>
+                            <TagInput
+                                value={formData.medical_conditions}
+                                onChange={tags => setFormData({ ...formData, medical_conditions: tags })}
+                                placeholder="Add condition"
+                            />
+                        </div>
+                        <div>
+                            <label className="mb-1.5 block text-label text-muted-foreground">Allergies</label>
+                            <TagInput
+                                value={formData.allergies}
+                                onChange={tags => setFormData({ ...formData, allergies: tags })}
+                                placeholder="Add allergy"
+                                variant="danger"
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
 
-            {/* Emergency Contact - InfoCard Style */}
+            {/* Emergency Contact */}
             <div>
                 <div className="flex items-center gap-2.5 mb-4">
                     <Icon icon={Phone} className="h-5 w-5 text-foreground" />
@@ -491,247 +697,51 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
                         Emergency contact
                     </h2>
                 </div>
-                <InfoCard
-                    items={[
-                        {
-                            label: 'Name',
-                            value: user.emergency_contact_name ?? undefined,
-                        },
-                        {
-                            label: 'Relationship',
-                            value: user.emergency_contact_relation ?? undefined,
-                        },
-                        {
-                            label: 'Phone',
-                            value: user.emergency_contact_phone ?? undefined,
-                        },
-                    ]}
-                />
+                {!isEditing ? (
+                    <InfoCard
+                        items={[
+                            {
+                                label: 'Name',
+                                value: user.emergency_contact_name ?? undefined,
+                            },
+                            {
+                                label: 'Relationship',
+                                value: user.emergency_contact_relation ?? undefined,
+                            },
+                            {
+                                label: 'Phone',
+                                value: user.emergency_contact_phone ?? undefined,
+                            },
+                        ]}
+                    />
+                ) : (
+                    <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                        <div>
+                            <label className="mb-1.5 block text-label text-muted-foreground">Name</label>
+                            <Input
+                                value={formData.emergency_contact_name}
+                                onChange={e => setFormData({ ...formData, emergency_contact_name: e.target.value })}
+                                placeholder="Emergency contact name"
+                            />
+                        </div>
+                        <div>
+                            <label className="mb-1.5 block text-label text-muted-foreground">Relationship</label>
+                            <Input
+                                value={formData.emergency_contact_relation}
+                                onChange={e => setFormData({ ...formData, emergency_contact_relation: e.target.value })}
+                                placeholder="e.g., Spouse, Parent"
+                            />
+                        </div>
+                        <div>
+                            <label className="mb-1.5 block text-label text-muted-foreground">Phone</label>
+                            <PhoneInput
+                                value={formData.emergency_contact_phone}
+                                onChange={value => setFormData({ ...formData, emergency_contact_phone: value })}
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
-
-            {/* Edit Profile Sheet */}
-            <Sheet open={showEditForm} onOpenChange={setShowEditForm}>
-                <SheetContent>
-                    <SheetHeader>
-                        <SheetTitle>Edit profile</SheetTitle>
-                    </SheetHeader>
-
-                    <SheetBody>
-                        {/* Personal Details */}
-                        <div>
-                            <p className="mb-3 text-label text-muted-foreground">Personal details</p>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="mb-1.5 block text-label text-muted-foreground">
-                                        Name <span className="text-destructive">*</span>
-                                    </label>
-                                    <Input
-                                        value={formData.name}
-                                        onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                        placeholder="Full name"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="mb-1.5 block text-label text-muted-foreground">Phone</label>
-                                    <PhoneInput
-                                        value={formData.phone}
-                                        onChange={value => setFormData({ ...formData, phone: value })}
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="mb-1.5 block text-label text-muted-foreground">Date of birth</label>
-                                    <DatePicker
-                                        value={formData.date_of_birth}
-                                        onChange={(value) => setFormData({ ...formData, date_of_birth: value })}
-                                        max={new Date()}
-                                        placeholder="Select date of birth"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="mb-1.5 block text-label text-muted-foreground">Gender</label>
-                                    <Select
-                                        value={formData.gender}
-                                        onValueChange={val => setFormData({ ...formData, gender: val })}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select gender" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {genderOptions.map(g => (
-                                                <SelectItem key={g} value={g}>{capitalize(g)}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Contact & Address */}
-                        <div>
-                            <p className="mb-3 text-label text-muted-foreground">Contact & address</p>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="mb-1.5 block text-label text-muted-foreground">Address line 1</label>
-                                    <Input
-                                        value={formData.address_line_1}
-                                        onChange={e => setFormData({ ...formData, address_line_1: e.target.value })}
-                                        placeholder="Street address"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="mb-1.5 block text-label text-muted-foreground">Address line 2</label>
-                                    <Input
-                                        value={formData.address_line_2}
-                                        onChange={e => setFormData({ ...formData, address_line_2: e.target.value })}
-                                        placeholder="Landmark, area"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-3 gap-3">
-                                    <div>
-                                        <label className="mb-1.5 block text-label text-muted-foreground">State</label>
-                                        <Select value={formData.state} onValueChange={handleStateChange}>
-                                            <SelectTrigger className={!formData.state ? 'text-muted-foreground' : ''}>
-                                                <SelectValue placeholder="Select" />
-                                            </SelectTrigger>
-                                            <SelectContent className="max-h-[300px]">
-                                                {INDIAN_STATES.map((s) => (
-                                                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div>
-                                        <label className="mb-1.5 block text-label text-muted-foreground">City</label>
-                                        <Select
-                                            value={formData.city}
-                                            onValueChange={(value: string) => setFormData({ ...formData, city: value })}
-                                            disabled={!formData.state}
-                                        >
-                                            <SelectTrigger className={!formData.city && formData.state ? 'text-muted-foreground' : ''}>
-                                                <SelectValue placeholder="Select" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {availableCities.map((c) => (
-                                                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div>
-                                        <label className="mb-1.5 block text-label text-muted-foreground">Pincode</label>
-                                        <Input
-                                            value={formData.pincode}
-                                            onChange={e => setFormData({ ...formData, pincode: e.target.value })}
-                                            placeholder="Pincode"
-                                            maxLength={6}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Health Information */}
-                        <div>
-                            <p className="mb-3 text-label text-muted-foreground">Health information</p>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="mb-1.5 block text-label text-muted-foreground">Blood group</label>
-                                    <Select
-                                        value={formData.blood_group}
-                                        onValueChange={val => setFormData({ ...formData, blood_group: val })}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select blood group" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {bloodGroupOptions.map(bg => (
-                                                <SelectItem key={bg} value={bg}>{bg}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div>
-                                    <label className="mb-1.5 block text-label text-muted-foreground">Primary doctor</label>
-                                    <Select
-                                        value={formData.primary_doctor_id}
-                                        onValueChange={val => setFormData({ ...formData, primary_doctor_id: val })}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select doctor" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {doctors.map(d => (
-                                                <SelectItem key={d.id} value={d.id.toString()}>
-                                                    {d.name} - {d.specialization}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div>
-                                    <label className="mb-1.5 block text-label text-muted-foreground">Medical conditions</label>
-                                    <TagInput
-                                        value={formData.medical_conditions}
-                                        onChange={tags => setFormData({ ...formData, medical_conditions: tags })}
-                                        placeholder="Add condition"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="mb-1.5 block text-label text-muted-foreground">Allergies</label>
-                                    <TagInput
-                                        value={formData.allergies}
-                                        onChange={tags => setFormData({ ...formData, allergies: tags })}
-                                        placeholder="Add allergy"
-                                        variant="danger"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Emergency Contact */}
-                        <div>
-                            <p className="mb-3 text-label text-muted-foreground">Emergency contact</p>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="mb-1.5 block text-label text-muted-foreground">Name</label>
-                                    <Input
-                                        value={formData.emergency_contact_name}
-                                        onChange={e => setFormData({ ...formData, emergency_contact_name: e.target.value })}
-                                        placeholder="Emergency contact name"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="mb-1.5 block text-label text-muted-foreground">Relationship</label>
-                                    <Input
-                                        value={formData.emergency_contact_relation}
-                                        onChange={e => setFormData({ ...formData, emergency_contact_relation: e.target.value })}
-                                        placeholder="e.g., Spouse, Parent"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="mb-1.5 block text-label text-muted-foreground">Phone</label>
-                                    <PhoneInput
-                                        value={formData.emergency_contact_phone}
-                                        onChange={value => setFormData({ ...formData, emergency_contact_phone: value })}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </SheetBody>
-
-                    <SheetFooter>
-                        <Button size="lg" className="flex-1" onClick={handleSave} disabled={saving}>
-                            {saving ? 'Saving...' : 'Save changes'}
-                        </Button>
-                    </SheetFooter>
-                </SheetContent>
-            </Sheet>
         </div>
     );
 }

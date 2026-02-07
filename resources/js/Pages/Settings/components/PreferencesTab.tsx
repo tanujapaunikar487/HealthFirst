@@ -414,7 +414,7 @@ export function PreferencesTab({
                                 </ul>
                             </div>
 
-                            <div className="space-y-2">
+                            <div className="space-y-3">
                                 <Label htmlFor="delete-password">Enter your password to confirm</Label>
                                 <Input
                                     id="delete-password"

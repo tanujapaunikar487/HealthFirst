@@ -298,7 +298,7 @@ export default function Show({ user, appointment }: Props) {
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="secondary" iconOnly size="md">
+                    <Button variant="secondary" iconOnly size="lg">
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -320,7 +320,7 @@ export default function Show({ user, appointment }: Props) {
                 )}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="secondary" iconOnly size="md">
+                    <Button variant="secondary" iconOnly size="lg">
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>

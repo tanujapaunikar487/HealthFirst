@@ -301,29 +301,14 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
         /* Tabs */
         <Tabs defaultValue="upcoming" className="space-y-4">
           <TabsList>
-            <TabsTrigger value="upcoming" className="gap-1.5">
+            <TabsTrigger value="upcoming">
               Upcoming
-              {categorized.upcoming.length > 0 && (
-                <Badge variant="neutral" className="ml-1">
-                  {categorized.upcoming.length}
-                </Badge>
-              )}
             </TabsTrigger>
-            <TabsTrigger value="past" className="gap-1.5">
+            <TabsTrigger value="past">
               Past
-              {categorized.past.length > 0 && (
-                <Badge variant="neutral" className="ml-1">
-                  {categorized.past.length}
-                </Badge>
-              )}
             </TabsTrigger>
-            <TabsTrigger value="cancelled" className="gap-1.5">
+            <TabsTrigger value="cancelled">
               Cancelled
-              {categorized.cancelled.length > 0 && (
-                <Badge variant="neutral" className="ml-1">
-                  {categorized.cancelled.length}
-                </Badge>
-              )}
             </TabsTrigger>
           </TabsList>
 

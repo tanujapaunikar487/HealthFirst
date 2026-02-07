@@ -25,7 +25,7 @@ const alertVariants = cva(
         error: 'bg-destructive-subtle border-destructive-border',
       },
       mode: {
-        standalone: 'rounded-lg',
+        standalone: 'rounded-2xl',
         sticky: 'rounded-none border-x-0 border-t-0',
       },
     },
