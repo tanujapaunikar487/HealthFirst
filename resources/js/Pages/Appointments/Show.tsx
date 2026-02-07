@@ -608,21 +608,8 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
             </>
           </DetailRow>
         )}
-        <DetailRow label="Date">{appointment.date_formatted}</DetailRow>
-        <DetailRow label="Time">{`${appointment.time} · ${appointment.duration}`}</DetailRow>
+        <DetailRow label="Date & time">{`${appointment.date_formatted} · ${appointment.time} · ${appointment.duration}`}</DetailRow>
         <DetailRow label="Mode">{appointment.mode}</DetailRow>
-        <DetailRow label="Status">
-          <div className="flex items-center gap-2">
-            {appointment.notes && (
-              <span className="text-body text-muted-foreground">{appointment.notes}</span>
-            )}
-            <Badge
-              variant={appointment.status === 'completed' ? 'success' : appointment.status === 'confirmed' ? 'info' : appointment.status === 'cancelled' ? 'danger' : 'neutral'}
-            >
-              {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
-            </Badge>
-          </div>
-        </DetailRow>
       </div>
     </Section>
   );
@@ -664,18 +651,14 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
   const diagnosis = summary.diagnosis;
 
   return (
-    <Section id="clinical" title="Clinical Summary" icon={FileText}>
-      <div className="p-6 space-y-4">
-        {/* Diagnosis */}
+    <Section id="clinical" title="Clinical Summary" icon={FileText} noPadding>
+      <div className="divide-y">
         {diagnosis && (
-          <div className="rounded-lg bg-muted/50 p-4">
-            <div className="flex items-center gap-3 flex-wrap">
-              <div>
-                <p className="text-body text-muted-foreground mb-1">Primary Diagnosis</p>
-                <p className="text-card-title">{diagnosis.name || 'Not specified'}</p>
-              </div>
+          <DetailRow label="Diagnosis">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span>{diagnosis.name || 'Not specified'}</span>
               {diagnosis.icd_code && (
-                <Badge variant="neutral" className="font-mono ml-auto">
+                <Badge variant="neutral" className="font-mono">
                   ICD: {diagnosis.icd_code}
                 </Badge>
               )}
@@ -692,35 +675,26 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
                 </Badge>
               )}
             </div>
-          </div>
+          </DetailRow>
         )}
-
-        {/* Allergies */}
         {(summary.allergies?.length ?? 0) > 0 && (
-          <Alert variant="error" title="Known Allergies">
+          <DetailRow label="Allergies">
             <div className="flex gap-2 flex-wrap">
               {summary.allergies.map((a) => (
-                <Badge key={a} variant="danger">
-                  {a}
-                </Badge>
+                <Badge key={a} variant="danger">{a}</Badge>
               ))}
             </div>
-          </Alert>
+          </DetailRow>
         )}
-
-        {/* Clinical details */}
-        <div className="divide-y -mx-6">
-          {summary.chief_complaint && <DetailRow label="Chief complaint">{summary.chief_complaint}</DetailRow>}
-          {summary.history_of_present_illness && <DetailRow label="Present illness">{summary.history_of_present_illness}</DetailRow>}
-          {summary.past_medical_history && <DetailRow label="Past medical history">{summary.past_medical_history}</DetailRow>}
-          {summary.family_history && <DetailRow label="Family history">{summary.family_history}</DetailRow>}
-          {summary.social_history && <DetailRow label="Social history">{summary.social_history}</DetailRow>}
-          {summary.examination_findings && <DetailRow label="Exam findings">{summary.examination_findings}</DetailRow>}
-          {summary.assessment && <DetailRow label="Assessment">{summary.assessment}</DetailRow>}
-          {summary.treatment_plan && <DetailRow label="Treatment plan">{summary.treatment_plan}</DetailRow>}
-        </div>
-
-        {/* Symptoms worsen alert */}
+        {summary.history_of_present_illness && <DetailRow label="Present illness">{summary.history_of_present_illness}</DetailRow>}
+        {summary.past_medical_history && <DetailRow label="Past medical history">{summary.past_medical_history}</DetailRow>}
+        {summary.family_history && <DetailRow label="Family history">{summary.family_history}</DetailRow>}
+        {summary.social_history && <DetailRow label="Social history">{summary.social_history}</DetailRow>}
+        {summary.examination_findings && <DetailRow label="Exam findings">{summary.examination_findings}</DetailRow>}
+        {summary.assessment && <DetailRow label="Assessment">{summary.assessment}</DetailRow>}
+        {summary.treatment_plan && <DetailRow label="Treatment plan">{summary.treatment_plan}</DetailRow>}
+      </div>
+      <div className="p-6 pt-4">
         <Alert variant="warning" title="If Symptoms Worsen">
           Contact your doctor immediately or visit the nearest emergency room. For urgent assistance, call the hospital helpline at <span className="font-medium text-foreground">1800-123-4567</span>.
         </Alert>
@@ -802,46 +776,53 @@ function LabTestsSection({ tests }: { tests: LabTest[] }) {
     );
   }
 
+  const hasPending = tests.some((t) => t.status === 'pending');
+
   return (
     <Section
       id="lab-tests"
       title="Lab Tests"
       icon={FlaskConical}
+      noPadding
       action={
-        tests.some((t) => t.status === 'pending') ? (
+        hasPending ? (
           <Link href="/booking/lab/patient">
-            <Button variant="secondary" size="md" className="text-body">
-              Book pending tests
-            </Button>
+            <Button variant="secondary" size="md" className="text-body">Book pending tests</Button>
           </Link>
         ) : undefined
       }
     >
       <div className="divide-y">
         {tests.map((t, i) => {
-          const canLink = t.status === 'completed' && t.health_record_id;
-
-          const row = (
-            <div
-              key={i}
-              className={cn(
-                'flex items-center justify-between px-6 py-4',
-                canLink && 'cursor-pointer hover:bg-muted/50 transition-colors',
-              )}
-            >
-              <div>
+          if (t.status === 'completed') {
+            const href = t.health_record_id ? `/health-records/${t.health_record_id}` : undefined;
+            const content = (
+              <div className="flex items-center justify-between px-6 py-4">
                 <p className="text-label">{t.name}</p>
+                <div className="flex items-center gap-2">
+                  <Badge variant={t.is_normal === false ? 'danger' : 'success'}>
+                    {t.is_normal === false ? 'Abnormal' : 'Normal'}
+                  </Badge>
+                  {href && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+                </div>
               </div>
-              <Badge variant={t.status === 'completed' ? 'neutral' : 'warning'}>
-                {t.status === 'completed' ? 'Completed' : 'Pending Test'}
-              </Badge>
+            );
+
+            return href ? (
+              <Link key={i} href={href} className="block hover:bg-muted/50 transition-colors">
+                {content}
+              </Link>
+            ) : (
+              <div key={i}>{content}</div>
+            );
+          }
+
+          return (
+            <div key={i} className="flex items-center justify-between px-6 py-4">
+              <p className="text-label text-muted-foreground">{t.name}</p>
+              <Badge variant="warning">Pending</Badge>
             </div>
           );
-
-          if (canLink) {
-            return <Link key={i} href={`/health-records/${t.health_record_id}`}>{row}</Link>;
-          }
-          return row;
         })}
       </div>
     </Section>
@@ -874,15 +855,17 @@ function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadIn
       {/* Fee breakdown card */}
       <Card className="divide-y">
         {billing.line_items.map((item, i) => (
-          <DetailRow key={i} label={item.label}>
-            <span className={item.amount < 0 ? 'text-success' : ''}>
+          <div key={i} className="flex items-center justify-between px-6 py-4">
+            <span className="text-body text-muted-foreground">{item.label}</span>
+            <span className={`text-label ${item.amount < 0 ? 'text-success' : 'text-foreground'}`}>
               {item.amount < 0 ? '-' : ''}₹{Math.abs(item.amount).toLocaleString()}
             </span>
-          </DetailRow>
+          </div>
         ))}
-        <DetailRow label={<span className="text-card-title">Total</span>}>
-          <span className="text-body font-bold text-right">₹{billing.total.toLocaleString()}</span>
-        </DetailRow>
+        <div className="flex items-center justify-between px-6 py-4">
+          <span className="text-card-title text-foreground">Total</span>
+          <span className="text-card-title text-foreground">₹{billing.total.toLocaleString()}</span>
+        </div>
       </Card>
 
       {/* Payment details card */}
@@ -890,17 +873,27 @@ function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadIn
         <div className="px-6 py-3 bg-muted">
           <span className="text-label text-muted-foreground">Payment details</span>
         </div>
-        <DetailRow label="Status">
+        <div className="flex items-center justify-between px-6 py-4">
+          <span className="text-body text-muted-foreground">Status</span>
           <Badge variant={billing.payment_status === 'paid' ? 'success' : billing.payment_status === 'pending' ? 'warning' : 'danger'}>
             {billing.payment_status.replace('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
           </Badge>
-        </DetailRow>
-        <DetailRow label="Method">{billing.payment_method}</DetailRow>
-        <DetailRow label="Invoice"><span className="font-mono">{billing.invoice_number}</span></DetailRow>
-        <DetailRow label="Paid on">{billing.payment_date}</DetailRow>
+        </div>
+        <div className="flex items-center justify-between px-6 py-4">
+          <span className="text-body text-muted-foreground">Method</span>
+          <span className="text-label text-foreground">{billing.payment_method}</span>
+        </div>
+        <div className="flex items-center justify-between px-6 py-4">
+          <span className="text-body text-muted-foreground">Invoice</span>
+          <span className="text-label text-foreground font-mono">{billing.invoice_number}</span>
+        </div>
+        <div className="flex items-center justify-between px-6 py-4">
+          <span className="text-body text-muted-foreground">Paid on</span>
+          <span className="text-label text-foreground">{billing.payment_date}</span>
+        </div>
         <div className="px-6 py-3 flex items-center gap-4">
           <Link href={`/billing/${appointmentId}`} className="text-label text-primary hover:underline flex items-center gap-1">
-            View Full Bill
+            View Invoice
             <ChevronRight className="h-3.5 w-3.5" />
           </Link>
           {insuranceClaimId && (

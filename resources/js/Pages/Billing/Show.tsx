@@ -829,19 +829,32 @@ export default function Show({ user, bill }: Props) {
                     </tbody>
                   </table>
                 </div>
-                <DetailRow label="Subtotal">{`₹${bill.subtotal.toLocaleString()}`}</DetailRow>
+                <div className="flex items-center justify-between px-6 py-4">
+                  <span className="text-body text-muted-foreground">Subtotal</span>
+                  <span className="text-label text-foreground">₹{bill.subtotal.toLocaleString()}</span>
+                </div>
                 {bill.discount > 0 && (
-                  <DetailRow label="Discount"><span className="text-success">-₹{bill.discount.toLocaleString()}</span></DetailRow>
+                  <div className="flex items-center justify-between px-6 py-4">
+                    <span className="text-body text-muted-foreground">Discount</span>
+                    <span className="text-label text-success">-₹{bill.discount.toLocaleString()}</span>
+                  </div>
                 )}
                 {bill.tax > 0 && (
-                  <DetailRow label="Tax">{`₹${bill.tax.toLocaleString()}`}</DetailRow>
+                  <div className="flex items-center justify-between px-6 py-4">
+                    <span className="text-body text-muted-foreground">Tax</span>
+                    <span className="text-label text-foreground">₹{bill.tax.toLocaleString()}</span>
+                  </div>
                 )}
                 {bill.insurance_deduction > 0 && (
-                  <DetailRow label="Insurance coverage"><span className="text-success">-₹{bill.insurance_deduction.toLocaleString()}</span></DetailRow>
+                  <div className="flex items-center justify-between px-6 py-4">
+                    <span className="text-body text-muted-foreground">Insurance coverage</span>
+                    <span className="text-label text-success">-₹{bill.insurance_deduction.toLocaleString()}</span>
+                  </div>
                 )}
-                <DetailRow label={<span className="text-card-title">{isPayable ? 'Amount due' : 'Amount paid'}</span>}>
-                  <span className="text-subheading text-right text-foreground">₹{bill.total.toLocaleString()}</span>
-                </DetailRow>
+                <div className="flex items-center justify-between px-6 py-4">
+                  <span className="text-card-title text-foreground">{isPayable ? 'Amount due' : 'Amount paid'}</span>
+                  <span className="text-subheading text-foreground">₹{bill.total.toLocaleString()}</span>
+                </div>
               </div>
             </DetailSection>
 
