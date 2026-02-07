@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Alert } from '@/Components/ui/alert';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
@@ -127,9 +128,7 @@ export function EmbeddedPackageList({
             <TestTube className="h-4 w-4" />
             Pick Tests
             {hasTests && (
-              <span className="text-body bg-muted px-1.5 py-0.5 rounded-full">
-                {individualTests.length}
-              </span>
+              <Badge variant="neutral">{individualTests.length}</Badge>
             )}
           </button>
           <button
@@ -144,9 +143,7 @@ export function EmbeddedPackageList({
             <FlaskConical className="h-4 w-4" />
             Health Packages
             {hasPackages && (
-              <span className="text-body bg-muted px-1.5 py-0.5 rounded-full">
-                {packages.length}
-              </span>
+              <Badge variant="neutral">{packages.length}</Badge>
             )}
           </button>
         </div>
@@ -224,9 +221,9 @@ export function EmbeddedPackageList({
                                 </span>
                               )}
                               {test.requires_fasting && test.fasting_hours && (
-                                <span className="text-body text-orange-700 bg-orange-50 px-2 py-0.5 rounded-full">
+                                <Badge variant="warning">
                                   {test.fasting_hours}h fasting
-                                </span>
+                                </Badge>
                               )}
                               {test.category && (
                                 <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
@@ -267,11 +264,10 @@ export function EmbeddedPackageList({
                         'px-4 pb-4 pt-0 ml-12 border-t-0',
                         isChecked && 'bg-primary/5',
                       )}>
-                        <div className="bg-orange-50 rounded-lg p-3 text-body space-y-1">
-                          <p className="font-medium text-orange-900">Preparation Required</p>
-                          <p className="text-orange-800">Fasting for {test.fasting_hours} hours before the test.</p>
-                          <p className="text-orange-800">Water is allowed during fasting period.</p>
-                        </div>
+                        <Alert variant="warning" hideIcon title="Preparation Required">
+                          <p>Fasting for {test.fasting_hours} hours before the test.</p>
+                          <p>Water is allowed during fasting period.</p>
+                        </Alert>
                       </div>
                     )}
                   </div>
@@ -378,9 +374,9 @@ export function EmbeddedPackageList({
                               {pkg.tests_count} tests
                             </span>
                             {pkg.requires_fasting && pkg.fasting_hours && (
-                              <span className="text-body text-orange-700 bg-orange-50 px-2 py-0.5 rounded-full">
+                              <Badge variant="warning">
                                 {pkg.fasting_hours}h fasting
-                              </span>
+                              </Badge>
                             )}
                             <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
                               {pkg.age_range} age
@@ -455,11 +451,11 @@ export function EmbeddedPackageList({
                               Preparation
                             </span>
                           </div>
-                          <div className="bg-orange-50 rounded-lg p-3 text-body space-y-1">
+                          <Alert variant="warning" hideIcon>
                             {pkg.preparation_notes.split('.').filter(Boolean).map((note, i) => (
-                              <p key={i} className="text-orange-800">{note.trim()}.</p>
+                              <p key={i}>{note.trim()}.</p>
                             ))}
-                          </div>
+                          </Alert>
                         </div>
                       )}
                     </div>

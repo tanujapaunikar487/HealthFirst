@@ -7,24 +7,26 @@ import { Icon } from '@/Components/ui/icon';
 /**
  * Alert Component
  *
- * Two modes: sticky (below headers, 8px radius) and standalone (in content, 24px radius).
+ * Two modes: sticky (below headers, no radius) and standalone (in content, rounded).
  * Filled circle icons with white symbols inside.
  * Stateless, presentation-only.
+ *
+ * Styling follows shadcn/ui v4 base with semantic color tokens.
  */
 
 const alertVariants = cva(
-  'flex items-start gap-3 border-b p-4 pb-5',
+  'relative w-full flex items-start gap-3 border px-4 py-3',
   {
     variants: {
       variant: {
-        info: 'bg-info-subtle border-b-info-border',
-        success: 'bg-success-subtle border-b-success-border',
-        warning: 'bg-warning-subtle border-b-warning-border',
-        error: 'bg-destructive-subtle border-b-destructive-border',
+        info: 'bg-info-subtle border-info-border',
+        success: 'bg-success-subtle border-success-border',
+        warning: 'bg-warning-subtle border-warning-border',
+        error: 'bg-destructive-subtle border-destructive-border',
       },
       mode: {
-        standalone: 'rounded-3xl border-b-2',
-        sticky: 'rounded-none',
+        standalone: 'rounded-lg',
+        sticky: 'rounded-none border-x-0 border-t-0',
       },
     },
     defaultVariants: {
@@ -63,7 +65,12 @@ function Alert({
   const config = alertIconConfig[variant || 'info'];
 
   return (
-    <div className={cn(alertVariants({ variant, mode }), className)} {...props}>
+    <div
+      data-slot="alert"
+      role="alert"
+      className={cn(alertVariants({ variant, mode }), className)}
+      {...props}
+    >
       {!hideIcon && (
         <div
           className={cn(
@@ -80,11 +87,11 @@ function Alert({
       )}
       <div className="flex-1 space-y-1">
         {title && (
-          <p className="text-card-title text-foreground">
+          <p data-slot="alert-title" className="text-card-title text-foreground">
             {title}
           </p>
         )}
-        <div className="text-body text-muted-foreground">
+        <div data-slot="alert-description" className="text-body text-muted-foreground">
           {children}
         </div>
       </div>
@@ -100,4 +107,24 @@ function Alert({
   );
 }
 
-export { Alert, alertVariants };
+function AlertTitle({ className, ...props }: React.ComponentProps<'div'>) {
+  return (
+    <div
+      data-slot="alert-title"
+      className={cn('text-card-title text-foreground', className)}
+      {...props}
+    />
+  );
+}
+
+function AlertDescription({ className, ...props }: React.ComponentProps<'div'>) {
+  return (
+    <div
+      data-slot="alert-description"
+      className={cn('text-body text-muted-foreground', className)}
+      {...props}
+    />
+  );
+}
+
+export { Alert, AlertTitle, AlertDescription, alertVariants };

@@ -13,7 +13,6 @@ import { Card } from '@/Components/ui/card';
 import { DetectionCard } from './DetectionCard';
 import { TypeSelectorCard, MemberType } from './TypeSelectorCard';
 import { Collapsible, CollapsibleContent } from '@/Components/ui/collapsible';
-import { Alert } from '@/Components/ui/alert';
 import { cn } from '@/Lib/utils';
 
 type LinkSubStep = 'search' | 'contact_selection' | 'otp' | 'success';

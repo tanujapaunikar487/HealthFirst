@@ -2,6 +2,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { useState, useEffect, useRef } from 'react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Button, buttonVariants } from '@/Components/ui/button';
+import { Badge, type BadgeVariant } from '@/Components/ui/badge';
 import { Card, CardContent } from '@/Components/ui/card';
 import { VStack, HStack } from '@/Components/ui/stack';
 import {
@@ -308,8 +309,7 @@ interface DashboardCardProps {
   patientName: string;
   patientInitials: string;
   badge?: string;
-  badgeColor?: string;
-  badgeBg?: string;
+  badgeVariant?: BadgeVariant;
   actionLabel: string;
   actionVariant?: 'accent' | 'outline' | 'secondary';
   onAction: () => void;
@@ -334,7 +334,7 @@ const cardConfig: Record<CardType, { icon: typeof Receipt; iconBgClass: string; 
 };
 
 function DashboardCard({
-  type, title, subtitle, patientName, patientInitials, badge, badgeColor, badgeBg,
+  type, title, subtitle, patientName, patientInitials, badge, badgeVariant,
   actionLabel, actionVariant = 'secondary', onAction, menuItems, isLast, iconOverride,
 }: DashboardCardProps) {
   const config = cardConfig[type];
@@ -363,12 +363,9 @@ function DashboardCard({
           </div>
           <span className="text-label text-muted-foreground">{patientName}</span>
           {badge && (
-            <span
-              className="text-overline px-2 py-0.5 rounded-full"
-              style={{ backgroundColor: badgeBg || 'hsl(var(--destructive) / 0.1)', color: badgeColor || 'hsl(var(--destructive))' }}
-            >
+            <Badge variant={badgeVariant || 'danger'} size="sm">
               {badge}
-            </span>
+            </Badge>
           )}
         </div>
         {/* Title */}
@@ -737,8 +734,7 @@ export default function Dashboard({
             patientName={bill.patient_name}
             patientInitials={bill.patient_initials}
             badge={`${bill.days_overdue}d overdue`}
-            badgeColor="hsl(var(--destructive))"
-            badgeBg="hsl(var(--destructive) / 0.1)"
+            badgeVariant="danger"
             actionLabel={payingBillId === bill.id ? 'Paying...' : 'Pay'}
             onAction={() => handleBillPayment(bill)}
             menuItems={[
@@ -761,8 +757,7 @@ export default function Dashboard({
             patientName={payment.patient_name}
             patientInitials={payment.patient_initials}
             badge={`Due in ${payment.days_until_due}d`}
-            badgeColor="hsl(var(--primary))"
-            badgeBg="hsl(var(--primary) / 0.1)"
+            badgeVariant="info"
             actionLabel={payingBillId === payment.id ? 'Paying...' : 'Pay'}
             onAction={() => handleBillPayment(payment)}
             menuItems={[
@@ -784,8 +779,7 @@ export default function Dashboard({
             patientName={emi.patient_name}
             patientInitials={emi.patient_initials}
             badge={`EMI ${emi.current_installment}/${emi.total_installments}`}
-            badgeColor="hsl(var(--primary))"
-            badgeBg="hsl(var(--primary) / 0.1)"
+            badgeVariant="info"
             actionLabel={payingBillId === emi.id ? 'Paying...' : 'Pay EMI'}
             onAction={() => handleBillPayment(emi)}
             menuItems={[
@@ -811,15 +805,9 @@ export default function Dashboard({
               claim.claim_status === 'action_required' ? 'Action Required' :
               'Pending'
             }
-            badgeColor={
-              claim.claim_status === 'rejected' ? 'hsl(var(--destructive))' :
-              claim.claim_status === 'action_required' ? 'hsl(var(--destructive))' :
-              'hsl(var(--warning))'
-            }
-            badgeBg={
-              claim.claim_status === 'rejected' ? 'hsl(var(--destructive) / 0.1)' :
-              claim.claim_status === 'action_required' ? 'hsl(var(--destructive) / 0.1)' :
-              'hsl(var(--warning) / 0.1)'
+            badgeVariant={
+              claim.claim_status === 'rejected' || claim.claim_status === 'action_required'
+                ? 'danger' : 'warning'
             }
             actionLabel="View claim"
             onAction={() => router.visit(`/insurance/claims/${claim.claim_id}`)}
@@ -842,8 +830,7 @@ export default function Dashboard({
             patientName={alert.patient_name}
             patientInitials={alert.patient_initials}
             badge="Needs attention"
-            badgeColor="hsl(var(--warning))"
-            badgeBg="hsl(var(--warning) / 0.1)"
+            badgeVariant="warning"
             actionLabel="Book"
             onAction={() => router.visit('/booking')}
             menuItems={[
@@ -866,8 +853,7 @@ export default function Dashboard({
             patientName={rx.patient_name}
             patientInitials={rx.patient_initials}
             badge={minDays <= 1 ? 'Expires today' : `${minDays} days left`}
-            badgeColor={minDays <= 1 ? 'hsl(var(--destructive))' : 'hsl(var(--warning))'}
-            badgeBg={minDays <= 1 ? 'hsl(var(--destructive) / 0.1)' : 'hsl(var(--warning) / 0.1)'}
+            badgeVariant={minDays <= 1 ? 'danger' : 'warning'}
             actionLabel="Book appointment"
             onAction={() => router.visit('/booking')}
             menuItems={[
@@ -888,8 +874,7 @@ export default function Dashboard({
             patientName={followup.patient_name}
             patientInitials={followup.patient_initials}
             badge={followup.days_overdue >= 0 ? 'Overdue' : 'Due soon'}
-            badgeColor={followup.days_overdue >= 0 ? 'hsl(var(--destructive))' : 'hsl(var(--warning))'}
-            badgeBg={followup.days_overdue >= 0 ? 'hsl(var(--destructive) / 0.1)' : 'hsl(var(--warning) / 0.1)'}
+            badgeVariant={followup.days_overdue >= 0 ? 'danger' : 'warning'}
             actionLabel="Book follow-up"
             onAction={() => router.visit('/booking')}
             menuItems={[
@@ -911,8 +896,7 @@ export default function Dashboard({
             patientName={result.patient_name}
             patientInitials={result.patient_initials}
             badge="New"
-            badgeColor="hsl(var(--success))"
-            badgeBg="hsl(var(--success) / 0.1)"
+            badgeVariant="success"
             actionLabel="View results"
             onAction={() => router.visit(`/health-records?record=${result.record_id}`)}
             menuItems={[
@@ -935,8 +919,7 @@ export default function Dashboard({
             patientName={appt.patient_name}
             patientInitials={appt.patient_initials}
             badge={appt.mode === 'video' ? 'Video' : appt.type === 'lab_test' ? 'Lab Test' : undefined}
-            badgeColor={appt.mode === 'video' ? 'hsl(var(--primary))' : appt.type === 'lab_test' ? 'hsl(var(--warning))' : undefined}
-            badgeBg={appt.mode === 'video' ? 'hsl(var(--primary) / 0.1)' : appt.type === 'lab_test' ? 'hsl(var(--warning) / 0.1)' : undefined}
+            badgeVariant={appt.mode === 'video' ? 'info' : appt.type === 'lab_test' ? 'warning' : undefined}
             actionLabel="View"
             onAction={() => setSheetView({ type: 'details', appointment: appt })}
             menuItems={[
@@ -969,8 +952,7 @@ export default function Dashboard({
             patientName={reminder.patient_name}
             patientInitials={reminder.patient_initials}
             badge={reminder.hours_until < 24 ? 'Tomorrow' : `In ${reminder.hours_until}h`}
-            badgeColor="hsl(var(--primary))"
-            badgeBg="hsl(var(--primary) / 0.1)"
+            badgeVariant="info"
             actionLabel="View details"
             actionVariant="secondary"
             onAction={() => router.visit(`/appointments/${reminder.appointment_id}`)}
@@ -995,8 +977,7 @@ export default function Dashboard({
             patientName={appt.patient_name}
             patientInitials={appt.patient_initials}
             badge={appt.type === 'lab_test' ? 'Lab Test' : appt.mode === 'video' ? 'Video' : undefined}
-            badgeColor={appt.type === 'lab_test' ? 'hsl(var(--warning))' : appt.mode === 'video' ? 'hsl(var(--primary))' : undefined}
-            badgeBg={appt.type === 'lab_test' ? 'hsl(var(--warning) / 0.1)' : appt.mode === 'video' ? 'hsl(var(--primary) / 0.1)' : undefined}
+            badgeVariant={appt.type === 'lab_test' ? 'warning' : appt.mode === 'video' ? 'info' : undefined}
             actionLabel="Reschedule"
             actionVariant="secondary"
             onAction={() => setSheetView({ type: 'reschedule', appointment: appt })}
@@ -1020,8 +1001,7 @@ export default function Dashboard({
             patientName={followup.patient_name}
             patientInitials={followup.patient_initials}
             badge="Due soon"
-            badgeColor="hsl(var(--warning))"
-            badgeBg="hsl(var(--warning) / 0.1)"
+            badgeVariant="warning"
             actionLabel="Book follow-up"
             actionVariant="secondary"
             onAction={() => router.visit('/booking')}
@@ -1047,8 +1027,7 @@ export default function Dashboard({
             patientName={vaccination.patient_name}
             patientInitials={vaccination.patient_initials}
             badge={isPast ? 'Overdue' : `Due ${daysUntil}d`}
-            badgeColor={isPast ? 'hsl(var(--destructive))' : 'hsl(var(--warning))'}
-            badgeBg={isPast ? 'hsl(var(--destructive) / 0.1)' : 'hsl(var(--warning) / 0.1)'}
+            badgeVariant={isPast ? 'danger' : 'warning'}
             actionLabel="Schedule"
             actionVariant="secondary"
             onAction={() => router.visit('/booking')}
@@ -1072,8 +1051,7 @@ export default function Dashboard({
             patientName={care.patient_name}
             patientInitials={care.patient_initials}
             badge={care.months_since !== null && care.months_since > 12 ? 'Overdue' : 'Due soon'}
-            badgeColor={care.months_since !== null && care.months_since > 12 ? 'hsl(var(--destructive))' : 'hsl(var(--warning))'}
-            badgeBg={care.months_since !== null && care.months_since > 12 ? 'hsl(var(--destructive) / 0.1)' : 'hsl(var(--warning) / 0.1)'}
+            badgeVariant={care.months_since !== null && care.months_since > 12 ? 'danger' : 'warning'}
             actionLabel="Book now"
             actionVariant="secondary"
             onAction={() => router.visit('/booking')}
@@ -1223,9 +1201,9 @@ export default function Dashboard({
                 <h2 className="text-section-title text-foreground">
                   Complete your profile
                 </h2>
-                <span className="text-label px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                <Badge variant="neutral">
                   {profileSteps.filter(s => s.completed).length} of {profileSteps.length} done
-                </span>
+                </Badge>
               </div>
               <Card className="overflow-hidden w-full">
                 <CardContent className="p-0">

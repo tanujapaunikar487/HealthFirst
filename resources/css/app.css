@@ -148,19 +148,19 @@
 
     --success-subtle: 138 76% 97%;
     --success-subtle-foreground: 142 71% 29%;
-    --success-border: 141 79% 85%;
+    --success-border: 141 60% 72%;
 
     --destructive-subtle: 0 86% 97%;
     --destructive-subtle-foreground: 0 74% 42%;
-    --destructive-border: 0 96% 89%;
+    --destructive-border: 0 70% 80%;
 
     --warning-subtle: 48 100% 96%;
     --warning-subtle-foreground: 32 95% 44%;
-    --warning-border: 48 97% 77%;
+    --warning-border: 48 80% 68%;
 
     --info-subtle: 214 100% 97%;
     --info-subtle-foreground: 224 76% 48%;
-    --info-border: 213 93% 87%;
+    --info-border: 213 68% 76%;
 
     --icon: 226 71% 40%;
     --icon-bg: 213 97% 87%;
@@ -208,19 +208,19 @@
 
     --success-subtle: 142 50% 10%;
     --success-subtle-foreground: 142 76% 60%;
-    --success-border: 142 50% 20%;
+    --success-border: 142 55% 28%;
 
     --destructive-subtle: 0 50% 12%;
     --destructive-subtle-foreground: 0 84% 70%;
-    --destructive-border: 0 50% 25%;
+    --destructive-border: 0 55% 32%;
 
     --warning-subtle: 38 50% 12%;
     --warning-subtle-foreground: 38 92% 65%;
-    --warning-border: 38 50% 25%;
+    --warning-border: 38 55% 32%;
 
     --info-subtle: 221 50% 12%;
     --info-subtle-foreground: 221 83% 70%;
-    --info-border: 221 50% 25%;
+    --info-border: 221 55% 32%;
 
     --icon: 213 94% 68%;
     --icon-bg: 224 55% 18%;
@@ -288,7 +288,7 @@
     --icon: 224 100% 30%;
     --icon-bg: 213 100% 90%;
 
-    --border: 0 0% 0%;
+    --border: 0 0% 83.1%;
     --input: 0 0% 70%;
     --ring: 221 100% 40%;
 }
@@ -296,14 +296,16 @@
 /* ──────────────────────────────────────
    Base styles (replaces @apply)
    ────────────────────────────────────── */
-* {
-    border-color: hsl(var(--border));
-}
+@layer base {
+    * {
+        border-color: hsl(var(--border));
+    }
 
-body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-feature-settings: "rlig" 1, "calt" 1;
+    body {
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+        font-feature-settings: "rlig" 1, "calt" 1;
+    }
 }
 
 /* ──────────────────────────────────────

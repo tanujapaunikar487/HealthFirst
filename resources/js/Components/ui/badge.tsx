@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/Lib/utils';
 import { Icon } from '@/Components/ui/icon';
 
@@ -7,32 +8,44 @@ import { Icon } from '@/Components/ui/icon';
  *
  * Status indicators and labels with 5 semantic variants and 2 sizes.
  * Optional leading icon. Stateless, presentation-only.
+ *
+ * Styling follows shadcn/ui v4 base with semantic color tokens.
  */
+
+const badgeVariants = cva(
+  'inline-flex items-center justify-center rounded-full border px-2 py-0.5 w-fit whitespace-nowrap shrink-0 gap-1 overflow-hidden transition-[color,box-shadow] [&>svg]:size-3 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 aria-invalid:border-destructive',
+  {
+    variants: {
+      variant: {
+        success: 'border-success-border bg-success-subtle text-success-subtle-foreground',
+        danger: 'border-destructive-border bg-destructive-subtle text-destructive-subtle-foreground',
+        warning: 'border-warning-border bg-warning-subtle text-warning-subtle-foreground',
+        info: 'border-info-border bg-info-subtle text-info-subtle-foreground',
+        neutral: 'border-border bg-muted text-muted-foreground',
+      },
+      size: {
+        sm: 'text-caption',
+        lg: 'text-label',
+      },
+    },
+    defaultVariants: {
+      variant: 'neutral',
+      size: 'sm',
+    },
+  }
+);
 
 export type BadgeVariant = 'success' | 'danger' | 'warning' | 'info' | 'neutral';
 export type BadgeSize = 'sm' | 'lg';
 
-const variantClasses: Record<BadgeVariant, string> = {
-  success: 'border-success-border bg-success-subtle text-success-subtle-foreground',
-  danger: 'border-destructive-border bg-destructive-subtle text-destructive-subtle-foreground',
-  warning: 'border-warning-border bg-warning-subtle text-warning-subtle-foreground',
-  info: 'border-info-border bg-info-subtle text-info-subtle-foreground',
-  neutral: 'border-border bg-muted text-muted-foreground',
-};
-
-const sizeClasses: Record<BadgeSize, string> = {
-  sm: 'text-caption',
-  lg: 'text-label',
-};
-
-const iconSizeClasses: Record<BadgeSize, string> = {
+const iconSizeClasses: Record<string, string> = {
   sm: 'h-3.5 w-3.5',
   lg: 'h-4 w-4',
 };
 
-export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: BadgeVariant;
-  size?: BadgeSize;
+export interface BadgeProps
+  extends React.HTMLAttributes<HTMLSpanElement>,
+    VariantProps<typeof badgeVariants> {
   icon?: any;
 }
 
@@ -45,22 +58,18 @@ function Badge({
   ...props
 }: BadgeProps) {
   return (
-    <div
-      className={cn(
-        'inline-flex items-center whitespace-nowrap rounded-full border gap-1',
-        icon ? 'py-1 pl-1 pr-2' : 'py-1 px-2',
-        variantClasses[variant],
-        sizeClasses[size],
-        className,
-      )}
+    <span
+      data-slot="badge"
+      data-variant={variant}
+      className={cn(badgeVariants({ variant, size }), className)}
       {...props}
     >
       {icon && (
-        <Icon icon={icon} className={cn('shrink-0', iconSizeClasses[size])} />
+        <Icon icon={icon} className={cn('shrink-0', iconSizeClasses[size || 'sm'])} />
       )}
       {children}
-    </div>
+    </span>
   );
 }
 
-export { Badge };
+export { Badge, badgeVariants };

@@ -1359,9 +1359,9 @@ function ModeComparison({ modes, recommendation, onSelect, disabled }: any) {
         </div>
       ))}
       {recommendation && (
-        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
-          <p className="text-body text-blue-900" dangerouslySetInnerHTML={{ __html: recommendation }} />
-        </div>
+        <Alert variant="info" hideIcon>
+          <span dangerouslySetInnerHTML={{ __html: recommendation }} />
+        </Alert>
       )}
     </div>
   );
@@ -1509,8 +1509,8 @@ function ScheduleConflict({ existing, newAppointment, onSelect, disabled }: any)
         </div>
       </div>
 
-      <div className="bg-blue-50 rounded-2xl p-4 border border-blue-400">
-        <p className="text-card-title text-blue-700 uppercase mb-2">New Appointment</p>
+      <div className="bg-info-subtle rounded-2xl p-4 border border-info-border">
+        <p className="text-card-title text-info-subtle-foreground uppercase mb-2">New Appointment</p>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
             <span className="text-primary font-bold text-lg">D</span>
@@ -1556,39 +1556,39 @@ function ScheduleConflict({ existing, newAppointment, onSelect, disabled }: any)
 // Emergency Warning Component (CRITICAL - for medical emergencies)
 function EmergencyWarning({ emergencyNumbers, category, disabled }: any) {
   return (
-    <div className="bg-red-50 border border-red-500 rounded-2xl p-6 space-y-4">
+    <div className="bg-destructive-subtle border border-destructive rounded-2xl p-6 space-y-4">
       <div className="flex items-start gap-4">
-        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-red-500 flex items-center justify-center animate-pulse">
-          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-destructive flex items-center justify-center animate-pulse">
+          <svg className="w-6 h-6 text-destructive-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
         </div>
         <div className="flex-1">
-          <h3 className="text-lg font-bold text-red-900 mb-2">⚠️ Medical Emergency Detected</h3>
-          <p className="text-red-800 font-medium mb-4">
+          <h3 className="text-section-title text-destructive-subtle-foreground mb-2">Medical Emergency Detected</h3>
+          <p className="text-destructive-subtle-foreground font-medium mb-4">
             This sounds serious. Please do not wait for an appointment.
           </p>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl p-4 border border-red-200">
-        <p className="font-semibold text-red-900 mb-3">Call Emergency Services Immediately:</p>
+      <div className="bg-background rounded-xl p-4 border border-destructive-border">
+        <p className="font-semibold text-destructive-subtle-foreground mb-3">Call Emergency Services Immediately:</p>
         <div className="flex gap-3">
           {emergencyNumbers.map((number: string) => (
             <a
               key={number}
               href={`tel:${number}`}
-              className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold text-xl py-3 px-6 rounded-full text-center transition-colors"
+              className="flex-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground font-bold text-xl py-3 px-6 rounded-full text-center transition-colors"
             >
-              📞 {number}
+              {number}
             </a>
           ))}
         </div>
       </div>
 
-      <div className="bg-white rounded-xl p-4 border border-red-200">
-        <p className="font-semibold text-red-900 mb-2">Or:</p>
-        <ul className="space-y-1.5 text-red-800">
+      <div className="bg-background rounded-xl p-4 border border-destructive-border">
+        <p className="font-semibold text-destructive-subtle-foreground mb-2">Or:</p>
+        <ul className="space-y-1.5 text-destructive-subtle-foreground">
           <li className="flex items-start gap-2">
             <span className="font-bold">•</span>
             <span>Go to the nearest emergency room immediately</span>
@@ -1600,7 +1600,7 @@ function EmergencyWarning({ emergencyNumbers, category, disabled }: any) {
         </ul>
       </div>
 
-      <div className="text-center text-body text-red-700 pt-2">
+      <div className="text-center text-body text-muted-foreground pt-2">
         If this is not an emergency, you can continue booking a routine appointment below.
       </div>
     </div>

@@ -94,7 +94,7 @@ export function FollowUpSymptomSelection() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+      <div className="bg-info-subtle border border-info-border rounded-lg p-4 mb-4">
         <p className="text-body">
           <span className="font-semibold">Following up on:</span> Headache, dizziness
           <br />
