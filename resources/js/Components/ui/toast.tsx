@@ -1,14 +1,62 @@
 import * as React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/Lib/utils';
+import { CheckCircle2, XCircle, AlertTriangle, Info } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 
 /**
  * Toast Component
  *
- * Notification component for success messages.
+ * Notification component with dark background and status-based colored icons.
  * Follows design system specifications with automatic dismissal.
  */
 
-export interface ToastProps extends React.HTMLAttributes<HTMLDivElement> {
+const toastVariants = cva(
+  'fixed z-[1000] flex items-center gap-2 whitespace-nowrap px-6 py-4 rounded-xl shadow-lg shadow-black/20',
+  {
+    variants: {
+      variant: {
+        success: '',
+        error: '',
+        warning: '',
+        info: '',
+      },
+    },
+    defaultVariants: {
+      variant: 'success',
+    },
+  }
+);
+
+const toastIconConfig: Record<
+  'success' | 'error' | 'warning' | 'info',
+  { icon: React.ComponentType<any>; bgClass: string; iconClass: string }
+> = {
+  success: {
+    icon: CheckCircle2,
+    bgClass: 'bg-success',
+    iconClass: 'text-white'
+  },
+  error: {
+    icon: XCircle,
+    bgClass: 'bg-destructive',
+    iconClass: 'text-white'
+  },
+  warning: {
+    icon: AlertTriangle,
+    bgClass: 'bg-warning',
+    iconClass: 'text-white'
+  },
+  info: {
+    icon: Info,
+    bgClass: 'bg-info',
+    iconClass: 'text-white'
+  },
+};
+
+export interface ToastProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof toastVariants> {
   /**
    * Message to display in the toast
    */
@@ -26,10 +74,6 @@ export interface ToastProps extends React.HTMLAttributes<HTMLDivElement> {
    */
   onHide?: () => void;
   /**
-   * Icon to display (defaults to success checkmark)
-   */
-  icon?: React.ReactNode;
-  /**
    * Left offset for positioning (default: '160px' to account for sidebar)
    */
   leftOffset?: string;
@@ -40,9 +84,9 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
     {
       message,
       show,
+      variant = 'success',
       duration = 3000,
       onHide,
-      icon,
       leftOffset = '160px',
       className,
       ...props
@@ -60,59 +104,26 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
 
     if (!show) return null;
 
-    const defaultIcon = (
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 20 20"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <circle
-          cx="10"
-          cy="10"
-          r="9"
-          fill="hsl(var(--success))"
-          stroke="hsl(var(--success))"
-          strokeWidth="2"
-        />
-        <path
-          d="M6 10L8.5 12.5L14 7"
-          stroke="white"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    );
+    const iconConfig = toastIconConfig[variant || 'success'];
 
     return (
       <>
         <div
           ref={ref}
-          className={cn('toast-notification text-label', className)}
+          className={cn(toastVariants({ variant }), 'text-label text-white', className)}
           style={{
-            position: 'fixed',
             bottom: '32px',
             left: '50%',
             marginLeft: leftOffset,
             transform: 'translateX(-50%)',
-            backgroundColor: 'hsl(var(--foreground))',
-            color: 'hsl(var(--background))',
-            padding: '16px 24px',
-            borderRadius: '12px',
-            boxShadow:
-              '0px 4px 16px rgba(0, 0, 0, 0.12), 0px 12px 32px rgba(0, 0, 0, 0.16)',
-            zIndex: 1000,
             animation: 'slideUp 0.3s ease-out',
-            whiteSpace: 'nowrap',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
+            backgroundColor: '#1a1a1a',
           }}
           {...props}
         >
-          {icon || defaultIcon}
+          <div className={cn('h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0', iconConfig.bgClass)}>
+            <Icon icon={iconConfig.icon} className={cn('h-5 w-5', iconConfig.iconClass)} strokeWidth={2.5} />
+          </div>
           {message}
         </div>
 
@@ -135,4 +146,4 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
 
 Toast.displayName = 'Toast';
 
-export { Toast };
+export { Toast, toastVariants };
