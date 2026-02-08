@@ -46,7 +46,7 @@ export function EmbeddedPreviousVisit({ visit }: Props) {
     <div className="border border-border rounded-xl p-4 bg-background space-y-4">
       {/* Header */}
       <div className="flex items-center gap-2 text-primary">
-        <Clock className="h-4 w-4" />
+        <Icon icon={Clock} size={16} />
         <span className="text-label">Previous Visit</span>
       </div>
 

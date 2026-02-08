@@ -380,7 +380,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                 iconOnly
                 title="Cancel booking"
               >
-                <Icon icon={X} className="text-muted-foreground" />
+                <Icon icon={X} size={16} className="text-muted-foreground" />
               </Button>
             </HStack>
           </HStack>
@@ -491,7 +491,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                           size="md"
                           className="rounded-full transition-all duration-200"
                         >
-                          <Icon icon={Plus} size="lg" />
+                          <Icon icon={Plus} size={20} />
                         </Button>
                       </PromptInputAction>
                     )}
@@ -512,7 +512,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                             }}
                             className="rounded-full transition-all duration-200"
                           >
-                            <Icon icon={X} className="text-destructive" size="lg" />
+                            <Icon icon={X} size={20} className="text-destructive" />
                           </Button>
                         </PromptInputAction>
 
@@ -524,7 +524,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                             onClick={handleMicClick}
                             className="rounded-full transition-all duration-200"
                           >
-                            <Icon icon={Check} className="text-inverse" size="lg" />
+                            <Icon icon={Check} size={20} className="text-inverse" />
                           </Button>
                         </PromptInputAction>
                       </>
@@ -540,9 +540,9 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                             disabled={isLoading}
                             className="rounded-full transition-all duration-200"
                           >
-                            <Icon icon={Mic} className={cn(
+                            <Icon icon={Mic} size={20} className={cn(
                               isTranscribing && "animate-pulse text-primary"
-                            )} size="lg" />
+                            )} />
                           </Button>
                         </PromptInputAction>
 
@@ -558,7 +558,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                               (isLoading || !input.trim() || isCancelled) && "bg-muted"
                             )}
                           >
-                            <Icon icon={ArrowUp} className="text-inverse" size="lg" />
+                            <Icon icon={ArrowUp} size={20} className="text-inverse" />
                           </Button>
                         </PromptInputAction>
                       </>

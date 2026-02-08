@@ -141,7 +141,7 @@ export function EmbeddedDateTimeSelector({
                 >
                   {slot.time}
                   {slot.preferred && !isTimeSelected && (
-                    <Star className="h-3 w-3 fill-warning text-warning" />
+                    <Icon icon={Star} size={12} className="fill-warning text-warning" />
                   )}
                 </Button>
               );

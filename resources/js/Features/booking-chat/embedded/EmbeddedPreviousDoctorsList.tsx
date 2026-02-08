@@ -90,7 +90,7 @@ export function EmbeddedPreviousDoctorsList({
         onClick={onSeeOtherDoctors}
         disabled={disabled}
       >
-        <Plus className="h-4 w-4 mr-2" />
+        <Icon icon={Plus} size={16} className="mr-2" />
         See other doctors instead
       </Button>
     </div>
@@ -179,7 +179,7 @@ function PreviousDoctorCard({
             </p>
             {doctor.rating && (
               <div className="flex items-center gap-1">
-                <Star className="h-3.5 w-3.5 fill-warning text-warning" />
+                <Icon icon={Star} size={14} className="fill-warning text-warning" />
                 <span className="text-label">{doctor.rating}</span>
                 {doctor.reviewCount && (
                   <span className="text-body text-muted-foreground">

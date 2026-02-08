@@ -1,6 +1,7 @@
 import { cn } from '@/Lib/utils';
 import { Card } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
+import { Icon } from '@/Components/ui/icon';
 import { CalendarClock, AlertCircle, RefreshCw } from '@/Lib/icons';
 
 interface Props {
@@ -35,7 +36,7 @@ export function EmbeddedFollowUpReason({ selectedReason, onSelect, disabled }: P
     <Card className="overflow-hidden">
       {reasons.map((reason, index) => {
         const isSelected = selectedReason === reason.value;
-        const Icon = reason.icon;
+        const ReasonIcon = reason.icon;
 
         return (
           <Button
@@ -56,7 +57,7 @@ export function EmbeddedFollowUpReason({ selectedReason, onSelect, disabled }: P
             }}
           >
             <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-              <Icon className="h-5 w-5 text-primary" />
+              <Icon icon={ReasonIcon} size={20} className="text-primary" />
             </div>
             <div className="min-w-0 text-left">
               <p className="text-label text-foreground leading-tight mb-0.5">

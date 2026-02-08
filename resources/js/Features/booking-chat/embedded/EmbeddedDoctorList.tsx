@@ -106,7 +106,7 @@ export function EmbeddedDoctorList({ doctors, selectedDoctorId, selectedTime, on
         </Select>
 
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Icon icon={Search} size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search doctors"
             value={searchQuery}
@@ -245,7 +245,7 @@ function DoctorCard({
             )}
           >
             {formatTime(slot.time)}
-            {slot.preferred && <Star className="h-3 w-3 fill-warning text-warning" />}
+            {slot.preferred && <Icon icon={Star} size={12} className="fill-warning text-warning" />}
           </Button>
         ))}
       </div>

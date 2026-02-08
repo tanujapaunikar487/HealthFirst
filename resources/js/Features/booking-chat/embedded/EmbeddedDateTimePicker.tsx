@@ -112,7 +112,7 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
                   )}
                 >
                   {slot.time}
-                  {slot.preferred && !isSelected && <Star className="w-3 h-3 fill-current" />}
+                  {slot.preferred && !isSelected && <Icon icon={Star} size={12} className="fill-current" />}
                 </Button>
               );
             })}
