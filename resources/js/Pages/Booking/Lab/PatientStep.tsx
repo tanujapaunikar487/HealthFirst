@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
+import { Card } from '@/Components/ui/card';
 import InlineMemberTypeSelector from '@/Features/booking-chat/embedded/InlineMemberTypeSelector';
 import { Button } from '@/Components/ui/button';
 import { ArrowRight } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { cn } from '@/Lib/utils';
+import { getAvatarColorByName } from '@/Lib/avatar-colors';
 
 const labSteps = [
   { id: 'patient', label: 'Patient' },
@@ -81,28 +83,42 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
             Select a family member or add a new patient
           </p>
 
-          <div className="grid grid-cols-2 gap-3">
-            {members.map((member) => (
-              <Button
-                key={member.id}
-                variant="outline"
-                onClick={() => setPatientId(member.id)}
-                className={cn(
-                  'h-auto flex items-center gap-3 p-3 rounded-full border text-left transition-all text-body',
-                  'hover:border-primary/50 hover:bg-primary/5',
-                  patientId === member.id && 'border-primary bg-primary/5'
-                )}
-              >
-                <Avatar className="w-10 h-10">
-                  <AvatarImage src={member.avatar || undefined} />
-                  <AvatarFallback className="bg-warning text-warning-foreground text-label">
-                    {member.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-label">{member.name}</span>
-              </Button>
-            ))}
-          </div>
+          <Card className="overflow-hidden">
+            <div className="divide-y">
+              {members.map((member) => {
+                const avatarColor = getAvatarColorByName(member.name);
+                return (
+                  <Button
+                    key={member.id}
+                    variant="ghost"
+                    onClick={() => setPatientId(member.id)}
+                    className={cn(
+                      'w-full h-auto px-6 py-4 rounded-none text-left transition-all flex items-center gap-3',
+                      'hover:bg-muted/50',
+                      patientId === member.id && 'bg-primary/5'
+                    )}
+                  >
+                    <Avatar className="w-10 h-10 shrink-0">
+                      <AvatarImage src={member.avatar || undefined} />
+                      <AvatarFallback
+                        className="text-label"
+                        style={{
+                          backgroundColor: `hsl(${avatarColor.bg})`,
+                          color: `hsl(${avatarColor.text})`,
+                        }}
+                      >
+                        {member.name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-label text-foreground">{member.name}</p>
+                      <p className="text-body text-muted-foreground">{member.relationship}</p>
+                    </div>
+                  </Button>
+                );
+              })}
+            </div>
+          </Card>
 
           {!showAddMemberInline && (
             <Button

@@ -74,29 +74,30 @@ export default function ConfirmStep({ summary }: Props) {
 
         {/* Summary Table */}
         <Card className="overflow-hidden">
-          {rows.map((row) => (
-            <div
-              key={row.label}
-              className="flex items-center justify-between px-6 py-4"
-              style={{ borderBottom: '1px solid hsl(var(--border))' }}
-            >
-              <span className="text-body text-muted-foreground">{row.label}</span>
-              <div className="flex items-center gap-3">
-                <span className="text-label">{row.value}</span>
-                <Button
-                  variant="link"
-                  onClick={() => handleChange(row.step)}
-                  className="h-auto p-0 text-primary text-body hover:underline"
-                >
-                  Change
-                </Button>
+          <div className="divide-y">
+            {rows.map((row) => (
+              <div
+                key={row.label}
+                className="flex items-center justify-between px-6 py-4"
+              >
+                <span className="text-body text-muted-foreground">{row.label}</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-label">{row.value}</span>
+                  <Button
+                    variant="link"
+                    onClick={() => handleChange(row.step)}
+                    className="h-auto p-0 text-primary text-body hover:underline"
+                  >
+                    Change
+                  </Button>
+                </div>
               </div>
+            ))}
+            {/* Fee - no Change button */}
+            <div className="flex items-center justify-between px-6 py-4">
+              <span className="text-body text-muted-foreground">Consultation Fee</span>
+              <span className="text-label">₹{summary.fee.toLocaleString()}</span>
             </div>
-          ))}
-          {/* Fee - no Change button */}
-          <div className="flex items-center justify-between px-6 py-4">
-            <span className="text-body text-muted-foreground">Consultation Fee</span>
-            <span className="text-label">₹{summary.fee.toLocaleString()}</span>
           </div>
         </Card>
 

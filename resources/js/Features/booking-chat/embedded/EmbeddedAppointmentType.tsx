@@ -1,5 +1,8 @@
 import { cn } from '@/Lib/utils';
 import { Button } from '@/Components/ui/button';
+import { Card } from '@/Components/ui/card';
+import { Icon } from '@/Components/ui/icon';
+import { User, RefreshCw } from '@/Lib/icons';
 
 interface Props {
   selectedType: 'new' | 'followup' | null;
@@ -8,34 +11,56 @@ interface Props {
 }
 
 const options = [
-  { value: 'new' as const, label: 'New Consultation' },
-  { value: 'followup' as const, label: 'Follow-up' },
+  {
+    value: 'new' as const,
+    label: 'New Appointment',
+    description: 'First visit for this concern',
+    icon: User,
+  },
+  {
+    value: 'followup' as const,
+    label: 'Follow-up Visit',
+    description: 'Continuing care with previous doctor',
+    icon: RefreshCw,
+  },
 ];
 
 export function EmbeddedAppointmentType({ selectedType, onSelect, disabled }: Props) {
   return (
-    <div className="grid grid-cols-2 gap-2">
-      {options.map((option) => {
-        const isSelected = selectedType === option.value;
+    <Card className="overflow-hidden mt-3">
+      <div className="divide-y">
+        {options.map((option) => {
+          const isSelected = selectedType === option.value;
 
-        return (
-          <Button
-            key={option.value}
-            variant="outline"
-            onClick={() => !disabled && onSelect(option.value)}
-            disabled={disabled}
-            className={cn(
-              "h-auto rounded-full px-5 py-3 text-label text-left transition-all",
-              "hover:border-primary/50 hover:bg-primary/5 disabled:cursor-not-allowed",
-              isSelected
-                ? disabled ? "border-primary bg-primary/5 opacity-60" : "border-primary bg-primary/5"
-                : disabled ? "border-border bg-background opacity-30" : "border-border bg-background"
-            )}
-          >
-            <span className="text-label">{option.label}</span>
-          </Button>
-        );
-      })}
-    </div>
+          return (
+            <Button
+              key={option.value}
+              variant="ghost"
+              onClick={() => !disabled && onSelect(option.value)}
+              disabled={disabled}
+              className={cn(
+                'w-full h-auto px-6 py-4 rounded-none text-left transition-all flex items-center gap-4',
+                'hover:bg-muted/50',
+                isSelected
+                  ? disabled
+                    ? 'bg-primary/5 disabled:opacity-60'
+                    : 'bg-primary/5'
+                  : disabled
+                    ? 'disabled:opacity-30'
+                    : ''
+              )}
+            >
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <Icon icon={option.icon} size={20} className="text-primary" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-label text-foreground">{option.label}</p>
+                <p className="text-body text-muted-foreground">{option.description}</p>
+              </div>
+            </Button>
+          );
+        })}
+      </div>
+    </Card>
   );
 }

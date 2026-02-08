@@ -201,22 +201,20 @@ export default function ConcernsStep({
               </VStack>
 
             <Card className="overflow-hidden">
-              {urgencyOptions.map((option, index) => {
-                const style = dotStyles[option.value] || { dot: 'bg-muted-foreground', ring: 'ring-muted-foreground/15' };
-                return (
-                  <Button
-                    key={option.value}
-                    variant="ghost"
-                    onClick={() => setUrgency(option.value)}
-                    className={cn(
-                      'w-full h-auto flex items-start gap-3 px-6 py-4 rounded-none justify-start text-left transition-all text-body',
-                      'hover:bg-muted/50',
-                      urgency === option.value && 'bg-primary/5'
-                    )}
-                    style={{
-                      borderBottom: index < urgencyOptions.length - 1 ? '1px solid hsl(var(--border))' : 'none'
-                    }}
-                  >
+              <div className="divide-y">
+                {urgencyOptions.map((option) => {
+                  const style = dotStyles[option.value] || { dot: 'bg-muted-foreground', ring: 'ring-muted-foreground/15' };
+                  return (
+                    <Button
+                      key={option.value}
+                      variant="ghost"
+                      onClick={() => setUrgency(option.value)}
+                      className={cn(
+                        'w-full h-auto flex items-start gap-3 px-6 py-4 rounded-none justify-start text-left transition-all text-body',
+                        'hover:bg-muted/50',
+                        urgency === option.value && 'bg-primary/5'
+                      )}
+                    >
                     <HStack gap={3} className="items-start">
                       <div
                         className={cn(
@@ -236,8 +234,9 @@ export default function ConcernsStep({
                       )}
                     </HStack>
                   </Button>
-                );
-              })}
+                  );
+                })}
+              </div>
             </Card>
 
             {errors.urgency && <p className="text-body text-destructive">{errors.urgency}</p>}

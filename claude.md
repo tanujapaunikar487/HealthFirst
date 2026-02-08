@@ -21,12 +21,14 @@ Laravel 11 + React 18 + TS + Inertia v2 + Tailwind v4 + shadcn/ui | `php artisan
 
 ## Booking Flow
 **Page Structure**: `VStack gap={12}` for sections | `VStack gap={4}` for section content | `VStack gap={1}` for title+subtitle pairs
-**List Pattern**: `Card` + `divide-y` | Items: `Button variant="ghost"` with `px-6 py-4` `rounded-none` `justify-start` | Selected: `bg-primary/5`
-**Doctor Cards**: Avatar with `getAvatarColorByName(name)` | `VStack gap={4}` for card content | `HStack gap={3}` for doctor info row | Fee: `text-card-title`
-**Selection Chips**: `HStack gap={2}` with `flex-wrap` | Buttons: `px-6 py-2` `rounded-full` | Selected: `bg-primary/10 border-primary text-label`
-**Time Slots**: `HStack gap={2}` with `flex-wrap` | Buttons: `px-4 py-2` `rounded-xl` | Selected: `variant="accent" border-foreground`
 **Typography**: Section headings=`text-section-title` | Labels=`text-label` | Body=`text-body` | Prices=`text-card-title`
 **Icons**: `<Icon icon={IconName} size={20} />` not `<IconName className="h-5 w-5" />` | Sizes: 12/14 (sm), 16 (default), 20 (lg), 24 (xl) | Adjacent icons in `HStack gap={1}`
+
+**Selection Patterns** (use Card-based lists for all selections):
+- **Patient/Doctor lists**: `Card` + `divide-y` + `Button variant="ghost"` (`px-6 py-4` `rounded-none`) + Avatar with `getAvatarColorByName()` | Selected: `bg-primary/5` | Hover: `hover:bg-muted/50`
+- **Option lists** (follow-up reasons, appointment modes, etc.): `Card` + `divide-y` + `Button variant="ghost"` (`px-6 py-4` `rounded-none`) + Icon in `bg-primary/10` circle (size 10, icon size 20) | Selected: `bg-primary/5` | Hover: `hover:bg-muted/50`
+- **Chip selections** (symptoms, filters): `HStack gap={2}` with `flex-wrap` + `Button variant="outline"` (`px-4 py-2` `rounded-full`) | Selected: `bg-primary/10 border-primary text-label`
+- **Time slots**: `HStack gap={2}` with `flex-wrap` + `Button variant="accent/outline"` (`px-4 py-2` `rounded-full`) | Selected: `variant="accent" border-foreground` | Preferred: Star icon (`absolute -top-1 -right-1`)
 
 ## AI Booking Chat
 **File Attachments**: Users can attach files (images, PDFs, Word docs) to messages in AI booking conversation. Click "+" button to select files. Files stored in `storage/app/public/conversation-attachments/`. Backend: `BookingConversationController` handles uploads, stores metadata in `conversation_messages.attachments` JSON column. Frontend: Files preview as chips before send, display as thumbnails (images) or file icons (documents) in chat. Max 10MB per file. Accepted types: jpg, jpeg, png, pdf, doc, docx.

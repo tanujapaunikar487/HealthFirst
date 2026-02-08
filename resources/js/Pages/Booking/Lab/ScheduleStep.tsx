@@ -317,42 +317,41 @@ export default function ScheduleStep({
             <h2 className="text-step-title mb-4">Where should we collect the sample?</h2>
 
             <Card className="overflow-hidden">
-              {locations.map((loc, index) => {
-                const isSelected = selectedLocation === loc.type;
-                return (
-                  <Button
-                    key={loc.type}
-                    variant="ghost"
-                    onClick={() => handleLocationChange(loc.type)}
-                    className={cn(
-                      'w-full h-auto flex items-center gap-4 px-6 py-4 rounded-none justify-start text-left transition-all text-body',
-                      'hover:bg-muted/50',
-                      isSelected && 'bg-primary/5'
-                    )}
-                    style={{
-                      borderBottom: index < locations.length - 1 ? '1px solid hsl(var(--border))' : 'none'
-                    }}
-                  >
-                    {/* Icon with rounded background */}
-                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                      {loc.type === 'home' ? (
-                        <Icon icon={Home} className="h-5 w-5 text-foreground" />
-                      ) : (
-                        <Icon icon={Building2} className="h-5 w-5 text-foreground" />
+              <div className="divide-y">
+                {locations.map((loc) => {
+                  const isSelected = selectedLocation === loc.type;
+                  return (
+                    <Button
+                      key={loc.type}
+                      variant="ghost"
+                      onClick={() => handleLocationChange(loc.type)}
+                      className={cn(
+                        'w-full h-auto flex items-center gap-4 px-6 py-4 rounded-none justify-start text-left transition-all text-body',
+                        'hover:bg-muted/50',
+                        isSelected && 'bg-primary/5'
                       )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-label leading-tight mb-0.5">{loc.label}</p>
-                      <p className="text-body text-muted-foreground leading-tight">{loc.description}</p>
-                      {loc.fee > 0 && (
-                        <p className="text-body text-muted-foreground mt-1">
-                          +₹{loc.fee} collection fee
-                        </p>
-                      )}
-                    </div>
-                  </Button>
-                );
-              })}
+                    >
+                      {/* Icon with rounded background */}
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        {loc.type === 'home' ? (
+                          <Icon icon={Home} size={20} className="text-primary" />
+                        ) : (
+                          <Icon icon={Building2} size={20} className="text-primary" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-label leading-tight mb-0.5">{loc.label}</p>
+                        <p className="text-body text-muted-foreground leading-tight">{loc.description}</p>
+                        {loc.fee > 0 && (
+                          <p className="text-body text-muted-foreground mt-1">
+                            +₹{loc.fee} collection fee
+                          </p>
+                        )}
+                      </div>
+                    </Button>
+                  );
+                })}
+              </div>
             </Card>
 
             {errors.location && (

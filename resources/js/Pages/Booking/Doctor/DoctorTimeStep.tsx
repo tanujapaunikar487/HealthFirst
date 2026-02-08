@@ -312,17 +312,18 @@ export default function DoctorTimeStep({
             </Card>
           ) : (
             <Card className="overflow-hidden">
-              {filteredDoctors.map((doctor, index) => (
-                <DoctorCard
-                  key={doctor.id}
-                  doctor={doctor}
-                  slots={doctor.slots}
-                  selectedTime={selectedDoctorId === doctor.id ? selectedTime : null}
-                  isSelected={selectedDoctorId === doctor.id}
-                  onSelectTime={(time) => handleDoctorTimeSelect(doctor.id, time)}
-                  isLast={index === filteredDoctors.length - 1}
-                />
-              ))}
+              <div className="divide-y">
+                {filteredDoctors.map((doctor) => (
+                  <DoctorCard
+                    key={doctor.id}
+                    doctor={doctor}
+                    slots={doctor.slots}
+                    selectedTime={selectedDoctorId === doctor.id ? selectedTime : null}
+                    isSelected={selectedDoctorId === doctor.id}
+                    onSelectTime={(time) => handleDoctorTimeSelect(doctor.id, time)}
+                  />
+                ))}
+              </div>
             </Card>
           )}
 
@@ -358,10 +359,9 @@ interface DoctorCardProps {
   selectedTime: string | null;
   isSelected: boolean;
   onSelectTime: (time: string) => void;
-  isLast: boolean;
 }
 
-function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime, isLast }: DoctorCardProps) {
+function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: DoctorCardProps) {
   const getInitials = (name: string) => {
     const parts = name.split(' ');
     return parts.length > 1
@@ -403,13 +403,9 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime, isL
   return (
     <div
       className={cn(
-        'px-6 py-4 transition-all',
-        'hover:bg-muted/50',
+        'px-6 py-4 transition-all hover:bg-muted/50',
         isSelected && 'bg-primary/5'
       )}
-      style={{
-        borderBottom: !isLast ? '1px solid hsl(var(--border))' : 'none'
-      }}
     >
       <VStack gap={4}>
         {/* Doctor Info */}
@@ -449,7 +445,7 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime, isL
               onClick={() => slot.available && onSelectTime(slot.time)}
               disabled={!slot.available}
               className={cn(
-                'h-auto px-4 py-2 text-label rounded-full transition-all relative',
+                'h-auto px-4 py-2 rounded-full transition-all relative',
                 selectedTime !== slot.time && 'hover:border-primary/50 hover:bg-primary/5',
                 selectedTime === slot.time && 'border-foreground',
                 !slot.available && 'opacity-40 cursor-not-allowed'
@@ -457,7 +453,7 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime, isL
             >
               {slot.time}
               {slot.preferred && selectedTime !== slot.time && (
-                <Icon icon={Star} className="absolute -top-1 -right-1 fill-black text-black" size="sm" />
+                <Icon icon={Star} size={12} className="absolute -top-1 -right-1 fill-black text-black" />
               )}
             </Button>
           ))}

@@ -8,8 +8,9 @@ import { FollowUpBanner } from '@/Components/Booking/FollowUpBanner';
 import InlineMemberTypeSelector from '@/Features/booking-chat/embedded/InlineMemberTypeSelector';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
-import { ArrowRight, Star, CalendarClock, RefreshCw, AlertCircle } from '@/Lib/icons';
+import { ArrowRight, Star, CalendarClock, RefreshCw, AlertCircle, User } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { getAvatarColorByName } from '@/Lib/avatar-colors';
 
 const doctorSteps = [
   { id: 'concerns', label: 'Concerns' },
@@ -344,13 +345,13 @@ export default function PatientStep({
   const getReasonIcon = (value: string) => {
     switch (value) {
       case 'scheduled':
-        return <Icon icon={CalendarClock} className="h-5 w-5 text-primary" />;
+        return CalendarClock;
       case 'new_concern':
-        return <Icon icon={AlertCircle} className="h-5 w-5 text-primary" />;
+        return AlertCircle;
       case 'ongoing_issue':
-        return <Icon icon={RefreshCw} className="h-5 w-5 text-primary" />;
+        return RefreshCw;
       default:
-        return null;
+        return AlertCircle;
     }
   };
 
@@ -374,28 +375,42 @@ export default function PatientStep({
             Select a family member or add a new patient
           </p>
 
-          <div className="grid grid-cols-2 gap-3">
-            {members.map((member) => (
-              <Button
-                key={member.id}
-                variant="outline"
-                onClick={() => handlePatientSelect(member.id)}
-                className={cn(
-                  'h-auto flex items-center gap-3 p-3 rounded-full border text-left transition-all text-body',
-                  'hover:border-primary/50 hover:bg-primary/5',
-                  patientId === member.id && 'border-primary bg-primary/5'
-                )}
-              >
-                <Avatar className="w-10 h-10">
-                  <AvatarImage src={member.avatar || undefined} />
-                  <AvatarFallback className="bg-warning text-warning-foreground text-label">
-                    {member.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-label">{member.name}</span>
-              </Button>
-            ))}
-          </div>
+          <Card className="overflow-hidden">
+            <div className="divide-y">
+              {members.map((member, index) => {
+                const avatarColor = getAvatarColorByName(member.name);
+                return (
+                  <Button
+                    key={member.id}
+                    variant="ghost"
+                    onClick={() => handlePatientSelect(member.id)}
+                    className={cn(
+                      'w-full h-auto px-6 py-4 rounded-none text-left transition-all flex items-center gap-3',
+                      'hover:bg-muted/50',
+                      patientId === member.id && 'bg-primary/5'
+                    )}
+                  >
+                    <Avatar className="w-10 h-10 shrink-0">
+                      <AvatarImage src={member.avatar || undefined} />
+                      <AvatarFallback
+                        className="text-label"
+                        style={{
+                          backgroundColor: `hsl(${avatarColor.bg})`,
+                          color: `hsl(${avatarColor.text})`,
+                        }}
+                      >
+                        {member.name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-label text-foreground">{member.name}</p>
+                      <p className="text-body text-muted-foreground">{member.relationship}</p>
+                    </div>
+                  </Button>
+                );
+              })}
+            </div>
+          </Card>
 
           {!showAddMemberInline && (
             <Button
@@ -434,30 +449,44 @@ export default function PatientStep({
               Follow-ups will show your previous doctors
             </p>
 
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                variant="outline"
-                onClick={() => handleAppointmentTypeSelect('new')}
-                className={cn(
-                  'h-auto px-5 py-3 rounded-full text-left transition-all text-label',
-                  'hover:border-primary/50 hover:bg-primary/5',
-                  appointmentType === 'new' && 'border-primary bg-primary/5'
-                )}
-              >
-                <span className="font-medium">New Consultation</span>
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => handleAppointmentTypeSelect('followup')}
-                className={cn(
-                  'h-auto px-5 py-3 rounded-full text-left transition-all text-label',
-                  'hover:border-primary/50 hover:bg-primary/5',
-                  appointmentType === 'followup' && 'border-primary bg-primary/5'
-                )}
-              >
-                <span className="font-medium">Follow-up</span>
-              </Button>
-            </div>
+            <Card className="overflow-hidden">
+              <div className="divide-y">
+                <Button
+                  variant="ghost"
+                  onClick={() => handleAppointmentTypeSelect('new')}
+                  className={cn(
+                    'w-full h-auto px-6 py-4 rounded-none text-left transition-all flex items-center gap-4',
+                    'hover:bg-muted/50',
+                    appointmentType === 'new' && 'bg-primary/5'
+                  )}
+                >
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <Icon icon={User} size={20} className="text-primary" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-label text-foreground">New Consultation</p>
+                    <p className="text-body text-muted-foreground">First visit for this concern</p>
+                  </div>
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleAppointmentTypeSelect('followup')}
+                  className={cn(
+                    'w-full h-auto px-6 py-4 rounded-none text-left transition-all flex items-center gap-4',
+                    'hover:bg-muted/50',
+                    appointmentType === 'followup' && 'bg-primary/5'
+                  )}
+                >
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <Icon icon={RefreshCw} size={20} className="text-primary" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-label text-foreground">Follow-up</p>
+                    <p className="text-body text-muted-foreground">Continuing care with previous doctor</p>
+                  </div>
+                </Button>
+              </div>
+            </Card>
 
             {errors.appointmentType && (
               <p className="text-body text-destructive mt-2">{errors.appointmentType}</p>
@@ -474,29 +503,28 @@ export default function PatientStep({
             </p>
 
             <Card className="overflow-hidden">
-              {followUpReasonOptions.map((option, index) => (
-                <Button
-                  key={option.value}
-                  variant="ghost"
-                  onClick={() => handleFollowupReasonSelect(option.value)}
-                  className={cn(
-                    'w-full h-auto p-4 rounded-none text-left transition-all flex items-center gap-4 text-body',
-                    'hover:bg-muted/50',
-                    followupReason === option.value && 'bg-primary/5'
-                  )}
-                  style={{
-                    borderBottom: index < followUpReasonOptions.length - 1 ? '1px solid hsl(var(--border))' : 'none'
-                  }}
-                >
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    {getReasonIcon(option.value)}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-label text-foreground leading-tight mb-0.5">{option.label}</p>
-                    <p className="text-body text-muted-foreground leading-tight">{option.description}</p>
-                  </div>
-                </Button>
-              ))}
+              <div className="divide-y">
+                {followUpReasonOptions.map((option) => (
+                  <Button
+                    key={option.value}
+                    variant="ghost"
+                    onClick={() => handleFollowupReasonSelect(option.value)}
+                    className={cn(
+                      'w-full h-auto px-6 py-4 rounded-none text-left transition-all flex items-center gap-4',
+                      'hover:bg-muted/50',
+                      followupReason === option.value && 'bg-primary/5'
+                    )}
+                  >
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <Icon icon={getReasonIcon(option.value)} size={20} className="text-primary" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-label text-foreground leading-tight mb-0.5">{option.label}</p>
+                      <p className="text-body text-muted-foreground leading-tight">{option.description}</p>
+                    </div>
+                  </Button>
+                ))}
+              </div>
             </Card>
 
             {errors.followupReason && (
@@ -557,19 +585,21 @@ export default function PatientStep({
                 {selectedPatient?.name}'s previous appointments
               </p>
 
-              <Card className="space-y-0 overflow-hidden divide-y">
-                {patientPreviousConsultations.map((consultation) => (
-                  <DoctorCard
-                    key={consultation.doctor.id}
-                    doctor={consultation.doctor}
-                    slots={consultation.slots}
-                    selectedTime={
-                      quickBookDoctorId === consultation.doctor.id ? quickBookTime : null
-                    }
-                    isSelected={quickBookDoctorId === consultation.doctor.id}
-                    onSelectTime={(time) => handleQuickBook(consultation.doctor.id, time)}
-                  />
-                ))}
+              <Card className="overflow-hidden">
+                <div className="divide-y">
+                  {patientPreviousConsultations.map((consultation) => (
+                    <DoctorCard
+                      key={consultation.doctor.id}
+                      doctor={consultation.doctor}
+                      slots={consultation.slots}
+                      selectedTime={
+                        quickBookDoctorId === consultation.doctor.id ? quickBookTime : null
+                      }
+                      isSelected={quickBookDoctorId === consultation.doctor.id}
+                      onSelectTime={(time) => handleQuickBook(consultation.doctor.id, time)}
+                    />
+                  ))}
+                </div>
               </Card>
 
             </section>
@@ -591,11 +621,11 @@ export default function PatientStep({
                     variant="outline"
                     onClick={() => handleSymptomToggle(symptom.id)}
                     className={cn(
-                      'h-auto px-4 py-2 rounded-full text-body transition-all',
+                      'h-auto px-4 py-2 rounded-full transition-all',
                       'hover:border-primary/50 hover:bg-primary/5',
                       selectedSymptoms.includes(symptom.id)
-                        ? 'bg-primary/10 border-primary text-primary font-medium'
-                        : 'bg-background border-border text-foreground'
+                        ? 'bg-primary/10 border-primary text-label'
+                        : 'text-body'
                     )}
                   >
                     {symptom.name}
@@ -628,8 +658,11 @@ interface DoctorCardProps {
 }
 
 function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: DoctorCardProps) {
-  const getInitial = (name: string) => {
-    return name.charAt(0).toUpperCase();
+  const getInitials = (name: string) => {
+    const parts = name.split(' ');
+    return parts.length > 1
+      ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+      : name.substring(0, 2).toUpperCase();
   };
 
   const formatAppointmentModes = (modes: string[]) => {
@@ -640,23 +673,31 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: D
     return modes.map((m) => modeLabels[m] || m).join(' and ');
   };
 
+  const avatarColor = getAvatarColorByName(doctor.name);
+
   return (
     <div
       className={cn(
-        'px-6 py-4 bg-white transition-all',
-        isSelected && 'bg-primary/5 border border-primary'
+        'px-6 py-4 transition-all hover:bg-muted/50',
+        isSelected && 'bg-primary/5'
       )}
     >
       {/* Doctor Info */}
       <div className="flex items-start gap-3 mb-4">
         <Avatar className="h-12 w-12">
           <AvatarImage src={doctor.avatar || undefined} />
-          <AvatarFallback className="bg-warning text-warning-foreground font-medium">
-            {getInitial(doctor.name)}
+          <AvatarFallback
+            className="text-label"
+            style={{
+              backgroundColor: `hsl(${avatarColor.bg})`,
+              color: `hsl(${avatarColor.text})`,
+            }}
+          >
+            {getInitials(doctor.name)}
           </AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-foreground">{doctor.name}</h3>
+          <h3 className="text-label text-foreground">{doctor.name}</h3>
           <p className="text-body text-muted-foreground">
             {doctor.specialization} &bull; {doctor.experience_years} years of experience
           </p>
@@ -677,16 +718,15 @@ function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: D
             onClick={() => slot.available && onSelectTime(slot.time)}
             disabled={!slot.available}
             className={cn(
-              'h-auto px-3 py-1.5 text-label rounded-full transition-all',
+              'h-auto px-4 py-2 rounded-full transition-all relative',
               selectedTime !== slot.time && 'hover:border-primary/50 hover:bg-primary/5',
-              slot.preferred && 'relative',
               selectedTime === slot.time && 'border-foreground',
               !slot.available && 'opacity-40 cursor-not-allowed'
             )}
           >
             {slot.time}
             {slot.preferred && selectedTime !== slot.time && (
-              <Icon icon={Star} className="absolute -top-1 -right-1 h-3 w-3 fill-black text-black" />
+              <Icon icon={Star} size={12} className="absolute -top-1 -right-1 fill-black text-black" />
             )}
           </Button>
         ))}
