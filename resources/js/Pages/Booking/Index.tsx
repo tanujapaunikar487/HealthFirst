@@ -1,5 +1,5 @@
-import { Head, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, router, Link } from '@inertiajs/react';
+import { useState, useRef } from 'react';
 import {
   PromptInput,
   PromptInputTextarea,
@@ -33,6 +33,9 @@ export default function BookingIndex() {
   const [selectedType, setSelectedType] = useState<BookingType>(null);
   const [isFocused, setIsFocused] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
+  const [attachments, setAttachments] = useState<File[]>([]);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Audio recording
   const {
@@ -60,8 +63,38 @@ export default function BookingIndex() {
     }
   };
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    const newFiles = Array.from(files).filter(file => {
+      // Max 10MB per file
+      if (file.size > 10 * 1024 * 1024) {
+        alert(`${file.name} is too large. Maximum file size is 10MB.`);
+        return false;
+      }
+      // Allowed types
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      if (!allowedTypes.includes(file.type)) {
+        alert(`${file.name} is not a supported file type.`);
+        return false;
+      }
+      return true;
+    });
+
+    setAttachments(prev => [...prev, ...newFiles]);
+    // Reset input so same file can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleRemoveAttachment = (index: number) => {
+    setAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = () => {
-    if (!input.trim()) return;
+    if (!input.trim() && attachments.length === 0) return;
     startConversation('doctor', input.trim());
   };
 
@@ -147,18 +180,18 @@ export default function BookingIndex() {
       >
         {/* Header */}
         <header className="bg-card border-b border-border">
-          <HStack className="justify-between px-6 py-4">
+          <HStack className="justify-between items-center px-6 py-4">
             <HStack gap={2}>
               <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-5 h-5" />
               <span className="text-label">Booking an appointment</span>
             </HStack>
-            <HStack gap={3}>
+            <HStack gap={4} className="items-center">
               <HStack gap={1} className="border border-border rounded-full p-1 bg-muted">
                 <Button
                   variant="ghost"
                   className={cn(
                     'h-auto p-2 rounded-full transition-all',
-                    mode === 'ai' ? 'shadow-md' : ''
+                    mode === 'ai' ? 'bg-background shadow-md hover:bg-background' : 'hover:bg-transparent'
                   )}
                   onClick={() => setMode('ai')}
                   iconOnly
@@ -173,7 +206,7 @@ export default function BookingIndex() {
                   variant="ghost"
                   className={cn(
                     'h-auto p-2 rounded-full transition-all',
-                    mode === 'guided' ? 'shadow-md' : ''
+                    mode === 'guided' ? 'bg-background shadow-md hover:bg-background' : 'hover:bg-transparent'
                   )}
                   onClick={() => setMode('guided')}
                   iconOnly
@@ -186,21 +219,15 @@ export default function BookingIndex() {
                 </Button>
               </HStack>
 
-              {/* Cancel button */}
-              <Button
-                variant="ghost"
-                onClick={() => router.visit('/')}
-                className="w-8 h-8 rounded-full hover:bg-accent transition-colors"
-                iconOnly
-                title="Cancel booking"
-              >
-                <Icon icon={X} className="text-muted-foreground" />
-              </Button>
+              {/* Cancel link */}
+              <Link href="/" className="text-label text-muted-foreground hover:text-foreground transition-colors">
+                Cancel
+              </Link>
             </HStack>
           </HStack>
           {/* Progress bar */}
           <div className="h-1 bg-muted">
-            <div className="h-full w-[16%] bg-primary transition-all duration-300" />
+            <div className="h-full w-[16%] bg-primary transition-all duration-300 rounded-r-full" />
           </div>
         </header>
 
@@ -218,19 +245,13 @@ export default function BookingIndex() {
                 variant="ghost"
                 onClick={() => setMode('ai')}
                 className={cn(
-                  'h-auto rounded-full transition-all',
-                  mode === 'ai'
-                    ? 'bg-card shadow-md text-foreground text-card-title'
-                    : 'text-muted-foreground hover:text-foreground bg-transparent text-body'
+                  'h-auto rounded-full px-4 py-2 text-label transition-all',
+                  mode === 'ai' ? 'bg-background shadow-md hover:bg-background' : 'text-muted-foreground hover:bg-transparent'
                 )}
               >
-                <HStack gap={2} className="px-6 py-3">
+                <HStack gap={2}>
                   <img
-                    src={
-                      mode === 'ai'
-                        ? '/assets/icons/hugeicons/ai-magic.svg'
-                        : '/assets/icons/hugeicons/ai-magic-1.svg'
-                    }
+                    src={mode === 'ai' ? '/assets/icons/hugeicons/ai-magic.svg' : '/assets/icons/hugeicons/ai-magic-1.svg'}
                     alt=""
                     className="w-5 h-5"
                   />
@@ -241,19 +262,13 @@ export default function BookingIndex() {
                 variant="ghost"
                 onClick={() => setMode('guided')}
                 className={cn(
-                  'h-auto rounded-full transition-all',
-                  mode === 'guided'
-                    ? 'bg-card shadow-md text-foreground text-card-title'
-                    : 'text-muted-foreground hover:text-foreground bg-transparent text-body'
+                  'h-auto rounded-full px-4 py-2 text-label transition-all',
+                  mode === 'guided' ? 'bg-background shadow-md hover:bg-background' : 'text-muted-foreground hover:bg-transparent'
                 )}
               >
-                <HStack gap={2} className="px-6 py-3">
+                <HStack gap={2}>
                   <img
-                    src={
-                      mode === 'guided'
-                        ? '/assets/icons/hugeicons/stairs-01-1.svg'
-                        : '/assets/icons/hugeicons/stairs-01.svg'
-                    }
+                    src={mode === 'guided' ? '/assets/icons/hugeicons/stairs-01-1.svg' : '/assets/icons/hugeicons/stairs-01.svg'}
                     alt=""
                     className="w-5 h-5"
                   />
@@ -261,17 +276,18 @@ export default function BookingIndex() {
                 </HStack>
               </Button>
             </HStack>
+          </VStack>
 
-            {/* Title */}
+          {/* Title and input section */}
+          <VStack gap={8} className="items-center w-full max-w-3xl mt-15">
             <h1 className="text-page-title text-center text-foreground">
               What would you like to book today?
             </h1>
-          </VStack>
 
-          {/* AI Input - only show in AI mode */}
-          {mode === 'ai' && (
+            {/* AI Input - only show in AI mode */}
+            {mode === 'ai' && (
             <PromptInputContainer
-              className="max-w-3xl w-full"
+              className="w-full"
               gradient={
                 isFocused || input.length > 0
                   ? 'linear-gradient(265deg, hsl(var(--primary) / 0.4) 24.67%, hsl(var(--primary) / 0.25) 144.07%)'
@@ -287,40 +303,73 @@ export default function BookingIndex() {
               >
                 {isRecording ? (
                   // Recording mode - show waveform
-                  <div className="px-6 py-4 min-h-36 flex items-center justify-between">
-                    <HStack gap={3} className="flex-1">
-                      <HStack gap={2}>
-                        <div className="w-3 h-3 bg-destructive rounded-full animate-pulse"></div>
-                        <span className="text-label text-muted-foreground">
-                          {formatRecordingTime(recordingTime)}
-                        </span>
-                      </HStack>
-                      <AudioWaveform isRecording={true} className="flex-1 max-w-md" />
+                  <div className="px-6 py-4 min-h-36 flex items-start">
+                    <HStack gap={3} className="items-center">
+                      <div className="w-3 h-3 bg-destructive rounded-full animate-pulse"></div>
+                      <span className="text-label text-muted-foreground">
+                        {formatRecordingTime(recordingTime)}
+                      </span>
+                      <AudioWaveform isRecording={true} className="flex-1" />
                     </HStack>
                   </div>
                 ) : (
                   // Normal mode - show textarea
-                  <PromptInputTextarea
-                    placeholder="Type your symptom's"
-                    className="text-base text-foreground placeholder:text-muted-foreground min-h-36"
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(false)}
-                  />
+                  <div className="relative w-full">
+                    {/* File attachments chips */}
+                    {attachments.length > 0 && (
+                      <div className="px-6 pt-4 pb-2">
+                        <HStack gap={2} className="flex-wrap">
+                          {attachments.map((file, index) => (
+                            <div
+                              key={index}
+                              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted text-body border border-border"
+                            >
+                              <span className="text-foreground truncate max-w-32">{file.name}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveAttachment(index)}
+                                className="text-muted-foreground hover:text-foreground"
+                              >
+                                <Icon icon={X} size={12} />
+                              </button>
+                            </div>
+                          ))}
+                        </HStack>
+                      </div>
+                    )}
+                    <PromptInputTextarea
+                      placeholder="Describe your symptoms or what you'd like to book..."
+                      className="text-base text-foreground placeholder:text-muted-foreground min-h-36"
+                      onFocus={() => setIsFocused(true)}
+                      onBlur={() => setIsFocused(false)}
+                    />
+                  </div>
                 )}
                 <PromptInputActions className="absolute bottom-4 left-4 right-4 flex justify-between">
                   <HStack gap={1}>
                     {/* Add Button - hide when recording */}
                     {!isRecording && (
-                      <PromptInputAction tooltip="Add attachment">
-                        <Button
-                          variant="outline"
-                          iconOnly
-                          size="md"
-                          className="rounded-full transition-all duration-200"
-                        >
-                          <Icon icon={Plus} size="lg" />
-                        </Button>
-                      </PromptInputAction>
+                      <>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                          multiple
+                          onChange={handleFileSelect}
+                          className="hidden"
+                        />
+                        <PromptInputAction tooltip="Add attachment">
+                          <Button
+                            variant="outline"
+                            iconOnly
+                            size="md"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="rounded-full transition-all duration-200"
+                          >
+                            <Icon icon={Plus} />
+                          </Button>
+                        </PromptInputAction>
+                      </>
                     )}
                   </HStack>
 
@@ -339,7 +388,7 @@ export default function BookingIndex() {
                             }}
                             className="rounded-full transition-all duration-200"
                           >
-                            <Icon icon={X} className="text-destructive" size="lg" />
+                            <Icon icon={X} className="text-destructive" />
                           </Button>
                         </PromptInputAction>
 
@@ -351,7 +400,7 @@ export default function BookingIndex() {
                             onClick={handleMicClick}
                             className="rounded-full transition-all duration-200"
                           >
-                            <Icon icon={Check} className="text-inverse" size="lg" />
+                            <Icon icon={Check} className="text-inverse" />
                           </Button>
                         </PromptInputAction>
                       </>
@@ -369,7 +418,7 @@ export default function BookingIndex() {
                           >
                             <Icon icon={Mic} className={cn(
                               isTranscribing && "animate-pulse text-primary"
-                            )} size="lg" />
+                            )} />
                           </Button>
                         </PromptInputAction>
 
@@ -380,12 +429,9 @@ export default function BookingIndex() {
                             size="md"
                             onClick={handleSubmit}
                             disabled={isLoading || !input.trim()}
-                            className={cn(
-                              "rounded-full transition-all duration-200",
-                              (isLoading || !input.trim()) && "bg-muted"
-                            )}
+                            className="rounded-full transition-all duration-200"
                           >
-                            <Icon icon={ArrowUp} className="text-inverse" size="lg" />
+                            <Icon icon={ArrowUp} className="text-inverse" />
                           </Button>
                         </PromptInputAction>
                       </>
@@ -398,7 +444,7 @@ export default function BookingIndex() {
 
           {/* AI mode — prompt suggestions */}
           {mode === 'ai' && (
-            <VStack gap={3} className="items-start mt-6 max-w-3xl w-full">
+            <VStack gap={3} className="items-start w-full">
               {PROMPT_SUGGESTIONS.map((suggestion, i) => (
                 <PromptSuggestion
                   key={i}
@@ -413,7 +459,7 @@ export default function BookingIndex() {
 
           {/* Guided mode — booking type cards */}
           {mode === 'guided' && (
-            <HStack gap={4}>
+            <HStack gap={8}>
               <Button
                 variant="ghost"
                 onClick={() => startGuidedBooking('doctor')}
@@ -430,9 +476,9 @@ export default function BookingIndex() {
                       className="absolute w-64 top-0 left-1/2 -translate-x-1/2"
                     />
                   </div>
-                  <VStack gap={1} className="px-6 py-4">
-                    <p className="text-section-title text-foreground">Book a doctor</p>
-                    <p className="text-body text-muted-foreground">
+                  <VStack gap={1} className="px-6 py-4 w-full min-w-0">
+                    <h3 className="text-base font-semibold text-foreground">Book a doctor</h3>
+                    <p className="text-body text-muted-foreground whitespace-normal">
                       Schedule a consultation with a specialist or general physician
                     </p>
                   </VStack>
@@ -455,9 +501,9 @@ export default function BookingIndex() {
                       className="absolute w-64 top-0 left-1/2 -translate-x-1/2"
                     />
                   </div>
-                  <VStack gap={1} className="px-6 py-4">
-                    <p className="text-section-title text-foreground">Book a test</p>
-                    <p className="text-body text-muted-foreground">
+                  <VStack gap={1} className="px-6 py-4 w-full min-w-0">
+                    <h3 className="text-base font-semibold text-foreground">Book a test</h3>
+                    <p className="text-body text-muted-foreground whitespace-normal">
                       Lab tests, health packages, and home sample collection
                     </p>
                   </VStack>
@@ -465,6 +511,7 @@ export default function BookingIndex() {
               </Button>
             </HStack>
           )}
+          </VStack>
         </main>
       </div>
     </>
