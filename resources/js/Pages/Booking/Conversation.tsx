@@ -64,7 +64,6 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const [mode, setMode] = useState<'ai' | 'guided'>('ai');
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -398,65 +397,45 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
     <>
       <Head title="Booking Appointment" />
 
-      <div
-        className="flex flex-col h-screen"
-        style={{
-          background: 'linear-gradient(180deg, rgba(211, 225, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 13.94%, rgba(255, 255, 255, 1) 30.77%)'
-        }}
-      >
+      <div className="h-screen flex flex-col bg-background overflow-hidden">
         {/* Header */}
-        <header className="bg-white border-b border-border">
-          <HStack className="justify-between px-6 py-4">
-            <HStack gap={2}>
+        <header className="sticky top-0 z-10 flex-none border-b bg-background">
+          <div className="flex items-center justify-between gap-8 px-6 py-4">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-5 h-5" />
               <span className="text-label">Booking an appointment</span>
-            </HStack>
-            <HStack gap={3}>
-              <HStack gap={1} className="border border-border rounded-full p-1 bg-muted">
-              <Button
-                variant="ghost"
-                className={cn(
-                  'h-auto p-2 rounded-full transition-all',
-                  mode === 'ai' ? 'shadow-md' : ''
-                )}
-                onClick={() => setMode('ai')}
-                iconOnly
-              >
-                <img
-                  src={mode === 'ai' ? '/assets/icons/hugeicons/ai-magic.svg' : '/assets/icons/hugeicons/ai-magic-1.svg'}
-                  alt=""
-                  className="w-4 h-4"
-                />
-              </Button>
-              <Button
-                variant="ghost"
-                className={cn(
-                  'h-auto p-2 rounded-full transition-all',
-                  mode === 'guided' ? 'shadow-md' : ''
-                )}
-                onClick={() => setMode('guided')}
-                iconOnly
-              >
-                <img
-                  src={mode === 'guided' ? '/assets/icons/hugeicons/stairs-01-1.svg' : '/assets/icons/hugeicons/stairs-01.svg'}
-                  alt=""
-                  className="w-4 h-4"
-                />
-              </Button>
-            </HStack>
+            </div>
+
+            {/* Empty spacer div (no step indicator for AI) */}
+            <div className="flex-1 min-w-0"></div>
+
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <div className="flex items-center gap-1 border rounded-full p-1 bg-muted">
+                <div className="p-1.5 rounded-full bg-background shadow-md">
+                  <img src="/assets/icons/hugeicons/ai-magic-1.svg" alt="" className="w-4 h-4" />
+                </div>
+                <Link
+                  href="/booking?mode=guided"
+                  className="p-1.5 rounded-full hover:bg-accent transition-all"
+                >
+                  <img src="/assets/icons/hugeicons/stairs-01.svg" alt="" className="w-4 h-4" />
+                </Link>
+              </div>
 
               {/* Cancel button */}
               <Button
                 variant="ghost"
-                onClick={() => router.visit('/')}
-                className="w-8 h-8 rounded-full hover:bg-accent transition-colors"
                 iconOnly
+                size="sm"
+                className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-accent transition-colors"
                 title="Cancel booking"
+                onClick={() => router.visit('/')}
               >
-                <Icon icon={X} size={16} className="text-muted-foreground" />
+                <Icon icon={X} className="w-4 h-4 text-muted-foreground" />
               </Button>
-            </HStack>
-          </HStack>
+            </div>
+          </div>
+
           {/* Progress bar */}
           <div className="h-1 bg-muted">
             <div
@@ -467,10 +446,16 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
         </header>
 
         {/* Messages area */}
-        <div className="flex-1 relative overflow-hidden">
-          <ChatContainerRoot className="h-full">
-            <ChatContainerContent className="px-4 py-6">
-              <div className="mx-auto space-y-4" style={{ maxWidth: '744px' }}>
+        <main className="flex-1 overflow-y-auto">
+          <div
+            className="min-h-full px-4 py-6"
+            style={{
+              background: 'linear-gradient(180deg, hsl(var(--primary) / 0.1) 0%, hsl(var(--background) / 0.5) 13.94%, hsl(var(--background)) 30.77%)'
+            }}
+          >
+            <ChatContainerRoot className="h-full">
+              <ChatContainerContent>
+                <div className="mx-auto space-y-4" style={{ maxWidth: '744px' }}>
                 {/* AI Blob - shown when no messages yet */}
                 {conversation.messages.length === 0 && !isLoading && (
                   <div className="flex flex-col items-center justify-center py-20">
@@ -501,16 +486,17 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                     <Loader variant="dots" size="md" />
                   </div>
                 )}
-              </div>
-              <ChatContainerScrollAnchor />
-            </ChatContainerContent>
+                </div>
+                <ChatContainerScrollAnchor />
+              </ChatContainerContent>
 
-            {/* Scroll button */}
-            <div className="absolute right-4 bottom-4">
-              <ScrollButton className="shadow-md" />
-            </div>
-          </ChatContainerRoot>
-        </div>
+              {/* Scroll button */}
+              <div className="absolute right-4 bottom-4">
+                <ScrollButton className="shadow-md" />
+              </div>
+            </ChatContainerRoot>
+          </div>
+        </main>
 
         {/* Input area */}
         <div className="flex-none bg-white p-4">
