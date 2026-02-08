@@ -5,7 +5,7 @@ import { getAvatarColor } from '@/Lib/avatar-colors';
 import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
 import { Card } from '@/Components/ui/card';
-import { Check, Star, Video, User, Search, ChevronDown } from '@/Lib/icons';
+import { Check, Star, Video, User, Search, ChevronDown, RefreshCw, AlertCircle, FileText, Pill, CalendarClock, UserPlus, CalendarPlus } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { EmbeddedDoctorList } from './embedded/EmbeddedDoctorList';
 import { EmbeddedLocationSelector } from './embedded/EmbeddedLocationSelector';
@@ -124,37 +124,72 @@ export function EmbeddedComponent({
       );
 
     case 'appointment_type_selector':
+      const typeIconMap: Record<string, any> = {
+        'new': UserPlus,
+        'followup': RefreshCw,
+      };
+
       return (
-        <div className="flex gap-3 mt-3">
-          {data?.options?.map((option: any) => (
-            <Button
-              key={option.id}
-              variant="outline"
-              onClick={() => onSelect({
-                appointment_type: option.id,
-                display_message: option.label
-              })}
-              disabled={disabled || isSelected}
-              className="flex-1 h-auto px-6 py-4 rounded-xl text-left font-normal"
-            >
-              <div className="w-full">
-                <div className="font-semibold text-foreground">{option.label}</div>
-                {option.description && (
-                  <div className="text-body text-muted-foreground mt-1">{option.description}</div>
+        <Card className="overflow-hidden">
+          {data?.options?.map((option: any, index: number) => {
+            const optionSelected = isSelected && selection?.appointment_type === option.id;
+            const TypeIcon = typeIconMap[option.id] || UserPlus;
+
+            return (
+              <Button
+                key={option.id}
+                variant="ghost"
+                onClick={() => onSelect({
+                  appointment_type: option.id,
+                  display_message: option.label
+                })}
+                disabled={disabled || isSelected}
+                className={cn(
+                  "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
+                  "flex items-center gap-4 text-left transition-all",
+                  optionSelected
+                    ? "bg-primary/5 disabled:opacity-60"
+                    : isSelected ? "disabled:opacity-30" : ""
                 )}
-              </div>
-            </Button>
-          ))}
-        </div>
+                style={{
+                  borderBottom: index < (data?.options?.length || 0) - 1 ? '1px solid hsl(var(--border))' : 'none'
+                }}
+              >
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Icon icon={TypeIcon} size={20} className="text-primary" />
+                </div>
+
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="text-label text-foreground leading-tight mb-0.5">{option.label}</p>
+                  {option.description && (
+                    <p className="text-body text-muted-foreground leading-tight">{option.description}</p>
+                  )}
+                </div>
+              </Button>
+            );
+          })}
+        </Card>
       );
 
     case 'followup_reason':
     case 'followup_reason_selector':
       const options = data?.options || [];
+
+      // Icon mapping for followup reasons
+      const reasonIconMap: Record<string, any> = {
+        'scheduled': CalendarClock,
+        'new_concern': AlertCircle,
+        'ongoing_issue': RefreshCw,
+        'test_results': FileText,
+        'medication_review': Pill,
+      };
+
       return (
         <Card className="overflow-hidden">
           {options.map((option: any, index: number) => {
             const optionSelected = isSelected && data?.selected === (option.value || option.id);
+            const OptionIcon = reasonIconMap[option.value || option.id] || RefreshCw;
+
             return (
               <Button
                 key={option.id || option.value}
@@ -168,6 +203,7 @@ export function EmbeddedComponent({
                 disabled={disabled || isSelected}
                 className={cn(
                   "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
+                  "flex items-center gap-4 text-left transition-all",
                   optionSelected
                     ? "bg-primary/5 disabled:opacity-60"
                     : isSelected ? "disabled:opacity-30" : ""
@@ -176,7 +212,11 @@ export function EmbeddedComponent({
                   borderBottom: index < options.length - 1 ? '1px solid hsl(var(--border))' : 'none'
                 }}
               >
-                <div className="w-full text-left">
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Icon icon={OptionIcon} size={20} className="text-primary" />
+                </div>
+
+                <div className="flex-1 min-w-0 text-left">
                   <p className="text-label text-foreground leading-tight mb-0.5">{option.label}</p>
                   {option.description && (
                     <p className="text-body text-muted-foreground leading-tight">{option.description}</p>

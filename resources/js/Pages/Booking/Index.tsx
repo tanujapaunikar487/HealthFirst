@@ -141,7 +141,7 @@ export default function BookingIndex() {
           </VStack>
 
           {/* Title and input section */}
-          <VStack gap={8} className="items-center w-full max-w-3xl mt-15">
+          <VStack gap={8} className="items-center w-full mt-15" style={{ maxWidth: '800px' }}>
             <h1 className="text-page-title text-center text-foreground">
               What would you like to book today?
             </h1>

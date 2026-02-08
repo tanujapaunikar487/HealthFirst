@@ -51,7 +51,7 @@ export function EmbeddedCollectionMethod({ methods, selectedMethod, onSelect, di
           >
             {/* Icon */}
             <div className={cn(
-              "w-10 h-10 rounded-lg flex items-center justify-center",
+              "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
               isSelected ? "bg-primary/10" : "bg-muted"
             )}>
               <Icon icon={MethodIcon} size={20} className={cn(isSelected && "text-primary")} />

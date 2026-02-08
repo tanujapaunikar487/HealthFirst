@@ -1,8 +1,6 @@
 import { cn } from '@/Lib/utils';
 import { Card } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
-import { Icon } from '@/Components/ui/icon';
-import { Flame, CalendarClock, CalendarPlus } from '@/Lib/icons';
 
 interface Props {
   selectedUrgency: string | null;
@@ -15,25 +13,22 @@ const options = [
     value: 'urgent',
     label: 'Urgent (Today/ASAP)',
     description: 'Need to see someone ASAP',
-    icon: Flame,
-    iconBg: 'bg-primary/10',
-    iconColor: 'text-primary',
+    containerBg: 'bg-destructive/10',
+    circleBg: 'bg-destructive',
   },
   {
     value: 'this_week',
     label: 'This Week',
     description: 'Within a few days',
-    icon: CalendarClock,
-    iconBg: 'bg-primary/10',
-    iconColor: 'text-primary',
+    containerBg: 'bg-warning/10',
+    circleBg: 'bg-warning',
   },
   {
     value: 'specific_date',
     label: "I've a specific date",
     description: 'Select a particular date',
-    icon: CalendarPlus,
-    iconBg: 'bg-primary/10',
-    iconColor: 'text-primary',
+    containerBg: 'bg-info/10',
+    circleBg: 'bg-info',
   },
 ];
 
@@ -42,7 +37,6 @@ export function EmbeddedUrgencySelector({ selectedUrgency, onSelect, disabled }:
     <Card className="overflow-hidden">
       {options.map((option, index) => {
         const isSelected = selectedUrgency === option.value;
-        const OptionIcon = option.icon;
 
         return (
           <Button
@@ -62,8 +56,8 @@ export function EmbeddedUrgencySelector({ selectedUrgency, onSelect, disabled }:
               borderBottom: index < options.length - 1 ? '1px solid hsl(var(--border))' : 'none'
             }}
           >
-            <div className={cn("h-10 w-10 rounded-full flex items-center justify-center shrink-0", option.iconBg)}>
-              <Icon icon={OptionIcon} size={20} className={option.iconColor} />
+            <div className={cn("h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0", option.containerBg)}>
+              <div className={cn("w-3 h-3 rounded-full", option.circleBg)} />
             </div>
 
             <div className="min-w-0 flex-1 text-left">

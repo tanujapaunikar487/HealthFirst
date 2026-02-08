@@ -339,7 +339,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
           >
             <ChatContainerRoot className="h-full">
               <ChatContainerContent>
-                <div className="mx-auto space-y-4" style={{ maxWidth: '744px' }}>
+                <div className="mx-auto space-y-4" style={{ maxWidth: '800px' }}>
                 {/* AI Blob - shown when no messages yet */}
                 {conversation.messages.length === 0 && !isLoading && (
                   <div className="flex flex-col items-center justify-center py-20">
@@ -384,7 +384,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
 
         {/* Input area */}
         <div className="flex-none bg-white p-4">
-          <div className="mx-auto" style={{ maxWidth: '744px' }}>
+          <div className="mx-auto" style={{ maxWidth: '800px' }}>
             <AIPromptInput
               value={input}
               onValueChange={setInput}
