@@ -2,7 +2,6 @@ import * as React from 'react';
 import * as SheetPrimitive from '@radix-ui/react-dialog';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { X, ArrowLeft } from '@/Lib/icons';
-import { Icon } from '@/Components/ui/icon';
 import { cn } from '@/Lib/utils';
 
 /**
@@ -22,12 +21,14 @@ import { cn } from '@/Lib/utils';
  *     <SheetHeader>
  *       <SheetTitle>Add Insurance</SheetTitle>
  *     </SheetHeader>
- *     <SheetBody className="space-y-5">
- *       <div>
- *         <SheetSectionHeading>Policy Information</SheetSectionHeading>
- *         <div className="space-y-3">
- *           <Input label="Policy Number" />
- *           <Input label="Provider" />
+ *     <SheetBody>
+ *       <div className="space-y-5 px-5 py-5">
+ *         <div>
+ *           <SheetSectionHeading>Policy Information</SheetSectionHeading>
+ *           <div className="space-y-3">
+ *             <Input label="Policy Number" />
+ *             <Input label="Provider" />
+ *           </div>
  *         </div>
  *       </div>
  *     </SheetBody>
@@ -73,14 +74,17 @@ import { cn } from '@/Lib/utils';
  *       <SheetTitle>Appointment Details</SheetTitle>
  *     </SheetHeader>
  *     <SheetBody>
- *       <div className="px-5 py-4">
- *         <SheetSectionHeading>Patient Information</SheetSectionHeading>
- *         // Content here
+ *       <div className="px-5">
+ *         <div className="py-4">
+ *           <SheetSectionHeading>Patient Information</SheetSectionHeading>
+ *           // Content here
+ *         </div>
+ *         <SheetDivider />
+ *         <Collapsible className="-mx-5">
+ *           <CollapsibleTrigger className="px-5 py-4">Trigger</CollapsibleTrigger>
+ *           <CollapsibleContent className="px-5 py-4">Content</CollapsibleContent>
+ *         </Collapsible>
  *       </div>
- *       <SheetDivider />
- *       <SheetEdgeContent>
- *         <Collapsible>// Full-width collapsible content</Collapsible>
- *       </SheetEdgeContent>
  *     </SheetBody>
  *     <SheetFooter>
  *       <Button>Confirm</Button>
@@ -98,9 +102,11 @@ import { cn } from '@/Lib/utils';
  *     <SheetHeader onBack={step > 1 ? handleBack : undefined}>
  *       <SheetTitle>{stepTitles[step]}</SheetTitle>
  *     </SheetHeader>
- *     <SheetBody className="space-y-5">
- *       {step === 1 && <StepOne />}
- *       {step === 2 && <StepTwo />}
+ *     <SheetBody>
+ *       <div className="space-y-5 px-5 py-5">
+ *         {step === 1 && <StepOne />}
+ *         {step === 2 && <StepTwo />}
+ *       </div>
  *     </SheetBody>
  *     <SheetFooter>
  *       <Button onClick={handleNext}>
@@ -169,20 +175,13 @@ const SheetContent = React.forwardRef<
     <SheetOverlay />
     <SheetPrimitive.Content
       ref={ref}
-      className={cn(sheetVariants({ side }), 'rounded-3xl', className)}
+      className={cn(
+        sheetVariants({ side }),
+        'w-[500px] rounded-3xl border bg-card flex flex-col items-stretch inset-y-2.5 right-2.5 left-auto h-auto',
+        className
+      )}
       style={{
-        width: '500px',
-        border: '1px solid hsl(var(--border))',
-        background: 'hsl(var(--card))',
         boxShadow: '0 32px 32px 0 rgba(23, 23, 23, 0.12), 0 50px 60px 0 rgba(23, 23, 23, 0.12)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'stretch',
-        top: '10px',
-        right: '10px',
-        bottom: '10px',
-        left: 'auto',
-        height: 'auto',
       }}
       {...props}
     >
@@ -194,14 +193,12 @@ SheetContent.displayName = SheetPrimitive.Content.displayName;
 
 const SheetHeader = ({
   className,
-  style,
   onBack,
   children,
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & { onBack?: () => void }) => (
   <div
-    className={cn('flex items-center gap-3', className)}
-    style={{ padding: '16px 20px', borderBottom: '1px solid hsl(var(--border))', ...style }}
+    className={cn('flex items-center gap-3 px-5 py-4 border-b', className)}
     {...props}
   >
     {onBack && (
@@ -226,11 +223,7 @@ const SheetFooter = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn(
-      'flex items-center gap-2 mt-auto',
-      className
-    )}
-    style={{ padding: '16px 20px', borderTop: '1px solid hsl(var(--border))' }}
+    className={cn('flex items-center gap-2 mt-auto px-5 py-4 border-t', className)}
     {...props}
   />
 );
@@ -249,14 +242,15 @@ SheetDivider.displayName = 'SheetDivider';
 
 /**
  * SheetBody - Scrollable content area.
- * Sections (direct children) get 20px padding and are separated by 1px #E5E5E5 dividers.
+ * Content must use explicit padding (px-5 py-4 or px-5 py-5) - no auto-padding applied.
+ * Use SheetEdgeContent for full-width sections that break out of parent padding.
  */
 const SheetBody = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn('sheet-body flex-1 overflow-y-auto', className)}
+    className={cn('flex-1 overflow-y-auto', className)}
     {...props}
   />
 );
@@ -340,17 +334,31 @@ SheetDescription.displayName = SheetPrimitive.Description.displayName;
 
 /**
  * SheetEdgeContent - Edge-to-edge content wrapper for full-width sections.
- * Automatically applies negative margin to break out of SheetBody padding.
+ * Applies negative margin to break out of parent padding.
  * Use for lists, dividers, tables, or any content that needs to span full width.
+ * Parent container must have horizontal padding (px-5) for this to work.
  *
  * @example
  * <SheetBody>
- *   <SheetEdgeContent>
- *     <div className="divide-y">
- *       <Button variant="ghost" className="w-full">Item 1</Button>
- *       <Button variant="ghost" className="w-full">Item 2</Button>
- *     </div>
- *   </SheetEdgeContent>
+ *   <div className="px-5">
+ *     <SheetEdgeContent>
+ *       <div className="divide-y">
+ *         <Button variant="ghost" className="px-6 py-4 rounded-none">Item 1</Button>
+ *         <Button variant="ghost" className="px-6 py-4 rounded-none">Item 2</Button>
+ *       </div>
+ *     </SheetEdgeContent>
+ *   </div>
+ * </SheetBody>
+ *
+ * @example
+ * // For collapsibles that need full-width
+ * <SheetBody>
+ *   <div className="px-5">
+ *     <Collapsible className="-mx-5">
+ *       <CollapsibleTrigger className="px-5 py-4">Title</CollapsibleTrigger>
+ *       <CollapsibleContent className="px-5 py-4">Content</CollapsibleContent>
+ *     </Collapsible>
+ *   </div>
  * </SheetBody>
  */
 const SheetEdgeContent = ({
@@ -370,7 +378,7 @@ SheetEdgeContent.displayName = 'SheetEdgeContent';
  *
  * @example
  * <SheetBody>
- *   <div className="space-y-5">
+ *   <div className="space-y-5 px-5 py-5">
  *     <div>
  *       <SheetSectionHeading>Personal Information</SheetSectionHeading>
  *       <div className="space-y-3">

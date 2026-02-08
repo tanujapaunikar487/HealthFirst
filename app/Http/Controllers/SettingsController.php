@@ -81,6 +81,9 @@ class SettingsController extends Controller
                 'google' => ['connected' => false, 'enabled' => false],
                 'apple' => ['enabled' => false],
             ]),
+            'videoSettings' => $user->getSetting('video_consultation', [
+                'preferred' => 'google_meet',
+            ]),
         ]);
     }
 
@@ -357,6 +360,23 @@ class SettingsController extends Controller
         $user->setSetting('calendar_sync', $current);
 
         return back()->with('success', 'Calendar preference updated.');
+    }
+
+    /**
+     * Update preferred video consultation platform.
+     */
+    public function updateVideoPreference(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'preferred' => 'nullable|string|in:zoom,google_meet',
+        ]);
+
+        $user = Auth::user() ?? User::first();
+        $user->setSetting('video_consultation', [
+            'preferred' => $validated['preferred'],
+        ]);
+
+        return back()->with('success', 'Video preference updated.');
     }
 
     /**

@@ -246,160 +246,160 @@ export function DetailsSheet({
       {/* Scrollable Content */}
       <SheetBody>
         {/* Details Section */}
-        <Collapsible open={detailsOpen} onOpenChange={setDetailsOpen} className="-mx-5">
-              <CollapsibleTrigger className="flex items-center justify-between w-full px-5 py-4 hover:bg-muted/50 transition-colors">
-                <div className="flex items-center gap-2">
-                  <Icon icon={Calendar} size={16} />
-                  <span className="text-label">Details</span>
-                </div>
-                <Icon
-                  icon={ChevronDown}
-                  size={16}
-                  className={cn(
-                    "transition-transform",
-                    detailsOpen && "transform rotate-180"
-                  )}
+        <Collapsible open={detailsOpen} onOpenChange={setDetailsOpen}>
+          <CollapsibleTrigger className="flex items-center justify-between w-full px-5 py-4 hover:bg-muted/50 transition-colors">
+            <div className="flex items-center gap-2">
+              <Icon icon={Calendar} size={16} />
+              <span className="text-label">Details</span>
+            </div>
+            <Icon
+              icon={ChevronDown}
+              size={16}
+              className={cn(
+                "transition-transform",
+                detailsOpen && "transform rotate-180"
+              )}
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="px-5">
+            <div className="divide-y">
+              <SheetSectionRow label="Date" value={appointment.date_formatted} />
+              <SheetSectionRow
+                label="Time"
+                value={`${appointment.time} (30 mins)`}
+              />
+              <SheetSectionRow
+                label="Type"
+                value={`${appointment.subtitle || 'New'} • ${appointment.mode}`}
+              />
+              {appointment.google_calendar_event_id && (
+                <SheetSectionRow
+                  label="Calendar"
+                  value={
+                    <span className="flex items-center gap-1 text-success">
+                      <Icon icon={Check} size={12} />
+                      Synced
+                    </span>
+                  }
                 />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="px-5 py-4">
-                <div className="divide-y space-y-3">
-                  <SheetSectionRow label="Date" value={appointment.date_formatted} />
-                  <SheetSectionRow
-                    label="Time"
-                    value={`${appointment.time} (30 mins)`}
-                  />
-                  <SheetSectionRow
-                    label="Type"
-                    value={`${appointment.subtitle || 'New'} • ${appointment.mode}`}
-                  />
-                  {appointment.google_calendar_event_id && (
-                    <SheetSectionRow
-                      label="Calendar"
-                      value={
-                        <span className="flex items-center gap-1 text-success">
-                          <Icon icon={Check} size={12} />
-                          Synced
-                        </span>
-                      }
-                    />
-                  )}
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
+              )}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
 
         {/* Notes Section */}
-        <Collapsible open={notesOpen} onOpenChange={setNotesOpen} className="-mx-5">
-              <CollapsibleTrigger className="flex items-center justify-between w-full px-5 py-4 hover:bg-muted/50 transition-colors">
-                <div className="flex items-center gap-2">
-                  <Icon icon={FileText} size={16} />
-                  <span className="text-label">Notes</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    className="text-body text-primary hover:underline cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsEditingNotes(true);
-                      setNotesOpen(true);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.stopPropagation();
-                        setIsEditingNotes(true);
-                        setNotesOpen(true);
-                      }
-                    }}
-                  >
-                    {notesValue ? 'Edit' : 'Add note'}
-                  </span>
-                  <Icon
-                    icon={ChevronDown}
-                    size={16}
-                    className={cn(
-                      "transition-transform",
-                      notesOpen && "transform rotate-180"
-                    )}
-                  />
-                </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-3 px-5 py-4">
-                {isEditingNotes ? (
-                  <div className="space-y-2">
-                    <Textarea
-                      value={notesValue}
-                      onChange={(e) => setNotesValue(e.target.value)}
-                      placeholder="Add your notes here..."
-                      className="min-h-[120px]"
-                      maxLength={5000}
-                    />
-                    <div className="flex gap-2 justify-end">
-                      <Button
-                        variant="ghost"
-                        size="md"
-                        onClick={() => {
-                          setIsEditingNotes(false);
-                          setNotesValue(appointment.notes || '');
-                        }}
-                        disabled={isSavingNotes}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        size="md"
-                        onClick={handleSaveNotes}
-                        disabled={isSavingNotes}
-                      >
-                        {isSavingNotes ? 'Saving...' : 'Save'}
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    {notesValue ? (
-                      <p className="text-body text-foreground whitespace-pre-wrap">{notesValue}</p>
-                    ) : (
-                      <p className="text-body text-muted-foreground">No notes added</p>
-                    )}
-                  </div>
+        <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
+          <CollapsibleTrigger className="flex items-center justify-between w-full px-5 py-4 hover:bg-muted/50 transition-colors">
+            <div className="flex items-center gap-2">
+              <Icon icon={FileText} size={16} />
+              <span className="text-label">Notes</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span
+                role="button"
+                tabIndex={0}
+                className="text-body text-primary hover:underline cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsEditingNotes(true);
+                  setNotesOpen(true);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.stopPropagation();
+                    setIsEditingNotes(true);
+                    setNotesOpen(true);
+                  }
+                }}
+              >
+                {notesValue ? 'Edit' : 'Add note'}
+              </span>
+              <Icon
+                icon={ChevronDown}
+                size={16}
+                className={cn(
+                  "transition-transform",
+                  notesOpen && "transform rotate-180"
                 )}
-              </CollapsibleContent>
-            </Collapsible>
+              />
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="px-5">
+            {isEditingNotes ? (
+              <div className="space-y-2">
+                <Textarea
+                  value={notesValue}
+                  onChange={(e) => setNotesValue(e.target.value)}
+                  placeholder="Add your notes here..."
+                  className="min-h-[120px]"
+                  maxLength={5000}
+                />
+                <div className="flex gap-2 justify-end">
+                  <Button
+                    variant="ghost"
+                    size="md"
+                    onClick={() => {
+                      setIsEditingNotes(false);
+                      setNotesValue(appointment.notes || '');
+                    }}
+                    disabled={isSavingNotes}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="md"
+                    onClick={handleSaveNotes}
+                    disabled={isSavingNotes}
+                  >
+                    {isSavingNotes ? 'Saving...' : 'Save'}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                {notesValue ? (
+                  <p className="text-body text-foreground whitespace-pre-wrap">{notesValue}</p>
+                ) : (
+                  <p className="text-body text-muted-foreground">No notes added</p>
+                )}
+              </div>
+            )}
+          </CollapsibleContent>
+        </Collapsible>
 
         {/* Preparation Section */}
-        <Collapsible open={preparationOpen} onOpenChange={setPreparationOpen} className="-mx-5">
-              <CollapsibleTrigger className="flex items-center justify-between w-full px-5 py-4 hover:bg-muted/50 transition-colors">
-                <div className="flex items-center gap-2">
-                  <Icon icon={ClipboardCheck} size={16} />
-                  <span className="text-label">Preparation</span>
-                </div>
-                <Icon
-                  icon={ChevronDown}
-                  size={16}
-                  className={cn(
-                    "transition-transform",
-                    preparationOpen && "transform rotate-180"
-                  )}
-                />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-3 px-5 py-4">
-                <ul className="space-y-1.5 text-body text-muted-foreground">
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1.5">•</span>
-                    <span>Have prescription list ready</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1.5">•</span>
-                    <span>Previous reports if any</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1.5">•</span>
-                    <span>List of current symptoms</span>
-                  </li>
-                </ul>
-              </CollapsibleContent>
-            </Collapsible>
+        <Collapsible open={preparationOpen} onOpenChange={setPreparationOpen}>
+          <CollapsibleTrigger className="flex items-center justify-between w-full px-5 py-4 hover:bg-muted/50 transition-colors">
+            <div className="flex items-center gap-2">
+              <Icon icon={ClipboardCheck} size={16} />
+              <span className="text-label">Preparation</span>
+            </div>
+            <Icon
+              icon={ChevronDown}
+              size={16}
+              className={cn(
+                "transition-transform",
+                preparationOpen && "transform rotate-180"
+              )}
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="px-5">
+            <ul className="space-y-1.5 text-body text-muted-foreground">
+              <li className="flex items-start gap-2">
+                <span className="mt-1.5">•</span>
+                <span>Have medication list ready</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1.5">•</span>
+                <span>Previous reports if any</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1.5">•</span>
+                <span>List of current symptoms</span>
+              </li>
+            </ul>
+          </CollapsibleContent>
+        </Collapsible>
       </SheetBody>
 
       {/* Footer */}

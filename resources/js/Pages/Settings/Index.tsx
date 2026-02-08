@@ -92,6 +92,10 @@ interface CalendarSettings {
     };
 }
 
+interface VideoSettings {
+    preferred?: 'zoom' | 'google_meet' | null;
+}
+
 interface Props {
     user: User;
     familyMembers: FamilyMember[];
@@ -100,6 +104,7 @@ interface Props {
     preferences: PreferenceSettings;
     bookingDefaults: BookingDefaults;
     calendarSettings: CalendarSettings;
+    videoSettings: VideoSettings;
 }
 
 type Tab = 'profile' | 'notifications' | 'preferences' | 'connections';
@@ -119,6 +124,7 @@ export default function SettingsIndex({
     preferences,
     bookingDefaults,
     calendarSettings,
+    videoSettings,
 }: Props) {
     const [activeTab, setActiveTab] = useState<Tab>('profile');
     const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -195,6 +201,7 @@ export default function SettingsIndex({
                         {activeTab === 'connections' && (
                             <ConnectionsTab
                                 calendarSettings={calendarSettings}
+                                videoSettings={videoSettings}
                             />
                         )}
                     </div>

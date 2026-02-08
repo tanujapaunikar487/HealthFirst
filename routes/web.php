@@ -144,6 +144,9 @@ Route::post('/appointments/{appointment}/rate', [AppointmentsController::class, 
         Route::get('/calendar/apple/export', [\App\Http\Controllers\SettingsController::class, 'generateAppleCalendarExport'])->name('calendar.apple.export');
         Route::put('/calendar/preferred', [\App\Http\Controllers\SettingsController::class, 'updateCalendarPreference'])->name('calendar.preferred.update');
 
+        // Video Consultation
+        Route::put('/video/preferred', [\App\Http\Controllers\SettingsController::class, 'updateVideoPreference'])->name('video.preferred.update');
+
         // Account Actions
         Route::post('/verify-password', [\App\Http\Controllers\SettingsController::class, 'verifyCurrentPassword'])->name('verify-password');
         Route::put('/password', [\App\Http\Controllers\SettingsController::class, 'changePassword'])->name('password.update');
