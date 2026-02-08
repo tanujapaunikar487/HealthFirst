@@ -3,6 +3,7 @@ import { Link } from '@inertiajs/react';
 import { Button, buttonVariants } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
 import { Card } from '@/Components/ui/card';
+import { DetailRow } from '@/Components/ui/detail-row';
 import { AddToCalendarButton } from '@/Components/AddToCalendarButton';
 import { Check, Info, Plus, Download } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
@@ -190,11 +191,3 @@ export default function Confirmation({ booking, calendarPreference }: Props) {
   );
 }
 
-function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="flex items-center justify-between px-6 py-4">
-      <span className="text-body text-muted-foreground">{label}</span>
-      <div className="text-label text-right">{value}</div>
-    </div>
-  );
-}

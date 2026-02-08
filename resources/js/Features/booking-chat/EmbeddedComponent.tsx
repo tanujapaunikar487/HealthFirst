@@ -877,8 +877,13 @@ function PatientSelector({ patients, selected, defaultPatientId, onSelect, onAdd
           >
             <Avatar className="w-9 h-9 flex-shrink-0">
               <AvatarImage src={patient.avatar} />
-              <AvatarFallback className="bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700 text-label">
-                {patient.name.split(' ').map((n: string) => n[0]).join('')}
+              <AvatarFallback
+                style={(() => {
+                  const color = getAvatarColorByName(patient.name);
+                  return { backgroundColor: color.bg, color: color.text };
+                })()}
+              >
+                {patient.name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">

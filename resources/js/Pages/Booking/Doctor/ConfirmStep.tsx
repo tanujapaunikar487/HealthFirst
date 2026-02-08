@@ -2,6 +2,7 @@ import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { Button } from '@/Components/ui/button';
 import { Card } from '@/Components/ui/card';
+import { DetailRow } from '@/Components/ui/detail-row';
 import { format, parseISO } from 'date-fns';
 
 const doctorSteps = [
@@ -77,16 +78,12 @@ export default function ConfirmStep({ summary }: Props) {
       <div>
         <h2 className="text-step-title mb-6">Booking Summary</h2>
 
-        <Card className="overflow-hidden">
+        <Card>
           <div className="divide-y">
             {rows.map((row) => (
-              <div
-                key={row.label}
-                className="flex items-center justify-between px-6 py-4"
-              >
-                <span className="text-body text-muted-foreground">{row.label}</span>
-                <div className="flex items-center gap-3">
-                  <span className="text-label">{row.value}</span>
+              <DetailRow key={row.label} label={row.label}>
+                <div className="flex items-center justify-between">
+                  <span>{row.value}</span>
                   <Button
                     variant="link"
                     onClick={() => handleChange(row.step)}
@@ -95,13 +92,11 @@ export default function ConfirmStep({ summary }: Props) {
                     Change
                   </Button>
                 </div>
-              </div>
+              </DetailRow>
             ))}
-            {/* Fee - no Change button */}
-            <div className="flex items-center justify-between px-6 py-4">
-              <span className="text-body text-muted-foreground">Appointment Fee</span>
-              <span className="text-label">₹{summary.fee.toLocaleString()}</span>
-            </div>
+            <DetailRow label="Appointment Fee">
+              ₹{summary.fee.toLocaleString()}
+            </DetailRow>
           </div>
         </Card>
       </div>

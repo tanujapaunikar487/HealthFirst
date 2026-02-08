@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
+import { getAvatarColorByName } from '@/Lib/avatar-colors';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
@@ -91,7 +92,7 @@ export function EmbeddedDoctorList({ doctors, selectedDoctorId, selectedTime, on
 
   return (
     <div className="space-y-4">
-      {/* Filters row 1: Sort and search */}
+      {/* Filters and search in one row */}
       <div className="flex items-center gap-3">
         <Select value={sortBy} onValueChange={setSortBy} disabled={disabled}>
           <SelectTrigger className="w-[180px]">
@@ -105,20 +106,6 @@ export function EmbeddedDoctorList({ doctors, selectedDoctorId, selectedTime, on
           </SelectContent>
         </Select>
 
-        <div className="relative flex-1">
-          <Icon icon={Search} size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search doctors"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-            disabled={disabled}
-          />
-        </div>
-      </div>
-
-      {/* Filters row 2: Specialty and Mode */}
-      <div className="flex items-center gap-3">
         <Select value={filterSpecialty} onValueChange={setFilterSpecialty} disabled={disabled}>
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="All Specialties" />
@@ -142,8 +129,19 @@ export function EmbeddedDoctorList({ doctors, selectedDoctorId, selectedTime, on
           </SelectContent>
         </Select>
 
+        <div className="relative flex-1">
+          <Icon icon={Search} size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search doctors"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+            disabled={disabled}
+          />
+        </div>
+
         {/* Results count */}
-        <div className="ml-auto text-body text-muted-foreground">
+        <div className="text-body text-muted-foreground shrink-0">
           {filteredDoctors.length} doctor{filteredDoctors.length !== 1 ? 's' : ''}
         </div>
       </div>
@@ -202,7 +200,14 @@ function DoctorCard({
         <div className="flex items-start gap-3 flex-1">
           <Avatar className="h-10 w-10">
             <AvatarImage src={doctor.avatar || undefined} />
-            <AvatarFallback>{doctor.name?.charAt(0) || 'D'}</AvatarFallback>
+            <AvatarFallback
+              style={(() => {
+                const color = getAvatarColorByName(doctor.name || 'Doctor');
+                return { backgroundColor: color.bg, color: color.text };
+              })()}
+            >
+              {doctor.name?.charAt(0).toUpperCase() || 'D'}
+            </AvatarFallback>
           </Avatar>
           <div className="space-y-1">
             <p className="text-label leading-none">{doctor.name || 'Unknown Doctor'}</p>
