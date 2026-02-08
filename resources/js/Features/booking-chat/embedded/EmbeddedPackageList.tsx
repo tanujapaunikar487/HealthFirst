@@ -4,7 +4,7 @@ import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
 import { cn } from '@/Lib/utils';
-import { Clock, FlaskConical, ChevronRight, ChevronDown, TestTube, Check, Square, CheckSquare, Sparkles, ClipboardList } from '@/Lib/icons';
+import { FlaskConical, ChevronRight, ChevronDown, TestTube, Check, Square, CheckSquare, Sparkles, ClipboardList } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 
 interface Package {
@@ -250,9 +250,9 @@ export function EmbeddedPackageList({
                           )}
                         >
                           {isExpanded ? (
-                            <ChevronDown className="h-4 w-4" />
+                            <Icon icon={ChevronDown} />
                           ) : (
-                            <ChevronRight className="h-4 w-4" />
+                            <Icon icon={ChevronRight} />
                           )}
                         </Button>
                       )}
@@ -294,7 +294,7 @@ export function EmbeddedPackageList({
             {!isGuided && alreadySubmitted && selectedTestIds.length > 0 && (
               <div className="px-4 py-2.5 border-t bg-primary/5">
                 <div className="flex items-center gap-2 text-body text-primary">
-                  <Check className="h-4 w-4" />
+                  <Icon icon={Check} />
                   <span className="font-medium">
                     {selectedTestIds.length} test{selectedTestIds.length > 1 ? 's' : ''} selected
                   </span>
@@ -334,9 +334,9 @@ export function EmbeddedPackageList({
                         {/* Checkbox */}
                         <div className="flex-shrink-0 mt-0.5">
                           {isSelected ? (
-                            <CheckSquare className="h-5 w-5 text-primary" />
+                            <Icon icon={CheckSquare} size={20} className="text-primary" />
                           ) : (
-                            <Square className="h-5 w-5 text-foreground/50" />
+                            <Icon icon={Square} size={20} className="text-foreground/50" />
                           )}
                         </div>
 
@@ -415,7 +415,7 @@ export function EmbeddedPackageList({
                       {/* Savings highlight */}
                       {savings > 0 && (
                         <div className="flex items-center gap-2 text-body">
-                          <Sparkles className="h-4 w-4 text-success" />
+                          <Icon icon={Sparkles} className="text-success" />
                           <span className="font-medium text-success">
                             You save ₹{savings.toLocaleString()}
                           </span>
@@ -426,7 +426,7 @@ export function EmbeddedPackageList({
                       {pkg.included_test_names && pkg.included_test_names.length > 0 && (
                         <div>
                           <div className="flex items-center gap-1.5 mb-2">
-                            <TestTube className="h-3.5 w-3.5 text-foreground" />
+                            <Icon icon={TestTube} size={14} className="text-foreground" />
                             <span className="text-card-title text-muted-foreground uppercase tracking-wide">
                               Included Tests
                             </span>
@@ -434,7 +434,7 @@ export function EmbeddedPackageList({
                           <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                             {pkg.included_test_names.map((testName, i) => (
                               <div key={i} className="flex items-center gap-1.5 text-body text-foreground">
-                                <Check className="h-3 w-3 text-primary flex-shrink-0" />
+                                <Icon icon={Check} size={12} className="text-primary flex-shrink-0" />
                                 <span>{testName}</span>
                               </div>
                             ))}
@@ -446,7 +446,7 @@ export function EmbeddedPackageList({
                       {pkg.preparation_notes && (
                         <div>
                           <div className="flex items-center gap-1.5 mb-2">
-                            <ClipboardList className="h-3.5 w-3.5 text-foreground" />
+                            <Icon icon={ClipboardList} size={14} className="text-foreground" />
                             <span className="text-card-title text-muted-foreground uppercase tracking-wide">
                               Preparation
                             </span>
