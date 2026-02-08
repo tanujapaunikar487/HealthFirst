@@ -28,6 +28,10 @@ Laravel 11 + React 18 + TS + Inertia v2 + Tailwind v4 + shadcn/ui | `php artisan
 **Typography**: Section headings=`text-section-title` | Labels=`text-label` | Body=`text-body` | Prices=`text-card-title`
 **Icons**: `<Icon icon={IconName} size={20} />` not `<IconName className="h-5 w-5" />` | Sizes: 12/14 (sm), 16 (default), 20 (lg), 24 (xl) | Adjacent icons in `HStack gap={1}`
 
+## AI Booking Chat
+**File Attachments**: Users can attach files (images, PDFs, Word docs) to messages in AI booking conversation. Click "+" button to select files. Files stored in `storage/app/public/conversation-attachments/`. Backend: `BookingConversationController` handles uploads, stores metadata in `conversation_messages.attachments` JSON column. Frontend: Files preview as chips before send, display as thumbnails (images) or file icons (documents) in chat. Max 10MB per file. Accepted types: jpg, jpeg, png, pdf, doc, docx.
+**File Upload Pattern**: Use FormData with `attachments[]` array for multiple files. Inertia: set `forceFormData: true` for file uploads. Backend validation: `attachments.*` rule validates each file.
+
 ## Settings & Preferences
 **Video Consultation**: User preferences stored in `video_consultation` setting. Platforms: `google_meet` (default) | `zoom`. When booking video appointments, generate links based on user's preferred platform. Icons: `/assets/icons/google-meet.svg` | `/assets/icons/zoom.svg`.
 **Calendar Sync**: User can connect Google Calendar or set Apple Calendar as preferred. Stored in `calendar_sync` setting. Google Calendar requires OAuth flow.

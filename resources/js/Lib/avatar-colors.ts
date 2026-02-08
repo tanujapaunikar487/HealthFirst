@@ -19,3 +19,16 @@ export const avatarColors = [
 export function getAvatarColor(index: number) {
   return avatarColors[index % avatarColors.length];
 }
+
+/**
+ * Get avatar color pair by name (deterministic color based on name string).
+ */
+export function getAvatarColorByName(name: string) {
+  // Simple hash function to convert name to index
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash);
+  return avatarColors[index % avatarColors.length];
+}

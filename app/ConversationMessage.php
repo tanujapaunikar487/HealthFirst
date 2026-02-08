@@ -18,12 +18,14 @@ class ConversationMessage extends Model
         'component_data',
         'user_selection',
         'thinking_steps',
+        'attachments',
     ];
 
     protected $casts = [
         'component_data' => 'array',
         'user_selection' => 'array',
         'thinking_steps' => 'array',
+        'attachments' => 'array',
     ];
 
     public function conversation(): BelongsTo

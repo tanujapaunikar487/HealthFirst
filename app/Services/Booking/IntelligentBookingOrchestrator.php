@@ -40,18 +40,19 @@ class IntelligentBookingOrchestrator
     /**
      * Process user input using AI-driven entity extraction
      */
-    public function process(BookingConversation $conversation, ?string $userInput = null, ?array $componentSelection = null): array
+    public function process(BookingConversation $conversation, ?string $userInput = null, ?array $componentSelection = null, ?array $attachments = null): array
     {
         Log::info('=== BOOKING FLOW DEBUG START ===', [
             'conversation_id' => $conversation->id,
             'input_message' => $userInput,
             'display_message' => $componentSelection['display_message'] ?? null,
             'current_state' => $conversation->collected_data,
+            'has_attachments' => !empty($attachments),
         ]);
 
         // Add user message if there's input
         if ($userInput || $componentSelection) {
-            $this->addUserMessage($conversation, $userInput, $componentSelection);
+            $this->addUserMessage($conversation, $userInput, $componentSelection, $attachments);
         }
 
         // If we have a component selection, handle it directly (even if there's formatted text)
@@ -3310,7 +3311,7 @@ class IntelligentBookingOrchestrator
 
     // Message handling methods
 
-    protected function addUserMessage(BookingConversation $conversation, ?string $content, ?array $selection): void
+    protected function addUserMessage(BookingConversation $conversation, ?string $content, ?array $selection, ?array $attachments = null): void
     {
         $displayMessage = $selection['display_message'] ?? $content;
 
@@ -3318,6 +3319,7 @@ class IntelligentBookingOrchestrator
             'conversation_id' => $conversation->id,
             'role' => 'user',
             'content' => $displayMessage ?? '',
+            'attachments' => $attachments,
         ]);
     }
 

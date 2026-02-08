@@ -115,16 +115,47 @@ class BookingConversationController extends Controller
         // TODO: Re-enable authorization when auth is implemented
         // $this->authorize('update', $conversation);
 
+        // Debug: Log all request data
+        \Illuminate\Support\Facades\Log::info('Message request received', [
+            'has_files' => $request->hasFile('attachments'),
+            'all_files' => $request->allFiles(),
+            'content_type' => $request->header('Content-Type'),
+        ]);
+
         $validated = $request->validate([
             'content' => 'nullable|string',
             'component_type' => 'nullable|string',
             'user_selection' => 'nullable|array',
+            'attachments.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:10240', // 10MB max per file
         ]);
+
+        // Handle file uploads
+        $attachments = [];
+        if ($request->hasFile('attachments')) {
+            \Illuminate\Support\Facades\Log::info('Files detected', [
+                'count' => count($request->file('attachments'))
+            ]);
+
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('conversation-attachments', 'public');
+                $attachments[] = [
+                    'name' => $file->getClientOriginalName(),
+                    'path' => $path,
+                    'url' => \Illuminate\Support\Facades\Storage::url($path),
+                    'mime_type' => $file->getMimeType(),
+                    'size' => $file->getSize(),
+                ];
+            }
+        } else {
+            \Illuminate\Support\Facades\Log::info('No files detected in request');
+        }
 
         \Illuminate\Support\Facades\Log::info('Message received (Intelligent)', [
             'conversation_id' => $conversation->id,
             'has_input' => !empty($validated['content']),
             'has_selection' => !empty($validated['user_selection']),
+            'has_attachments' => count($attachments) > 0,
+            'attachment_count' => count($attachments),
         ]);
 
         // Process the conversation with user input
@@ -132,7 +163,8 @@ class BookingConversationController extends Controller
         $response = $this->orchestrator->process(
             $conversation,
             $validated['content'] ?? null,
-            $validated['user_selection'] ?? null
+            $validated['user_selection'] ?? null,
+            $attachments
         );
 
         // Calculate completeness for logging

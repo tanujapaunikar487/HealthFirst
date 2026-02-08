@@ -1,5 +1,5 @@
 import { Head, router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   ChatContainerRoot,
   ChatContainerContent,
@@ -14,7 +14,7 @@ import {
 } from '@/Components/ui/prompt-input';
 import { PromptInputContainer } from '@/Components/ui/prompt-input-container';
 import { Loader } from '@/Components/ui/loader';
-import { Plus, ArrowUp, Mic, X, Check } from '@/Lib/icons';
+import { Plus, ArrowUp, Mic, X, Check, FileText } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { EmbeddedComponent } from '@/Features/booking-chat/EmbeddedComponent';
 import { ThinkingIndicator } from '@/Components/Booking/ThinkingIndicator';
@@ -32,6 +32,13 @@ interface ConversationMessage {
   component_data: any;
   user_selection: any;
   thinking_steps?: string[];
+  attachments?: Array<{
+    name: string;
+    path: string;
+    url: string;
+    mime_type: string;
+    size: number;
+  }>;
 }
 
 interface ConversationData {
@@ -59,6 +66,8 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
   const [isFocused, setIsFocused] = useState(false);
   const [mode, setMode] = useState<'ai' | 'guided'>('ai');
   const [isTranscribing, setIsTranscribing] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Audio recording
   const {
@@ -79,8 +88,29 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
   const { bookingDefaults } = usePage<{ bookingDefaults?: { default_patient_id: string | null } }>().props;
   const defaultPatientId = bookingDefaults?.default_patient_id || null;
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const fileArray = Array.from(files);
+      console.log('Files selected:', fileArray.length, fileArray.map(f => f.name));
+      setSelectedFiles(prev => [...prev, ...fileArray]);
+    }
+    // Reset input value to allow selecting the same file again
+    if (e.target) {
+      e.target.value = '';
+    }
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleAddFileClick = () => {
+    fileInputRef.current?.click();
+  };
+
   const sendTextMessage = (content: string) => {
-    if (!content.trim() || isLoading) return;
+    if ((!content.trim() && selectedFiles.length === 0) || isLoading) return;
 
     setIsLoading(true);
     const trimmedContent = content.trim();
@@ -89,20 +119,63 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
     // If we're on the followup_update step, send as user_selection
     const isFollowupUpdate = conversation.current_step === 'followup_update';
 
-    router.post(
-      `/booking/${conversation.id}/message`,
-      {
-        content: trimmedContent,
-        ...(isFollowupUpdate && {
-          component_type: 'text_input',
-          user_selection: { text: trimmedContent }
-        })
-      },
-      {
-        preserveScroll: true,
-        onFinish: () => setIsLoading(false),
+    // Prepare data - use FormData only if there are files
+    const hasFiles = selectedFiles.length > 0;
+
+    if (hasFiles) {
+      // Create FormData to handle file uploads
+      const formData = new FormData();
+      if (trimmedContent) {
+        formData.append('content', trimmedContent);
       }
-    );
+
+      // Add files - using the correct array format for Laravel
+      selectedFiles.forEach((file) => {
+        formData.append('attachments[]', file);
+      });
+
+      if (isFollowupUpdate) {
+        formData.append('component_type', 'text_input');
+        formData.append('user_selection[text]', trimmedContent);
+      }
+
+      console.log('Sending with files:', selectedFiles.length, 'files');
+
+      router.post(
+        `/booking/${conversation.id}/message`,
+        formData,
+        {
+          preserveScroll: true,
+          forceFormData: true,
+          onSuccess: () => {
+            console.log('Files uploaded successfully');
+          },
+          onError: (errors) => {
+            console.error('Upload error:', errors);
+          },
+          onFinish: () => {
+            setIsLoading(false);
+            setSelectedFiles([]);
+          },
+        }
+      );
+    } else {
+      // No files - use regular JSON request
+      router.post(
+        `/booking/${conversation.id}/message`,
+        {
+          content: trimmedContent,
+          ...(isFollowupUpdate && {
+            component_type: 'text_input',
+            user_selection: { text: trimmedContent }
+          })
+        },
+        {
+          preserveScroll: true,
+          onFinish: () => setIsLoading(false),
+        }
+      );
+    }
   };
 
   const formatSelectionText = (componentType: string, value: any): string => {
@@ -442,6 +515,42 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
         {/* Input area */}
         <div className="flex-none bg-white p-4">
           <div className="mx-auto" style={{ maxWidth: '744px' }}>
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*,.pdf,.doc,.docx"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+
+            {/* File preview */}
+            {selectedFiles.length > 0 && (
+              <div className="mb-2 flex flex-wrap gap-2">
+                {selectedFiles.map((file, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 px-3 py-2 bg-muted rounded-xl border border-border"
+                  >
+                    <Icon icon={FileText} size={16} className="text-muted-foreground" />
+                    <span className="text-body text-foreground truncate max-w-xs">
+                      {file.name}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      iconOnly
+                      size="xs"
+                      onClick={() => handleRemoveFile(index)}
+                      className="h-5 w-5 hover:bg-destructive/10"
+                    >
+                      <Icon icon={X} size={12} className="text-muted-foreground hover:text-destructive" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <PromptInputContainer
               style={{ width: '100%' }}
               gradient={
@@ -489,6 +598,8 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                           variant="outline"
                           iconOnly
                           size="md"
+                          onClick={handleAddFileClick}
+                          disabled={isLoading || isCancelled}
                           className="rounded-full transition-all duration-200"
                         >
                           <Icon icon={Plus} size={20} />
@@ -612,7 +723,31 @@ function MessageBubble({
     return (
       <div className="flex gap-3 justify-end">
         <div className="rounded-2xl px-4 py-2.5 bg-primary/20 text-foreground max-w-2xl">
-          <p className="text-body leading-relaxed">{message.content}</p>
+          {message.content && (
+            <p className="text-body leading-relaxed">{message.content}</p>
+          )}
+          {message.attachments && message.attachments.length > 0 && (
+            <div className={cn("flex flex-wrap gap-2", message.content && "mt-2")}>
+              {message.attachments.map((file, index) => (
+                <a
+                  key={index}
+                  href={file.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-3 py-2 bg-white/50 rounded-xl border border-primary/20 hover:bg-white/70 transition-colors"
+                >
+                  {file.mime_type.startsWith('image/') ? (
+                    <img src={file.url} alt={file.name} className="w-16 h-16 object-cover rounded" />
+                  ) : (
+                    <Icon icon={FileText} size={16} className="text-foreground" />
+                  )}
+                  <span className="text-body text-foreground truncate max-w-xs">
+                    {file.name}
+                  </span>
+                </a>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     );
