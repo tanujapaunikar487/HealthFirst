@@ -25,7 +25,7 @@ Laravel 11 + React 18 + TS + Inertia v2 + Tailwind v4 + shadcn/ui | `php artisan
 **Selection Chips**: `HStack gap={2}` with `flex-wrap` | Buttons: `px-6 py-2` `rounded-full` | Selected: `bg-primary/10 border-primary text-label`
 **Time Slots**: `HStack gap={2}` with `flex-wrap` | Buttons: `px-4 py-2` `rounded-xl` | Selected: `variant="accent" border-foreground`
 **Typography**: Section headings=`text-section-title` | Labels=`text-label` | Body=`text-body` | Prices=`text-card-title`
-**Icons**: Use size props (`size="sm"`, `size="lg"`) never arbitrary className | Adjacent icons in `HStack gap={1}`
+**Icons**: `<Icon icon={IconName} size={20} />` not `<IconName className="h-5 w-5" />` | Sizes: 12/14 (sm), 16 (default), 20 (lg), 24 (xl) | Adjacent icons in `HStack gap={1}`
 
 ## Core Rules
 - UUIDs everywhere
