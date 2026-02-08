@@ -1,4 +1,5 @@
 import { cn } from '@/Lib/utils';
+import { Card } from '@/Components/ui/card';
 import { Home, Building2 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { Button } from '@/Components/ui/button';
@@ -28,10 +29,10 @@ const methodConfig = {
 
 export function EmbeddedCollectionMethod({ methods, selectedMethod, onSelect, disabled }: Props) {
   return (
-    <div className="border rounded-xl overflow-hidden divide-y">
+    <Card className="overflow-hidden divide-y">
       {methods.map((method) => {
         const config = methodConfig[method.type];
-        const Icon = config.icon;
+        const MethodIcon = config.icon;
         const isSelected = selectedMethod === method.type;
         const isFree = method.price === 'free' || method.price === 0;
 
@@ -53,7 +54,7 @@ export function EmbeddedCollectionMethod({ methods, selectedMethod, onSelect, di
               "w-10 h-10 rounded-lg flex items-center justify-center",
               isSelected ? "bg-primary/10" : "bg-muted"
             )}>
-              <Icon className={cn("h-5 w-5", isSelected && "text-primary")} />
+              <Icon icon={MethodIcon} size={20} className={cn(isSelected && "text-primary")} />
             </div>
 
             {/* Text */}
@@ -71,6 +72,6 @@ export function EmbeddedCollectionMethod({ methods, selectedMethod, onSelect, di
           </Button>
         );
       })}
-    </div>
+    </Card>
   );
 }
