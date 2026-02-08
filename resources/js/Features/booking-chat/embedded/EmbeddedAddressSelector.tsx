@@ -1,5 +1,6 @@
 import { cn } from '@/Lib/utils';
 import { Badge } from '@/Components/ui/badge';
+import { Card } from '@/Components/ui/card';
 import { Home, MapPin, Plus, Check } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { Button } from '@/Components/ui/button';
@@ -23,7 +24,7 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
   return (
     <div className="space-y-3">
       {/* Saved addresses */}
-      <div className="border rounded-xl overflow-hidden divide-y">
+      <Card className="overflow-hidden divide-y">
         {addresses.map((addr) => {
           const isSelected = selectedAddressId === addr.id;
 
@@ -46,7 +47,7 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
                   isSelected ? 'bg-primary/10' : 'bg-muted',
                 )}
               >
-                <Home className={cn('h-5 w-5', isSelected && 'text-primary')} />
+                <Icon icon={Home} size={20} className={cn(isSelected && 'text-primary')} />
               </div>
 
               <div className="flex-1 min-w-0 text-left">
@@ -57,20 +58,20 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
                   )}
                 </div>
                 <div className="flex items-center gap-1 mt-1 text-body text-muted-foreground">
-                  <MapPin className="h-3 w-3 flex-shrink-0" />
+                  <Icon icon={MapPin} size={12} className="flex-shrink-0" />
                   <span className="truncate">{addr.address}</span>
                 </div>
               </div>
 
               {isSelected && (
                 <div className="flex-shrink-0 mt-2">
-                  <Check className="h-5 w-5 text-primary" />
+                  <Icon icon={Check} size={20} className="text-primary" />
                 </div>
               )}
             </Button>
           );
         })}
-      </div>
+      </Card>
 
       {/* Add new address placeholder */}
       <Button
@@ -83,7 +84,7 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
         onClick={() => !disabled && onAddAddress?.()}
       >
         <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-          <Plus className="h-4 w-4 text-foreground" />
+          <Icon icon={Plus} className="text-foreground" />
         </div>
         <span className="text-body text-muted-foreground">Add new address</span>
       </Button>
