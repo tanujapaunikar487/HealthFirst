@@ -18,6 +18,7 @@ import {
   SheetTitle,
   SheetFooter,
   SheetBody,
+  SheetSectionHeading,
 } from '@/Components/ui/sheet';
 import { cn } from '@/Lib/utils';
 import { Alert } from '@/Components/ui/alert';
@@ -411,7 +412,7 @@ export function AddInsuranceSheet({
 
           {/* Step 3: Review & Confirm */}
           {addStep === 'review' && (
-            <div className="space-y-6">
+            <div className="space-y-5">
               {cameFromUpload && extractionType === 'full' && (
                 <Alert variant="success">
                   Details extracted from PDF. Review and confirm below.
@@ -430,9 +431,7 @@ export function AddInsuranceSheet({
 
               {/* Provider */}
               <div>
-                <p className="mb-3 text-label text-muted-foreground">
-                  Provider
-                </p>
+                <SheetSectionHeading>Provider</SheetSectionHeading>
                 <div className="space-y-3">
                   <div>
                     <label className="mb-1 block text-label text-foreground">
@@ -471,9 +470,7 @@ export function AddInsuranceSheet({
 
               {/* Policy Details */}
               <div>
-                <p className="mb-3 text-label text-muted-foreground">
-                  Policy details
-                </p>
+                <SheetSectionHeading>Policy details</SheetSectionHeading>
                 <div className="space-y-3">
                   <div>
                     <label className="mb-1 block text-label text-foreground">
@@ -540,9 +537,7 @@ export function AddInsuranceSheet({
 
               {/* Coverage */}
               <div>
-                <p className="mb-3 text-label text-muted-foreground">
-                  Coverage
-                </p>
+                <SheetSectionHeading>Coverage</SheetSectionHeading>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="mb-1 block text-label text-foreground">
@@ -579,9 +574,7 @@ export function AddInsuranceSheet({
 
               {/* Validity */}
               <div>
-                <p className="mb-3 text-label text-muted-foreground">
-                  Validity
-                </p>
+                <SheetSectionHeading>Validity</SheetSectionHeading>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="mb-1 block text-label text-foreground">
@@ -625,9 +618,7 @@ export function AddInsuranceSheet({
               {/* Covered Members */}
               {familyMembers.length > 0 && (
                 <div>
-                  <p className="mb-3 text-label text-muted-foreground">
-                    Covered members
-                  </p>
+                  <SheetSectionHeading>Covered members</SheetSectionHeading>
                   <div className="space-y-2">
                     {familyMembers.map((m) => (
                       <label

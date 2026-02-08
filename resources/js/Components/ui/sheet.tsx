@@ -5,6 +5,119 @@ import { X, ArrowLeft } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { cn } from '@/Lib/utils';
 
+/**
+ * Sheet Component System
+ *
+ * Composable primitives for building consistent sheet overlays across the application.
+ * All components use Tailwind v4 design tokens for spacing, typography, and colors.
+ *
+ * ## Common Patterns
+ *
+ * ### 1. Simple Forms
+ * Use for basic forms with a single submit action.
+ *
+ * @example
+ * <Sheet open={open} onOpenChange={setOpen}>
+ *   <SheetContent>
+ *     <SheetHeader>
+ *       <SheetTitle>Add Insurance</SheetTitle>
+ *     </SheetHeader>
+ *     <SheetBody className="space-y-5">
+ *       <div>
+ *         <SheetSectionHeading>Policy Information</SheetSectionHeading>
+ *         <div className="space-y-3">
+ *           <Input label="Policy Number" />
+ *           <Input label="Provider" />
+ *         </div>
+ *       </div>
+ *     </SheetBody>
+ *     <SheetFooter>
+ *       <Button type="submit">Save</Button>
+ *     </SheetFooter>
+ *   </SheetContent>
+ * </Sheet>
+ *
+ * ### 2. List Views
+ * Use for displaying lists with full-width items and dividers.
+ *
+ * @example
+ * <Sheet open={open} onOpenChange={setOpen}>
+ *   <SheetContent>
+ *     <SheetHeader>
+ *       <HStack className="justify-between">
+ *         <HStack gap={2.5}>
+ *           <SheetTitle>Notifications</SheetTitle>
+ *           <Badge variant="danger" size="sm">{count}</Badge>
+ *         </HStack>
+ *         <Button variant="ghost" size="sm">Mark all read</Button>
+ *       </HStack>
+ *     </SheetHeader>
+ *     <SheetBody>
+ *       <SheetEdgeContent>
+ *         <div className="divide-y">
+ *           <Button variant="ghost" className="px-6 py-4 rounded-none">Item 1</Button>
+ *           <Button variant="ghost" className="px-6 py-4 rounded-none">Item 2</Button>
+ *         </div>
+ *       </SheetEdgeContent>
+ *     </SheetBody>
+ *   </SheetContent>
+ * </Sheet>
+ *
+ * ### 3. Details Views
+ * Use for displaying detailed information with mixed padded and edge-to-edge sections.
+ *
+ * @example
+ * <Sheet open={open} onOpenChange={setOpen}>
+ *   <SheetContent>
+ *     <SheetHeader>
+ *       <SheetTitle>Appointment Details</SheetTitle>
+ *     </SheetHeader>
+ *     <SheetBody>
+ *       <div className="px-5 py-4">
+ *         <SheetSectionHeading>Patient Information</SheetSectionHeading>
+ *         // Content here
+ *       </div>
+ *       <SheetDivider />
+ *       <SheetEdgeContent>
+ *         <Collapsible>// Full-width collapsible content</Collapsible>
+ *       </SheetEdgeContent>
+ *     </SheetBody>
+ *     <SheetFooter>
+ *       <Button>Confirm</Button>
+ *       <Button variant="outline">Cancel</Button>
+ *     </SheetFooter>
+ *   </SheetContent>
+ * </Sheet>
+ *
+ * ### 4. Multi-Step Forms
+ * Use onBack prop in SheetHeader for navigation between steps.
+ *
+ * @example
+ * <Sheet open={open} onOpenChange={setOpen}>
+ *   <SheetContent>
+ *     <SheetHeader onBack={step > 1 ? handleBack : undefined}>
+ *       <SheetTitle>{stepTitles[step]}</SheetTitle>
+ *     </SheetHeader>
+ *     <SheetBody className="space-y-5">
+ *       {step === 1 && <StepOne />}
+ *       {step === 2 && <StepTwo />}
+ *     </SheetBody>
+ *     <SheetFooter>
+ *       <Button onClick={handleNext}>
+ *         {step === maxSteps ? 'Submit' : 'Next'}
+ *       </Button>
+ *     </SheetFooter>
+ *   </SheetContent>
+ * </Sheet>
+ *
+ * ## Design Tokens
+ * - Spacing: Use gap-{N} where N×4=px (gap-3 = 12px, gap-5 = 20px)
+ * - Typography: text-section-title, text-label, text-body, text-caption
+ * - Colors: text-foreground, text-muted-foreground, text-primary
+ * - Padding: px-5 py-5 for sections, px-6 py-4 for list items
+ * - Rounded: rounded-xl for cards/buttons, rounded-full for pills
+ */
+
 const Sheet = SheetPrimitive.Root;
 const SheetTrigger = SheetPrimitive.Trigger;
 const SheetClose = SheetPrimitive.Close;
@@ -87,7 +200,7 @@ const SheetHeader = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & { onBack?: () => void }) => (
   <div
-    className={cn('flex items-start gap-3', className)}
+    className={cn('flex items-center gap-3', className)}
     style={{ padding: '16px 20px', borderBottom: '1px solid hsl(var(--border))', ...style }}
     {...props}
   >
@@ -225,6 +338,66 @@ const SheetDescription = React.forwardRef<
 ));
 SheetDescription.displayName = SheetPrimitive.Description.displayName;
 
+/**
+ * SheetEdgeContent - Edge-to-edge content wrapper for full-width sections.
+ * Automatically applies negative margin to break out of SheetBody padding.
+ * Use for lists, dividers, tables, or any content that needs to span full width.
+ *
+ * @example
+ * <SheetBody>
+ *   <SheetEdgeContent>
+ *     <div className="divide-y">
+ *       <Button variant="ghost" className="w-full">Item 1</Button>
+ *       <Button variant="ghost" className="w-full">Item 2</Button>
+ *     </div>
+ *   </SheetEdgeContent>
+ * </SheetBody>
+ */
+const SheetEdgeContent = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn('-mx-5', className)}
+    {...props}
+  />
+);
+SheetEdgeContent.displayName = 'SheetEdgeContent';
+
+/**
+ * SheetSectionHeading - Standardized section heading for sheet content.
+ * Use to separate logical sections within forms or details views.
+ *
+ * @example
+ * <SheetBody>
+ *   <div className="space-y-5">
+ *     <div>
+ *       <SheetSectionHeading>Personal Information</SheetSectionHeading>
+ *       <div className="space-y-3">
+ *         <Input label="Name" />
+ *         <Input label="Email" />
+ *       </div>
+ *     </div>
+ *     <div>
+ *       <SheetSectionHeading>Contact Details</SheetSectionHeading>
+ *       <div className="space-y-3">
+ *         <Input label="Phone" />
+ *       </div>
+ *     </div>
+ *   </div>
+ * </SheetBody>
+ */
+const SheetSectionHeading = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLParagraphElement>) => (
+  <p
+    className={cn('mb-3 text-label text-muted-foreground', className)}
+    {...props}
+  />
+);
+SheetSectionHeading.displayName = 'SheetSectionHeading';
+
 export {
   Sheet,
   SheetPortal,
@@ -238,6 +411,8 @@ export {
   SheetDivider,
   SheetSection,
   SheetSectionRow,
+  SheetEdgeContent,
+  SheetSectionHeading,
   SheetTitle,
   SheetDescription,
 };

@@ -360,6 +360,13 @@
     border-top: 1px solid hsl(var(--border));
 }
 
+/* Exception: opt-out of auto-padding for edge-to-edge wrappers */
+.sheet-body > .no-auto-padding,
+.dialog-body > .no-auto-padding {
+    padding: 0;
+    border-top: none;
+}
+
 /* Toast: content-hugging width */
 [data-sonner-toaster] [data-sonner-toast] {
     width: fit-content !important;

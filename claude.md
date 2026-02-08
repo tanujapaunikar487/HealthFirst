@@ -17,6 +17,7 @@ Laravel 11 + React 18 + TS + Inertia v2 + Tailwind v4 + shadcn/ui | `php artisan
 **Tables**: `TableContainer` wrap + `TablePagination` + `w-col-*` tokens. Rows: `cursor-pointer hover:bg-muted/50 align-top`. Icons from `@/Lib/icons` not `lucide-react`.
 **Empty**: CtaBanner (action pages) | EmptyState (passive) | Filtered=EmptyState no CTA
 **Financial rows**: `flex justify-between` (NOT DetailRow). Pattern: `px-6 py-4`, label=`text-body text-muted-foreground`, value=`text-label`, total=`text-card-title`.
+**Sheets**: Composable primitives for right-side overlays (500px). Components: `SheetHeader` (auto center-aligned), `SheetBody`, `SheetFooter`, `SheetEdgeContent` (full-width), `SheetSectionHeading`. Patterns: Simple forms (header+body+footer) | List views (header+edge content with divide-y) | Details (mixed padded/edge sections) | Multi-step (header with onBack). Always use design tokens: `space-y-5` for sections, `px-6 py-4` for list items, `text-label` for headings. See [sheet.tsx](resources/js/Components/ui/sheet.tsx) for full pattern documentation.
 
 ## Booking Flow
 **Page Structure**: `VStack gap={12}` for sections | `VStack gap={4}` for section content | `VStack gap={1}` for title+subtitle pairs

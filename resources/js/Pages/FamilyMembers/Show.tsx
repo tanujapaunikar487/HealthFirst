@@ -26,6 +26,7 @@ import {
   SheetTitle,
   SheetFooter,
   SheetBody,
+  SheetSectionHeading,
 } from '@/Components/ui/sheet';
 import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
@@ -850,11 +851,11 @@ export default function FamilyMemberShow({
             <SheetTitle>Edit Profile</SheetTitle>
           </SheetHeader>
 
-          <SheetBody>
+          <SheetBody className="space-y-5">
             {/* Personal Details */}
             <div>
-              <p className="mb-3 text-label text-muted-foreground">Personal details</p>
-              <div className="space-y-4">
+              <SheetSectionHeading>Personal details</SheetSectionHeading>
+              <div className="space-y-3">
                 <div>
                   <label className="mb-1.5 block text-label text-foreground">
                     Name <span className="text-destructive">*</span>
@@ -929,8 +930,8 @@ export default function FamilyMemberShow({
 
             {/* Contact & Address */}
             <div>
-              <p className="mb-3 text-label text-muted-foreground">Contact & address</p>
-              <div className="space-y-4">
+              <SheetSectionHeading>Contact & address</SheetSectionHeading>
+              <div className="space-y-3">
                 <div>
                   <label className="mb-1.5 block text-label text-foreground">Phone</label>
                   <PhoneInput
@@ -1008,8 +1009,8 @@ export default function FamilyMemberShow({
 
             {/* Health Information */}
             <div>
-              <p className="mb-3 text-label text-muted-foreground">Health information</p>
-              <div className="space-y-4">
+              <SheetSectionHeading>Health information</SheetSectionHeading>
+              <div className="space-y-3">
                 <div>
                   <label className="mb-1.5 block text-label text-foreground">Blood Group</label>
                   <Select
@@ -1066,8 +1067,8 @@ export default function FamilyMemberShow({
 
             {/* Emergency Contact */}
             <div>
-              <p className="mb-3 text-label text-muted-foreground">Emergency contact</p>
-              <div className="space-y-4">
+              <SheetSectionHeading>Emergency contact</SheetSectionHeading>
+              <div className="space-y-3">
                 <div>
                   <label className="mb-1.5 block text-label text-foreground">Contact Name</label>
                   <Input

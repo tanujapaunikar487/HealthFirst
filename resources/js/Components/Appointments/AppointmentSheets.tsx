@@ -7,6 +7,7 @@ import {
   SheetFooter,
   SheetBody,
   SheetDivider,
+  SheetSectionRow,
 } from '@/Components/ui/sheet';
 import {
   DropdownMenu,
@@ -244,164 +245,163 @@ export function DetailsSheet({
 
       {/* Scrollable Content */}
       <SheetBody>
-        <div className="divide-y divide-border">
         {/* Details Section */}
-        <div className="px-5">
-        <Collapsible open={detailsOpen} onOpenChange={setDetailsOpen}>
-          <CollapsibleTrigger className="flex items-center justify-between w-full py-3 hover:bg-muted/50 transition-colors">
-            <div className="flex items-center gap-2">
-              <Icon icon={Calendar} className="h-4 w-4 text-foreground" />
-              <span className="text-label">Details</span>
-            </div>
-            <Icon
-              icon={ChevronDown}
-              className={cn(
-                "h-4 w-4 text-foreground transition-transform",
-                detailsOpen && "transform rotate-180"
-              )}
-            />
-          </CollapsibleTrigger>
-          <CollapsibleContent className="space-y-2 pt-2 pb-3">
-            <KeyValueRow label="Date" value={appointment.date_formatted} />
-            <KeyValueRow
-              label="Time"
-              value={`${appointment.time} (30 mins)`}
-            />
-            <KeyValueRow
-              label="Type"
-              value={`${appointment.subtitle || 'New'} • ${appointment.mode}`}
-            />
-            {appointment.google_calendar_event_id && (
-              <KeyValueRow
-                label="Calendar"
-                value={
-                  <span className="flex items-center gap-1 text-success">
-                    <Icon icon={Check} className="h-3 w-3" />
-                    Synced
-                  </span>
-                }
-              />
-            )}
-          </CollapsibleContent>
-        </Collapsible>
-        </div>
+        <Collapsible open={detailsOpen} onOpenChange={setDetailsOpen} className="-mx-5">
+              <CollapsibleTrigger className="flex items-center justify-between w-full px-5 py-4 hover:bg-muted/50 transition-colors">
+                <div className="flex items-center gap-2">
+                  <Icon icon={Calendar} size={16} />
+                  <span className="text-label">Details</span>
+                </div>
+                <Icon
+                  icon={ChevronDown}
+                  size={16}
+                  className={cn(
+                    "transition-transform",
+                    detailsOpen && "transform rotate-180"
+                  )}
+                />
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="mx-5">
+                  <div className="divide-y pb-3">
+                  <SheetSectionRow label="Date" value={appointment.date_formatted} />
+                  <SheetSectionRow
+                    label="Time"
+                    value={`${appointment.time} (30 mins)`}
+                  />
+                  <SheetSectionRow
+                    label="Type"
+                    value={`${appointment.subtitle || 'New'} • ${appointment.mode}`}
+                  />
+                  {appointment.google_calendar_event_id && (
+                    <SheetSectionRow
+                      label="Calendar"
+                      value={
+                        <span className="flex items-center gap-1 text-success">
+                          <Icon icon={Check} size={12} />
+                          Synced
+                        </span>
+                      }
+                    />
+                  )}
+                </div>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
 
         {/* Notes Section */}
-        <div className="px-5">
-        <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
-          <CollapsibleTrigger className="flex items-center justify-between w-full py-3 hover:bg-muted/50 transition-colors">
-            <div className="flex items-center gap-2">
-              <Icon icon={FileText} className="h-4 w-4 text-foreground" />
-              <span className="text-label">Notes</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span
-                role="button"
-                tabIndex={0}
-                className="text-body text-primary hover:underline cursor-pointer"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsEditingNotes(true);
-                  setNotesOpen(true);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.stopPropagation();
-                    setIsEditingNotes(true);
-                    setNotesOpen(true);
-                  }
-                }}
-              >
-                {notesValue ? 'Edit' : 'Add note'}
-              </span>
-              <Icon
-                icon={ChevronDown}
-                className={cn(
-                  "h-4 w-4 text-foreground transition-transform",
-                  notesOpen && "transform rotate-180"
-                )}
-              />
-            </div>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="pt-2 pb-3">
-            {isEditingNotes ? (
-              <div className="space-y-2">
-                <Textarea
-                  value={notesValue}
-                  onChange={(e) => setNotesValue(e.target.value)}
-                  placeholder="Add your notes here..."
-                  className="min-h-[120px]"
-                  maxLength={5000}
-                />
-                <div className="flex gap-2 justify-end">
-                  <Button
-                    variant="ghost"
-                    size="md"
-                    onClick={() => {
-                      setIsEditingNotes(false);
-                      setNotesValue(appointment.notes || '');
-                    }}
-                    disabled={isSavingNotes}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    size="md"
-                    onClick={handleSaveNotes}
-                    disabled={isSavingNotes}
-                  >
-                    {isSavingNotes ? 'Saving...' : 'Save'}
-                  </Button>
+        <Collapsible open={notesOpen} onOpenChange={setNotesOpen} className="-mx-5">
+              <CollapsibleTrigger className="flex items-center justify-between w-full px-5 py-4 hover:bg-muted/50 transition-colors">
+                <div className="flex items-center gap-2">
+                  <Icon icon={FileText} size={16} />
+                  <span className="text-label">Notes</span>
                 </div>
-              </div>
-            ) : (
-              <div>
-                {notesValue ? (
-                  <p className="text-body text-foreground whitespace-pre-wrap">{notesValue}</p>
+                <div className="flex items-center gap-2">
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    className="text-body text-primary hover:underline cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsEditingNotes(true);
+                      setNotesOpen(true);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.stopPropagation();
+                        setIsEditingNotes(true);
+                        setNotesOpen(true);
+                      }
+                    }}
+                  >
+                    {notesValue ? 'Edit' : 'Add note'}
+                  </span>
+                  <Icon
+                    icon={ChevronDown}
+                    size={16}
+                    className={cn(
+                      "transition-transform",
+                      notesOpen && "transform rotate-180"
+                    )}
+                  />
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="px-5 pb-3">
+                {isEditingNotes ? (
+                  <div className="space-y-2">
+                    <Textarea
+                      value={notesValue}
+                      onChange={(e) => setNotesValue(e.target.value)}
+                      placeholder="Add your notes here..."
+                      className="min-h-[120px]"
+                      maxLength={5000}
+                    />
+                    <div className="flex gap-2 justify-end">
+                      <Button
+                        variant="ghost"
+                        size="md"
+                        onClick={() => {
+                          setIsEditingNotes(false);
+                          setNotesValue(appointment.notes || '');
+                        }}
+                        disabled={isSavingNotes}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        size="md"
+                        onClick={handleSaveNotes}
+                        disabled={isSavingNotes}
+                      >
+                        {isSavingNotes ? 'Saving...' : 'Save'}
+                      </Button>
+                    </div>
+                  </div>
                 ) : (
-                  <p className="text-body text-muted-foreground">No notes added</p>
+                  <div>
+                    {notesValue ? (
+                      <p className="text-body text-foreground whitespace-pre-wrap">{notesValue}</p>
+                    ) : (
+                      <p className="text-body text-muted-foreground">No notes added</p>
+                    )}
+                  </div>
                 )}
-              </div>
-            )}
-          </CollapsibleContent>
-        </Collapsible>
-        </div>
+              </CollapsibleContent>
+            </Collapsible>
 
         {/* Preparation Section */}
-        <div className="px-5">
-        <Collapsible open={preparationOpen} onOpenChange={setPreparationOpen}>
-          <CollapsibleTrigger className="flex items-center justify-between w-full py-3 hover:bg-muted/50 transition-colors">
-            <div className="flex items-center gap-2">
-              <Icon icon={ClipboardCheck} className="h-4 w-4 text-foreground" />
-              <span className="text-label">Preparation</span>
-            </div>
-            <Icon
-              icon={ChevronDown}
-              className={cn(
-                "h-4 w-4 text-foreground transition-transform",
-                preparationOpen && "transform rotate-180"
-              )}
-            />
-          </CollapsibleTrigger>
-          <CollapsibleContent className="pt-2 pb-3">
-            <ul className="space-y-1.5 text-body text-muted-foreground">
-              <li className="flex items-start gap-2">
-                <span className="mt-1.5">•</span>
-                <span>Have prescription list ready</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-1.5">•</span>
-                <span>Previous reports if any</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-1.5">•</span>
-                <span>List of current symptoms</span>
-              </li>
-            </ul>
-          </CollapsibleContent>
-        </Collapsible>
-        </div>
-        </div>
+        <Collapsible open={preparationOpen} onOpenChange={setPreparationOpen} className="-mx-5">
+              <CollapsibleTrigger className="flex items-center justify-between w-full px-5 py-4 hover:bg-muted/50 transition-colors">
+                <div className="flex items-center gap-2">
+                  <Icon icon={ClipboardCheck} size={16} />
+                  <span className="text-label">Preparation</span>
+                </div>
+                <Icon
+                  icon={ChevronDown}
+                  size={16}
+                  className={cn(
+                    "transition-transform",
+                    preparationOpen && "transform rotate-180"
+                  )}
+                />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="px-5 pb-3">
+                <ul className="space-y-1.5 text-body text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <span className="mt-1.5">•</span>
+                    <span>Have prescription list ready</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-1.5">•</span>
+                    <span>Previous reports if any</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-1.5">•</span>
+                    <span>List of current symptoms</span>
+                  </li>
+                </ul>
+              </CollapsibleContent>
+            </Collapsible>
       </SheetBody>
 
       {/* Footer */}
@@ -584,7 +584,7 @@ export function CancelledDetailsSheet({
 
       {/* Scrollable Content */}
       <SheetBody>
-        <div className="space-y-6 px-5 py-5">
+        <div className="space-y-5 px-5 py-5">
         {/* Original Details Section */}
         <div className="space-y-3">
           <p className="text-label text-muted-foreground uppercase tracking-wide">Original Details</p>
@@ -734,7 +734,7 @@ export function CancelSheet({
       </SheetHeader>
 
       <SheetBody>
-        <div className="space-y-6 px-5 py-5">
+        <div className="space-y-5 px-5 py-5">
         {/* Warning */}
         <Alert variant="warning" title="Are you sure?">
           Cancelling your appointment with{' '}
@@ -859,7 +859,7 @@ export function RescheduleSheet({
       </SheetHeader>
 
       <SheetBody>
-        <div className="space-y-6 px-5 py-5">
+        <div className="space-y-5 px-5 py-5">
         {/* Booking Summary */}
         <div className="rounded-lg bg-muted/50 p-4 space-y-3">
           <div className="flex items-center gap-3">
@@ -1132,7 +1132,7 @@ export function FollowUpSheet({
       ) : data ? (
         <>
           <SheetBody>
-            <div className="space-y-6 px-5 py-5">
+            <div className="space-y-5 px-5 py-5">
             {/* Doctor & Patient Card */}
             <div className="rounded-lg bg-muted/50 p-4 space-y-3">
               <div className="flex items-center gap-3">
@@ -1449,7 +1449,7 @@ export function BookAgainSheet({
       ) : data ? (
         <>
           <SheetBody>
-            <div className="space-y-6 px-5 py-5">
+            <div className="space-y-5 px-5 py-5">
             {/* Doctor & Patient Card */}
             <div className="rounded-lg bg-muted/50 p-4 space-y-3">
               <div className="flex items-center gap-3">

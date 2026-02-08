@@ -10,6 +10,7 @@ import {
     SheetContent,
     SheetHeader,
     SheetBody,
+    SheetEdgeContent,
     SheetTitle,
     SheetDescription,
 } from "@/Components/ui/sheet";
@@ -526,7 +527,7 @@ export default function AppLayout({
                 <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
                     <SheetContent side="right">
                         <SheetHeader>
-                            <div className="flex items-start justify-between">
+                            <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2.5">
                                     <SheetTitle>Notifications</SheetTitle>
                                     {unreadCount > 0 && (
@@ -578,7 +579,7 @@ export default function AppLayout({
                                     </p>
                                 </div>
                             ) : (
-                                <div className="-mx-5">
+                                <SheetEdgeContent>
                                     {/* Today */}
                                     {displayedNotifications.filter((n) => getTimeGroup(n.created_at) === 'today').length > 0 && (
                                         <div>
@@ -635,7 +636,7 @@ export default function AppLayout({
                                             </div>
                                         </div>
                                     )}
-                                </div>
+                                </SheetEdgeContent>
                             )}
                         </SheetBody>
                     </SheetContent>

@@ -905,7 +905,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     </SheetHeader>
                 )}
 
-                <SheetBody><div className="space-y-6">
+                <SheetBody className="space-y-5"><div>
                     {/* Error Message */}
                     {state.error && (
                         <Alert variant="error">{state.error}</Alert>
@@ -913,7 +913,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     {/* Step Content - standalone renders buttons in footer */}
                     {state.step === 'choice' && (
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                             <div className="grid gap-3">
                                 <Button variant="ghost" onClick={() => handleInitialChoice('add_new_family')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 text-body">
                                     <div className="flex items-center gap-4">

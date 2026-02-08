@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
-import { SheetHeader, SheetTitle, SheetBody, SheetFooter } from '@/Components/ui/sheet';
+import { SheetHeader, SheetTitle, SheetBody, SheetFooter, SheetSectionHeading } from '@/Components/ui/sheet';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Badge } from '@/Components/ui/badge';
@@ -126,10 +126,10 @@ export function HealthProfileSheet({ selfMember, onSuccess }: HealthProfileSheet
                 <SheetTitle>Complete your health profile</SheetTitle>
             </SheetHeader>
 
-            <SheetBody>
+            <SheetBody className="space-y-5">
                 <div>
-                    <p className="mb-3 text-label text-muted-foreground">Health information</p>
-                    <div className="space-y-4">
+                    <SheetSectionHeading>Health information</SheetSectionHeading>
+                    <div className="space-y-3">
                         <div>
                             <label className="mb-1.5 block text-label text-muted-foreground">
                                 Date of birth <span className="text-destructive">*</span>
