@@ -1,4 +1,5 @@
 import { cn } from '@/Lib/utils';
+import { Card } from '@/Components/ui/card';
 import { Home, Building2, MapPin } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { Button } from '@/Components/ui/button';
@@ -34,10 +35,10 @@ const locationConfig = {
 
 export function EmbeddedLocationSelector({ locations, selectedLocationId, onSelect, onChangeAddress, onChangeBranch, disabled }: Props) {
   return (
-    <div className="border rounded-xl overflow-hidden divide-y">
+    <Card className="overflow-hidden divide-y">
       {locations.map((location) => {
         const config = locationConfig[location.type];
-        const Icon = config.icon;
+        const LocationIcon = config.icon;
         const isSelected = selectedLocationId === location.id;
         const isFree = location.fee === 'free' || location.fee === 0;
 
@@ -59,7 +60,7 @@ export function EmbeddedLocationSelector({ locations, selectedLocationId, onSele
                 "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0",
                 isSelected ? "bg-primary/10" : "bg-muted"
               )}>
-                <Icon className={cn("h-5 w-5", isSelected && "text-primary")} />
+                <Icon icon={LocationIcon} size={20} className={cn(isSelected && "text-primary")} />
               </div>
 
               {/* Text */}
@@ -87,7 +88,7 @@ export function EmbeddedLocationSelector({ locations, selectedLocationId, onSele
                         }}
                         className="h-auto p-0"
                       >
-                        <MapPin className="h-3 w-3" />
+                        <Icon icon={MapPin} size={12} />
                         Change address
                       </Button>
                     ) : location.type === 'center' && onChangeBranch ? (
@@ -118,6 +119,6 @@ export function EmbeddedLocationSelector({ locations, selectedLocationId, onSele
           </div>
         );
       })}
-    </div>
+    </Card>
   );
 }
