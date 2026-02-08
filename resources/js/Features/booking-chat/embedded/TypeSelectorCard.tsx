@@ -1,4 +1,5 @@
 import { User, Users, Link2, ChevronDown } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
 import { cn } from '@/Lib/utils';
 import { Button } from '@/Components/ui/button';
 
@@ -32,7 +33,7 @@ const cardConfig: Record<MemberType, { icon: typeof User; title: string; descrip
 
 export function TypeSelectorCard({ type, isExpanded, onClick, disabled, isLast }: TypeSelectorCardProps) {
     const config = cardConfig[type];
-    const Icon = config.icon;
+    const TypeIcon = config.icon;
 
     return (
         <Button
@@ -53,18 +54,16 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled, isLast }
                 'h-10 w-10 rounded-full flex items-center justify-center shrink-0',
                 isExpanded ? 'bg-primary/10' : 'bg-muted'
             )}>
-                <Icon className={cn('h-5 w-5', isExpanded ? 'text-primary' : 'text-foreground')} />
+                <Icon icon={TypeIcon} size={20} className={cn(isExpanded ? 'text-primary' : 'text-foreground')} />
             </div>
             <div className="flex-1 min-w-0 text-left">
                 <h4 className="font-semibold">{config.title}</h4>
                 <p className="text-body text-muted-foreground">{config.description}</p>
             </div>
-            <ChevronDown
-                className={cn(
-                    'h-5 w-5 shrink-0 text-foreground transition-transform duration-200',
-                    isExpanded && 'rotate-180 text-primary'
-                )}
-            />
+            <Icon icon={ChevronDown} size={20} className={cn(
+                'shrink-0 text-foreground transition-transform duration-200',
+                isExpanded && 'rotate-180 text-primary'
+            )} />
         </Button>
     );
 }

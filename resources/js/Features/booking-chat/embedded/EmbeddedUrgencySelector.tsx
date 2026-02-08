@@ -1,6 +1,7 @@
 import { cn } from '@/Lib/utils';
 import { Card } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
+import { Icon } from '@/Components/ui/icon';
 import { Flame, CalendarClock, CalendarPlus } from '@/Lib/icons';
 
 interface Props {
@@ -62,7 +63,7 @@ export function EmbeddedUrgencySelector({ selectedUrgency, onSelect, disabled }:
             }}
           >
             <div className={cn("h-10 w-10 rounded-full flex items-center justify-center shrink-0", option.iconBg)}>
-              <OptionIcon className={cn("h-5 w-5", option.iconColor)} />
+              <Icon icon={OptionIcon} size={20} className={option.iconColor} />
             </div>
 
             <div className="min-w-0 flex-1 text-left">

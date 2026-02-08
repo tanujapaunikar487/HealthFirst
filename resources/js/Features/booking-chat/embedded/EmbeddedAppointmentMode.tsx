@@ -1,6 +1,7 @@
 import { cn } from '@/Lib/utils';
 import { Card } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
+import { Icon } from '@/Components/ui/icon';
 import { Monitor, Users } from '@/Lib/icons';
 
 interface Mode {
@@ -56,7 +57,7 @@ export function EmbeddedAppointmentMode({ modes, selectedMode, onSelect, disable
           >
             {/* Icon with rounded background */}
             <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-              <ModeIcon className="h-5 w-5 text-foreground" />
+              <Icon icon={ModeIcon} size={20} className="text-foreground" />
             </div>
 
             {/* Text */}
