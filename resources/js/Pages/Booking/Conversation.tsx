@@ -1,27 +1,19 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useState, useRef } from 'react';
+import { Head, router, usePage } from '@inertiajs/react';
+import { useState } from 'react';
 import {
   ChatContainerRoot,
   ChatContainerContent,
   ChatContainerScrollAnchor,
 } from '@/Components/ui/chat-container';
 import { ScrollButton } from '@/Components/ui/scroll-button';
-import {
-  PromptInput,
-  PromptInputTextarea,
-  PromptInputActions,
-  PromptInputAction,
-} from '@/Components/ui/prompt-input';
-import { PromptInputContainer } from '@/Components/ui/prompt-input-container';
+import { AIPromptInput } from '@/Components/ui/ai-prompt-input';
+import { AIBookingHeader } from '@/Components/Booking/AIBookingHeader';
 import { Loader } from '@/Components/ui/loader';
-import { Plus, ArrowUp, Mic, X, Check, FileText } from '@/Lib/icons';
+import { FileText, X } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { EmbeddedComponent } from '@/Features/booking-chat/EmbeddedComponent';
 import { ThinkingIndicator } from '@/Components/Booking/ThinkingIndicator';
-import { AudioWaveform } from '@/Components/ui/AudioWaveform';
-import { useAudioRecorder } from '@/Hooks/useAudioRecorder';
 import { Button } from '@/Components/ui/button';
-import { HStack, VStack } from '@/Components/ui/stack';
 import { cn } from '@/Lib/utils';
 
 interface ConversationMessage {
@@ -64,18 +56,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const [isTranscribing, setIsTranscribing] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Audio recording
-  const {
-    isRecording,
-    recordingTime,
-    startRecording,
-    stopRecording,
-    cancelRecording,
-  } = useAudioRecorder();
 
   // Check if conversation is cancelled
   const isCancelled = conversation.status === 'cancelled';
@@ -86,27 +67,6 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
   // Read default patient preference from shared Inertia props
   const { bookingDefaults } = usePage<{ bookingDefaults?: { default_patient_id: string | null } }>().props;
   const defaultPatientId = bookingDefaults?.default_patient_id || null;
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      const fileArray = Array.from(files);
-      console.log('Files selected:', fileArray.length, fileArray.map(f => f.name));
-      setSelectedFiles(prev => [...prev, ...fileArray]);
-    }
-    // Reset input value to allow selecting the same file again
-    if (e.target) {
-      e.target.value = '';
-    }
-  };
-
-  const handleRemoveFile = (index: number) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const handleAddFileClick = () => {
-    fileInputRef.current?.click();
-  };
 
   const sendTextMessage = (content: string) => {
     if ((!content.trim() && selectedFiles.length === 0) || isLoading) return;
@@ -321,35 +281,14 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
     sendTextMessage(input);
   };
 
-  const handleMicClick = async () => {
-    if (isRecording) {
-      // Stop recording and transcribe
-      const audioBlob = await stopRecording();
-      if (audioBlob) {
-        await transcribeAndSend(audioBlob);
-      }
-    } else {
-      // Start recording
-      try {
-        await startRecording();
-      } catch (error) {
-        console.error('Failed to start recording:', error);
-        alert('Could not access microphone. Please grant permission.');
-      }
-    }
-  };
-
-  const transcribeAndSend = async (audioBlob: Blob) => {
-    setIsTranscribing(true);
+  const handleRecordingStop = async (audioBlob: Blob) => {
     setIsLoading(true);
 
     try {
-      // Create form data with audio file
       const formData = new FormData();
       formData.append('audio', audioBlob, 'recording.webm');
       formData.append('language', 'en');
 
-      // Send to transcription endpoint
       const response = await fetch(`/booking/${conversation.id}/transcribe`, {
         method: 'POST',
         body: formData,
@@ -361,7 +300,6 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
       const result = await response.json();
 
       if (result.success && result.text) {
-        // Send transcribed text as message
         sendTextMessage(result.text);
       } else {
         throw new Error(result.error || 'Transcription failed');
@@ -370,8 +308,6 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
       console.error('Transcription error:', error);
       alert('Failed to transcribe audio. Please try typing instead.');
       setIsLoading(false);
-    } finally {
-      setIsTranscribing(false);
     }
   };
 
@@ -386,64 +322,12 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
     return 0;
   };
 
-  // Format recording time as MM:SS
-  const formatRecordingTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
   return (
     <>
       <Head title="Booking Appointment" />
 
       <div className="h-screen flex flex-col bg-background overflow-hidden">
-        {/* Header */}
-        <header className="sticky top-0 z-10 flex-none border-b bg-background">
-          <div className="flex items-center justify-between gap-8 px-6 py-4">
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-5 h-5" />
-              <span className="text-label">Booking an appointment</span>
-            </div>
-
-            {/* Empty spacer div (no step indicator for AI) */}
-            <div className="flex-1 min-w-0"></div>
-
-            <div className="flex items-center gap-3 flex-shrink-0">
-              <div className="flex items-center gap-1 border rounded-full p-1 bg-muted">
-                <div className="p-1.5 rounded-full bg-background shadow-md">
-                  <img src="/assets/icons/hugeicons/ai-magic-1.svg" alt="" className="w-4 h-4" />
-                </div>
-                <Link
-                  href="/booking?mode=guided"
-                  className="p-1.5 rounded-full hover:bg-accent transition-all"
-                >
-                  <img src="/assets/icons/hugeicons/stairs-01.svg" alt="" className="w-4 h-4" />
-                </Link>
-              </div>
-
-              {/* Cancel button */}
-              <Button
-                variant="ghost"
-                iconOnly
-                size="sm"
-                className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-accent transition-colors"
-                title="Cancel booking"
-                onClick={() => router.visit('/')}
-              >
-                <Icon icon={X} className="w-4 h-4 text-muted-foreground" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Progress bar */}
-          <div className="h-1 bg-muted">
-            <div
-              className="h-full bg-primary transition-all duration-300"
-              style={{ width: `${Math.max(getProgress(), 2)}%` }}
-            />
-          </div>
-        </header>
+        <AIBookingHeader progress={getProgress()} />
 
         {/* Messages area */}
         <main className="flex-1 overflow-y-auto">
@@ -501,172 +385,26 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
         {/* Input area */}
         <div className="flex-none bg-white p-4">
           <div className="mx-auto" style={{ maxWidth: '744px' }}>
-            {/* Hidden file input */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              accept="image/*,.pdf,.doc,.docx"
-              onChange={handleFileSelect}
-              className="hidden"
+            <AIPromptInput
+              value={input}
+              onValueChange={setInput}
+              onSubmit={handleSubmit}
+              isLoading={isLoading}
+              disabled={isCancelled}
+              placeholder={isCancelled ? "Booking cancelled" : getPlaceholder(conversation.current_step)}
+              minHeight="20"
+              enableFileAttachments
+              attachments={selectedFiles}
+              onFilesChange={setSelectedFiles}
+              acceptedFileTypes="image/*,.pdf,.doc,.docx"
+              enableVoiceRecording
+              onRecordingStop={handleRecordingStop}
+              isFocused={isFocused}
+              onFocusChange={setIsFocused}
             />
 
-            {/* File preview */}
-            {selectedFiles.length > 0 && (
-              <div className="mb-2 flex flex-wrap gap-2">
-                {selectedFiles.map((file, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-2 px-3 py-2 bg-muted rounded-xl border border-border"
-                  >
-                    <Icon icon={FileText} size={16} className="text-muted-foreground" />
-                    <span className="text-body text-foreground truncate max-w-xs">
-                      {file.name}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      iconOnly
-                      size="xs"
-                      onClick={() => handleRemoveFile(index)}
-                      className="h-5 w-5 hover:bg-destructive/10"
-                    >
-                      <Icon icon={X} size={12} className="text-muted-foreground hover:text-destructive" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <PromptInputContainer
-              style={{ width: '100%' }}
-              gradient={
-                isFocused || input.length > 0
-                  ? 'linear-gradient(265deg, hsl(var(--primary) / 0.4) 24.67%, hsl(var(--primary) / 0.25) 144.07%)'
-                  : 'linear-gradient(265deg, hsl(var(--primary) / 0.25) 24.67%, hsl(var(--background)) 144.07%)'
-              }
-            >
-              <PromptInput
-                value={input}
-                onValueChange={setInput}
-                isLoading={isLoading}
-                onSubmit={handleSubmit}
-                className="w-full border-0 bg-transparent"
-              >
-                {isRecording ? (
-                  // Recording mode - show waveform
-                  <div className="px-6 py-4 min-h-20 flex items-center justify-between">
-                    <HStack gap={3} className="flex-1">
-                      <HStack gap={2}>
-                        <div className="w-3 h-3 bg-destructive rounded-full animate-pulse"></div>
-                        <span className="text-label text-muted-foreground">
-                          {formatRecordingTime(recordingTime)}
-                        </span>
-                      </HStack>
-                      <AudioWaveform isRecording={true} className="flex-1 max-w-md" />
-                    </HStack>
-                  </div>
-                ) : (
-                  // Normal mode - show textarea
-                  <PromptInputTextarea
-                    placeholder={isCancelled ? "Booking cancelled" : getPlaceholder(conversation.current_step)}
-                    className="text-body text-foreground placeholder:text-muted-foreground min-h-20 px-4 pt-4 pb-16"
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(false)}
-                    disabled={isCancelled}
-                  />
-                )}
-                <PromptInputActions className="absolute bottom-4 left-4 right-4 flex justify-between">
-                  <HStack gap={1}>
-                    {/* Add Button - hide when recording */}
-                    {!isRecording && (
-                      <PromptInputAction tooltip="Add attachment">
-                        <Button
-                          variant="outline"
-                          iconOnly
-                          size="md"
-                          onClick={handleAddFileClick}
-                          disabled={isLoading || isCancelled}
-                          className="rounded-full transition-all duration-200"
-                        >
-                          <Icon icon={Plus} size={20} />
-                        </Button>
-                      </PromptInputAction>
-                    )}
-                  </HStack>
-
-                  {/* Right side buttons */}
-                  <HStack gap={1}>
-                    {isRecording ? (
-                      // Recording mode - show Cancel (X) and Submit (Check) icons
-                      <>
-                        <PromptInputAction tooltip="Cancel recording">
-                          <Button
-                            variant="outline"
-                            iconOnly
-                            size="md"
-                            onClick={() => {
-                              cancelRecording();
-                            }}
-                            className="rounded-full transition-all duration-200"
-                          >
-                            <Icon icon={X} size={20} className="text-destructive" />
-                          </Button>
-                        </PromptInputAction>
-
-                        <PromptInputAction tooltip="Submit recording">
-                          <Button
-                            variant="primary"
-                            iconOnly
-                            size="md"
-                            onClick={handleMicClick}
-                            className="rounded-full transition-all duration-200"
-                          >
-                            <Icon icon={Check} size={20} className="text-inverse" />
-                          </Button>
-                        </PromptInputAction>
-                      </>
-                    ) : (
-                      // Normal mode - show Mic and Submit buttons
-                      <>
-                        <PromptInputAction tooltip={isTranscribing ? "Transcribing..." : "Voice input"}>
-                          <Button
-                            variant="outline"
-                            iconOnly
-                            size="md"
-                            onClick={handleMicClick}
-                            disabled={isLoading}
-                            className="rounded-full transition-all duration-200"
-                          >
-                            <Icon icon={Mic} size={20} className={cn(
-                              isTranscribing && "animate-pulse text-primary"
-                            )} />
-                          </Button>
-                        </PromptInputAction>
-
-                        <PromptInputAction tooltip="Submit">
-                          <Button
-                            variant="primary"
-                            iconOnly
-                            size="md"
-                            onClick={handleSubmit}
-                            disabled={isLoading || !input.trim() || isCancelled}
-                            className={cn(
-                              "rounded-full transition-all duration-200",
-                              (isLoading || !input.trim() || isCancelled) && "bg-muted"
-                            )}
-                          >
-                            <Icon icon={ArrowUp} size={20} className="text-inverse" />
-                          </Button>
-                        </PromptInputAction>
-                      </>
-                    )}
-                  </HStack>
-                </PromptInputActions>
-              </PromptInput>
-            </PromptInputContainer>
-
             {/* Disclaimer */}
-            <p className="text-body text-center mt-3 text-muted-foreground">
+            <p className="text-caption text-center mt-3 text-muted-foreground">
               AI may make mistakes. Verify important health information.
             </p>
           </div>
