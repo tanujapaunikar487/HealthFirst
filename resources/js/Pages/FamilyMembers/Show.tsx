@@ -49,16 +49,9 @@ import {
   Heart,
   Phone,
   Activity,
-  MoreVertical,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { DetailSection } from '@/Components/ui/detail-section';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/Components/ui/dropdown-menu';
 import {
   Dialog,
   DialogContent,
@@ -625,22 +618,14 @@ export default function FamilyMemberShow({
                 Edit profile
               </Button>
               {canDelete && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="secondary" iconOnly size="md">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      className="text-destructive focus:text-destructive"
-                      onClick={() => setShowDeleteConfirm(true)}
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Button
+                  variant="secondary"
+                  iconOnly
+                  size="md"
+                  onClick={() => setShowDeleteConfirm(true)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               )}
             </div>
           )}
@@ -653,6 +638,22 @@ export default function FamilyMemberShow({
               <AlertBanner key={`${alert.type}-${alert.id}`} alert={alert} />
             ))}
           </div>
+        )}
+
+        {/* Admin Profile Information */}
+        {member.relation === 'self' && (
+          <AlertComponent variant="info" className="mb-6">
+            Your profile cannot be edited from Family Members.{' '}
+            <Button
+              variant="link"
+              size="sm"
+              onClick={() => router.visit('/settings#profile')}
+              className="h-auto p-0 inline-flex items-center gap-1"
+            >
+              Edit Profile
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Button>
+          </AlertComponent>
         )}
 
         {/* Guest Information Message */}

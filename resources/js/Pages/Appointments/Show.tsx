@@ -37,12 +37,12 @@ import {
   FlaskConical,
   CreditCard,
   FolderOpen,
-  Activity,
   Heart,
   ExternalLink,
   ShieldCheck,
   RotateCcw,
   MoreVertical,
+  Clock,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
@@ -196,7 +196,7 @@ const SECTIONS = [
   { id: 'lab-tests', label: 'Lab Tests', icon: FlaskConical },
   { id: 'billing', label: 'Billing', icon: CreditCard },
   { id: 'documents', label: 'Documents', icon: FolderOpen },
-  { id: 'activity', label: 'Activity', icon: Activity },
+  { id: 'activity', label: 'Timeline', icon: Clock },
 ] as const;
 
 /* ─── Main Page ─── */
@@ -989,15 +989,13 @@ function DocumentsSection({ documents }: { documents: AppDocument[] }) {
   );
 }
 
-/* ─── 8. Activity Log ─── */
+/* ─── 8. Timeline ─── */
 
 function ActivitySection({ activity }: { activity: ActivityItem[] }) {
+  // Timeline should never be empty - if detail page exists, events must have occurred
   if (activity.length === 0) {
-    return (
-      <Section id="activity" title="Activity Log" icon={Activity}>
-        <EmptyState icon={Activity} message="No activity recorded" description="Status updates and actions will appear here." />
-      </Section>
-    );
+    console.warn('Timeline is unexpectedly empty for appointment detail page');
+    return null;
   }
 
   // Determine dot color: cancelled/refund = gray, default = green
@@ -1007,7 +1005,7 @@ function ActivitySection({ activity }: { activity: ActivityItem[] }) {
   };
 
   return (
-    <Section id="activity" title="Activity Log" icon={Activity}>
+    <Section id="activity" title="Timeline" icon={Clock}>
       <div className="px-6 py-6">
         <div>
           {activity.map((item, i) => {

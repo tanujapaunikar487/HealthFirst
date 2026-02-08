@@ -271,31 +271,6 @@ function getTreatmentIcon(procedureType: string | null) {
   }
 }
 
-function getStatusBadge(status: string) {
-  const map: Record<string, { label: string; variant: 'success' | 'danger' | 'warning' | 'info' | 'neutral' }> = {
-    current: { label: 'In Treatment', variant: 'info' },
-    processing: { label: 'In Treatment', variant: 'info' },
-    pending: { label: 'Pending', variant: 'warning' },
-    approved: { label: 'Approved', variant: 'success' },
-    partially_approved: { label: 'Partially Approved', variant: 'warning' },
-    rejected: { label: 'Rejected', variant: 'danger' },
-    expired: { label: 'Expired', variant: 'neutral' },
-    enhancement_required: { label: 'Enhancement Required', variant: 'warning' },
-    enhancement_in_progress: { label: 'Enhancement In Progress', variant: 'warning' },
-    enhancement_approved: { label: 'Enhancement Approved', variant: 'success' },
-    enhancement_rejected: { label: 'Enhancement Rejected', variant: 'danger' },
-    dispute_under_review: { label: 'Dispute Under Review', variant: 'warning' },
-    dispute_resolved: { label: 'Dispute Resolved', variant: 'success' },
-    settled: { label: 'Settled', variant: 'success' },
-  };
-  const entry = map[status] ?? map.pending;
-  return (
-    <Badge variant={entry.variant}>
-      {entry.label}
-    </Badge>
-  );
-}
-
 // --- Timeline grouping ---
 
 interface TimelineGroup {
@@ -768,10 +743,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
       {/* Mobile sticky header */}
       <div className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur px-6 py-3 md:hidden">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-label text-muted-foreground">{claim.claim_reference}</span>
-            {getStatusBadge(claim.status)}
-          </div>
+          <span className="text-label text-muted-foreground">{claim.claim_reference}</span>
           <ThreeDotMenu />
         </div>
       </div>
@@ -835,74 +807,73 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               </div>
             </div>
             <div className="hidden md:flex items-center gap-2 flex-shrink-0">
-              {getStatusBadge(claim.status)}
-              {/* Status-based primary button */}
-              {claim.status === 'rejected' || claim.status === 'enhancement_rejected' ? (
-                <Button size="lg" onClick={() => {
-                  if (confirm('Would you like to file an appeal for this claim?')) {
-                    router.post(`/insurance/claims/${claim.id}/appeal`, {}, {
-                      onSuccess: () => toast('Appeal request submitted'),
-                      onError: () => toast('Failed to submit appeal'),
-                    });
-                  }
-                }}>
-                  <FileText className="h-4 w-4" />
-                  File appeal
+              {/* Primary Action Button */}
+              {banner.action && (
+                <Button
+                  size="lg"
+                  onClick={() => {
+                    const label = banner.action!.label;
+                    if (label === 'Accept') {
+                      if (confirm('Accept the partially approved amount?')) {
+                        router.post(`/insurance/claims/${claim.id}/accept`, {}, {
+                          onSuccess: () => toast('Claim accepted successfully'),
+                          onError: () => toast('Failed to accept claim'),
+                        });
+                      }
+                    } else if (label === 'Try different policy') {
+                      router.visit('/insurance');
+                    } else if (label === 'Request new pre-auth') {
+                      router.post(`/insurance/claims/${claim.id}/new-preauth`, {}, {
+                        onSuccess: () => toast('New pre-authorization request submitted'),
+                        onError: () => toast('Failed to submit request'),
+                      });
+                    } else if (label === 'Request enhancement') {
+                      router.post(`/insurance/claims/${claim.id}/enhancement`, {}, {
+                        onSuccess: () => toast('Enhancement request submitted'),
+                        onError: () => toast('Failed to submit enhancement request'),
+                      });
+                    } else if (label === 'Raise dispute') {
+                      if (confirm('Are you sure you want to raise a dispute for this settled claim?')) {
+                        router.post(`/insurance/claims/${claim.id}/dispute`, {}, {
+                          onSuccess: () => toast('Dispute submitted successfully'),
+                          onError: () => toast('Failed to submit dispute'),
+                        });
+                      }
+                    } else if (label === 'File appeal') {
+                      if (confirm('Would you like to file an appeal for this claim?')) {
+                        router.post(`/insurance/claims/${claim.id}/appeal`, {}, {
+                          onSuccess: () => toast('Appeal request submitted'),
+                          onError: () => toast('Failed to submit appeal'),
+                        });
+                      }
+                    } else if (label === 'Download EOB') {
+                      const f = claim.financial;
+                      downloadAsHtml(`eob-${claim.claim_reference}.pdf`, `
+                        <h1>Explanation of Benefits</h1>
+                        <p class="subtitle">${claim.claim_reference}</p>
+                        <h2>Claim Details</h2>
+                        <div class="row"><span class="row-label">Treatment</span><span class="row-value">${claim.treatment_name}</span></div>
+                        <div class="row"><span class="row-label">Provider</span><span class="row-value">${claim.provider_name ?? 'N/A'}</span></div>
+                        <div class="row"><span class="row-label">Patient</span><span class="row-value">${patient.name}</span></div>
+                        <div class="row"><span class="row-label">Claim Date</span><span class="row-value">${formatDate(claim.claim_date) || 'N/A'}</span></div>
+                        <h2>Financial Summary</h2>
+                        ${f?.preauth_approved ? `<div class="row"><span class="row-label">Approved Amount</span><span class="row-value">₹${f.preauth_approved.toLocaleString()}</span></div>` : ''}
+                        ${f?.total_approved ? `<div class="row"><span class="row-label">Total Approved</span><span class="row-value">₹${f.total_approved.toLocaleString()}</span></div>` : ''}
+                        ${f?.not_covered ? `<div class="row"><span class="row-label">Not Covered</span><span class="row-value">₹${f.not_covered.toLocaleString()}</span></div>` : ''}
+                        <p style="margin-top:24px;font-size:12px;color:#6b7280">Generated on ${new Date().toLocaleDateString()}</p>
+                      `);
+                      toast('EOB downloaded');
+                    } else if (label === 'Track status' || label === 'Track enhancement' || label === 'Track dispute' || label === 'View resolution') {
+                      document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      toast(banner.action!.toastMsg);
+                    } else {
+                      toast(banner.action!.toastMsg);
+                    }
+                  }}
+                >
+                  {banner.action.label}
                 </Button>
-              ) : claim.status === 'approved' || claim.status === 'enhancement_approved' ? (
-                <Button size="lg" onClick={() => {
-                  const f = claim.financial;
-                  downloadAsHtml(`eob-${claim.claim_reference}.pdf`, `
-                    <h1>Explanation of Benefits</h1>
-                    <p class="subtitle">${claim.claim_reference}</p>
-                    <h2>Claim Details</h2>
-                    <div class="row"><span class="row-label">Treatment</span><span class="row-value">${claim.treatment_name}</span></div>
-                    <div class="row"><span class="row-label">Provider</span><span class="row-value">${claim.provider_name ?? 'N/A'}</span></div>
-                    <div class="row"><span class="row-label">Patient</span><span class="row-value">${patient.name}</span></div>
-                    <div class="row"><span class="row-label">Claim Date</span><span class="row-value">${formatDate(claim.claim_date) || 'N/A'}</span></div>
-                    <h2>Financial Summary</h2>
-                    ${f?.preauth_approved ? `<div class="row"><span class="row-label">Approved Amount</span><span class="row-value">₹${f.preauth_approved.toLocaleString()}</span></div>` : ''}
-                    ${f?.total_approved ? `<div class="row"><span class="row-label">Total Approved</span><span class="row-value">₹${f.total_approved.toLocaleString()}</span></div>` : ''}
-                    ${f?.not_covered ? `<div class="row"><span class="row-label">Not Covered</span><span class="row-value">₹${f.not_covered.toLocaleString()}</span></div>` : ''}
-                    <p style="margin-top:24px;font-size:12px;color:#6b7280">Generated on ${new Date().toLocaleDateString()}</p>
-                  `);
-                  toast('EOB downloaded');
-                }}>
-                  <Download className="h-4 w-4" />
-                  Download EOB
-                </Button>
-              ) : claim.status === 'settled' ? (
-                <Button size="lg" onClick={() => {
-                  const f = claim.financial;
-                  downloadAsHtml(`settlement-${claim.claim_reference}.pdf`, `
-                    <h1>Settlement Letter</h1>
-                    <p class="subtitle">${claim.claim_reference}</p>
-                    <h2>Claim Details</h2>
-                    <div class="row"><span class="row-label">Treatment</span><span class="row-value">${claim.treatment_name}</span></div>
-                    <div class="row"><span class="row-label">Provider</span><span class="row-value">${claim.provider_name ?? 'N/A'}</span></div>
-                    <div class="row"><span class="row-label">Patient</span><span class="row-value">${patient.name}</span></div>
-                    <div class="row"><span class="row-label">Settlement Date</span><span class="row-value">${formatDate(claim.claim_date) || 'N/A'}</span></div>
-                    <h2>Settlement Summary</h2>
-                    ${f?.insurance_covered ? `<div class="row"><span class="row-label">Insurance Covered</span><span class="row-value">₹${f.insurance_covered.toLocaleString()}</span></div>` : ''}
-                    ${f?.patient_paid ? `<div class="row"><span class="row-label">Patient Paid</span><span class="row-value">₹${f.patient_paid.toLocaleString()}</span></div>` : ''}
-                    <p style="margin-top:24px;font-size:12px;color:#6b7280">Generated on ${new Date().toLocaleDateString()}</p>
-                  `);
-                  toast('Settlement letter downloaded');
-                }}>
-                  <Download className="h-4 w-4" />
-                  Download Settlement
-                </Button>
-              ) : claim.status === 'dispute_resolved' ? (
-                <Button size="lg" onClick={() => document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
-                  <FileText className="h-4 w-4" />
-                  View resolution
-                </Button>
-              ) : (claim.status === 'pending' || claim.status === 'enhancement_in_progress' || claim.status === 'dispute_under_review') ? (
-                <Button size="lg" onClick={() => document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
-                  <Clock className="h-4 w-4" />
-                  Track status
-                </Button>
-              ) : null}
+              )}
               <ThreeDotMenu />
             </div>
           </div>
@@ -913,74 +884,6 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           variant={banner.variant}
           title={banner.title}
           className="mb-8"
-          action={banner.action ? (
-            <Button
-              size="sm"
-              variant="secondary"
-              className="flex-shrink-0 h-8 text-body"
-              onClick={() => {
-                const label = banner.action!.label;
-                if (label === 'Accept') {
-                  if (confirm('Accept the partially approved amount?')) {
-                    router.post(`/insurance/claims/${claim.id}/accept`, {}, {
-                      onSuccess: () => toast('Claim accepted successfully'),
-                      onError: () => toast('Failed to accept claim'),
-                    });
-                  }
-                } else if (label === 'Try different policy') {
-                  router.visit('/insurance');
-                } else if (label === 'Request new pre-auth') {
-                  router.post(`/insurance/claims/${claim.id}/new-preauth`, {}, {
-                    onSuccess: () => toast('New pre-authorization request submitted'),
-                    onError: () => toast('Failed to submit request'),
-                  });
-                } else if (label === 'Request enhancement') {
-                  router.post(`/insurance/claims/${claim.id}/enhancement`, {}, {
-                    onSuccess: () => toast('Enhancement request submitted'),
-                    onError: () => toast('Failed to submit enhancement request'),
-                  });
-                } else if (label === 'Raise dispute') {
-                  if (confirm('Are you sure you want to raise a dispute for this settled claim?')) {
-                    router.post(`/insurance/claims/${claim.id}/dispute`, {}, {
-                      onSuccess: () => toast('Dispute submitted successfully'),
-                      onError: () => toast('Failed to submit dispute'),
-                    });
-                  }
-                } else if (label === 'File appeal') {
-                  if (confirm('Would you like to file an appeal for this claim?')) {
-                    router.post(`/insurance/claims/${claim.id}/appeal`, {}, {
-                      onSuccess: () => toast('Appeal request submitted'),
-                      onError: () => toast('Failed to submit appeal'),
-                    });
-                  }
-                } else if (label === 'Download EOB') {
-                  const f = claim.financial;
-                  downloadAsHtml(`eob-${claim.claim_reference}.pdf`, `
-                    <h1>Explanation of Benefits</h1>
-                    <p class="subtitle">${claim.claim_reference}</p>
-                    <h2>Claim Details</h2>
-                    <div class="row"><span class="row-label">Treatment</span><span class="row-value">${claim.treatment_name}</span></div>
-                    <div class="row"><span class="row-label">Provider</span><span class="row-value">${claim.provider_name ?? 'N/A'}</span></div>
-                    <div class="row"><span class="row-label">Patient</span><span class="row-value">${patient.name}</span></div>
-                    <div class="row"><span class="row-label">Claim Date</span><span class="row-value">${formatDate(claim.claim_date) || 'N/A'}</span></div>
-                    <h2>Financial Summary</h2>
-                    ${f?.preauth_approved ? `<div class="row"><span class="row-label">Approved Amount</span><span class="row-value">₹${f.preauth_approved.toLocaleString()}</span></div>` : ''}
-                    ${f?.total_approved ? `<div class="row"><span class="row-label">Total Approved</span><span class="row-value">₹${f.total_approved.toLocaleString()}</span></div>` : ''}
-                    ${f?.not_covered ? `<div class="row"><span class="row-label">Not Covered</span><span class="row-value">₹${f.not_covered.toLocaleString()}</span></div>` : ''}
-                    <p style="margin-top:24px;font-size:12px;color:#6b7280">Generated on ${new Date().toLocaleDateString()}</p>
-                  `);
-                  toast('EOB downloaded');
-                } else if (label === 'Track status' || label === 'Track enhancement' || label === 'Track dispute' || label === 'View resolution') {
-                  document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  toast(banner.action!.toastMsg);
-                } else {
-                  toast(banner.action!.toastMsg);
-                }
-              }}
-            >
-              {banner.action.label}
-            </Button>
-          ) : undefined}
         >
           {(banner.subtitle || banner.breakdown) && (
             <div className="space-y-1">
@@ -1368,8 +1271,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         >
           {claim.documents.length === 0 ? (
             <div className="px-6 py-6 text-center">
-              <p className="text-label text-foreground">No documents uploaded</p>
-              <p className="mt-1 text-body text-muted-foreground">Upload supporting documents for this claim</p>
+              <p className="text-label text-foreground">No documents available</p>
+              <p className="mt-1 text-body text-muted-foreground">Documents will appear here when uploaded by the hospital</p>
             </div>
           ) : (
             <div className="divide-y">
@@ -1416,10 +1319,11 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           }
         >
           {claim.timeline.length === 0 ? (
-            <div className="px-6 py-6 text-center">
-              <p className="text-label text-foreground">No timeline events</p>
-              <p className="mt-1 text-body text-muted-foreground">Timeline updates will appear here as your claim progresses</p>
-            </div>
+            // Timeline should never be empty - if detail page exists, events must have occurred
+            (() => {
+              console.warn('Timeline is unexpectedly empty for claim detail page');
+              return null;
+            })()
             ) : (
               <div className="px-6 py-4">
                 {/* Last updated on mobile */}

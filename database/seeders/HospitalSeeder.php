@@ -1204,6 +1204,17 @@ class HospitalSeeder extends Seeder
                 'treatment_name' => 'General Consultation',
                 'procedure_type' => 'Consultation',
                 'claim_date' => Carbon::today()->subDays(16)->format('Y-m-d'),
+                'documents' => [
+                    ['type' => 'Prescription', 'date' => Carbon::today()->subDays(16)->format('d M Y'), 'filename' => 'prescription_fever.pdf'],
+                    ['type' => 'Pharmacy Bill', 'date' => Carbon::today()->subDays(16)->format('d M Y'), 'filename' => 'pharmacy_bill.pdf'],
+                    ['type' => 'Consultation Bill', 'date' => Carbon::today()->subDays(16)->format('d M Y'), 'filename' => 'consultation_bill.pdf'],
+                    ['type' => 'Settlement Letter', 'date' => Carbon::today()->subDays(10)->format('d M Y'), 'filename' => 'settlement_consultation.pdf'],
+                ],
+                'timeline' => [
+                    ['event' => 'Claim Submitted', 'date' => Carbon::today()->subDays(16)->format('d M Y'), 'status' => 'completed'],
+                    ['event' => 'Claim Approved', 'date' => Carbon::today()->subDays(15)->format('d M Y'), 'status' => 'completed'],
+                    ['event' => 'Claim Settled', 'date' => Carbon::today()->subDays(10)->format('d M Y'), 'status' => 'completed'],
+                ],
             ],
             [
                 'insurance_provider_id' => $hdfcErgo?->id ?? 2,
@@ -1261,6 +1272,16 @@ class HospitalSeeder extends Seeder
                 'treatment_name' => 'Dermatology Consultation',
                 'procedure_type' => 'Consultation',
                 'claim_date' => Carbon::today()->subDays(2)->format('Y-m-d'),
+                'documents' => [
+                    ['type' => 'Claim Form', 'date' => Carbon::today()->subDays(2)->format('d M Y'), 'filename' => 'claim_form_derma.pdf'],
+                    ['type' => 'Consultation Bill', 'date' => Carbon::today()->subDays(2)->format('d M Y'), 'filename' => 'derma_bill.pdf'],
+                    ['type' => 'Medical Report', 'date' => Carbon::today()->subDays(2)->format('d M Y'), 'filename' => 'derma_report.pdf'],
+                ],
+                'timeline' => [
+                    ['event' => 'Claim Submitted', 'date' => Carbon::today()->subDays(2)->format('d M Y'), 'status' => 'completed'],
+                    ['event' => 'Under Review', 'date' => Carbon::today()->subDays(1)->format('d M Y'), 'status' => 'current'],
+                    ['event' => 'Claim Decision', 'date' => null, 'status' => 'pending'],
+                ],
             ],
             [
                 'insurance_provider_id' => $starHealth?->id ?? 1,

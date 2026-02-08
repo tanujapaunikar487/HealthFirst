@@ -440,20 +440,13 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
       <div className="min-h-full flex flex-col" style={{ width: '100%', maxWidth: '960px' }}>
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-page-title text-foreground">
-            Billing
-          </h1>
-        </div>
-
-        {/* Outstanding Summary */}
-        {stats.outstanding_count > 0 && (
-          <Alert
-            variant="warning"
-            title={`${stats.outstanding_count} outstanding ${stats.outstanding_count === 1 ? 'bill' : 'bills'}`}
-            className="mb-6"
-            action={
+          <div className="flex items-center justify-between">
+            <h1 className="text-page-title text-foreground">
+              Billing
+            </h1>
+            {stats.outstanding_count > 0 && (
               <Button
-                size="md"
+                size="lg"
                 onClick={() => {
                   const outstandingPayable = bills.filter(
                     (b) => OUTSTANDING_STATUSES.includes(b.billing_status) && PAYABLE_STATUSES.includes(b.billing_status)
@@ -462,10 +455,19 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                   else showToast('No payable bills found.');
                 }}
               >
-                <CreditCard className="h-3.5 w-3.5" />
+                <CreditCard className="h-4 w-4" />
                 Pay all
               </Button>
-            }
+            )}
+          </div>
+        </div>
+
+        {/* Outstanding Summary */}
+        {stats.outstanding_count > 0 && (
+          <Alert
+            variant="warning"
+            title={`${stats.outstanding_count} outstanding ${stats.outstanding_count === 1 ? 'bill' : 'bills'}`}
+            className="mb-6"
           >
             Total due: ₹{stats.outstanding_total.toLocaleString()}
           </Alert>
