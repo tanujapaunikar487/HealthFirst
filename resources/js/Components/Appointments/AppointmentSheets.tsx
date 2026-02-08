@@ -261,9 +261,8 @@ export function DetailsSheet({
                   )}
                 />
               </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="mx-5">
-                  <div className="divide-y pb-3">
+              <CollapsibleContent className="px-5 py-4">
+                <div className="divide-y space-y-3">
                   <SheetSectionRow label="Date" value={appointment.date_formatted} />
                   <SheetSectionRow
                     label="Time"
@@ -284,7 +283,6 @@ export function DetailsSheet({
                       }
                     />
                   )}
-                </div>
                 </div>
               </CollapsibleContent>
             </Collapsible>
@@ -326,7 +324,7 @@ export function DetailsSheet({
                   />
                 </div>
               </CollapsibleTrigger>
-              <CollapsibleContent className="px-5 pb-3">
+              <CollapsibleContent className="space-y-3 px-5 py-4">
                 {isEditingNotes ? (
                   <div className="space-y-2">
                     <Textarea
@@ -385,7 +383,7 @@ export function DetailsSheet({
                   )}
                 />
               </CollapsibleTrigger>
-              <CollapsibleContent className="px-5 pb-3">
+              <CollapsibleContent className="space-y-3 px-5 py-4">
                 <ul className="space-y-1.5 text-body text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <span className="mt-1.5">•</span>
