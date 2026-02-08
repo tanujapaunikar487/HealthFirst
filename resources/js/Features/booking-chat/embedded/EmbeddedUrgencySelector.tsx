@@ -35,27 +35,25 @@ const options = [
 export function EmbeddedUrgencySelector({ selectedUrgency, onSelect, disabled }: Props) {
   return (
     <Card className="overflow-hidden">
-      {options.map((option, index) => {
-        const isSelected = selectedUrgency === option.value;
+      <div className="divide-y">
+        {options.map((option) => {
+          const isSelected = selectedUrgency === option.value;
 
-        return (
-          <Button
-            key={option.value}
-            variant="ghost"
-            onClick={() => !disabled && onSelect(option.value)}
-            disabled={disabled}
-            className={cn(
-              "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
-              "flex items-center gap-4 text-left transition-all",
-              "disabled:cursor-not-allowed",
-              isSelected
-                ? disabled ? "bg-primary/5 opacity-60" : "bg-primary/5"
-                : disabled ? "opacity-30" : ""
-            )}
-            style={{
-              borderBottom: index < options.length - 1 ? '1px solid hsl(var(--border))' : 'none'
-            }}
-          >
+          return (
+            <Button
+              key={option.value}
+              variant="ghost"
+              onClick={() => !disabled && onSelect(option.value)}
+              disabled={disabled}
+              className={cn(
+                "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
+                "flex items-center gap-4 text-left transition-all",
+                "disabled:cursor-not-allowed",
+                isSelected
+                  ? disabled ? "bg-primary/5 opacity-60" : "bg-primary/5"
+                  : disabled ? "opacity-30" : ""
+              )}
+            >
             <div className={cn("h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0", option.containerBg)}>
               <div className={cn("w-3 h-3 rounded-full", option.circleBg)} />
             </div>
@@ -64,9 +62,10 @@ export function EmbeddedUrgencySelector({ selectedUrgency, onSelect, disabled }:
               <p className="text-label leading-tight mb-0.5">{option.label}</p>
               <p className="text-body text-muted-foreground leading-tight">{option.description}</p>
             </div>
-          </Button>
-        );
-      })}
+            </Button>
+          );
+        })}
+      </div>
     </Card>
   );
 }

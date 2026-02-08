@@ -47,7 +47,7 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
                   isSelected ? 'bg-primary/10' : 'bg-muted',
                 )}
               >
-                <Icon icon={Home} size={20} className={cn(isSelected && 'text-primary')} />
+                <Icon icon={Home} size={20} className="text-primary" />
               </div>
 
               <div className="flex-1 min-w-0 text-left">

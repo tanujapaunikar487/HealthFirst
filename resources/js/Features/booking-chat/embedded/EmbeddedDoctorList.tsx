@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import * as React from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
 import { getAvatarColorByName } from '@/Lib/avatar-colors';
 import { Badge } from '@/Components/ui/badge';
@@ -47,6 +48,33 @@ export function EmbeddedDoctorList({ doctors, selectedDoctorId, selectedTime, on
   const [searchQuery, setSearchQuery] = useState('');
   const [filterSpecialty, setFilterSpecialty] = useState<string>('all');
   const [filterMode, setFilterMode] = useState<string>('all');
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  // Scroll to show the AI's entire message (including text before this component) when it mounts
+  React.useEffect(() => {
+    if (containerRef.current) {
+      // Scroll the component itself to top
+      containerRef.current.scrollTop = 0;
+
+      // Use requestAnimationFrame to ensure scroll happens after all rendering and layout
+      // This runs after the chat's auto-scroll mechanism
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (containerRef.current) {
+            // Find the parent message bubble (the AI's complete message with text + embedded component)
+            const messageBubble = containerRef.current.closest('.flex.gap-3');
+            const scrollContainer = containerRef.current.closest('.overflow-y-auto');
+
+            if (messageBubble && scrollContainer) {
+              // Scroll to show the entire AI message from the top (including the text before the embedded component)
+              const messageTop = (messageBubble as HTMLElement).offsetTop;
+              scrollContainer.scrollTop = messageTop - 24; // 24px offset for breathing room
+            }
+          }
+        });
+      });
+    }
+  }, []);
 
   // Get unique specialties from doctors
   const specialties = Array.from(new Set(doctors.map(d => d.specialization).filter(Boolean)));
@@ -91,7 +119,7 @@ export function EmbeddedDoctorList({ doctors, selectedDoctorId, selectedTime, on
     });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 scroll-mt-4" ref={containerRef}>
       {/* Filters and search in one row */}
       <div className="flex items-center gap-3">
         <Select value={sortBy} onValueChange={setSortBy} disabled={disabled}>
@@ -148,7 +176,7 @@ export function EmbeddedDoctorList({ doctors, selectedDoctorId, selectedTime, on
 
       {/* Doctor cards */}
       <Card>
-        <CardContent className="p-0 divide-y">
+        <CardContent className="p-0 divide-y max-h-75 overflow-y-auto">
           {filteredDoctors.map((doctor) => (
             <DoctorCard
               key={doctor.id}
@@ -220,12 +248,12 @@ function DoctorCard({
         <div className="flex flex-col items-end gap-2">
           <div className="flex gap-2">
             {doctor.consultation_modes?.includes('video') && (
-              <Badge variant="info">
+              <Badge variant="neutral">
                 Video
               </Badge>
             )}
             {doctor.consultation_modes?.includes('in_person') && (
-              <Badge variant="info">
+              <Badge variant="neutral">
                 In-person
               </Badge>
             )}
@@ -245,12 +273,11 @@ function DoctorCard({
             className={cn(
               "h-auto px-3 py-1.5 rounded-full text-label",
               "disabled:opacity-60",
-              selectedTime === slot.time && "border-foreground",
-              slot.preferred && selectedTime !== slot.time && "border-warning bg-warning/10"
+              selectedTime === slot.time && "border-foreground"
             )}
           >
             {formatTime(slot.time)}
-            {slot.preferred && <Icon icon={Star} size={12} className="fill-warning text-warning" />}
+            {slot.preferred && <Icon icon={Star} size={12} className="fill-current text-muted-foreground" />}
           </Button>
         ))}
       </div>

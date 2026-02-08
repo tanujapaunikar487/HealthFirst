@@ -60,7 +60,7 @@ export function EmbeddedLocationSelector({ locations, selectedLocationId, onSele
                 "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
                 isSelected ? "bg-primary/10" : "bg-muted"
               )}>
-                <Icon icon={LocationIcon} size={20} className={cn(isSelected && "text-primary")} />
+                <Icon icon={LocationIcon} size={20} className="text-primary" />
               </div>
 
               {/* Text */}

@@ -331,12 +331,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
 
         {/* Messages area */}
         <main className="flex-1 overflow-y-auto">
-          <div
-            className="min-h-full px-4 py-6"
-            style={{
-              background: 'linear-gradient(180deg, hsl(var(--primary) / 0.1) 0%, hsl(var(--background) / 0.5) 13.94%, hsl(var(--background)) 30.77%)'
-            }}
-          >
+          <div className="min-h-full px-4 py-6">
             <ChatContainerRoot className="h-full">
               <ChatContainerContent>
                 <div className="mx-auto space-y-4" style={{ maxWidth: '800px' }}>

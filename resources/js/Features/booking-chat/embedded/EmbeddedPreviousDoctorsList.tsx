@@ -68,8 +68,8 @@ export function EmbeddedPreviousDoctorsList({
     <div className="space-y-4">
       {/* Doctor cards */}
       <Card className="overflow-hidden">
-        <CardContent className="p-0">
-          {allDoctors.map((doctor, index) => (
+        <CardContent className="p-0 divide-y">
+          {allDoctors.map((doctor) => (
             <PreviousDoctorCard
               key={doctor.id}
               doctor={doctor}
@@ -77,7 +77,6 @@ export function EmbeddedPreviousDoctorsList({
               selectedTime={selectedDoctorId === doctor.id ? selectedTime : null}
               onSelectTime={(time) => onSelect(doctor.id, time)}
               disabled={disabled}
-              isLast={index === allDoctors.length - 1}
             />
           ))}
         </CardContent>
@@ -103,14 +102,12 @@ function PreviousDoctorCard({
   selectedTime,
   onSelectTime,
   disabled,
-  isLast,
 }: {
   doctor: PreviousDoctor;
   isSelected: boolean;
   selectedTime: string | null;
   onSelectTime: (time: string) => void;
   disabled: boolean;
-  isLast: boolean;
 }) {
   const formatLastVisit = (dateStr?: string) => {
     if (!dateStr) return 'N/A';
@@ -154,9 +151,6 @@ function PreviousDoctorCard({
           ? disabled ? "bg-primary/5 opacity-60" : "bg-primary/5"
           : disabled ? "opacity-30" : ""
       )}
-      style={{
-        borderBottom: !isLast ? '1px solid hsl(var(--border))' : 'none'
-      }}
     >
       {/* Header row */}
       <div className="flex items-start justify-between gap-4 mb-3">
@@ -209,12 +203,12 @@ function PreviousDoctorCard({
           {doctor.consultation_modes && doctor.consultation_modes.length > 0 && (
             <div className="flex gap-1">
               {doctor.consultation_modes.includes('video') && (
-                <Badge variant="info">
+                <Badge variant="neutral">
                   Video
                 </Badge>
               )}
               {doctor.consultation_modes.includes('in_person') && (
-                <Badge variant="info">
+                <Badge variant="neutral">
                   In-person
                 </Badge>
               )}

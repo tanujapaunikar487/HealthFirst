@@ -131,30 +131,28 @@ export function EmbeddedComponent({
 
       return (
         <Card className="overflow-hidden">
-          {data?.options?.map((option: any, index: number) => {
-            const optionSelected = isSelected && selection?.appointment_type === option.id;
-            const TypeIcon = typeIconMap[option.id] || UserPlus;
+          <div className="divide-y">
+            {data?.options?.map((option: any) => {
+              const optionSelected = isSelected && selection?.appointment_type === option.id;
+              const TypeIcon = typeIconMap[option.id] || UserPlus;
 
-            return (
-              <Button
-                key={option.id}
-                variant="ghost"
-                onClick={() => onSelect({
-                  appointment_type: option.id,
-                  display_message: option.label
-                })}
-                disabled={disabled || isSelected}
-                className={cn(
-                  "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
-                  "flex items-center gap-4 text-left transition-all",
-                  optionSelected
-                    ? "bg-primary/5 disabled:opacity-60"
-                    : isSelected ? "disabled:opacity-30" : ""
-                )}
-                style={{
-                  borderBottom: index < (data?.options?.length || 0) - 1 ? '1px solid hsl(var(--border))' : 'none'
-                }}
-              >
+              return (
+                <Button
+                  key={option.id}
+                  variant="ghost"
+                  onClick={() => onSelect({
+                    appointment_type: option.id,
+                    display_message: option.label
+                  })}
+                  disabled={disabled || isSelected}
+                  className={cn(
+                    "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
+                    "flex items-center gap-4 text-left transition-all",
+                    optionSelected
+                      ? "bg-primary/5 disabled:opacity-60"
+                      : isSelected ? "disabled:opacity-30" : ""
+                  )}
+                >
                 <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <Icon icon={TypeIcon} size={20} className="text-primary" />
                 </div>
@@ -165,9 +163,10 @@ export function EmbeddedComponent({
                     <p className="text-body text-muted-foreground leading-tight">{option.description}</p>
                   )}
                 </div>
-              </Button>
-            );
-          })}
+                </Button>
+              );
+            })}
+          </div>
         </Card>
       );
 
@@ -186,32 +185,30 @@ export function EmbeddedComponent({
 
       return (
         <Card className="overflow-hidden">
-          {options.map((option: any, index: number) => {
-            const optionSelected = isSelected && data?.selected === (option.value || option.id);
-            const OptionIcon = reasonIconMap[option.value || option.id] || RefreshCw;
+          <div className="divide-y">
+            {options.map((option: any) => {
+              const optionSelected = isSelected && data?.selected === (option.value || option.id);
+              const OptionIcon = reasonIconMap[option.value || option.id] || RefreshCw;
 
-            return (
-              <Button
-                key={option.id || option.value}
-                variant="ghost"
-                onClick={() =>
-                  onSelect({
-                    followup_reason: option.value || option.id,
-                    display_message: option.label,
-                  })
-                }
-                disabled={disabled || isSelected}
-                className={cn(
-                  "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
-                  "flex items-center gap-4 text-left transition-all",
-                  optionSelected
-                    ? "bg-primary/5 disabled:opacity-60"
-                    : isSelected ? "disabled:opacity-30" : ""
-                )}
-                style={{
-                  borderBottom: index < options.length - 1 ? '1px solid hsl(var(--border))' : 'none'
-                }}
-              >
+              return (
+                <Button
+                  key={option.id || option.value}
+                  variant="ghost"
+                  onClick={() =>
+                    onSelect({
+                      followup_reason: option.value || option.id,
+                      display_message: option.label,
+                    })
+                  }
+                  disabled={disabled || isSelected}
+                  className={cn(
+                    "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
+                    "flex items-center gap-4 text-left transition-all",
+                    optionSelected
+                      ? "bg-primary/5 disabled:opacity-60"
+                      : isSelected ? "disabled:opacity-30" : ""
+                  )}
+                >
                 <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <Icon icon={OptionIcon} size={20} className="text-primary" />
                 </div>
@@ -222,9 +219,10 @@ export function EmbeddedComponent({
                     <p className="text-body text-muted-foreground leading-tight">{option.description}</p>
                   )}
                 </div>
-              </Button>
-            );
-          })}
+                </Button>
+              );
+            })}
+          </div>
         </Card>
       );
 
@@ -1334,7 +1332,7 @@ function DateTimePicker({ selectedDate, selectedTime, onSelect, disabled, warnin
 
       <Card className="overflow-hidden">
         {/* Date selection */}
-        <div className="p-4" style={{ borderBottom: '1px solid hsl(var(--border))' }}>
+        <div className="p-4 border-b">
           <h4 className="text-card-title mb-3 text-foreground">Date</h4>
           <div className="flex gap-2 overflow-x-auto pb-2">
             {dates.map((dateItem: any) => {

@@ -23,6 +23,7 @@ export default function BookingIndex() {
   const [isLoading, setIsLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [attachments, setAttachments] = useState<File[]>([]);
+  const [selectedType, setSelectedType] = useState<'doctor' | 'lab_test' | null>(null);
 
   const startConversation = (type: 'doctor' | 'lab_test', initialMessage?: string) => {
     setIsLoading(true);
@@ -42,7 +43,22 @@ export default function BookingIndex() {
 
   const handleSubmit = () => {
     if (!input.trim() && attachments.length === 0) return;
-    startConversation('doctor', input.trim());
+
+    // Determine booking type: use selected type from prompt suggestion,
+    // or detect from input keywords, or default to doctor
+    let type: 'doctor' | 'lab_test' = selectedType || 'doctor';
+
+    if (!selectedType) {
+      // Auto-detect from user input
+      const lowerInput = input.toLowerCase();
+      const labKeywords = ['test', 'lab', 'blood', 'sample', 'collection', 'package', 'screening', 'x-ray', 'scan', 'mri', 'ct', 'ultrasound'];
+
+      if (labKeywords.some(keyword => lowerInput.includes(keyword))) {
+        type = 'lab_test';
+      }
+    }
+
+    startConversation(type, input.trim());
   };
 
   const handleRecordingStop = async (audioBlob: Blob) => {
@@ -74,6 +90,7 @@ export default function BookingIndex() {
 
   const handlePromptClick = (suggestion: typeof PROMPT_SUGGESTIONS[number]) => {
     setInput(suggestion.text);
+    setSelectedType(suggestion.type);
   };
 
   return (

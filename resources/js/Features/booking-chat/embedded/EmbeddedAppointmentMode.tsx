@@ -31,34 +31,47 @@ const modeConfig = {
 
 export function EmbeddedAppointmentMode({ modes, selectedMode, onSelect, disabled }: Props) {
   return (
-    <div className="flex flex-wrap gap-2">
-      {modes.map((mode) => {
-        const config = modeConfig[mode.type];
-        const ModeIcon = config.icon;
-        const isSelected = selectedMode === mode.type;
+    <Card className="overflow-hidden">
+      <div className="divide-y">
+        {modes.map((mode) => {
+          const config = modeConfig[mode.type];
+          const ModeIcon = config.icon;
+          const isSelected = selectedMode === mode.type;
 
-        return (
-          <Button
-            key={mode.type}
-            variant="outline"
-            onClick={() => !disabled && onSelect(mode.type)}
-            disabled={disabled}
-            className={cn(
-              "h-auto px-4 py-2 rounded-full text-label font-normal",
-              "hover:border-primary/50 hover:bg-primary/5",
-              isSelected
-                ? disabled ? "border-primary bg-primary/10 opacity-60" : "border-primary bg-primary/10"
-                : disabled ? "opacity-30" : ""
-            )}
-          >
-            <div className="flex items-center gap-2">
-              <Icon icon={ModeIcon} size={16} />
-              <span>{config.label}</span>
-              <span className="text-body">₹{mode.price.toLocaleString()}</span>
-            </div>
-          </Button>
-        );
-      })}
-    </div>
+          return (
+            <Button
+              key={mode.type}
+              variant="ghost"
+              onClick={() => !disabled && onSelect(mode.type)}
+              disabled={disabled}
+              className={cn(
+                "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
+                "flex items-center gap-4 text-left transition-all",
+                "disabled:cursor-not-allowed",
+                isSelected
+                  ? disabled ? "bg-primary/5 opacity-60" : "bg-primary/5"
+                  : disabled ? "opacity-30" : ""
+              )}
+            >
+              <div className={cn(
+                "h-10 w-10 rounded-full flex items-center justify-center shrink-0",
+                isSelected ? "bg-primary/10" : "bg-muted"
+              )}>
+                <Icon icon={ModeIcon} size={20} className={cn(isSelected ? "text-primary" : "text-foreground")} />
+              </div>
+              <div className="flex-1 min-w-0 text-left">
+                <p className="text-label text-foreground leading-tight mb-0.5">
+                  {config.label}
+                </p>
+                <p className="text-body text-muted-foreground leading-tight">
+                  {config.description}
+                </p>
+              </div>
+              <p className="text-label shrink-0">₹{mode.price.toLocaleString()}</p>
+            </Button>
+          );
+        })}
+      </div>
+    </Card>
   );
 }

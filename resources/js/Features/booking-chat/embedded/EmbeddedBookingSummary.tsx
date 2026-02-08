@@ -198,14 +198,12 @@ export function EmbeddedBookingSummary({ summary, onPay, onSelect, disabled, con
     <div className="space-y-4">
       {/* Summary card */}
       <Card className="overflow-hidden">
-        {rows.map((row, index) => (
-          <div
-            key={row.label}
-            className="flex items-center justify-between px-4 py-4"
-            style={{
-              borderBottom: index < rows.length - 1 ? '1px solid hsl(var(--border))' : 'none'
-            }}
-          >
+        <div className="divide-y">
+          {rows.map((row) => (
+            <div
+              key={row.label}
+              className="flex items-center justify-between px-4 py-4"
+            >
             <span className="text-body text-muted-foreground">{row.label}</span>
             <div className="flex items-center gap-3">
               <span className="text-label text-right">{row.value}</span>
@@ -217,12 +215,13 @@ export function EmbeddedBookingSummary({ summary, onPay, onSelect, disabled, con
                   className="h-auto p-0 text-primary text-body hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={!row.onChange}
                 >
-                  Change
+                  change
                 </Button>
               )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </Card>
 
       {/* Preparation Instructions (for lab) */}

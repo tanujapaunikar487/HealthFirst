@@ -88,13 +88,7 @@ export function GuidedBookingLayout({
 
       {/* Content */}
       <main className="flex-1 overflow-y-auto">
-        {/* Blue gradient at top */}
-        <div
-          className="min-h-full px-6 py-8"
-          style={{
-            background: 'linear-gradient(180deg, hsl(var(--primary) / 0.1) 0%, hsl(var(--background) / 0.5) 13.94%, hsl(var(--background)) 30.77%)'
-          }}
-        >
+        <div className="min-h-full px-6 py-8">
           <div className={cn("max-w-[800px] mx-auto", className)}>
             {children}
           </div>

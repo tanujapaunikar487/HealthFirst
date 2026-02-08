@@ -10,7 +10,6 @@ interface TypeSelectorCardProps {
     isExpanded: boolean;
     onClick: () => void;
     disabled?: boolean;
-    isLast?: boolean;
 }
 
 const cardConfig: Record<MemberType, { icon: typeof User; title: string; description: string }> = {
@@ -31,7 +30,7 @@ const cardConfig: Record<MemberType, { icon: typeof User; title: string; descrip
     },
 };
 
-export function TypeSelectorCard({ type, isExpanded, onClick, disabled, isLast }: TypeSelectorCardProps) {
+export function TypeSelectorCard({ type, isExpanded, onClick, disabled }: TypeSelectorCardProps) {
     const config = cardConfig[type];
     const TypeIcon = config.icon;
 
@@ -48,7 +47,6 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled, isLast }
                     : '',
                 disabled && 'opacity-50 cursor-not-allowed'
             )}
-            style={!isLast && !isExpanded ? { borderBottom: '1px solid hsl(var(--border))' } : undefined}
         >
             <div className={cn(
                 'h-10 w-10 rounded-full flex items-center justify-center shrink-0',
