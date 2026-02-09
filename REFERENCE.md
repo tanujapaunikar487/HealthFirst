@@ -36,6 +36,7 @@ All in `app.css` via `@utility`. Each sets size+weight+line-height.
 - SheetHeader: `px-5 py-4 border-b`, close button, optional back button
 - SheetBody: `overflow-y-auto` (vertical scroll only), **no auto-padding** - children must add explicit `px-5 py-5` or `px-5 py-4`
 - SheetFooter: `px-5 py-4 border-t`, buttons hug content (never `flex-1`)
+- Animation: Open 200ms, Close 250ms, `ease-in-out` (synchronized overlay + content)
 - List pattern: `<div className="pt-3">` wrapper, section headings `px-5 pb-3`, items `px-5 py-4 rounded-none`
 - Form pattern: `<div className="space-y-5 px-5 py-5">` wrapper for inputs
 - **No horizontal scroll rule**: All text uses `break-words`, content wrappers use `flex-1 min-w-0`
