@@ -1,9 +1,7 @@
 import { PropsWithChildren } from 'react';
-import { Link, router } from '@inertiajs/react';
-import { Sparkles, BarChart3, X } from '@/Lib/icons';
+import { router } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
-import { StepIndicator } from '@/Components/Booking/StepIndicator';
-import { Icon } from '@/Components/ui/icon';
+import { AIBookingHeader } from '@/Components/Booking/AIBookingHeader';
 import { cn } from '@/Lib/utils';
 import { useAccessibilityPreferences } from '@/Hooks/useAccessibilityPreferences';
 
@@ -42,53 +40,11 @@ export function GuidedBookingLayout({
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
       {/* Header */}
-      <header className="sticky top-0 z-10 flex-none border-b bg-background">
-        <div className="flex items-center justify-between gap-8 px-6 py-4">
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-5 h-5" />
-            <span className="text-label">Booking an appointment</span>
-          </div>
-
-          {/* Step indicator - inline, will handle its own 800px centering */}
-          <div className="flex-1 min-w-0">
-            <StepIndicator steps={steps} currentStepId={currentStepId} className="!px-0 !py-0" />
-          </div>
-
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <div className="flex items-center gap-1 border rounded-full p-1 bg-muted">
-            <Link
-              href="/booking?mode=ai"
-              className="p-1.5 rounded-full hover:bg-accent transition-all"
-            >
-              <img
-                src="/assets/icons/hugeicons/ai-magic-1.svg"
-                alt=""
-                className="w-4 h-4"
-              />
-            </Link>
-            <div className="p-1.5 rounded-full bg-background shadow-md">
-              <img
-                src="/assets/icons/hugeicons/stairs-01-1.svg"
-                alt=""
-                className="w-4 h-4"
-              />
-            </div>
-
-            {/* Cancel button */}
-            <Button
-              variant="ghost"
-              iconOnly
-              size="sm"
-              className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-accent transition-colors"
-              title="Cancel booking"
-              onClick={() => router.visit('/')}
-            >
-              <Icon icon={X} className="w-4 h-4 text-muted-foreground" />
-            </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AIBookingHeader
+        steps={steps}
+        currentStepId={currentStepId}
+        cancelUrl="/"
+      />
 
       {/* Content */}
       <main className="flex-1 overflow-y-auto">

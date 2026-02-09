@@ -39,11 +39,13 @@ export function EmbeddedAppointmentType({ selectedType, onSelect, disabled }: Pr
               onClick={() => !disabled && onSelect(option.value)}
               disabled={disabled}
               className={cn(
-                'w-full h-auto px-6 py-4 rounded-none text-left transition-all flex items-center gap-4',
+                'w-full h-auto px-6 py-4 text-left transition-all flex items-center gap-4',
                 'disabled:cursor-not-allowed',
                 disabled && !isSelected && 'opacity-30',
                 disabled && isSelected && 'opacity-60',
-                isSelected ? 'bg-primary/10 border-l-2 border-l-primary' : 'hover:bg-muted/50'
+                isSelected
+                  ? 'rounded-3xl border-2 border-primary bg-primary/5'
+                  : 'rounded-none hover:bg-muted/50'
               )}
             >
               <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center shrink-0">

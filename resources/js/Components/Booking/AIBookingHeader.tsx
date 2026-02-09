@@ -1,13 +1,20 @@
-import { Link, router } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { HStack } from '@/Components/ui/stack';
-import { Button } from '@/Components/ui/button';
-import { Icon } from '@/Components/ui/icon';
-import { X } from '@/Lib/icons';
 import { cn } from '@/Lib/utils';
+import { StepIndicator } from '@/Components/Booking/StepIndicator';
+
+interface Step {
+  id: string;
+  label: string;
+}
 
 export interface AIBookingHeaderProps {
-  /** Progress percentage (0-100) */
+  /** Progress percentage (0-100) - used for AI flow */
   progress?: number;
+  /** Steps for guided flow - if provided, shows step indicator instead of progress bar */
+  steps?: Step[];
+  /** Current step ID - required when steps are provided */
+  currentStepId?: string;
   /** Show mode toggle (AI/Guided) */
   showModeToggle?: boolean;
   /** Active mode when toggle is shown */
@@ -20,64 +27,89 @@ export interface AIBookingHeaderProps {
 
 export function AIBookingHeader({
   progress = 16,
+  steps,
+  currentStepId,
   showModeToggle = false,
   activeMode = 'ai',
   onModeChange,
   cancelUrl = '/',
 }: AIBookingHeaderProps) {
+  // Determine which mode indicator to show based on steps presence
+  const isGuidedFlow = Boolean(steps && currentStepId);
+  const isAIFlow = !isGuidedFlow;
+
   return (
     <header className="bg-card border-b border-border">
       <HStack className="justify-between items-center px-6 py-4">
-        <HStack gap={2}>
+        <HStack gap={2} className="flex-shrink-0">
           <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-5 h-5" />
           <span className="text-label">Booking an appointment</span>
         </HStack>
-        <HStack gap={4} className="items-center">
-          {/* Mode toggle - shown on entry page */}
-          {showModeToggle && onModeChange && (
+
+        {/* Step indicator for guided flow - centered in available space */}
+        {isGuidedFlow && steps && currentStepId && (
+          <div className="flex-1 min-w-0">
+            <StepIndicator steps={steps} currentStepId={currentStepId} className="!px-0 !py-0" />
+          </div>
+        )}
+
+        <HStack gap={4} className="items-center flex-shrink-0">
+          {/* Mode toggle - shown on entry page (AI flow only) */}
+          {isAIFlow && showModeToggle && onModeChange && (
             <HStack gap={1} className="border border-border rounded-full p-1 bg-muted">
-              <Button
-                variant="ghost"
+              <button
                 className={cn(
-                  'h-auto p-2 rounded-full transition-all',
-                  activeMode === 'ai' ? 'bg-background shadow-md hover:bg-background' : 'hover:bg-transparent'
+                  'p-2 rounded-full transition-all',
+                  activeMode === 'ai' ? 'bg-background shadow-md' : 'hover:bg-accent/50'
                 )}
                 onClick={() => onModeChange('ai')}
-                iconOnly
               >
                 <img
                   src={activeMode === 'ai' ? '/assets/icons/hugeicons/ai-magic.svg' : '/assets/icons/hugeicons/ai-magic-1.svg'}
                   alt=""
                   className="w-4 h-4"
                 />
-              </Button>
-              <Button
-                variant="ghost"
+              </button>
+              <button
                 className={cn(
-                  'h-auto p-2 rounded-full transition-all',
-                  activeMode === 'guided' ? 'bg-background shadow-md hover:bg-background' : 'hover:bg-transparent'
+                  'p-2 rounded-full transition-all',
+                  activeMode === 'guided' ? 'bg-background shadow-md' : 'hover:bg-accent/50'
                 )}
                 onClick={() => onModeChange('guided')}
-                iconOnly
               >
                 <img
                   src={activeMode === 'guided' ? '/assets/icons/hugeicons/stairs-01-1.svg' : '/assets/icons/hugeicons/stairs-01.svg'}
                   alt=""
                   className="w-4 h-4"
                 />
-              </Button>
+              </button>
             </HStack>
           )}
 
-          {/* Active AI indicator - shown in conversation */}
-          {!showModeToggle && (
+          {/* AI/Guided toggle - shown for guided flow */}
+          {isGuidedFlow && (
+            <HStack gap={1} className="border border-border rounded-full p-1 bg-muted">
+              <Link
+                href="/booking?mode=ai"
+                className="p-2 rounded-full hover:bg-accent/50 transition-all"
+              >
+                <img src="/assets/icons/hugeicons/ai-magic-1.svg" alt="" className="w-4 h-4" />
+              </Link>
+              <div className="p-2 rounded-full bg-background shadow-md">
+                <img src="/assets/icons/hugeicons/stairs-01-1.svg" alt="" className="w-4 h-4" />
+              </div>
+            </HStack>
+          )}
+
+          {/* Active AI indicator - shown in AI conversation */}
+          {isAIFlow && !showModeToggle && (
             <HStack gap={1} className="border border-border rounded-full p-1 bg-muted">
               <div className="p-2 rounded-full bg-background shadow-md">
                 <img src="/assets/icons/hugeicons/ai-magic.svg" alt="" className="w-4 h-4" />
               </div>
               <Link
                 href="/booking?mode=guided"
-                className="p-2 rounded-full hover:bg-accent transition-all"
+                className="p-2 rounded-full hover:bg-accent/50 transition-all"
               >
                 <img src="/assets/icons/hugeicons/stairs-01.svg" alt="" className="w-4 h-4" />
               </Link>
@@ -90,13 +122,16 @@ export function AIBookingHeader({
           </Link>
         </HStack>
       </HStack>
-      {/* Progress bar */}
-      <div className="h-1 bg-muted">
-        <div
-          className="h-full bg-primary transition-all duration-300 rounded-r-full"
-          style={{ width: `${Math.max(progress, 2)}%` }}
-        />
-      </div>
+
+      {/* Progress bar - only for AI flow */}
+      {isAIFlow && (
+        <div className="h-1 bg-muted">
+          <div
+            className="h-full bg-gradient-to-r from-primary/30 to-primary transition-all duration-300 rounded-r-full"
+            style={{ width: `${Math.max(progress, 2)}%` }}
+          />
+        </div>
+      )}
     </header>
   );
 }

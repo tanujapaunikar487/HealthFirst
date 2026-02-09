@@ -53,7 +53,7 @@ export function PatientSelector({
             disabled={disabled}
             className={cn(
               'h-auto flex items-center gap-3 p-3 rounded-full text-left font-normal',
-              'hover:border-primary/50 hover:bg-primary/10',
+              'hover:bg-muted/50',
               highlightedId === patient.id
                 ? disabled
                   ? 'border-primary bg-primary/10 disabled:opacity-60'
@@ -93,7 +93,7 @@ export function PatientSelector({
           variant="outline"
           onClick={() => !disabled && onAddMember()}
           disabled={disabled}
-          className="h-auto mt-2 px-4 py-2.5 rounded-full text-body hover:border-primary/50 hover:bg-primary/10 disabled:opacity-30"
+          className="h-auto mt-2 px-4 py-2.5 rounded-full text-body hover:bg-muted/50 disabled:opacity-30"
         >
           Add family member or guest &rarr;
         </Button>
