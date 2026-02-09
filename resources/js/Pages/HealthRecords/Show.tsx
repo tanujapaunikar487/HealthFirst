@@ -615,9 +615,6 @@ export default function Show({ user, record, familyMember }: Props) {
       if (data.success) {
         setAiSummary(data.summary);
         setSummaryGeneratedAt(data.generated_at);
-        if (!data.cached) {
-          showToast('AI summary generated', 'success');
-        }
       } else {
         setAiSummaryError(data.error || 'Failed to generate summary');
       }

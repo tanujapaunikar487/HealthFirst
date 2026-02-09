@@ -444,7 +444,7 @@ export default function InsuranceIndex({
                       <TableHead className="w-col-member">Family members</TableHead>
                       <TableHead className="w-col-amount text-right">Amount</TableHead>
                       <TableHead className="w-col-status">Status</TableHead>
-                      <TableHead className="w-col-actions" />
+                      <TableHead />
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -529,7 +529,7 @@ export default function InsuranceIndex({
                             </Badge>
                           )}
                         </TableCell>
-                        <TableCell className="align-top">
+                        <TableCell className="align-top w-1">
                           <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
                         </TableCell>
                       </TableRow>
@@ -621,7 +621,7 @@ export default function InsuranceIndex({
                         <TableHead className="w-col-member">Family member</TableHead>
                         <TableHead className="w-col-amount text-right">Amount</TableHead>
                         <TableHead className="w-col-status">Status</TableHead>
-                        <TableHead className="w-col-actions" />
+                        <TableHead />
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -662,7 +662,7 @@ export default function InsuranceIndex({
                           <TableCell className="align-top">
                             {getStatusBadge(claim.status)}
                           </TableCell>
-                          <TableCell className="align-top">
+                          <TableCell className="align-top w-1">
                             <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
                           </TableCell>
                         </TableRow>

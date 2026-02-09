@@ -503,7 +503,7 @@ function AppointmentsTable({
             <TableHead className="w-col-member">Family member</TableHead>
             <TableHead className="w-col-amount text-right">Amount</TableHead>
             <TableHead className="w-col-status">Status</TableHead>
-            <TableHead className="w-col-actions" />
+            <TableHead />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -566,7 +566,7 @@ function AppointmentsTable({
               <TableCell className="align-top">
                 <PaymentStatusTag status={appt.payment_status} />
               </TableCell>
-              <TableCell className="align-top">
+              <TableCell className="align-top w-1">
                 {tab === 'past' && appt.type === 'lab_test' && appt.health_record_id ? (
                   <Link
                     href={`/health-records/${appt.health_record_id}`}

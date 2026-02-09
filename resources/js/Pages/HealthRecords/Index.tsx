@@ -849,10 +849,10 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
                       />
                     </TableHead>
                     <TableHead className="w-col-date">Date</TableHead>
-                    <TableHead>Details</TableHead>
+                    <TableHead className="max-w-col-details">Details</TableHead>
                     <TableHead className="w-col-member">Family member</TableHead>
                     <TableHead className="w-col-status">Status</TableHead>
-                    <TableHead className="w-col-actions"></TableHead>
+                    <TableHead></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -879,7 +879,7 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
                         <TableCell className="align-top">
                           <p className="text-label whitespace-nowrap">{formatDate(record.record_date) || '—'}</p>
                         </TableCell>
-                        <TableCell className="align-top">
+                        <TableCell className="max-w-col-details align-top">
                           <div className="flex items-center gap-2.5">
                             <CategoryIcon category={record.category} size="sm" />
                             <div className="min-w-0">
@@ -898,7 +898,7 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
                         <TableCell className="align-top">
                           {record.status ? <StatusBadge status={record.status} /> : <span className="text-body text-muted-foreground">—</span>}
                         </TableCell>
-                        <TableCell className="align-top">
+                        <TableCell className="align-top w-1">
                           <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
                         </TableCell>
                       </TableRow>
