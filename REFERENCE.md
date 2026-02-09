@@ -317,6 +317,8 @@ Drug names as section titles with Active/Inactive badge as `action` prop
 25. **Alerts**: ESLint `no-ad-hoc-alert` catches inline `backgroundColor` with status tokens on `div`/`section`. Exceptions: EmergencyAlert, EmergencyWarning
 27. **Financial rows**: Same pattern on Billing/Show.tsx and ClaimDetail financial section
 29. **Doctor Avatars**: `doctor_avatar_url` field on `Appointment` interface + `formatAppointment()` backend
+32. **Booking Headers**: Unified `AIBookingHeader` for AI/Guided flows. AI: progress bar gradient (`from-primary/30 to-primary`). Guided: step indicator (3-4 steps). No padding shifts between mode toggle states.
+33. **Booking Card Selections**: Standardized across 7 components. Selected: `rounded-3xl border-2 border-primary bg-primary/5` (24px radius, edge-to-edge). Hover: `hover:bg-muted/50` (consistent gray). Pattern replaced: `bg-primary/10 border-l-2 border-l-primary`.
 
 ---
 
