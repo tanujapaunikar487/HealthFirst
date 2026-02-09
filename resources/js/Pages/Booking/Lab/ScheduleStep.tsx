@@ -332,11 +332,11 @@ export default function ScheduleStep({
                       )}
                     >
                       {/* Icon with rounded background */}
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
                         {loc.type === 'home' ? (
-                          <Icon icon={Home} size={20} className="text-primary" />
+                          <Icon icon={Home} size={20} className="text-blue-800" />
                         ) : (
-                          <Icon icon={Building2} size={20} className="text-primary" />
+                          <Icon icon={Building2} size={20} className="text-blue-800" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
