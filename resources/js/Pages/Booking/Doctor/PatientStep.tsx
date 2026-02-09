@@ -8,6 +8,7 @@ import { FollowUpBanner } from '@/Components/Booking/FollowUpBanner';
 import { SymptomChips } from '@/Components/Booking/SymptomChips';
 import InlineMemberTypeSelector from '@/Features/booking-chat/embedded/InlineMemberTypeSelector';
 import { EmbeddedFollowUpReason, type FollowUpReasonOption } from '@/Features/booking-chat/embedded/EmbeddedFollowUpReason';
+import { EmbeddedAppointmentType } from '@/Features/booking-chat/embedded/EmbeddedAppointmentType';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
 import { ArrowRight, Star, RefreshCw, User } from '@/Lib/icons';
@@ -432,44 +433,11 @@ export default function PatientStep({
               Follow-ups will show your previous doctors
             </p>
 
-            <Card className="overflow-hidden">
-              <div className="divide-y">
-                <Button
-                  variant="ghost"
-                  onClick={() => handleAppointmentTypeSelect('new')}
-                  className={cn(
-                    'w-full h-auto px-6 py-4 rounded-none text-left transition-all flex items-center gap-4',
-                    'hover:bg-muted/50',
-                    appointmentType === 'new' && 'bg-primary/5'
-                  )}
-                >
-                  <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center shrink-0">
-                    <Icon icon={User} size={20} className="text-blue-800" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-label text-foreground">New Consultation</p>
-                    <p className="text-body text-muted-foreground">First visit for this concern</p>
-                  </div>
-                </Button>
-                <Button
-                  variant="ghost"
-                  onClick={() => handleAppointmentTypeSelect('followup')}
-                  className={cn(
-                    'w-full h-auto px-6 py-4 rounded-none text-left transition-all flex items-center gap-4',
-                    'hover:bg-muted/50',
-                    appointmentType === 'followup' && 'bg-primary/5'
-                  )}
-                >
-                  <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center shrink-0">
-                    <Icon icon={RefreshCw} size={20} className="text-blue-800" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-label text-foreground">Follow-up</p>
-                    <p className="text-body text-muted-foreground">Continuing care with previous doctor</p>
-                  </div>
-                </Button>
-              </div>
-            </Card>
+            <EmbeddedAppointmentType
+              selectedType={appointmentType}
+              onSelect={handleAppointmentTypeSelect}
+              disabled={false}
+            />
 
             {errors.appointmentType && (
               <p className="text-body text-destructive mt-2">{errors.appointmentType}</p>
