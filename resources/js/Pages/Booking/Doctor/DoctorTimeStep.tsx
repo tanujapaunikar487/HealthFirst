@@ -250,14 +250,6 @@ export default function DoctorTimeStep({
                     )}>
                       {dateOption.sublabel}
                     </p>
-                    {dateOption.doctorCount !== undefined && (
-                      <p className={cn(
-                        'text-body',
-                        isSelected ? 'text-background/60' : noDoctors ? 'text-destructive/70' : 'text-muted-foreground'
-                      )}>
-                        {noDoctors ? 'No doctors' : `${dateOption.doctorCount} doctors`}
-                      </p>
-                    )}
                   </VStack>
                 </Button>
               );

@@ -227,11 +227,6 @@ export default function ConcernsStep({
                         <p className="text-label">{option.label}</p>
                         <p className="text-body text-muted-foreground">{option.description}</p>
                       </VStack>
-                      {option.doctorCount !== undefined ? (
-                        <span className="text-body text-muted-foreground">{option.doctorCount} doctors</span>
-                      ) : (
-                        <span className="text-body text-muted-foreground">Full flexibility</span>
-                      )}
                     </HStack>
                   </Button>
                   );

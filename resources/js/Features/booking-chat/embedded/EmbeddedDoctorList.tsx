@@ -171,11 +171,6 @@ export function EmbeddedDoctorList({ doctors, selectedDoctorId, selectedTime, on
             disabled={disabled}
           />
         </div>
-
-        {/* Results count */}
-        <div className="text-body text-muted-foreground shrink-0">
-          {filteredDoctors.length} doctor{filteredDoctors.length !== 1 ? 's' : ''}
-        </div>
       </div>
 
       {/* Doctor cards */}
