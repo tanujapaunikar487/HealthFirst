@@ -21,6 +21,10 @@ export interface Doctor {
   appointment_modes: string[];
   video_fee: number;
   in_person_fee: number;
+  education?: string[];
+  languages?: string[];
+  rating?: number;
+  total_reviews?: number;
 }
 
 interface DoctorCardProps {
@@ -95,8 +99,29 @@ export function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTi
           <VStack gap={0} className="flex-1 min-w-0">
             <h3 className="text-label text-foreground">{doctor.name}</h3>
             <p className="text-body text-muted-foreground">
-              {doctor.specialization} • {doctor.experience_years} years of experience
+              {doctor.specialization} • {doctor.experience_years} years
             </p>
+            {doctor.education && doctor.education.length > 0 && (
+              <p className="text-body text-muted-foreground">
+                {doctor.education.join(', ')}
+              </p>
+            )}
+            {doctor.languages && doctor.languages.length > 0 && (
+              <p className="text-body text-muted-foreground">
+                {doctor.languages.join(', ')}
+              </p>
+            )}
+            {doctor.rating && (
+              <div className="flex items-center gap-1">
+                <Icon icon={Star} size={14} className="fill-warning text-warning" />
+                <span className="text-label">{doctor.rating}</span>
+                {doctor.total_reviews && (
+                  <span className="text-body text-muted-foreground">
+                    ({doctor.total_reviews})
+                  </span>
+                )}
+              </div>
+            )}
           </VStack>
           <VStack gap={1} className="items-end">
             <span className="px-2 py-1 text-label text-primary bg-primary/10 rounded whitespace-nowrap">

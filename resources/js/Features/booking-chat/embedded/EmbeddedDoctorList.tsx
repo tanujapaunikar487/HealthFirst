@@ -300,6 +300,12 @@ function DoctorCard({
 }
 
 function formatTime(time: string): string {
+  // If time already has AM/PM, return as-is
+  if (time.includes('AM') || time.includes('PM') || time.includes('am') || time.includes('pm')) {
+    return time;
+  }
+
+  // Otherwise, format from 24-hour to 12-hour with AM/PM
   const [hours, minutes] = time.split(':');
   const hour = parseInt(hours, 10);
   const ampm = hour >= 12 ? 'PM' : 'AM';

@@ -648,8 +648,44 @@ export default function Show({ user, record, familyMember }: Props) {
     showToast('Amendment request submitted. You will be contacted within 48 hours.', 'success');
   };
 
+  // Generate AI summary (only for lab/imaging reports)
+  const generateAiSummary = useCallback(async (regenerate = false) => {
+    if (aiSummaryLoading) return;
+    if (aiSummary && !regenerate) return;
+
+    setAiSummaryLoading(true);
+    setAiSummaryError(null);
+
+    try {
+      const response = await fetch(`/health-records/${record.id}/generate-ai-summary`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content || '',
+        },
+      });
+
+      if (!response.ok) throw new Error('Failed to generate summary');
+
+      const data = await response.json();
+      setAiSummary(data.summary);
+      setAiSummaryLoading(false);
+    } catch (error) {
+      setAiSummaryError('Failed to generate AI summary. Please try again.');
+      setAiSummaryLoading(false);
+    }
+  }, [record.id, aiSummary, aiSummaryLoading]);
+
+  // Auto-generate AI summary on mount if not present (for lab/imaging reports only)
+  useEffect(() => {
+    const reportCategories = ['lab_report', 'xray_report', 'mri_report', 'ultrasound_report', 'ecg_report', 'pathology_report', 'pft_report', 'other_report'];
+    if (reportCategories.includes(record.category) && !aiSummary && !aiSummaryLoading) {
+      generateAiSummary();
+    }
+  }, [record.category, aiSummary, aiSummaryLoading, generateAiSummary]);
+
   const categorySections = record.metadata
-    ? getCategorySections(record.category, record.metadata, showToast)
+    ? getCategorySections(record.category, record.metadata, showToast, aiSummary, aiSummaryLoading, aiSummaryError, generateAiSummary)
     : [];
 
   const navItems = [
@@ -981,18 +1017,26 @@ export default function Show({ user, record, familyMember }: Props) {
 
 /* ─── Category Section Router ─── */
 
-function getCategorySections(category: string, meta: RecordMetadata, onAction: (msg: string) => void): CategorySection[] {
+function getCategorySections(
+  category: string,
+  meta: RecordMetadata,
+  onAction: (msg: string) => void,
+  aiSummary?: string | null,
+  aiSummaryLoading?: boolean,
+  aiSummaryError?: string | null,
+  generateAiSummary?: (regenerate?: boolean) => void
+): CategorySection[] {
   switch (category) {
     case 'consultation_notes': return getConsultationSections(meta);
     case 'prescription': return getPrescriptionSections(meta);
-    case 'lab_report': return getLabReportSections(meta);
-    case 'xray_report': return getXraySections(meta);
-    case 'mri_report': return getMriSections(meta);
-    case 'ultrasound_report': return getUltrasoundSections(meta);
-    case 'ecg_report': return getEcgSections(meta);
-    case 'pathology_report': return getPathologySections(meta);
-    case 'pft_report': return getPftSections(meta);
-    case 'other_report': return getOtherReportSections(meta);
+    case 'lab_report': return getLabReportSections(meta, aiSummary, aiSummaryLoading, aiSummaryError, generateAiSummary);
+    case 'xray_report': return getXraySections(meta, aiSummary, aiSummaryLoading, aiSummaryError, generateAiSummary);
+    case 'mri_report': return getMriSections(meta, aiSummary, aiSummaryLoading, aiSummaryError, generateAiSummary);
+    case 'ultrasound_report': return getUltrasoundSections(meta, aiSummary, aiSummaryLoading, aiSummaryError, generateAiSummary);
+    case 'ecg_report': return getEcgSections(meta, aiSummary, aiSummaryLoading, aiSummaryError, generateAiSummary);
+    case 'pathology_report': return getPathologySections(meta, aiSummary, aiSummaryLoading, aiSummaryError, generateAiSummary);
+    case 'pft_report': return getPftSections(meta, aiSummary, aiSummaryLoading, aiSummaryError, generateAiSummary);
+    case 'other_report': return getOtherReportSections(meta, aiSummary, aiSummaryLoading, aiSummaryError, generateAiSummary);
     case 'procedure_notes': return getProcedureSections(meta);
     case 'er_visit': return getErVisitSections(meta, onAction);
     case 'referral': return getReferralSections(meta);
@@ -1496,8 +1540,77 @@ function getOtherVisitSections(meta: RecordMetadata): CategorySection[] {
 
 /* ─── Report Detail Sections ─── */
 
-function getLabReportSections(meta: RecordMetadata): CategorySection[] {
+// Helper function for AI Summary section
+function getAiSummarySection(
+  aiSummary?: string | null,
+  aiSummaryLoading?: boolean,
+  aiSummaryError?: string | null,
+  generateAiSummary?: (regenerate?: boolean) => void
+): CategorySection | null {
+  if (!aiSummary && !aiSummaryLoading && !aiSummaryError) return null;
+
+  return {
+    id: 'ai-summary',
+    title: 'AI Summary',
+    icon: Sparkles,
+    noPadding: false,
+    content: (
+      <div className="p-6" style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.05) 0%, hsl(var(--primary) / 0.02) 100%)' }}>
+        {aiSummaryLoading && (
+          <div className="flex items-center gap-3">
+            <Loader2 className="h-5 w-5 animate-spin" style={{ color: 'hsl(var(--primary))' }} />
+            <span className="text-body text-muted-foreground">Generating AI summary...</span>
+          </div>
+        )}
+        {aiSummaryError && (
+          <div className="space-y-3">
+            <p className="text-body text-destructive">{aiSummaryError}</p>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => generateAiSummary?.(true)}
+              className="gap-2"
+            >
+              <Sparkles className="h-4 w-4" />
+              Retry
+            </Button>
+          </div>
+        )}
+        {aiSummary && !aiSummaryLoading && (
+          <div className="space-y-3">
+            <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>
+              {aiSummary}
+            </p>
+            <Button
+              variant="link"
+              size="sm"
+              className="h-auto p-0 text-body hover:underline"
+              style={{ color: 'hsl(var(--primary))' }}
+              onClick={() => generateAiSummary?.(true)}
+            >
+              Regenerate
+            </Button>
+          </div>
+        )}
+      </div>
+    ),
+  };
+}
+
+function getLabReportSections(
+  meta: RecordMetadata,
+  aiSummary?: string | null,
+  aiSummaryLoading?: boolean,
+  aiSummaryError?: string | null,
+  generateAiSummary?: (regenerate?: boolean) => void
+): CategorySection[] {
   const sections: CategorySection[] = [];
+
+  // AI Summary section
+  const aiSummarySection = getAiSummarySection(aiSummary, aiSummaryLoading, aiSummaryError, generateAiSummary);
+  if (aiSummarySection) {
+    sections.push(aiSummarySection);
+  }
 
   sections.push({
     id: 'results', title: 'Results', icon: TestTube2,
@@ -1552,8 +1665,20 @@ function getLabReportSections(meta: RecordMetadata): CategorySection[] {
   return sections;
 }
 
-function getXraySections(meta: RecordMetadata): CategorySection[] {
+function getXraySections(
+  meta: RecordMetadata,
+  aiSummary?: string | null,
+  aiSummaryLoading?: boolean,
+  aiSummaryError?: string | null,
+  generateAiSummary?: (regenerate?: boolean) => void
+): CategorySection[] {
   const sections: CategorySection[] = [];
+
+  // AI Summary section
+  const aiSummarySection = getAiSummarySection(aiSummary, aiSummaryLoading, aiSummaryError, generateAiSummary);
+  if (aiSummarySection) {
+    sections.push(aiSummarySection);
+  }
 
   // Only add Study Details if there's at least one field with data
   const hasStudyDetails = meta.body_part || meta.indication || meta.technique || meta.radiologist;
@@ -1591,8 +1716,20 @@ function getXraySections(meta: RecordMetadata): CategorySection[] {
   return sections;
 }
 
-function getMriSections(meta: RecordMetadata): CategorySection[] {
+function getMriSections(
+  meta: RecordMetadata,
+  aiSummary?: string | null,
+  aiSummaryLoading?: boolean,
+  aiSummaryError?: string | null,
+  generateAiSummary?: (regenerate?: boolean) => void
+): CategorySection[] {
   const sections: CategorySection[] = [];
+
+  // AI Summary section
+  const aiSummarySection = getAiSummarySection(aiSummary, aiSummaryLoading, aiSummaryError, generateAiSummary);
+  if (aiSummarySection) {
+    sections.push(aiSummarySection);
+  }
 
   // Only add Study Details if there's at least one field with data
   const hasStudyDetails = meta.body_part || meta.indication || meta.technique ||
@@ -1633,8 +1770,20 @@ function getMriSections(meta: RecordMetadata): CategorySection[] {
   return sections;
 }
 
-function getUltrasoundSections(meta: RecordMetadata): CategorySection[] {
+function getUltrasoundSections(
+  meta: RecordMetadata,
+  aiSummary?: string | null,
+  aiSummaryLoading?: boolean,
+  aiSummaryError?: string | null,
+  generateAiSummary?: (regenerate?: boolean) => void
+): CategorySection[] {
   const sections: CategorySection[] = [];
+
+  // AI Summary section
+  const aiSummarySection = getAiSummarySection(aiSummary, aiSummaryLoading, aiSummaryError, generateAiSummary);
+  if (aiSummarySection) {
+    sections.push(aiSummarySection);
+  }
 
   // Only add Study Details if there's at least one field with data
   const hasStudyDetails = meta.body_part || meta.indication || meta.sonographer;
@@ -1671,8 +1820,20 @@ function getUltrasoundSections(meta: RecordMetadata): CategorySection[] {
   return sections;
 }
 
-function getEcgSections(meta: RecordMetadata): CategorySection[] {
+function getEcgSections(
+  meta: RecordMetadata,
+  aiSummary?: string | null,
+  aiSummaryLoading?: boolean,
+  aiSummaryError?: string | null,
+  generateAiSummary?: (regenerate?: boolean) => void
+): CategorySection[] {
   const sections: CategorySection[] = [];
+
+  // AI Summary section
+  const aiSummarySection = getAiSummarySection(aiSummary, aiSummaryLoading, aiSummaryError, generateAiSummary);
+  if (aiSummarySection) {
+    sections.push(aiSummarySection);
+  }
 
   // Only add Measurements if there's at least one field with data
   const hasMeasurements = meta.indication || meta.heart_rate || meta.rhythm || meta.axis ||
@@ -1720,8 +1881,20 @@ function getEcgSections(meta: RecordMetadata): CategorySection[] {
   return sections;
 }
 
-function getPathologySections(meta: RecordMetadata): CategorySection[] {
+function getPathologySections(
+  meta: RecordMetadata,
+  aiSummary?: string | null,
+  aiSummaryLoading?: boolean,
+  aiSummaryError?: string | null,
+  generateAiSummary?: (regenerate?: boolean) => void
+): CategorySection[] {
   const sections: CategorySection[] = [];
+
+  // AI Summary section
+  const aiSummarySection = getAiSummarySection(aiSummary, aiSummaryLoading, aiSummaryError, generateAiSummary);
+  if (aiSummarySection) {
+    sections.push(aiSummarySection);
+  }
 
   // Only add Specimen & Analysis if there's at least one field with data
   const hasSpecimenAnalysis = meta.specimen_type || meta.pathologist ||
@@ -1762,8 +1935,20 @@ function getPathologySections(meta: RecordMetadata): CategorySection[] {
   return sections;
 }
 
-function getPftSections(meta: RecordMetadata): CategorySection[] {
+function getPftSections(
+  meta: RecordMetadata,
+  aiSummary?: string | null,
+  aiSummaryLoading?: boolean,
+  aiSummaryError?: string | null,
+  generateAiSummary?: (regenerate?: boolean) => void
+): CategorySection[] {
   const sections: CategorySection[] = [];
+
+  // AI Summary section
+  const aiSummarySection = getAiSummarySection(aiSummary, aiSummaryLoading, aiSummaryError, generateAiSummary);
+  if (aiSummarySection) {
+    sections.push(aiSummarySection);
+  }
 
   sections.push({
     id: 'results', title: 'Results', icon: Wind,
@@ -1820,8 +2005,20 @@ function getPftSections(meta: RecordMetadata): CategorySection[] {
   return sections;
 }
 
-function getOtherReportSections(meta: RecordMetadata): CategorySection[] {
+function getOtherReportSections(
+  meta: RecordMetadata,
+  aiSummary?: string | null,
+  aiSummaryLoading?: boolean,
+  aiSummaryError?: string | null,
+  generateAiSummary?: (regenerate?: boolean) => void
+): CategorySection[] {
   const sections: CategorySection[] = [];
+
+  // AI Summary section
+  const aiSummarySection = getAiSummarySection(aiSummary, aiSummaryLoading, aiSummaryError, generateAiSummary);
+  if (aiSummarySection) {
+    sections.push(aiSummarySection);
+  }
 
   // Only add Report if there's at least one field with data
   const hasReportData = meta.report_type || meta.indication || meta.findings || meta.impression;
