@@ -54,8 +54,8 @@ export function EmbeddedUrgencySelector({ selectedUrgency, onSelect, disabled }:
                 disabled && isSelected && "opacity-60"
               )}
             >
-            <div className={cn("h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0", option.containerBg)}>
-              <div className={cn("w-3 h-3 rounded-full", option.circleBg)} />
+            <div className={cn("h-14 w-14 rounded-full flex items-center justify-center flex-shrink-0", option.containerBg)}>
+              <div className={cn("w-5 h-5 rounded-full", option.circleBg)} />
             </div>
 
             <div className="min-w-0 flex-1 text-left">

@@ -3,9 +3,20 @@ import { Alert } from '@/Components/ui/alert';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
+import { Checkbox } from '@/Components/ui/checkbox';
 import { cn } from '@/Lib/utils';
-import { FlaskConical, ChevronRight, ChevronDown, TestTube, Check, Square, CheckSquare, Sparkles, ClipboardList } from '@/Lib/icons';
+import { FlaskConical, ChevronRight, ChevronDown, TestTube, CheckCircle2, Calendar, Clock, User, AlertCircle } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+
+interface TestGroup {
+  name: string;
+  tests_included: string[];
+}
+
+interface PreparationInstruction {
+  icon: 'fasting' | 'water' | 'alcohol' | 'medication';
+  text: string;
+}
 
 interface Package {
   id: string;
@@ -21,6 +32,11 @@ interface Package {
   requires_fasting?: boolean;
   fasting_hours?: number | null;
   included_test_names?: string[];
+  // Enhanced metadata for expanded view
+  collection_time?: string;
+  report_turnaround?: string;
+  test_groups?: TestGroup[];
+  preparation_instructions?: PreparationInstruction[];
 }
 
 interface IndividualTest {
@@ -32,6 +48,7 @@ interface IndividualTest {
   turnaround_hours: number | null;
   requires_fasting: boolean;
   fasting_hours: number | null;
+  sub_tests?: string[];
 }
 
 interface Props {
@@ -69,6 +86,7 @@ export function EmbeddedPackageList({
   );
   const [expandedPkgId, setExpandedPkgId] = React.useState<string | null>(null);
   const [expandedTestId, setExpandedTestId] = React.useState<string | null>(null);
+  const [expandedTestGroupId, setExpandedTestGroupId] = React.useState<string | null>(null);
 
   const isGuided = mode === 'guided';
   const alreadySubmitted = isGuided ? false : (selectedTestIds.length > 0 || selectedPackageId != null);
@@ -112,10 +130,10 @@ export function EmbeddedPackageList({
   };
 
   return (
-    <Card className="overflow-hidden">
+    <div>
       {/* Tab Switcher */}
       {showTabs && (
-        <div className="flex items-center gap-1 px-4 py-3">
+        <div className="flex items-center gap-1 mb-4">
           <button
             onClick={() => setActiveTab('tests')}
             className={cn(
@@ -149,7 +167,8 @@ export function EmbeddedPackageList({
         </div>
       )}
 
-      <CardContent className="p-0">
+      <Card className="overflow-hidden">
+        <CardContent className="p-0">
         {/* Individual Tests Tab */}
         {(activeTab === 'tests' || !showTabs) && hasTests && (
           <div>
@@ -164,7 +183,7 @@ export function EmbeddedPackageList({
               </div>
             )}
 
-            <div className="divide-y">
+            <div className="divide-y overflow-y-auto" style={{ maxHeight: '400px' }}>
               {sortedTests.map((test) => {
                 const idStr = String(test.id);
                 const isChecked = checkedIds.has(idStr);
@@ -172,102 +191,113 @@ export function EmbeddedPackageList({
                 const isExpanded = expandedTestId === idStr;
 
                 return (
-                  <div key={`test-${test.id}`}>
-                    <div className="flex">
-                      <Button
-                        variant="ghost"
-                        onClick={() => toggleTest(idStr)}
-                        disabled={disabled || isLocked}
-                        className={cn(
-                          'w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50',
-                          isChecked && 'bg-primary/10',
-                          (disabled || isLocked) && !isChecked && 'disabled:opacity-60',
-                        )}
-                      >
-                        <div className="flex gap-3">
-                          {/* Checkbox */}
-                          <div className="flex-shrink-0 mt-0.5">
-                            {isChecked ? (
-                              <Icon icon={CheckSquare} size={20} className="text-blue-800" />
-                            ) : (
-                              <Icon icon={Square} size={20} className="text-foreground/50" />
-                            )}
-                          </div>
+                  <div key={`test-${test.id}`} className="w-full">
+                    <Button
+                      variant="ghost"
+                      onClick={() => toggleTest(idStr)}
+                      disabled={disabled || isLocked}
+                      className={cn(
+                        'w-full h-auto rounded-none justify-start px-6 py-4 hover:bg-muted/50',
+                        'flex items-start gap-3 text-left',
+                        (disabled || isLocked) && 'disabled:opacity-60',
+                      )}
+                    >
+                      {/* Checkbox */}
+                      <div className="flex-shrink-0 mt-0.5">
+                        <Checkbox
+                          checked={isChecked}
+                          disabled={disabled || isLocked}
+                          className="pointer-events-none"
+                        />
+                      </div>
 
-                          {/* Content */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-3 mb-1">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className={cn('text-label', isChecked && 'text-primary')}>
-                                  {test.name}
-                                </span>
-                                {test.requires_fasting && (
-                                  <Badge variant="warning">
-                                    Fasting {test.fasting_hours}h
-                                  </Badge>
-                                )}
-                              </div>
-                              <span className="text-card-title whitespace-nowrap">
-                                ₹{test.price.toLocaleString()}
+                      {/* Content */}
+                      <div className="flex-1 min-w-0 overflow-hidden text-left">
+                        {/* Title */}
+                        <div className="mb-1">
+                          <span className={cn('text-label', isChecked && 'text-primary')}>
+                            {test.name}
+                          </span>
+                        </div>
+
+                        {/* Description */}
+                        <p className="text-body text-muted-foreground mb-1.5 break-words">{test.description}</p>
+
+                        {/* Metadata */}
+                        <div className="flex items-center gap-2 flex-wrap w-full">
+                          {test.requires_fasting && test.fasting_hours && (
+                            <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                              Fasting {test.fasting_hours}h
+                            </span>
+                          )}
+                          {test.turnaround_hours && (
+                            <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                              Report in {test.turnaround_hours}h
+                            </span>
+                          )}
+                          {test.category && (
+                            <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                              {test.category}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Price */}
+                      <div className="flex-shrink-0 ml-4">
+                        <span className="text-card-title">₹{test.price.toLocaleString()}</span>
+                      </div>
+
+                      {/* Expand button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExpandedTestId(isExpanded ? null : idStr);
+                        }}
+                        className="flex items-center justify-center flex-shrink-0 w-10 h-10 ml-2"
+                      >
+                        <Icon icon={isExpanded ? ChevronDown : ChevronRight} size={16} className="text-muted-foreground" />
+                      </button>
+                    </Button>
+
+                    {/* Expanded detail */}
+                    {isExpanded && (
+                      <div className="w-full px-6 py-4 bg-muted/20 space-y-4 overflow-hidden border-t">
+                        {/* Sub-tests */}
+                        {test.sub_tests && test.sub_tests.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-3">
+                              <Icon icon={TestTube} size={16} />
+                              <span className="text-card-title text-foreground">
+                                Includes ({test.sub_tests.length} tests)
                               </span>
                             </div>
-
-                            <p className="text-body text-muted-foreground mb-1.5">{test.description}</p>
-
-                            <div className="flex items-center gap-2 flex-wrap">
-                              {test.turnaround_hours && (
-                                <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                                  Report in {test.turnaround_hours}h
-                                </span>
-                              )}
-                              {test.requires_fasting && test.fasting_hours && (
-                                <Badge variant="warning">
-                                  {test.fasting_hours}h fasting
-                                </Badge>
-                              )}
-                              {test.category && (
-                                <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                                  {test.category}
-                                </span>
-                              )}
+                            <div className="space-y-1.5">
+                              {test.sub_tests.map((subTest, i) => (
+                                <div key={i} className="flex items-center gap-2 text-body">
+                                  <Icon icon={CheckCircle2} size={20} className="text-success-subtle-foreground flex-shrink-0" />
+                                  <span>{subTest}</span>
+                                </div>
+                              ))}
                             </div>
                           </div>
-                        </div>
-                      </Button>
+                        )}
 
-                      {/* Expand button for tests with fasting */}
-                      {test.requires_fasting && (
-                        <Button
-                          variant="ghost"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setExpandedTestId(isExpanded ? null : idStr);
-                          }}
-                          className={cn(
-                            'flex-shrink-0 h-auto px-3 rounded-none',
-                            'text-muted-foreground hover:text-foreground',
-                            isChecked && 'bg-primary/10',
-                          )}
-                        >
-                          {isExpanded ? (
-                            <Icon icon={ChevronDown} />
-                          ) : (
-                            <Icon icon={ChevronRight} />
-                          )}
-                        </Button>
-                      )}
-                    </div>
-
-                    {/* Expanded fasting detail */}
-                    {isExpanded && test.requires_fasting && (
-                      <div className={cn(
-                        'px-4 pb-4 pt-0 ml-12 border-t-0',
-                        isChecked && 'bg-primary/10',
-                      )}>
-                        <Alert variant="warning" hideIcon title="Preparation Required">
-                          <p>Fasting for {test.fasting_hours} hours before the test.</p>
-                          <p>Water is allowed during fasting period.</p>
-                        </Alert>
+                        {/* Preparation info */}
+                        {test.requires_fasting && test.fasting_hours && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-3">
+                              <Icon icon={User} size={16} />
+                              <span className="text-card-title text-foreground">
+                                Preparation Required
+                              </span>
+                            </div>
+                            <Alert variant="warning" hideIcon>
+                              <p>Fasting for {test.fasting_hours} hours before the test.</p>
+                              <p>Water is allowed during fasting period.</p>
+                            </Alert>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -279,10 +309,10 @@ export function EmbeddedPackageList({
             {!isGuided && !alreadySubmitted && (
               <div className="p-3 border-t bg-muted/20">
                 <Button
+                  variant="accent"
+                  size="md"
                   onClick={handleConfirmTests}
                   disabled={disabled || checkedIds.size === 0}
-                  className="w-full"
-                  size="sm"
                 >
                   {checkedIds.size === 0
                     ? 'Select tests to continue'
@@ -294,7 +324,7 @@ export function EmbeddedPackageList({
             {!isGuided && alreadySubmitted && selectedTestIds.length > 0 && (
               <div className="px-4 py-2.5 border-t bg-primary/10">
                 <div className="flex items-center gap-2 text-body text-primary">
-                  <Icon icon={Check} />
+                  <Icon icon={CheckCircle2} size={20} />
                   <span className="font-medium">
                     {selectedTestIds.length} test{selectedTestIds.length > 1 ? 's' : ''} selected
                   </span>
@@ -306,149 +336,221 @@ export function EmbeddedPackageList({
 
         {/* Health Packages Tab */}
         {(activeTab === 'packages' || !showTabs) && hasPackages && (
-          <div className="divide-y">
+          <div className="divide-y overflow-y-auto" style={{ maxHeight: '400px' }}>
             {!showTabs && !hasTests && null}
             {packages.map((pkg) => {
-              const isSelected = selectedPackageId != null && String(selectedPackageId) === String(pkg.id);
               const isExpanded = expandedPkgId === String(pkg.id);
-              const savings = pkg.original_price > pkg.price ? pkg.original_price - pkg.price : 0;
-              const hasDetails = (pkg.included_test_names && pkg.included_test_names.length > 0) || pkg.preparation_notes;
 
               return (
                 <div
                   key={pkg.id}
-                  className="transition-colors"
+                  className="w-full transition-colors"
                 >
-                  <div className="flex items-center">
-                    <Button
-                      variant="ghost"
-                      onClick={() => !disabled && !alreadySubmitted && onSelect(pkg.id)}
-                      disabled={disabled || alreadySubmitted}
-                      className={cn(
-                        'w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50',
-                        isSelected && 'bg-primary/10 border-l-2 border-l-primary',
-                        (disabled || alreadySubmitted) && !isSelected && 'disabled:opacity-60',
-                      )}
-                    >
-                      <div className="flex items-start gap-4 w-full">
-                        {/* Icon */}
-                        <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
-                          <Icon icon={FlaskConical} size={20} className="text-blue-800" />
-                        </div>
-
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap mb-1">
-                            <span className="text-label leading-none">
-                              {pkg.name}
-                            </span>
-                            {pkg.is_recommended && (
-                              <Badge variant="warning">
-                                Recommended
-                              </Badge>
-                            )}
-                          </div>
-
-                          <p className="text-body text-muted-foreground">{pkg.description}</p>
-
-                          {/* Info with bullet separators */}
-                          <div className="flex items-center gap-2 flex-wrap text-body text-muted-foreground mt-2">
-                            <span>{pkg.duration_hours} hrs</span>
-                            <span>•</span>
-                            <span>{pkg.tests_count} tests</span>
-                            <span>•</span>
-                            <span>{pkg.age_range} age</span>
-                            {pkg.requires_fasting && pkg.fasting_hours && (
-                              <>
-                                <span>•</span>
-                                <span>{pkg.fasting_hours}h fasting</span>
-                              </>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Price */}
-                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                          <span className="text-label">₹{pkg.price.toLocaleString()}</span>
-                          {pkg.original_price > pkg.price && (
-                            <span className="text-body text-muted-foreground line-through">
-                              ₹{pkg.original_price.toLocaleString()}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </Button>
-
-                    {/* Secondary icon button */}
-                    <div className="flex-shrink-0 mr-4">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (hasDetails) {
-                            setExpandedPkgId(isExpanded ? null : String(pkg.id));
-                          }
-                        }}
-                        disabled={!hasDetails}
-                        className={cn(
-                          'w-10 h-10 rounded-full p-0',
-                          isSelected && 'bg-primary/10',
-                          !hasDetails && 'invisible',
-                        )}
-                      >
-                        <Icon icon={isExpanded ? ChevronDown : ChevronRight} size={20} />
-                      </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => !disabled && !alreadySubmitted && onSelect(pkg.id)}
+                    disabled={disabled || alreadySubmitted}
+                    className={cn(
+                      'w-full h-auto rounded-none justify-start px-6 py-4 hover:bg-muted/50',
+                      'flex items-start gap-3 text-left',
+                      (disabled || alreadySubmitted) && 'disabled:opacity-60',
+                    )}
+                  >
+                    {/* Icon */}
+                    <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Icon icon={FlaskConical} size={20} className="text-blue-800" />
                     </div>
-                  </div>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0 overflow-hidden text-left">
+                      {/* Title and badges */}
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <span className="text-label">
+                          {pkg.name}
+                        </span>
+                        {pkg.is_recommended && (
+                          <Badge variant="warning">
+                            Recommended
+                          </Badge>
+                        )}
+                      </div>
+
+                      {/* Description */}
+                      <p className="text-body text-muted-foreground mb-1.5 break-words">{pkg.description}</p>
+
+                      {/* Metadata */}
+                      <div className="flex items-center gap-2 flex-wrap w-full">
+                        {pkg.requires_fasting && pkg.fasting_hours && (
+                          <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                            Fasting {pkg.fasting_hours}h
+                          </span>
+                        )}
+                        <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                          {pkg.duration_hours} hrs
+                        </span>
+                        <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                          {pkg.tests_count} tests
+                        </span>
+                        <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                          {pkg.age_range} age
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Price */}
+                    <div className="flex-shrink-0 ml-4 text-right">
+                      <div className="text-card-title">₹{pkg.price.toLocaleString()}</div>
+                      {pkg.original_price > pkg.price && (
+                        <div className="text-body text-muted-foreground line-through mt-0.5">
+                          ₹{pkg.original_price.toLocaleString()}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Chevron button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedPkgId(isExpanded ? null : String(pkg.id));
+                      }}
+                      className="flex items-center justify-center flex-shrink-0 w-10 h-10 ml-2"
+                    >
+                      <Icon icon={isExpanded ? ChevronDown : ChevronRight} size={16} className="text-muted-foreground" />
+                    </button>
+                  </Button>
 
                   {/* Expanded detail section */}
                   {isExpanded && (
-                    <div className="px-4 pb-4 bg-muted/20 space-y-3">
-                      {/* Savings highlight */}
-                      {savings > 0 && (
-                        <div className="flex items-center gap-2 text-body">
-                          <Icon icon={Sparkles} className="text-success" />
-                          <span className="font-medium text-success">
-                            You save ₹{savings.toLocaleString()}
-                          </span>
+                    <div className="w-full px-6 py-4 bg-muted/20 space-y-5 overflow-hidden border-t">
+                      {/* Metadata section */}
+                      {(pkg.collection_time || pkg.report_turnaround || pkg.requires_fasting || pkg.duration_hours) && (
+                        <div className="bg-warning/5 rounded-xl px-6 py-4 space-y-3">
+                          {pkg.collection_time && (
+                            <div className="flex items-center gap-3 text-body">
+                              <Icon icon={Calendar} size={20} />
+                              <span>Sample collection at <span className="text-warning">{pkg.collection_time}</span></span>
+                            </div>
+                          )}
+                          {pkg.report_turnaround && (
+                            <div className="flex items-center gap-3 text-body">
+                              <Icon icon={Clock} size={20} />
+                              <span>Earliest report available within <span className="text-warning">{pkg.report_turnaround}</span></span>
+                            </div>
+                          )}
+                          {pkg.requires_fasting && pkg.fasting_hours && (
+                            <div className="flex items-center gap-3 text-body">
+                              <Icon icon={AlertCircle} size={20} />
+                              <span>{pkg.fasting_hours} hrs fasting is required</span>
+                            </div>
+                          )}
+                          {pkg.duration_hours && (
+                            <div className="flex items-center gap-3 text-body">
+                              <Icon icon={Clock} size={20} />
+                              <span>Duration {pkg.duration_hours} hrs</span>
+                            </div>
+                          )}
                         </div>
                       )}
 
-                      {/* Included tests */}
-                      {pkg.included_test_names && pkg.included_test_names.length > 0 && (
+                      {/* Tests Included section with expandable groups */}
+                      {(pkg.test_groups || pkg.included_test_names) && (
                         <div>
-                          <div className="flex items-center gap-1.5 mb-2">
-                            <Icon icon={TestTube} size={14} className="text-foreground" />
-                            <span className="text-card-title text-muted-foreground uppercase tracking-wide">
-                              Included Tests
+                          <div className="flex items-center gap-2 mb-3">
+                            <Icon icon={FlaskConical} size={16} />
+                            <span className="text-card-title text-foreground">
+                              Tests Included ({pkg.tests_count})
                             </span>
                           </div>
-                          <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-                            {pkg.included_test_names.map((testName, i) => (
-                              <div key={i} className="flex items-center gap-1.5 text-body text-foreground">
-                                <Icon icon={Check} size={12} className="text-primary flex-shrink-0" />
-                                <span>{testName}</span>
-                              </div>
-                            ))}
+
+                          <div className="space-y-3">
+                            {pkg.test_groups ? (
+                              // Enhanced view with expandable test groups
+                              pkg.test_groups.map((group, index) => {
+                                const groupId = `${pkg.id}-group-${index}`;
+                                const isGroupExpanded = expandedTestGroupId === groupId;
+
+                                return (
+                                  <div key={groupId}>
+                                    <button
+                                      onClick={() => setExpandedTestGroupId(isGroupExpanded ? null : groupId)}
+                                      className="w-full flex items-center gap-2 text-left text-body hover:text-foreground transition-colors"
+                                    >
+                                      <Icon icon={CheckCircle2} size={20} className="text-success-subtle-foreground flex-shrink-0" />
+                                      <span className="flex-1">{group.name}</span>
+                                      {group.tests_included.length > 0 && (
+                                        <>
+                                          <span className="text-caption text-muted-foreground">{group.tests_included.length} tests included</span>
+                                          <Icon
+                                            icon={isGroupExpanded ? ChevronDown : ChevronRight}
+                                            size={16}
+                                            className="text-muted-foreground flex-shrink-0"
+                                          />
+                                        </>
+                                      )}
+                                    </button>
+
+                                    {/* Expanded test list */}
+                                    {isGroupExpanded && group.tests_included.length > 0 && (
+                                      <div className="mt-2 ml-6 space-y-1">
+                                        {group.tests_included.map((testName, i) => (
+                                          <div key={i} className="text-body text-muted-foreground">
+                                            • {testName}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })
+                            ) : (
+                              // Simple list fallback
+                              pkg.included_test_names?.map((testName, i) => (
+                                <div key={i} className="flex items-center gap-2 text-body">
+                                  <Icon icon={CheckCircle2} size={20} className="text-success-subtle-foreground flex-shrink-0" />
+                                  <span>{testName}</span>
+                                </div>
+                              ))
+                            )}
                           </div>
                         </div>
                       )}
 
-                      {/* Preparation notes */}
-                      {pkg.preparation_notes && (
+                      {/* Preparation Instructions section */}
+                      {(pkg.preparation_instructions || pkg.preparation_notes) && (
                         <div>
-                          <div className="flex items-center gap-1.5 mb-2">
-                            <Icon icon={ClipboardList} size={14} className="text-foreground" />
-                            <span className="text-card-title text-muted-foreground uppercase tracking-wide">
-                              Preparation
+                          <div className="flex items-center gap-2 mb-3">
+                            <Icon icon={User} size={16} />
+                            <span className="text-card-title text-foreground">
+                              Preparation Instructions
                             </span>
                           </div>
-                          <Alert variant="warning" hideIcon>
-                            {pkg.preparation_notes.split('.').filter(Boolean).map((note, i) => (
-                              <p key={i}>{note.trim()}.</p>
-                            ))}
-                          </Alert>
+
+                          {pkg.preparation_instructions ? (
+                            // Structured instructions
+                            <div className="space-y-3">
+                              {pkg.preparation_instructions.map((instruction, i) => (
+                                <div key={i} className="flex items-center gap-3 text-body">
+                                  <Icon
+                                    icon={
+                                      instruction.icon === 'fasting' ? AlertCircle :
+                                      instruction.icon === 'water' ? AlertCircle :
+                                      instruction.icon === 'alcohol' ? AlertCircle :
+                                      AlertCircle
+                                    }
+                                    size={20}
+                                  />
+                                  <span>{instruction.text}</span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            // Fallback to preparation notes
+                            <Alert variant="warning" hideIcon>
+                              {pkg.preparation_notes!.split('.').filter(Boolean).map((note, i) => (
+                                <p key={i}>{note.trim()}.</p>
+                              ))}
+                            </Alert>
+                          )}
                         </div>
                       )}
                     </div>
@@ -460,5 +562,6 @@ export function EmbeddedPackageList({
         )}
       </CardContent>
     </Card>
+    </div>
   );
 }
