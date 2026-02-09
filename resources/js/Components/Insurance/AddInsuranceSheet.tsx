@@ -299,7 +299,7 @@ export function AddInsuranceSheet({
         <SheetBody>
           {/* Step 1: Upload */}
           {addStep === 'upload' && (
-            <div className="space-y-6">
+            <div className="space-y-6 px-5 py-5">
               <div
                 className={cn(
                   'flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-6 py-12 transition-colors',
@@ -357,7 +357,7 @@ export function AddInsuranceSheet({
 
           {/* Step 2: Extracting */}
           {addStep === 'extracting' && (
-            <div className="flex flex-col items-center justify-center py-12">
+            <div className="flex flex-col items-center justify-center px-5 py-12">
               <LoaderCircle className="mb-4 h-10 w-10 animate-spin text-primary" />
               <p className="mb-1 text-card-title text-foreground">
                 Extracting policy details...
@@ -377,7 +377,7 @@ export function AddInsuranceSheet({
 
           {/* Step 2b: Extraction Failed */}
           {addStep === 'extract_failed' && (
-            <div className="flex flex-col items-center justify-center py-12">
+            <div className="flex flex-col items-center justify-center px-5 py-12">
               <div
                 className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10"
               >
@@ -412,7 +412,7 @@ export function AddInsuranceSheet({
 
           {/* Step 3: Review & Confirm */}
           {addStep === 'review' && (
-            <div className="space-y-5">
+            <div className="space-y-5 px-5 py-5">
               {cameFromUpload && extractionType === 'full' && (
                 <Alert variant="success">
                   Details extracted from PDF. Review and confirm below.

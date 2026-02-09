@@ -32,9 +32,12 @@ import {
   SheetTitle,
   SheetBody,
   SheetFooter,
+  SheetSectionRow,
+  SheetDivider,
 } from '@/Components/ui/sheet';
 import { Alert } from '@/Components/ui/alert';
 import { BulkActionBar } from '@/Components/ui/bulk-action-bar';
+import { Card } from '@/Components/ui/card';
 import { cn } from '@/Lib/utils';
 import { useToast } from '@/Contexts/ToastContext';
 import {
@@ -693,6 +696,11 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
             <SheetTitle>Payment Summary</SheetTitle>
           </SheetHeader>
 
+          {/* Warnings */}
+          {payBills.length > 0 && paymentState !== 'success' && (
+            <PaymentWarnings bills={activePayBills} />
+          )}
+
           {payBills.length > 0 && paymentState === 'success' && (
             <>
               <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
@@ -720,90 +728,99 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
             <>
               {/* Scrollable bill list */}
               <SheetBody>
-              <div className="space-y-3">
+              <div className="space-y-3 px-5 py-5">
                 {payBills.map((bill) => {
                   const isExcluded = excludedPayBillIds.has(bill.id);
                   const isLastActive = activePayBills.length === 1 && !isExcluded;
                   return (
-                    <div
-                      key={bill.id}
-                      className={cn('border rounded-lg p-4 space-y-3 transition-opacity', isExcluded && 'opacity-40')}
-                    >
-                      {/* Patient + Checkbox */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-card-title text-foreground">
-                            {bill.patient_name.charAt(0)}
+                    <div key={bill.id} className={cn('transition-opacity', isExcluded && 'opacity-40')}>
+                      <Card>
+                        <div className="px-5 py-4">
+                          <div className="divide-y">
+                            {/* Patient */}
+                            <SheetSectionRow
+                              label="Patient"
+                              value={
+                                <div className="flex items-center justify-between w-full">
+                                  <span className="text-left">{bill.patient_name}</span>
+                                  {payBills.length > 1 && (
+                                    <input
+                                      type="checkbox"
+                                      checked={!isExcluded}
+                                      disabled={isLastActive || paymentState === 'processing'}
+                                      onChange={() => togglePayBillExclusion(bill.id)}
+                                      className="ml-3"
+                                    />
+                                  )}
+                                </div>
+                              }
+                              className="py-2"
+                            />
+
+                            {/* Service */}
+                            <SheetSectionRow
+                              label="Service"
+                              value={
+                                <div className="flex items-center gap-2.5 text-left">
+                                  <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-200">
+                                    {bill.appointment_type === 'doctor' ? (
+                                      <Stethoscope className="h-5 w-5 text-blue-800" />
+                                    ) : (
+                                      <TestTube2 className="h-5 w-5 text-blue-800" />
+                                    )}
+                                  </div>
+                                  <span>{bill.appointment_title}</span>
+                                </div>
+                              }
+                              className="py-2"
+                            />
+
+                            {/* Invoice & Date */}
+                            <SheetSectionRow
+                              label="Invoice"
+                              value={
+                                <div className="text-left">
+                                  <div>{bill.invoice_number}</div>
+                                  <div className="text-body text-muted-foreground">{formatDate(bill.date)}</div>
+                                </div>
+                              }
+                              className="py-2"
+                            />
+
+                            {/* Amount */}
+                            <SheetSectionRow
+                              label="Amount"
+                              value={
+                                <div className="text-left">
+                                  <span className="text-card-title text-foreground">
+                                    ₹{bill.due_amount.toLocaleString()}
+                                  </span>
+                                  {bill.due_amount !== bill.original_amount && (
+                                    <span className="text-body text-muted-foreground ml-1">
+                                      of ₹{bill.original_amount.toLocaleString()}
+                                    </span>
+                                  )}
+                                </div>
+                              }
+                              className="py-2"
+                            />
                           </div>
-                          <p className="text-card-title text-foreground">{bill.patient_name}</p>
-                        </div>
-                        {payBills.length > 1 && (
-                          <input
-                            type="checkbox"
-                            checked={!isExcluded}
-                            disabled={isLastActive || paymentState === 'processing'}
-                            onChange={() => togglePayBillExclusion(bill.id)}
-                          />
-                        )}
-                      </div>
 
-                      {/* Service */}
-                      <div className="flex items-center gap-2.5">
-                        <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-200">
-                          {bill.appointment_type === 'doctor' ? (
-                            <Stethoscope className="h-5 w-5 text-blue-800" />
-                          ) : (
-                            <TestTube2 className="h-5 w-5 text-blue-800" />
+                          {/* Overdue warning */}
+                          {bill.is_overdue && (
+                            <div className="mt-3">
+                              <Alert variant="error">
+                                Overdue by {bill.days_overdue} days. Please pay immediately.
+                              </Alert>
+                            </div>
                           )}
                         </div>
-                        <p className="text-body">{bill.appointment_title}</p>
-                      </div>
-
-                      {/* Reference + Date + Amount */}
-                      <div className="flex items-center justify-between text-body text-muted-foreground">
-                        <span>{bill.invoice_number}</span>
-                        <span>{formatDate(bill.date)}</span>
-                      </div>
-                      <div className="flex justify-between items-baseline">
-                        <span className="text-body text-muted-foreground">Amount</span>
-                        <div className="text-right">
-                          <span className="text-card-title text-foreground">
-                            ₹{bill.due_amount.toLocaleString()}
-                          </span>
-                          {bill.due_amount !== bill.original_amount && (
-                            <span className="text-body text-muted-foreground ml-1">
-                              of ₹{bill.original_amount.toLocaleString()}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Overdue warning */}
-                      {bill.is_overdue && (
-                        <Alert variant="error">
-                          Overdue by {bill.days_overdue} days. Please pay immediately.
-                        </Alert>
-                      )}
+                      </Card>
                     </div>
                   );
                 })}
               </div>
               </SheetBody>
-
-              {/* Warnings */}
-              <PaymentWarnings bills={activePayBills} />
-
-              {/* Total */}
-              <div className="px-1 pt-2">
-                <div className="flex justify-between items-baseline">
-                  <span className="text-label">
-                    Total ({activePayBills.length} {activePayBills.length === 1 ? 'bill' : 'bills'})
-                  </span>
-                  <span className="text-section-title text-foreground">
-                    ₹{activePayTotal.toLocaleString()}
-                  </span>
-                </div>
-              </div>
 
               {/* CTA */}
               <SheetFooter>
@@ -845,17 +862,17 @@ function PaymentWarnings({ bills }: { bills: Bill[] }) {
   if (!disputedCount && !hasMultiplePatients) return null;
 
   return (
-    <div className="space-y-2 mt-3">
+    <>
       {disputedCount > 0 && (
-        <Alert variant="warning">
+        <Alert variant="warning" className="rounded-none border-0 border-b text-foreground">
           {disputedCount} {disputedCount === 1 ? 'bill is' : 'bills are'} under dispute. Payment may be held for review.
         </Alert>
       )}
       {hasMultiplePatients && (
-        <Alert variant="info">
+        <Alert variant="info" className="rounded-none border-0 border-b text-foreground">
           Bills for multiple family members selected.
         </Alert>
       )}
-    </div>
+    </>
   );
 }

@@ -298,11 +298,11 @@ const SheetSectionRow = ({
   ...props
 }: SheetSectionRowProps) => (
   <div
-    className={cn('flex items-center justify-between py-3', className)}
+    className={cn('grid grid-cols-[120px_1fr] items-start py-3', className)}
     {...props}
   >
-    <span className="text-body text-muted-foreground">{label}</span>
-    <span className="text-label text-foreground text-right">
+    <span className="text-body text-muted-foreground pt-px">{label}</span>
+    <span className="text-label text-foreground">
       {value ?? children ?? '—'}
     </span>
   </div>

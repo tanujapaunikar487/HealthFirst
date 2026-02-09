@@ -610,7 +610,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
           <SheetBody>
             {/* Step 1: Patient Selection */}
             {preAuthStep === 'patient' && (
-              <div className="space-y-3">
+              <div className="space-y-3 px-5 py-5">
                 {coveredMembers.length === 0 ? (
                   <EmptyState
                     icon={Users}
@@ -647,7 +647,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
 
             {/* Step 2: Admission Details */}
             {preAuthStep === 'details' && (
-              <div className="space-y-4">
+              <div className="space-y-4 px-5 py-5">
                 <div>
                   <label className="block text-label text-foreground mb-1.5">
                     Treatment / Reason <span className="text-destructive">*</span>
@@ -737,7 +737,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
 
             {/* Step 3: Review */}
             {preAuthStep === 'review' && (
-              <div className="space-y-4">
+              <div className="space-y-4 px-5 py-5">
                 {/* Policy summary */}
                 <div className="rounded-xl border px-4 py-3.5">
                   <p className="text-label text-muted-foreground mb-1">Policy</p>

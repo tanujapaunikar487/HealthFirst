@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, router } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
 import {
   SheetHeader,
@@ -9,7 +9,6 @@ import {
   SheetDivider,
   SheetSectionRow,
 } from '@/Components/ui/sheet';
-import { DetailRow } from '@/Components/ui/detail-row';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,20 +21,16 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/Components/ui/collapsible';
-import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
 import { Textarea } from '@/Components/ui/textarea';
 import { Alert } from '@/Components/ui/alert';
 import { cn } from '@/Lib/utils';
 import {
   MoreHorizontal,
-  Eye,
   CalendarClock,
   Share2,
   XCircle,
   RotateCcw,
   Calendar,
-  AlertTriangle,
-  User,
   Stethoscope,
   TestTube2,
   Check,
@@ -46,7 +41,6 @@ import {
   CalendarPlus,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
-import { getAvatarColor } from '@/Lib/avatar-colors';
 
 /* ─── Types ─── */
 
@@ -92,30 +86,6 @@ export type SheetView =
   | { type: 'book_again'; appointment: Appointment }
   | { type: 'share'; appointment: Appointment }
   | null;
-
-/* ─── Payment Status Tag ─── */
-
-function PaymentStatusTag({ status }: { status: string }) {
-  const colors = {
-    paid: 'text-success',
-    pending: 'text-warning',
-    partially_refunded: 'text-warning',
-    fully_refunded: 'text-destructive',
-  };
-
-  const labels = {
-    paid: 'Paid',
-    pending: 'Pending',
-    partially_refunded: 'Partially Refunded',
-    fully_refunded: 'Refunded',
-  };
-
-  return (
-    <span className={cn('text-label', colors[status as keyof typeof colors] || 'text-muted-foreground')}>
-      {labels[status as keyof typeof labels] || status}
-    </span>
-  );
-}
 
 /* ─── Details Sheet ─── */
 
@@ -231,14 +201,31 @@ export function DetailsSheet({
       </SheetHeader>
 
       {/* People Rows */}
-      <div className="space-y-3 px-5 py-4">
-        {/* Patient Row */}
-        <PeopleRow label="Patient" name={appointment.patient_name} subtext="Self" />
-
-        {/* Doctor Row - only for doctor appointments */}
-        {isDoctor && (
-          <PeopleRow label="Doctor" name={appointment.title} subtext={appointment.subtitle || 'General Physician'} />
-        )}
+      <div className="px-5 py-4">
+        <div>
+          <SheetSectionRow
+            label="Patient"
+            value={
+              <div className="text-left">
+                <div>{appointment.patient_name}</div>
+                <div className="text-body text-muted-foreground">Self</div>
+              </div>
+            }
+            className="py-2"
+          />
+          {isDoctor && (
+            <SheetSectionRow
+              label="Doctor"
+              value={
+                <div className="text-left">
+                  <div>{appointment.title}</div>
+                  <div className="text-body text-muted-foreground">{appointment.subtitle || 'General Physician'}</div>
+                </div>
+              }
+              className="py-2"
+            />
+          )}
+        </div>
       </div>
 
       {/* Edge-to-edge divider */}
@@ -262,16 +249,18 @@ export function DetailsSheet({
               )}
             />
           </CollapsibleTrigger>
-          <CollapsibleContent className="px-5">
-            <div className="divide-y">
-              <SheetSectionRow label="Date" value={appointment.date_formatted} />
+          <CollapsibleContent className="px-5 pt-3 pb-5">
+            <div>
+              <SheetSectionRow label="Date" value={appointment.date_formatted} className="py-2" />
               <SheetSectionRow
                 label="Time"
                 value={`${appointment.time} (30 mins)`}
+                className="py-2"
               />
               <SheetSectionRow
                 label="Type"
                 value={`${appointment.subtitle || 'New'} • ${appointment.mode}`}
+                className="py-2"
               />
               {appointment.google_calendar_event_id && (
                 <SheetSectionRow
@@ -282,11 +271,14 @@ export function DetailsSheet({
                       Synced
                     </span>
                   }
+                  className="py-2"
                 />
               )}
             </div>
           </CollapsibleContent>
         </Collapsible>
+
+        <SheetDivider />
 
         {/* Notes Section */}
         <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
@@ -325,7 +317,7 @@ export function DetailsSheet({
               />
             </div>
           </CollapsibleTrigger>
-          <CollapsibleContent className="px-5">
+          <CollapsibleContent className="px-5 pt-3 pb-5">
             {isEditingNotes ? (
               <div className="space-y-2">
                 <Textarea
@@ -348,6 +340,7 @@ export function DetailsSheet({
                     Cancel
                   </Button>
                   <Button
+                    variant="accent"
                     size="md"
                     onClick={handleSaveNotes}
                     disabled={isSavingNotes}
@@ -368,6 +361,8 @@ export function DetailsSheet({
           </CollapsibleContent>
         </Collapsible>
 
+        <SheetDivider />
+
         {/* Preparation Section */}
         <Collapsible open={preparationOpen} onOpenChange={setPreparationOpen}>
           <CollapsibleTrigger className="flex items-center justify-between w-full px-5 py-4 hover:bg-muted/50 transition-colors">
@@ -384,8 +379,8 @@ export function DetailsSheet({
               )}
             />
           </CollapsibleTrigger>
-          <CollapsibleContent className="px-5">
-            <ul className="space-y-1.5 text-body text-muted-foreground">
+          <CollapsibleContent className="px-5 pt-3 pb-5">
+            <ul className="space-y-1.5 text-body text-foreground">
               <li className="flex items-start gap-2">
                 <span className="mt-1.5">•</span>
                 <span>Have medication list ready</span>
@@ -554,6 +549,8 @@ export function CancelledDetailsSheet({
   onAction: (view: SheetView) => void;
 }) {
   const isDoctor = appointment.type === 'doctor';
+  const [originalDetailsOpen, setOriginalDetailsOpen] = useState(true);
+  const [cancellationInfoOpen, setCancellationInfoOpen] = useState(true);
 
   return (
     <div className="flex flex-col h-full">
@@ -563,19 +560,36 @@ export function CancelledDetailsSheet({
       </SheetHeader>
 
       {/* Cancelled Banner */}
-      <Alert variant="error" className="mx-5 my-4">
+      <Alert variant="error" className="rounded-none border-0 border-b text-foreground">
         This appointment was cancelled
       </Alert>
 
-      {/* Edge-to-edge divider */}
-      <SheetDivider />
-
       {/* People Rows */}
-      <div className="space-y-3 px-5 py-4">
-        <PeopleRow label="Patient" name={appointment.patient_name} subtext="Self" />
-        {isDoctor && (
-          <PeopleRow label="Doctor" name={appointment.title} subtext={appointment.subtitle || 'General Physician'} />
-        )}
+      <div className="px-5 py-4">
+        <div>
+          <SheetSectionRow
+            label="Patient"
+            value={
+              <div className="text-left">
+                <div>{appointment.patient_name}</div>
+                <div className="text-body text-muted-foreground">Self</div>
+              </div>
+            }
+            className="py-2"
+          />
+          {isDoctor && (
+            <SheetSectionRow
+              label="Doctor"
+              value={
+                <div className="text-left">
+                  <div>{appointment.title}</div>
+                  <div className="text-body text-muted-foreground">{appointment.subtitle || 'General Physician'}</div>
+                </div>
+              }
+              className="py-2"
+            />
+          )}
+        </div>
       </div>
 
       {/* Edge-to-edge divider */}
@@ -583,35 +597,66 @@ export function CancelledDetailsSheet({
 
       {/* Scrollable Content */}
       <SheetBody>
-        <div className="space-y-5 px-5 py-5">
         {/* Original Details Section */}
-        <div className="space-y-3">
-          <p className="text-label text-muted-foreground uppercase tracking-wide">Original Details</p>
-          <div className="space-y-2">
-            <KeyValueRow label="Date" value={appointment.date_formatted} />
-            <KeyValueRow label="Time" value={appointment.time} />
-            <KeyValueRow label="Type" value={`${appointment.subtitle || 'Consultation'} • ${appointment.mode}`} />
-            <KeyValueRow label="Fee" value={`₹${appointment.fee.toLocaleString()}`} />
-          </div>
-        </div>
+        <Collapsible open={originalDetailsOpen} onOpenChange={setOriginalDetailsOpen}>
+          <CollapsibleTrigger className="flex items-center justify-between w-full px-5 py-4 hover:bg-muted/50 transition-colors">
+            <div className="flex items-center gap-2">
+              <Icon icon={Calendar} size={16} />
+              <span className="text-label">Original Details</span>
+            </div>
+            <Icon
+              icon={ChevronDown}
+              size={16}
+              className={cn(
+                "transition-transform",
+                originalDetailsOpen && "transform rotate-180"
+              )}
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="px-5 pt-3 pb-5">
+            <div>
+              <SheetSectionRow label="Date" value={appointment.date_formatted} className="py-2" />
+              <SheetSectionRow label="Time" value={appointment.time} className="py-2" />
+              <SheetSectionRow label="Type" value={`${appointment.subtitle || 'Consultation'} • ${appointment.mode}`} className="py-2" />
+              <SheetSectionRow label="Fee" value={`₹${appointment.fee.toLocaleString()}`} className="py-2" />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        <SheetDivider />
 
         {/* Cancellation Info Section */}
-        <div className="space-y-3">
-          <p className="text-label text-muted-foreground uppercase tracking-wide">Cancellation Info</p>
-          <div className="space-y-2">
-            <KeyValueRow
-              label="Refund"
-              value={
-                appointment.payment_status === 'fully_refunded'
-                  ? `₹${appointment.fee.toLocaleString()} (Processed)`
-                  : appointment.payment_status === 'partially_refunded'
-                  ? `Partial refund processed`
-                  : `₹${appointment.fee.toLocaleString()} (Pending)`
-              }
+        <Collapsible open={cancellationInfoOpen} onOpenChange={setCancellationInfoOpen}>
+          <CollapsibleTrigger className="flex items-center justify-between w-full px-5 py-4 hover:bg-muted/50 transition-colors">
+            <div className="flex items-center gap-2">
+              <Icon icon={FileText} size={16} />
+              <span className="text-label">Cancellation Info</span>
+            </div>
+            <Icon
+              icon={ChevronDown}
+              size={16}
+              className={cn(
+                "transition-transform",
+                cancellationInfoOpen && "transform rotate-180"
+              )}
             />
-          </div>
-        </div>
-        </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="px-5 pt-3 pb-5">
+            <div>
+              <SheetSectionRow
+                label="Refund"
+                value={
+                  appointment.payment_status === 'fully_refunded'
+                    ? `₹${appointment.fee.toLocaleString()} (Processed)`
+                    : appointment.payment_status === 'partially_refunded'
+                    ? `Partial refund processed`
+                    : `₹${appointment.fee.toLocaleString()} (Pending)`
+                }
+                className="py-2"
+              />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
       </SheetBody>
 
       {/* Footer */}
@@ -655,38 +700,6 @@ export function CancelledDetailsSheet({
     </div>
   );
 }
-
-/* ─── Helper Components ─── */
-
-function getAvatarColorByName(name: string) {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return getAvatarColor(Math.abs(hash));
-}
-
-function PeopleRow({ label, name, subtext }: { label: string; name: string; subtext?: string }) {
-  return (
-    <div className="flex items-start gap-3">
-      <span className="text-body text-muted-foreground w-[70px] flex-shrink-0">{label}</span>
-      <div className="flex-1">
-        <p className="text-label text-foreground">{name}</p>
-        {subtext && <p className="text-body text-muted-foreground">{subtext}</p>}
-      </div>
-    </div>
-  );
-}
-
-function KeyValueRow({ label, value }: { label: string; value: string | React.ReactNode }) {
-  return (
-    <div className="flex items-start justify-between text-body">
-      <span className="text-muted-foreground w-[70px] flex-shrink-0">{label}</span>
-      <span className="text-right flex-1">{value}</span>
-    </div>
-  );
-}
-
 
 /* ─── Cancel Sheet ─── */
 
@@ -860,7 +873,7 @@ export function RescheduleSheet({
       <SheetBody>
         <div className="space-y-5 px-5 py-5">
         {/* Booking Summary */}
-        <div className="rounded-lg bg-muted/50 p-4 space-y-4">
+        <div className="space-y-4">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'hsl(var(--primary) / 0.25)' }}>
               {appointment.type === 'doctor' ? (
@@ -876,11 +889,11 @@ export function RescheduleSheet({
               )}
             </div>
           </div>
-          <div className="space-y-3">
-            <DetailRow label="Patient" value={appointment.patient_name} />
-            <DetailRow label="Date" value={appointment.date_formatted} />
-            <DetailRow label="Mode" value={appointment.mode} />
-            <DetailRow label="Fee" value={`₹${appointment.fee}`} />
+          <div>
+            <SheetSectionRow label="Patient" value={appointment.patient_name} className="py-2" />
+            <SheetSectionRow label="Date" value={appointment.date_formatted} className="py-2" />
+            <SheetSectionRow label="Mode" value={appointment.mode} className="py-2" />
+            <SheetSectionRow label="Fee" value={`₹${appointment.fee}`} className="py-2" />
           </div>
         </div>
 
@@ -890,43 +903,42 @@ export function RescheduleSheet({
           </div>
         ) : (
           <>
-            {/* Date pills — guided flow style */}
+            {/* Date selection */}
             <div>
-              <p className="text-label mb-3">Select a new date</p>
+              <h4 className="text-card-title mb-3">Date</h4>
               <div className="flex gap-2 overflow-x-auto pb-2">
-                {dates.map((d) => (
-                  <Button
-                    key={d.date}
-                    variant="outline"
-                    type="button"
-                    onClick={() => handleDateChange(d.date)}
-                    className={cn(
-                      'flex flex-col items-center justify-center min-w-[100px] h-auto px-4 py-3 rounded-xl text-body transition-all flex-shrink-0',
-                      selectedDate === d.date
-                        ? 'bg-foreground text-background border-foreground'
-                        : 'bg-background hover:border-primary/50 border-border'
-                    )}
-                  >
-                    <span className="font-medium">{d.display}</span>
-                    {d.is_today && (
-                      <span
-                        className={cn(
-                          'text-micro mt-0.5',
-                          selectedDate === d.date ? 'text-background/70' : 'text-muted-foreground'
-                        )}
-                      >
-                        Today
-                      </span>
-                    )}
-                  </Button>
-                ))}
+                {dates.map((d) => {
+                  const isSelected = selectedDate === d.date;
+                  const label = d.is_today ? 'Today' : d.display.split(',')[0];
+                  const sublabel = d.display.split(',')[1]?.trim() || d.display;
+
+                  return (
+                    <Button
+                      key={d.date}
+                      variant={isSelected ? 'accent' : 'outline'}
+                      onClick={() => handleDateChange(d.date)}
+                      className={cn(
+                        'h-auto px-6 py-3 rounded-2xl font-normal',
+                        'flex flex-col items-center flex-shrink-0 min-w-[120px] gap-2',
+                        isSelected && 'border-foreground'
+                      )}
+                    >
+                      <div className={cn('text-card-title leading-none', isSelected && 'text-background')}>
+                        {label}
+                      </div>
+                      <div className={cn('text-body leading-none', isSelected ? 'text-background/70' : 'text-muted-foreground')}>
+                        {sublabel}
+                      </div>
+                    </Button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Time slots — guided flow style */}
+            {/* Time selection */}
             {selectedDate && (
               <div>
-                <p className="text-label mb-3">Select a time</p>
+                <h4 className="text-card-title mb-3">Time</h4>
                 {slotsLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full" />
@@ -939,23 +951,23 @@ export function RescheduleSheet({
                   </div>
                 ) : (
                   <div className="flex flex-wrap gap-2">
-                    {slots.map((s) => (
-                      <Button
-                        key={s.time}
-                        variant="outline"
-                        size="sm"
-                        type="button"
-                        onClick={() => setSelectedTime(s.time)}
-                        className={cn(
-                          'h-auto px-4 py-2 text-body transition-all',
-                          selectedTime === s.time
-                            ? 'bg-foreground text-background border-foreground'
-                            : 'bg-background hover:border-primary/50 border-border'
-                        )}
-                      >
-                        {s.display}
-                      </Button>
-                    ))}
+                    {slots.map((s) => {
+                      const isSelected = selectedTime === s.display;
+
+                      return (
+                        <Button
+                          key={s.time}
+                          variant={isSelected ? 'accent' : 'outline'}
+                          onClick={() => setSelectedTime(s.display)}
+                          className={cn(
+                            'h-auto px-3 py-1.5 rounded-full text-label',
+                            isSelected && 'border-foreground'
+                          )}
+                        >
+                          {s.display}
+                        </Button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -1099,15 +1111,6 @@ export function FollowUpSheet({
     return mode?.price ?? null;
   };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
   return (
     <div className="flex flex-col h-full">
       <SheetHeader>
@@ -1120,101 +1123,103 @@ export function FollowUpSheet({
         </div>
       ) : data ? (
         <>
+          {/* People Rows */}
+          <div className="px-5 py-4">
+            <div>
+              <SheetSectionRow
+                label="Patient"
+                value={
+                  <div className="text-left">
+                    <div>{data.patient.name}</div>
+                    <div className="text-body text-muted-foreground">Self</div>
+                  </div>
+                }
+                className="py-2"
+              />
+              <SheetSectionRow
+                label="Doctor"
+                value={
+                  <div className="text-left">
+                    <div>{data.doctor.name}</div>
+                    <div className="text-body text-muted-foreground">{data.doctor.specialization}</div>
+                  </div>
+                }
+                className="py-2"
+              />
+            </div>
+          </div>
+
+          {/* Edge-to-edge divider */}
+          <SheetDivider />
+
           <SheetBody>
             <div className="space-y-5 px-5 py-5">
-            {/* Doctor & Patient Card */}
-            <div className="rounded-lg bg-muted/50 p-4 space-y-3">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10">
-                  {data.doctor.avatar_url ? (
-                    <AvatarImage src={data.doctor.avatar_url} alt={data.doctor.name} />
-                  ) : null}
-                  <AvatarFallback
-                    className="font-medium"
-                    style={(() => {
-                      const color = getAvatarColorByName(data.doctor.name);
-                      return { backgroundColor: color.bg, color: color.text };
-                    })()}
-                  >
-                    {getInitials(data.doctor.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-label">{data.doctor.name}</p>
-                  <p className="text-body text-muted-foreground">{data.doctor.specialization}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5 text-body text-muted-foreground">
-                <Icon icon={User} className="h-3.5 w-3.5" />
-                <span>For: {data.patient.name}</span>
-              </div>
-            </div>
 
-            {/* Date Pills */}
+            {/* Date selection */}
             <div>
-              <p className="text-label mb-3">Select a date</p>
+              <h4 className="text-card-title mb-3">Date</h4>
               <div className="flex gap-2 overflow-x-auto pb-2">
-                {data.dates.map((d) => (
-                  <Button
-                    key={d.date}
-                    variant="outline"
-                    type="button"
-                    onClick={() => handleDateChange(d.date)}
-                    className={cn(
-                      'flex flex-col items-center justify-center min-w-[100px] h-auto px-4 py-3 rounded-xl text-body transition-all flex-shrink-0',
-                      selectedDate === d.date
-                        ? 'bg-foreground text-background border-foreground'
-                        : 'bg-background hover:border-primary/50 border-border'
-                    )}
-                  >
-                    <span className="font-medium">{d.display}</span>
-                    <span
+                {data.dates.map((d) => {
+                  const isSelected = selectedDate === d.date;
+                  const label = d.is_today ? 'Today' : d.display;
+
+                  return (
+                    <Button
+                      key={d.date}
+                      variant={isSelected ? 'accent' : 'outline'}
+                      onClick={() => handleDateChange(d.date)}
                       className={cn(
-                        'text-micro mt-0.5',
-                        selectedDate === d.date ? 'text-background/70' : 'text-muted-foreground'
+                        'h-auto px-6 py-3 rounded-2xl font-normal',
+                        'flex flex-col items-center flex-shrink-0 min-w-[120px] gap-2',
+                        isSelected && 'border-foreground'
                       )}
                     >
-                      {d.sublabel}
-                    </span>
-                  </Button>
-                ))}
+                      <div className={cn('text-card-title leading-none', isSelected && 'text-background')}>
+                        {label}
+                      </div>
+                      <div className={cn('text-body leading-none', isSelected ? 'text-background/70' : 'text-muted-foreground')}>
+                        {d.sublabel}
+                      </div>
+                    </Button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Time Slots */}
+            {/* Time selection */}
             {selectedDate && (
               <div>
-                <p className="text-label mb-3">Select a time</p>
+                <h4 className="text-card-title mb-3">Time</h4>
                 {slotsLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full" />
                   </div>
                 ) : data.slots.length === 0 ? (
                   <div className="text-center py-8 px-4 rounded-lg border border-dashed">
-                    <p className="text-body text-muted-foreground">No available slots for this date</p>
+                    <p className="text-body text-muted-foreground">
+                      No available slots for this date
+                    </p>
                   </div>
                 ) : (
                   <div className="flex flex-wrap gap-2">
-                    {data.slots.map((s) => (
-                      <Button
-                        key={s.time}
-                        variant="outline"
-                        size="sm"
-                        type="button"
-                        onClick={() => s.available && setSelectedTime(s.time)}
-                        disabled={!s.available}
-                        className={cn(
-                          'h-auto px-4 py-2 text-body transition-all',
-                          selectedTime === s.time
-                            ? 'bg-foreground text-background border-foreground'
-                            : s.available
-                            ? 'bg-background hover:border-primary/50 border-border'
-                            : 'bg-muted text-muted-foreground border-border cursor-not-allowed'
-                        )}
-                      >
-                        {s.time}
-                      </Button>
-                    ))}
+                    {data.slots.map((s) => {
+                      const isSelected = selectedTime === s.time;
+
+                      return (
+                        <Button
+                          key={s.time}
+                          variant={isSelected ? 'accent' : 'outline'}
+                          onClick={() => s.available && setSelectedTime(s.time)}
+                          disabled={!s.available}
+                          className={cn(
+                            'h-auto px-3 py-1.5 rounded-full text-label',
+                            isSelected && 'border-foreground'
+                          )}
+                        >
+                          {s.time}
+                        </Button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -1416,15 +1421,6 @@ export function BookAgainSheet({
     return mode?.price ?? null;
   };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
   return (
     <div className="flex flex-col h-full">
       <SheetHeader>
@@ -1437,101 +1433,103 @@ export function BookAgainSheet({
         </div>
       ) : data ? (
         <>
+          {/* People Rows */}
+          <div className="px-5 py-4">
+            <div>
+              <SheetSectionRow
+                label="Patient"
+                value={
+                  <div className="text-left">
+                    <div>{data.patient.name}</div>
+                    <div className="text-body text-muted-foreground">Self</div>
+                  </div>
+                }
+                className="py-2"
+              />
+              <SheetSectionRow
+                label="Doctor"
+                value={
+                  <div className="text-left">
+                    <div>{data.doctor.name}</div>
+                    <div className="text-body text-muted-foreground">{data.doctor.specialization}</div>
+                  </div>
+                }
+                className="py-2"
+              />
+            </div>
+          </div>
+
+          {/* Edge-to-edge divider */}
+          <SheetDivider />
+
           <SheetBody>
             <div className="space-y-5 px-5 py-5">
-            {/* Doctor & Patient Card */}
-            <div className="rounded-lg bg-muted/50 p-4 space-y-3">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10">
-                  {data.doctor.avatar_url ? (
-                    <AvatarImage src={data.doctor.avatar_url} alt={data.doctor.name} />
-                  ) : null}
-                  <AvatarFallback
-                    className="font-medium"
-                    style={(() => {
-                      const color = getAvatarColorByName(data.doctor.name);
-                      return { backgroundColor: color.bg, color: color.text };
-                    })()}
-                  >
-                    {getInitials(data.doctor.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-label">{data.doctor.name}</p>
-                  <p className="text-body text-muted-foreground">{data.doctor.specialization}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5 text-body text-muted-foreground">
-                <Icon icon={User} className="h-3.5 w-3.5" />
-                <span>For: {data.patient.name}</span>
-              </div>
-            </div>
 
-            {/* Date Pills */}
+            {/* Date selection */}
             <div>
-              <p className="text-label mb-3">Select a date</p>
+              <h4 className="text-card-title mb-3">Date</h4>
               <div className="flex gap-2 overflow-x-auto pb-2">
-                {data.dates.map((d) => (
-                  <Button
-                    key={d.date}
-                    variant="outline"
-                    type="button"
-                    onClick={() => handleDateChange(d.date)}
-                    className={cn(
-                      'flex flex-col items-center justify-center min-w-[100px] h-auto px-4 py-3 rounded-xl text-body transition-all flex-shrink-0',
-                      selectedDate === d.date
-                        ? 'bg-foreground text-background border-foreground'
-                        : 'bg-background hover:border-primary/50 border-border'
-                    )}
-                  >
-                    <span className="font-medium">{d.display}</span>
-                    <span
+                {data.dates.map((d) => {
+                  const isSelected = selectedDate === d.date;
+                  const label = d.is_today ? 'Today' : d.display;
+
+                  return (
+                    <Button
+                      key={d.date}
+                      variant={isSelected ? 'accent' : 'outline'}
+                      onClick={() => handleDateChange(d.date)}
                       className={cn(
-                        'text-micro mt-0.5',
-                        selectedDate === d.date ? 'text-background/70' : 'text-muted-foreground'
+                        'h-auto px-6 py-3 rounded-2xl font-normal',
+                        'flex flex-col items-center flex-shrink-0 min-w-[120px] gap-2',
+                        isSelected && 'border-foreground'
                       )}
                     >
-                      {d.sublabel}
-                    </span>
-                  </Button>
-                ))}
+                      <div className={cn('text-card-title leading-none', isSelected && 'text-background')}>
+                        {label}
+                      </div>
+                      <div className={cn('text-body leading-none', isSelected ? 'text-background/70' : 'text-muted-foreground')}>
+                        {d.sublabel}
+                      </div>
+                    </Button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Time Slots */}
+            {/* Time selection */}
             {selectedDate && (
               <div>
-                <p className="text-label mb-3">Select a time</p>
+                <h4 className="text-card-title mb-3">Time</h4>
                 {slotsLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full" />
                   </div>
                 ) : data.slots.length === 0 ? (
                   <div className="text-center py-8 px-4 rounded-lg border border-dashed">
-                    <p className="text-body text-muted-foreground">No available slots for this date</p>
+                    <p className="text-body text-muted-foreground">
+                      No available slots for this date
+                    </p>
                   </div>
                 ) : (
                   <div className="flex flex-wrap gap-2">
-                    {data.slots.map((s) => (
-                      <Button
-                        key={s.time}
-                        variant="outline"
-                        size="sm"
-                        type="button"
-                        onClick={() => s.available && setSelectedTime(s.time)}
-                        disabled={!s.available}
-                        className={cn(
-                          'h-auto px-4 py-2 text-body transition-all',
-                          selectedTime === s.time
-                            ? 'bg-foreground text-background border-foreground'
-                            : s.available
-                            ? 'bg-background hover:border-primary/50 border-border'
-                            : 'bg-muted text-muted-foreground border-border cursor-not-allowed'
-                        )}
-                      >
-                        {s.time}
-                      </Button>
-                    ))}
+                    {data.slots.map((s) => {
+                      const isSelected = selectedTime === s.time;
+
+                      return (
+                        <Button
+                          key={s.time}
+                          variant={isSelected ? 'accent' : 'outline'}
+                          onClick={() => s.available && setSelectedTime(s.time)}
+                          disabled={!s.available}
+                          className={cn(
+                            'h-auto px-3 py-1.5 rounded-full text-label',
+                            isSelected && 'border-foreground'
+                          )}
+                        >
+                          {s.time}
+                        </Button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
