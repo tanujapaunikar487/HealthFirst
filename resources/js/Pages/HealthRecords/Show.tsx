@@ -353,6 +353,7 @@ interface CategorySection {
   action?: React.ReactNode;
   noPadding?: boolean;
   iconClassName?: string;
+  cardClassName?: string;
 }
 
 /* ─── Category Config ─── */
@@ -496,6 +497,7 @@ function Section({
   action,
   noPadding = true,
   iconClassName,
+  cardClassName,
 }: {
   id: string;
   title: string;
@@ -504,9 +506,10 @@ function Section({
   action?: React.ReactNode;
   noPadding?: boolean;
   iconClassName?: string;
+  cardClassName?: string;
 }) {
   return (
-    <DetailSection id={id} title={title} icon={icon} action={action} noPadding={noPadding} iconClassName={iconClassName}>
+    <DetailSection id={id} title={title} icon={icon} action={action} noPadding={noPadding} iconClassName={iconClassName} cardClassName={cardClassName}>
       {children}
     </DetailSection>
   );
@@ -797,8 +800,9 @@ export default function Show({ user, record, familyMember }: Props) {
             </div>
         </div>
 
-        {/* Follow-up Alert */}
-        <div className="mb-12">
+        {/* Alerts */}
+        <div className="mb-12 space-y-4">
+          {/* Follow-up Alert */}
           {(record.metadata?.follow_up_recommendation || record.metadata?.follow_up_date || record.metadata?.follow_up) && (
             <Alert variant="info" title={(record.metadata.follow_up_recommendation || record.metadata.follow_up) || 'Follow-up Required'}>
               {(record.metadata.follow_up_recommendation || record.metadata.follow_up) && (
@@ -809,12 +813,32 @@ export default function Show({ user, record, familyMember }: Props) {
               )}
             </Alert>
           )}
+
+          {/* Vaccination Complete Alert */}
+          {record.category === 'vaccination' &&
+            record.metadata?.next_due_date === null &&
+            record.metadata?.dose_number === record.metadata?.total_doses && (
+            <Alert variant="success" hideIcon>Vaccination course complete</Alert>
+          )}
+
+          {/* Side Effects Warning Alert */}
+          {(record.category === 'medication_active' || record.category === 'medication_past') &&
+            record.metadata?.side_effects_warning && (
+            <Alert variant="warning">{record.metadata.side_effects_warning}</Alert>
+          )}
         </div>
 
         {/* Main Content with Side Nav */}
         <div className="flex gap-24">
           <RecordSideNav items={navItems} />
           <div className="flex-1 min-w-0 space-y-12 pb-12">
+
+            {/* AI Summary (if applicable) */}
+            {categorySections.filter(s => s.id === 'ai-summary').map(section => (
+              <Section key={section.id} id={section.id} title={section.title} icon={section.icon} action={section.action} noPadding={section.noPadding} iconClassName={section.iconClassName} cardClassName={section.cardClassName}>
+                {section.content}
+              </Section>
+            ))}
 
             {/* Overview Section */}
             <Section id="overview" title="Overview" icon={FileText}>
@@ -995,9 +1019,9 @@ export default function Show({ user, record, familyMember }: Props) {
               </div>
             </Section>
 
-            {/* Category-specific sections */}
-            {categorySections.map(section => (
-              <Section key={section.id} id={section.id} title={section.title} icon={section.icon} action={section.action} noPadding={section.noPadding} iconClassName={section.iconClassName}>
+            {/* Category-specific sections (excluding AI Summary which is rendered above Overview) */}
+            {categorySections.filter(s => s.id !== 'ai-summary').map(section => (
+              <Section key={section.id} id={section.id} title={section.title} icon={section.icon} action={section.action} noPadding={section.noPadding} iconClassName={section.iconClassName} cardClassName={section.cardClassName}>
                 {section.content}
               </Section>
             ))}
@@ -1451,17 +1475,21 @@ function getDischargeSections(meta: RecordMetadata, onAction: (msg: string) => v
   if (meta.warning_signs && meta.warning_signs.length > 0) {
     sections.push({
       id: 'warning-signs', title: 'Warning Signs', icon: AlertTriangle,
+      noPadding: true,
       content: (
-        <div className="p-6">
-          <Alert variant="error" title="Warning Signs">
-            <NumberedList items={meta.warning_signs} variant="warning" />
-            {meta.emergency_contact && (
-              <div className="flex items-center gap-2 pt-3 mt-3 border-t border-destructive/20">
-                <Phone className="h-4 w-4 text-destructive" />
-                <span className="text-label text-destructive">{meta.emergency_contact}</span>
-              </div>
-            )}
-          </Alert>
+        <div className="divide-y">
+          {meta.warning_signs.map((sign, i) => (
+            <div key={i} className="flex items-start gap-3 px-6 py-4">
+              <AlertTriangle className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
+              <span className="text-body text-foreground flex-1">{sign}</span>
+            </div>
+          ))}
+          {meta.emergency_contact && (
+            <div className="flex items-center gap-3 px-6 py-4 bg-destructive-subtle">
+              <Phone className="w-5 h-5 text-destructive flex-shrink-0" />
+              <span className="text-label text-destructive">{meta.emergency_contact}</span>
+            </div>
+          )}
         </div>
       ),
     });
@@ -1556,10 +1584,11 @@ function getAiSummarySection(
     id: 'ai-summary',
     title: 'AI Summary',
     icon: Sparkles,
-    iconClassName: 'h-5 w-5 text-primary',
+    iconClassName: 'h-5 w-5 fill-current text-ai-purple',
     noPadding: true,
+    cardClassName: 'border-0 p-0',
     content: (
-      <div className="rounded-xl p-6 space-y-4" style={{ background: 'linear-gradient(135deg, #F3E8FF 0%, #EDE9FE 100%)' }}>
+      <div className="rounded-xl p-6 space-y-4" style={{ background: 'linear-gradient(135deg, #EDE9FE 0%, #FAF5FF 100%)' }}>
         {aiSummaryLoading && (
           <div className="flex items-center gap-3">
             <Loader2 className="h-5 w-5 animate-spin text-primary" />
@@ -1575,7 +1604,7 @@ function getAiSummarySection(
               onClick={() => generateAiSummary?.(true)}
               className="gap-2"
             >
-              <Sparkles className="h-4 w-4" />
+              <Sparkles className="h-4 w-4 fill-current text-ai-purple" />
               Retry
             </Button>
           </div>
@@ -2102,11 +2131,6 @@ function getMedicationActiveSections(meta: RecordMetadata, onAction: (msg: strin
             <DetailRow label="Side effects">{meta.side_effects.join(', ')}</DetailRow>
           )}
         </div>
-        {meta.side_effects_warning && (
-          <div className="p-6 pt-4">
-            <Alert variant="warning">{meta.side_effects_warning}</Alert>
-          </div>
-        )}
       </>
     ),
   });
@@ -2196,11 +2220,6 @@ function getMedicationPastSections(meta: RecordMetadata): CategorySection[] {
           {meta.end_date && <DetailRow label="Ended">{fmtDate(meta.end_date)}</DetailRow>}
           {meta.reason_stopped && <DetailRow label="Reason stopped">{meta.reason_stopped}</DetailRow>}
         </div>
-        {meta.side_effects_warning && (
-          <div className="p-6 pt-4">
-            <Alert variant="warning">{meta.side_effects_warning}</Alert>
-          </div>
-        )}
       </>
     ),
   });
@@ -2234,11 +2253,6 @@ function getVaccinationSections(meta: RecordMetadata, onAction: (msg: string) =>
           {meta.site && <DetailRow label="Injection Site">{meta.site}</DetailRow>}
           {meta.next_due_date && <DetailRow label="Next Due">{fmtDate(meta.next_due_date)}</DetailRow>}
         </div>
-        {meta.next_due_date === null && meta.dose_number === meta.total_doses && (
-          <div className="p-6 pt-4">
-            <Alert variant="success" hideIcon>Vaccination course complete</Alert>
-          </div>
-        )}
       </>
     ),
   });
@@ -2286,27 +2300,40 @@ function getVaccinationSections(meta: RecordMetadata, onAction: (msg: string) =>
             ))}
           </div>
         )}
-        {meta.attached_certificates && meta.attached_certificates.length > 0 && (
-          <div className="divide-y border-t">
-            {meta.attached_certificates.map((file, i) => (
-              <div key={i} className="flex items-center gap-4 px-6 py-4">
-                <div className="h-10 w-10 rounded-full bg-destructive/10 flex items-center justify-center flex-shrink-0">
-                  <FileDown className="h-5 w-5 text-destructive" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-label truncate">{file.name}</p>
-                  <p className="text-body text-muted-foreground uppercase">{file.type}{file.size ? ` · ${file.size}` : ''}</p>
-                </div>
-                <Button variant="ghost" iconOnly size="md" onClick={() => onAction(`Downloading ${file.name}...`)}>
-                  <Download className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
       </>
     ),
   });
+
+  if (meta.attached_certificates && meta.attached_certificates.length > 0) {
+    sections.push({
+      id: 'documents', title: 'Documents', icon: FileText,
+      action: (
+        <Button variant="secondary" size="md" onClick={() => onAction('Downloading all documents...')}>
+          <Download className="h-4 w-4" />
+          Download All
+        </Button>
+      ),
+      noPadding: true,
+      content: (
+        <div className="divide-y">
+          {meta.attached_certificates.map((file, i) => (
+            <div key={i} className="flex items-center gap-4 px-6 py-4">
+              <div className="h-10 w-10 rounded-full bg-destructive/10 flex items-center justify-center flex-shrink-0">
+                <FileDown className="h-5 w-5 text-destructive" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-label truncate">{file.name}</p>
+                <p className="text-body text-muted-foreground uppercase">{file.type}{file.size ? ` · ${file.size}` : ''}</p>
+              </div>
+              <Button variant="ghost" iconOnly size="md" onClick={() => onAction(`Downloading ${file.name}...`)}>
+                <Download className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      ),
+    });
+  }
 
   return sections;
 }

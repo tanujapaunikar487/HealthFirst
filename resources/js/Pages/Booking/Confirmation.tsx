@@ -4,9 +4,10 @@ import { Button, buttonVariants } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
 import { Card } from '@/Components/ui/card';
 import { DetailRow } from '@/Components/ui/detail-row';
-import { AddToCalendarButton } from '@/Components/AddToCalendarButton';
-import { Check, Info, Plus, Download } from '@/Lib/icons';
+import { Check, Calendar, Download, Share2, Plus } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { useAccessibilityPreferences } from '@/Hooks/useAccessibilityPreferences';
+import { Badge } from '@/Components/ui/badge';
 
 interface Booking {
   id: string;
@@ -15,11 +16,18 @@ interface Booking {
   status: string;
   patient_name: string;
   doctor_name?: string;
-  package?: string;
+  doctor_specialization?: string;
+  clinic_name?: string;
+  clinic_address?: string;
+  package_name?: string;
+  test_names?: string[];
+  collection_method?: string;
+  collection_address?: string;
   date: string;
   time: string;
   mode?: string;
   fee: number;
+  preparation_notes?: string;
 }
 
 interface CalendarPreference {
@@ -33,56 +41,74 @@ interface Props {
 }
 
 export default function Confirmation({ booking, calendarPreference }: Props) {
-  const [icsDownloaded, setIcsDownloaded] = useState(false);
+  // Apply user accessibility preferences
+  useAccessibilityPreferences();
+
+  const [calendarAdded, setCalendarAdded] = useState(false);
 
   const pref = calendarPreference?.preferred ?? null;
   const googleSynced = pref === 'google' && (calendarPreference?.googleConnected ?? false);
-  const applePreferred = pref === 'apple';
 
   const formatDateTime = (date: string, time: string) => {
     try {
       const dateObj = new Date(date);
-      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
       const dayName = days[dateObj.getDay()];
       const day = dateObj.getDate();
       const month = months[dateObj.getMonth()];
+      const year = dateObj.getFullYear();
 
-      return `${dayName}, ${day} ${month} • ${time}`;
+      return {
+        full: `${dayName}, ${day} ${month} ${year}`,
+        time: time
+      };
     } catch {
-      return `${date} • ${time}`;
+      return {
+        full: date,
+        time: time
+      };
     }
   };
 
-  const getWhatsNextItems = () => {
-    const items = [
-      'Confirmation sent to email & phone',
-      'Reminders 24 hrs and 1 hr before',
-    ];
-    if (googleSynced) {
-      items.push('Synced to your Google Calendar');
-    } else if (applePreferred) {
-      items.push('Download calendar file on this page');
-    } else {
-      items.push('Add to your calendar on this page');
-    }
-    return items;
-  };
-
-  const handleDownloadIcs = () => {
+  const handleAddToCalendar = () => {
     const link = document.createElement('a');
     link.href = `/booking/${booking.id}/calendar/download`;
-    link.download = `appointment-${booking.id}.ics`;
+    link.download = `appointment-${booking.booking_id}.ics`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    setIcsDownloaded(true);
+    setCalendarAdded(true);
   };
 
+  const handleDownload = () => {
+    // Download appointment receipt/details as PDF
+    window.open(`/booking/${booking.id}/download`, '_blank');
+  };
+
+  const handleShare = () => {
+    // Share appointment details
+    if (navigator.share) {
+      navigator.share({
+        title: 'Appointment Details',
+        text: `Appointment with ${booking.doctor_name || 'Healthcare Provider'} on ${formatDateTime(booking.date, booking.time).full} at ${booking.time}`,
+        url: window.location.href,
+      }).catch(() => {});
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(window.location.href);
+    }
+  };
+
+  const dateTime = formatDateTime(booking.date, booking.time);
+  const isDoctorBooking = booking.type === 'doctor';
+  const isLabBooking = booking.type === 'lab_test';
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-primary/10 to-white flex items-center justify-center p-6">
-      <div className="w-full max-w-md space-y-6">
+    <div className="min-h-screen bg-gradient-to-b from-primary/10 to-background flex items-center justify-center p-6">
+      <div className="w-full" style={{ maxWidth: '500px' }}>
+        <div className="space-y-6">
         {/* Success icon */}
         <div className="flex justify-center">
           <div className="w-16 h-16 rounded-full bg-success flex items-center justify-center">
@@ -91,100 +117,154 @@ export default function Confirmation({ booking, calendarPreference }: Props) {
         </div>
 
         {/* Title */}
-        <div className="text-center">
+        <div className="text-center space-y-2">
           <h1 className="text-detail-title">Booking confirmed!</h1>
-          <p className="text-muted-foreground mt-1">Booking ID: {booking.booking_id}</p>
+          <p className="text-body text-muted-foreground">
+            Booking ID: <span className="text-foreground font-medium">{booking.booking_id}</span>
+          </p>
+          <p className="text-body text-muted-foreground">
+            Confirmation sent to your email and phone
+          </p>
         </div>
 
-        {/* Details card */}
-        <Card className="overflow-hidden bg-white divide-y">
-          {/* Doctor/Package row */}
-          {booking.doctor_name && (
-            <DetailRow label="Doctor" value={booking.doctor_name} />
-          )}
-          {booking.package && <DetailRow label="Package" value={booking.package} />}
+        {/* Appointment Details Card */}
+        <Card className="overflow-hidden">
+          <div className="divide-y">
+            {/* Doctor Booking Details */}
+            {isDoctorBooking && (
+              <>
+                {booking.doctor_name && (
+                  <DetailRow label="Doctor">
+                    <div>
+                      <p className="text-label">{booking.doctor_name}</p>
+                      {booking.doctor_specialization && (
+                        <p className="text-body text-muted-foreground">{booking.doctor_specialization}</p>
+                      )}
+                    </div>
+                  </DetailRow>
+                )}
+                {booking.mode && (
+                  <DetailRow label="Consultation">
+                    <Badge variant="neutral">{booking.mode}</Badge>
+                  </DetailRow>
+                )}
+                {booking.clinic_name && (
+                  <DetailRow label="Location">
+                    <div>
+                      <p className="text-label">{booking.clinic_name}</p>
+                      {booking.clinic_address && (
+                        <p className="text-body text-muted-foreground">{booking.clinic_address}</p>
+                      )}
+                    </div>
+                  </DetailRow>
+                )}
+              </>
+            )}
 
-          {/* Patient row */}
-          <DetailRow label="Patient" value={booking.patient_name} />
+            {/* Lab Booking Details */}
+            {isLabBooking && (
+              <>
+                {booking.package_name && (
+                  <DetailRow label="Package">{booking.package_name}</DetailRow>
+                )}
+                {booking.test_names && booking.test_names.length > 0 && (
+                  <DetailRow label="Tests">
+                    <div className="space-y-1">
+                      {booking.test_names.map((test, idx) => (
+                        <p key={idx} className="text-body">• {test}</p>
+                      ))}
+                    </div>
+                  </DetailRow>
+                )}
+                {booking.collection_method && (
+                  <DetailRow label="Collection">
+                    <div>
+                      <p className="text-label">{booking.collection_method}</p>
+                      {booking.collection_address && (
+                        <p className="text-body text-muted-foreground">{booking.collection_address}</p>
+                      )}
+                    </div>
+                  </DetailRow>
+                )}
+                {booking.preparation_notes && (
+                  <DetailRow label="Preparation">
+                    <p className="text-body text-muted-foreground">{booking.preparation_notes}</p>
+                  </DetailRow>
+                )}
+              </>
+            )}
 
-          {/* Type row (doctor only) */}
-          {booking.mode && (
-            <DetailRow label="Type" value={booking.mode} />
-          )}
-
-          {/* Date & Time row */}
-          <DetailRow label="Date & Time" value={formatDateTime(booking.date, booking.time)} />
-
-          {/* Amount row */}
-          <DetailRow label="Amount Paid" value={`₹${booking.fee.toLocaleString()}`} />
+            {/* Common Details */}
+            <DetailRow label="Patient">{booking.patient_name}</DetailRow>
+            <DetailRow label="Date">{dateTime.full}</DetailRow>
+            <DetailRow label="Time">{dateTime.time}</DetailRow>
+            <DetailRow label="Amount Paid">
+              ₹{booking.fee.toLocaleString()}
+            </DetailRow>
+          </div>
         </Card>
 
-        {/* What's next box */}
-        <div className="bg-primary/10 rounded-xl p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-              <Icon icon={Info} className="w-3.5 h-3.5 text-white" />
-            </div>
-            <div className="flex-1">
-              <p className="text-card-title mb-2">What's next?</p>
-              <ul className="space-y-1">
-                {getWhatsNextItems().map((item, i) => (
-                  <li key={i} className="text-body text-foreground flex items-start gap-2">
-                    <span>•</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+        {/* Calendar sync status */}
+        {googleSynced && (
+          <div className="bg-success/10 border border-success/20 rounded-xl px-4 py-3 flex items-center gap-3">
+            <Icon icon={Check} className="h-5 w-5 text-success" />
+            <p className="text-body text-success-subtle-foreground">
+              Synced to your Google Calendar
+            </p>
           </div>
+        )}
+
+        {/* Primary Action + Secondary Icon Buttons */}
+        <div className="flex items-center gap-3">
+          <Link
+            href={`/appointments/${booking.id}`}
+            className={cn(buttonVariants({ variant: 'primary', size: 'lg' }), 'flex-1')}
+          >
+            View Appointment
+          </Link>
+
+          {/* Secondary icon buttons */}
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={handleAddToCalendar}
+            className={cn(
+              'px-4',
+              calendarAdded && 'border-success text-success'
+            )}
+            title="Add to calendar"
+          >
+            <Icon icon={Calendar} size={20} />
+          </Button>
+
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={handleDownload}
+            className="px-4"
+            title="Download appointment details"
+          >
+            <Icon icon={Download} size={20} />
+          </Button>
+
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={handleShare}
+            className="px-4"
+            title="Share appointment"
+          >
+            <Icon icon={Share2} size={20} />
+          </Button>
         </div>
 
-        {/* Action buttons */}
-        <div className="space-y-3">
-          {googleSynced ? (
-            <div className="w-full px-6 py-3 rounded-full font-medium text-base bg-success text-white flex items-center justify-center gap-2">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              <span>Synced to Google Calendar</span>
-            </div>
-          ) : applePreferred ? (
-            <Button
-              variant="primary"
-              onClick={handleDownloadIcs}
-              disabled={icsDownloaded}
-              className={cn(
-                'w-full h-auto px-6 py-3 rounded-full font-medium text-base flex items-center justify-center gap-2 transition-all duration-200',
-                icsDownloaded && 'bg-success text-white cursor-default hover:bg-success'
-              )}
-            >
-              {icsDownloaded ? (
-                <>
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <span>Downloaded</span>
-                </>
-              ) : (
-                <>
-                  <Icon icon={Download} className="w-5 h-5" />
-                  <span>Add to Apple Calendar</span>
-                </>
-              )}
-            </Button>
-          ) : (
-            <AddToCalendarButton
-              conversationId={booking.id}
-              variant="primary"
-            />
-          )}
-          <Link href="/appointments" className={cn(buttonVariants({ variant: 'secondary', size: 'md' }), 'w-full')}>
-            View My Appointments
-          </Link>
-          <Link href="/booking" className={cn(buttonVariants({ variant: 'ghost', size: 'md' }), 'w-full')}>
-            <Icon icon={Plus} className="h-[20px] w-[20px]" />
+        {/* Book Another */}
+        <div className="text-center">
+          <Link href="/booking" className={cn(buttonVariants({ variant: 'ghost', size: 'md' }))}>
+            <Icon icon={Plus} size={20} />
             Book Another Appointment
           </Link>
+        </div>
         </div>
       </div>
     </div>

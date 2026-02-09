@@ -15,6 +15,7 @@ import { EmbeddedComponent } from '@/Features/booking-chat/EmbeddedComponent';
 import { ThinkingIndicator } from '@/Components/Booking/ThinkingIndicator';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
+import { useAccessibilityPreferences } from '@/Hooks/useAccessibilityPreferences';
 
 interface ConversationMessage {
   id: string;
@@ -53,6 +54,9 @@ interface Props {
 }
 
 export default function Conversation({ conversation, familyMembers: propFamilyMembers }: Props) {
+  // Apply user accessibility preferences
+  useAccessibilityPreferences();
+
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);

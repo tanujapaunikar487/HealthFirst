@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { Button, buttonVariants } from "@/Components/ui/button";
 import { Badge } from "@/Components/ui/badge";
 import { cn } from "@/Lib/utils";
+import { useAccessibilityPreferences } from "@/Hooks/useAccessibilityPreferences";
 import {
     Sheet,
     SheetContent,
@@ -267,29 +268,8 @@ export default function AppLayout({
         localStorage.setItem("profileBannerDismissed", "true");
     };
 
-    // Apply user preferences (text size and high contrast)
-    useEffect(() => {
-        const prefs = props.userPreferences;
-        if (prefs?.accessibility) {
-            // Apply text size via CSS zoom (fixed pixel sizes don't respond to root fontSize)
-            const textSize = prefs.accessibility.text_size || 14;
-            const scale = textSize / 14;
-            document.documentElement.style.zoom = String(scale);
-
-            // Apply high contrast mode
-            if (prefs.accessibility.high_contrast) {
-                document.documentElement.classList.add("high-contrast");
-            } else {
-                document.documentElement.classList.remove("high-contrast");
-            }
-        }
-
-        // Cleanup on unmount
-        return () => {
-            document.documentElement.style.zoom = "";
-            document.documentElement.classList.remove("high-contrast");
-        };
-    }, [props.userPreferences]);
+    // Apply user accessibility preferences
+    useAccessibilityPreferences();
 
     // Cmd+K / Ctrl+K keyboard shortcut
     useEffect(() => {

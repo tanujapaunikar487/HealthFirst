@@ -246,7 +246,7 @@ export default function DoctorTimeStep({
         </section>
 
         {/* Consultation Mode */}
-        {selectedDoctor && (
+        {selectedDoctor && selectedTime && (
           <section ref={appointmentModeSectionRef}>
             <VStack gap={4}>
               <h2 className="text-section-title">How would you like to consult?</h2>

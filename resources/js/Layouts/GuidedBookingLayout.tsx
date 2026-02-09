@@ -5,6 +5,7 @@ import { Button } from '@/Components/ui/button';
 import { StepIndicator } from '@/Components/Booking/StepIndicator';
 import { Icon } from '@/Components/ui/icon';
 import { cn } from '@/Lib/utils';
+import { useAccessibilityPreferences } from '@/Hooks/useAccessibilityPreferences';
 
 interface Step {
   id: string;
@@ -35,6 +36,9 @@ export function GuidedBookingLayout({
   isProcessing = false,
   className,
 }: GuidedBookingLayoutProps) {
+  // Apply user accessibility preferences
+  useAccessibilityPreferences();
+
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
       {/* Header */}

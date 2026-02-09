@@ -541,7 +541,7 @@ export function EmbeddedComponent({
                       <div className="text-label text-foreground">{doctor.name}</div>
                       <div className="text-body text-muted-foreground">{doctor.specialization}</div>
                       {doctor.last_visit && (
-                        <div className="text-body text-primary mt-1">Last visit: {doctor.last_visit}</div>
+                        <div className="text-body text-muted-foreground">Last visit: {doctor.last_visit}</div>
                       )}
                     </div>
                   </div>

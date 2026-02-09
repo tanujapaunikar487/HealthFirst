@@ -10,6 +10,7 @@ interface DetailSectionProps {
   action?: React.ReactNode;
   noPadding?: boolean;
   iconClassName?: string;
+  cardClassName?: string;
 }
 
 function DetailSection({
@@ -20,6 +21,7 @@ function DetailSection({
   action,
   noPadding,
   iconClassName,
+  cardClassName,
 }: DetailSectionProps) {
   return (
     <div id={id} className="scroll-mt-6">
@@ -30,7 +32,7 @@ function DetailSection({
         </div>
         {action}
       </div>
-      <Card className={noPadding ? '' : 'p-6'}>{children}</Card>
+      <Card className={cardClassName || (noPadding ? '' : 'p-6')}>{children}</Card>
     </div>
   );
 }

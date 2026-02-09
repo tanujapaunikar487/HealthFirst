@@ -594,3 +594,6 @@
 @utility border-primary {
     border-color: var(--color-primary);
 }
+@utility text-ai-purple {
+    color: hsl(263, 92%, 45%);
+}

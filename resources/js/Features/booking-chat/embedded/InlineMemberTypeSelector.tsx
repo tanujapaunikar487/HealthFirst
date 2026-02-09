@@ -733,8 +733,9 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
             </div>
 
             <Button
+                variant="accent"
+                size="md"
                 onClick={handleGuestSubmit}
-                className="w-full"
                 disabled={state.loading || !state.guest.name.trim() || !state.guest.phone.trim() || state.guest.phone === '+91'}
             >
                 {state.loading ? (
@@ -948,6 +949,8 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
             </div>
 
             <Button
+                variant="accent"
+                size="md"
                 onClick={state.submitMode === 'link' ? handleAcceptDetectedMember : handleNewMemberSubmit}
                 disabled={state.loading || !state.newMember.relation || !state.newMember.name.trim() || !state.newMember.phone.trim() || state.newMember.phone === '+91'}
             >
@@ -1145,8 +1148,9 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                     </div>
 
                     <Button
+                        variant="accent"
+                        size="md"
                         onClick={() => handleSendOtp()}
-                        className="w-full"
                         disabled={state.loading || !relation}
                     >
                         {state.loading ? (
@@ -1200,8 +1204,9 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
 
                 <div className="space-y-2">
                     <Button
+                        variant="accent"
+                        size="md"
                         onClick={handleSearch}
-                        className="w-full"
                         disabled={state.loading || !searchValue.trim()}
                     >
                         {state.loading ? (
@@ -1215,7 +1220,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                     </Button>
 
                     {state.error.includes('No member found') && (
-                        <Button variant="secondary" onClick={handleAddAsNew} className="w-full">
+                        <Button variant="secondary" size="md" onClick={handleAddAsNew}>
                             Add as New Member
                         </Button>
                     )}
@@ -1225,72 +1230,70 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
     };
 
     return (
-        <div className="space-y-3">
-            <Card className="overflow-hidden">
-                <div className="divide-y">
-                    {/* New Member */}
-                    <div>
-                        <TypeSelectorCard
-                            type="new_member"
-                            isExpanded={state.expandedType === 'new_member'}
-                            onClick={() => toggleType('new_member')}
-                            disabled={state.loading}
-                        />
-                        <Collapsible open={state.expandedType === 'new_member'}>
-                            <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
-                                <div className="px-4 pb-4">
-                                    {renderNewMemberForm()}
-                                </div>
-                            </CollapsibleContent>
-                        </Collapsible>
-                    </div>
-
-                    {/* Existing Patient */}
-                    <div>
-                        <TypeSelectorCard
-                            type="link_existing"
-                            isExpanded={state.expandedType === 'link_existing'}
-                            onClick={() => toggleType('link_existing')}
-                            disabled={state.loading}
-                        />
-                        <Collapsible open={state.expandedType === 'link_existing'}>
-                            <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
-                                <div className="px-4 pb-4">
-                                    {renderLinkExistingForm()}
-                                </div>
-                            </CollapsibleContent>
-                        </Collapsible>
-                    </div>
-
-                    {/* Guest */}
-                    <div>
-                        <TypeSelectorCard
-                            type="guest"
-                            isExpanded={state.expandedType === 'guest'}
-                            onClick={() => toggleType('guest')}
-                            disabled={state.loading}
-                        />
-                        <Collapsible open={state.expandedType === 'guest'}>
-                            <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
-                                <div className="px-4 pb-4">
-                                    {renderGuestForm()}
-                                </div>
-                            </CollapsibleContent>
-                        </Collapsible>
-                    </div>
+        <Card className="overflow-hidden">
+            <div className="divide-y">
+                {/* New Member */}
+                <div>
+                    <TypeSelectorCard
+                        type="new_member"
+                        isExpanded={state.expandedType === 'new_member'}
+                        onClick={() => toggleType('new_member')}
+                        disabled={state.loading}
+                    />
+                    <Collapsible open={state.expandedType === 'new_member'}>
+                        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
+                            <div className="px-4 pb-4">
+                                {renderNewMemberForm()}
+                            </div>
+                        </CollapsibleContent>
+                    </Collapsible>
                 </div>
-            </Card>
 
-            {/* Cancel button */}
-            <Button
-                variant="secondary"
-                size="md"
-                onClick={onCancel}
-                className="w-full"
-                disabled={state.loading}
-            >
-                Cancel
-            </Button>
-        </div>
+                {/* Existing Patient */}
+                <div>
+                    <TypeSelectorCard
+                        type="link_existing"
+                        isExpanded={state.expandedType === 'link_existing'}
+                        onClick={() => toggleType('link_existing')}
+                        disabled={state.loading}
+                    />
+                    <Collapsible open={state.expandedType === 'link_existing'}>
+                        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
+                            <div className="px-4 pb-4">
+                                {renderLinkExistingForm()}
+                            </div>
+                        </CollapsibleContent>
+                    </Collapsible>
+                </div>
+
+                {/* Guest */}
+                <div>
+                    <TypeSelectorCard
+                        type="guest"
+                        isExpanded={state.expandedType === 'guest'}
+                        onClick={() => toggleType('guest')}
+                        disabled={state.loading}
+                    />
+                    <Collapsible open={state.expandedType === 'guest'}>
+                        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
+                            <div className="px-4 pb-4">
+                                {renderGuestForm()}
+                            </div>
+                        </CollapsibleContent>
+                    </Collapsible>
+                </div>
+
+                {/* Cancel */}
+                <Button
+                    variant="link"
+                    size="sm"
+                    onClick={onCancel}
+                    className="w-full h-auto px-6 py-4 rounded-none text-body text-muted-foreground hover:text-foreground transition-colors justify-center"
+                    disabled={state.loading}
+                >
+                    Cancel
+                </Button>
+            </div>
+        </Card>
     );
 }

@@ -210,7 +210,7 @@ export default function TestSearchStep({ savedData }: Props) {
           {/* Search input */}
           <div className="flex gap-2 mb-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <Icon icon={Search} size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
               <Input
                 type="text"
                 placeholder="e.g., CBC, thyroid, diabetes, fatigue, headache..."
@@ -221,6 +221,8 @@ export default function TestSearchStep({ savedData }: Props) {
               />
             </div>
             <Button
+              variant="secondary"
+              size="md"
               onClick={() => handleSearch()}
               disabled={isSearching || searchQuery.trim().length < 2}
             >
@@ -229,20 +231,18 @@ export default function TestSearchStep({ savedData }: Props) {
           </div>
 
           {/* Suggestion chips */}
-          {!hasSearched && (
-            <div className="flex flex-wrap gap-2 mb-4">
-              {suggestionChips.map((chip) => (
-                <Button
-                  key={chip}
-                  variant="outline"
-                  onClick={() => handleSuggestionClick(chip)}
-                  className="h-auto px-3 py-1.5 rounded-full text-body hover:border-primary/50 hover:bg-primary/5 transition-all"
-                >
-                  {chip}
-                </Button>
-              ))}
-            </div>
-          )}
+          <div className="flex flex-wrap gap-2 mb-6">
+            {suggestionChips.map((chip) => (
+              <Button
+                key={chip}
+                variant="outline"
+                onClick={() => handleSuggestionClick(chip)}
+                className="h-auto px-3 py-1.5 rounded-full text-body hover:border-primary/50 hover:bg-primary/5 transition-all"
+              >
+                {chip}
+              </Button>
+            ))}
+          </div>
 
           {/* Search Results */}
           {searchResults && !noResults && (

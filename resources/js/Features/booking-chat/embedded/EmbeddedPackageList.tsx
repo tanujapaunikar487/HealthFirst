@@ -133,7 +133,7 @@ export function EmbeddedPackageList({
     <div>
       {/* Tab Switcher */}
       {showTabs && (
-        <div className="flex items-center gap-1 mb-4">
+        <div className="flex items-center gap-3 mb-4">
           <button
             onClick={() => setActiveTab('tests')}
             className={cn(
@@ -224,23 +224,15 @@ export function EmbeddedPackageList({
                         <p className="text-body text-muted-foreground mb-1.5 break-words">{test.description}</p>
 
                         {/* Metadata */}
-                        <div className="flex items-center gap-2 flex-wrap w-full">
-                          {test.requires_fasting && test.fasting_hours && (
-                            <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                              Fasting {test.fasting_hours}h
-                            </span>
-                          )}
-                          {test.turnaround_hours && (
-                            <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                              Report in {test.turnaround_hours}h
-                            </span>
-                          )}
-                          {test.category && (
-                            <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                              {test.category}
-                            </span>
-                          )}
-                        </div>
+                        <p className="text-body text-muted-foreground">
+                          {[
+                            test.requires_fasting && test.fasting_hours && `Fasting ${test.fasting_hours}h`,
+                            test.turnaround_hours && `Report in ${test.turnaround_hours}h`,
+                            test.category,
+                          ]
+                            .filter(Boolean)
+                            .join(' • ')}
+                        </p>
                       </div>
 
                       {/* Price */}
@@ -265,6 +257,24 @@ export function EmbeddedPackageList({
                     {/* Expanded detail */}
                     {isExpanded && (
                       <div className="w-full px-6 py-4 bg-muted/20 space-y-4 overflow-hidden border-t">
+                        {/* Test Details - Always shown */}
+                        {(test.category || test.turnaround_hours) && (
+                          <div className="space-y-2">
+                            {test.category && (
+                              <div className="flex items-center gap-3 text-body">
+                                <Icon icon={TestTube} size={16} className="text-muted-foreground" />
+                                <span><span className="text-muted-foreground">Category:</span> {test.category}</span>
+                              </div>
+                            )}
+                            {test.turnaround_hours && (
+                              <div className="flex items-center gap-3 text-body">
+                                <Icon icon={Clock} size={16} className="text-muted-foreground" />
+                                <span><span className="text-muted-foreground">Report ready in:</span> {test.turnaround_hours}h</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
                         {/* Sub-tests */}
                         {test.sub_tests && test.sub_tests.length > 0 && (
                           <div>
@@ -381,22 +391,16 @@ export function EmbeddedPackageList({
                       <p className="text-body text-muted-foreground mb-1.5 break-words">{pkg.description}</p>
 
                       {/* Metadata */}
-                      <div className="flex items-center gap-2 flex-wrap w-full">
-                        {pkg.requires_fasting && pkg.fasting_hours && (
-                          <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                            Fasting {pkg.fasting_hours}h
-                          </span>
-                        )}
-                        <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                          {pkg.duration_hours} hrs
-                        </span>
-                        <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                          {pkg.tests_count} tests
-                        </span>
-                        <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                          {pkg.age_range} age
-                        </span>
-                      </div>
+                      <p className="text-body text-muted-foreground">
+                        {[
+                          pkg.requires_fasting && pkg.fasting_hours && `Fasting ${pkg.fasting_hours}h`,
+                          pkg.duration_hours && `${pkg.duration_hours} hrs`,
+                          `${pkg.tests_count} tests`,
+                          pkg.age_range && `${pkg.age_range} age`,
+                        ]
+                          .filter(Boolean)
+                          .join(' • ')}
+                      </p>
                     </div>
 
                     {/* Price */}

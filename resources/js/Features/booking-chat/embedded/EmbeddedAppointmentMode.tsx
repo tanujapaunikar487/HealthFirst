@@ -45,11 +45,12 @@ export function EmbeddedAppointmentMode({ modes, selectedMode, onSelect, disable
               onClick={() => !disabled && onSelect(mode.type)}
               disabled={disabled}
               className={cn(
-                "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
+                "w-full h-auto rounded-none justify-start px-6 py-4 text-body",
                 "flex items-center gap-4 text-left transition-all",
                 "disabled:cursor-not-allowed",
                 disabled && !isSelected && "opacity-30",
-                disabled && isSelected && "opacity-60"
+                disabled && isSelected && "opacity-60",
+                isSelected ? "bg-primary/10 border-l-2 border-l-primary" : "hover:bg-muted/50"
               )}
             >
               <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center shrink-0">

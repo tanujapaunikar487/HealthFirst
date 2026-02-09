@@ -40,10 +40,11 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled }: TypeSe
             onClick={onClick}
             disabled={disabled}
             className={cn(
-                'w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50',
+                'w-full h-auto rounded-none justify-start px-6 py-4 text-body',
                 'flex items-center gap-4 text-left transition-all',
                 'disabled:cursor-not-allowed',
-                disabled && 'opacity-50'
+                disabled && 'opacity-50',
+                isExpanded ? 'bg-primary/10 border-l-2 border-l-primary' : 'hover:bg-muted/50'
             )}
         >
             <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center shrink-0">

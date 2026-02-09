@@ -205,19 +205,17 @@ const SECTIONS = [
   { id: 'charges', label: 'Charges', icon: Receipt },
   { id: 'payment', label: 'Payment', icon: CreditCard },
   { id: 'emi', label: 'EMI', icon: IndianRupee },
-  { id: 'dispute', label: 'Dispute', icon: AlertTriangle },
 ] as const;
 
 /* ─── SideNav Component ─── */
 
-function BillingSideNav({ hasEmi, hasDispute, hasPayment }: { hasEmi: boolean; hasDispute: boolean; hasPayment: boolean }) {
+function BillingSideNav({ hasEmi, hasPayment }: { hasEmi: boolean; hasPayment: boolean }) {
   const [activeSection, setActiveSection] = useState(SECTIONS[0].id);
   const isScrollingRef = useRef(false);
 
   // Filter sections based on what's visible
   const visibleSections = SECTIONS.filter((s) => {
     if (s.id === 'emi' && !hasEmi) return false;
-    if (s.id === 'dispute' && !hasDispute) return false;
     if (s.id === 'payment' && !hasPayment) return false;
     return true;
   });
@@ -751,16 +749,35 @@ export default function Show({ user, bill }: Props) {
           </div>
         </div>
 
-        {/* ─── Status Alert ─── */}
-        <div className="mb-12">
+        {/* ─── Alerts ─── */}
+        <div className="mb-12 space-y-4">
           <StatusAlertBanner bill={bill} />
+
+          {/* Dispute Alert */}
+          {bill.dispute_details && (
+            <Alert variant="error" title={`${bill.dispute_details.dispute_id} · Raised ${bill.dispute_details.raised_on}`}>
+              <div className="space-y-1">
+                <p className="text-body text-muted-foreground">
+                  <span className="text-muted-foreground">Reason:</span> {bill.dispute_details.reason}
+                </p>
+                <p className="text-body text-muted-foreground">
+                  <span className="text-muted-foreground">Status:</span>{' '}
+                  <span className="font-medium">{bill.dispute_details.status}</span>
+                </p>
+                {bill.dispute_details.resolution_notes && (
+                  <p className="text-body text-muted-foreground">
+                    <span className="text-muted-foreground">Resolution:</span> {bill.dispute_details.resolution_notes}
+                  </p>
+                )}
+              </div>
+            </Alert>
+          )}
         </div>
 
         {/* ─── Main Content with Side Nav ─── */}
         <div className="flex gap-24">
           <BillingSideNav
             hasEmi={!!bill.emi_details}
-            hasDispute={!!bill.dispute_details}
             hasPayment={!!(bill.payment_info || bill.insurance_details)}
           />
           <div className="flex-1 min-w-0 space-y-12 pb-12">
@@ -1031,34 +1048,6 @@ export default function Show({ user, bill }: Props) {
                   <DetailRow label="Remaining balance"><span className="text-destructive font-medium">₹{bill.emi_details.remaining_balance.toLocaleString()}</span></DetailRow>
                 </div>
               </DetailSection>
-            )}
-
-            {/* ─── Dispute Section ─── */}
-            {bill.dispute_details && (
-              <div id="dispute" className="scroll-mt-6">
-                <div className="flex items-center gap-2.5 mb-4">
-                  <Icon icon={AlertTriangle} className="h-5 w-5 text-foreground" />
-                  <h2 className="text-section-title text-foreground">
-                    Dispute
-                  </h2>
-                </div>
-                <Alert variant="error" title={`${bill.dispute_details.dispute_id} · Raised ${bill.dispute_details.raised_on}`}>
-                  <div className="space-y-1">
-                    <p className="text-body text-muted-foreground">
-                      <span className="text-muted-foreground">Reason:</span> {bill.dispute_details.reason}
-                    </p>
-                    <p className="text-body text-muted-foreground">
-                      <span className="text-muted-foreground">Status:</span>{' '}
-                      <span className="font-medium">{bill.dispute_details.status}</span>
-                    </p>
-                    {bill.dispute_details.resolution_notes && (
-                      <p className="text-body text-muted-foreground">
-                        <span className="text-muted-foreground">Resolution:</span> {bill.dispute_details.resolution_notes}
-                      </p>
-                    )}
-                  </div>
-                </Alert>
-              </div>
             )}
 
           </div>

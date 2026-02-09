@@ -43,9 +43,10 @@ export function EmbeddedCollectionMethod({ methods, selectedMethod, onSelect, di
             onClick={() => !disabled && onSelect(method.type)}
             disabled={disabled}
             className={cn(
-              "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
-              "flex items-center gap-4 text-left transition-all",
-              disabled && "opacity-60"
+              "w-full h-auto rounded-none justify-start px-6 py-4 text-body",
+              "flex items-start gap-4 text-left transition-all",
+              disabled && "opacity-60",
+              isSelected ? "bg-primary/10 border-l-2 border-l-primary" : "hover:bg-muted/50"
             )}
           >
             {/* Icon */}
@@ -54,16 +55,16 @@ export function EmbeddedCollectionMethod({ methods, selectedMethod, onSelect, di
             </div>
 
             {/* Text */}
-            <div className="flex-1 text-left">
+            <div className="flex-1 min-w-0 text-left">
               <p className="text-label">{method.label}</p>
               <p className="text-body text-muted-foreground">{method.address}</p>
             </div>
 
             {/* Price */}
             {isFree ? (
-              <span className="text-card-title text-success">Free</span>
+              <span className="text-card-title text-success shrink-0">Free</span>
             ) : (
-              <span className="text-card-title">₹{typeof method.price === 'number' ? method.price.toLocaleString() : method.price}</span>
+              <span className="text-card-title shrink-0">₹{typeof method.price === 'number' ? method.price.toLocaleString() : method.price}</span>
             )}
           </Button>
         );

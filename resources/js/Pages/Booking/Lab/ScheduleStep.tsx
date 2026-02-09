@@ -320,15 +320,15 @@ export default function ScheduleStep({
               <div className="divide-y">
                 {locations.map((loc) => {
                   const isSelected = selectedLocation === loc.type;
+                  const isFree = loc.fee === 0;
                   return (
                     <Button
                       key={loc.type}
                       variant="ghost"
                       onClick={() => handleLocationChange(loc.type)}
                       className={cn(
-                        'w-full h-auto flex items-center gap-4 px-6 py-4 rounded-none justify-start text-left transition-all text-body',
-                        'hover:bg-muted/50',
-                        isSelected && 'bg-primary/5'
+                        'w-full h-auto flex items-start gap-4 px-6 py-4 rounded-none justify-start text-left transition-all text-body',
+                        isSelected ? 'bg-primary/10 border-l-2 border-l-primary' : 'hover:bg-muted/50'
                       )}
                     >
                       {/* Icon with rounded background */}
@@ -340,14 +340,15 @@ export default function ScheduleStep({
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-label leading-tight mb-0.5">{loc.label}</p>
-                        <p className="text-body text-muted-foreground leading-tight">{loc.description}</p>
-                        {loc.fee > 0 && (
-                          <p className="text-body text-muted-foreground mt-1">
-                            +₹{loc.fee} collection fee
-                          </p>
-                        )}
+                        <p className="text-label">{loc.label}</p>
+                        <p className="text-body text-muted-foreground">{loc.description}</p>
                       </div>
+                      {/* Price */}
+                      {isFree ? (
+                        <span className="text-card-title text-success shrink-0">Free</span>
+                      ) : (
+                        <span className="text-card-title shrink-0">₹{loc.fee.toLocaleString()}</span>
+                      )}
                     </Button>
                   );
                 })}

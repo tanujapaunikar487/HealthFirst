@@ -340,9 +340,10 @@ export default function Show({ user, appointment }: Props) {
           </div>
         </div>
 
-        {/* Follow-up Alert - moved from footer */}
-        {appointment.follow_up && appointment.type === 'doctor' && (
-          <div className="mb-8">
+        {/* Alerts */}
+        <div className="mb-8 space-y-4">
+          {/* Follow-up Alert */}
+          {appointment.follow_up && appointment.type === 'doctor' && (
             <Alert variant="info" title="Follow-up Recommended">
               <p className="text-body text-muted-foreground">
                 {appointment.follow_up.recommended_date_formatted}
@@ -354,8 +355,15 @@ export default function Show({ user, appointment }: Props) {
                 Schedule
               </Button>
             </Alert>
-          </div>
-        )}
+          )}
+
+          {/* Clinical Summary Alert */}
+          {appointment.clinical_summary && (
+            <Alert variant="warning" title="If Symptoms Worsen">
+              Contact your doctor immediately or visit the nearest emergency room. For urgent assistance, call the hospital helpline at <span className="font-medium text-foreground">1800-123-4567</span>.
+            </Alert>
+          )}
+        </div>
 
         {/* Main content: Side nav + sections */}
         <div className="flex gap-24">
@@ -707,11 +715,6 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
         {summary.examination_findings && <DetailRow label="Exam findings">{summary.examination_findings}</DetailRow>}
         {summary.assessment && <DetailRow label="Assessment">{summary.assessment}</DetailRow>}
         {summary.treatment_plan && <DetailRow label="Treatment plan">{summary.treatment_plan}</DetailRow>}
-      </div>
-      <div className="p-6 pt-4">
-        <Alert variant="warning" title="If Symptoms Worsen">
-          Contact your doctor immediately or visit the nearest emergency room. For urgent assistance, call the hospital helpline at <span className="font-medium text-foreground">1800-123-4567</span>.
-        </Alert>
       </div>
     </Section>
   );

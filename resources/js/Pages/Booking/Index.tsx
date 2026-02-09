@@ -6,6 +6,7 @@ import { PromptSuggestion } from '@/Components/ui/prompt-suggestion';
 import { HStack, VStack } from '@/Components/ui/stack';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
+import { useAccessibilityPreferences } from '@/Hooks/useAccessibilityPreferences';
 
 type BookingMode = 'ai' | 'guided';
 type BookingType = 'doctor' | 'lab_test' | null;
@@ -18,6 +19,9 @@ const PROMPT_SUGGESTIONS: { text: string; type: 'doctor' | 'lab_test' }[] = [
 ];
 
 export default function BookingIndex() {
+  // Apply user accessibility preferences
+  useAccessibilityPreferences();
+
   const [mode, setMode] = useState<BookingMode>('ai');
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
