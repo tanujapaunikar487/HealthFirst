@@ -19,15 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/Components/ui/select';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetFooter,
-  SheetBody,
-  SheetSectionHeading,
-} from '@/Components/ui/sheet';
 import { cn } from '@/Lib/utils';
 import { useToast } from '@/Contexts/ToastContext';
 import { getAvatarColor } from '@/Lib/avatar-colors';
@@ -391,7 +382,8 @@ export default function FamilyMemberShow({
   const { showToast } = useToast();
   const user = (usePage().props as any).auth?.user;
 
-  const [showEditForm, setShowEditForm] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmName, setDeleteConfirmName] = useState('');
   const [showUpgradeConfirm, setShowUpgradeConfirm] = useState(false);
@@ -417,7 +409,6 @@ export default function FamilyMemberShow({
     emergency_contact_phone: member?.emergency_contact_phone ?? '',
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [submitting, setSubmitting] = useState(false);
 
   // Get available cities based on selected state in form
   const availableCities = useMemo(() => {
@@ -452,40 +443,17 @@ export default function FamilyMemberShow({
     );
   }
 
-  function openEditForm() {
-    setFormData({
-      name: member.name,
-      relation: member.relation,
-      date_of_birth: member.date_of_birth ?? '',
-      gender: member.gender ?? '',
-      blood_group: member.blood_group ?? '',
-      phone: member.phone ?? '',
-      address_line_1: member.address_line_1 ?? '',
-      address_line_2: member.address_line_2 ?? '',
-      city: member.city ?? '',
-      state: member.state ?? '',
-      pincode: member.pincode ?? '',
-      primary_doctor_id: member.primary_doctor_id?.toString() ?? '',
-      medical_conditions: [...(member.medical_conditions ?? [])],
-      allergies: [...(member.allergies ?? [])],
-      emergency_contact_name: member.emergency_contact_name ?? '',
-      emergency_contact_relation: member.emergency_contact_relation ?? '',
-      emergency_contact_phone: member.emergency_contact_phone ?? '',
-    });
-    setFormErrors({});
-    setShowEditForm(true);
-  }
-
-  function handleSubmit() {
+  function handleSave() {
     const errors: Record<string, string> = {};
     if (!formData.name.trim()) errors.name = 'Name is required';
     if (!formData.relation) errors.relation = 'Relation is required';
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
+      showToast('Please fill in all required fields', 'error');
       return;
     }
 
-    setSubmitting(true);
+    setSaving(true);
 
     const payload = {
       name: formData.name.trim(),
@@ -509,15 +477,44 @@ export default function FamilyMemberShow({
     };
 
     router.put(`/family-members/${member.id}`, payload, {
+      preserveScroll: true,
       onSuccess: () => {
-        setShowEditForm(false);
-        setSubmitting(false);
+        setIsEditing(false);
+        setSaving(false);
+        showToast('Profile updated successfully', 'success');
       },
       onError: (errors) => {
         setFormErrors(errors as Record<string, string>);
-        setSubmitting(false);
+        setSaving(false);
+        const firstError = Object.values(errors)[0];
+        showToast(typeof firstError === 'string' ? firstError : 'Failed to update profile', 'error');
       },
     });
+  }
+
+  function handleCancel() {
+    setFormData({
+      name: member.name,
+      relation: member.relation,
+      date_of_birth: member.date_of_birth ?? '',
+      gender: member.gender ?? '',
+      blood_group: member.blood_group ?? '',
+      phone: member.phone ?? '',
+      email: member.email ?? '',
+      address_line_1: member.address_line_1 ?? '',
+      address_line_2: member.address_line_2 ?? '',
+      city: member.city ?? '',
+      state: member.state ?? '',
+      pincode: member.pincode ?? '',
+      primary_doctor_id: member.primary_doctor_id?.toString() ?? '',
+      medical_conditions: [...(member.medical_conditions ?? [])],
+      allergies: [...(member.allergies ?? [])],
+      emergency_contact_name: member.emergency_contact_name ?? '',
+      emergency_contact_relation: member.emergency_contact_relation ?? '',
+      emergency_contact_phone: member.emergency_contact_phone ?? '',
+    });
+    setFormErrors({});
+    setIsEditing(false);
   }
 
   function handleDelete() {
@@ -599,33 +596,41 @@ export default function FamilyMemberShow({
             )}
           </div>
           <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <h1 className="text-detail-title text-foreground">
-                {member.name}
-              </h1>
-              {member.relation === 'self' && (
-                <Badge variant="info">Admin</Badge>
-              )}
-            </div>
+            <h1 className="text-detail-title text-foreground">
+              {member.name}
+            </h1>
             {member.patient_id && (
               <p className="mt-0.5 text-body text-muted-foreground">{member.patient_id}</p>
             )}
           </div>
           {member.relation !== 'self' && (
             <div className="flex items-center gap-2 flex-shrink-0">
-              <Button onClick={openEditForm}>
-                <Pencil className="h-4 w-4" />
-                Edit profile
-              </Button>
-              {canDelete && (
-                <Button
-                  variant="secondary"
-                  iconOnly
-                  size="md"
-                  onClick={() => setShowDeleteConfirm(true)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+              {!isEditing ? (
+                <>
+                  <Button onClick={() => setIsEditing(true)}>
+                    <Pencil className="h-4 w-4" />
+                    Edit profile
+                  </Button>
+                  {canDelete && (
+                    <Button
+                      variant="secondary"
+                      iconOnly
+                      size="md"
+                      onClick={() => setShowDeleteConfirm(true)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Button variant="secondary" onClick={handleCancel} disabled={saving}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSave} disabled={saving}>
+                    {saving ? 'Saving...' : 'Save changes'}
+                  </Button>
+                </>
               )}
             </div>
           )}
@@ -675,27 +680,101 @@ export default function FamilyMemberShow({
                   Personal Information
                 </h2>
               </div>
-              <InfoCard
-                items={[
-                  {
-                    label: 'Name',
-                    value: member.name,
-                  },
-                  {
-                    label: 'Relationship',
-                    value: member.relation ? capitalize(member.relation) : undefined,
-                  },
-                  {
-                    label: 'Date of Birth',
-                    value: member.date_of_birth_formatted ?? undefined,
-                    subtitle: member.age ? `${member.age} years old` : undefined,
-                  },
-                  {
-                    label: 'Gender',
-                    value: member.gender ? capitalize(member.gender) : undefined,
-                  },
-                ]}
-              />
+              {!isEditing ? (
+                <InfoCard
+                  items={[
+                    {
+                      label: 'Name',
+                      value: member.name,
+                    },
+                    {
+                      label: 'Relationship',
+                      value: member.relation ? capitalize(member.relation) : undefined,
+                    },
+                    {
+                      label: 'Date of Birth',
+                      value: member.date_of_birth_formatted ?? undefined,
+                      subtitle: member.age ? `${member.age} years old` : undefined,
+                    },
+                    {
+                      label: 'Gender',
+                      value: member.gender ? capitalize(member.gender) : undefined,
+                    },
+                  ]}
+                />
+              ) : (
+                <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                  <div>
+                    <label className="mb-1.5 block text-label text-muted-foreground">
+                      Name <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      value={formData.name}
+                      onChange={e => {
+                        setFormData({ ...formData, name: e.target.value });
+                        if (formErrors.name) setFormErrors({ ...formErrors, name: '' });
+                      }}
+                      placeholder="Full name"
+                      className={cn(formErrors.name && 'border-destructive/30 focus-visible:ring-destructive/40')}
+                    />
+                    {formErrors.name && (
+                      <p className="mt-1 text-body text-destructive">{formErrors.name}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-label text-muted-foreground">
+                      Relation <span className="text-destructive">*</span>
+                    </label>
+                    <Select
+                      value={formData.relation}
+                      onValueChange={val => {
+                        setFormData({ ...formData, relation: val });
+                        if (formErrors.relation) setFormErrors({ ...formErrors, relation: '' });
+                      }}
+                    >
+                      <SelectTrigger className={cn(formErrors.relation && 'border-destructive/30')}>
+                        <SelectValue placeholder="Select relation" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {relationOptions.map(r => (
+                          <SelectItem key={r} value={r}>{capitalize(r)}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {formErrors.relation && (
+                      <p className="mt-1 text-body text-destructive">{formErrors.relation}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-label text-muted-foreground">Date of Birth</label>
+                    <DatePicker
+                      value={formData.date_of_birth}
+                      onChange={(value) => setFormData({ ...formData, date_of_birth: value })}
+                      max={new Date()}
+                      placeholder="Select date of birth"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-label text-muted-foreground">Gender</label>
+                    <Select
+                      value={formData.gender}
+                      onValueChange={val => setFormData({ ...formData, gender: val })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select gender" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {genderOptions.map(g => (
+                          <SelectItem key={g} value={g}>{capitalize(g)}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Contact & Address Section */}
@@ -706,22 +785,99 @@ export default function FamilyMemberShow({
                   Contact & Address
                 </h2>
               </div>
-              <InfoCard
-                items={[
-                  {
-                    label: 'Phone',
-                    value: member.phone ?? undefined,
-                  },
-                  {
-                    label: 'Email',
-                    value: member.email ?? undefined,
-                  },
-                  {
-                    label: 'Address',
-                    value: member.full_address ?? undefined,
-                  },
-                ]}
-              />
+              {!isEditing ? (
+                <InfoCard
+                  items={[
+                    {
+                      label: 'Phone',
+                      value: member.phone ?? undefined,
+                    },
+                    {
+                      label: 'Email',
+                      value: member.email ?? undefined,
+                    },
+                    {
+                      label: 'Address',
+                      value: member.full_address ?? undefined,
+                    },
+                  ]}
+                />
+              ) : (
+                <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                  <div>
+                    <label className="mb-1.5 block text-label text-muted-foreground">Phone</label>
+                    <PhoneInput
+                      value={formData.phone || ''}
+                      onChange={value => setFormData({ ...formData, phone: value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-label text-muted-foreground">Email</label>
+                    <Input
+                      type="email"
+                      value={formData.email}
+                      onChange={e => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="email@example.com"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-label text-muted-foreground">Address Line 1</label>
+                    <Input
+                      value={formData.address_line_1}
+                      onChange={e => setFormData({ ...formData, address_line_1: e.target.value })}
+                      placeholder="Street address"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-label text-muted-foreground">Address Line 2</label>
+                    <Input
+                      value={formData.address_line_2}
+                      onChange={e => setFormData({ ...formData, address_line_2: e.target.value })}
+                      placeholder="Landmark, area"
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className="mb-1.5 block text-label text-muted-foreground">State</label>
+                      <Select value={formData.state} onValueChange={handleStateChange}>
+                        <SelectTrigger className={!formData.state ? 'text-muted-foreground' : ''}>
+                          <SelectValue placeholder="Select state" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[300px]">
+                          {INDIAN_STATES.map((s) => (
+                            <SelectItem key={s} value={s}>{s}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-label text-muted-foreground">City</label>
+                      <Select
+                        value={formData.city}
+                        onValueChange={(value: string) => setFormData({ ...formData, city: value })}
+                        disabled={!formData.state}
+                      >
+                        <SelectTrigger className={cn(!formData.city && 'text-muted-foreground', !formData.state && 'opacity-50 cursor-not-allowed')}>
+                          <SelectValue placeholder={formData.state ? "Select city" : "Select state first"} />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[300px]">
+                          {availableCities.map((c: string) => (
+                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-label text-muted-foreground">Pincode</label>
+                      <Input
+                        value={formData.pincode}
+                        onChange={e => setFormData({ ...formData, pincode: e.target.value })}
+                        placeholder="Pincode"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Health Information Section - Hidden for guests */}
@@ -733,42 +889,94 @@ export default function FamilyMemberShow({
                     Health Information
                   </h2>
                 </div>
-                <InfoCard
-                  items={[
-                    {
-                      label: 'Blood Group',
-                      value: member.blood_group ?? undefined,
-                    },
-                    {
-                      label: 'Primary Doctor',
-                      value: member.primary_doctor_name ?? undefined,
-                    },
-                    {
-                      label: 'Conditions',
-                      value: member.medical_conditions.length > 0 ? (
-                        <div className="flex flex-wrap gap-1.5">
-                          {member.medical_conditions.map((c, i) => (
-                            <Badge key={i} variant="neutral">{c}</Badge>
+                {!isEditing ? (
+                  <InfoCard
+                    items={[
+                      {
+                        label: 'Blood Group',
+                        value: member.blood_group ?? undefined,
+                      },
+                      {
+                        label: 'Primary Doctor',
+                        value: member.primary_doctor_name ?? undefined,
+                      },
+                      {
+                        label: 'Conditions',
+                        value: member.medical_conditions.length > 0 ? (
+                          <div className="flex flex-wrap gap-1.5">
+                            {member.medical_conditions.map((c, i) => (
+                              <Badge key={i} variant="neutral">{c}</Badge>
+                            ))}
+                          </div>
+                        ) : undefined,
+                      },
+                      {
+                        label: 'Allergies',
+                        value: member.allergies.length > 0 ? (
+                          <div className="flex flex-wrap gap-1.5">
+                            {member.allergies.map((a, i) => (
+                              <Badge key={i} variant="danger">{a}</Badge>
+                            ))}
+                          </div>
+                        ) : undefined,
+                      },
+                    ]}
+                  />
+                ) : (
+                  <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                    <div>
+                      <label className="mb-1.5 block text-label text-muted-foreground">Blood Group</label>
+                      <Select
+                        value={formData.blood_group}
+                        onValueChange={val => setFormData({ ...formData, blood_group: val })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select blood group" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {bloodGroupOptions.map(bg => (
+                            <SelectItem key={bg} value={bg}>{bg}</SelectItem>
                           ))}
-                        </div>
-                      ) : (
-                        <span className="text-body text-muted-foreground">None recorded</span>
-                      ),
-                    },
-                    {
-                      label: 'Allergies',
-                      value: member.allergies.length > 0 ? (
-                        <div className="flex flex-wrap gap-1.5">
-                          {member.allergies.map((a, i) => (
-                            <Badge key={i} variant="danger">{a}</Badge>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-label text-muted-foreground">Primary Doctor</label>
+                      <Select
+                        value={formData.primary_doctor_id}
+                        onValueChange={val => setFormData({ ...formData, primary_doctor_id: val })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select doctor" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {doctors.map(d => (
+                            <SelectItem key={d.id} value={d.id.toString()}>
+                              {d.name} — {d.specialization}
+                            </SelectItem>
                           ))}
-                        </div>
-                      ) : (
-                        <span className="text-body text-muted-foreground">None recorded</span>
-                      ),
-                    },
-                  ]}
-                />
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-label text-muted-foreground">Conditions</label>
+                      <TagInput
+                        tags={formData.medical_conditions}
+                        onChange={tags => setFormData({ ...formData, medical_conditions: tags })}
+                        placeholder="e.g. Diabetes, Hypertension"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-label text-muted-foreground">Allergies</label>
+                      <TagInput
+                        tags={formData.allergies}
+                        onChange={tags => setFormData({ ...formData, allergies: tags })}
+                        placeholder="e.g. Penicillin, Peanuts"
+                        variant="danger"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -781,36 +989,64 @@ export default function FamilyMemberShow({
                     Emergency Contact
                   </h2>
                 </div>
-                {member.emergency_contact_name ? (
-                  <InfoCard
-                    items={[
-                      {
-                        label: 'Name',
-                        value: member.emergency_contact_name,
-                      },
-                      {
-                        label: 'Relationship',
-                        value: member.emergency_contact_relation ?? undefined,
-                      },
-                      {
-                        label: 'Phone',
-                        value: member.emergency_contact_phone ?? undefined,
-                      },
-                    ]}
-                  />
-                ) : (
-                  <Card className="p-6">
-                    <EmptyState
-                      icon={Phone}
-                      message="No emergency contact added"
-                      description="Add someone to contact in case of emergencies"
-                      action={
-                        <Button variant="secondary" size="sm" onClick={() => setShowEditForm(true)}>
-                          Add contact
-                        </Button>
-                      }
+                {!isEditing ? (
+                  member.emergency_contact_name ? (
+                    <InfoCard
+                      items={[
+                        {
+                          label: 'Name',
+                          value: member.emergency_contact_name,
+                        },
+                        {
+                          label: 'Relationship',
+                          value: member.emergency_contact_relation ?? undefined,
+                        },
+                        {
+                          label: 'Phone',
+                          value: member.emergency_contact_phone ?? undefined,
+                        },
+                      ]}
                     />
-                  </Card>
+                  ) : (
+                    <Card className="p-6">
+                      <EmptyState
+                        icon={Phone}
+                        message="No emergency contact added"
+                        description="Add someone to contact in case of emergencies"
+                        action={
+                          <Button variant="secondary" size="sm" onClick={() => setIsEditing(true)}>
+                            Add contact
+                          </Button>
+                        }
+                      />
+                    </Card>
+                  )
+                ) : (
+                  <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                    <div>
+                      <label className="mb-1.5 block text-label text-muted-foreground">Name</label>
+                      <Input
+                        value={formData.emergency_contact_name}
+                        onChange={e => setFormData({ ...formData, emergency_contact_name: e.target.value })}
+                        placeholder="Emergency contact name"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-label text-muted-foreground">Relationship</label>
+                      <Input
+                        value={formData.emergency_contact_relation}
+                        onChange={e => setFormData({ ...formData, emergency_contact_relation: e.target.value })}
+                        placeholder="e.g., Spouse, Parent"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-label text-muted-foreground">Phone</label>
+                      <PhoneInput
+                        value={formData.emergency_contact_phone || ''}
+                        onChange={value => setFormData({ ...formData, emergency_contact_phone: value })}
+                      />
+                    </div>
+                  </div>
                 )}
               </div>
             )}
@@ -844,272 +1080,6 @@ export default function FamilyMemberShow({
           </div>
         </div>
       </div>
-
-      {/* Edit Sheet */}
-      <Sheet open={showEditForm} onOpenChange={setShowEditForm}>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Edit Profile</SheetTitle>
-          </SheetHeader>
-
-          <SheetBody className="space-y-5">
-            {/* Personal Details */}
-            <div>
-              <SheetSectionHeading>Personal details</SheetSectionHeading>
-              <div className="space-y-3">
-                <div>
-                  <label className="mb-1.5 block text-label text-foreground">
-                    Name <span className="text-destructive">*</span>
-                  </label>
-                  <Input
-                    value={formData.name}
-                    onChange={e => {
-                      setFormData({ ...formData, name: e.target.value });
-                      if (formErrors.name) setFormErrors({ ...formErrors, name: '' });
-                    }}
-                    placeholder="Full name"
-                    className={cn(formErrors.name && 'border-destructive/30 focus-visible:ring-destructive/40')}
-                  />
-                  {formErrors.name && (
-                    <p className="mt-1 text-body text-destructive">{formErrors.name}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="mb-1.5 block text-label text-foreground">
-                    Relation <span className="text-destructive">*</span>
-                  </label>
-                  <Select
-                    value={formData.relation}
-                    onValueChange={val => {
-                      setFormData({ ...formData, relation: val });
-                      if (formErrors.relation) setFormErrors({ ...formErrors, relation: '' });
-                    }}
-                  >
-                    <SelectTrigger className={cn(formErrors.relation && 'border-destructive/30')}>
-                      <SelectValue placeholder="Select relation" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {relationOptions.map(r => (
-                        <SelectItem key={r} value={r}>{capitalize(r)}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {formErrors.relation && (
-                    <p className="mt-1 text-body text-destructive">{formErrors.relation}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="mb-1.5 block text-label text-foreground">Date of Birth</label>
-                  <DatePicker
-                    value={formData.date_of_birth}
-                    onChange={(value) => setFormData({ ...formData, date_of_birth: value })}
-                    max={new Date()}
-                    placeholder="Select date of birth"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-1.5 block text-label text-foreground">Gender</label>
-                  <Select
-                    value={formData.gender}
-                    onValueChange={val => setFormData({ ...formData, gender: val })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select gender" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {genderOptions.map(g => (
-                        <SelectItem key={g} value={g}>{capitalize(g)}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-
-            {/* Contact & Address */}
-            <div>
-              <SheetSectionHeading>Contact & address</SheetSectionHeading>
-              <div className="space-y-3">
-                <div>
-                  <label className="mb-1.5 block text-label text-foreground">Phone</label>
-                  <PhoneInput
-                    value={formData.phone || ''}
-                    onChange={value => setFormData({ ...formData, phone: value })}
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-label text-foreground">Email</label>
-                  <Input
-                    type="email"
-                    value={formData.email}
-                    onChange={e => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="email@example.com"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-label text-foreground">Address Line 1</label>
-                  <Input
-                    value={formData.address_line_1}
-                    onChange={e => setFormData({ ...formData, address_line_1: e.target.value })}
-                    placeholder="Street address"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-label text-foreground">Address Line 2</label>
-                  <Input
-                    value={formData.address_line_2}
-                    onChange={e => setFormData({ ...formData, address_line_2: e.target.value })}
-                    placeholder="Landmark, area"
-                  />
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <label className="mb-1.5 block text-label text-foreground">State</label>
-                    <Select value={formData.state} onValueChange={handleStateChange}>
-                      <SelectTrigger className={!formData.state ? 'text-muted-foreground' : ''}>
-                        <SelectValue placeholder="Select state" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-[300px]">
-                        {INDIAN_STATES.map((s) => (
-                          <SelectItem key={s} value={s}>{s}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="mb-1.5 block text-label text-foreground">City</label>
-                    <Select
-                      value={formData.city}
-                      onValueChange={(value: string) => setFormData({ ...formData, city: value })}
-                      disabled={!formData.state}
-                    >
-                      <SelectTrigger className={cn(!formData.city && 'text-muted-foreground', !formData.state && 'opacity-50 cursor-not-allowed')}>
-                        <SelectValue placeholder={formData.state ? "Select city" : "Select state first"} />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-[300px]">
-                        {availableCities.map((c: string) => (
-                          <SelectItem key={c} value={c}>{c}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="mb-1.5 block text-label text-foreground">Pincode</label>
-                    <Input
-                      value={formData.pincode}
-                      onChange={e => setFormData({ ...formData, pincode: e.target.value })}
-                      placeholder="Pincode"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Health Information */}
-            <div>
-              <SheetSectionHeading>Health information</SheetSectionHeading>
-              <div className="space-y-3">
-                <div>
-                  <label className="mb-1.5 block text-label text-foreground">Blood Group</label>
-                  <Select
-                    value={formData.blood_group}
-                    onValueChange={val => setFormData({ ...formData, blood_group: val })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select blood group" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {bloodGroupOptions.map(bg => (
-                        <SelectItem key={bg} value={bg}>{bg}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-label text-foreground">Primary Doctor</label>
-                  <Select
-                    value={formData.primary_doctor_id}
-                    onValueChange={val => setFormData({ ...formData, primary_doctor_id: val })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select doctor" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {doctors.map(d => (
-                        <SelectItem key={d.id} value={d.id.toString()}>
-                          {d.name} — {d.specialization}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-label text-foreground">Conditions</label>
-                  <TagInput
-                    tags={formData.medical_conditions}
-                    onChange={tags => setFormData({ ...formData, medical_conditions: tags })}
-                    placeholder="e.g. Diabetes, Hypertension"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-label text-foreground">Allergies</label>
-                  <TagInput
-                    tags={formData.allergies}
-                    onChange={tags => setFormData({ ...formData, allergies: tags })}
-                    placeholder="e.g. Penicillin, Peanuts"
-                    variant="danger"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Emergency Contact */}
-            <div>
-              <SheetSectionHeading>Emergency contact</SheetSectionHeading>
-              <div className="space-y-3">
-                <div>
-                  <label className="mb-1.5 block text-label text-foreground">Contact Name</label>
-                  <Input
-                    value={formData.emergency_contact_name}
-                    onChange={e => setFormData({ ...formData, emergency_contact_name: e.target.value })}
-                    placeholder="Full name"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-label text-foreground">Contact Relation</label>
-                  <Input
-                    value={formData.emergency_contact_relation}
-                    onChange={e => setFormData({ ...formData, emergency_contact_relation: e.target.value })}
-                    placeholder="e.g. Spouse, Parent"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-label text-foreground">Contact Phone</label>
-                  <PhoneInput
-                    value={formData.emergency_contact_phone || ''}
-                    onChange={value => setFormData({ ...formData, emergency_contact_phone: value })}
-                  />
-                </div>
-              </div>
-            </div>
-
-          </SheetBody>
-
-          <SheetFooter>
-            <Button
-              size="lg"
-              onClick={handleSubmit}
-              disabled={submitting}
-              className="flex-1"
-            >
-              {submitting ? 'Saving...' : 'Save changes'}
-            </Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
 
       {/* Upgrade Confirmation Dialog */}
       <Dialog

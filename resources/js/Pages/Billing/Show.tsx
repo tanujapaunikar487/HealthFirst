@@ -548,10 +548,7 @@ export default function Show({ user, bill }: Props) {
         {/* ─── Page Header ─── */}
         <div className="mb-6 flex items-start justify-between">
           <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-detail-title text-foreground">{bill.invoice_number}</h1>
-              <StatusBadge status={bill.billing_status} />
-            </div>
+            <h1 className="text-detail-title text-foreground">{bill.invoice_number}</h1>
             <p className="mt-1 text-body text-muted-foreground">
               {bill.patient_name} &middot; {bill.generated_date}
             </p>
@@ -859,10 +856,22 @@ export default function Show({ user, bill }: Props) {
                 <div className="divide-y">
                   {bill.payment_info && (
                     <>
-                      <DetailRow label="Payment method">{bill.payment_info.method}</DetailRow>
-                      <DetailRow label="Paid on">{bill.payment_info.paid_at}</DetailRow>
-                      <DetailRow label="Transaction ID">{bill.payment_info.transaction_id}</DetailRow>
-                      <DetailRow label="Receipt number">{bill.payment_info.receipt_number}</DetailRow>
+                      <div className="flex justify-between px-6 py-4">
+                        <span className="text-body text-muted-foreground">Payment method</span>
+                        <span className="text-label text-foreground">{bill.payment_info.method}</span>
+                      </div>
+                      <div className="flex justify-between px-6 py-4">
+                        <span className="text-body text-muted-foreground">Paid on</span>
+                        <span className="text-label text-foreground">{bill.payment_info.paid_at}</span>
+                      </div>
+                      <div className="flex justify-between px-6 py-4">
+                        <span className="text-body text-muted-foreground">Transaction ID</span>
+                        <span className="text-label text-foreground">{bill.payment_info.transaction_id}</span>
+                      </div>
+                      <div className="flex justify-between px-6 py-4">
+                        <span className="text-body text-muted-foreground">Receipt number</span>
+                        <span className="text-label text-foreground">{bill.payment_info.receipt_number}</span>
+                      </div>
                     </>
                   )}
                   {bill.insurance_details && (
@@ -870,11 +879,18 @@ export default function Show({ user, bill }: Props) {
                       <div className="px-6 py-3 bg-muted">
                         <p className="text-label text-muted-foreground">Insurance</p>
                       </div>
-                      <DetailRow label="Provider">{bill.insurance_details.provider_name}</DetailRow>
-                      <DetailRow label="Policy number">{bill.insurance_details.policy_number}</DetailRow>
-                      <DetailRow label="Claim">
+                      <div className="flex justify-between px-6 py-4">
+                        <span className="text-body text-muted-foreground">Provider</span>
+                        <span className="text-label text-foreground">{bill.insurance_details.provider_name}</span>
+                      </div>
+                      <div className="flex justify-between px-6 py-4">
+                        <span className="text-body text-muted-foreground">Policy number</span>
+                        <span className="text-label text-foreground">{bill.insurance_details.policy_number}</span>
+                      </div>
+                      <div className="flex justify-between px-6 py-4">
+                        <span className="text-body text-muted-foreground">Claim</span>
                         <span className="flex items-center gap-2">
-                          {bill.insurance_details.claim_id}
+                          <span className="text-label text-foreground">{bill.insurance_details.claim_id}</span>
                           <Badge variant={
                             bill.insurance_details.claim_status === 'Approved' || bill.insurance_details.claim_status === 'Reimbursed'
                               ? 'success' : 'warning'
@@ -882,7 +898,7 @@ export default function Show({ user, bill }: Props) {
                             {bill.insurance_details.claim_status}
                           </Badge>
                         </span>
-                      </DetailRow>
+                      </div>
                       <div className="flex items-center justify-between px-6 py-4">
                         <span className="text-body text-muted-foreground">Covered amount</span>
                         <span className="text-label text-success">₹{bill.insurance_details.covered_amount.toLocaleString()}</span>

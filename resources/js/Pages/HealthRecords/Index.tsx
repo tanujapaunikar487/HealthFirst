@@ -7,7 +7,6 @@ import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { Input } from '@/Components/ui/input';
-import { Checkbox } from '@/Components/ui/checkbox';
 import { DatePicker } from '@/Components/ui/date-picker';
 import {
   Select,
@@ -843,9 +842,10 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-col-checkbox">
-                      <Checkbox
+                      <input
+                        type="checkbox"
                         checked={allSelected}
-                        onCheckedChange={toggleSelectAll}
+                        onChange={toggleSelectAll}
                         aria-label="Select all"
                       />
                     </TableHead>
@@ -870,9 +870,10 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
                         onClick={() => router.visit(`/health-records/${record.id}`)}
                       >
                         <TableCell className="align-top" onClick={(e) => e.stopPropagation()}>
-                          <Checkbox
+                          <input
+                            type="checkbox"
                             checked={isSelected}
-                            onCheckedChange={() => toggleSelect(record.id)}
+                            onChange={() => toggleSelect(record.id)}
                             aria-label={`Select ${record.title}`}
                           />
                         </TableCell>

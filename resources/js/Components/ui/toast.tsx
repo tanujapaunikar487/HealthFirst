@@ -35,23 +35,23 @@ const toastVariants = cva(
 
 const toastIconConfig: Record<
   'success' | 'error' | 'warning' | 'info',
-  { icon: React.ComponentType<any>; colorClass: string }
+  { icon: React.ComponentType<any>; color: string }
 > = {
   success: {
     icon: CheckCircle2,
-    colorClass: 'text-success'
+    color: '#22C55E' // Bright green for visibility on dark bg
   },
   error: {
     icon: XCircle,
-    colorClass: 'text-destructive'
+    color: '#EF4444' // Bright red for visibility on dark bg
   },
   warning: {
     icon: AlertTriangle,
-    colorClass: 'text-warning'
+    color: '#F59E0B' // Bright amber for visibility on dark bg
   },
   info: {
     icon: Info,
-    colorClass: 'text-info'
+    color: '#3B82F6' // Bright blue for visibility on dark bg
   },
 };
 
@@ -120,7 +120,8 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
           icon={iconData}
           size={20}
           variant="solid"
-          className={cn('flex-shrink-0', iconConfig.colorClass)}
+          className="flex-shrink-0"
+          style={{ color: iconConfig.color }}
         />
         {message}
       </div>

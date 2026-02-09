@@ -583,7 +583,6 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                           type="checkbox"
                           checked={payableBills.length > 0 && payableBills.every((b) => selectedIds.has(b.id))}
                           onChange={toggleSelectAll}
-                          className="h-4 w-4 rounded border-border accent-primary"
                         />
                       )}
                     </TableHead>
@@ -616,10 +615,6 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                             checked={selectedIds.has(bill.id)}
                             disabled={!isPayable}
                             onChange={() => toggleSelect(bill.id)}
-                            className={cn(
-                              'h-4 w-4 rounded border-border accent-primary',
-                              !isPayable && 'opacity-30 cursor-not-allowed'
-                            )}
                           />
                         </TableCell>
 
@@ -759,10 +754,6 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                             checked={!isExcluded}
                             disabled={isLastActive || paymentState === 'processing'}
                             onChange={() => togglePayBillExclusion(bill.id)}
-                            className={cn(
-                              'h-4 w-4 rounded border-border accent-primary',
-                              (isLastActive || paymentState === 'processing') && 'opacity-40 cursor-not-allowed'
-                            )}
                           />
                         )}
                       </div>

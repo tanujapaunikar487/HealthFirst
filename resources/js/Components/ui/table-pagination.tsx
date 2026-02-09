@@ -34,8 +34,8 @@ export function TablePagination({
   const showRange = from !== 1 || to !== total;
 
   return (
-    <div className="flex items-center justify-between px-6 py-4 border-t border-border">
-      <p className="text-body text-muted-foreground">
+    <div className="flex items-center justify-between px-6 py-3 border-t border-border">
+      <p className="text-label text-muted-foreground">
         {showRange
           ? `Showing ${from}\u2013${to} of ${total} ${itemLabel}`
           : `Showing ${total} ${itemLabel}`}
@@ -43,9 +43,9 @@ export function TablePagination({
       {showControls && (
         <div className="flex items-center gap-1">
           <Button
-            variant="secondary"
+            variant="outline"
             iconOnly
-            size="md"
+            size="sm"
             disabled={currentPage <= 1}
             onClick={() => onPageChange(currentPage - 1)}
           >
@@ -56,17 +56,17 @@ export function TablePagination({
               key={p}
               variant={p === currentPage ? 'primary' : 'outline'}
               iconOnly
-              size="md"
-              className={cn('text-body', p === currentPage && 'pointer-events-none')}
+              size="sm"
+              className={cn('text-label', p === currentPage && 'pointer-events-none')}
               onClick={() => onPageChange(p)}
             >
               {p}
             </Button>
           ))}
           <Button
-            variant="secondary"
+            variant="outline"
             iconOnly
-            size="md"
+            size="sm"
             disabled={currentPage >= totalPages}
             onClick={() => onPageChange(currentPage + 1)}
           >

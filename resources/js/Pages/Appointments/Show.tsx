@@ -284,17 +284,6 @@ export default function Show({ user, appointment }: Props) {
               </div>
             )}
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Badge variant="neutral">
-                  {isDoctor ? 'Doctor' : 'Lab Test'}
-                </Badge>
-                <Badge variant="neutral">
-                  {appointment.mode}
-                </Badge>
-                <span className="text-body text-muted-foreground">
-                  #{appointment.appointment_id}
-                </span>
-              </div>
               <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'hsl(var(--foreground))' }}>
                 {appointment.title}
               </h1>

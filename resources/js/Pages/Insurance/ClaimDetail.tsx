@@ -784,11 +784,6 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   );
                 })()}
                 <h1 className="text-detail-title text-foreground">{claim.treatment_name}</h1>
-                {claim.procedure_type && (
-                  <Badge variant="neutral">
-                    {claim.procedure_type}
-                  </Badge>
-                )}
               </div>
               <div className="mt-1 flex items-center gap-2 text-body text-muted-foreground">
                 {claim.provider_name && <span>{claim.provider_name}</span>}

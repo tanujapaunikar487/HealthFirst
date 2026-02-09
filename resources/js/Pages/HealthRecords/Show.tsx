@@ -682,7 +682,7 @@ export default function Show({ user, record, familyMember }: Props) {
   };
 
   const categorySections = record.metadata
-    ? getCategorySections(record.category, record.metadata, toast)
+    ? getCategorySections(record.category, record.metadata, showToast)
     : [];
 
   const navItems = [
@@ -707,12 +707,6 @@ export default function Show({ user, record, familyMember }: Props) {
             <div className="flex items-start gap-4">
               <CategoryIcon category={record.category} size="lg" />
               <div>
-                <div className="flex items-center gap-3 mb-1">
-                  {record.status && <StatusBadge status={record.status} />}
-                  <Badge variant="info">
-                    {config.label}
-                  </Badge>
-                </div>
                 <h1 className="text-detail-title text-foreground">
                   {record.title}
                 </h1>
