@@ -1001,71 +1001,84 @@ function getCategorySections(category: string, meta: RecordMetadata, onAction: (
 function getConsultationSections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
-  sections.push({
-    id: 'visit-details', title: 'Visit Details', icon: ClipboardList,
-    content: (
-      <>
+  // Only add Visit Details if there's at least one field with data
+  const hasVisitDetails = meta.visit_type_label || meta.opd_number || meta.duration || meta.location ||
+    (meta.vitals && Object.keys(meta.vitals).length > 0);
+
+  if (hasVisitDetails) {
+    sections.push({
+      id: 'visit-details', title: 'Visit Details', icon: ClipboardList,
+      content: (
+        <>
+          <div className="divide-y">
+            {(meta.visit_type_label || meta.opd_number) && (
+              <DetailRow label="Visit Type">
+                {meta.visit_type_label}{meta.opd_number ? ` | ${meta.opd_number}` : ''}
+              </DetailRow>
+            )}
+            {meta.duration && <DetailRow label="Duration">{meta.duration}</DetailRow>}
+            {meta.location && <DetailRow label="Location">{meta.location}</DetailRow>}
+          </div>
+          {meta.vitals && Object.keys(meta.vitals).length > 0 && (
+            <>
+              <div className="px-6 pt-6 pb-2">
+                <span className="text-overline text-muted-foreground">Vitals</span>
+              </div>
+              <VitalsRows vitals={meta.vitals} statuses={meta.vitals_status} />
+            </>
+          )}
+        </>
+      ),
+    });
+  }
+
+  // Only add Clinical Summary if there's at least one field with data
+  const hasClinicalSummary = meta.chief_complaint || (meta.symptoms && meta.symptoms.length > 0) ||
+    meta.history_of_present_illness || meta.clinical_examination || meta.examination_findings ||
+    meta.diagnosis || meta.treatment_plan_steps?.length || meta.treatment_plan;
+
+  if (hasClinicalSummary) {
+    sections.push({
+      id: 'clinical-summary', title: 'Clinical Summary', icon: Stethoscope,
+      content: (
         <div className="divide-y">
-          {(meta.visit_type_label || meta.opd_number) && (
-            <DetailRow label="Visit Type">
-              {meta.visit_type_label}{meta.opd_number ? ` | ${meta.opd_number}` : ''}
+          {meta.chief_complaint && (
+            <DetailRow label="Chief complaint">{meta.chief_complaint}</DetailRow>
+          )}
+          {meta.symptoms && meta.symptoms.length > 0 && (
+            <DetailRow label="Symptoms">
+              <div className="flex flex-wrap gap-2">
+                {meta.symptoms.map((s, i) => <Badge key={i} variant="neutral">{s}</Badge>)}
+              </div>
             </DetailRow>
           )}
-          {meta.duration && <DetailRow label="Duration">{meta.duration}</DetailRow>}
-          {meta.location && <DetailRow label="Location">{meta.location}</DetailRow>}
+          {meta.history_of_present_illness && (
+            <DetailRow label="History">{meta.history_of_present_illness}</DetailRow>
+          )}
+          {(meta.clinical_examination || meta.examination_findings) && (
+            <DetailRow label="Examination">{meta.clinical_examination || meta.examination_findings}</DetailRow>
+          )}
+          {meta.diagnosis && (
+            <DetailRow label="Diagnosis">
+              <div>
+                <span className="text-card-title">{meta.diagnosis}</span>
+                {meta.icd_code && <span className="text-body text-muted-foreground ml-2">ICD: {meta.icd_code}</span>}
+              </div>
+            </DetailRow>
+          )}
+          {(meta.treatment_plan_steps?.length || meta.treatment_plan) && (
+            <DetailRow label="Treatment plan">
+              {meta.treatment_plan_steps && meta.treatment_plan_steps.length > 0 ? (
+                <NumberedList items={meta.treatment_plan_steps} />
+              ) : meta.treatment_plan ? (
+                <span>{meta.treatment_plan}</span>
+              ) : null}
+            </DetailRow>
+          )}
         </div>
-        {meta.vitals && Object.keys(meta.vitals).length > 0 && (
-          <>
-            <div className="px-6 pt-6 pb-2">
-              <span className="text-overline text-muted-foreground">Vitals</span>
-            </div>
-            <VitalsRows vitals={meta.vitals} statuses={meta.vitals_status} />
-          </>
-        )}
-      </>
-    ),
-  });
-
-  sections.push({
-    id: 'clinical-summary', title: 'Clinical Summary', icon: Stethoscope,
-    content: (
-      <div className="divide-y">
-        {meta.chief_complaint && (
-          <DetailRow label="Chief complaint">{meta.chief_complaint}</DetailRow>
-        )}
-        {meta.symptoms && meta.symptoms.length > 0 && (
-          <DetailRow label="Symptoms">
-            <div className="flex flex-wrap gap-2">
-              {meta.symptoms.map((s, i) => <Badge key={i} variant="neutral">{s}</Badge>)}
-            </div>
-          </DetailRow>
-        )}
-        {meta.history_of_present_illness && (
-          <DetailRow label="History">{meta.history_of_present_illness}</DetailRow>
-        )}
-        {(meta.clinical_examination || meta.examination_findings) && (
-          <DetailRow label="Examination">{meta.clinical_examination || meta.examination_findings}</DetailRow>
-        )}
-        {meta.diagnosis && (
-          <DetailRow label="Diagnosis">
-            <div>
-              <span className="text-card-title">{meta.diagnosis}</span>
-              {meta.icd_code && <span className="text-body text-muted-foreground ml-2">ICD: {meta.icd_code}</span>}
-            </div>
-          </DetailRow>
-        )}
-        {(meta.treatment_plan_steps?.length || meta.treatment_plan) && (
-          <DetailRow label="Treatment plan">
-            {meta.treatment_plan_steps && meta.treatment_plan_steps.length > 0 ? (
-              <NumberedList items={meta.treatment_plan_steps} />
-            ) : meta.treatment_plan ? (
-              <span>{meta.treatment_plan}</span>
-            ) : null}
-          </DetailRow>
-        )}
-      </div>
-    ),
-  });
+      ),
+    });
+  }
 
 
   if (meta.linked_records && meta.linked_records.length > 0) {
@@ -1083,19 +1096,25 @@ function getConsultationSections(meta: RecordMetadata): CategorySection[] {
 function getProcedureSections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
-  sections.push({
-    id: 'procedure-details', title: 'Procedure Details', icon: Syringe, noPadding: true,
-    content: (
-      <div className="divide-y">
-        {meta.procedure_name && <DetailRow label="Procedure">{meta.procedure_name}</DetailRow>}
-        {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-        {meta.anesthesia && <DetailRow label="Anesthesia">{meta.anesthesia}</DetailRow>}
-        {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
-        {meta.findings && <DetailRow label="Findings">{meta.findings}</DetailRow>}
-        {meta.complications && <DetailRow label="Complications">{meta.complications}</DetailRow>}
-      </div>
-    ),
-  });
+  // Only add Procedure Details if there's at least one field with data
+  const hasProcedureDetails = meta.procedure_name || meta.indication || meta.anesthesia ||
+    meta.technique || meta.findings || meta.complications;
+
+  if (hasProcedureDetails) {
+    sections.push({
+      id: 'procedure-details', title: 'Procedure Details', icon: Syringe, noPadding: true,
+      content: (
+        <div className="divide-y">
+          {meta.procedure_name && <DetailRow label="Procedure">{meta.procedure_name}</DetailRow>}
+          {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+          {meta.anesthesia && <DetailRow label="Anesthesia">{meta.anesthesia}</DetailRow>}
+          {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
+          {meta.findings && <DetailRow label="Findings">{meta.findings}</DetailRow>}
+          {meta.complications && <DetailRow label="Complications">{meta.complications}</DetailRow>}
+        </div>
+      ),
+    });
+  }
 
   if (meta.post_op_instructions) {
     sections.push({
@@ -1123,86 +1142,101 @@ function getProcedureSections(meta: RecordMetadata): CategorySection[] {
 function getErVisitSections(meta: RecordMetadata, onAction: (msg: string) => void): CategorySection[] {
   const sections: CategorySection[] = [];
 
-  sections.push({
-    id: 'visit-details', title: 'Visit Details', icon: Ambulance,
-    content: (
-      <>
+  // Only add Visit Details if there's at least one field with data
+  const hasVisitDetails = meta.er_number || meta.arrival_time || meta.discharge_time || meta.duration ||
+    meta.triage_level || meta.attending_doctor || meta.mode_of_arrival || meta.pain_score ||
+    (meta.vitals && Object.keys(meta.vitals).length > 0);
+
+  if (hasVisitDetails) {
+    sections.push({
+      id: 'visit-details', title: 'Visit Details', icon: Ambulance,
+      content: (
+        <>
+          <div className="divide-y">
+            {meta.er_number && <DetailRow label="ER Number">{meta.er_number}</DetailRow>}
+            {meta.arrival_time && <DetailRow label="Arrival">{meta.arrival_time}</DetailRow>}
+            {meta.discharge_time && <DetailRow label="Discharge">{meta.discharge_time}</DetailRow>}
+            {meta.duration && <DetailRow label="Duration">{meta.duration}</DetailRow>}
+            {meta.triage_level && (
+              <DetailRow label="Triage Level">
+                <Badge variant={meta.triage_level.includes('1') || meta.triage_level.includes('2') ? 'danger' : 'warning'}>
+                  {meta.triage_level}
+                </Badge>
+              </DetailRow>
+            )}
+            {meta.attending_doctor && <DetailRow label="Attending">{meta.attending_doctor}</DetailRow>}
+            {meta.mode_of_arrival && <DetailRow label="Mode of Arrival">{meta.mode_of_arrival}</DetailRow>}
+            {meta.pain_score && <DetailRow label="Pain Score">{meta.pain_score}</DetailRow>}
+          </div>
+          {meta.vitals && Object.keys(meta.vitals).length > 0 && (
+            <>
+              <div className="px-6 pt-6 pb-2">
+                <span className="text-overline text-muted-foreground">Vitals on Arrival</span>
+              </div>
+              <VitalsRows vitals={meta.vitals} statuses={meta.vitals_status} />
+            </>
+          )}
+        </>
+      ),
+    });
+  }
+
+  // Only add Clinical & Treatment if there's at least one field with data
+  const hasClinicalTreatment = meta.chief_complaint || meta.examination ||
+    (meta.investigations && meta.investigations.length > 0) || meta.diagnosis ||
+    meta.treatment_items?.length || meta.treatment_given || meta.disposition ||
+    meta.disposition_detail || meta.follow_up;
+
+  if (hasClinicalTreatment) {
+    sections.push({
+      id: 'clinical-treatment', title: 'Clinical & Treatment', icon: Stethoscope,
+      content: (
         <div className="divide-y">
-          {meta.er_number && <DetailRow label="ER Number">{meta.er_number}</DetailRow>}
-          {meta.arrival_time && <DetailRow label="Arrival">{meta.arrival_time}</DetailRow>}
-          {meta.discharge_time && <DetailRow label="Discharge">{meta.discharge_time}</DetailRow>}
-          {meta.duration && <DetailRow label="Duration">{meta.duration}</DetailRow>}
-          {meta.triage_level && (
-            <DetailRow label="Triage Level">
-              <Badge variant={meta.triage_level.includes('1') || meta.triage_level.includes('2') ? 'danger' : 'warning'}>
-                {meta.triage_level}
-              </Badge>
+          {meta.chief_complaint && (
+            <DetailRow label="Chief complaint">{meta.chief_complaint}</DetailRow>
+          )}
+          {meta.examination && (
+            <DetailRow label="Examination">{meta.examination}</DetailRow>
+          )}
+          {meta.investigations && meta.investigations.length > 0 && meta.investigations.map((inv, i) => (
+            <DetailRow key={i} label={inv.name}>
+              <span className="flex items-center gap-2">
+                <span className="text-muted-foreground">{inv.result}</span>
+                {inv.has_link && (
+                  <Button variant="link" size="sm" className="h-auto p-0 text-body text-primary hover:underline flex-shrink-0" onClick={() => onAction(`Opening ${inv.name}...`)}>
+                    View
+                  </Button>
+                )}
+              </span>
+            </DetailRow>
+          ))}
+          {meta.diagnosis && (
+            <DetailRow label="Diagnosis">{meta.diagnosis}</DetailRow>
+          )}
+          {(meta.treatment_items?.length || meta.treatment_given) && (
+            <DetailRow label="Treatment given">
+              {meta.treatment_items && meta.treatment_items.length > 0 ? (
+                <NumberedList items={meta.treatment_items} />
+              ) : meta.treatment_given ? (
+                <span>{meta.treatment_given}</span>
+              ) : null}
             </DetailRow>
           )}
-          {meta.attending_doctor && <DetailRow label="Attending">{meta.attending_doctor}</DetailRow>}
-          {meta.mode_of_arrival && <DetailRow label="Mode of Arrival">{meta.mode_of_arrival}</DetailRow>}
-          {meta.pain_score && <DetailRow label="Pain Score">{meta.pain_score}</DetailRow>}
+          {(meta.disposition || meta.disposition_detail) && (
+            <DetailRow label="Disposition">
+              <div>
+                {meta.disposition && <span className="text-label">{meta.disposition}</span>}
+                {meta.disposition_detail && <p className="text-body text-muted-foreground mt-1">{meta.disposition_detail}</p>}
+              </div>
+            </DetailRow>
+          )}
+          {meta.follow_up && (
+            <DetailRow label="Follow-up">{meta.follow_up}</DetailRow>
+          )}
         </div>
-        {meta.vitals && Object.keys(meta.vitals).length > 0 && (
-          <>
-            <div className="px-6 pt-6 pb-2">
-              <span className="text-overline text-muted-foreground">Vitals on Arrival</span>
-            </div>
-            <VitalsRows vitals={meta.vitals} statuses={meta.vitals_status} />
-          </>
-        )}
-      </>
-    ),
-  });
-
-  sections.push({
-    id: 'clinical-treatment', title: 'Clinical & Treatment', icon: Stethoscope,
-    content: (
-      <div className="divide-y">
-        {meta.chief_complaint && (
-          <DetailRow label="Chief complaint">{meta.chief_complaint}</DetailRow>
-        )}
-        {meta.examination && (
-          <DetailRow label="Examination">{meta.examination}</DetailRow>
-        )}
-        {meta.investigations && meta.investigations.length > 0 && meta.investigations.map((inv, i) => (
-          <DetailRow key={i} label={inv.name}>
-            <span className="flex items-center gap-2">
-              <span className="text-muted-foreground">{inv.result}</span>
-              {inv.has_link && (
-                <Button variant="link" size="sm" className="h-auto p-0 text-body text-primary hover:underline flex-shrink-0" onClick={() => onAction(`Opening ${inv.name}...`)}>
-                  View
-                </Button>
-              )}
-            </span>
-          </DetailRow>
-        ))}
-        {meta.diagnosis && (
-          <DetailRow label="Diagnosis">{meta.diagnosis}</DetailRow>
-        )}
-        {(meta.treatment_items?.length || meta.treatment_given) && (
-          <DetailRow label="Treatment given">
-            {meta.treatment_items && meta.treatment_items.length > 0 ? (
-              <NumberedList items={meta.treatment_items} />
-            ) : meta.treatment_given ? (
-              <span>{meta.treatment_given}</span>
-            ) : null}
-          </DetailRow>
-        )}
-        {(meta.disposition || meta.disposition_detail) && (
-          <DetailRow label="Disposition">
-            <div>
-              {meta.disposition && <span className="text-label">{meta.disposition}</span>}
-              {meta.disposition_detail && <p className="text-body text-muted-foreground mt-1">{meta.disposition_detail}</p>}
-            </div>
-          </DetailRow>
-        )}
-        {meta.follow_up && (
-          <DetailRow label="Follow-up">{meta.follow_up}</DetailRow>
-        )}
-      </div>
-    ),
-  });
+      ),
+    });
+  }
 
   if (meta.linked_records && meta.linked_records.length > 0) {
     sections.push({
@@ -1219,32 +1253,38 @@ function getErVisitSections(meta: RecordMetadata, onAction: (msg: string) => voi
 function getReferralSections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
-  sections.push({
-    id: 'referral', title: 'Referral', icon: UserPlus, noPadding: true,
-    content: (
-      <div className="divide-y">
-        {meta.referred_to_doctor && <DetailRow label="Referred To">{meta.referred_to_doctor}</DetailRow>}
-        {meta.referred_to_department && <DetailRow label="Department">{meta.referred_to_department}</DetailRow>}
-        {meta.priority && (
-          <DetailRow label="Priority">
-            <Badge variant={meta.priority === 'urgent' ? 'danger' : 'neutral'} className="capitalize">
-              {meta.priority}
-            </Badge>
-          </DetailRow>
-        )}
-        {meta.referral_status && (
-          <DetailRow label="Status">
-            <Badge variant={meta.referral_status === 'scheduled' ? 'success' : meta.referral_status === 'accepted' ? 'info' : 'warning'} className="capitalize">
-              {meta.referral_status}
-            </Badge>
-          </DetailRow>
-        )}
-        {meta.appointment_date && <DetailRow label="Appointment Date">{fmtDate(meta.appointment_date)}</DetailRow>}
-        {meta.reason && <DetailRow label="Reason">{meta.reason}</DetailRow>}
-        {meta.clinical_summary && <DetailRow label="Clinical Summary">{meta.clinical_summary}</DetailRow>}
-      </div>
-    ),
-  });
+  // Only add Referral if there's at least one field with data
+  const hasReferralData = meta.referred_to_doctor || meta.referred_to_department || meta.priority ||
+    meta.referral_status || meta.appointment_date || meta.reason || meta.clinical_summary;
+
+  if (hasReferralData) {
+    sections.push({
+      id: 'referral', title: 'Referral', icon: UserPlus, noPadding: true,
+      content: (
+        <div className="divide-y">
+          {meta.referred_to_doctor && <DetailRow label="Referred To">{meta.referred_to_doctor}</DetailRow>}
+          {meta.referred_to_department && <DetailRow label="Department">{meta.referred_to_department}</DetailRow>}
+          {meta.priority && (
+            <DetailRow label="Priority">
+              <Badge variant={meta.priority === 'urgent' ? 'danger' : 'neutral'} className="capitalize">
+                {meta.priority}
+              </Badge>
+            </DetailRow>
+          )}
+          {meta.referral_status && (
+            <DetailRow label="Status">
+              <Badge variant={meta.referral_status === 'scheduled' ? 'success' : meta.referral_status === 'accepted' ? 'info' : 'warning'} className="capitalize">
+                {meta.referral_status}
+              </Badge>
+            </DetailRow>
+          )}
+          {meta.appointment_date && <DetailRow label="Appointment Date">{fmtDate(meta.appointment_date)}</DetailRow>}
+          {meta.reason && <DetailRow label="Reason">{meta.reason}</DetailRow>}
+          {meta.clinical_summary && <DetailRow label="Clinical Summary">{meta.clinical_summary}</DetailRow>}
+        </div>
+      ),
+    });
+  }
 
   return sections;
 }
@@ -1252,19 +1292,25 @@ function getReferralSections(meta: RecordMetadata): CategorySection[] {
 function getDischargeSections(meta: RecordMetadata, onAction: (msg: string) => void): CategorySection[] {
   const sections: CategorySection[] = [];
 
-  sections.push({
-    id: 'admission', title: 'Admission Details', icon: ClipboardList, noPadding: true,
-    content: (
-      <div className="divide-y">
-        {meta.admission_date && <DetailRow label="Admission Date">{fmtDate(meta.admission_date)}</DetailRow>}
-        {meta.discharge_date && <DetailRow label="Discharge Date">{fmtDate(meta.discharge_date)}</DetailRow>}
-        {meta.length_of_stay && <DetailRow label="Length of Stay">{meta.length_of_stay}</DetailRow>}
-        {meta.treating_doctor && <DetailRow label="Treating Doctor">{meta.treating_doctor}</DetailRow>}
-        {meta.room_info && <DetailRow label="Room">{meta.room_info}</DetailRow>}
-        {meta.ipd_number && <DetailRow label="IPD Number">{meta.ipd_number}</DetailRow>}
-      </div>
-    ),
-  });
+  // Only add Admission Details if there's at least one field with data
+  const hasAdmissionDetails = meta.admission_date || meta.discharge_date || meta.length_of_stay ||
+    meta.treating_doctor || meta.room_info || meta.ipd_number;
+
+  if (hasAdmissionDetails) {
+    sections.push({
+      id: 'admission', title: 'Admission Details', icon: ClipboardList, noPadding: true,
+      content: (
+        <div className="divide-y">
+          {meta.admission_date && <DetailRow label="Admission Date">{fmtDate(meta.admission_date)}</DetailRow>}
+          {meta.discharge_date && <DetailRow label="Discharge Date">{fmtDate(meta.discharge_date)}</DetailRow>}
+          {meta.length_of_stay && <DetailRow label="Length of Stay">{meta.length_of_stay}</DetailRow>}
+          {meta.treating_doctor && <DetailRow label="Treating Doctor">{meta.treating_doctor}</DetailRow>}
+          {meta.room_info && <DetailRow label="Room">{meta.room_info}</DetailRow>}
+          {meta.ipd_number && <DetailRow label="IPD Number">{meta.ipd_number}</DetailRow>}
+        </div>
+      ),
+    });
+  }
 
   if (meta.primary_diagnosis || meta.diagnosis || meta.secondary_diagnosis || meta.procedure_performed || meta.procedures || meta.hospital_course) {
     sections.push({
@@ -1403,30 +1449,36 @@ function getDischargeSections(meta: RecordMetadata, onAction: (msg: string) => v
 function getOtherVisitSections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
-  sections.push({
-    id: 'session', title: 'Session', icon: ClipboardCheck,
-    content: (
-      <>
-        {meta.session_number != null && meta.total_sessions != null && (
-          <div className="px-6 pt-6 pb-2">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-body text-muted-foreground">Session progress</span>
-              <span className="text-label">{meta.session_number} of {meta.total_sessions}</span>
+  // Only add Session if there's at least one field with data
+  const hasSessionData = meta.session_number != null || meta.total_sessions != null ||
+    meta.visit_type || meta.follow_up || meta.notes || meta.progress;
+
+  if (hasSessionData) {
+    sections.push({
+      id: 'session', title: 'Session', icon: ClipboardCheck,
+      content: (
+        <>
+          {meta.session_number != null && meta.total_sessions != null && (
+            <div className="px-6 pt-6 pb-2">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-body text-muted-foreground">Session progress</span>
+                <span className="text-label">{meta.session_number} of {meta.total_sessions}</span>
+              </div>
+              <div className="h-2.5 rounded-full bg-muted overflow-hidden">
+                <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(meta.session_number / meta.total_sessions) * 100}%` }} />
+              </div>
             </div>
-            <div className="h-2.5 rounded-full bg-muted overflow-hidden">
-              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(meta.session_number / meta.total_sessions) * 100}%` }} />
-            </div>
+          )}
+          <div className="divide-y">
+            {meta.visit_type && <DetailRow label="Visit Type">{meta.visit_type}</DetailRow>}
+            {meta.follow_up && <DetailRow label="Follow-up">{meta.follow_up}</DetailRow>}
+            {meta.notes && <DetailRow label="Notes">{meta.notes}</DetailRow>}
+            {meta.progress && <DetailRow label="Progress">{meta.progress}</DetailRow>}
           </div>
-        )}
-        <div className="divide-y">
-          {meta.visit_type && <DetailRow label="Visit Type">{meta.visit_type}</DetailRow>}
-          {meta.follow_up && <DetailRow label="Follow-up">{meta.follow_up}</DetailRow>}
-          {meta.notes && <DetailRow label="Notes">{meta.notes}</DetailRow>}
-          {meta.progress && <DetailRow label="Progress">{meta.progress}</DetailRow>}
-        </div>
-      </>
-    ),
-  });
+        </>
+      ),
+    });
+  }
 
   return sections;
 }
@@ -1492,17 +1544,22 @@ function getLabReportSections(meta: RecordMetadata): CategorySection[] {
 function getXraySections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
-  sections.push({
-    id: 'study-details', title: 'Study Details', icon: ScanLine,
-    content: (
-      <div className="divide-y">
-        {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
-        {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-        {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
-        {meta.radiologist && <DetailRow label="Radiologist">{meta.radiologist}</DetailRow>}
-      </div>
-    ),
-  });
+  // Only add Study Details if there's at least one field with data
+  const hasStudyDetails = meta.body_part || meta.indication || meta.technique || meta.radiologist;
+
+  if (hasStudyDetails) {
+    sections.push({
+      id: 'study-details', title: 'Study Details', icon: ScanLine,
+      content: (
+        <div className="divide-y">
+          {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
+          {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+          {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
+          {meta.radiologist && <DetailRow label="Radiologist">{meta.radiologist}</DetailRow>}
+        </div>
+      ),
+    });
+  }
 
   if (meta.findings || meta.impression) {
     sections.push({
@@ -1526,19 +1583,25 @@ function getXraySections(meta: RecordMetadata): CategorySection[] {
 function getMriSections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
-  sections.push({
-    id: 'study-details', title: 'Study Details', icon: BrainCircuit, noPadding: true,
-    content: (
-      <div className="divide-y">
-        {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
-        {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-        {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
-        {meta.contrast && <DetailRow label="Contrast">{meta.contrast}</DetailRow>}
-        {meta.sequences && <DetailRow label="Sequences">{meta.sequences}</DetailRow>}
-        {meta.radiologist && <DetailRow label="Radiologist">{meta.radiologist}</DetailRow>}
-      </div>
-    ),
-  });
+  // Only add Study Details if there's at least one field with data
+  const hasStudyDetails = meta.body_part || meta.indication || meta.technique ||
+    meta.contrast || meta.sequences || meta.radiologist;
+
+  if (hasStudyDetails) {
+    sections.push({
+      id: 'study-details', title: 'Study Details', icon: BrainCircuit, noPadding: true,
+      content: (
+        <div className="divide-y">
+          {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
+          {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+          {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
+          {meta.contrast && <DetailRow label="Contrast">{meta.contrast}</DetailRow>}
+          {meta.sequences && <DetailRow label="Sequences">{meta.sequences}</DetailRow>}
+          {meta.radiologist && <DetailRow label="Radiologist">{meta.radiologist}</DetailRow>}
+        </div>
+      ),
+    });
+  }
 
   if (meta.findings || meta.impression) {
     sections.push({
@@ -1562,16 +1625,21 @@ function getMriSections(meta: RecordMetadata): CategorySection[] {
 function getUltrasoundSections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
-  sections.push({
-    id: 'study-details', title: 'Study Details', icon: Radio, noPadding: true,
-    content: (
-      <div className="divide-y">
-        {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
-        {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-        {meta.sonographer && <DetailRow label="Sonographer">{meta.sonographer}</DetailRow>}
-      </div>
-    ),
-  });
+  // Only add Study Details if there's at least one field with data
+  const hasStudyDetails = meta.body_part || meta.indication || meta.sonographer;
+
+  if (hasStudyDetails) {
+    sections.push({
+      id: 'study-details', title: 'Study Details', icon: Radio, noPadding: true,
+      content: (
+        <div className="divide-y">
+          {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
+          {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+          {meta.sonographer && <DetailRow label="Sonographer">{meta.sonographer}</DetailRow>}
+        </div>
+      ),
+    });
+  }
 
   if (meta.findings || meta.impression) {
     sections.push({
@@ -1595,20 +1663,26 @@ function getUltrasoundSections(meta: RecordMetadata): CategorySection[] {
 function getEcgSections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
-  sections.push({
-    id: 'measurements', title: 'Measurements', icon: HeartPulse, noPadding: true,
-    content: (
-      <div className="divide-y">
-        {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-        {meta.heart_rate && <DetailRow label="Heart Rate">{meta.heart_rate} bpm</DetailRow>}
-        {meta.rhythm && <DetailRow label="Rhythm">{meta.rhythm}</DetailRow>}
-        {meta.axis && <DetailRow label="Axis">{meta.axis}</DetailRow>}
-        {meta.intervals?.pr && <DetailRow label="PR Interval">{meta.intervals.pr}</DetailRow>}
-        {meta.intervals?.qrs && <DetailRow label="QRS Interval">{meta.intervals.qrs}</DetailRow>}
-        {meta.intervals?.qt && <DetailRow label="QT Interval">{meta.intervals.qt}</DetailRow>}
-      </div>
-    ),
-  });
+  // Only add Measurements if there's at least one field with data
+  const hasMeasurements = meta.indication || meta.heart_rate || meta.rhythm || meta.axis ||
+    meta.intervals?.pr || meta.intervals?.qrs || meta.intervals?.qt;
+
+  if (hasMeasurements) {
+    sections.push({
+      id: 'measurements', title: 'Measurements', icon: HeartPulse, noPadding: true,
+      content: (
+        <div className="divide-y">
+          {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+          {meta.heart_rate && <DetailRow label="Heart Rate">{meta.heart_rate} bpm</DetailRow>}
+          {meta.rhythm && <DetailRow label="Rhythm">{meta.rhythm}</DetailRow>}
+          {meta.axis && <DetailRow label="Axis">{meta.axis}</DetailRow>}
+          {meta.intervals?.pr && <DetailRow label="PR Interval">{meta.intervals.pr}</DetailRow>}
+          {meta.intervals?.qrs && <DetailRow label="QRS Interval">{meta.intervals.qrs}</DetailRow>}
+          {meta.intervals?.qt && <DetailRow label="QT Interval">{meta.intervals.qt}</DetailRow>}
+        </div>
+      ),
+    });
+  }
 
   if (meta.findings || meta.impression) {
     const isAbnormal = meta.impression?.toLowerCase().includes('abnormal') ||
@@ -1638,21 +1712,27 @@ function getEcgSections(meta: RecordMetadata): CategorySection[] {
 function getPathologySections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
-  sections.push({
-    id: 'specimen-analysis', title: 'Specimen & Analysis', icon: Microscope, noPadding: true,
-    content: (
-      <div className="divide-y">
-        {meta.specimen_type && <DetailRow label="Specimen">{meta.specimen_type}</DetailRow>}
-        {meta.pathologist && <DetailRow label="Pathologist">{meta.pathologist}</DetailRow>}
-        {meta.gross_description && (
-          <DetailRow label="Gross Description">{meta.gross_description}</DetailRow>
-        )}
-        {meta.microscopic_findings && (
-          <DetailRow label="Microscopic Findings">{meta.microscopic_findings}</DetailRow>
-        )}
-      </div>
-    ),
-  });
+  // Only add Specimen & Analysis if there's at least one field with data
+  const hasSpecimenAnalysis = meta.specimen_type || meta.pathologist ||
+    meta.gross_description || meta.microscopic_findings;
+
+  if (hasSpecimenAnalysis) {
+    sections.push({
+      id: 'specimen-analysis', title: 'Specimen & Analysis', icon: Microscope, noPadding: true,
+      content: (
+        <div className="divide-y">
+          {meta.specimen_type && <DetailRow label="Specimen">{meta.specimen_type}</DetailRow>}
+          {meta.pathologist && <DetailRow label="Pathologist">{meta.pathologist}</DetailRow>}
+          {meta.gross_description && (
+            <DetailRow label="Gross Description">{meta.gross_description}</DetailRow>
+          )}
+          {meta.microscopic_findings && (
+            <DetailRow label="Microscopic Findings">{meta.microscopic_findings}</DetailRow>
+          )}
+        </div>
+      ),
+    });
+  }
 
   if (meta.diagnosis) {
     sections.push({
@@ -1732,17 +1812,22 @@ function getPftSections(meta: RecordMetadata): CategorySection[] {
 function getOtherReportSections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
-  sections.push({
-    id: 'report', title: 'Report', icon: ClipboardList, noPadding: true,
-    content: (
-      <div className="divide-y">
-        {meta.report_type && <DetailRow label="Report Type">{meta.report_type}</DetailRow>}
-        {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-        {meta.findings && <DetailRow label="Observations">{meta.findings}</DetailRow>}
-        {meta.impression && <DetailRow label="Impression">{meta.impression}</DetailRow>}
-      </div>
-    ),
-  });
+  // Only add Report if there's at least one field with data
+  const hasReportData = meta.report_type || meta.indication || meta.findings || meta.impression;
+
+  if (hasReportData) {
+    sections.push({
+      id: 'report', title: 'Report', icon: ClipboardList, noPadding: true,
+      content: (
+        <div className="divide-y">
+          {meta.report_type && <DetailRow label="Report Type">{meta.report_type}</DetailRow>}
+          {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+          {meta.findings && <DetailRow label="Observations">{meta.findings}</DetailRow>}
+          {meta.impression && <DetailRow label="Impression">{meta.impression}</DetailRow>}
+        </div>
+      ),
+    });
+  }
 
   return sections;
 }
@@ -2023,25 +2108,31 @@ function getVaccinationSections(meta: RecordMetadata, onAction: (msg: string) =>
 function getMedicalCertificateSections(meta: RecordMetadata, onAction: (msg: string) => void): CategorySection[] {
   const sections: CategorySection[] = [];
 
-  sections.push({
-    id: 'certificate-details', title: 'Certificate Details', icon: Award,
-    content: (
-      <>
-        <div className="divide-y">
-          {meta.certificate_type && <DetailRow label="Type">{meta.certificate_type}</DetailRow>}
-          {meta.certificate_number && <DetailRow label="Certificate No.">{meta.certificate_number}</DetailRow>}
-          {meta.issued_for && <DetailRow label="Issued For">{meta.issued_for}</DetailRow>}
-          {meta.issued_by && <DetailRow label="Issued By">{meta.issued_by}</DetailRow>}
-          {meta.valid_from && meta.valid_until && (
-            <DetailRow label="Validity">{fmtDate(meta.valid_from)} – {fmtDate(meta.valid_until)}</DetailRow>
-          )}
-          {(meta.certificate_content || meta.notes) && (
-            <DetailRow label="Content">{meta.certificate_content || meta.notes}</DetailRow>
-          )}
-        </div>
-      </>
-    ),
-  });
+  // Only add Certificate Details if there's at least one field with data
+  const hasCertificateDetails = meta.certificate_type || meta.certificate_number || meta.issued_for ||
+    meta.issued_by || meta.valid_from || meta.valid_until || meta.certificate_content || meta.notes;
+
+  if (hasCertificateDetails) {
+    sections.push({
+      id: 'certificate-details', title: 'Certificate Details', icon: Award,
+      content: (
+        <>
+          <div className="divide-y">
+            {meta.certificate_type && <DetailRow label="Type">{meta.certificate_type}</DetailRow>}
+            {meta.certificate_number && <DetailRow label="Certificate No.">{meta.certificate_number}</DetailRow>}
+            {meta.issued_for && <DetailRow label="Issued For">{meta.issued_for}</DetailRow>}
+            {meta.issued_by && <DetailRow label="Issued By">{meta.issued_by}</DetailRow>}
+            {meta.valid_from && meta.valid_until && (
+              <DetailRow label="Validity">{fmtDate(meta.valid_from)} – {fmtDate(meta.valid_until)}</DetailRow>
+            )}
+            {(meta.certificate_content || meta.notes) && (
+              <DetailRow label="Content">{meta.certificate_content || meta.notes}</DetailRow>
+            )}
+          </div>
+        </>
+      ),
+    });
+  }
 
   sections.push({
     id: 'verification', title: 'Verification', icon: ShieldCheck,
