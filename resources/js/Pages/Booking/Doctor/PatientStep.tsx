@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Card } from '@/Components/ui/card';
 import { Textarea } from '@/Components/ui/textarea';
 import { FollowUpBanner } from '@/Components/Booking/FollowUpBanner';
+import { SymptomChips } from '@/Components/Booking/SymptomChips';
 import InlineMemberTypeSelector from '@/Features/booking-chat/embedded/InlineMemberTypeSelector';
 import { EmbeddedFollowUpReason, type FollowUpReasonOption } from '@/Features/booking-chat/embedded/EmbeddedFollowUpReason';
 import { Button } from '@/Components/ui/button';
@@ -578,24 +579,11 @@ export default function PatientStep({
             </p>
 
             <div className="space-y-4">
-              <div className="flex flex-wrap gap-2">
-                {symptoms.map((symptom) => (
-                  <Button
-                    key={symptom.id}
-                    variant="outline"
-                    onClick={() => handleSymptomToggle(symptom.id)}
-                    className={cn(
-                      'h-auto px-4 py-2 rounded-full transition-all',
-                      'hover:border-primary/50 hover:bg-primary/5',
-                      selectedSymptoms.includes(symptom.id)
-                        ? 'bg-primary/10 border-primary text-label'
-                        : 'text-body'
-                    )}
-                  >
-                    {symptom.name}
-                  </Button>
-                ))}
-              </div>
+              <SymptomChips
+                symptoms={symptoms}
+                selectedIds={selectedSymptoms}
+                onToggle={handleSymptomToggle}
+              />
 
               <Textarea
                 placeholder="Describe your symptoms or concerns.."
