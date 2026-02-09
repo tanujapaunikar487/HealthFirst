@@ -4,40 +4,57 @@ import { Button } from '@/Components/ui/button';
 import { Icon } from '@/Components/ui/icon';
 import { CalendarClock, AlertCircle, RefreshCw } from '@/Lib/icons';
 
+export interface FollowUpReasonOption {
+  value: string;
+  label: string;
+  description: string;
+}
+
 interface Props {
   selectedReason: string | null;
   onSelect: (reason: string) => void;
   disabled: boolean;
+  reasons?: FollowUpReasonOption[];
 }
 
-const reasons = [
+const defaultReasons: FollowUpReasonOption[] = [
   {
     value: 'scheduled',
     label: 'Scheduled follow-up',
     description: 'Doctor asked me to come back',
-    icon: CalendarClock,
   },
   {
     value: 'new_concern',
     label: 'New concern',
     description: 'Something changed since last visit',
-    icon: AlertCircle,
   },
   {
     value: 'ongoing_issue',
     label: 'Ongoing issue',
     description: "Symptoms haven't improved",
-    icon: RefreshCw,
   },
 ];
 
-export function EmbeddedFollowUpReason({ selectedReason, onSelect, disabled }: Props) {
+const getReasonIcon = (value: string) => {
+  switch (value) {
+    case 'scheduled':
+      return CalendarClock;
+    case 'new_concern':
+      return AlertCircle;
+    case 'ongoing_issue':
+      return RefreshCw;
+    default:
+      return AlertCircle;
+  }
+};
+
+export function EmbeddedFollowUpReason({ selectedReason, onSelect, disabled, reasons = defaultReasons }: Props) {
   return (
     <Card className="overflow-hidden">
       <div className="divide-y">
         {reasons.map((reason) => {
           const isSelected = selectedReason === reason.value;
-          const ReasonIcon = reason.icon;
+          const ReasonIcon = getReasonIcon(reason.value);
 
           return (
             <Button
@@ -49,7 +66,6 @@ export function EmbeddedFollowUpReason({ selectedReason, onSelect, disabled }: P
                 "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
                 "flex items-center gap-4 text-left transition-all",
                 "disabled:cursor-not-allowed",
-                isSelected && "bg-primary/10 border-l-2 border-l-primary",
                 disabled && !isSelected && "opacity-30",
                 disabled && isSelected && "opacity-60"
               )}

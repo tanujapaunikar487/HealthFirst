@@ -33,6 +33,10 @@ interface Doctor {
   video_fee: number;
   in_person_fee: number;
   slots: TimeSlot[];
+  rating?: number;
+  total_reviews?: number;
+  education?: string[];
+  languages?: string[];
 }
 
 interface Props {
@@ -176,7 +180,7 @@ export function EmbeddedDoctorList({ doctors, selectedDoctorId, selectedTime, on
 
       {/* Doctor cards */}
       <Card>
-        <CardContent className="p-0 divide-y max-h-75 overflow-y-auto">
+        <CardContent className="p-0 divide-y overflow-y-auto" style={{ maxHeight: '400px' }}>
           {filteredDoctors.map((doctor) => (
             <DoctorCard
               key={doctor.id}
@@ -242,6 +246,27 @@ function DoctorCard({
             <p className="text-body text-muted-foreground">
               {doctor.specialization || 'General'} • {doctor.experience_years || 0} years
             </p>
+            {doctor.education && doctor.education.length > 0 && (
+              <p className="text-body text-muted-foreground">
+                {doctor.education.join(', ')}
+              </p>
+            )}
+            {doctor.languages && doctor.languages.length > 0 && (
+              <p className="text-body text-muted-foreground">
+                {doctor.languages.join(', ')}
+              </p>
+            )}
+            {doctor.rating && (
+              <div className="flex items-center gap-1">
+                <Icon icon={Star} size={14} className="fill-warning text-warning" />
+                <span className="text-label">{doctor.rating}</span>
+                {doctor.total_reviews && (
+                  <span className="text-body text-muted-foreground">
+                    ({doctor.total_reviews})
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

@@ -44,15 +44,15 @@ export function EmbeddedPreviousVisit({ visit }: Props) {
   };
 
   return (
-    <Card className="p-4 space-y-4">
+    <Card className="p-6">
       {/* Header */}
-      <div className="flex items-center gap-2 text-primary">
+      <div className="flex items-center gap-2 text-muted-foreground mb-5">
         <Icon icon={Clock} size={16} />
         <span className="text-label">Previous Visit</span>
       </div>
 
       {/* Doctor info */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 mb-5">
         <Avatar className="h-10 w-10">
           <AvatarImage src={visit.doctor.avatar || undefined} />
           <AvatarFallback
@@ -73,19 +73,20 @@ export function EmbeddedPreviousVisit({ visit }: Props) {
         </div>
       </div>
 
-      {/* Reason box */}
-      <div className="bg-muted rounded-lg px-3 py-2.5">
+      {/* Visit details group */}
+      <div className="space-y-2">
+        {/* Reason */}
         <p className="text-body">
           <span className="font-semibold text-foreground">Reason:</span>{' '}
           <span className="text-muted-foreground">{visit.reason}</span>
         </p>
-      </div>
 
-      {/* Doctor's notes */}
-      <p className="text-body">
-        <span className="font-semibold text-foreground">Doctor's notes:</span>{' '}
-        <span className="text-muted-foreground">{visit.doctorNotes}</span>
-      </p>
+        {/* Doctor's notes */}
+        <p className="text-body">
+          <span className="font-semibold text-foreground">Doctor's notes:</span>{' '}
+          <span className="text-muted-foreground">{visit.doctorNotes}</span>
+        </p>
+      </div>
     </Card>
   );
 }

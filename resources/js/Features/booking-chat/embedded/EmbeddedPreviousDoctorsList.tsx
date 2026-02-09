@@ -65,34 +65,31 @@ export function EmbeddedPreviousDoctorsList({
   const allDoctors = [primaryDoctor, ...otherDoctors];
 
   return (
-    <div className="space-y-4">
-      {/* Doctor cards */}
-      <Card className="overflow-hidden">
-        <CardContent className="p-0 divide-y">
-          {allDoctors.map((doctor) => (
-            <PreviousDoctorCard
-              key={doctor.id}
-              doctor={doctor}
-              isSelected={selectedDoctorId === doctor.id}
-              selectedTime={selectedDoctorId === doctor.id ? selectedTime : null}
-              onSelectTime={(time) => onSelect(doctor.id, time)}
-              disabled={disabled}
-            />
-          ))}
-        </CardContent>
-      </Card>
+    <Card className="overflow-hidden">
+      <CardContent className="p-0 divide-y">
+        {allDoctors.map((doctor) => (
+          <PreviousDoctorCard
+            key={doctor.id}
+            doctor={doctor}
+            isSelected={selectedDoctorId === doctor.id}
+            selectedTime={selectedDoctorId === doctor.id ? selectedTime : null}
+            onSelectTime={(time) => onSelect(doctor.id, time)}
+            disabled={disabled}
+          />
+        ))}
 
-      {/* See other doctors button */}
-      <Button
-        variant="secondary"
-        className="w-full"
-        onClick={onSeeOtherDoctors}
-        disabled={disabled}
-      >
-        <Icon icon={Plus} size={16} className="mr-2" />
-        See other doctors instead
-      </Button>
-    </div>
+        {/* See other doctors button */}
+        <Button
+          variant="link"
+          className="w-full h-auto px-6 py-4 rounded-none justify-center text-body text-primary hover:bg-muted/50"
+          onClick={onSeeOtherDoctors}
+          disabled={disabled}
+        >
+          <Icon icon={Plus} size={16} />
+          See other doctors instead
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -145,17 +142,14 @@ function PreviousDoctorCard({
   return (
     <div
       className={cn(
-        "px-6 py-4 transition-all",
-        "hover:bg-muted/50",
-        isSelected
-          ? disabled ? "bg-primary/10 opacity-60" : "bg-primary/10"
-          : disabled ? "opacity-30" : ""
+        "px-6 py-4 transition-colors hover:bg-muted/50",
+        isSelected && "bg-primary/10 border-l-2 border-l-primary"
       )}
     >
-      {/* Header row */}
+      {/* Doctor info */}
       <div className="flex items-start justify-between gap-4 mb-3">
         <div className="flex items-start gap-3 flex-1">
-          <Avatar className="h-12 w-12">
+          <Avatar className="h-10 w-10">
             <AvatarImage src={doctor.avatar || undefined} />
             <AvatarFallback
               style={(() => {
@@ -166,7 +160,7 @@ function PreviousDoctorCard({
               {getInitial(doctor.name)}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 space-y-1">
+          <div className="space-y-1">
             <p className="text-label leading-none">{doctor.name}</p>
             <p className="text-body text-muted-foreground">
               {doctor.specialization} {doctor.experience_years ? `· ${doctor.experience_years} years` : ''}
@@ -186,22 +180,9 @@ function PreviousDoctorCard({
         </div>
 
         <div className="flex flex-col items-end gap-2">
-          {/* Show availability message if available */}
-          {doctor.availability_message ? (
-            <Badge
-              variant={doctor.available_on_date ? 'success' : 'danger'}
-            >
-              {doctor.availability_message}
-            </Badge>
-          ) : (
-            <Badge variant="info">
-              Last: {formatLastVisit(doctor.last_visit || doctor.lastVisitDate)}
-            </Badge>
-          )}
-
-          {/* Show consultation modes if available */}
+          {/* Show consultation modes */}
           {doctor.consultation_modes && doctor.consultation_modes.length > 0 && (
-            <div className="flex gap-1">
+            <div className="flex gap-2">
               {doctor.consultation_modes.includes('video') && (
                 <Badge variant="neutral">
                   Video
@@ -219,66 +200,47 @@ function PreviousDoctorCard({
         </div>
       </div>
 
-      {/* Previous symptoms (optional) */}
-      {doctor.previousSymptoms && doctor.previousSymptoms.length > 0 && (
-        <div className="bg-muted rounded-lg p-3 mb-3">
-          <p className="text-body">
-            <span className="font-medium">Previous:</span>{' '}
-            <span className="text-muted-foreground">
-              {doctor.previousSymptoms.join(', ')}
-            </span>
-          </p>
-        </div>
-      )}
-
-      {/* Quick time slots or full time slots */}
+      {/* Time slots */}
       {doctor.available_on_date === false ? (
         <div className="text-body text-muted-foreground italic">
           No available slots on the selected date
         </div>
       ) : (
-        <div className="space-y-2">
-          {/* Show quick times if available (from backend enhancement) */}
+        <div className="flex flex-wrap gap-2">
+          {/* Show quick times if available */}
           {doctor.quick_times && doctor.quick_times.length > 0 ? (
-            <>
-              <p className="text-body text-muted-foreground">Quick available times:</p>
-              <div className="flex flex-wrap gap-2">
-                {doctor.quick_times.map((time) => (
-                  <Button
-                    key={time}
-                    variant={selectedTime === time ? 'accent' : 'outline'}
-                    onClick={() => !disabled && onSelectTime(time)}
-                    disabled={disabled}
-                    className={cn(
-                      "h-auto px-3 py-1.5 rounded-full text-label",
-                      "disabled:opacity-60",
-                      selectedTime === time && "border-foreground"
-                    )}
-                  >
-                    {formatTime(time)}
-                  </Button>
-                ))}
-              </div>
-            </>
+            doctor.quick_times.map((time) => (
+              <Button
+                key={time}
+                variant={selectedTime === time ? 'accent' : 'outline'}
+                onClick={() => !disabled && onSelectTime(time)}
+                disabled={disabled}
+                className={cn(
+                  "h-auto px-3 py-1.5 rounded-full text-label",
+                  "disabled:opacity-60",
+                  selectedTime === time && "border-foreground"
+                )}
+              >
+                {formatTime(time)}
+              </Button>
+            ))
           ) : doctor.slots && doctor.slots.length > 0 ? (
             /* Fallback to full slots if available */
-            <div className="flex flex-wrap gap-2">
-              {doctor.slots.map((slot) => (
-                <Button
-                  key={slot.time}
-                  variant={selectedTime === slot.time ? 'accent' : 'outline'}
-                  onClick={() => !disabled && slot.available && onSelectTime(slot.time)}
-                  disabled={disabled || !slot.available}
-                  className={cn(
-                    "h-auto px-3 py-1.5 rounded-full text-label",
-                    "disabled:opacity-60",
-                    selectedTime === slot.time && "border-foreground"
-                  )}
-                >
-                  {formatTime(slot.time)}
-                </Button>
-              ))}
-            </div>
+            doctor.slots.map((slot) => (
+              <Button
+                key={slot.time}
+                variant={selectedTime === slot.time ? 'accent' : 'outline'}
+                onClick={() => !disabled && slot.available && onSelectTime(slot.time)}
+                disabled={disabled || !slot.available}
+                className={cn(
+                  "h-auto px-3 py-1.5 rounded-full text-label",
+                  "disabled:opacity-60",
+                  selectedTime === slot.time && "border-foreground"
+                )}
+              >
+                {formatTime(slot.time)}
+              </Button>
+            ))
           ) : null}
         </div>
       )}

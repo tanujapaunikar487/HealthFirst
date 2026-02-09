@@ -1,5 +1,6 @@
 import AppLayout from '@/Layouts/AppLayout';
 import { VStack } from '@/Components/ui/stack';
+import { Card } from '@/Components/ui/card';
 import { EmbeddedAppointmentType } from '@/Features/booking-chat/embedded/EmbeddedAppointmentType';
 import { EmbeddedFollowUpReason } from '@/Features/booking-chat/embedded/EmbeddedFollowUpReason';
 import { EmbeddedAppointmentMode } from '@/Features/booking-chat/embedded/EmbeddedAppointmentMode';
@@ -17,9 +18,12 @@ import { EmbeddedFollowUpFlow } from '@/Features/booking-chat/embedded/EmbeddedF
 import { EmbeddedAddressSelector } from '@/Features/booking-chat/embedded/EmbeddedAddressSelector';
 import { EmbeddedCollectionMethod } from '@/Features/booking-chat/embedded/EmbeddedCollectionMethod';
 import { EmbeddedBookingSummary } from '@/Features/booking-chat/embedded/EmbeddedBookingSummary';
-import { EmbeddedDateTimeSelector } from '@/Features/booking-chat/embedded/EmbeddedDateTimeSelector';
 import { EmbeddedDateTimePicker } from '@/Features/booking-chat/embedded/EmbeddedDateTimePicker';
 import { TypeSelectorCard } from '@/Features/booking-chat/embedded/TypeSelectorCard';
+import { Collapsible, CollapsibleContent } from '@/Components/ui/collapsible';
+import { Input } from '@/Components/ui/input';
+import { Button } from '@/Components/ui/button';
+import { PhoneInput } from '@/Components/ui/phone-input';
 import { useState } from 'react';
 
 export default function BookingComponents() {
@@ -39,6 +43,7 @@ export default function BookingComponents() {
   const [collectionMethod, setCollectionMethod] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [selectedTestIds, setSelectedTestIds] = useState<string[]>([]);
   const [typeSelectorExpanded, setTypeSelectorExpanded] = useState<'new_member' | 'link_existing' | 'guest' | null>(null);
 
   // Mock data
@@ -78,6 +83,62 @@ export default function BookingComponents() {
     },
   ];
 
+  const mockIndividualTests = [
+    {
+      id: '1',
+      name: 'Complete Blood Count (CBC)',
+      description: 'Measures different components of blood including RBC, WBC, and platelets',
+      category: 'Hematology',
+      price: 299,
+      turnaround_hours: 24,
+      requires_fasting: false,
+      fasting_hours: null,
+      sub_tests: ['Red Blood Cell Count', 'White Blood Cell Count', 'Platelet Count', 'Hemoglobin', 'Hematocrit'],
+    },
+    {
+      id: '2',
+      name: 'Lipid Profile',
+      description: 'Measures cholesterol levels including HDL, LDL, and triglycerides',
+      category: 'Cardiology',
+      price: 499,
+      turnaround_hours: 24,
+      requires_fasting: true,
+      fasting_hours: 12,
+      sub_tests: ['Total Cholesterol', 'HDL Cholesterol', 'LDL Cholesterol', 'Triglycerides', 'VLDL Cholesterol', 'TC/HDL Ratio', 'LDL/HDL Ratio'],
+    },
+    {
+      id: '3',
+      name: 'Thyroid Profile (TSH, T3, T4)',
+      description: 'Comprehensive thyroid function assessment',
+      category: 'Endocrinology',
+      price: 599,
+      turnaround_hours: 48,
+      requires_fasting: false,
+      fasting_hours: null,
+      sub_tests: ['Triiodothyronine (T3), Total - Serum', 'Thyroxine (T4), Total - Serum', 'Thyroid-Stimulating Hormone (TSH)'],
+    },
+    {
+      id: '4',
+      name: 'Vitamin D (25-OH)',
+      description: 'Measures vitamin D levels in blood',
+      category: 'Vitamins',
+      price: 899,
+      turnaround_hours: 72,
+      requires_fasting: false,
+      fasting_hours: null,
+    },
+    {
+      id: '5',
+      name: 'HbA1c (Glycated Hemoglobin)',
+      description: 'Average blood sugar levels over the past 3 months',
+      category: 'Diabetes',
+      price: 399,
+      turnaround_hours: 24,
+      requires_fasting: true,
+      fasting_hours: 8,
+    },
+  ];
+
   const mockPackages = [
     {
       id: '1',
@@ -91,8 +152,44 @@ export default function BookingComponents() {
       is_recommended: true,
       requires_fasting: true,
       fasting_hours: 12,
-      included_test_names: ['Lipid Profile', 'ECG', 'CRP', 'Blood Pressure', 'Heart Rate Variability'],
-      preparation_notes: 'Fasting for 12 hours before the test. Water is allowed during fasting period.',
+      collection_time: '7 AM today',
+      report_turnaround: '8 hours',
+      test_groups: [
+        {
+          name: 'Lipid Profile',
+          tests_included: ['Total Cholesterol', 'HDL Cholesterol', 'LDL Cholesterol', 'Triglycerides', 'VLDL Cholesterol'],
+        },
+        {
+          name: 'ECG (Electrocardiogram)',
+          tests_included: [],
+        },
+        {
+          name: 'CRP (C-Reactive Protein)',
+          tests_included: [],
+        },
+        {
+          name: 'Blood Pressure Monitoring',
+          tests_included: [],
+        },
+        {
+          name: 'Heart Rate Variability',
+          tests_included: [],
+        },
+      ],
+      preparation_instructions: [
+        {
+          icon: 'fasting' as const,
+          text: 'Fasting for 12 hours required',
+        },
+        {
+          icon: 'water' as const,
+          text: 'Water is allowed',
+        },
+        {
+          icon: 'medication' as const,
+          text: 'Continue heart medications as prescribed',
+        },
+      ],
     },
     {
       id: '2',
@@ -125,14 +222,64 @@ export default function BookingComponents() {
       id: '4',
       name: 'Diabetes Screening Package',
       description: 'Blood sugar, HbA1c, kidney function, and related tests for diabetes monitoring',
-      duration_hours: '1-2',
-      tests_count: 24,
+      duration_hours: '2-3',
+      tests_count: 36,
       age_range: '25+',
       price: 1499,
       original_price: 1999,
       is_recommended: false,
       requires_fasting: true,
-      fasting_hours: 8,
+      fasting_hours: 12,
+      collection_time: '6 AM tomorrow',
+      report_turnaround: '10 hours',
+      test_groups: [
+        {
+          name: 'FBS (Fasting Blood Sugar) Test',
+          tests_included: [],
+        },
+        {
+          name: 'ESR Test (Erythrocyte Sedimentation Rate)',
+          tests_included: [],
+        },
+        {
+          name: 'CBC Test (Complete Blood Count)',
+          tests_included: ['Red Blood Cell Count', 'White Blood Cell Count', 'Platelet Count'],
+        },
+        {
+          name: 'Thyroid Profile (T3 T4 TSH) Test',
+          tests_included: ['Triiodothyronine (T3), Total - Serum', 'Thyroxine (T4), Total - Serum', 'Thyroid-Stimulating Hormone (TSH)'],
+        },
+        {
+          name: 'Lipid Profile Test',
+          tests_included: ['Total Cholesterol', 'HDL Cholesterol', 'LDL Cholesterol', 'Triglycerides', 'VLDL Cholesterol', 'TC/HDL Ratio', 'LDL/HDL Ratio', 'Non-HDL Cholesterol'],
+        },
+        {
+          name: 'LFT (Liver Function) Test',
+          tests_included: ['Bilirubin Total', 'Bilirubin Direct', 'Bilirubin Indirect', 'SGOT', 'SGPT', 'Alkaline Phosphatase', 'Total Protein', 'Albumin', 'Globulin', 'A/G Ratio', 'GGT'],
+        },
+        {
+          name: 'KFT with Electrolytes (Kidney Function)',
+          tests_included: ['Blood Urea', 'Serum Creatinine', 'Blood Urea Nitrogen', 'BUN/Creatinine Ratio', 'Uric Acid', 'Sodium', 'Potassium', 'Chloride', 'Bicarbonate', 'Calcium', 'Phosphorus', 'Magnesium', 'Anion Gap', 'eGFR'],
+        },
+      ],
+      preparation_instructions: [
+        {
+          icon: 'fasting' as const,
+          text: 'Fasting for 10-12 hours required',
+        },
+        {
+          icon: 'water' as const,
+          text: 'Water is allowed',
+        },
+        {
+          icon: 'alcohol' as const,
+          text: 'Avoid alcohol 24 hours before',
+        },
+        {
+          icon: 'medication' as const,
+          text: 'Continue regular medications unless advised otherwise',
+        },
+      ],
     },
     {
       id: '5',
@@ -163,6 +310,8 @@ export default function BookingComponents() {
       consultation_modes: ['video', 'in_person'],
       video_fee: 800,
       in_person_fee: 1000,
+      education: ['MBBS', 'MD (Cardiology)', 'DM (Cardiology)'],
+      languages: ['English', 'Hindi'],
       slots: [
         { time: '09:00', mode: 'video' as const, available: true, preferred: true },
         { time: '10:00', mode: 'video' as const, available: true, preferred: false },
@@ -183,6 +332,8 @@ export default function BookingComponents() {
       consultation_modes: ['video', 'in_person'],
       video_fee: 600,
       in_person_fee: 800,
+      education: ['MBBS', 'MD (General Medicine)'],
+      languages: ['English', 'Hindi', 'Marathi'],
       slots: [
         { time: '11:00', mode: 'video' as const, available: true, preferred: false },
         { time: '16:00', mode: 'in_person' as const, available: true, preferred: true },
@@ -201,6 +352,8 @@ export default function BookingComponents() {
       consultation_modes: ['video', 'in_person'],
       video_fee: 700,
       in_person_fee: 900,
+      education: ['MBBS', 'MD (Pediatrics)'],
+      languages: ['English', 'Hindi'],
       slots: [
         { time: '09:30', mode: 'video' as const, available: true, preferred: true },
         { time: '13:00', mode: 'in_person' as const, available: true, preferred: false },
@@ -459,13 +612,16 @@ export default function BookingComponents() {
                 />
               </div>
 
-              {/* Package List */}
+              {/* Package List with Tabs */}
               <div>
-                <h3 className="text-card-title mb-3 text-muted-foreground">Lab Packages</h3>
+                <h3 className="text-card-title mb-3 text-muted-foreground">Lab Packages & Individual Tests (with tabs)</h3>
                 <EmbeddedPackageList
                   packages={mockPackages}
+                  individualTests={mockIndividualTests}
                   selectedPackageId={packageId}
+                  selectedTestIds={selectedTestIds}
                   onSelect={setPackageId}
+                  onSelectTests={setSelectedTestIds}
                   disabled={false}
                   mode="chat"
                 />
@@ -550,15 +706,15 @@ export default function BookingComponents() {
             <VStack gap={8}>
               {/* Date Time Selector */}
               <div>
-                <h3 className="text-card-title mb-3 text-muted-foreground">Date Time Selector</h3>
-                <EmbeddedDateTimeSelector
+                <h3 className="text-card-title mb-3 text-muted-foreground">Date Time Picker (with custom dates/slots)</h3>
+                <EmbeddedDateTimePicker
                   dates={mockDateOptions}
                   slots={mockTimeSlots}
                   fastingRequired={true}
                   fastingHours={12}
                   selectedDate={selectedDate}
                   selectedTime={selectedTime}
-                  onSelect={(date, time) => {
+                  onSelect={(date: string, time: string) => {
                     setSelectedDate(date);
                     setSelectedTime(time);
                   }}
@@ -566,13 +722,13 @@ export default function BookingComponents() {
                 />
               </div>
 
-              {/* Date Time Picker */}
+              {/* Date Time Picker with auto-generated dates */}
               <div>
-                <h3 className="text-card-title mb-3 text-muted-foreground">Date Time Picker</h3>
+                <h3 className="text-card-title mb-3 text-muted-foreground">Date Time Picker (auto-generated)</h3>
                 <EmbeddedDateTimePicker
                   selectedDate={selectedDate}
                   selectedTime={selectedTime}
-                  onSelect={(date, time) => {
+                  onSelect={(date: string, time: string) => {
                     setSelectedDate(date);
                     setSelectedTime(time);
                   }}
@@ -602,29 +758,87 @@ export default function BookingComponents() {
           <div>
             <h2 className="text-section-title mb-6">Helper Components</h2>
             <VStack gap={8}>
-              {/* Type Selector Cards */}
+              {/* Adding New Member Cards */}
               <div>
-                <h3 className="text-card-title mb-3 text-muted-foreground">Type Selector Cards</h3>
-                <div className="space-y-3">
-                  <TypeSelectorCard
-                    type="new_member"
-                    isExpanded={typeSelectorExpanded === 'new_member'}
-                    onClick={() => setTypeSelectorExpanded(typeSelectorExpanded === 'new_member' ? null : 'new_member')}
-                    disabled={false}
-                  />
-                  <TypeSelectorCard
-                    type="link_existing"
-                    isExpanded={typeSelectorExpanded === 'link_existing'}
-                    onClick={() => setTypeSelectorExpanded(typeSelectorExpanded === 'link_existing' ? null : 'link_existing')}
-                    disabled={false}
-                  />
-                  <TypeSelectorCard
-                    type="guest"
-                    isExpanded={typeSelectorExpanded === 'guest'}
-                    onClick={() => setTypeSelectorExpanded(typeSelectorExpanded === 'guest' ? null : 'guest')}
-                    disabled={false}
-                  />
-                </div>
+                <h3 className="text-card-title mb-3 text-muted-foreground">Adding New Member Cards</h3>
+                <Card className="overflow-hidden">
+                  <div className="divide-y">
+                    {/* New Member */}
+                    <div>
+                      <TypeSelectorCard
+                        type="new_member"
+                        isExpanded={typeSelectorExpanded === 'new_member'}
+                        onClick={() => setTypeSelectorExpanded(typeSelectorExpanded === 'new_member' ? null : 'new_member')}
+                        disabled={false}
+                      />
+                      <Collapsible open={typeSelectorExpanded === 'new_member'}>
+                        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
+                          <div className="px-6 pb-6 pt-4 space-y-4">
+                            <div className="space-y-2">
+                              <label className="text-label text-foreground">Full Name <span className="text-destructive">*</span></label>
+                              <Input placeholder="Enter full name" />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-label text-foreground">Phone Number <span className="text-destructive">*</span></label>
+                              <PhoneInput value="+91" onChange={() => {}} />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-label text-foreground">Relationship <span className="text-destructive">*</span></label>
+                              <Input placeholder="e.g., Mother, Father, Sister" />
+                            </div>
+                            <Button variant="accent" size="md">Add Member</Button>
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    </div>
+
+                    {/* Existing Patient */}
+                    <div>
+                      <TypeSelectorCard
+                        type="link_existing"
+                        isExpanded={typeSelectorExpanded === 'link_existing'}
+                        onClick={() => setTypeSelectorExpanded(typeSelectorExpanded === 'link_existing' ? null : 'link_existing')}
+                        disabled={false}
+                      />
+                      <Collapsible open={typeSelectorExpanded === 'link_existing'}>
+                        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
+                          <div className="px-6 pb-6 pt-4 space-y-4">
+                            <div className="space-y-2">
+                              <label className="text-label text-foreground">Search by phone, email, or patient ID</label>
+                              <Input placeholder="e.g., 9876543210, email@example.com, or PT-000001" />
+                            </div>
+                            <Button variant="accent" size="md">Search</Button>
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    </div>
+
+                    {/* Guest */}
+                    <div>
+                      <TypeSelectorCard
+                        type="guest"
+                        isExpanded={typeSelectorExpanded === 'guest'}
+                        onClick={() => setTypeSelectorExpanded(typeSelectorExpanded === 'guest' ? null : 'guest')}
+                        disabled={false}
+                      />
+                      <Collapsible open={typeSelectorExpanded === 'guest'}>
+                        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
+                          <div className="px-6 pb-6 pt-4 space-y-4">
+                            <div className="space-y-2">
+                              <label className="text-label text-foreground">Guest Name <span className="text-destructive">*</span></label>
+                              <Input placeholder="Enter guest name" />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-label text-foreground">Phone Number <span className="text-destructive">*</span></label>
+                              <PhoneInput value="+91" onChange={() => {}} />
+                            </div>
+                            <Button variant="accent" size="md">Add Guest</Button>
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    </div>
+                  </div>
+                </Card>
               </div>
             </VStack>
           </div>

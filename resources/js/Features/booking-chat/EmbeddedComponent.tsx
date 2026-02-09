@@ -16,7 +16,7 @@ import { EmbeddedAppointmentMode } from './embedded/EmbeddedAppointmentMode';
 import { EmbeddedBookingSummary } from './embedded/EmbeddedBookingSummary';
 import { EmbeddedFollowUpFlow } from './embedded/EmbeddedFollowUpFlow';
 import { EmbeddedPreviousDoctorsList } from './embedded/EmbeddedPreviousDoctorsList';
-import { EmbeddedDateTimeSelector } from './embedded/EmbeddedDateTimeSelector';
+import { EmbeddedDateTimePicker } from './embedded/EmbeddedDateTimePicker';
 import { EmbeddedCollectionMethod } from './embedded/EmbeddedCollectionMethod';
 import { EmbeddedCenterList } from './embedded/EmbeddedCenterList';
 import { EmbeddedAddressSelector } from './embedded/EmbeddedAddressSelector';
@@ -366,7 +366,16 @@ export function EmbeddedComponent({
             address_text: address,
             display_message: `${label}: ${address}`,
           })}
+          onSubmitAddress={(formData) => {
+            // Send the complete form data to backend
+            onSelect({
+              add_address: true,
+              address_data: formData,
+              display_message: `New address: ${formData.label}`,
+            });
+          }}
           onAddAddress={() => {
+            // Fallback: show standalone form (for backward compatibility)
             onSelect({
               add_address: true,
               display_message: 'Add new address',
@@ -419,8 +428,8 @@ export function EmbeddedComponent({
     case 'date_time_selector':
       const dtDates = data?.dates || [];
       return (
-        <EmbeddedDateTimeSelector
-          dates={dtDates}
+        <EmbeddedDateTimePicker
+          dates={dtDates.length > 0 ? dtDates : undefined}
           slots={data?.slots || generateTimeSlots()}
           fastingRequired={data?.fastingRequired || data?.fasting_required}
           fastingHours={data?.fastingHours || data?.fasting_hours}

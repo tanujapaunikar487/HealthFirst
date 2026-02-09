@@ -6,9 +6,10 @@ import { Card } from '@/Components/ui/card';
 import { Textarea } from '@/Components/ui/textarea';
 import { FollowUpBanner } from '@/Components/Booking/FollowUpBanner';
 import InlineMemberTypeSelector from '@/Features/booking-chat/embedded/InlineMemberTypeSelector';
+import { EmbeddedFollowUpReason, type FollowUpReasonOption } from '@/Features/booking-chat/embedded/EmbeddedFollowUpReason';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
-import { ArrowRight, Star, CalendarClock, RefreshCw, AlertCircle, User } from '@/Lib/icons';
+import { ArrowRight, Star, RefreshCw, User } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { getAvatarColorByName } from '@/Lib/avatar-colors';
 
@@ -59,12 +60,6 @@ interface FollowUpData {
   symptoms: string[];
   doctorName: string;
   date: string;
-}
-
-interface FollowUpReasonOption {
-  value: string;
-  label: string;
-  description: string;
 }
 
 interface Props {
@@ -342,19 +337,6 @@ export default function PatientStep({
   };
 
   // Follow-up reason icons
-  const getReasonIcon = (value: string) => {
-    switch (value) {
-      case 'scheduled':
-        return CalendarClock;
-      case 'new_concern':
-        return AlertCircle;
-      case 'ongoing_issue':
-        return RefreshCw;
-      default:
-        return AlertCircle;
-    }
-  };
-
   const isFollowup = appointmentType === 'followup';
   const continueDisabled = !patientId || !appointmentType ||
     (isFollowup && !followupReason);
@@ -502,30 +484,12 @@ export default function PatientStep({
               This helps us prepare for your visit
             </p>
 
-            <Card className="overflow-hidden">
-              <div className="divide-y">
-                {followUpReasonOptions.map((option) => (
-                  <Button
-                    key={option.value}
-                    variant="ghost"
-                    onClick={() => handleFollowupReasonSelect(option.value)}
-                    className={cn(
-                      'w-full h-auto px-6 py-4 rounded-none text-left transition-all flex items-center gap-4',
-                      'hover:bg-muted/50',
-                      followupReason === option.value && 'bg-primary/5'
-                    )}
-                  >
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <Icon icon={getReasonIcon(option.value)} size={20} className="text-primary" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-label text-foreground leading-tight mb-0.5">{option.label}</p>
-                      <p className="text-body text-muted-foreground leading-tight">{option.description}</p>
-                    </div>
-                  </Button>
-                ))}
-              </div>
-            </Card>
+            <EmbeddedFollowUpReason
+              selectedReason={followupReason}
+              onSelect={handleFollowupReasonSelect}
+              disabled={false}
+              reasons={followUpReasonOptions}
+            />
 
             {errors.followupReason && (
               <p className="text-body text-destructive mt-2">{errors.followupReason}</p>
