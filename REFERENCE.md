@@ -160,6 +160,23 @@ No wrapper — goes directly as section content (Card `overflow-hidden` clips co
 
 ## Detail Page Patterns
 
+### Alert Positioning (CRITICAL)
+
+**All alerts MUST appear below title/breadcrumb, before main content**
+
+Structure: `Breadcrumb → Header → Alerts (mb-12 space-y-4) → Main Content`
+
+```tsx
+{/* Alerts */}
+<div className="mb-12 space-y-4">
+  {condition && <Alert variant="info">...</Alert>}
+  {otherCondition && <Alert variant="warning">...</Alert>}
+</div>
+```
+
+Status alerts (vaccination complete, side effects, symptoms worsen, dispute, expiry) promoted from sections to top-level.
+Never embed status alerts inside DetailSection content.
+
 ### Edge-to-Edge Dividers (mixed content)
 
 ```tsx
@@ -259,7 +276,7 @@ Empty inside Section: centered text, not `EmptyState`
 
 Merged Date+Time into single "Date & time" row. No Status row
 Clinical Summary uses `noPadding` + DetailRow for diagnosis (inline ICD+severity badges) and allergies (danger badges)
-"If Symptoms Worsen" Alert stays at bottom with `p-6 pt-4` wrapper
+"If Symptoms Worsen" alert moved to top-level alert section (shows when clinical_summary exists)
 
 ### Appointment Filters (item 30)
 
