@@ -1283,9 +1283,10 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
 
             {/* Cancel button */}
             <Button
-                variant="ghost"
+                variant="secondary"
+                size="md"
                 onClick={onCancel}
-                className="w-full text-muted-foreground"
+                className="w-full"
                 disabled={state.loading}
             >
                 Cancel

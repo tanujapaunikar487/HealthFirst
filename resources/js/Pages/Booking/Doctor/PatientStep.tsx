@@ -361,7 +361,7 @@ export default function PatientStep({
 
           {/* Inline Member Type Selector */}
           {showAddMemberInline && (
-            <div className="mt-4 p-4 border rounded-xl bg-muted/30">
+            <div className="mt-4">
               <InlineMemberTypeSelector
                 onComplete={handleMemberAdded}
                 onCancel={() => setShowAddMemberInline(false)}
