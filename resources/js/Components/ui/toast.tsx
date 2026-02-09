@@ -112,7 +112,6 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
         className={cn(toastVariants({ variant }), className)}
         style={{
           left: '50%',
-          marginLeft: 'var(--spacing-sidebar)',
           transform: 'translateX(-50%)',
         }}
         {...props}

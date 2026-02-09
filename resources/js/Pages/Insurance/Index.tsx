@@ -434,7 +434,7 @@ export default function InsuranceIndex({
           <>
             {/* Policies on file */}
             <div className="mb-10">
-              <h2 className="mb-4 text-card-title text-muted-foreground">Policies on file</h2>
+              <h2 className="mb-4 text-section-title text-foreground">Policies on file</h2>
               <TableContainer>
                 <Table>
                   <TableHeader>
@@ -548,7 +548,7 @@ export default function InsuranceIndex({
 
             {/* Past Claims Section */}
             <div>
-              <h2 className="mb-4 text-subheading text-foreground">Past claims</h2>
+              <h2 className="mb-4 text-section-title text-foreground">Past claims</h2>
 
               {/* Filters */}
               <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -593,13 +593,13 @@ export default function InsuranceIndex({
                   </SelectContent>
                 </Select>
 
-                <div className="relative flex-1">
+                <div className="relative ml-auto">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground" />
                   <Input
                     placeholder="Search"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="pl-9"
+                    className="pl-9 h-9 w-[220px]"
                   />
                 </div>
               </div>
