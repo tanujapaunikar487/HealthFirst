@@ -92,10 +92,15 @@ export function EmbeddedComponent({
 
   switch (type) {
     case 'patient_selector':
+      // Normalize patient_id type for consistent comparison
+      const normalizedPatientId = selection?.patient_id
+        ? (typeof selection.patient_id === 'string' ? parseInt(selection.patient_id) : selection.patient_id)
+        : null;
+
       return (
         <PatientSelector
           patients={patients}
-          selected={selection?.patient_id}
+          selected={normalizedPatientId}
           defaultPatientId={defaultPatientId}
           onSelect={(id) => {
             const patient = patients.find((p: any) => p.id === id);
@@ -148,12 +153,7 @@ export function EmbeddedComponent({
                   disabled={disabled || isSelected}
                   className={cn(
                     "w-full h-auto justify-start px-6 py-4 text-body",
-                    "flex items-center gap-4 text-left transition-all",
-                    optionSelected
-                      ? "rounded-3xl border-2 border-primary bg-primary/5 [&:not(:first-child)]:border-t-0 [&+*]:border-t-0"
-                      : isSelected
-                        ? "rounded-none disabled:opacity-30"
-                        : "rounded-none hover:bg-muted/50"
+                    "flex items-center gap-4 text-left transition-all rounded-none hover:bg-muted/50"
                   )}
                 >
                 <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
@@ -190,7 +190,7 @@ export function EmbeddedComponent({
         <Card className="overflow-hidden">
           <div className="divide-y">
             {options.map((option: any) => {
-              const optionSelected = isSelected && data?.selected === (option.value || option.id);
+              const optionSelected = isSelected && selection?.followup_reason === (option.value || option.id);
               const OptionIcon = reasonIconMap[option.value || option.id] || RefreshCw;
 
               return (
@@ -206,12 +206,7 @@ export function EmbeddedComponent({
                   disabled={disabled || isSelected}
                   className={cn(
                     "w-full h-auto justify-start px-6 py-4 text-body",
-                    "flex items-center gap-4 text-left transition-all",
-                    optionSelected
-                      ? "rounded-3xl border-2 border-primary bg-primary/5 [&:not(:first-child)]:border-t-0 [&+*]:border-t-0"
-                      : isSelected
-                        ? "rounded-none disabled:opacity-30"
-                        : "rounded-none hover:bg-muted/50"
+                    "flex items-center gap-4 text-left transition-all rounded-none hover:bg-muted/50"
                   )}
                 >
                 <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
@@ -518,10 +513,7 @@ export function EmbeddedComponent({
                   }
                   disabled={disabled || isSelected}
                   className={cn(
-                    'w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50',
-                    doctorSelected
-                      ? isSelected ? 'bg-primary/10 disabled:opacity-60' : 'bg-primary/10'
-                      : isSelected ? 'disabled:opacity-30' : ''
+                    'w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50'
                   )}
                   style={{
                     borderBottom: (index < previousDoctors.length - 1 || showAllDoctorsOption)

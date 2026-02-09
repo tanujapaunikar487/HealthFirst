@@ -44,15 +44,8 @@ import {
 import { Icon } from '@/Components/ui/icon';
 import { DetailSection } from '@/Components/ui/detail-section';
 import { DetailRow } from '@/Components/ui/detail-row';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogBody,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
-} from '@/Components/ui/dialog';
+import { Modal } from '@/Components/ui/modal';
+import { DialogFooter } from '@/Components/ui/dialog';
 
 /* ─── Types ─── */
 
@@ -1079,19 +1072,14 @@ export default function FamilyMemberShow({
         </div>
       </div>
 
-      {/* Upgrade Confirmation Dialog */}
-      <Dialog
+      {/* Upgrade Confirmation Modal */}
+      <Modal
         open={showUpgradeConfirm}
         onOpenChange={(open) => { if (!upgrading) setShowUpgradeConfirm(open); }}
-      >
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Upgrade {member.name}?</DialogTitle>
-            <DialogDescription>
-              This will convert this guest to a full family member with access to health records, billing, and all other features.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
+        title={`Upgrade ${member.name}?`}
+        description="This will convert this guest to a full family member with access to health records, billing, and all other features."
+        footer={
+          <>
             <Button
               variant="secondary"
               className="flex-1"
@@ -1107,69 +1095,65 @@ export default function FamilyMemberShow({
             >
               {upgrading ? 'Upgrading...' : 'Upgrade'}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </>
+        }
+        className="max-w-[500px]"
+      />
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog
+      {/* Delete Confirmation Modal */}
+      <Modal
         open={showDeleteConfirm}
         onOpenChange={(open) => {
           if (!open) { setShowDeleteConfirm(false); setDeleteConfirmName(''); }
           else setShowDeleteConfirm(true);
         }}
+        title={<span style={{ color: 'hsl(var(--destructive))' }}>Remove {member.name}?</span>}
+        className="max-w-[500px]"
       >
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle style={{ color: 'hsl(var(--destructive))' }}>Remove {member.name}?</DialogTitle>
-          </DialogHeader>
-          <DialogBody>
-            <div className="space-y-4">
-              <AlertComponent variant="error" title="This action cannot be undone">
-                <p>This will permanently delete:</p>
-                <ul className="mt-2 space-y-1 ml-4 list-disc">
-                  <li>All health records and medical history</li>
-                  <li>Past appointments and consultation notes</li>
-                  <li>Billing and insurance claim records</li>
-                  <li>Prescriptions and lab reports</li>
-                </ul>
-              </AlertComponent>
-              <div>
-                <label className="block text-label text-foreground mb-2">
-                  Type <span className="font-semibold">{member.name}</span> to confirm
-                </label>
-                <Input
-                  type="text"
-                  value={deleteConfirmName}
-                  onChange={(e) => setDeleteConfirmName(e.target.value)}
-                  placeholder={`Type "${member.name}" to confirm`}
-                  className="w-full"
-                />
-              </div>
-            </div>
-          </DialogBody>
-          <DialogFooter>
-            <Button
-              variant="secondary"
-              className="flex-1"
-              onClick={() => {
-                setShowDeleteConfirm(false);
-                setDeleteConfirmName('');
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              className="flex-1"
-              onClick={handleDelete}
-              disabled={deleteConfirmName !== member.name}
-            >
-              Remove
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        <div className="space-y-4">
+          <AlertComponent variant="error" title="This action cannot be undone">
+            <p>This will permanently delete:</p>
+            <ul className="mt-2 space-y-1 ml-4 list-disc">
+              <li>All health records and medical history</li>
+              <li>Past appointments and consultation notes</li>
+              <li>Billing and insurance claim records</li>
+              <li>Prescriptions and lab reports</li>
+            </ul>
+          </AlertComponent>
+          <div>
+            <label className="block text-label text-foreground mb-2">
+              Type <span className="font-semibold">{member.name}</span> to confirm
+            </label>
+            <Input
+              type="text"
+              value={deleteConfirmName}
+              onChange={(e) => setDeleteConfirmName(e.target.value)}
+              placeholder={`Type "${member.name}" to confirm`}
+              className="w-full"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button
+            variant="secondary"
+            className="flex-1"
+            onClick={() => {
+              setShowDeleteConfirm(false);
+              setDeleteConfirmName('');
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            className="flex-1"
+            onClick={handleDelete}
+            disabled={deleteConfirmName !== member.name}
+          >
+            Remove
+          </Button>
+        </DialogFooter>
+      </Modal>
 
     </AppLayout>
   );

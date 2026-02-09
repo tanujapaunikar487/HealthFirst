@@ -85,14 +85,7 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
             variant="ghost"
             onClick={() => !disabled && onSelect(addr.id, addr.label, addr.address)}
             disabled={disabled}
-            className={cn(
-              'w-full h-auto justify-start px-6 py-4 text-body',
-              'flex items-start gap-3 text-left transition-all',
-              disabled && 'opacity-60',
-              isSelected
-                ? 'rounded-3xl border-2 border-primary bg-primary/5 [&:not(:first-child)]:border-t-0 [&+*]:border-t-0'
-                : 'rounded-none hover:bg-muted/50'
-            )}
+            className="w-full h-auto justify-start px-6 py-4 text-body flex items-start gap-3 text-left transition-all rounded-none hover:bg-muted/50"
           >
             <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0 mt-0.5">
               <Icon icon={Home} size={20} className="text-blue-800" />

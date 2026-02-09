@@ -51,17 +51,7 @@ export function PatientSelector({
             variant="outline"
             onClick={() => !disabled && onSelect(patient.id)}
             disabled={disabled}
-            className={cn(
-              'h-auto flex items-center gap-3 p-3 rounded-full text-left font-normal',
-              'hover:bg-muted/50',
-              highlightedId === patient.id
-                ? disabled
-                  ? 'border-2 border-primary bg-primary/10 disabled:opacity-60'
-                  : 'border-2 border-primary bg-primary/10'
-                : disabled
-                  ? 'disabled:opacity-30'
-                  : ''
-            )}
+              'h-auto flex items-center gap-3 p-3 rounded-full text-left font-normal hover:bg-muted/50'
           >
             <Avatar className="w-9 h-9 flex-shrink-0">
               <AvatarImage src={patient.avatar || undefined} />

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { Card } from '@/Components/ui/card';
 import { Textarea } from '@/Components/ui/textarea';
@@ -77,7 +77,12 @@ export default function PatientStep({
   followUp,
   savedData
 }: Props) {
-  const [patientId, setPatientId] = useState<string | null>(savedData?.patientId || null);
+  const { bookingDefaults } = usePage<{ bookingDefaults?: { default_patient_id: string | null } }>().props;
+  const defaultPatientId = bookingDefaults?.default_patient_id || null;
+
+  const [patientId, setPatientId] = useState<string | null>(
+    savedData?.patientId || defaultPatientId
+  );
   const [appointmentType, setAppointmentType] = useState<'new' | 'followup' | null>(
     savedData?.appointmentType || null
   );
@@ -354,6 +359,7 @@ export default function PatientStep({
               relation: m.relationship
             }))}
             selected={patientId}
+            defaultPatientId={defaultPatientId}
             onSelect={handlePatientSelect}
             onAddMember={() => setShowAddMemberInline(true)}
             disabled={false}

@@ -35,10 +35,11 @@ export function EmbeddedCenterList({ centers, selectedCenterId, onSelect, disabl
             className={cn(
               "w-full h-auto justify-start px-6 py-4 text-body",
               "flex items-start gap-3 text-left transition-all",
-              disabled && "opacity-60",
               isSelected
-                ? "rounded-3xl border-2 border-primary bg-primary/5 [&:not(:first-child)]:border-t-0 [&+*]:border-t-0"
-                : "rounded-none hover:bg-muted/50"
+                ? "relative z-10 rounded-3xl border-2 border-primary bg-primary/10 [&:not(:first-child)]:-mt-px [&+*]:border-t-transparent"
+                : "rounded-none hover:bg-muted/50",
+              disabled && isSelected && "[opacity:1!important]",
+              disabled && !isSelected && "opacity-40"
             )}
           >
             <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0 mt-0.5">

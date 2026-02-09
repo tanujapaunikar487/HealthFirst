@@ -44,14 +44,14 @@ import { Textarea } from '@/Components/ui/textarea';
 import { ShareDialog } from '@/Components/ui/share-dialog';
 import { useToast } from '@/Contexts/ToastContext';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogBody,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
-} from '@/Components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetBody,
+  SheetFooter,
+  SheetTitle,
+  SheetDescription,
+} from '@/Components/ui/sheet';
 
 /* ─── Types ─── */
 
@@ -1055,8 +1055,8 @@ export default function Show({ user, bill }: Props) {
 
       </div>
 
-      {/* Dispute Dialog */}
-      <Dialog
+      {/* Dispute Sheet */}
+      <Sheet
         open={showDisputeDialog}
         onOpenChange={(open) => {
           if (!disputeLoading) {
@@ -1065,32 +1065,36 @@ export default function Show({ user, bill }: Props) {
           }
         }}
       >
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Raise a dispute?</DialogTitle>
-            <DialogDescription>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Raise a dispute</SheetTitle>
+            <SheetDescription>
               Our team will review your dispute within 3–5 business days. Payment will be paused during review.
-            </DialogDescription>
-          </DialogHeader>
+            </SheetDescription>
+          </SheetHeader>
 
-          <DialogBody>
-            <div>
-              <label className="block text-label text-foreground mb-2">
-                Reason for dispute
-              </label>
-              <Textarea
-                value={disputeReason}
-                onChange={(e) => setDisputeReason(e.target.value)}
-                placeholder="Describe the issue with this bill..."
-                maxLength={1000}
-                rows={4}
-                className="w-full"
-              />
-              <p className="mt-1 text-body text-muted-foreground text-right">{disputeReason.length}/1000</p>
+          <SheetBody>
+            <div className="px-5 py-5 space-y-5">
+              <div className="space-y-2">
+                <label className="block text-label text-foreground">
+                  Reason for dispute
+                </label>
+                <Textarea
+                  value={disputeReason}
+                  onChange={(e) => setDisputeReason(e.target.value)}
+                  placeholder="Describe the issue with this bill..."
+                  maxLength={1000}
+                  rows={6}
+                  className="w-full"
+                />
+                <p className="text-body text-muted-foreground text-right">
+                  {disputeReason.length}/1000
+                </p>
+              </div>
             </div>
-          </DialogBody>
+          </SheetBody>
 
-          <DialogFooter>
+          <SheetFooter>
             <Button
               variant="secondary"
               className="flex-1"
@@ -1124,17 +1128,18 @@ export default function Show({ user, bill }: Props) {
             >
               {disputeLoading ? 'Submitting...' : 'Submit dispute'}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
 
-      {/* Share Sheet */}
+      {/* Share Dialog */}
       <ShareDialog
         open={showShareDialog}
         onOpenChange={setShowShareDialog}
         title={`Invoice ${bill.invoice_number}`}
         description={`${bill.appointment_title} · ₹${bill.total.toLocaleString()}`}
         url={window.location.href}
+        icon={Receipt}
       />
     </AppLayout>
   );

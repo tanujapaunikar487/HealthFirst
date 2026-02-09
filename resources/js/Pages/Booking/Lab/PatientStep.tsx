@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { PatientSelector } from '@/Components/Booking/PatientSelector';
 import InlineMemberTypeSelector from '@/Features/booking-chat/embedded/InlineMemberTypeSelector';
@@ -26,7 +26,12 @@ interface Props {
 }
 
 export default function PatientStep({ familyMembers, savedData }: Props) {
-  const [patientId, setPatientId] = useState<string | null>(savedData?.patientId || null);
+  const { bookingDefaults } = usePage<{ bookingDefaults?: { default_patient_id: string | null } }>().props;
+  const defaultPatientId = bookingDefaults?.default_patient_id || null;
+
+  const [patientId, setPatientId] = useState<string | null>(
+    savedData?.patientId || defaultPatientId
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showAddMemberInline, setShowAddMemberInline] = useState(false);
   const [members, setMembers] = useState(familyMembers);
@@ -85,6 +90,7 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
               relation: m.relationship
             }))}
             selected={patientId}
+            defaultPatientId={defaultPatientId}
             onSelect={setPatientId}
             onAddMember={() => setShowAddMemberInline(true)}
             disabled={false}

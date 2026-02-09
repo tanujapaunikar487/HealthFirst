@@ -70,6 +70,7 @@ export default function TestSearchStep({ savedData }: Props) {
   const [searchResults, setSearchResults] = useState<SearchResults | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [selectedChips, setSelectedChips] = useState<string[]>([]);
 
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(
     savedData?.selectedPackageId ? String(savedData.selectedPackageId) : null
@@ -130,9 +131,23 @@ export default function TestSearchStep({ savedData }: Props) {
     }
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
-    setSearchQuery(suggestion);
-    handleSearch(suggestion);
+  const handleChipToggle = (chip: string) => {
+    setSelectedChips((prev) => {
+      const newSelection = prev.includes(chip)
+        ? prev.filter((c) => c !== chip)
+        : [...prev, chip];
+
+      // Auto-update search query with selected chips
+      const query = newSelection.join(', ');
+      setSearchQuery(query);
+
+      // Auto-search if chips are selected
+      if (newSelection.length > 0) {
+        handleSearch(query);
+      }
+
+      return newSelection;
+    });
   };
 
   const handlePackageSelect = (pkgId: string) => {
@@ -232,16 +247,24 @@ export default function TestSearchStep({ savedData }: Props) {
 
           {/* Suggestion chips */}
           <div className="flex flex-wrap gap-2 mb-6">
-            {suggestionChips.map((chip) => (
-              <Button
-                key={chip}
-                variant="outline"
-                onClick={() => handleSuggestionClick(chip)}
-                className="h-auto px-3 py-1.5 rounded-full text-body hover:border-primary/50 hover:bg-primary/5 transition-all"
-              >
-                {chip}
-              </Button>
-            ))}
+            {suggestionChips.map((chip) => {
+              const isSelected = selectedChips.includes(chip);
+
+              return (
+                <Button
+                  key={chip}
+                  variant="outline"
+                  onClick={() => handleChipToggle(chip)}
+                  className={
+                    isSelected
+                      ? "h-auto px-3 py-1.5 rounded-full text-label transition-all bg-primary/10 border-2 border-primary text-primary"
+                      : "h-auto px-3 py-1.5 rounded-full text-body transition-all hover:border-primary/50 hover:bg-primary/5"
+                  }
+                >
+                  {chip}
+                </Button>
+              );
+            })}
           </div>
 
           {/* Search Results */}
@@ -276,15 +299,23 @@ export default function TestSearchStep({ savedData }: Props) {
                 Try searching by test name or condition:
               </p>
               <div className="flex flex-wrap justify-center gap-2">
-                {suggestionChips.map((chip) => (
-                  <button
-                    key={chip}
-                    onClick={() => handleSuggestionClick(chip)}
-                    className="px-3 py-1.5 rounded-full border text-body hover:border-primary/50 hover:bg-primary/5 transition-all"
-                  >
-                    {chip}
-                  </button>
-                ))}
+                {suggestionChips.map((chip) => {
+                  const isSelected = selectedChips.includes(chip);
+
+                  return (
+                    <button
+                      key={chip}
+                      onClick={() => handleChipToggle(chip)}
+                      className={
+                        isSelected
+                          ? "px-3 py-1.5 rounded-full border-2 border-primary bg-primary/10 text-primary transition-all"
+                          : "px-3 py-1.5 rounded-full border text-body hover:border-primary/50 hover:bg-primary/5 transition-all"
+                      }
+                    >
+                      {chip}
+                    </button>
+                  );
+                })}
               </div>
             </Card>
           )}

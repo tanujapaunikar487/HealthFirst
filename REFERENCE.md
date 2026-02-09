@@ -318,7 +318,9 @@ Drug names as section titles with Active/Inactive badge as `action` prop
 27. **Financial rows**: Same pattern on Billing/Show.tsx and ClaimDetail financial section
 29. **Doctor Avatars**: `doctor_avatar_url` field on `Appointment` interface + `formatAppointment()` backend
 32. **Booking Headers**: Unified `AIBookingHeader` for AI/Guided flows. AI: progress bar gradient (`from-primary/30 to-primary`). Guided: step indicator (3-4 steps). No padding shifts between mode toggle states.
-33. **Booking Card Selections**: Standardized across 7 components. Selected: `rounded-3xl border-2 border-primary bg-primary/5` (24px radius, edge-to-edge). Hover: `hover:bg-muted/50` (consistent gray). Pattern replaced: `bg-primary/10 border-l-2 border-l-primary`.
+33. **Booking Card Selections**: **AI flow**: No selected styling (uniform `rounded-none hover:bg-muted/50`). Selection tracked internally, confirmed in conversation. **Guided flow**: Selected state `rounded-3xl border-2 border-primary bg-primary/10` for visual feedback. All 10 embedded components standardized.
+34. **Modal Standardization**: Dialog primitives use Tailwind tokens only. Body requires explicit `px-5 py-5` wrapper. Buttons never use `flex-1`. Forms use Sheets (500px right-side) not Dialogs.
+35. **ShareDialog**: Redesigned with metadata display. Horizontal button layout (Copy/WhatsApp/Email). Shows content icon, title, description, and key-value pairs. Used on detail pages for appointments, health records, billing, insurance.
 
 ---
 
