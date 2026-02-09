@@ -34,6 +34,7 @@ import {
   SheetFooter,
 } from '@/Components/ui/sheet';
 import { Alert } from '@/Components/ui/alert';
+import { BulkActionBar } from '@/Components/ui/bulk-action-bar';
 import { cn } from '@/Lib/utils';
 import { useToast } from '@/Contexts/ToastContext';
 import {
@@ -527,31 +528,19 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
         </div>
 
         {/* Multi-select bar */}
-        {selectedIds.size > 0 && (
-          <div className="flex items-center justify-between border rounded-lg px-4 py-3 mb-4" style={{ backgroundColor: 'hsl(var(--primary) / 0.1)' }}>
-            <div className="flex items-center gap-3">
-              <p className="text-label">
-                {selectedIds.size} {selectedIds.size === 1 ? 'bill' : 'bills'} selected
-              </p>
-              <Button
-                variant="link"
-                size="sm"
-                className="h-auto p-0 text-body text-muted-foreground hover:text-foreground flex items-center gap-1"
-                onClick={clearSelection}
-              >
-                <X className="h-3 w-3" />
-                Clear
-              </Button>
-            </div>
-            <Button
-              size="md"
-              onClick={() => setPayBills(selectedBills)}
-            >
-              <CreditCard className="h-3.5 w-3.5" />
-              Pay ₹{selectedTotal.toLocaleString()}
-            </Button>
-          </div>
-        )}
+        <BulkActionBar
+          count={selectedIds.size}
+          itemLabel="bill"
+          onClear={clearSelection}
+          actions={[
+            {
+              label: `Pay ₹${selectedTotal.toLocaleString()}`,
+              icon: CreditCard,
+              onClick: () => setPayBills(selectedBills),
+            },
+          ]}
+          className="mb-4"
+        />
 
         {/* Table or Empty State */}
         {filtered.length === 0 ? (

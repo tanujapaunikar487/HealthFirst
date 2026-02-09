@@ -31,7 +31,7 @@
     --spacing-col-member: 160px;
     --spacing-col-amount: 128px;
     --spacing-col-status: 140px;
-    --spacing-col-actions: 48px;
+    --spacing-col-actions: 100px;
 
     /* Max/min widths */
     --max-width-page: 960px;
@@ -550,6 +550,7 @@
 }
 @utility w-col-actions {
     width: var(--spacing-col-actions);
+    min-width: var(--spacing-col-actions);
 }
 
 /* Layout widths */

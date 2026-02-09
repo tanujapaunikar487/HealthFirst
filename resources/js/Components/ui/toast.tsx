@@ -39,19 +39,19 @@ const toastIconConfig: Record<
 > = {
   success: {
     icon: CheckCircle2,
-    color: '#22C55E' // Bright green for visibility on dark bg
+    color: '#4ADE80' // Bright green-400 for visibility on dark bg
   },
   error: {
     icon: XCircle,
-    color: '#EF4444' // Bright red for visibility on dark bg
+    color: '#F87171' // Bright red-400 for visibility on dark bg
   },
   warning: {
     icon: AlertTriangle,
-    color: '#F59E0B' // Bright amber for visibility on dark bg
+    color: '#FBBF24' // Bright amber-400 for visibility on dark bg
   },
   info: {
     icon: Info,
-    color: '#3B82F6' // Bright blue for visibility on dark bg
+    color: '#60A5FA' // Bright blue-400 for visibility on dark bg
   },
 };
 
@@ -119,6 +119,7 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
         <HugeiconsIcon
           icon={iconData}
           size={20}
+          strokeWidth={2}
           className="flex-shrink-0"
           style={{ color: iconConfig.color }}
         />

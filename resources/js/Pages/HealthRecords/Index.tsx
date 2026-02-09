@@ -26,6 +26,7 @@ import {
 } from '@/Components/ui/table';
 import { TablePagination } from '@/Components/ui/table-pagination';
 import { Tabs, TabsList, TabsTrigger } from '@/Components/ui/tabs';
+import { BulkActionBar } from '@/Components/ui/bulk-action-bar';
 import { cn } from '@/Lib/utils';
 import { useToast } from '@/Contexts/ToastContext';
 import {
@@ -327,28 +328,28 @@ interface Props {
 
 /* ─── Category Config ─── */
 
-const categoryConfig: Record<string, { label: string; icon: React.ComponentType<any>; color: string; bg: string }> = {
+const categoryConfig: Record<string, { label: string; icon: React.ComponentType<any> }> = {
   // Reports
-  lab_report:         { label: 'Lab Report',   icon: TestTube2,      color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  xray_report:        { label: 'X-Ray',        icon: ScanLine,       color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  mri_report:         { label: 'MRI',          icon: BrainCircuit,   color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  ultrasound_report:  { label: 'Ultrasound',   icon: Radio,          color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  ecg_report:         { label: 'ECG',          icon: HeartPulse,     color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  pathology_report:   { label: 'Pathology',    icon: Microscope,     color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  pft_report:         { label: 'PFT',          icon: Wind,           color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  other_report:       { label: 'Other Report', icon: ClipboardList,  color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  lab_report:         { label: 'Lab Report',   icon: TestTube2 },
+  xray_report:        { label: 'X-Ray',        icon: ScanLine },
+  mri_report:         { label: 'MRI',          icon: BrainCircuit },
+  ultrasound_report:  { label: 'Ultrasound',   icon: Radio },
+  ecg_report:         { label: 'ECG',          icon: HeartPulse },
+  pathology_report:   { label: 'Pathology',    icon: Microscope },
+  pft_report:         { label: 'PFT',          icon: Wind },
+  other_report:       { label: 'Other Report', icon: ClipboardList },
   // Visits
-  consultation_notes: { label: 'Consultation', icon: Stethoscope,    color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  procedure_notes:    { label: 'Procedure',    icon: Syringe,        color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  discharge_summary:  { label: 'Discharge',    icon: FileText,       color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  er_visit:           { label: 'ER Visit',     icon: Ambulance,      color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  referral:           { label: 'Referral',     icon: UserPlus,       color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  other_visit:        { label: 'Other Visit',  icon: ClipboardCheck, color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  consultation_notes: { label: 'Consultation', icon: Stethoscope },
+  procedure_notes:    { label: 'Procedure',    icon: Syringe },
+  discharge_summary:  { label: 'Discharge',    icon: FileText },
+  er_visit:           { label: 'ER Visit',     icon: Ambulance },
+  referral:           { label: 'Referral',     icon: UserPlus },
+  other_visit:        { label: 'Other Visit',  icon: ClipboardCheck },
   // Prescriptions
-  prescription:       { label: 'Prescription', icon: Pill,           color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  prescription:       { label: 'Prescription', icon: Pill },
   // Documents
-  vaccination:        { label: 'Vaccination',  icon: Syringe,        color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
-  medical_certificate:{ label: 'Certificate',  icon: Award,          color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' },
+  vaccination:        { label: 'Vaccination',  icon: Syringe },
+  medical_certificate:{ label: 'Certificate',  icon: Award },
 };
 
 const typeGroups: Record<string, string[]> = {
@@ -361,16 +362,12 @@ const typeGroups: Record<string, string[]> = {
 const RECORDS_PER_PAGE = 10;
 
 function CategoryIcon({ category, size = 'md' }: { category: string; size?: 'sm' | 'md' }) {
-  const config = categoryConfig[category] || { icon: FileText, color: 'hsl(var(--primary))', bg: 'hsl(var(--primary) / 0.2)' };
+  const config = categoryConfig[category] || { icon: FileText };
   const Icon = config.icon;
-  const dim = size === 'sm' ? 'h-10 w-10' : 'h-10 w-10';
   const iconDim = size === 'sm' ? 'h-5 w-5' : 'h-[18px] w-[18px]';
   return (
-    <div
-      className={cn(dim, 'rounded-full flex items-center justify-center flex-shrink-0')}
-      style={{ backgroundColor: config.bg }}
-    >
-      <Icon className={iconDim} style={{ color: config.color }} />
+    <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
+      <Icon className={cn(iconDim, 'text-blue-800')} />
     </div>
   );
 }
@@ -809,34 +806,36 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
         </Tabs>
 
         {/* Bulk Actions Bar */}
-        {selectedIds.size > 0 && (
-          <div className="flex items-center gap-3 rounded-lg bg-muted px-4 py-2.5 mt-4 mb-4">
-            <span className="text-label">{selectedIds.size} selected</span>
-            <Button variant="secondary" size="md" className="gap-1.5" onClick={() => {
-              const selected = records.filter(r => selectedIds.has(r.id));
-              const categoryLabels = Object.fromEntries(
-                Object.entries(categoryConfig).map(([k, v]) => [k, v.label])
-              );
-              const pdfContent = generateBulkRecordsPdfContent(selected, categoryLabels);
-              downloadAsHtml(`health-records-${selected.length}.pdf`, `<h1>Health Records</h1>${pdfContent}`);
-              showToast('Records downloaded', 'success');
-            }}>
-              <Download className="h-3.5 w-3.5" />
-              Download
-            </Button>
-            <Button variant="secondary" size="md" className="gap-1.5" onClick={() => setBulkShareOpen(true)}>
-              <Share2 className="h-3.5 w-3.5" />
-              Share
-            </Button>
-            <Button variant="ghost" size="sm" className="ml-auto" onClick={() => setSelectedIds(new Set())}>
-              Clear
-            </Button>
-          </div>
-        )}
+        <BulkActionBar
+          count={selectedIds.size}
+          itemLabel="record"
+          onClear={() => setSelectedIds(new Set())}
+          actions={[
+            {
+              label: 'Download',
+              icon: Download,
+              onClick: () => {
+                const selected = records.filter(r => selectedIds.has(r.id));
+                const categoryLabels = Object.fromEntries(
+                  Object.entries(categoryConfig).map(([k, v]) => [k, v.label])
+                );
+                const pdfContent = generateBulkRecordsPdfContent(selected, categoryLabels);
+                downloadAsHtml(`health-records-${selected.length}.pdf`, `<h1>Health Records</h1>${pdfContent}`);
+                showToast('Records downloaded', 'success');
+              },
+            },
+            {
+              label: 'Share',
+              icon: Share2,
+              onClick: () => setBulkShareOpen(true),
+            },
+          ]}
+          className="mb-4"
+        />
 
         {/* Table */}
         {filteredRecords.length > 0 ? (
-          <div className={selectedIds.size === 0 ? 'mt-4' : ''}>
+          <div className="mt-4">
             <TableContainer>
               <Table>
                 <TableHeader>
