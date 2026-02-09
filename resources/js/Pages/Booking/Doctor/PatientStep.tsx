@@ -442,8 +442,8 @@ export default function PatientStep({
                     appointmentType === 'new' && 'bg-primary/5'
                   )}
                 >
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <Icon icon={User} size={20} className="text-primary" />
+                  <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center shrink-0">
+                    <Icon icon={User} size={20} className="text-blue-800" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-label text-foreground">New Consultation</p>
@@ -459,8 +459,8 @@ export default function PatientStep({
                     appointmentType === 'followup' && 'bg-primary/5'
                   )}
                 >
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <Icon icon={RefreshCw} size={20} className="text-primary" />
+                  <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center shrink-0">
+                    <Icon icon={RefreshCw} size={20} className="text-blue-800" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-label text-foreground">Follow-up</p>
