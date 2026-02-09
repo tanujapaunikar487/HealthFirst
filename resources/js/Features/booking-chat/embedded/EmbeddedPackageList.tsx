@@ -319,53 +319,37 @@ export function EmbeddedPackageList({
                   key={pkg.id}
                   className="transition-colors"
                 >
-                  <div className="flex">
+                  <div className="flex items-center">
                     <Button
                       variant="ghost"
                       onClick={() => !disabled && !alreadySubmitted && onSelect(pkg.id)}
                       disabled={disabled || alreadySubmitted}
                       className={cn(
                         'w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50',
-                        isSelected && 'bg-primary/10',
+                        isSelected && 'bg-primary/10 border-l-2 border-l-primary',
                         (disabled || alreadySubmitted) && !isSelected && 'disabled:opacity-60',
                       )}
                     >
-                      <div className="flex gap-3">
-                        {/* Checkbox */}
-                        <div className="flex-shrink-0 mt-0.5">
-                          {isSelected ? (
-                            <Icon icon={CheckSquare} size={20} className="text-blue-800" />
-                          ) : (
-                            <Icon icon={Square} size={20} className="text-foreground/50" />
-                          )}
+                      <div className="flex items-start gap-4 w-full">
+                        {/* Icon */}
+                        <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
+                          <Icon icon={FlaskConical} size={20} className="text-blue-800" />
                         </div>
 
                         {/* Content */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-start gap-3 mb-1">
-                            <div className="flex-1 flex items-center gap-2 flex-wrap">
-                              <span className={cn('text-label', isSelected && 'text-primary')}>
-                                {pkg.name}
-                              </span>
-                              {pkg.is_recommended && (
-                                <Badge variant="warning">
-                                  Recommended
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="text-right flex-shrink-0">
-                              <div className="flex items-center gap-2">
-                                <span className="text-card-title">₹{pkg.price.toLocaleString()}</span>
-                                {pkg.original_price > pkg.price && (
-                                  <span className="text-body text-muted-foreground line-through">
-                                    ₹{pkg.original_price.toLocaleString()}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <span className="text-label leading-none">
+                              {pkg.name}
+                            </span>
+                            {pkg.is_recommended && (
+                              <Badge variant="warning">
+                                Recommended
+                              </Badge>
+                            )}
                           </div>
 
-                          <p className="text-body text-muted-foreground mb-1.5">{pkg.description}</p>
+                          <p className="text-body text-muted-foreground mb-2">{pkg.description}</p>
 
                           {/* Info with bullet separators */}
                           <div className="flex items-center gap-2 flex-wrap text-body text-muted-foreground">
@@ -384,25 +368,34 @@ export function EmbeddedPackageList({
                             <span>{pkg.age_range} age</span>
                           </div>
                         </div>
+
+                        {/* Price */}
+                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                          <span className="text-label">₹{pkg.price.toLocaleString()}</span>
+                          {pkg.original_price > pkg.price && (
+                            <span className="text-body text-muted-foreground line-through">
+                              ₹{pkg.original_price.toLocaleString()}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </Button>
 
-                    {/* Expand button */}
+                    {/* Circular arrow button */}
                     {hasDetails && (
-                      <Button
-                        variant="secondary"
-                        size="md"
+                      <button
                         onClick={(e) => {
                           e.stopPropagation();
                           setExpandedPkgId(isExpanded ? null : String(pkg.id));
                         }}
                         className={cn(
-                          'flex-shrink-0 rounded-none my-2 mr-2',
+                          'flex-shrink-0 w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center mr-4',
+                          'hover:bg-blue-300 transition-colors',
                           isSelected && 'bg-primary/10',
                         )}
                       >
-                        <Icon icon={isExpanded ? ChevronDown : ChevronRight} size={20} />
-                      </Button>
+                        <Icon icon={isExpanded ? ChevronDown : ChevronRight} size={20} className="text-blue-800" />
+                      </button>
                     )}
                   </div>
 
