@@ -557,7 +557,7 @@ export default function AppLayout({
                                 </p>
                             </div>
                         ) : (
-                            <div className="pt-3">
+                            <div>
                                 {/* Today */}
                                 {displayedNotifications.filter((n) => getTimeGroup(n.created_at) === 'today').length > 0 && (
                                     <div>

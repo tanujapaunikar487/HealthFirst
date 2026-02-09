@@ -712,7 +712,7 @@ export default function InsuranceIndex({
           <SheetBody>
             {/* Step 0: Policy Selection */}
             {preAuthStep === 'policy' && (
-              <div className="space-y-3">
+              <div className="space-y-3 px-5 py-5">
                 {policies.map(p => (
                   <Button
                     key={p.id}
@@ -758,7 +758,7 @@ export default function InsuranceIndex({
 
             {/* Step 1: Patient Selection */}
             {preAuthStep === 'patient' && (
-              <div className="space-y-3">
+              <div className="space-y-3 px-5 py-5">
                 {preAuthCoveredMembers.length === 0 ? (
                   <EmptyState
                     icon={Users}
@@ -805,7 +805,7 @@ export default function InsuranceIndex({
 
             {/* Step 2: Admission Details */}
             {preAuthStep === 'details' && (
-              <div className="space-y-4">
+              <div className="space-y-4 px-5 py-5">
                 <div>
                   <label className="block text-label text-foreground mb-1.5">
                     Treatment / Reason <span className="text-destructive">*</span>
@@ -895,7 +895,7 @@ export default function InsuranceIndex({
 
             {/* Step 3: Review */}
             {preAuthStep === 'review' && (
-              <div className="space-y-4">
+              <div className="space-y-4 px-5 py-5">
                 {preAuthPolicy && (
                   <div className="rounded-xl border px-4 py-3.5">
                     <p className="text-label text-muted-foreground mb-1">Policy</p>

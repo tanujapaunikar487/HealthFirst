@@ -3,6 +3,7 @@ import { User, Users, ChevronLeft, Loader2, CheckCircle2, AlertCircle } from '@/
 import { router } from '@inertiajs/react';
 import { Alert } from '@/Components/ui/alert';
 import { Button } from '@/Components/ui/button';
+import { Card } from '@/Components/ui/card';
 import { Icon } from '@/Components/ui/icon';
 import { Input } from '@/Components/ui/input';
 import { PhoneInput } from '@/Components/ui/phone-input';
@@ -914,27 +915,58 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     {/* Step Content - standalone renders buttons in footer */}
                     {state.step === 'choice' && (
-                        <div className="space-y-3">
-                            <div className="grid gap-3">
-                                <Button variant="ghost" onClick={() => handleInitialChoice('add_new_family')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/10 text-body">
-                                    <div className="flex items-center gap-4">
-                                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><Icon icon={Users} size={20} /></div>
-                                        <div><h4 className="font-semibold">Add New Family Member</h4><p className="text-card-title text-muted-foreground">Create a full family member profile</p></div>
+                        <div className="px-5 py-5 space-y-3">
+                            <Card>
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => handleInitialChoice('add_new_family')}
+                                    className="w-full h-auto px-6 py-4 rounded-none text-left hover:bg-muted/50"
+                                >
+                                    <div className="flex items-start gap-4">
+                                        <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
+                                            <Icon icon={Users} size={20} className="text-blue-800" />
+                                        </div>
+                                        <div className="text-left">
+                                            <h4 className="text-card-title">New Member</h4>
+                                            <p className="text-body text-muted-foreground">Create a full family member profile</p>
+                                        </div>
                                     </div>
                                 </Button>
-                                <Button variant="ghost" onClick={() => handleInitialChoice('link_existing')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/10 text-body">
-                                    <div className="flex items-center gap-4">
-                                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><Icon icon={Users} size={20} /></div>
-                                        <div><h4 className="font-semibold">Link Existing Patient</h4><p className="text-card-title text-muted-foreground">Connect to an existing hospital patient record</p></div>
+                            </Card>
+                            <Card>
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => handleInitialChoice('link_existing')}
+                                    className="w-full h-auto px-6 py-4 rounded-none text-left hover:bg-muted/50"
+                                >
+                                    <div className="flex items-start gap-4">
+                                        <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
+                                            <Icon icon={Users} size={20} className="text-blue-800" />
+                                        </div>
+                                        <div className="text-left">
+                                            <h4 className="text-card-title">Existing Patient</h4>
+                                            <p className="text-body text-muted-foreground">Connect to an existing hospital patient record</p>
+                                        </div>
                                     </div>
                                 </Button>
-                                <Button variant="ghost" onClick={() => handleInitialChoice('guest')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/10 text-body">
-                                    <div className="flex items-center gap-4">
-                                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><Icon icon={User} size={20} /></div>
-                                        <div><h4 className="font-semibold">Guest</h4><p className="text-card-title text-muted-foreground">One-time booking only</p></div>
+                            </Card>
+                            <Card>
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => handleInitialChoice('guest')}
+                                    className="w-full h-auto px-6 py-4 rounded-none text-left hover:bg-muted/50"
+                                >
+                                    <div className="flex items-start gap-4">
+                                        <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
+                                            <Icon icon={User} size={20} className="text-blue-800" />
+                                        </div>
+                                        <div className="text-left">
+                                            <h4 className="text-card-title">Guest</h4>
+                                            <p className="text-body text-muted-foreground">One-time booking only</p>
+                                        </div>
                                     </div>
                                 </Button>
-                            </div>
+                            </Card>
                         </div>
                     )}
 
@@ -1427,72 +1459,75 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             {/* Step Content */}
             {state.step === 'choice' && (
                 <div className="space-y-4">
-                    <h3 id="choice-heading" className="text-card-title font-semibold">Add New Person</h3>
-                    <p className="text-body text-muted-foreground">
-                        Choose how you'd like to add this person
-                    </p>
+                    <div role="radiogroup" className="space-y-3">
+                        {/* New Member */}
+                        <Card>
+                            <Button
+                                variant="ghost"
+                                role="radio"
+                                aria-checked={state.flowType === 'add_new_family'}
+                                onClick={() => handleInitialChoice('add_new_family')}
+                                className="w-full h-auto px-6 py-4 rounded-none text-left hover:bg-muted/50"
+                            >
+                                <div className="flex items-start gap-4">
+                                    <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
+                                        <Icon icon={Users} size={20} className="text-blue-800" />
+                                    </div>
+                                    <div className="text-left">
+                                        <h4 className="text-card-title">New Member</h4>
+                                        <p className="text-body text-muted-foreground">
+                                            Create a full family member profile
+                                        </p>
+                                    </div>
+                                </div>
+                            </Button>
+                        </Card>
 
-                    <div role="radiogroup" aria-labelledby="choice-heading" className="grid gap-3">
+                        {/* Existing Patient */}
+                        <Card>
+                            <Button
+                                variant="ghost"
+                                role="radio"
+                                aria-checked={state.flowType === 'link_existing'}
+                                onClick={() => handleInitialChoice('link_existing')}
+                                className="w-full h-auto px-6 py-4 rounded-none text-left hover:bg-muted/50"
+                            >
+                                <div className="flex items-start gap-4">
+                                    <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
+                                        <Icon icon={Users} size={20} className="text-blue-800" />
+                                    </div>
+                                    <div className="text-left">
+                                        <h4 className="text-card-title">Existing Patient</h4>
+                                        <p className="text-body text-muted-foreground">
+                                            Connect to an existing hospital patient record
+                                        </p>
+                                    </div>
+                                </div>
+                            </Button>
+                        </Card>
+
                         {/* Guest */}
-                        <Button
-                            variant="ghost"
-                            role="radio"
-                            aria-checked={state.flowType === 'guest'}
-                            onClick={() => handleInitialChoice('guest')}
-                            className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/10 text-body"
-                        >
-                            <div className="flex items-center gap-4">
-                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Icon icon={User} size={20} />
+                        <Card>
+                            <Button
+                                variant="ghost"
+                                role="radio"
+                                aria-checked={state.flowType === 'guest'}
+                                onClick={() => handleInitialChoice('guest')}
+                                className="w-full h-auto px-6 py-4 rounded-none text-left hover:bg-muted/50"
+                            >
+                                <div className="flex items-start gap-4">
+                                    <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
+                                        <Icon icon={User} size={20} className="text-blue-800" />
+                                    </div>
+                                    <div className="text-left">
+                                        <h4 className="text-card-title">Guest</h4>
+                                        <p className="text-body text-muted-foreground">
+                                            One-time booking only
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h4 className="font-semibold">Guest</h4>
-                                    <p className="text-body text-muted-foreground">
-                                        Quick booking for someone without medical history
-                                    </p>
-                                </div>
-                            </div>
-                        </Button>
-
-                        {/* Add New Family Member */}
-                        <Button
-                            variant="ghost"
-                            role="radio"
-                            aria-checked={state.flowType === 'add_new_family'}
-                            onClick={() => handleInitialChoice('add_new_family')}
-                            className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/10 text-body"
-                        >
-                            <div className="flex items-center gap-4">
-                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Icon icon={Users} size={20} />
-                                </div>
-                                <div>
-                                    <h4 className="font-semibold">Add New Family Member</h4>
-                                    <p className="text-body text-muted-foreground">
-                                        Create a full family member profile
-                                    </p>
-                                </div>
-                            </div>
-                        </Button>
-
-                        {/* Link Existing Patient */}
-                        <Button
-                            variant="ghost"
-                            onClick={() => handleInitialChoice('link_existing')}
-                            className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/10 text-body"
-                        >
-                            <div className="flex items-center gap-4">
-                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Icon icon={Users} size={20} />
-                                </div>
-                                <div>
-                                    <h4 className="font-semibold">Link Existing Patient</h4>
-                                    <p className="text-body text-muted-foreground">
-                                        Connect to an existing hospital patient record
-                                    </p>
-                                </div>
-                            </div>
-                        </Button>
+                            </Button>
+                        </Card>
                     </div>
 
                     <Button variant="ghost" onClick={onCancel} className="w-full">
