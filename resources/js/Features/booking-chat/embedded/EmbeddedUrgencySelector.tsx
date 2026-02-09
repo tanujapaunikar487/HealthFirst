@@ -13,22 +13,22 @@ const options = [
     value: 'urgent',
     label: 'Urgent (Today/ASAP)',
     description: 'Need to see someone ASAP',
-    containerBg: 'bg-destructive/10',
-    circleBg: 'bg-destructive',
+    dotColor: 'bg-destructive',
+    borderColor: 'border-destructive/40',
   },
   {
     value: 'this_week',
     label: 'This Week',
     description: 'Within a few days',
-    containerBg: 'bg-warning/10',
-    circleBg: 'bg-warning',
+    dotColor: 'bg-warning',
+    borderColor: 'border-warning/40',
   },
   {
     value: 'specific_date',
     label: "I've a specific date",
     description: 'Select a particular date',
-    containerBg: 'bg-info/10',
-    circleBg: 'bg-info',
+    dotColor: 'bg-info',
+    borderColor: 'border-info/40',
   },
 ];
 
@@ -47,16 +47,14 @@ export function EmbeddedUrgencySelector({ selectedUrgency, onSelect, disabled }:
               disabled={disabled}
               className={cn(
                 "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
-                "flex items-center gap-4 text-left transition-all",
+                "flex items-start gap-4 text-left transition-all",
                 "disabled:cursor-not-allowed",
                 isSelected && "bg-primary/10 border-l-2 border-l-primary",
                 disabled && !isSelected && "opacity-30",
                 disabled && isSelected && "opacity-60"
               )}
             >
-            <div className={cn("h-14 w-14 rounded-full flex items-center justify-center flex-shrink-0", option.containerBg)}>
-              <div className={cn("w-5 h-5 rounded-full", option.circleBg)} />
-            </div>
+            <div className={cn("w-4 h-4 rounded-full flex-shrink-0 border-4", option.dotColor, option.borderColor)} />
 
             <div className="min-w-0 flex-1 text-left">
               <p className="text-label leading-tight mb-0.5">{option.label}</p>
