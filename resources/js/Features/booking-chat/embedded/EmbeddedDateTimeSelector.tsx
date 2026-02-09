@@ -73,9 +73,9 @@ export function EmbeddedDateTimeSelector({
         </Alert>
       )}
 
-      <div>
+      <Card className="overflow-hidden divide-y">
         {/* Date section */}
-        <div className="p-4 border-b">
+        <div className="p-4">
           <label className="text-label mb-2 block">Date</label>
           <div className="flex gap-2 overflow-x-auto pb-2">
             {dates.map((dateOption, idx) => {
@@ -148,7 +148,7 @@ export function EmbeddedDateTimeSelector({
             })}
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

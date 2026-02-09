@@ -349,23 +349,21 @@ export function EmbeddedPackageList({
                             )}
                           </div>
 
-                          <p className="text-body text-muted-foreground mb-2">{pkg.description}</p>
+                          <p className="text-body text-muted-foreground">{pkg.description}</p>
 
                           {/* Info with bullet separators */}
-                          <div className="flex items-center gap-2 flex-wrap text-body text-muted-foreground">
+                          <div className="flex items-center gap-2 flex-wrap text-body text-muted-foreground mt-2">
                             <span>{pkg.duration_hours} hrs</span>
                             <span>•</span>
                             <span>{pkg.tests_count} tests</span>
+                            <span>•</span>
+                            <span>{pkg.age_range} age</span>
                             {pkg.requires_fasting && pkg.fasting_hours && (
                               <>
                                 <span>•</span>
-                                <Badge variant="warning">
-                                  {pkg.fasting_hours}h fasting
-                                </Badge>
+                                <span>{pkg.fasting_hours}h fasting</span>
                               </>
                             )}
-                            <span>•</span>
-                            <span>{pkg.age_range} age</span>
                           </div>
                         </div>
 
@@ -381,22 +379,27 @@ export function EmbeddedPackageList({
                       </div>
                     </Button>
 
-                    {/* Circular arrow button */}
-                    {hasDetails && (
-                      <button
+                    {/* Secondary icon button */}
+                    <div className="flex-shrink-0 mr-4">
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setExpandedPkgId(isExpanded ? null : String(pkg.id));
+                          if (hasDetails) {
+                            setExpandedPkgId(isExpanded ? null : String(pkg.id));
+                          }
                         }}
+                        disabled={!hasDetails}
                         className={cn(
-                          'flex-shrink-0 w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center mr-4',
-                          'hover:bg-blue-300 transition-colors',
+                          'w-10 h-10 rounded-full p-0',
                           isSelected && 'bg-primary/10',
+                          !hasDetails && 'invisible',
                         )}
                       >
-                        <Icon icon={isExpanded ? ChevronDown : ChevronRight} size={20} className="text-blue-800" />
-                      </button>
-                    )}
+                        <Icon icon={isExpanded ? ChevronDown : ChevronRight} size={20} />
+                      </Button>
+                    </div>
                   </div>
 
                   {/* Expanded detail section */}

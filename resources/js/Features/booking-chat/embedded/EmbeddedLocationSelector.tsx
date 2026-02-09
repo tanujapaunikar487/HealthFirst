@@ -98,7 +98,7 @@ export function EmbeddedLocationSelector({ locations, selectedLocationId, onSele
                         }}
                         className="h-auto p-0"
                       >
-                        <MapPin className="h-3 w-3" />
+                        <Icon icon={MapPin} size={12} />
                         Change branch
                       </Button>
                     ) : null}

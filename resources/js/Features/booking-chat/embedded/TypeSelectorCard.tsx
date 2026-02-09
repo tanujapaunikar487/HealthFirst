@@ -51,7 +51,7 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled }: TypeSe
                 <Icon icon={TypeIcon} size={20} className="text-blue-800" />
             </div>
             <div className="flex-1 min-w-0 text-left">
-                <h4 className="font-semibold">{config.title}</h4>
+                <h4 className="text-label">{config.title}</h4>
                 <p className="text-body text-muted-foreground">{config.description}</p>
             </div>
             <Icon icon={ChevronDown} size={20} className={cn(

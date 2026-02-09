@@ -56,9 +56,9 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
         </Alert>
       )}
 
-      <div>
+      <Card className="overflow-hidden divide-y">
         {/* Date selection */}
-        <div className="p-4 border-b">
+        <div className="p-4">
           <h4 className="text-card-title mb-3">Date</h4>
           <div className="flex gap-2 overflow-x-auto pb-2">
             {dates.map((date, index) => {
@@ -118,7 +118,7 @@ export function EmbeddedDateTimePicker({ selectedDate, selectedTime, onSelect, d
             })}
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

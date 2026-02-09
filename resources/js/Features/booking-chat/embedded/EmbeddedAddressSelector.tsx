@@ -73,13 +73,13 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
         variant="outline"
         disabled={disabled}
         className={cn(
-          'w-full h-auto flex items-center gap-3 p-3 rounded-xl border-dashed transition-all text-left font-normal',
+          'w-full h-auto flex items-center gap-3 px-6 py-4 rounded-xl border-dashed transition-all text-left font-normal',
           'hover:bg-muted/50 hover:border-primary/30',
         )}
         onClick={() => !disabled && onAddAddress?.()}
       >
-        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-          <Icon icon={Plus} className="text-foreground" />
+        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+          <Icon icon={Plus} size={20} className="text-foreground" />
         </div>
         <span className="text-body text-muted-foreground">Add new address</span>
       </Button>

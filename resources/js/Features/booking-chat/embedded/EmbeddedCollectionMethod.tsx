@@ -56,15 +56,15 @@ export function EmbeddedCollectionMethod({ methods, selectedMethod, onSelect, di
 
             {/* Text */}
             <div className="flex-1 text-left">
-              <p className="font-medium">{method.label}</p>
+              <p className="text-label">{method.label}</p>
               <p className="text-body text-muted-foreground">{method.address}</p>
             </div>
 
             {/* Price */}
             {isFree ? (
-              <span className="font-semibold text-success">Free</span>
+              <span className="text-card-title text-success">Free</span>
             ) : (
-              <span className="font-semibold">₹{typeof method.price === 'number' ? method.price.toLocaleString() : method.price}</span>
+              <span className="text-card-title">₹{typeof method.price === 'number' ? method.price.toLocaleString() : method.price}</span>
             )}
           </Button>
         );
