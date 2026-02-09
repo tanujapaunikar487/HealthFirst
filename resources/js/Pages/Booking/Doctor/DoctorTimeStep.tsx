@@ -4,6 +4,7 @@ import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { AppointmentModeSelector } from '@/Components/Booking/AppointmentModeSelector';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { getAvatarColorByName } from '@/Lib/avatar-colors';
+import { DoctorCard, type Doctor as DoctorCardDoctor, type TimeSlot as DoctorCardTimeSlot } from '@/Components/Booking/DoctorCard';
 import { Card } from '@/Components/ui/card';
 import { HStack, VStack } from '@/Components/ui/stack';
 import { Input } from '@/Components/ui/input';
@@ -25,21 +26,9 @@ const doctorSteps = [
   { id: 'confirm', label: 'Confirm' },
 ];
 
-interface TimeSlot {
-  time: string;
-  available: boolean;
-  preferred: boolean;
-}
+interface TimeSlot extends DoctorCardTimeSlot {}
 
-interface Doctor {
-  id: string;
-  name: string;
-  avatar: string | null;
-  specialization: string;
-  experience_years: number;
-  appointment_modes: string[];
-  video_fee: number;
-  in_person_fee: number;
+interface Doctor extends DoctorCardDoctor {
   slots: TimeSlot[];
 }
 
@@ -344,113 +333,3 @@ export default function DoctorTimeStep({
   );
 }
 
-// DoctorCard component
-interface DoctorCardProps {
-  doctor: Doctor;
-  slots: TimeSlot[];
-  selectedTime: string | null;
-  isSelected: boolean;
-  onSelectTime: (time: string) => void;
-}
-
-function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: DoctorCardProps) {
-  const getInitials = (name: string) => {
-    const parts = name.split(' ');
-    return parts.length > 1
-      ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
-      : name.substring(0, 2).toUpperCase();
-  };
-
-  const formatConsultationModes = (modes: string[]) => {
-    if (modes.includes('video') && modes.includes('in_person')) {
-      return 'Video and In-hospital';
-    }
-    if (modes.includes('video')) {
-      return 'Video';
-    }
-    if (modes.includes('in_person')) {
-      return 'In-hospital';
-    }
-    return '';
-  };
-
-  const getFeeRange = () => {
-    const fees = [];
-    if (doctor.appointment_modes.includes('video')) {
-      fees.push(doctor.video_fee);
-    }
-    if (doctor.appointment_modes.includes('in_person')) {
-      fees.push(doctor.in_person_fee);
-    }
-
-    const uniqueFees = [...new Set(fees)];
-    if (uniqueFees.length === 1) {
-      return `₹${uniqueFees[0].toLocaleString()}`;
-    }
-    return `₹${Math.min(...uniqueFees).toLocaleString()} / ${Math.max(...uniqueFees).toLocaleString()}`;
-  };
-
-  const avatarColor = getAvatarColorByName(doctor.name);
-
-  return (
-    <div
-      className={cn(
-        'px-6 py-4 transition-all hover:bg-muted/50',
-        isSelected && 'bg-primary/5'
-      )}
-    >
-      <VStack gap={4}>
-        {/* Doctor Info */}
-        <HStack gap={3} className="items-start">
-          <Avatar className="h-12 w-12">
-            <AvatarImage src={doctor.avatar || undefined} />
-            <AvatarFallback
-              className="text-label"
-              style={{
-                backgroundColor: `hsl(${avatarColor.bg})`,
-                color: `hsl(${avatarColor.text})`,
-              }}
-            >
-              {getInitials(doctor.name)}
-            </AvatarFallback>
-          </Avatar>
-          <VStack gap={0} className="flex-1 min-w-0">
-            <h3 className="text-label text-foreground">{doctor.name}</h3>
-            <p className="text-body text-muted-foreground">
-              {doctor.specialization} • {doctor.experience_years} years of experience
-            </p>
-          </VStack>
-          <VStack gap={1} className="items-end">
-            <span className="px-2 py-1 text-label text-primary bg-primary/10 rounded whitespace-nowrap">
-              {formatConsultationModes(doctor.appointment_modes)}
-            </span>
-            <span className="text-card-title">{getFeeRange()}</span>
-          </VStack>
-        </HStack>
-
-        {/* Time Slots */}
-        <HStack gap={2} className="flex-wrap">
-          {slots.map((slot) => (
-            <Button
-              key={slot.time}
-              variant={selectedTime === slot.time ? 'accent' : 'outline'}
-              onClick={() => slot.available && onSelectTime(slot.time)}
-              disabled={!slot.available}
-              className={cn(
-                'h-auto px-4 py-2 rounded-full transition-all relative',
-                selectedTime !== slot.time && 'hover:border-primary/50 hover:bg-primary/5',
-                selectedTime === slot.time && 'border-foreground',
-                !slot.available && 'opacity-40 cursor-not-allowed'
-              )}
-            >
-              {slot.time}
-              {slot.preferred && selectedTime !== slot.time && (
-                <Icon icon={Star} size={12} className="absolute -top-1 -right-1 fill-black text-black" />
-              )}
-            </Button>
-          ))}
-        </HStack>
-      </VStack>
-    </div>
-  );
-}
