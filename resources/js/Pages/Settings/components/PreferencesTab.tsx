@@ -212,7 +212,7 @@ export function PreferencesTab({
                                     className={`px-4 py-1.5 h-auto text-label rounded-full transition-colors ${
                                         prefs.time_format === '24h'
                                             ? 'bg-background text-primary shadow-sm'
-                                            : 'text-muted-foreground hover:text-foreground'
+                                            : 'text-foreground'
                                     }`}
                                 >
                                     24 hrs
@@ -223,7 +223,7 @@ export function PreferencesTab({
                                     className={`px-4 py-1.5 h-auto text-label rounded-full transition-colors ${
                                         prefs.time_format === '12h'
                                             ? 'bg-background text-primary shadow-sm'
-                                            : 'text-muted-foreground hover:text-foreground'
+                                            : 'text-foreground'
                                     }`}
                                 >
                                     12 hrs
@@ -254,7 +254,7 @@ export function PreferencesTab({
                                     className={`px-3 py-1.5 h-auto text-label rounded-full transition-colors ${
                                         getTextSizeOption(prefs.accessibility.text_size) === 'small'
                                             ? 'bg-background text-primary shadow-sm'
-                                            : 'text-muted-foreground hover:text-foreground'
+                                            : 'text-foreground'
                                     }`}
                                 >
                                     A
@@ -265,7 +265,7 @@ export function PreferencesTab({
                                     className={`px-3 py-1.5 h-auto text-label rounded-full transition-colors ${
                                         getTextSizeOption(prefs.accessibility.text_size) === 'medium'
                                             ? 'bg-background text-primary shadow-sm'
-                                            : 'text-muted-foreground hover:text-foreground'
+                                            : 'text-foreground'
                                     }`}
                                 >
                                     A
@@ -276,7 +276,7 @@ export function PreferencesTab({
                                     className={`px-3 py-1.5 h-auto text-base font-medium rounded-full transition-colors ${
                                         getTextSizeOption(prefs.accessibility.text_size) === 'large'
                                             ? 'bg-background text-primary shadow-sm'
-                                            : 'text-muted-foreground hover:text-foreground'
+                                            : 'text-foreground'
                                     }`}
                                 >
                                     A
@@ -397,7 +397,7 @@ export function PreferencesTab({
                     </DialogHeader>
 
                     <DialogBody>
-                        <div className="space-y-4">
+                        <div className="px-5 py-5 space-y-4">
                             <p className="text-body text-muted-foreground">
                                 This action cannot be undone. This will permanently delete your account and
                                 remove all your data from our servers.
@@ -415,7 +415,7 @@ export function PreferencesTab({
                                 </ul>
                             </div>
 
-                            <div className="space-y-3">
+                            <div className="space-y-2">
                                 <Label htmlFor="delete-password">Enter your password to confirm</Label>
                                 <Input
                                     id="delete-password"
@@ -429,12 +429,8 @@ export function PreferencesTab({
                     </DialogBody>
 
                     <DialogFooter>
-                        <Button variant="secondary" className="flex-1" onClick={() => setShowDeleteDialog(false)}>
-                            Cancel
-                        </Button>
                         <Button
                             variant="destructive"
-                            className="flex-1"
                             onClick={handleDeleteAccount}
                             disabled={!deletePassword || deleting}
                         >

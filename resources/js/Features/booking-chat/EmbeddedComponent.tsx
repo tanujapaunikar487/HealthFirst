@@ -147,15 +147,17 @@ export function EmbeddedComponent({
                   })}
                   disabled={disabled || isSelected}
                   className={cn(
-                    "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
+                    "w-full h-auto justify-start px-6 py-4 text-body",
                     "flex items-center gap-4 text-left transition-all",
                     optionSelected
-                      ? "bg-primary/10 disabled:opacity-60"
-                      : isSelected ? "disabled:opacity-30" : ""
+                      ? "rounded-3xl border-2 border-primary bg-primary/5 [&:not(:first-child)]:border-t-0 [&+*]:border-t-0"
+                      : isSelected
+                        ? "rounded-none disabled:opacity-30"
+                        : "rounded-none hover:bg-muted/50"
                   )}
                 >
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Icon icon={TypeIcon} size={20} className="text-primary" />
+                <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
+                  <Icon icon={TypeIcon} size={20} className="text-blue-800" />
                 </div>
 
                 <div className="flex-1 min-w-0 text-left">
@@ -203,15 +205,17 @@ export function EmbeddedComponent({
                   }
                   disabled={disabled || isSelected}
                   className={cn(
-                    "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
+                    "w-full h-auto justify-start px-6 py-4 text-body",
                     "flex items-center gap-4 text-left transition-all",
                     optionSelected
-                      ? "bg-primary/10 disabled:opacity-60"
-                      : isSelected ? "disabled:opacity-30" : ""
+                      ? "rounded-3xl border-2 border-primary bg-primary/5 [&:not(:first-child)]:border-t-0 [&+*]:border-t-0"
+                      : isSelected
+                        ? "rounded-none disabled:opacity-30"
+                        : "rounded-none hover:bg-muted/50"
                   )}
                 >
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Icon icon={OptionIcon} size={20} className="text-primary" />
+                <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
+                  <Icon icon={OptionIcon} size={20} className="text-blue-800" />
                 </div>
 
                 <div className="flex-1 min-w-0 text-left">

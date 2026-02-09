@@ -4,7 +4,7 @@ import { Button, buttonVariants } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
 import { Card } from '@/Components/ui/card';
 import { DetailRow } from '@/Components/ui/detail-row';
-import { Check, Calendar, Download, Share2, Plus } from '@/Lib/icons';
+import { Check, Calendar, Share2 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { useAccessibilityPreferences } from '@/Hooks/useAccessibilityPreferences';
 import { Badge } from '@/Components/ui/badge';
@@ -80,11 +80,6 @@ export default function Confirmation({ booking, calendarPreference }: Props) {
     link.click();
     document.body.removeChild(link);
     setCalendarAdded(true);
-  };
-
-  const handleDownload = () => {
-    // Download appointment receipt/details as PDF
-    window.open(`/booking/${booking.id}/download`, '_blank');
   };
 
   const handleShare = () => {
@@ -217,7 +212,7 @@ export default function Confirmation({ booking, calendarPreference }: Props) {
         {/* Primary Action + Secondary Icon Buttons */}
         <div className="flex items-center gap-3">
           <Link
-            href={`/appointments/${booking.id}`}
+            href={`/appointments?details=${booking.id}`}
             className={cn(buttonVariants({ variant: 'primary', size: 'lg' }), 'flex-1')}
           >
             View Appointment
@@ -226,10 +221,9 @@ export default function Confirmation({ booking, calendarPreference }: Props) {
           {/* Secondary icon buttons */}
           <Button
             variant="outline"
-            size="lg"
             onClick={handleAddToCalendar}
             className={cn(
-              'px-4',
+              'w-11 h-11 p-0',
               calendarAdded && 'border-success text-success'
             )}
             title="Add to calendar"
@@ -239,32 +233,14 @@ export default function Confirmation({ booking, calendarPreference }: Props) {
 
           <Button
             variant="outline"
-            size="lg"
-            onClick={handleDownload}
-            className="px-4"
-            title="Download appointment details"
-          >
-            <Icon icon={Download} size={20} />
-          </Button>
-
-          <Button
-            variant="outline"
-            size="lg"
             onClick={handleShare}
-            className="px-4"
+            className="w-11 h-11 p-0"
             title="Share appointment"
           >
             <Icon icon={Share2} size={20} />
           </Button>
         </div>
 
-        {/* Book Another */}
-        <div className="text-center">
-          <Link href="/booking" className={cn(buttonVariants({ variant: 'ghost', size: 'md' }))}>
-            <Icon icon={Plus} size={20} />
-            Book Another Appointment
-          </Link>
-        </div>
         </div>
       </div>
     </div>

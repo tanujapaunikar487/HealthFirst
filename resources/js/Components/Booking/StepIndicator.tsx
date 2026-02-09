@@ -36,17 +36,21 @@ export function StepIndicator({ steps, currentStepId, className }: StepIndicator
 
           {/* Single continuous gradient overlay */}
           <div
-            className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary/70 to-primary rounded-full transition-all duration-300"
-            style={{ width: `${progressPercentage}%` }}
+            className="absolute inset-y-0 left-0 rounded-full transition-all duration-300"
+            style={{
+              width: `${progressPercentage}%`,
+              background: 'linear-gradient(to right, #BFDBFE, #2563EB)',
+            }}
           />
 
           {/* Current step circle indicator - positioned at current step label */}
           {currentIndex < steps.length && (
             <div
-              className="absolute top-1/2 w-3.5 h-3.5 bg-primary rounded-full z-10 transition-all duration-300"
+              className="absolute top-1/2 w-3.5 h-3.5 rounded-full z-10 transition-all duration-300"
               style={{
                 left: `${dotPercentage}%`,
                 transform: 'translate(-50%, -50%)',
+                backgroundColor: '#2563EB',
               }}
             />
           )}

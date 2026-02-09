@@ -43,6 +43,7 @@ import {
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { DetailSection } from '@/Components/ui/detail-section';
+import { DetailRow } from '@/Components/ui/detail-row';
 import {
   Dialog,
   DialogContent,
@@ -983,69 +984,66 @@ export default function FamilyMemberShow({
             {/* Emergency Contact Section - Hidden for guests */}
             {!member.is_guest && (
               <div id="emergency" className="scroll-mt-6">
-                <div className="flex items-center gap-2.5 mb-4">
-                  <Icon icon={Phone} className="h-5 w-5 text-foreground" />
-                  <h2 className="text-section-title text-foreground">
-                    Emergency Contact
-                  </h2>
-                </div>
                 {!isEditing ? (
-                  member.emergency_contact_name ? (
-                    <InfoCard
-                      items={[
-                        {
-                          label: 'Name',
-                          value: member.emergency_contact_name,
-                        },
-                        {
-                          label: 'Relationship',
-                          value: member.emergency_contact_relation ?? undefined,
-                        },
-                        {
-                          label: 'Phone',
-                          value: member.emergency_contact_phone ?? undefined,
-                        },
-                      ]}
-                    />
-                  ) : (
-                    <Card className="p-6">
-                      <EmptyState
-                        icon={Phone}
-                        message="No emergency contact added"
-                        description="Add someone to contact in case of emergencies"
-                        action={
-                          <Button variant="secondary" size="sm" onClick={() => setIsEditing(true)}>
-                            Add contact
-                          </Button>
-                        }
-                      />
-                    </Card>
-                  )
+                  <DetailSection id="emergency-contact" title="Emergency Contact" icon={Phone} noPadding>
+                    {member.emergency_contact_name ? (
+                      <div className="divide-y">
+                        <DetailRow label="Name">{member.emergency_contact_name}</DetailRow>
+                        {member.emergency_contact_relation && (
+                          <DetailRow label="Relationship">{member.emergency_contact_relation}</DetailRow>
+                        )}
+                        {member.emergency_contact_phone && (
+                          <DetailRow label="Phone">{member.emergency_contact_phone}</DetailRow>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="px-6 py-12">
+                        <EmptyState
+                          icon={Phone}
+                          message="No emergency contact added"
+                          description="Add someone to contact in case of emergencies"
+                          action={
+                            <Button variant="secondary" size="sm" onClick={() => setIsEditing(true)}>
+                              Add contact
+                            </Button>
+                          }
+                        />
+                      </div>
+                    )}
+                  </DetailSection>
                 ) : (
-                  <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-                    <div>
-                      <label className="mb-1.5 block text-label text-muted-foreground">Name</label>
-                      <Input
-                        value={formData.emergency_contact_name}
-                        onChange={e => setFormData({ ...formData, emergency_contact_name: e.target.value })}
-                        placeholder="Emergency contact name"
-                      />
+                  <div>
+                    <div className="flex items-center gap-2.5 mb-4">
+                      <Icon icon={Phone} className="h-5 w-5 text-foreground" />
+                      <h2 className="text-section-title text-foreground">
+                        Emergency Contact
+                      </h2>
                     </div>
-                    <div>
-                      <label className="mb-1.5 block text-label text-muted-foreground">Relationship</label>
-                      <Input
-                        value={formData.emergency_contact_relation}
-                        onChange={e => setFormData({ ...formData, emergency_contact_relation: e.target.value })}
-                        placeholder="e.g., Spouse, Parent"
-                      />
-                    </div>
-                    <div>
-                      <label className="mb-1.5 block text-label text-muted-foreground">Phone</label>
-                      <PhoneInput
-                        value={formData.emergency_contact_phone || ''}
-                        onChange={value => setFormData({ ...formData, emergency_contact_phone: value })}
-                      />
-                    </div>
+                    <Card className="p-6 space-y-4">
+                      <div>
+                        <label className="mb-1.5 block text-label text-muted-foreground">Name</label>
+                        <Input
+                          value={formData.emergency_contact_name}
+                          onChange={e => setFormData({ ...formData, emergency_contact_name: e.target.value })}
+                          placeholder="Emergency contact name"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1.5 block text-label text-muted-foreground">Relationship</label>
+                        <Input
+                          value={formData.emergency_contact_relation}
+                          onChange={e => setFormData({ ...formData, emergency_contact_relation: e.target.value })}
+                          placeholder="e.g., Spouse, Parent"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1.5 block text-label text-muted-foreground">Phone</label>
+                        <PhoneInput
+                          value={formData.emergency_contact_phone || ''}
+                          onChange={value => setFormData({ ...formData, emergency_contact_phone: value })}
+                        />
+                      </div>
+                    </Card>
                   </div>
                 )}
               </div>

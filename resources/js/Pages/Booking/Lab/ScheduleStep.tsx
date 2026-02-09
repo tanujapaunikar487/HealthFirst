@@ -327,8 +327,10 @@ export default function ScheduleStep({
                       variant="ghost"
                       onClick={() => handleLocationChange(loc.type)}
                       className={cn(
-                        'w-full h-auto flex items-start gap-4 px-6 py-4 rounded-none justify-start text-left transition-all text-body',
-                        isSelected ? 'bg-primary/10 border-l-2 border-l-primary' : 'hover:bg-muted/50'
+                        'w-full h-auto flex items-start gap-4 px-6 py-4 justify-start text-left transition-all text-body',
+                        isSelected
+                          ? 'rounded-3xl border-2 border-primary bg-primary/5 [&:not(:first-child)]:border-t-0 [&+*]:border-t-0'
+                          : 'rounded-none hover:bg-muted/50'
                       )}
                     >
                       {/* Icon with rounded background */}

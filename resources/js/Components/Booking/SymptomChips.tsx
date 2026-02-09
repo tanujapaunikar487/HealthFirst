@@ -31,7 +31,7 @@ export function SymptomChips({ symptoms, selectedIds, onToggle, className }: Sym
               "h-auto px-6 py-2 rounded-full text-body transition-all",
               "hover:border-primary/50 hover:bg-primary/5",
               isSelected
-                ? "bg-primary/10 border-primary text-primary text-label"
+                ? "bg-primary/10 border-2 border-primary text-primary text-label"
                 : "bg-card border-border text-foreground"
             )}
           >

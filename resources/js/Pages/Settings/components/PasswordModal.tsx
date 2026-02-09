@@ -167,7 +167,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                         </DialogHeader>
 
                         <DialogBody>
-                            <div className="space-y-4">
+                            <div className="px-5 py-5 space-y-4">
                                 <p className="text-body text-muted-foreground">
                                     Enter your current password to continue
                                 </p>
@@ -209,7 +209,6 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                             <Button
                                 onClick={handleVerify}
                                 disabled={!currentPassword || loading}
-                                className="flex-1"
                             >
                                 {loading ? (
                                     <>
@@ -242,7 +241,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                         </DialogHeader>
 
                         <DialogBody>
-                            <div className="space-y-4">
+                            <div className="px-5 py-5 space-y-4">
                                 <p className="text-body text-muted-foreground">
                                     Choose a strong password with at least 8 characters
                                 </p>
@@ -361,7 +360,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                             <DialogDescription className="sr-only">Password changed successfully</DialogDescription>
                         </DialogHeader>
                         <DialogBody>
-                            <div className="py-8 text-center space-y-4">
+                            <div className="px-5 py-8 text-center space-y-4">
                                 <div className="mx-auto h-16 w-16 rounded-full bg-success/10 flex items-center justify-center">
                                     <Check className="h-8 w-8 text-success" />
                                 </div>

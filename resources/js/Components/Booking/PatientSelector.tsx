@@ -56,8 +56,8 @@ export function PatientSelector({
               'hover:bg-muted/50',
               highlightedId === patient.id
                 ? disabled
-                  ? 'border-primary bg-primary/10 disabled:opacity-60'
-                  : 'border-primary bg-primary/10'
+                  ? 'border-2 border-primary bg-primary/10 disabled:opacity-60'
+                  : 'border-2 border-primary bg-primary/10'
                 : disabled
                   ? 'disabled:opacity-30'
                   : ''

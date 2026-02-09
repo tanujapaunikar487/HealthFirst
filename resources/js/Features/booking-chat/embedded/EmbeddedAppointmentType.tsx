@@ -44,7 +44,7 @@ export function EmbeddedAppointmentType({ selectedType, onSelect, disabled }: Pr
                 disabled && !isSelected && 'opacity-30',
                 disabled && isSelected && 'opacity-60',
                 isSelected
-                  ? 'rounded-3xl border-2 border-primary bg-primary/5'
+                  ? 'rounded-3xl border-2 border-primary bg-primary/5 [&:not(:first-child)]:border-t-0 [&+*]:border-t-0'
                   : 'rounded-none hover:bg-muted/50'
               )}
             >

@@ -45,7 +45,7 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled }: TypeSe
                 'disabled:cursor-not-allowed',
                 disabled && 'opacity-50',
                 isExpanded
-                    ? 'rounded-3xl border-2 border-primary bg-primary/5'
+                    ? 'rounded-3xl border-2 border-primary bg-primary/5 [&:not(:first-child)]:border-t-0 [&+*]:border-t-0'
                     : 'rounded-none hover:bg-muted/50'
             )}
         >
