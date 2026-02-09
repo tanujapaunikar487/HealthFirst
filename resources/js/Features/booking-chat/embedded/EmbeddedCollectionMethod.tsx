@@ -45,16 +45,13 @@ export function EmbeddedCollectionMethod({ methods, selectedMethod, onSelect, di
             className={cn(
               "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
               "flex items-center gap-4 text-left transition-all",
-              isSelected && "bg-primary/5 border-l-2 border-l-primary",
+              isSelected && "bg-primary/10 border-l-2 border-l-primary",
               disabled && !isSelected && "opacity-60"
             )}
           >
             {/* Icon */}
-            <div className={cn(
-              "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
-              isSelected ? "bg-primary/10" : "bg-muted"
-            )}>
-              <Icon icon={MethodIcon} size={20} className={cn(isSelected && "text-primary")} />
+            <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
+              <Icon icon={MethodIcon} size={20} className="text-blue-800" />
             </div>
 
             {/* Text */}

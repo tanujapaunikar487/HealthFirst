@@ -35,15 +35,12 @@ export function EmbeddedCenterList({ centers, selectedCenterId, onSelect, disabl
             className={cn(
               "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
               "flex items-start gap-3 text-left transition-all",
-              isSelected && "bg-primary/5 border-l-2 border-l-primary",
+              isSelected && "bg-primary/10 border-l-2 border-l-primary",
               disabled && !isSelected && "opacity-60"
             )}
           >
-            <div className={cn(
-              "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5",
-              isSelected ? "bg-primary/10" : "bg-muted"
-            )}>
-              <Icon icon={Building2} size={20} className={cn(isSelected && "text-primary")} />
+            <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <Icon icon={Building2} size={20} className="text-blue-800" />
             </div>
 
             <div className="flex-1 min-w-0 text-left">

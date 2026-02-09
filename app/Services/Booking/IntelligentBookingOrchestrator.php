@@ -252,12 +252,61 @@ class IntelligentBookingOrchestrator
             return $this->handleEmergency($conversation, $parsed);
         }
 
-        // Handle non-booking intents (greeting, question, general_info, unclear)
-        // Only when the conversation has no collected data yet (fresh start)
+        // Handle non-booking intents (greeting, question, general_info, unclear, off_topic)
         $intent = $parsed['intent'] ?? 'unclear';
         $currentData = $conversation->collected_data;
         $hasBookingProgress = !empty($currentData['selectedPatientId']) || !empty($currentData['appointmentType']) || !empty($currentData['selectedPackageId']) || !empty($currentData['booking_type']);
 
+        // Handle off-topic input (always, regardless of booking progress)
+        if ($intent === 'off_topic') {
+            $bookingType = $currentData['booking_type'] ?? null;
+
+            if ($hasBookingProgress) {
+                // User is mid-booking but sent off-topic input
+                $message = "I'm here to help you complete your booking. Let's focus on getting your appointment scheduled. ";
+
+                // Add context about what we're waiting for
+                if (empty($currentData['selectedPatientId'])) {
+                    $message .= "Who is this appointment for?";
+                } elseif ($bookingType === 'doctor' && empty($currentData['selectedDoctorId'])) {
+                    $message .= "Which doctor would you like to see?";
+                } elseif ($bookingType === 'lab_test' && empty($currentData['selectedPackageId']) && empty($currentData['selectedTestIds'])) {
+                    $message .= "What test or package would you like to book?";
+                } elseif (empty($currentData['selectedDate'])) {
+                    $message .= "What date works best for you?";
+                } elseif (empty($currentData['selectedTime'])) {
+                    $message .= "What time would you prefer?";
+                } else {
+                    $message .= "Is there anything you'd like to change?";
+                }
+            } else {
+                // Fresh conversation with off-topic input
+                $message = "I'm your healthcare booking assistant. I can help you book a doctor appointment or lab test. Would you like to book a doctor visit or a lab test?";
+            }
+
+            Log::info('IntelligentOrchestrator: Off-topic input detected', [
+                'intent' => $intent,
+                'has_booking_progress' => $hasBookingProgress,
+                'user_input' => $userInput,
+            ]);
+
+            $this->addAssistantMessage($conversation, $message, null, null);
+
+            return [
+                'status' => 'success',
+                'message' => $message,
+                'component_type' => null,
+                'component_data' => null,
+                'ready_to_book' => false,
+                'progress' => [
+                    'percentage' => 0,
+                    'current_state' => 'off_topic_redirect',
+                    'missing_fields' => [],
+                ],
+            ];
+        }
+
+        // Handle other non-booking intents (only when no booking progress)
         if (!$hasBookingProgress && in_array($intent, ['greeting', 'question', 'general_info', 'unclear'])) {
             $greetingResponses = [
                 'greeting' => "Hi there! I'm your booking assistant. I can help you book a doctor appointment or a lab test. What would you like to do?",
@@ -322,7 +371,7 @@ class IntelligentBookingOrchestrator
         if ($intent === 'booking_lab' && ($currentData['booking_type'] ?? 'doctor') !== 'lab_test') {
             $currentData['booking_type'] = 'lab_test';
             $conversation->collected_data = $currentData;
-        } elseif ($intent === 'booking_doctor' && empty($currentData['booking_type'])) {
+        } elseif ($intent === 'booking_doctor' && ($currentData['booking_type'] ?? 'lab_test') !== 'doctor') {
             $currentData['booking_type'] = 'doctor';
             $conversation->collected_data = $currentData;
         }

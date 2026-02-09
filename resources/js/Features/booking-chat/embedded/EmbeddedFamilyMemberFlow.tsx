@@ -915,19 +915,19 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     {state.step === 'choice' && (
                         <div className="space-y-3">
                             <div className="grid gap-3">
-                                <Button variant="ghost" onClick={() => handleInitialChoice('add_new_family')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 text-body">
+                                <Button variant="ghost" onClick={() => handleInitialChoice('add_new_family')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/10 text-body">
                                     <div className="flex items-center gap-4">
                                         <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><Users className="h-5 w-5" /></div>
                                         <div><h4 className="font-semibold">Add New Family Member</h4><p className="text-card-title text-muted-foreground">Create a full family member profile</p></div>
                                     </div>
                                 </Button>
-                                <Button variant="ghost" onClick={() => handleInitialChoice('link_existing')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 text-body">
+                                <Button variant="ghost" onClick={() => handleInitialChoice('link_existing')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/10 text-body">
                                     <div className="flex items-center gap-4">
                                         <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><Users className="h-5 w-5" /></div>
                                         <div><h4 className="font-semibold">Link Existing Patient</h4><p className="text-card-title text-muted-foreground">Connect to an existing hospital patient record</p></div>
                                     </div>
                                 </Button>
-                                <Button variant="ghost" onClick={() => handleInitialChoice('guest')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 text-body">
+                                <Button variant="ghost" onClick={() => handleInitialChoice('guest')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/10 text-body">
                                     <div className="flex items-center gap-4">
                                         <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><User className="h-5 w-5" /></div>
                                         <div><h4 className="font-semibold">Guest</h4><p className="text-card-title text-muted-foreground">One-time booking only</p></div>
@@ -1197,7 +1197,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             {/* Patient Card */}
                             <div className="rounded-xl border border-border bg-muted/30 p-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center">
                                         <User className="h-5 w-5 text-primary" />
                                     </div>
                                     <div>
@@ -1245,7 +1245,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                         "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
                                         !state.foundMember.has_phone && "opacity-50 cursor-not-allowed",
                                         state.selectedContactMethod === 'phone' && state.foundMember.has_phone
-                                            ? "border-primary bg-primary/5"
+                                            ? "border-primary bg-primary/10"
                                             : "border-border hover:border-muted-foreground"
                                     )}>
                                         <input
@@ -1267,7 +1267,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                         "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
                                         !state.foundMember.has_email && "opacity-50 cursor-not-allowed",
                                         state.selectedContactMethod === 'email' && state.foundMember.has_email
-                                            ? "border-primary bg-primary/5"
+                                            ? "border-primary bg-primary/10"
                                             : "border-border hover:border-muted-foreground"
                                     )}>
                                         <input
@@ -1438,7 +1438,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             role="radio"
                             aria-checked={state.flowType === 'guest'}
                             onClick={() => handleInitialChoice('guest')}
-                            className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 text-body"
+                            className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/10 text-body"
                         >
                             <div className="flex items-center gap-4">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
@@ -1459,7 +1459,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             role="radio"
                             aria-checked={state.flowType === 'add_new_family'}
                             onClick={() => handleInitialChoice('add_new_family')}
-                            className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 text-body"
+                            className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/10 text-body"
                         >
                             <div className="flex items-center gap-4">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
@@ -1478,7 +1478,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         <Button
                             variant="ghost"
                             onClick={() => handleInitialChoice('link_existing')}
-                            className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/5 text-body"
+                            className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/10 text-body"
                         >
                             <div className="flex items-center gap-4">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
@@ -1821,7 +1821,6 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     <Button
                         onClick={state.submitMode === 'link' ? handleAcceptDetectedMember : handleMemberDetailsSubmit}
-                        className="w-full"
                         disabled={state.loading || !state.relation || !state.newMemberName.trim() || !state.newMemberPhone.trim() || state.newMemberPhone === '+91'}
                     >
                         {state.loading ? (
@@ -1900,7 +1899,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     {/* Patient Card */}
                     <div className="rounded-xl border border-border bg-muted/30 p-4">
                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                            <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center">
                                 <User className="h-5 w-5 text-primary" />
                             </div>
                             <div>
@@ -1948,7 +1947,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
                                 !state.foundMember.has_phone && "opacity-50 cursor-not-allowed",
                                 state.selectedContactMethod === 'phone' && state.foundMember.has_phone
-                                    ? "border-primary bg-primary/5"
+                                    ? "border-primary bg-primary/10"
                                     : "border-border hover:border-muted-foreground"
                             )}>
                                 <input
@@ -1970,7 +1969,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
                                 !state.foundMember.has_email && "opacity-50 cursor-not-allowed",
                                 state.selectedContactMethod === 'email' && state.foundMember.has_email
-                                    ? "border-primary bg-primary/5"
+                                    ? "border-primary bg-primary/10"
                                     : "border-border hover:border-muted-foreground"
                             )}>
                                 <input

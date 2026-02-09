@@ -148,7 +148,7 @@ function PreviousDoctorCard({
         "px-6 py-4 transition-all",
         "hover:bg-muted/50",
         isSelected
-          ? disabled ? "bg-primary/5 opacity-60" : "bg-primary/5"
+          ? disabled ? "bg-primary/10 opacity-60" : "bg-primary/10"
           : disabled ? "opacity-30" : ""
       )}
     >

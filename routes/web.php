@@ -204,6 +204,11 @@ Route::post('/appointments/{appointment}/rate', [AppointmentsController::class, 
     // Notifications
     Route::post('/notifications/{billing_notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+
+    // Dev/Showcase Pages
+    Route::get('/dev/booking-components', function () {
+        return inertia('Dev/BookingComponents');
+    })->name('dev.booking-components');
 });
 
 // Auth routes

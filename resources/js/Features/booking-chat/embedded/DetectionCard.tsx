@@ -37,7 +37,7 @@ export function DetectionCard({ member, onAccept, disabled }: DetectionCardProps
     return (
         <div className="border border-primary/20 bg-primary/10 rounded-xl p-4 space-y-3">
             <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
                     <User className="h-5 w-5 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">

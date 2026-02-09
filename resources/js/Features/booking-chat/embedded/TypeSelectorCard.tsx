@@ -42,17 +42,13 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled }: TypeSe
             className={cn(
                 'w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50',
                 'flex items-center gap-4 text-left transition-all',
-                isExpanded
-                    ? 'bg-primary/5'
-                    : '',
-                disabled && 'opacity-50 cursor-not-allowed'
+                'disabled:cursor-not-allowed',
+                isExpanded && 'bg-primary/10 border-l-2 border-l-primary',
+                disabled && 'opacity-50'
             )}
         >
-            <div className={cn(
-                'h-10 w-10 rounded-full flex items-center justify-center shrink-0',
-                isExpanded ? 'bg-primary/10' : 'bg-muted'
-            )}>
-                <Icon icon={TypeIcon} size={20} className={cn(isExpanded ? 'text-primary' : 'text-foreground')} />
+            <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center shrink-0">
+                <Icon icon={TypeIcon} size={20} className="text-blue-800" />
             </div>
             <div className="flex-1 min-w-0 text-left">
                 <h4 className="font-semibold">{config.title}</h4>

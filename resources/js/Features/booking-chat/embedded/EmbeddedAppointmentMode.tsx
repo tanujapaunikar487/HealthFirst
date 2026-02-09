@@ -48,16 +48,13 @@ export function EmbeddedAppointmentMode({ modes, selectedMode, onSelect, disable
                 "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
                 "flex items-center gap-4 text-left transition-all",
                 "disabled:cursor-not-allowed",
-                isSelected
-                  ? disabled ? "bg-primary/5 opacity-60" : "bg-primary/5"
-                  : disabled ? "opacity-30" : ""
+                isSelected && "bg-primary/10 border-l-2 border-l-primary",
+                disabled && !isSelected && "opacity-30",
+                disabled && isSelected && "opacity-60"
               )}
             >
-              <div className={cn(
-                "h-10 w-10 rounded-full flex items-center justify-center shrink-0",
-                isSelected ? "bg-primary/10" : "bg-muted"
-              )}>
-                <Icon icon={ModeIcon} size={20} className={cn(isSelected ? "text-primary" : "text-foreground")} />
+              <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center shrink-0">
+                <Icon icon={ModeIcon} size={20} className="text-blue-800" />
               </div>
               <div className="flex-1 min-w-0 text-left">
                 <p className="text-label text-foreground leading-tight mb-0.5">

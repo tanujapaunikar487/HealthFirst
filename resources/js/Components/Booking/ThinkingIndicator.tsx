@@ -94,7 +94,7 @@ export function ThinkingIndicator({ steps = [], className }: ThinkingIndicatorPr
               animationFillMode: 'both',
             }}
           >
-            <span className="text-primary font-mono">→</span>
+            <span className="text-primary">→</span>
             <span className="flex-1">{step}</span>
           </HStack>
         ))}

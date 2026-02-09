@@ -41,17 +41,14 @@ export function EmbeddedAppointmentType({ selectedType, onSelect, disabled }: Pr
               className={cn(
                 'w-full h-auto px-6 py-4 rounded-none text-left transition-all flex items-center gap-4',
                 'hover:bg-muted/50',
-                isSelected
-                  ? disabled
-                    ? 'bg-primary/5 disabled:opacity-60'
-                    : 'bg-primary/5'
-                  : disabled
-                    ? 'disabled:opacity-30'
-                    : ''
+                'disabled:cursor-not-allowed',
+                isSelected && 'bg-primary/10 border-l-2 border-l-primary',
+                disabled && !isSelected && 'opacity-30',
+                disabled && isSelected && 'opacity-60'
               )}
             >
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                <Icon icon={option.icon} size={20} className="text-primary" />
+              <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center shrink-0">
+                <Icon icon={option.icon} size={20} className="text-blue-800" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-label text-foreground">{option.label}</p>

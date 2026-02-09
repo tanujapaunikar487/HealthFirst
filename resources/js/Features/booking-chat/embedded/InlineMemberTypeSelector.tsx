@@ -948,7 +948,6 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
 
             <Button
                 onClick={state.submitMode === 'link' ? handleAcceptDetectedMember : handleNewMemberSubmit}
-                className="w-full"
                 disabled={state.loading || !state.newMember.relation || !state.newMember.name.trim() || !state.newMember.phone.trim() || state.newMember.phone === '+91'}
             >
                 {state.loading ? (
@@ -1038,7 +1037,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
 
                     <div className="rounded-xl border border-border bg-muted/30 p-4">
                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                            <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center">
                                 <User className="h-5 w-5 text-primary" />
                             </div>
                             <div>
@@ -1090,7 +1089,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                             {foundMember.has_phone && (
                                 <label className={cn(
                                     'flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors',
-                                    selectedContactMethod === 'phone' ? 'border-primary bg-primary/5' : 'border-border hover:bg-muted/50'
+                                    selectedContactMethod === 'phone' ? 'border-primary bg-primary/10' : 'border-border hover:bg-muted/50'
                                 )}>
                                     <input
                                         type="radio"
@@ -1117,7 +1116,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                             {foundMember.has_email && (
                                 <label className={cn(
                                     'flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors',
-                                    selectedContactMethod === 'email' ? 'border-primary bg-primary/5' : 'border-border hover:bg-muted/50'
+                                    selectedContactMethod === 'email' ? 'border-primary bg-primary/10' : 'border-border hover:bg-muted/50'
                                 )}>
                                     <input
                                         type="radio"

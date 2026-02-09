@@ -49,7 +49,7 @@ export function MemberSearchCard({ member, alreadyLinked }: MemberSearchCardProp
 
                     {member.patient_id && (
                         <p className="text-body text-muted-foreground mb-2">
-                            Patient ID: <span className="font-mono">{member.patient_id}</span>
+                            Patient ID: {member.patient_id}
                         </p>
                     )}
 

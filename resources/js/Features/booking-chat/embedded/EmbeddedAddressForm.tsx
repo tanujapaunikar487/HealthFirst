@@ -84,7 +84,7 @@ export function EmbeddedAddressForm({ onSelect, disabled }: Props) {
   return (
     <div className="border rounded-xl p-4 space-y-4 max-w-md">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+        <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
           <Icon icon={MapPin} size={16} className="text-primary" />
         </div>
         <h4 className="text-card-title text-foreground">Add new address</h4>

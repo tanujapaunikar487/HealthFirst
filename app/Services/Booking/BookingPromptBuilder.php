@@ -147,13 +147,16 @@ Classify into one of these intents:
 - correction: User wants to change a specific field (e.g., 'change doctor', 'different time', 'actually in-person')
 - general_info: User wants general information about services
 - greeting: User is greeting or starting conversation
-- unclear: Intent is not clear
+- off_topic: User input is unrelated to healthcare/booking (e.g., random text, jokes, gibberish, casual chat, weather, news, opinions about non-medical topics)
+- unclear: Intent is not clear or ambiguous, but seems to be an attempt at booking-related communication
 
 CRITICAL DISTINCTIONS:
 - 'which doctor is better?' → question (asking for info)
 - 'my daughter has a headache' → emergency (reporting symptoms)
 - 'change to in-person' → correction (modifying existing selection)
-- 'book with Dr. Sarah tomorrow' → booking_doctor (new booking with entities)";
+- 'book with Dr. Sarah tomorrow' → booking_doctor (new booking with entities)
+- 'slknklad' or 'random text' or 'pizza is great' → off_topic (not related to healthcare)
+- 'I want something' (vague but seems booking-related) → unclear";
     }
 
     private function buildExtractionRules(): string
@@ -233,7 +236,19 @@ User: 'book full body checkup at home tomorrow'
 → {\"intent\": \"booking_lab\", \"confidence\": 0.95, \"entities\": {\"package_name\": \"Full Body Checkup\", \"collection_type\": \"home\", \"date\": \"{$tomorrowFormatted}\"}}
 
 User: 'I need a lab test for my father'
-→ {\"intent\": \"booking_lab\", \"confidence\": 0.9, \"entities\": {\"patient_relation\": \"father\"}}";
+→ {\"intent\": \"booking_lab\", \"confidence\": 0.9, \"entities\": {\"patient_relation\": \"father\"}}
+
+User: 'slknklad'
+→ {\"intent\": \"off_topic\", \"confidence\": 0.95, \"entities\": {}}
+
+User: 'what's the weather like today?'
+→ {\"intent\": \"off_topic\", \"confidence\": 0.95, \"entities\": {}}
+
+User: 'I love pizza'
+→ {\"intent\": \"off_topic\", \"confidence\": 0.95, \"entities\": {}}
+
+User: 'asdfghjkl'
+→ {\"intent\": \"off_topic\", \"confidence\": 0.95, \"entities\": {}}";
     }
 
     private function buildOutputFormat(): string

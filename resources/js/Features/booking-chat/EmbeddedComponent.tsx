@@ -149,7 +149,7 @@ export function EmbeddedComponent({
                     "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
                     "flex items-center gap-4 text-left transition-all",
                     optionSelected
-                      ? "bg-primary/5 disabled:opacity-60"
+                      ? "bg-primary/10 disabled:opacity-60"
                       : isSelected ? "disabled:opacity-30" : ""
                   )}
                 >
@@ -205,7 +205,7 @@ export function EmbeddedComponent({
                     "w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50",
                     "flex items-center gap-4 text-left transition-all",
                     optionSelected
-                      ? "bg-primary/5 disabled:opacity-60"
+                      ? "bg-primary/10 disabled:opacity-60"
                       : isSelected ? "disabled:opacity-30" : ""
                   )}
                 >
@@ -506,7 +506,7 @@ export function EmbeddedComponent({
                   className={cn(
                     'w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50',
                     doctorSelected
-                      ? isSelected ? 'bg-primary/5 disabled:opacity-60' : 'bg-primary/5'
+                      ? isSelected ? 'bg-primary/10 disabled:opacity-60' : 'bg-primary/10'
                       : isSelected ? 'disabled:opacity-30' : ''
                   )}
                   style={{
@@ -907,9 +907,9 @@ function PatientSelector({ patients, selected, defaultPatientId, onSelect, onAdd
             disabled={disabled}
             className={cn(
               'h-auto flex items-center gap-3 p-3 rounded-full text-left font-normal',
-              'hover:border-primary/50 hover:bg-primary/5',
+              'hover:border-primary/50 hover:bg-primary/10',
               highlightedId === patient.id
-                ? disabled ? 'border-primary bg-primary/5 disabled:opacity-60' : 'border-primary bg-primary/5'
+                ? disabled ? 'border-primary bg-primary/10 disabled:opacity-60' : 'border-primary bg-primary/10'
                 : disabled ? 'disabled:opacity-30' : ''
             )}
           >
@@ -938,7 +938,7 @@ function PatientSelector({ patients, selected, defaultPatientId, onSelect, onAdd
         variant="outline"
         onClick={() => !disabled && onAddMember?.()}
         disabled={disabled}
-        className="h-auto mt-2 px-4 py-2.5 rounded-full text-body hover:border-primary/50 hover:bg-primary/5 disabled:opacity-30"
+        className="h-auto mt-2 px-4 py-2.5 rounded-full text-body hover:border-primary/50 hover:bg-primary/10 disabled:opacity-30"
       >
         Add family member or guest &rarr;
       </Button>
@@ -958,9 +958,9 @@ function OptionSelector({ options, selected, onSelect, disabled }: any) {
           disabled={disabled}
           className={cn(
             'h-auto px-5 py-2.5 rounded-full text-label',
-            'hover:border-primary/50 hover:bg-primary/5',
+            'hover:border-primary/50 hover:bg-primary/10',
             selected === option.id
-              ? disabled ? 'border-primary bg-primary/5 disabled:opacity-60' : 'border-primary bg-primary/5'
+              ? disabled ? 'border-primary bg-primary/10 disabled:opacity-60' : 'border-primary bg-primary/10'
               : disabled ? 'disabled:opacity-30' : ''
           )}
         >
@@ -995,9 +995,9 @@ function UrgencySelector({ levels, selected, onSelect, disabled }: any) {
           onClick={() => !disabled && onSelect(level.id)}
           disabled={disabled}
           className={cn(
-            'w-full h-auto flex items-start gap-3 p-4 rounded-2xl border text-left text-body hover:bg-primary/5 disabled:opacity-60',
+            'w-full h-auto flex items-start gap-3 p-4 rounded-2xl border text-left text-body hover:bg-primary/10 disabled:opacity-60',
             selected === level.id
-              ? 'border-primary bg-primary/5'
+              ? 'border-primary bg-primary/10'
               : 'border-border'
           )}
         >
@@ -1045,7 +1045,7 @@ function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disable
             className={cn(
               'p-4 rounded-2xl border transition-all',
               selectedDoctorId === doctor.id
-                ? 'border-primary bg-primary/5'
+                ? 'border-primary bg-primary/10'
                 : 'border-border bg-background'
             )}
           >
@@ -1114,9 +1114,9 @@ function ConsultationModeSelector({ modes, selected, onSelect, disabled }: any) 
           onClick={() => !disabled && onSelect(mode.id)}
           disabled={disabled}
           className={cn(
-            'w-full h-auto flex items-center justify-between p-4 rounded-2xl border text-left text-body hover:bg-primary/5 disabled:opacity-60',
+            'w-full h-auto flex items-center justify-between p-4 rounded-2xl border text-left text-body hover:bg-primary/10 disabled:opacity-60',
             selected === mode.id
-              ? 'border-primary bg-primary/5'
+              ? 'border-primary bg-primary/10'
               : 'border-border'
           )}
         >
@@ -1198,9 +1198,9 @@ function PackageList({ packages, selected, onSelect, disabled }: any) {
           onClick={() => !disabled && onSelect(pkg.id)}
           disabled={disabled}
           className={cn(
-            'w-full h-auto p-4 rounded-2xl border text-left text-body hover:bg-primary/5 disabled:opacity-60',
+            'w-full h-auto p-4 rounded-2xl border text-left text-body hover:bg-primary/10 disabled:opacity-60',
             selected === pkg.id
-              ? 'border-primary bg-primary/5'
+              ? 'border-primary bg-primary/10'
               : 'border-border'
           )}
         >
@@ -1233,9 +1233,9 @@ function LocationSelector({ locations, selected, onSelect, disabled }: any) {
           onClick={() => !disabled && onSelect(location.id)}
           disabled={disabled}
           className={cn(
-            'w-full h-auto p-3 rounded-xl border text-left text-body hover:bg-primary/5 disabled:opacity-60',
+            'w-full h-auto p-3 rounded-xl border text-left text-body hover:bg-primary/10 disabled:opacity-60',
             selected === location.id
-              ? 'border-primary bg-primary/5'
+              ? 'border-primary bg-primary/10'
               : 'border-border'
           )}
         >
@@ -1435,8 +1435,8 @@ function ActionList({ actions, onSelect, disabled }: any) {
           onClick={() => !disabled && onSelect(action.id)}
           disabled={disabled}
           className={cn(
-            'w-full h-auto flex items-start gap-4 p-4 rounded-2xl border text-left text-body hover:border-primary hover:bg-primary/5 disabled:opacity-60',
-            action.id === 'continue' ? 'bg-primary/5 border-primary' : 'border-border'
+            'w-full h-auto flex items-start gap-4 p-4 rounded-2xl border text-left text-body hover:border-primary hover:bg-primary/10 disabled:opacity-60',
+            action.id === 'continue' ? 'bg-primary/10 border-primary' : 'border-border'
           )}
         >
           {action.number && (
@@ -1474,7 +1474,7 @@ function InfoLinks({ links, onSelect, disabled }: any) {
           variant="ghost"
           onClick={() => !disabled && onSelect(link.id)}
           disabled={disabled}
-          className="w-full h-auto flex items-start gap-4 p-4 rounded-2xl border border-border text-left text-body hover:border-primary hover:bg-primary/5 disabled:opacity-60"
+          className="w-full h-auto flex items-start gap-4 p-4 rounded-2xl border border-border text-left text-body hover:border-primary hover:bg-primary/10 disabled:opacity-60"
         >
           <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
             {link.icon === 'clock' && (

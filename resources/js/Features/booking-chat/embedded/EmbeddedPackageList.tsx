@@ -180,7 +180,7 @@ export function EmbeddedPackageList({
                         disabled={disabled || isLocked}
                         className={cn(
                           'w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50',
-                          isChecked && 'bg-primary/5',
+                          isChecked && 'bg-primary/10',
                           (disabled || isLocked) && !isChecked && 'disabled:opacity-60',
                         )}
                       >
@@ -188,7 +188,7 @@ export function EmbeddedPackageList({
                           {/* Checkbox */}
                           <div className="flex-shrink-0 mt-0.5">
                             {isChecked ? (
-                              <Icon icon={CheckSquare} size={20} className="text-primary" />
+                              <Icon icon={CheckSquare} size={20} className="text-blue-800" />
                             ) : (
                               <Icon icon={Square} size={20} className="text-foreground/50" />
                             )}
@@ -246,7 +246,7 @@ export function EmbeddedPackageList({
                           className={cn(
                             'flex-shrink-0 h-auto px-3 rounded-none',
                             'text-muted-foreground hover:text-foreground',
-                            isChecked && 'bg-primary/5',
+                            isChecked && 'bg-primary/10',
                           )}
                         >
                           {isExpanded ? (
@@ -262,7 +262,7 @@ export function EmbeddedPackageList({
                     {isExpanded && test.requires_fasting && (
                       <div className={cn(
                         'px-4 pb-4 pt-0 ml-12 border-t-0',
-                        isChecked && 'bg-primary/5',
+                        isChecked && 'bg-primary/10',
                       )}>
                         <Alert variant="warning" hideIcon title="Preparation Required">
                           <p>Fasting for {test.fasting_hours} hours before the test.</p>
@@ -292,7 +292,7 @@ export function EmbeddedPackageList({
             )}
 
             {!isGuided && alreadySubmitted && selectedTestIds.length > 0 && (
-              <div className="px-4 py-2.5 border-t bg-primary/5">
+              <div className="px-4 py-2.5 border-t bg-primary/10">
                 <div className="flex items-center gap-2 text-body text-primary">
                   <Icon icon={Check} />
                   <span className="font-medium">
@@ -326,7 +326,7 @@ export function EmbeddedPackageList({
                       disabled={disabled || alreadySubmitted}
                       className={cn(
                         'w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50',
-                        isSelected && 'bg-primary/5',
+                        isSelected && 'bg-primary/10',
                         (disabled || alreadySubmitted) && !isSelected && 'disabled:opacity-60',
                       )}
                     >
@@ -334,7 +334,7 @@ export function EmbeddedPackageList({
                         {/* Checkbox */}
                         <div className="flex-shrink-0 mt-0.5">
                           {isSelected ? (
-                            <Icon icon={CheckSquare} size={20} className="text-primary" />
+                            <Icon icon={CheckSquare} size={20} className="text-blue-800" />
                           ) : (
                             <Icon icon={Square} size={20} className="text-foreground/50" />
                           )}
@@ -342,8 +342,8 @@ export function EmbeddedPackageList({
 
                         {/* Content */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-3 mb-1">
-                            <div className="flex items-center gap-2 flex-wrap">
+                          <div className="flex items-start gap-3 mb-1">
+                            <div className="flex-1 flex items-center gap-2 flex-wrap">
                               <span className={cn('text-label', isSelected && 'text-primary')}>
                                 {pkg.name}
                               </span>
@@ -354,33 +354,34 @@ export function EmbeddedPackageList({
                               )}
                             </div>
                             <div className="text-right flex-shrink-0">
-                              <span className="text-card-title">₹{pkg.price.toLocaleString()}</span>
-                              {pkg.original_price > pkg.price && (
-                                <span className="text-body text-muted-foreground line-through ml-1.5">
-                                  ₹{pkg.original_price.toLocaleString()}
-                                </span>
-                              )}
+                              <div className="flex items-center gap-2">
+                                <span className="text-card-title">₹{pkg.price.toLocaleString()}</span>
+                                {pkg.original_price > pkg.price && (
+                                  <span className="text-body text-muted-foreground line-through">
+                                    ₹{pkg.original_price.toLocaleString()}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
 
                           <p className="text-body text-muted-foreground mb-1.5">{pkg.description}</p>
 
-                          {/* Info badges */}
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                              {pkg.duration_hours} hrs
-                            </span>
-                            <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                              {pkg.tests_count} tests
-                            </span>
+                          {/* Info with bullet separators */}
+                          <div className="flex items-center gap-2 flex-wrap text-body text-muted-foreground">
+                            <span>{pkg.duration_hours} hrs</span>
+                            <span>•</span>
+                            <span>{pkg.tests_count} tests</span>
                             {pkg.requires_fasting && pkg.fasting_hours && (
-                              <Badge variant="warning">
-                                {pkg.fasting_hours}h fasting
-                              </Badge>
+                              <>
+                                <span>•</span>
+                                <Badge variant="warning">
+                                  {pkg.fasting_hours}h fasting
+                                </Badge>
+                              </>
                             )}
-                            <span className="text-body text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                              {pkg.age_range} age
-                            </span>
+                            <span>•</span>
+                            <span>{pkg.age_range} age</span>
                           </div>
                         </div>
                       </div>
@@ -389,22 +390,18 @@ export function EmbeddedPackageList({
                     {/* Expand button */}
                     {hasDetails && (
                       <Button
-                        variant="ghost"
+                        variant="secondary"
+                        size="md"
                         onClick={(e) => {
                           e.stopPropagation();
                           setExpandedPkgId(isExpanded ? null : String(pkg.id));
                         }}
                         className={cn(
-                          'flex-shrink-0 h-auto px-3 rounded-none',
-                          'text-muted-foreground hover:text-foreground',
-                          isSelected && 'bg-primary/5',
+                          'flex-shrink-0 rounded-none my-2 mr-2',
+                          isSelected && 'bg-primary/10',
                         )}
                       >
-                        {isExpanded ? (
-                          <ChevronDown className="h-4 w-4" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4" />
-                        )}
+                        <Icon icon={isExpanded ? ChevronDown : ChevronRight} size={20} />
                       </Button>
                     )}
                   </div>
