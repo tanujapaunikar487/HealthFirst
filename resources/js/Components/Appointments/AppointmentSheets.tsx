@@ -9,6 +9,7 @@ import {
   SheetDivider,
   SheetSectionRow,
 } from '@/Components/ui/sheet';
+import { DetailRow } from '@/Components/ui/detail-row';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -859,7 +860,7 @@ export function RescheduleSheet({
       <SheetBody>
         <div className="space-y-5 px-5 py-5">
         {/* Booking Summary */}
-        <div className="rounded-lg bg-muted/50 p-4 space-y-3">
+        <div className="rounded-lg bg-muted/50 p-4 space-y-4">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'hsl(var(--primary) / 0.25)' }}>
               {appointment.type === 'doctor' ? (
@@ -875,21 +876,11 @@ export function RescheduleSheet({
               )}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2 text-body">
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <Icon icon={User} className="h-3.5 w-3.5" />
-              <span>{appointment.patient_name}</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <Icon icon={Calendar} className="h-3.5 w-3.5" />
-              <span>{appointment.date_formatted}</span>
-            </div>
-            <div className="text-muted-foreground">
-              Mode: {appointment.mode}
-            </div>
-            <div className="text-muted-foreground">
-              Fee: ₹{appointment.fee}
-            </div>
+          <div className="space-y-3">
+            <DetailRow label="Patient" value={appointment.patient_name} />
+            <DetailRow label="Date" value={appointment.date_formatted} />
+            <DetailRow label="Mode" value={appointment.mode} />
+            <DetailRow label="Fee" value={`₹${appointment.fee}`} />
           </div>
         </div>
 

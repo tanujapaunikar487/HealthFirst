@@ -38,7 +38,15 @@ export function EmbeddedAppointmentType({ selectedType, onSelect, disabled }: Pr
               variant="ghost"
               onClick={() => !disabled && onSelect(option.value)}
               disabled={disabled}
-              className="w-full h-auto px-6 py-4 text-left transition-all flex items-center gap-4 rounded-none hover:bg-muted/50"
+              className={cn(
+                'w-full h-auto px-6 py-4 text-left transition-all flex items-center gap-4',
+                'disabled:cursor-not-allowed',
+                isSelected
+                  ? 'relative z-10 rounded-3xl border-2 border-primary bg-primary/10 [&:not(:first-child)]:-mt-px [&+*]:border-t-transparent'
+                  : 'rounded-none hover:bg-muted/50',
+                disabled && isSelected && '[opacity:1!important]',
+                disabled && !isSelected && 'opacity-40'
+              )}
             >
               <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center shrink-0">
                 <Icon icon={option.icon} size={20} className="text-blue-800" />

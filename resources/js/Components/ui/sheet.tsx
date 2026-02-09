@@ -39,7 +39,7 @@ import { cn } from '@/Lib/utils';
  * </Sheet>
  *
  * ### 2. List Views
- * Use for displaying lists with full-width items and dividers.
+ * Use for displaying lists with consistent 20px horizontal padding.
  *
  * @example
  * <Sheet open={open} onOpenChange={setOpen}>
@@ -54,12 +54,13 @@ import { cn } from '@/Lib/utils';
  *       </HStack>
  *     </SheetHeader>
  *     <SheetBody>
- *       <SheetEdgeContent>
+ *       <div>
+ *         <h3 className="text-label text-muted-foreground px-5 py-3">Today</h3>
  *         <div className="divide-y">
- *           <Button variant="ghost" className="px-6 py-4 rounded-none">Item 1</Button>
- *           <Button variant="ghost" className="px-6 py-4 rounded-none">Item 2</Button>
+ *           <Button variant="ghost" className="px-5 py-4 rounded-none">Item 1</Button>
+ *           <Button variant="ghost" className="px-5 py-4 rounded-none">Item 2</Button>
  *         </div>
- *       </SheetEdgeContent>
+ *       </div>
  *     </SheetBody>
  *   </SheetContent>
  * </Sheet>
@@ -120,7 +121,7 @@ import { cn } from '@/Lib/utils';
  * - Spacing: Use gap-{N} where N×4=px (gap-3 = 12px, gap-5 = 20px)
  * - Typography: text-section-title, text-label, text-body, text-caption
  * - Colors: text-foreground, text-muted-foreground, text-primary
- * - Padding: px-5 py-5 for sections, px-6 py-4 for list items
+ * - Padding: px-5 py-5 for sections, px-5 py-4 for list items (20px horizontal throughout)
  * - Rounded: rounded-xl for cards/buttons, rounded-full for pills
  */
 
@@ -177,7 +178,7 @@ const SheetContent = React.forwardRef<
       ref={ref}
       className={cn(
         sheetVariants({ side }),
-        'w-[500px] rounded-3xl border bg-card flex flex-col items-stretch inset-y-2.5 right-2.5 left-auto h-auto',
+        'w-[500px] rounded-3xl border bg-card flex flex-col items-stretch inset-y-2.5 right-2.5 left-auto h-auto overflow-hidden',
         className
       )}
       style={{
@@ -343,8 +344,8 @@ SheetDescription.displayName = SheetPrimitive.Description.displayName;
  *   <div className="px-5">
  *     <SheetEdgeContent>
  *       <div className="divide-y">
- *         <Button variant="ghost" className="px-6 py-4 rounded-none">Item 1</Button>
- *         <Button variant="ghost" className="px-6 py-4 rounded-none">Item 2</Button>
+ *         <Button variant="ghost" className="px-5 py-4 rounded-none">Item 1</Button>
+ *         <Button variant="ghost" className="px-5 py-4 rounded-none">Item 2</Button>
  *       </div>
  *     </SheetEdgeContent>
  *   </div>

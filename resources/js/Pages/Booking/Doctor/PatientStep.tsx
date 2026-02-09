@@ -382,7 +382,7 @@ export default function PatientStep({
         </section>
 
         {/* 2. Appointment Type */}
-        {patientId && showAppointmentType && (
+        {patientId && (
           <section ref={appointmentTypeSectionRef}>
             <h2 className="text-step-title mb-2">
               Is this a new consultation or a follow-up?
@@ -404,7 +404,7 @@ export default function PatientStep({
         )}
 
         {/* 3. Follow-up Reason - Only for follow-up appointments */}
-        {isFollowup && showFollowupReason && (
+        {appointmentType === 'followup' && (
           <section ref={followupReasonRef}>
             <h2 className="text-step-title mb-2">What brings you back?</h2>
             <p className="text-body text-muted-foreground mb-4">
@@ -425,7 +425,7 @@ export default function PatientStep({
         )}
 
         {/* 4. Follow-up Notes - Only for follow-up after reason selected */}
-        {isFollowup && followupReason && showFollowupNotes && (
+        {appointmentType === 'followup' && followupReason && (
           <section ref={followupNotesRef}>
             {followUp && (
               <FollowUpBanner
@@ -465,8 +465,8 @@ export default function PatientStep({
         )}
 
         {/* 5. Previous Consultations Quick Book - Follow-up only, after notes */}
-        {isFollowup &&
-          showPreviousDoctors &&
+        {appointmentType === 'followup' &&
+          followupReason &&
           patientPreviousConsultations.length > 0 && (
             <section ref={previousDoctorsRef}>
               <h2 className="text-step-title mb-2">
@@ -497,7 +497,7 @@ export default function PatientStep({
           )}
 
         {/* 6. Symptoms Section - New appointments: after type, Follow-up: skipped (notes replace it) */}
-        {appointmentType === 'new' && showSymptoms && (
+        {appointmentType === 'new' && (
           <section ref={symptomsSectionRef}>
             <h2 className="text-step-title mb-2">What symptoms are you experiencing?</h2>
             <p className="text-body text-muted-foreground mb-4">

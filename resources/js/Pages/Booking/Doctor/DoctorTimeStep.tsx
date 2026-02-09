@@ -224,29 +224,31 @@ export default function DoctorTimeStep({
         </section>
 
         {/* Doctor List */}
-        <section>
-          <VStack gap={4}>
-            <VStack gap={0}>
-              <h2 className="text-section-title">{doctors.length} doctors available</h2>
-              <p className="text-body text-muted-foreground">
-                Based on your symptoms and selected date
-              </p>
+        {selectedDate && (
+          <section>
+            <VStack gap={4}>
+              <VStack gap={0}>
+                <h2 className="text-section-title">{doctors.length} doctors available</h2>
+                <p className="text-body text-muted-foreground">
+                  Based on your symptoms and selected date
+                </p>
+              </VStack>
+
+              <EmbeddedDoctorList
+                doctors={doctors}
+                selectedDoctorId={selectedDoctorId}
+                selectedTime={selectedTime}
+                onSelect={handleDoctorTimeSelect}
+                disabled={false}
+              />
+
+              {errors.doctor && <p className="text-body text-destructive">{errors.doctor}</p>}
             </VStack>
-
-            <EmbeddedDoctorList
-              doctors={doctors}
-              selectedDoctorId={selectedDoctorId}
-              selectedTime={selectedTime}
-              onSelect={handleDoctorTimeSelect}
-              disabled={false}
-            />
-
-            {errors.doctor && <p className="text-body text-destructive">{errors.doctor}</p>}
-          </VStack>
-        </section>
+          </section>
+        )}
 
         {/* Consultation Mode */}
-        {selectedDoctor && selectedTime && (
+        {selectedDate && selectedDoctor && selectedTime && (
           <section ref={appointmentModeSectionRef}>
             <VStack gap={4}>
               <h2 className="text-section-title">How would you like to consult?</h2>

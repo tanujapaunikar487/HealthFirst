@@ -67,12 +67,12 @@ export default function ConcernsStep({
   const urgencySectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (showUrgency && urgencySectionRef.current) {
+    if ((selectedSymptoms.length > 0 || symptomNotes.trim().length > 0) && urgencySectionRef.current) {
       setTimeout(() => {
         urgencySectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
     }
-  }, [showUrgency]);
+  }, [selectedSymptoms.length, symptomNotes]);
 
   const handleSymptomToggle = (symptomId: string) => {
     const symptom = symptoms.find((s) => s.id === symptomId);
@@ -169,23 +169,12 @@ export default function ConcernsStep({
               onChange={(e) => setSymptomNotes(e.target.value)}
               rows={4}
             />
-
-            {/* Continue button - Show when symptoms are selected or notes entered, hide when urgency is visible */}
-            {(selectedSymptoms.length > 0 || symptomNotes.trim().length > 0) && !showUrgency && (
-              <Button
-                onClick={handleSymptomContinue}
-                variant="secondary"
-                className="border-border hover:bg-accent"
-              >
-                Continue
-              </Button>
-            )}
             </VStack>
           </VStack>
         </section>
 
-        {/* Urgency - Show after continue button is clicked */}
-        {showUrgency && (
+        {/* Urgency - Show after symptoms are entered */}
+        {(selectedSymptoms.length > 0 || symptomNotes.trim().length > 0) && (
           <section ref={urgencySectionRef}>
             <VStack gap={4}>
               <VStack gap={1}>

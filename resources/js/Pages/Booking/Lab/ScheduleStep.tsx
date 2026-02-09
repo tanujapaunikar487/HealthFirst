@@ -312,7 +312,7 @@ export default function ScheduleStep({
         )}
 
         {/* Section 4: Collection Method */}
-        {selectedTime && (
+        {selectedDate && selectedTime && (
           <section ref={collectionSectionRef}>
             <h2 className="text-step-title mb-4">Where should we collect the sample?</h2>
 

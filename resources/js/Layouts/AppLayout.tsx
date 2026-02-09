@@ -211,8 +211,8 @@ function NotificationItem({
                 </div>
             )}
             <div className="flex-1 min-w-0">
-                <p className="text-label text-foreground mb-1">{notification.title}</p>
-                <p className="text-body text-muted-foreground">{notification.message}</p>
+                <p className="text-label text-foreground mb-1 break-words">{notification.title}</p>
+                <p className="text-body text-muted-foreground break-words">{notification.message}</p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
                 <span className="text-caption text-muted-foreground whitespace-nowrap">
@@ -543,7 +543,7 @@ export default function AppLayout({
                     {/* Scrollable Notification List */}
                     <SheetBody>
                         {displayedNotifications.length === 0 ? (
-                            <div className="text-center py-12">
+                            <div className="text-center py-12 px-5">
                                 <img
                                     src="/assets/images/notification.png"
                                     alt=""
@@ -557,11 +557,11 @@ export default function AppLayout({
                                 </p>
                             </div>
                         ) : (
-                            <SheetEdgeContent>
+                            <div className="pt-3">
                                 {/* Today */}
                                 {displayedNotifications.filter((n) => getTimeGroup(n.created_at) === 'today').length > 0 && (
                                     <div>
-                                        <h3 className="text-label text-muted-foreground px-5 py-3">Today</h3>
+                                        <h3 className="text-label text-muted-foreground px-5 pb-3">Today</h3>
                                         <div className="divide-y divide-border">
                                             {displayedNotifications
                                                 .filter((n) => getTimeGroup(n.created_at) === 'today')
@@ -580,7 +580,7 @@ export default function AppLayout({
                                 {/* This Week */}
                                 {displayedNotifications.filter((n) => getTimeGroup(n.created_at) === 'this-week').length > 0 && (
                                     <div className="mt-6">
-                                        <h3 className="text-label text-muted-foreground px-5 py-3">This Week</h3>
+                                        <h3 className="text-label text-muted-foreground px-5 pb-3">This Week</h3>
                                         <div className="divide-y divide-border">
                                             {displayedNotifications
                                                 .filter((n) => getTimeGroup(n.created_at) === 'this-week')
@@ -599,7 +599,7 @@ export default function AppLayout({
                                 {/* Older */}
                                 {displayedNotifications.filter((n) => getTimeGroup(n.created_at) === 'older').length > 0 && (
                                     <div className="mt-6">
-                                        <h3 className="text-label text-muted-foreground px-5 py-3">Older</h3>
+                                        <h3 className="text-label text-muted-foreground px-5 pb-3">Older</h3>
                                         <div className="divide-y divide-border">
                                             {displayedNotifications
                                                 .filter((n) => getTimeGroup(n.created_at) === 'older')
@@ -614,7 +614,7 @@ export default function AppLayout({
                                         </div>
                                     </div>
                                 )}
-                            </SheetEdgeContent>
+                            </div>
                         )}
                     </SheetBody>
                 </SheetContent>
