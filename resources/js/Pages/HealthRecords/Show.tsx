@@ -9,7 +9,7 @@ import { SideNav } from '@/Components/SideNav';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { useToast } from '@/Contexts/ToastContext';
 import { cn } from '@/Lib/utils';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,6 +51,8 @@ import {
   Link2,
   User,
   Pencil,
+  Sparkles,
+  Loader2,
 } from '@/Lib/icons';
 import { downloadAsHtml } from '@/Lib/download';
 import { generateHealthRecordPdfContent, escapeHtml } from '@/Lib/pdf-content';
@@ -129,6 +131,9 @@ interface AttachedFile {
 }
 
 interface RecordMetadata {
+  // AI summary (for lab reports and imaging reports)
+  ai_summary?: string;
+  ai_summary_generated_at?: string;
   // consultation_notes
   diagnosis?: string;
   icd_code?: string;
@@ -590,11 +595,17 @@ export default function Show({ user, record, familyMember }: Props) {
   const { showToast } = useToast();
   const [showShareDialog, setShowShareDialog] = useState(false);
 
+  // AI Summary state (only for lab/imaging reports)
+  const [aiSummary, setAiSummary] = useState<string | null>(
+    record.metadata?.ai_summary || null
+  );
+  const [aiSummaryLoading, setAiSummaryLoading] = useState(false);
+  const [aiSummaryError, setAiSummaryError] = useState<string | null>(null);
 
   const config = categoryConfig[record.category] || { label: record.category, color: 'hsl(var(--muted-foreground))', bg: 'hsl(var(--secondary))' };
 
   const handleDownload = () => {
-    const pdfContent = generateHealthRecordPdfContent(record, aiSummary || undefined);
+    const pdfContent = generateHealthRecordPdfContent(record);
 
     downloadAsHtml(
       `${record.category}-${record.id}.pdf`,

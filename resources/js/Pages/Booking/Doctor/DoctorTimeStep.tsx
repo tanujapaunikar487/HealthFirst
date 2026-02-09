@@ -4,7 +4,7 @@ import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { EmbeddedDoctorList } from '@/Features/booking-chat/embedded/EmbeddedDoctorList';
 import { EmbeddedAppointmentMode } from '@/Features/booking-chat/embedded/EmbeddedAppointmentMode';
 import { Card } from '@/Components/ui/card';
-import { VStack } from '@/Components/ui/stack';
+import { HStack, VStack } from '@/Components/ui/stack';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
 
