@@ -36,7 +36,6 @@ import {
 import { Icon } from "@/Components/ui/icon";
 import { Alert } from "@/Components/ui/alert";
 import { SupportFooter } from "@/Components/SupportFooter";
-import { ToastProvider } from "@/Contexts/ToastContext";
 import { getAvatarColor } from "@/Lib/avatar-colors";
 
 // --- Types ---
@@ -387,265 +386,263 @@ export default function AppLayout({
     };
 
     return (
-        <ToastProvider>
-            <div className="flex h-screen bg-background">
-                {/* Sidebar Navigation */}
-                <Sidebar user={user} />
+        <div className="flex h-screen bg-background">
+            {/* Sidebar Navigation */}
+            <Sidebar user={user} />
 
-                {/* Main Content Area */}
-                <div className="flex flex-col flex-1 overflow-hidden">
-                    {/* Top Header */}
-                    <header
-                        className="bg-background"
-                        style={{
-                            height: "80px",
-                            borderBottom: "1px solid hsl(var(--border))",
-                        }}
-                    >
-                        <div className="h-full flex items-center justify-between px-6">
-                            {/* Page Title */}
-                            <div className="flex items-center gap-3">
-                                {typeof pageIcon === "string" ? (
-                                    <img
-                                        src={
-                                            pageIcon.startsWith("/")
-                                                ? pageIcon
-                                                : `/assets/icons/${pageIcon}.svg`
-                                        }
-                                        alt={pageTitle || "Home"}
-                                        className="h-6 w-6"
-                                    />
-                                ) : pageIcon ? (
-                                    <Icon
-                                        icon={pageIcon}
-                                        className="h-6 w-6 text-foreground"
-                                    />
-                                ) : (
-                                    <img
-                                        src="/assets/icons/home.svg"
-                                        alt={pageTitle || "Home"}
-                                        className="h-6 w-6"
-                                    />
-                                )}
-                                <h2 className="text-subheading text-foreground">
-                                    {pageTitle || "Home"}
-                                </h2>
-                            </div>
-
-                            {/* Right Side Actions */}
-                            <div className="flex items-center gap-3">
-                                {/* Search Icon Button */}
-                                <Button
-                                    variant="ghost"
-                                    iconOnly
-                                    size="lg"
-                                    className="hover:bg-accent"
-                                    style={{
-                                        backgroundColor:
-                                            "hsl(var(--background))",
-                                        border: "1px solid hsl(var(--border))",
-                                    }}
-                                    onClick={() => setSearchOpen(true)}
-                                >
-                                    <Icon
-                                        icon={Search}
-                                        className="h-5 w-5 text-foreground"
-                                    />
-                                </Button>
-
-                                {/* Notifications Bell → Opens Sheet */}
-                                <Button
-                                    variant="ghost"
-                                    iconOnly
-                                    size="lg"
-                                    className="hover:bg-accent relative"
-                                    style={{
-                                        backgroundColor:
-                                            "hsl(var(--background))",
-                                        border: "1px solid hsl(var(--border))",
-                                    }}
-                                    onClick={() => setNotifOpen(true)}
-                                >
-                                    <Icon
-                                        icon={Bell}
-                                        className="h-5 w-5 text-foreground"
-                                    />
-                                    {unreadCount > 0 && (
-                                        <span className="absolute top-2.5 right-2.5 h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-background" />
-                                    )}
-                                </Button>
-                            </div>
+            {/* Main Content Area */}
+            <div className="flex flex-col flex-1 overflow-hidden">
+                {/* Top Header */}
+                <header
+                    className="bg-background"
+                    style={{
+                        height: "80px",
+                        borderBottom: "1px solid hsl(var(--border))",
+                    }}
+                >
+                    <div className="h-full flex items-center justify-between px-6">
+                        {/* Page Title */}
+                        <div className="flex items-center gap-3">
+                            {typeof pageIcon === "string" ? (
+                                <img
+                                    src={
+                                        pageIcon.startsWith("/")
+                                            ? pageIcon
+                                            : `/assets/icons/${pageIcon}.svg`
+                                    }
+                                    alt={pageTitle || "Home"}
+                                    className="h-6 w-6"
+                                />
+                            ) : pageIcon ? (
+                                <Icon
+                                    icon={pageIcon}
+                                    className="h-6 w-6 text-foreground"
+                                />
+                            ) : (
+                                <img
+                                    src="/assets/icons/home.svg"
+                                    alt={pageTitle || "Home"}
+                                    className="h-6 w-6"
+                                />
+                            )}
+                            <h2 className="text-subheading text-foreground">
+                                {pageTitle || "Home"}
+                            </h2>
                         </div>
-                    </header>
 
-                    {/* Profile Warning Banner */}
-                    {profileWarnings.length > 0 && !profileBannerDismissed && (
-                        <Alert
-                            variant="warning"
-                            mode="sticky"
-                            onDismiss={dismissProfileBanner}
-                        >
-                            <span className="font-medium">
-                                Your profile is incomplete. Add{" "}
-                                {profileWarnings.map((w, i) => (
-                                    <span key={w.key}>
-                                        {i > 0 &&
-                                            i < profileWarnings.length - 1 &&
-                                            ", "}
-                                        {i > 0 &&
-                                            i === profileWarnings.length - 1 &&
-                                            " and "}
-                                        <Link
-                                            href={w.href}
-                                            className="underline font-semibold text-foreground hover:text-foreground/80"
-                                        >
-                                            {w.label}
-                                        </Link>
-                                    </span>
-                                ))}{" "}
-                                for hassle-free claims.
-                            </span>
-                        </Alert>
-                    )}
+                        {/* Right Side Actions */}
+                        <div className="flex items-center gap-3">
+                            {/* Search Icon Button */}
+                            <Button
+                                variant="ghost"
+                                iconOnly
+                                size="lg"
+                                className="hover:bg-accent"
+                                style={{
+                                    backgroundColor:
+                                        "hsl(var(--background))",
+                                    border: "1px solid hsl(var(--border))",
+                                }}
+                                onClick={() => setSearchOpen(true)}
+                            >
+                                <Icon
+                                    icon={Search}
+                                    className="h-5 w-5 text-foreground"
+                                />
+                            </Button>
 
-                    {/* Page Content */}
-                    <main
-                        className="flex-1 overflow-y-auto flex flex-col pt-20 pb-5"
-                        style={{
-                            background:
-                                "linear-gradient(180deg, hsl(var(--primary) / 0.1) 0%, hsl(var(--background) / 0.5) 13.94%, hsl(var(--background)) 30.77%)",
-                        }}
-                    >
-                        <div className="flex-1 flex justify-center">
-                            {children}
-                        </div>
-                        <SupportFooter pageName={pageTitle || "this page"} />
-                    </main>
-                </div>
-
-                {/* Notifications Side Sheet */}
-                <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
-                    <SheetContent side="right">
-                        <SheetHeader>
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2.5">
-                                    <SheetTitle>Notifications</SheetTitle>
-                                    {unreadCount > 0 && (
-                                        <Badge variant="danger" size="sm">
-                                            {unreadCount}
-                                        </Badge>
-                                    )}
-                                </div>
+                            {/* Notifications Bell → Opens Sheet */}
+                            <Button
+                                variant="ghost"
+                                iconOnly
+                                size="lg"
+                                className="hover:bg-accent relative"
+                                style={{
+                                    backgroundColor:
+                                        "hsl(var(--background))",
+                                    border: "1px solid hsl(var(--border))",
+                                }}
+                                onClick={() => setNotifOpen(true)}
+                            >
+                                <Icon
+                                    icon={Bell}
+                                    className="h-5 w-5 text-foreground"
+                                />
                                 {unreadCount > 0 && (
-                                    <div className="flex items-center gap-1.5 text-label text-primary cursor-pointer hover:underline" onClick={handleMarkAllAsRead}>
-                                        <Icon icon={CheckCheck} className="h-3.5 w-3.5" />
-                                        <span>Mark all read</span>
+                                    <span className="absolute top-2.5 right-2.5 h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-background" />
+                                )}
+                            </Button>
+                        </div>
+                    </div>
+                </header>
+
+                {/* Profile Warning Banner */}
+                {profileWarnings.length > 0 && !profileBannerDismissed && (
+                    <Alert
+                        variant="warning"
+                        mode="sticky"
+                        onDismiss={dismissProfileBanner}
+                    >
+                        <span className="font-medium">
+                            Your profile is incomplete. Add{" "}
+                            {profileWarnings.map((w, i) => (
+                                <span key={w.key}>
+                                    {i > 0 &&
+                                        i < profileWarnings.length - 1 &&
+                                        ", "}
+                                    {i > 0 &&
+                                        i === profileWarnings.length - 1 &&
+                                        " and "}
+                                    <Link
+                                        href={w.href}
+                                        className="underline font-semibold text-foreground hover:text-foreground/80"
+                                    >
+                                        {w.label}
+                                    </Link>
+                                </span>
+                            ))}{" "}
+                            for hassle-free claims.
+                        </span>
+                    </Alert>
+                )}
+
+                {/* Page Content */}
+                <main
+                    className="flex-1 overflow-y-auto flex flex-col pt-20 pb-5"
+                    style={{
+                        background:
+                            "linear-gradient(180deg, hsl(var(--primary) / 0.1) 0%, hsl(var(--background) / 0.5) 13.94%, hsl(var(--background)) 30.77%)",
+                    }}
+                >
+                    <div className="flex-1 flex justify-center">
+                        {children}
+                    </div>
+                    <SupportFooter pageName={pageTitle || "this page"} />
+                </main>
+            </div>
+
+            {/* Notifications Side Sheet */}
+            <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
+                <SheetContent side="right">
+                    <SheetHeader>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2.5">
+                                <SheetTitle>Notifications</SheetTitle>
+                                {unreadCount > 0 && (
+                                    <Badge variant="danger" size="sm">
+                                        {unreadCount}
+                                    </Badge>
+                                )}
+                            </div>
+                            {unreadCount > 0 && (
+                                <div className="flex items-center gap-1.5 text-label text-primary cursor-pointer hover:underline" onClick={handleMarkAllAsRead}>
+                                    <Icon icon={CheckCheck} className="h-3.5 w-3.5" />
+                                    <span>Mark all read</span>
+                                </div>
+                            )}
+                        </div>
+                        <SheetDescription className="sr-only">
+                            Billing notifications
+                        </SheetDescription>
+
+                        <Tabs
+                            value={notifFilter}
+                            onValueChange={(v) =>
+                                setNotifFilter(v as "all" | "appointments" | "updates")
+                            }
+                            className="mt-4"
+                        >
+                            <TabsList>
+                                <TabsTrigger value="all">All</TabsTrigger>
+                                <TabsTrigger value="appointments">Appointments</TabsTrigger>
+                                <TabsTrigger value="updates">Updates</TabsTrigger>
+                            </TabsList>
+                        </Tabs>
+                    </SheetHeader>
+
+                    {/* Scrollable Notification List */}
+                    <SheetBody>
+                        {displayedNotifications.length === 0 ? (
+                            <div className="text-center py-12">
+                                <img
+                                    src="/assets/images/notification.png"
+                                    alt=""
+                                    className="h-[120px] w-[120px] mx-auto mb-4"
+                                />
+                                <p className="text-subheading text-foreground">
+                                    No notifications yet
+                                </p>
+                                <p className="text-body text-muted-foreground mt-1">
+                                    Updates about appointments, billing, and more will appear here.
+                                </p>
+                            </div>
+                        ) : (
+                            <SheetEdgeContent>
+                                {/* Today */}
+                                {displayedNotifications.filter((n) => getTimeGroup(n.created_at) === 'today').length > 0 && (
+                                    <div>
+                                        <h3 className="text-label text-muted-foreground px-5 py-3">Today</h3>
+                                        <div className="divide-y divide-border">
+                                            {displayedNotifications
+                                                .filter((n) => getTimeGroup(n.created_at) === 'today')
+                                                .map((n, idx) => (
+                                                    <NotificationItem
+                                                        key={n.id}
+                                                        notification={n}
+                                                        onClick={() => handleNotificationClick(n)}
+                                                        index={idx}
+                                                    />
+                                                ))}
+                                        </div>
                                     </div>
                                 )}
-                            </div>
-                            <SheetDescription className="sr-only">
-                                Billing notifications
-                            </SheetDescription>
 
-                            <Tabs
-                                value={notifFilter}
-                                onValueChange={(v) =>
-                                    setNotifFilter(v as "all" | "appointments" | "updates")
-                                }
-                                className="mt-4"
-                            >
-                                <TabsList>
-                                    <TabsTrigger value="all">All</TabsTrigger>
-                                    <TabsTrigger value="appointments">Appointments</TabsTrigger>
-                                    <TabsTrigger value="updates">Updates</TabsTrigger>
-                                </TabsList>
-                            </Tabs>
-                        </SheetHeader>
-
-                        {/* Scrollable Notification List */}
-                        <SheetBody>
-                            {displayedNotifications.length === 0 ? (
-                                <div className="text-center py-12">
-                                    <img
-                                        src="/assets/images/notification.png"
-                                        alt=""
-                                        className="h-[120px] w-[120px] mx-auto mb-4"
-                                    />
-                                    <p className="text-subheading text-foreground">
-                                        No notifications yet
-                                    </p>
-                                    <p className="text-body text-muted-foreground mt-1">
-                                        Updates about appointments, billing, and more will appear here.
-                                    </p>
-                                </div>
-                            ) : (
-                                <SheetEdgeContent>
-                                    {/* Today */}
-                                    {displayedNotifications.filter((n) => getTimeGroup(n.created_at) === 'today').length > 0 && (
-                                        <div>
-                                            <h3 className="text-label text-muted-foreground px-5 py-3">Today</h3>
-                                            <div className="divide-y divide-border">
-                                                {displayedNotifications
-                                                    .filter((n) => getTimeGroup(n.created_at) === 'today')
-                                                    .map((n, idx) => (
-                                                        <NotificationItem
-                                                            key={n.id}
-                                                            notification={n}
-                                                            onClick={() => handleNotificationClick(n)}
-                                                            index={idx}
-                                                        />
-                                                    ))}
-                                            </div>
+                                {/* This Week */}
+                                {displayedNotifications.filter((n) => getTimeGroup(n.created_at) === 'this-week').length > 0 && (
+                                    <div className="mt-6">
+                                        <h3 className="text-label text-muted-foreground px-5 py-3">This Week</h3>
+                                        <div className="divide-y divide-border">
+                                            {displayedNotifications
+                                                .filter((n) => getTimeGroup(n.created_at) === 'this-week')
+                                                .map((n, idx) => (
+                                                    <NotificationItem
+                                                        key={n.id}
+                                                        notification={n}
+                                                        onClick={() => handleNotificationClick(n)}
+                                                        index={idx}
+                                                    />
+                                                ))}
                                         </div>
-                                    )}
+                                    </div>
+                                )}
 
-                                    {/* This Week */}
-                                    {displayedNotifications.filter((n) => getTimeGroup(n.created_at) === 'this-week').length > 0 && (
-                                        <div className="mt-6">
-                                            <h3 className="text-label text-muted-foreground px-5 py-3">This Week</h3>
-                                            <div className="divide-y divide-border">
-                                                {displayedNotifications
-                                                    .filter((n) => getTimeGroup(n.created_at) === 'this-week')
-                                                    .map((n, idx) => (
-                                                        <NotificationItem
-                                                            key={n.id}
-                                                            notification={n}
-                                                            onClick={() => handleNotificationClick(n)}
-                                                            index={idx}
-                                                        />
-                                                    ))}
-                                            </div>
+                                {/* Older */}
+                                {displayedNotifications.filter((n) => getTimeGroup(n.created_at) === 'older').length > 0 && (
+                                    <div className="mt-6">
+                                        <h3 className="text-label text-muted-foreground px-5 py-3">Older</h3>
+                                        <div className="divide-y divide-border">
+                                            {displayedNotifications
+                                                .filter((n) => getTimeGroup(n.created_at) === 'older')
+                                                .map((n, idx) => (
+                                                    <NotificationItem
+                                                        key={n.id}
+                                                        notification={n}
+                                                        onClick={() => handleNotificationClick(n)}
+                                                        index={idx}
+                                                    />
+                                                ))}
                                         </div>
-                                    )}
+                                    </div>
+                                )}
+                            </SheetEdgeContent>
+                        )}
+                    </SheetBody>
+                </SheetContent>
+            </Sheet>
 
-                                    {/* Older */}
-                                    {displayedNotifications.filter((n) => getTimeGroup(n.created_at) === 'older').length > 0 && (
-                                        <div className="mt-6">
-                                            <h3 className="text-label text-muted-foreground px-5 py-3">Older</h3>
-                                            <div className="divide-y divide-border">
-                                                {displayedNotifications
-                                                    .filter((n) => getTimeGroup(n.created_at) === 'older')
-                                                    .map((n, idx) => (
-                                                        <NotificationItem
-                                                            key={n.id}
-                                                            notification={n}
-                                                            onClick={() => handleNotificationClick(n)}
-                                                            index={idx}
-                                                        />
-                                                    ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </SheetEdgeContent>
-                            )}
-                        </SheetBody>
-                    </SheetContent>
-                </Sheet>
-
-                {/* Global Search Modal */}
-                <SearchModal open={searchOpen} onOpenChange={setSearchOpen} />
-            </div>
-        </ToastProvider>
+            {/* Global Search Modal */}
+            <SearchModal open={searchOpen} onOpenChange={setSearchOpen} />
+        </div>
     );
 }
 

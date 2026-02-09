@@ -16,7 +16,7 @@ import {
 
 import { SideNav } from '@/Components/SideNav';
 import {
-  ArrowLeft,
+  ChevronLeft,
   Download,
   ExternalLink,
   Stethoscope,
@@ -42,6 +42,7 @@ import { Icon } from '@/Components/ui/icon';
 import { downloadAsHtml } from '@/Lib/download';
 import { Textarea } from '@/Components/ui/textarea';
 import { ShareDialog } from '@/Components/ui/share-dialog';
+import { useToast } from '@/Contexts/ToastContext';
 import {
   Dialog,
   DialogContent,
@@ -381,7 +382,7 @@ function BillingShowSkeleton() {
 
 export default function Show({ user, bill }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(bill);
-  const [toastMessage, setToastMessage] = useState('');
+  const { showToast } = useToast();
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [showDisputeDialog, setShowDisputeDialog] = useState(false);
   const [disputeReason, setDisputeReason] = useState('');
@@ -432,11 +433,6 @@ export default function Show({ user, bill }: Props) {
     `);
   };
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(''), 3000);
-  };
-
   const handlePayment = async (amount: number) => {
     if (paymentLoading) return;
     setPaymentLoading(true);
@@ -464,7 +460,7 @@ export default function Show({ user, bill }: Props) {
         });
 
         if (!verifyRes.ok) throw new Error('Payment verification failed');
-        showToast('Payment successful!');
+        showToast('Payment successful!', 'success');
         setPaymentLoading(false);
         router.reload();
         return;
@@ -490,12 +486,12 @@ export default function Show({ user, bill }: Props) {
             });
 
             if (!verifyRes.ok) throw new Error('Verification failed');
-            showToast('Payment successful!');
+            showToast('Payment successful!', 'success');
             setPaymentLoading(false);
             router.reload();
           } catch {
             setPaymentLoading(false);
-            showToast('Payment verification failed. Please try again.');
+            showToast('Payment verification failed. Please try again.', 'error');
           }
         },
         modal: {
@@ -514,7 +510,7 @@ export default function Show({ user, bill }: Props) {
       razorpay.open();
     } catch {
       setPaymentLoading(false);
-      showToast('Failed to initiate payment. Please try again.');
+      showToast('Failed to initiate payment. Please try again.', 'error');
     }
   };
 
@@ -542,10 +538,10 @@ export default function Show({ user, bill }: Props) {
         <Button
           variant="link"
           size="sm"
-          className="h-auto p-0 mb-6 flex items-center gap-1.5 text-label text-muted-foreground hover:text-foreground"
+          className="h-auto p-0 mb-6 flex items-center gap-1.5 text-body text-muted-foreground hover:text-foreground transition-colors self-start"
           onClick={() => router.visit('/billing')}
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ChevronLeft className="h-4 w-4" />
           Billing
         </Button>
 
@@ -611,8 +607,8 @@ export default function Show({ user, bill }: Props) {
                   onClick={() => {
                     if (confirm('Are you sure you want to cancel this dispute?')) {
                       router.post(`/billing/${bill.id}/dispute/cancel`, {}, {
-                        onSuccess: () => showToast('Dispute cancelled'),
-                        onError: () => showToast('Failed to cancel dispute'),
+                        onSuccess: () => showToast('Dispute cancelled', 'success'),
+                        onError: () => showToast('Failed to cancel dispute', 'error'),
                       });
                     }
                   }}
@@ -674,7 +670,7 @@ export default function Show({ user, bill }: Props) {
                 {/* Unpaid: Payment Plan, Raise Dispute */}
                 {isPayable && (
                   <>
-                    <DropdownMenuItem onClick={() => showToast('Payment plan feature coming soon')}>
+                    <DropdownMenuItem onClick={() => showToast('Payment plan feature coming soon', 'info')}>
                       <CreditCard className="mr-2 h-4 w-4" />
                       Payment Plan
                     </DropdownMenuItem>
@@ -710,7 +706,7 @@ export default function Show({ user, bill }: Props) {
                         <p>Thanking you,<br/>${bill.patient_name}</p>
                       </div>
                     `);
-                    showToast('Reimbursement letter downloaded');
+                    showToast('Reimbursement letter downloaded', 'success');
                   }}>
                     <Mail className="mr-2 h-4 w-4" />
                     Reimbursement Letter
@@ -728,8 +724,8 @@ export default function Show({ user, bill }: Props) {
                   <DropdownMenuItem onClick={() => {
                     if (confirm('Are you sure you want to cancel this dispute?')) {
                       router.post(`/billing/${bill.id}/dispute/cancel`, {}, {
-                        onSuccess: () => showToast('Dispute cancelled'),
-                        onError: () => showToast('Failed to cancel dispute'),
+                        onSuccess: () => showToast('Dispute cancelled', 'success'),
+                        onError: () => showToast('Failed to cancel dispute', 'error'),
                       });
                     }
                   }}>
@@ -769,7 +765,7 @@ export default function Show({ user, bill }: Props) {
                   <p className="text-body text-muted-foreground mt-0.5">123 Hospital Road, Pune 411001 &middot; GSTIN: 27AABCH1234P1ZP</p>
                 </div>
                 <DetailRow label="Invoice date">{bill.generated_date}</DetailRow>
-                <DetailRow label="Reference"><span className="font-mono">{bill.reference_number}</span></DetailRow>
+                <DetailRow label="Reference">{bill.reference_number}</DetailRow>
                 {bill.due_date && (
                   <DetailRow label="Due date">
                     <span className={`flex items-center gap-2 ${bill.is_overdue ? 'text-destructive' : ''}`}>
@@ -865,8 +861,8 @@ export default function Show({ user, bill }: Props) {
                     <>
                       <DetailRow label="Payment method">{bill.payment_info.method}</DetailRow>
                       <DetailRow label="Paid on">{bill.payment_info.paid_at}</DetailRow>
-                      <DetailRow label="Transaction ID"><span className="font-mono">{bill.payment_info.transaction_id}</span></DetailRow>
-                      <DetailRow label="Receipt number"><span className="font-mono">{bill.payment_info.receipt_number}</span></DetailRow>
+                      <DetailRow label="Transaction ID">{bill.payment_info.transaction_id}</DetailRow>
+                      <DetailRow label="Receipt number">{bill.payment_info.receipt_number}</DetailRow>
                     </>
                   )}
                   {bill.insurance_details && (
@@ -875,10 +871,10 @@ export default function Show({ user, bill }: Props) {
                         <p className="text-label text-muted-foreground">Insurance</p>
                       </div>
                       <DetailRow label="Provider">{bill.insurance_details.provider_name}</DetailRow>
-                      <DetailRow label="Policy number"><span className="font-mono">{bill.insurance_details.policy_number}</span></DetailRow>
+                      <DetailRow label="Policy number">{bill.insurance_details.policy_number}</DetailRow>
                       <DetailRow label="Claim">
                         <span className="flex items-center gap-2">
-                          <span className="font-mono">{bill.insurance_details.claim_id}</span>
+                          {bill.insurance_details.claim_id}
                           <Badge variant={
                             bill.insurance_details.claim_status === 'Approved' || bill.insurance_details.claim_status === 'Reimbursed'
                               ? 'success' : 'warning'
@@ -1033,11 +1029,11 @@ export default function Show({ user, bill }: Props) {
                     setShowDisputeDialog(false);
                     setDisputeReason('');
                     setDisputeLoading(false);
-                    showToast('Dispute submitted. You will hear from us within 3–5 business days.');
+                    showToast('Dispute submitted. You will hear from us within 3–5 business days.', 'success');
                   },
                   onError: () => {
                     setDisputeLoading(false);
-                    showToast('Failed to submit dispute. Please try again.');
+                    showToast('Failed to submit dispute. Please try again.', 'error');
                   },
                 });
               }}
@@ -1047,16 +1043,6 @@ export default function Show({ user, bill }: Props) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Toast */}
-      {toastMessage && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-          <div className="flex items-center gap-2 rounded-lg bg-foreground px-4 py-2.5 text-body text-background shadow-lg">
-            <CheckCircle2 className="h-4 w-4 text-success" />
-            {toastMessage}
-          </div>
-        </div>
-      )}
 
       {/* Share Sheet */}
       <ShareDialog

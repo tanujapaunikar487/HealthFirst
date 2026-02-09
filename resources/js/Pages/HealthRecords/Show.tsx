@@ -5,9 +5,9 @@ import { Button } from '@/Components/ui/button';
 import { Alert } from '@/Components/ui/alert';
 import { DetailRow } from '@/Components/ui/detail-row';
 import { DetailSection } from '@/Components/ui/detail-section';
-import { Toast } from '@/Components/ui/toast';
 import { SideNav } from '@/Components/SideNav';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
+import { useToast } from '@/Contexts/ToastContext';
 import { cn } from '@/Lib/utils';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
@@ -567,8 +567,8 @@ function LinkedRecordsList({ records, onView }: { records: LinkedRecord[]; onVie
                 <config.icon className="h-5 w-5" style={{ color: config.color }} />
               </div>
             ) : (
-              <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-muted">
-                <FileText className="h-5 w-5 text-foreground" />
+              <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-200">
+                <FileText className="h-5 w-5 text-blue-800" />
               </div>
             )}
             <span className="text-label flex-1 truncate">{rec.title}</span>
@@ -585,9 +585,8 @@ function LinkedRecordsList({ records, onView }: { records: LinkedRecord[]; onVie
 
 export default function Show({ user, record, familyMember }: Props) {
   const { formatDate } = useFormatPreferences();
-  const [toastMessage, setToastMessage] = useState('');
+  const { showToast } = useToast();
   const [showShareDialog, setShowShareDialog] = useState(false);
-  const toast = (msg: string) => setToastMessage(msg);
 
   // AI Summary state
   const [aiSummary, setAiSummary] = useState<string | null>(record.metadata?.ai_summary || null);
@@ -617,7 +616,7 @@ export default function Show({ user, record, familyMember }: Props) {
         setAiSummary(data.summary);
         setSummaryGeneratedAt(data.generated_at);
         if (!data.cached) {
-          toast('AI summary generated');
+          showToast('AI summary generated', 'success');
         }
       } else {
         setAiSummaryError(data.error || 'Failed to generate summary');
@@ -648,7 +647,7 @@ export default function Show({ user, record, familyMember }: Props) {
        ${record.description ? `<p>${escapeHtml(record.description)}</p>` : ''}
        ${pdfContent}`
     );
-    toast('Record downloaded');
+    showToast('Record downloaded', 'success');
   };
 
   const handleShare = () => {
@@ -670,16 +669,16 @@ export default function Show({ user, record, familyMember }: Props) {
     const isAndroid = /Android/.test(userAgent);
 
     if (isIOS) {
-      toast('Opening Apple Health...');
+      showToast('Opening Apple Health...', 'info');
     } else if (isAndroid) {
-      toast('Opening Google Fit...');
+      showToast('Opening Google Fit...', 'info');
     } else {
-      toast('Health sync is available on mobile devices');
+      showToast('Health sync is available on mobile devices', 'info');
     }
   };
 
   const handleRequestAmendment = () => {
-    toast('Amendment request submitted. You will be contacted within 48 hours.');
+    showToast('Amendment request submitted. You will be contacted within 48 hours.', 'success');
   };
 
   const categorySections = record.metadata
@@ -695,15 +694,13 @@ export default function Show({ user, record, familyMember }: Props) {
     <AppLayout user={user} pageTitle="Health Records" pageIcon="/assets/icons/records.svg">
       <div className="w-full max-w-page min-h-full flex flex-col pb-10">
         {/* Breadcrumb */}
-        <Button
-          variant="link"
-          size="sm"
-          className="h-auto p-0 mb-6 flex items-center gap-1.5 text-label text-muted-foreground hover:text-foreground"
-          onClick={() => router.visit('/health-records')}
-        >
-          <ChevronLeft className="h-4 w-4" />
-          Health Records
-        </Button>
+        <nav className="mb-6 flex items-center gap-1.5 text-body text-muted-foreground self-start">
+          <Link href="/health-records" className="hover:text-foreground transition-colors">
+            Health Records
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <span className="text-foreground font-medium">{record.title}</span>
+        </nav>
 
         {/* Header */}
         <div className="mb-6 flex items-start justify-between gap-4">
@@ -898,8 +895,6 @@ export default function Show({ user, record, familyMember }: Props) {
         </div>
 
       </div>
-
-      <Toast show={!!toastMessage} message={toastMessage} onHide={() => setToastMessage('')} />
 
       <ShareDialog
         open={showShareDialog}

@@ -7,7 +7,7 @@ import { Badge } from '@/Components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { DatePicker } from '@/Components/ui/date-picker';
 import { X } from '@/Lib/icons';
-import { toast } from 'sonner';
+import { useToast } from '@/Contexts/ToastContext';
 
 interface SelfMember {
     id: number;
@@ -87,6 +87,7 @@ function TagInput({
 }
 
 export function HealthProfileSheet({ selfMember, onSuccess }: HealthProfileSheetProps) {
+    const { showToast } = useToast();
     const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState({
         date_of_birth: selfMember?.date_of_birth || '',
@@ -109,12 +110,12 @@ export function HealthProfileSheet({ selfMember, onSuccess }: HealthProfileSheet
         }, {
             preserveScroll: true,
             onSuccess: () => {
-                toast.success('Health profile updated');
+                showToast('Health profile updated', 'success');
                 onSuccess();
             },
             onError: (errors) => {
                 const firstError = Object.values(errors)[0];
-                toast.error(typeof firstError === 'string' ? firstError : 'Failed to save');
+                showToast(typeof firstError === 'string' ? firstError : 'Failed to save', 'error');
             },
             onFinish: () => setSaving(false),
         });

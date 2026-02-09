@@ -10,7 +10,7 @@ import { Input } from '@/Components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { PhoneInput } from '@/Components/ui/phone-input';
 import { DatePicker } from '@/Components/ui/date-picker';
-import { toast } from 'sonner';
+import { useToast } from '@/Contexts/ToastContext';
 
 interface DoctorOption {
     id: number;
@@ -149,6 +149,7 @@ function TagInput({
 }
 
 export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
+    const { showToast } = useToast();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatar_url);
     const [uploading, setUploading] = useState(false);
@@ -183,11 +184,11 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
         if (!file) return;
 
         if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-            toast.error('Please select a JPG, PNG, or WebP image');
+            showToast('Please select a JPG, PNG, or WebP image', 'error');
             return;
         }
         if (file.size > 5 * 1024 * 1024) {
-            toast.error('Image must be less than 5MB');
+            showToast('Image must be less than 5MB', 'error');
             return;
         }
 
@@ -215,14 +216,14 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
             if (response.ok) {
                 const data = await response.json();
                 setAvatarPreview(data.avatar_url);
-                toast.success('Avatar uploaded successfully');
+                showToast('Avatar uploaded successfully', 'success');
                 router.reload({ only: ['auth'] });
             } else {
-                toast.error('Failed to upload avatar');
+                showToast('Failed to upload avatar', 'error');
                 setAvatarPreview(user.avatar_url);
             }
         } catch {
-            toast.error('Failed to upload avatar');
+            showToast('Failed to upload avatar', 'error');
             setAvatarPreview(user.avatar_url);
         } finally {
             setUploading(false);
@@ -245,13 +246,13 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
 
             if (response.ok) {
                 setAvatarPreview(null);
-                toast.success('Profile photo removed');
+                showToast('Profile photo removed', 'success');
                 router.reload({ only: ['auth'] });
             } else {
-                toast.error('Failed to remove profile photo');
+                showToast('Failed to remove profile photo', 'error');
             }
         } catch {
-            toast.error('Failed to remove profile photo');
+            showToast('Failed to remove profile photo', 'error');
         } finally {
             setRemoving(false);
         }
@@ -263,7 +264,7 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
 
     const handleSave = () => {
         if (!formData.name.trim()) {
-            toast.error('Name is required');
+            showToast('Name is required', 'error');
             return;
         }
 
@@ -277,13 +278,13 @@ export function ProfileTab({ user, doctors = [] }: ProfileTabProps) {
         }, {
             preserveScroll: true,
             onSuccess: () => {
-                toast.success('Profile updated successfully');
+                showToast('Profile updated successfully', 'success');
                 setIsEditing(false);
                 setSaving(false);
             },
             onError: (errors) => {
                 const firstError = Object.values(errors)[0];
-                toast.error(typeof firstError === 'string' ? firstError : 'Failed to update profile');
+                showToast(typeof firstError === 'string' ? firstError : 'Failed to update profile', 'error');
                 setSaving(false);
             },
         });

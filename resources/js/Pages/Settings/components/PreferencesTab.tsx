@@ -21,7 +21,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/Components/ui/dialog';
-import { toast } from 'sonner';
+import { useToast } from '@/Contexts/ToastContext';
 
 interface FamilyMember {
     id: number;
@@ -66,6 +66,7 @@ export function PreferencesTab({
     familyMembers,
     onOpenPasswordModal,
 }: PreferencesTabProps) {
+    const { showToast } = useToast();
     const [prefs, setPrefs] = useState(settings);
     const [defaults, setDefaults] = useState(bookingDefaults);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -89,10 +90,10 @@ export function PreferencesTab({
                     router.put('/settings/booking-defaults', defaults, {
                         preserveState: true,
                         preserveScroll: true,
-                        onError: () => toast.error('Failed to save settings'),
+                        onError: () => showToast('Failed to save settings', 'error'),
                     });
                 },
-                onError: () => toast.error('Failed to save settings'),
+                onError: () => showToast('Failed to save settings', 'error'),
             });
         }, 1000);
 
@@ -135,7 +136,7 @@ export function PreferencesTab({
 
     const handleDownloadData = () => {
         window.location.href = '/settings/download-data';
-        toast.success('Downloading your data...');
+        showToast('Downloading your data...', 'info');
     };
 
     const handleDeleteAccount = () => {
@@ -143,11 +144,11 @@ export function PreferencesTab({
         router.delete('/settings/account', {
             data: { password: deletePassword },
             onSuccess: () => {
-                toast.success('Account deleted successfully');
+                showToast('Account deleted successfully', 'success');
                 window.location.href = '/';
             },
             onError: (errors) => {
-                toast.error(errors.password || 'Failed to delete account');
+                showToast(errors.password || 'Failed to delete account', 'error');
             },
             onFinish: () => setDeleting(false),
         });

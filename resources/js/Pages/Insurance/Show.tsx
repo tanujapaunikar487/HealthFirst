@@ -29,10 +29,10 @@ import {
   SheetFooter,
   SheetBody,
 } from '@/Components/ui/sheet';
-import { Toast } from '@/Components/ui/toast';
 import { EmptyState } from '@/Components/ui/empty-state';
+import { useToast } from '@/Contexts/ToastContext';
 import {
-  ArrowLeft,
+  ChevronLeft,
   AlertTriangle,
   ChevronRight,
   FileText,
@@ -324,18 +324,12 @@ function InsuranceShowSkeleton() {
 export default function InsuranceShow({ policy, coveredMembers, claims }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(policy);
   const { formatDate } = useFormatPreferences();
-  const [toastMessage, setToastMessage] = useState('');
-  const [showToast, setShowToast] = useState(false);
+  const { showToast } = useToast();
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showPreAuth, setShowPreAuth] = useState(false);
   const [preAuthStep, setPreAuthStep] = useState<PreAuthStep>('patient');
   const [preAuthForm, setPreAuthForm] = useState<PreAuthForm>(EMPTY_PREAUTH_FORM);
   const [preAuthSubmitting, setPreAuthSubmitting] = useState(false);
-
-  const toast = (msg: string) => {
-    setToastMessage(msg);
-    setShowToast(true);
-  };
 
   function openPreAuth() {
     setPreAuthForm(EMPTY_PREAUTH_FORM);
@@ -371,7 +365,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
       },
       onError: () => {
         setPreAuthSubmitting(false);
-        toast('Failed to submit request. Please try again.');
+        showToast('Failed to submit request. Please try again.', 'error');
       },
     });
   }
@@ -412,10 +406,10 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
         <Button
           variant="link"
           size="sm"
-          className="h-auto p-0 mb-6 flex items-center gap-1.5 text-label text-muted-foreground hover:text-foreground"
+          className="h-auto p-0 mb-6 flex items-center gap-1.5 text-body text-muted-foreground hover:text-foreground transition-colors self-start"
           onClick={() => router.visit('/insurance')}
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ChevronLeft className="h-4 w-4" />
           Insurance
         </Button>
 
@@ -471,15 +465,15 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                   a.download = `policy-${policy.policy_number}.html`;
                   a.click();
                   URL.revokeObjectURL(url);
-                  toast('Policy card downloaded');
+                  showToast('Policy card downloaded', 'success');
                 }}>
                   <Download className="mr-2 h-4 w-4" />
                   Download
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => {
                   router.post(`/insurance/${policy.id}/set-primary`, {}, {
-                    onSuccess: () => toast('Policy set as primary'),
-                    onError: () => toast('Failed to set as primary'),
+                    onSuccess: () => showToast('Policy set as primary', 'success'),
+                    onError: () => showToast('Failed to set as primary', 'error'),
                   });
                 }}>
                   <Star className="mr-2 h-4 w-4" />
@@ -826,8 +820,6 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
           )}
         </SheetContent>
       </Sheet>
-
-      <Toast message={toastMessage} show={showToast} onHide={() => setShowToast(false)} />
 
       <ShareDialog
         open={showShareDialog}

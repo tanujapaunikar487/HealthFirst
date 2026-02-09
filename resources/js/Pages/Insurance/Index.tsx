@@ -37,8 +37,8 @@ import {
   SheetBody,
 } from '@/Components/ui/sheet';
 import { AddInsuranceSheet } from '@/Components/Insurance/AddInsuranceSheet';
-import { Toast } from '@/Components/ui/toast';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
+import { useToast } from '@/Contexts/ToastContext';
 import { cn } from '@/Lib/utils';
 import { getAvatarColor } from '@/Lib/avatar-colors';
 import {
@@ -270,16 +270,13 @@ export default function InsuranceIndex({
   const { isLoading, hasError, retry } = useSkeletonLoading(policies);
   const { props } = usePage<{ toast?: string }>();
   const { formatDate } = useFormatPreferences();
+  const { showToast } = useToast();
 
   // List filters
   const [policyFilter, setPolicyFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [memberFilter, setMemberFilter] = useState('all');
   const [search, setSearch] = useState('');
-
-  // Toast
-  const [toastMessage, setToastMessage] = useState('');
-  const [showToast, setShowToast] = useState(false);
 
   // Add Policy Sheet
   const [showAddPolicy, setShowAddPolicy] = useState(false);
@@ -292,15 +289,9 @@ export default function InsuranceIndex({
 
   useEffect(() => {
     if (props.toast) {
-      setToastMessage(props.toast);
-      setShowToast(true);
+      showToast(props.toast, 'success');
     }
-  }, [props.toast]);
-
-  const showToastMessage = (msg: string) => {
-    setToastMessage(msg);
-    setShowToast(true);
-  };
+  }, [props.toast, showToast]);
 
   const uniquePolicies = useMemo(() => {
     const seen = new Set<string>();
@@ -380,7 +371,7 @@ export default function InsuranceIndex({
       },
       onError: () => {
         setPreAuthSubmitting(false);
-        showToastMessage('Failed to submit request. Please try again.');
+        showToast('Failed to submit request. Please try again.', 'error');
       },
     });
   }
@@ -647,8 +638,8 @@ export default function InsuranceIndex({
                           </TableCell>
                           <TableCell className="align-top">
                             <div className="flex items-center gap-2.5">
-                              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-icon-bg">
-                                <Building2 className="h-5 w-5 text-icon" />
+                              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-200">
+                                <Building2 className="h-5 w-5 text-blue-800" />
                               </div>
                               <div>
                                 <p className="text-label text-foreground">
@@ -987,8 +978,6 @@ export default function InsuranceIndex({
           )}
         </SheetContent>
       </Sheet>
-
-      <Toast message={toastMessage} show={showToast} onHide={() => setShowToast(false)} />
     </AppLayout>
   );
 }

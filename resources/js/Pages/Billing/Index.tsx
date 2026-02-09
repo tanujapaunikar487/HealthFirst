@@ -33,9 +33,9 @@ import {
   SheetBody,
   SheetFooter,
 } from '@/Components/ui/sheet';
-import { Toast } from '@/Components/ui/toast';
 import { Alert } from '@/Components/ui/alert';
 import { cn } from '@/Lib/utils';
+import { useToast } from '@/Contexts/ToastContext';
 import {
   MoreHorizontal,
   Search,
@@ -209,13 +209,13 @@ function BillingSkeleton() {
 export default function Index({ user, bills, stats, familyMembers }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(bills);
   const { formatDate, formatTime } = useFormatPreferences();
+  const { showToast } = useToast();
   const [tab, setTab] = useState<'all' | 'outstanding' | 'paid'>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [memberFilter, setMemberFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  const [toastMessage, setToastMessage] = useState('');
   const [payBills, setPayBills] = useState<Bill[]>([]);
   const [excludedPayBillIds, setExcludedPayBillIds] = useState<Set<number>>(new Set());
   const [paymentState, setPaymentState] = useState<'idle' | 'processing' | 'success'>('idle');
@@ -302,7 +302,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
             setPaymentState('success');
           } catch {
             setPaymentState('idle');
-            showToast('Payment verification failed. Please try again.');
+            showToast('Payment verification failed. Please try again.', 'error');
           }
         },
         modal: {
@@ -321,7 +321,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
       razorpay.open();
     } catch {
       setPaymentState('idle');
-      showToast('Failed to initiate payment. Please try again.');
+      showToast('Failed to initiate payment. Please try again.', 'error');
     }
   };
 
@@ -407,8 +407,6 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
 
   const clearSelection = () => setSelectedIds(new Set());
 
-  const showToast = (msg: string) => setToastMessage(msg);
-
   const handleTabChange = (value: string) => {
     setTab(value as 'all' | 'outstanding' | 'paid');
     setPage(1);
@@ -452,7 +450,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                     (b) => OUTSTANDING_STATUSES.includes(b.billing_status) && PAYABLE_STATUSES.includes(b.billing_status)
                   );
                   if (outstandingPayable.length > 0) setPayBills(outstandingPayable);
-                  else showToast('No payable bills found.');
+                  else showToast('No payable bills found.', 'info');
                 }}
               >
                 <CreditCard className="h-4 w-4" />
@@ -634,19 +632,16 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                         {/* Details */}
                         <TableCell className="align-top">
                           <div className="flex items-center gap-2.5">
-                            <div
-                              className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0"
-                              style={{ backgroundColor: 'hsl(var(--primary) / 0.2)' }}
-                            >
+                            <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-200">
                               {bill.appointment_type === 'doctor' ? (
-                                <Stethoscope className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />
+                                <Stethoscope className="h-5 w-5 text-blue-800" />
                               ) : (
-                                <TestTube2 className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />
+                                <TestTube2 className="h-5 w-5 text-blue-800" />
                               )}
                             </div>
                             <div>
                               <p className="text-label">{bill.appointment_title}</p>
-                              <p className="text-overline text-muted-foreground font-mono">{bill.invoice_number}</p>
+                              <p className="text-overline text-muted-foreground">{bill.invoice_number}</p>
                             </div>
                           </div>
                         </TableCell>
@@ -774,14 +769,11 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
 
                       {/* Service */}
                       <div className="flex items-center gap-2.5">
-                        <div
-                          className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0"
-                          style={{ backgroundColor: 'hsl(var(--primary) / 0.2)' }}
-                        >
+                        <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-200">
                           {bill.appointment_type === 'doctor' ? (
-                            <Stethoscope className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />
+                            <Stethoscope className="h-5 w-5 text-blue-800" />
                           ) : (
-                            <TestTube2 className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />
+                            <TestTube2 className="h-5 w-5 text-blue-800" />
                           )}
                         </div>
                         <p className="text-body">{bill.appointment_title}</p>
@@ -789,7 +781,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
 
                       {/* Reference + Date + Amount */}
                       <div className="flex items-center justify-between text-body text-muted-foreground">
-                        <span className="font-mono">{bill.invoice_number}</span>
+                        <span>{bill.invoice_number}</span>
                         <span>{formatDate(bill.date)}</span>
                       </div>
                       <div className="flex justify-between items-baseline">
@@ -859,13 +851,6 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
           {payBills.length === 0 && <SheetSkeleton />}
         </SheetContent>
       </Sheet>
-
-      {/* Toast */}
-      <Toast
-        show={!!toastMessage}
-        message={toastMessage}
-        onHide={() => setToastMessage('')}
-      />
     </AppLayout>
   );
 }

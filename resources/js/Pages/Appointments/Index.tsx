@@ -32,7 +32,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/Components/ui/sheet';
-import { Toast } from '@/Components/ui/toast';
 import {
   CalendarPlus,
   Copy,
@@ -48,6 +47,7 @@ import {
 import { Icon } from '@/Components/ui/icon';
 import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
 import { getAvatarColor } from '@/Lib/avatar-colors';
+import { useToast } from '@/Contexts/ToastContext';
 import {
   DetailsSheet,
   CancelledDetailsSheet,
@@ -138,13 +138,13 @@ function AppointmentsSkeleton() {
 export default function Index({ user, appointments, familyMembers, doctors }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(appointments);
   const { formatDate, formatTime } = useFormatPreferences();
+  const { showToast } = useToast();
   const [memberFilter, setMemberFilter] = useState<string>('all');
   const [doctorFilter, setDoctorFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sheetView, setSheetView] = useState<SheetView>(null);
   const [shareAppointment, setShareAppointment] = useState<Appointment | null>(null);
-  const [toastMessage, setToastMessage] = useState('');
 
   // Handle query params to auto-open sheets (for deep-linking from dashboard)
   useEffect(() => {
@@ -227,11 +227,11 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
 
   const handleSheetSuccess = (message: string) => {
     setSheetView(null);
-    setToastMessage(message);
+    showToast(message, 'success');
   };
 
   const handleSheetError = (message: string) => {
-    setToastMessage(message);
+    showToast(message, 'error');
   };
 
   const handleShare = (appointment: Appointment) => {
@@ -447,12 +447,6 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
         />
       )}
 
-      {/* Toast */}
-      <Toast
-        show={!!toastMessage}
-        message={toastMessage}
-        onHide={() => setToastMessage('')}
-      />
     </AppLayout>
   );
 }
@@ -550,8 +544,8 @@ function AppointmentsTable({
                       </AvatarFallback>
                     </Avatar>
                   ) : (
-                    <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-icon-bg">
-                      <Icon icon={TestTube2} className="h-5 w-5 text-icon" />
+                    <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-200">
+                      <Icon icon={TestTube2} className="h-5 w-5 text-blue-800" />
                     </div>
                   )}
                   <div>

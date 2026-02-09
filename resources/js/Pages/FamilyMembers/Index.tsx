@@ -9,8 +9,8 @@ import {
   Sheet,
   SheetContent,
 } from '@/Components/ui/sheet';
-import { Toast } from '@/Components/ui/toast';
 import EmbeddedFamilyMemberFlow from '@/Features/booking-chat/embedded/EmbeddedFamilyMemberFlow';
+import { useToast } from '@/Contexts/ToastContext';
 import { getAvatarColor } from '@/Lib/avatar-colors';
 import { AddTeam, Users, AlertTriangle, ChevronRight } from '@/Lib/icons';
 
@@ -91,9 +91,9 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
   const { isLoading, hasError, retry } = useSkeletonLoading(members);
   const { props } = usePage<{ toast?: string }>();
   const user = (usePage().props as any).auth?.user;
+  const { showToast } = useToast();
 
   const [showForm, setShowForm] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
 
   // Auto-open form when ?create=1 is in URL
   useEffect(() => {
@@ -107,9 +107,9 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
   // Flash toast from server
   useEffect(() => {
     if (props.toast) {
-      setToastMessage(props.toast);
+      showToast(props.toast, 'success');
     }
-  }, [props.toast]);
+  }, [props.toast, showToast]);
 
   if (hasError) {
     return (
@@ -238,12 +238,6 @@ export default function FamilyMembersIndex({ members, canCreate, memberCount, al
         </SheetContent>
       </Sheet>
 
-      {/* Toast */}
-      <Toast
-        message={toastMessage}
-        show={!!toastMessage}
-        onHide={() => setToastMessage('')}
-      />
     </AppLayout>
   );
 }

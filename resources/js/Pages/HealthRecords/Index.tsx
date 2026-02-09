@@ -27,8 +27,8 @@ import {
 } from '@/Components/ui/table';
 import { TablePagination } from '@/Components/ui/table-pagination';
 import { Tabs, TabsList, TabsTrigger } from '@/Components/ui/tabs';
-import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
+import { useToast } from '@/Contexts/ToastContext';
 import {
   Search,
   Stethoscope,
@@ -445,6 +445,7 @@ function HealthRecordsSkeleton() {
 export default function Index({ user, records, familyMembers, preSelectedRecordId, preSelectedMemberId }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(records);
   const { formatDate } = useFormatPreferences();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('all');
   const [subCategoryFilter, setSubCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -455,7 +456,6 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
-  const [toastMessage, setToastMessage] = useState('');
   const [shareRecord, setShareRecord] = useState<HealthRecord | null>(null);
   const [bulkShareOpen, setBulkShareOpen] = useState(false);
 
@@ -651,8 +651,6 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
     setSelectedIds(newSet);
   }
 
-  const toast = (msg: string) => setToastMessage(msg);
-
   if (hasError) {
     return (
       <AppLayout user={user} pageTitle="Health Records" pageIcon="/assets/icons/records.svg">
@@ -822,7 +820,7 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
               );
               const pdfContent = generateBulkRecordsPdfContent(selected, categoryLabels);
               downloadAsHtml(`health-records-${selected.length}.pdf`, `<h1>Health Records</h1>${pdfContent}`);
-              toast('Records downloaded');
+              showToast('Records downloaded', 'success');
             }}>
               <Download className="h-3.5 w-3.5" />
               Download
@@ -940,8 +938,6 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
         )}
 
       </div>
-
-      <Toast show={!!toastMessage} message={toastMessage} onHide={() => setToastMessage('')} />
 
       {/* Individual Record Share Sheet */}
       {shareRecord && (

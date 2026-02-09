@@ -14,8 +14,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/Components/ui/sheet';
-import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
+import { useToast } from '@/Contexts/ToastContext';
 import { downloadAsHtml, downloadFile, downloadAsZip } from '@/Lib/download';
 import { FollowUpSheet, BookAgainSheet, Appointment as AppointmentBase } from '@/Components/Appointments/AppointmentSheets';
 import { ShareDialog } from '@/Components/ui/share-dialog';
@@ -210,7 +210,7 @@ function getAvatarColorByName(name: string) {
 }
 
 export default function Show({ user, appointment }: Props) {
-  const [toastMessage, setToastMessage] = useState('');
+  const { showToast } = useToast();
   const [showFollowUpSheet, setShowFollowUpSheet] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showBookAgainSheet, setShowBookAgainSheet] = useState(false);
@@ -254,7 +254,7 @@ export default function Show({ user, appointment }: Props) {
     <AppLayout user={user} pageTitle="Appointment Details" pageIcon="/assets/icons/appointment.svg">
       <div className="w-full max-w-[960px] min-h-full flex flex-col pb-10">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-1.5 text-body text-muted-foreground mb-4">
+        <nav className="mb-6 flex items-center gap-1.5 text-body text-muted-foreground self-start">
           <Link href="/appointments" className="hover:text-foreground transition-colors">
             Appointments
           </Link>
@@ -291,7 +291,7 @@ export default function Show({ user, appointment }: Props) {
                 <Badge variant="neutral">
                   {appointment.mode}
                 </Badge>
-                <span className="text-body text-muted-foreground font-mono">
+                <span className="text-body text-muted-foreground">
                   #{appointment.appointment_id}
                 </span>
               </div>
@@ -430,10 +430,10 @@ export default function Show({ user, appointment }: Props) {
             } as AppointmentBase}
             onSuccess={() => {
               setShowFollowUpSheet(false);
-              setToastMessage('Follow-up appointment booked successfully!');
+              showToast('Follow-up appointment booked successfully!', 'success');
               router.reload();
             }}
-            onError={(msg) => setToastMessage(msg)}
+            onError={(msg) => showToast(msg, 'error')}
           />
         </SheetContent>
       </Sheet>
@@ -461,10 +461,10 @@ export default function Show({ user, appointment }: Props) {
             } as AppointmentBase}
             onSuccess={() => {
               setShowBookAgainSheet(false);
-              setToastMessage('Appointment booked successfully!');
+              showToast('Appointment booked successfully!', 'success');
               router.visit('/appointments');
             }}
-            onError={(msg) => setToastMessage(msg)}
+            onError={(msg) => showToast(msg, 'error')}
           />
         </SheetContent>
       </Sheet>
@@ -477,11 +477,6 @@ export default function Show({ user, appointment }: Props) {
         description={`${appointment.date_formatted} at ${appointment.time}`}
         url={typeof window !== 'undefined' ? window.location.href : ''}
       />
-
-      {/* Toast */}
-      {toastMessage && (
-        <Toast message={toastMessage} show={!!toastMessage} onHide={() => setToastMessage('')} duration={2500} />
-      )}
 
     </AppLayout>
   );
@@ -688,7 +683,7 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
             <div className="flex items-center gap-2 flex-wrap">
               <span>{diagnosis.name || 'Not specified'}</span>
               {diagnosis.icd_code && (
-                <Badge variant="neutral" className="font-mono">
+                <Badge variant="neutral">
                   ICD: {diagnosis.icd_code}
                 </Badge>
               )}
@@ -901,7 +896,7 @@ function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadIn
           </Badge>
         </DetailRow>
         <DetailRow label="Method">{billing.payment_method}</DetailRow>
-        <DetailRow label="Invoice"><span className="font-mono">{billing.invoice_number}</span></DetailRow>
+        <DetailRow label="Invoice">{billing.invoice_number}</DetailRow>
         <DetailRow label="Paid on">{billing.payment_date}</DetailRow>
         <div className="px-6 py-3 flex items-center gap-4">
           <Link href={`/billing/${appointmentId}`} className="text-label text-primary hover:underline flex items-center gap-1">

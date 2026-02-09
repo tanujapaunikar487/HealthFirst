@@ -4,7 +4,7 @@ import { Check } from '@/Lib/icons';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
-import { toast } from 'sonner';
+import { useToast } from '@/Contexts/ToastContext';
 
 interface CalendarSettings {
     preferred?: 'google' | 'apple' | null;
@@ -64,6 +64,7 @@ function RadioIndicator({ selected }: { selected: boolean }) {
 }
 
 export function ConnectionsTab({ calendarSettings, videoSettings }: ConnectionsTabProps) {
+    const { showToast } = useToast();
     const [disconnecting, setDisconnecting] = useState(false);
 
     const preferred = calendarSettings?.preferred ?? null;
@@ -78,13 +79,13 @@ export function ConnectionsTab({ calendarSettings, videoSettings }: ConnectionsT
             preserveScroll: true,
             onSuccess: () => {
                 if (newPreferred) {
-                    toast.success(`${newPreferred === 'google' ? 'Google Calendar' : 'Apple Calendar'} set as preferred`);
+                    showToast(`${newPreferred === 'google' ? 'Google Calendar' : 'Apple Calendar'} set as preferred`, 'success');
                 } else {
-                    toast.success('Calendar preference cleared');
+                    showToast('Calendar preference cleared', 'success');
                 }
             },
             onError: () => {
-                toast.error('Failed to update calendar preference');
+                showToast('Failed to update calendar preference', 'error');
             },
         });
     };
@@ -96,13 +97,13 @@ export function ConnectionsTab({ calendarSettings, videoSettings }: ConnectionsT
             onSuccess: () => {
                 if (newPreferred) {
                     const platformName = newPreferred === 'zoom' ? 'Zoom' : 'Google Meet';
-                    toast.success(`${platformName} set as preferred`);
+                    showToast(`${platformName} set as preferred`, 'success');
                 } else {
-                    toast.success('Video preference cleared');
+                    showToast('Video preference cleared', 'success');
                 }
             },
             onError: () => {
-                toast.error('Failed to update video preference');
+                showToast('Failed to update video preference', 'error');
             },
         });
     };
@@ -116,10 +117,10 @@ export function ConnectionsTab({ calendarSettings, videoSettings }: ConnectionsT
         router.delete('/settings/calendar/google', {
             preserveScroll: true,
             onSuccess: () => {
-                toast.success('Google Calendar disconnected');
+                showToast('Google Calendar disconnected', 'success');
             },
             onError: () => {
-                toast.error('Failed to disconnect Google Calendar');
+                showToast('Failed to disconnect Google Calendar', 'error');
             },
             onFinish: () => setDisconnecting(false),
         });

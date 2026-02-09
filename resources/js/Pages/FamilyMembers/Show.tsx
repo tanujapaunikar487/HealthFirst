@@ -28,12 +28,12 @@ import {
   SheetBody,
   SheetSectionHeading,
 } from '@/Components/ui/sheet';
-import { Toast } from '@/Components/ui/toast';
 import { cn } from '@/Lib/utils';
+import { useToast } from '@/Contexts/ToastContext';
 import { getAvatarColor } from '@/Lib/avatar-colors';
 import { INDIAN_STATES, getCitiesForState } from '@/Lib/locations';
 import {
-  ArrowLeft,
+  ChevronLeft,
   Pencil,
   AlertTriangle,
   Stethoscope,
@@ -388,6 +388,7 @@ export default function FamilyMemberShow({
 }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(member);
   const { props } = usePage<{ toast?: string }>();
+  const { showToast } = useToast();
   const user = (usePage().props as any).auth?.user;
 
   const [showEditForm, setShowEditForm] = useState(false);
@@ -417,7 +418,6 @@ export default function FamilyMemberShow({
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
 
   // Get available cities based on selected state in form
   const availableCities = useMemo(() => {
@@ -432,9 +432,9 @@ export default function FamilyMemberShow({
 
   useEffect(() => {
     if (props.toast) {
-      setToastMessage(props.toast);
+      showToast(props.toast, 'success');
     }
-  }, [props.toast]);
+  }, [props.toast, showToast]);
 
   if (hasError) {
     return (
@@ -536,11 +536,11 @@ export default function FamilyMemberShow({
       onSuccess: () => {
         setShowUpgradeConfirm(false);
         setUpgrading(false);
-        setToastMessage('Successfully upgraded to family member!');
+        showToast('Successfully upgraded to family member!', 'success');
       },
       onError: () => {
         setUpgrading(false);
-        setToastMessage('Failed to upgrade. Please try again.');
+        showToast('Failed to upgrade. Please try again.', 'error');
       },
     });
   }
@@ -580,9 +580,9 @@ export default function FamilyMemberShow({
           variant="link"
           size="sm"
           onClick={() => router.visit('/family-members')}
-          className="mb-6 h-auto p-0 flex items-center gap-1.5 text-label text-muted-foreground transition-colors hover:text-foreground"
+          className="mb-6 h-auto p-0 flex items-center gap-1.5 text-body text-muted-foreground transition-colors hover:text-foreground self-start"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ChevronLeft className="h-4 w-4" />
           Family Members
         </Button>
 
@@ -1203,12 +1203,6 @@ export default function FamilyMemberShow({
         </DialogContent>
       </Dialog>
 
-      {/* Toast */}
-      <Toast
-        message={toastMessage}
-        show={!!toastMessage}
-        onHide={() => setToastMessage('')}
-      />
     </AppLayout>
   );
 }

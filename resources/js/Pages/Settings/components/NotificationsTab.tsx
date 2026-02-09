@@ -4,7 +4,7 @@ import { Mail, MessageSquare, Phone } from '@/Lib/icons';
 import { Card, CardContent } from '@/Components/ui/card';
 import { Switch } from '@/Components/ui/switch';
 import { CardTitle, CardSubtext } from '@/Components/ui/card-typography';
-import { toast } from 'sonner';
+import { useToast } from '@/Contexts/ToastContext';
 
 interface HealthAlertSettings {
     lab_results: boolean;
@@ -40,6 +40,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 }
 
 export function NotificationsTab({ settings }: NotificationsTabProps) {
+    const { showToast } = useToast();
     const [channels, setChannels] = useState(settings.channels);
     const [categories, setCategories] = useState(settings.categories);
 
@@ -67,7 +68,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                 {
                     preserveState: true,
                     preserveScroll: true,
-                    onError: () => toast.error('Failed to save notification preferences'),
+                    onError: () => showToast('Failed to save notification preferences', 'error'),
                 }
             );
         }, 1000);

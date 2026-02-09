@@ -1,18 +1,23 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/Lib/utils';
-import { CheckCircle2, XCircle, AlertTriangle, Info } from '@/Lib/icons';
-import { Icon } from '@/Components/ui/icon';
+import { CheckCircle2, XCircle, AlertTriangle, Info, HugeiconsIcon } from '@/Lib/icons';
 
 /**
  * Toast Component
  *
- * Notification component with dark background and status-based colored icons.
- * Follows design system specifications with automatic dismissal.
+ * Global notification system with dark background and status-based colored icons.
+ * Usage: `useToast()` hook → `showToast(message, variant)`
+ *
+ * - 4 variants: success/error/warning/info
+ * - Dark background (#171717) with filled status-colored icons
+ * - 12px rounded edges (rounded-lg)
+ * - Auto-dismisses after 3s
+ * - Uses Tailwind v4 design tokens
  */
 
 const toastVariants = cva(
-  'fixed z-[1000] flex items-center gap-2 whitespace-nowrap px-6 py-4 rounded-xl shadow-lg shadow-black/20',
+  'fixed bottom-8 z-[1000] flex items-center gap-3 whitespace-nowrap rounded-lg bg-toast px-4 py-3 text-label text-white shadow-lg shadow-black/20 animate-in slide-in-from-bottom-5 fade-in duration-300',
   {
     variants: {
       variant: {
@@ -30,27 +35,23 @@ const toastVariants = cva(
 
 const toastIconConfig: Record<
   'success' | 'error' | 'warning' | 'info',
-  { icon: React.ComponentType<any>; bgClass: string; iconClass: string }
+  { icon: React.ComponentType<any>; colorClass: string }
 > = {
   success: {
     icon: CheckCircle2,
-    bgClass: 'bg-success',
-    iconClass: 'text-white'
+    colorClass: 'text-success'
   },
   error: {
     icon: XCircle,
-    bgClass: 'bg-destructive',
-    iconClass: 'text-white'
+    colorClass: 'text-destructive'
   },
   warning: {
     icon: AlertTriangle,
-    bgClass: 'bg-warning',
-    iconClass: 'text-white'
+    colorClass: 'text-warning'
   },
   info: {
     icon: Info,
-    bgClass: 'bg-info',
-    iconClass: 'text-white'
+    colorClass: 'text-info'
   },
 };
 
@@ -73,10 +74,6 @@ export interface ToastProps
    * Callback fired when toast should be hidden
    */
   onHide?: () => void;
-  /**
-   * Left offset for positioning (default: '160px' to account for sidebar)
-   */
-  leftOffset?: string;
 }
 
 const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
@@ -87,7 +84,6 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
       variant = 'success',
       duration = 3000,
       onHide,
-      leftOffset = '160px',
       className,
       ...props
     },
@@ -105,41 +101,30 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
     if (!show) return null;
 
     const iconConfig = toastIconConfig[variant || 'success'];
+    const IconComponent = iconConfig.icon;
+
+    // Access the iconData from the icon component wrapper
+    const iconData = (IconComponent as any).iconData;
 
     return (
-      <>
-        <div
-          ref={ref}
-          className={cn(toastVariants({ variant }), 'text-label text-white', className)}
-          style={{
-            bottom: '32px',
-            left: '50%',
-            marginLeft: leftOffset,
-            transform: 'translateX(-50%)',
-            animation: 'slideUp 0.3s ease-out',
-            backgroundColor: '#1a1a1a',
-          }}
-          {...props}
-        >
-          <div className={cn('h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0', iconConfig.bgClass)}>
-            <Icon icon={iconConfig.icon} className={cn('h-5 w-5', iconConfig.iconClass)} strokeWidth={2.5} />
-          </div>
-          {message}
-        </div>
-
-        <style>{`
-          @keyframes slideUp {
-            from {
-              opacity: 0;
-              transform: translateX(-50%) translateY(20px);
-            }
-            to {
-              opacity: 1;
-              transform: translateX(-50%) translateY(0);
-            }
-          }
-        `}</style>
-      </>
+      <div
+        ref={ref}
+        className={cn(toastVariants({ variant }), className)}
+        style={{
+          left: '50%',
+          marginLeft: 'var(--spacing-sidebar)',
+          transform: 'translateX(-50%)',
+        }}
+        {...props}
+      >
+        <HugeiconsIcon
+          icon={iconData}
+          size={20}
+          variant="solid"
+          className={cn('flex-shrink-0', iconConfig.colorClass)}
+        />
+        {message}
+      </div>
     );
   }
 );

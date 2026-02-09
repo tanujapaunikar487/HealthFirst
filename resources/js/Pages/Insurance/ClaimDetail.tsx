@@ -6,9 +6,9 @@ import { DetailRow } from '@/Components/ui/detail-row';
 import { DetailSection } from '@/Components/ui/detail-section';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
-import { Toast } from '@/Components/ui/toast';
 import { Alert } from '@/Components/ui/alert';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
+import { useToast } from '@/Contexts/ToastContext';
 
 import { SideNav, SideNavItem } from '@/Components/SideNav';
 import {
@@ -601,8 +601,7 @@ function ClaimDetailSkeleton() {
 export default function ClaimDetail({ claim, patient, doctor, appointment }: Props) {
   const { isLoading, hasError, retry } = useSkeletonLoading(claim);
   const { formatDate } = useFormatPreferences();
-  const [toastMessage, setToastMessage] = useState('');
-  const [showToast, setShowToast] = useState(false);
+  const { showToast } = useToast();
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [expandedTimeline, setExpandedTimeline] = useState<number[]>([]);
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
@@ -616,11 +615,6 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
       setFromPolicy(true);
     }
   }, []);
-
-  const toast = (msg: string) => {
-    setToastMessage(msg);
-    setShowToast(true);
-  };
 
   const toggleTimelineDetails = (idx: number) => {
     setExpandedTimeline((prev) =>
@@ -703,8 +697,8 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           <DropdownMenuItem onClick={() => {
             if (confirm('Would you like to file an appeal for this rejected claim?')) {
               router.post(`/insurance/claims/${claim.id}/appeal`, {}, {
-                onSuccess: () => toast('Appeal request submitted'),
-                onError: () => toast('Failed to submit appeal'),
+                onSuccess: () => showToast('Appeal request submitted'),
+                onError: () => showToast('Failed to submit appeal'),
               });
             }
           }}>
@@ -750,12 +744,12 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
       <div className="w-full max-w-page min-h-full flex flex-col pb-10">
         {/* Breadcrumb */}
-        <div className="mb-6 flex items-center gap-1.5 text-body text-muted-foreground">
+        <nav className="mb-6 flex items-center gap-1.5 text-body text-muted-foreground self-start">
           <Button
             variant="link"
             size="sm"
             onClick={() => router.visit('/insurance')}
-            className="h-auto p-0 font-medium text-muted-foreground hover:text-foreground"
+            className="h-auto p-0 text-body text-muted-foreground hover:text-foreground transition-colors"
           >
             Insurance
           </Button>
@@ -766,15 +760,15 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 variant="link"
                 size="sm"
                 onClick={() => router.visit(`/insurance/${claim.policy_id}`)}
-                className="h-auto p-0 font-medium text-muted-foreground hover:text-foreground"
+                className="h-auto p-0 text-body text-muted-foreground hover:text-foreground transition-colors"
               >
                 {claim.policy_plan_name}
               </Button>
               <ChevronRight className="h-3.5 w-3.5" />
             </>
           ) : null}
-          <span className="text-muted-foreground">{claim.claim_reference}</span>
-        </div>
+          <span className="text-foreground font-medium">{claim.claim_reference}</span>
+        </nav>
 
         {/* Header with three-dot menu */}
         <div className="mb-6">
@@ -816,34 +810,34 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                     if (label === 'Accept') {
                       if (confirm('Accept the partially approved amount?')) {
                         router.post(`/insurance/claims/${claim.id}/accept`, {}, {
-                          onSuccess: () => toast('Claim accepted successfully'),
-                          onError: () => toast('Failed to accept claim'),
+                          onSuccess: () => showToast('Claim accepted successfully', 'success'),
+                          onError: () => showToast('Failed to accept claim', 'error'),
                         });
                       }
                     } else if (label === 'Try different policy') {
                       router.visit('/insurance');
                     } else if (label === 'Request new pre-auth') {
                       router.post(`/insurance/claims/${claim.id}/new-preauth`, {}, {
-                        onSuccess: () => toast('New pre-authorization request submitted'),
-                        onError: () => toast('Failed to submit request'),
+                        onSuccess: () => showToast('New pre-authorization request submitted'),
+                        onError: () => showToast('Failed to submit request'),
                       });
                     } else if (label === 'Request enhancement') {
                       router.post(`/insurance/claims/${claim.id}/enhancement`, {}, {
-                        onSuccess: () => toast('Enhancement request submitted'),
-                        onError: () => toast('Failed to submit enhancement request'),
+                        onSuccess: () => showToast('Enhancement request submitted'),
+                        onError: () => showToast('Failed to submit enhancement request'),
                       });
                     } else if (label === 'Raise dispute') {
                       if (confirm('Are you sure you want to raise a dispute for this settled claim?')) {
                         router.post(`/insurance/claims/${claim.id}/dispute`, {}, {
-                          onSuccess: () => toast('Dispute submitted successfully'),
-                          onError: () => toast('Failed to submit dispute'),
+                          onSuccess: () => showToast('Dispute submitted successfully'),
+                          onError: () => showToast('Failed to submit dispute'),
                         });
                       }
                     } else if (label === 'File appeal') {
                       if (confirm('Would you like to file an appeal for this claim?')) {
                         router.post(`/insurance/claims/${claim.id}/appeal`, {}, {
-                          onSuccess: () => toast('Appeal request submitted'),
-                          onError: () => toast('Failed to submit appeal'),
+                          onSuccess: () => showToast('Appeal request submitted'),
+                          onError: () => showToast('Failed to submit appeal'),
                         });
                       }
                     } else if (label === 'Download EOB') {
@@ -862,12 +856,12 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                         ${f?.not_covered ? `<div class="row"><span class="row-label">Not Covered</span><span class="row-value">₹${f.not_covered.toLocaleString()}</span></div>` : ''}
                         <p style="margin-top:24px;font-size:12px;color:#6b7280">Generated on ${new Date().toLocaleDateString()}</p>
                       `);
-                      toast('EOB downloaded');
+                      showToast('EOB downloaded');
                     } else if (label === 'Track status' || label === 'Track enhancement' || label === 'Track dispute' || label === 'View resolution') {
                       document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      toast(banner.action!.toastMsg);
+                      showToast(banner.action!.toastMsg, 'info');
                     } else {
-                      toast(banner.action!.toastMsg);
+                      showToast(banner.action!.toastMsg, 'info');
                     }
                   }}
                 >
@@ -1395,8 +1389,6 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         </div>{/* End of flex container */}
 
       </div>
-
-      <Toast message={toastMessage} show={showToast} onHide={() => setShowToast(false)} />
 
       <ShareDialog
         open={showShareDialog}

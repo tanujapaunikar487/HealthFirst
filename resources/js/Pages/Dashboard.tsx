@@ -11,8 +11,8 @@ import {
   Shield, RotateCcw, CheckCircle2, Syringe, Pill,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
-import { Toast } from '@/Components/ui/toast';
 import { getAvatarColor } from '@/Lib/avatar-colors';
+import { useToast } from '@/Contexts/ToastContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { CtaBanner } from '@/Components/ui/cta-banner';
 import {
@@ -330,18 +330,18 @@ function getAvatarColorByName(name: string) {
 }
 
 const cardConfig: Record<CardType, { icon: typeof Receipt; iconBgClass: string; iconColorClass: string }> = {
-  overdue_bill: { icon: Receipt, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
-  health_alert: { icon: AlertCircle, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
-  appointment_today: { icon: Stethoscope, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
-  appointment_upcoming: { icon: Calendar, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
-  payment_due_soon: { icon: CreditCard, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
-  emi_due: { icon: CreditCard, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
-  insurance_claim_update: { icon: Shield, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
-  followup_due: { icon: RotateCcw, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
-  pre_appointment_reminder: { icon: Calendar, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
-  new_results_ready: { icon: CheckCircle2, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
-  vaccination_due: { icon: Syringe, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
-  prescription_expiring: { icon: Pill, iconBgClass: 'bg-icon-bg', iconColorClass: 'text-icon' },
+  overdue_bill: { icon: Receipt, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
+  health_alert: { icon: AlertCircle, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
+  appointment_today: { icon: Stethoscope, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
+  appointment_upcoming: { icon: Calendar, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
+  payment_due_soon: { icon: CreditCard, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
+  emi_due: { icon: CreditCard, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
+  insurance_claim_update: { icon: Shield, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
+  followup_due: { icon: RotateCcw, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
+  pre_appointment_reminder: { icon: Calendar, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
+  new_results_ready: { icon: CheckCircle2, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
+  vaccination_due: { icon: Syringe, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
+  prescription_expiring: { icon: Pill, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
 };
 
 function DashboardCard({
@@ -394,12 +394,6 @@ function DashboardCard({
       <VStack gap={0.5} className="flex-1 min-w-0">
         {/* Patient + badge row */}
         <div className="flex items-center gap-2">
-          <div
-            className="flex items-center justify-center flex-shrink-0 w-6 h-6 rounded-full bg-muted text-muted-foreground"
-            style={{ fontSize: '10px' }} /* typography-exception */
-          >
-            {patientInitials}
-          </div>
           <span className="text-label text-muted-foreground">{patientName}</span>
           {badge && (
             <Badge variant={badgeVariant || 'danger'} size="sm">
@@ -482,10 +476,16 @@ export default function Dashboard({
 }: DashboardProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const [showToast, setShowToast] = useState(profileJustCompleted);
-  const [toastMessage, setToastMessage] = useState('Profile successfully completed!');
+  const { showToast } = useToast();
   const [payingBillId, setPayingBillId] = useState<number | null>(null);
   const [upNextExpanded, setUpNextExpanded] = useState(false);
+
+  // Show success toast on profile completion
+  useEffect(() => {
+    if (profileJustCompleted) {
+      showToast('Profile successfully completed!', 'success');
+    }
+  }, [profileJustCompleted, showToast]);
   const [laterExpanded, setLaterExpanded] = useState(false);
   const mountTime = useRef(Date.now());
 
@@ -548,8 +548,7 @@ export default function Dashboard({
     dismissed[id] = Date.now();
     localStorage.setItem('dismissed_health_alerts', JSON.stringify(dismissed));
     setDismissedAlertIds((prev) => new Set([...prev, id]));
-    setToastMessage('Alert dismissed');
-    setShowToast(true);
+    showToast('Alert dismissed', 'success');
   };
 
   // Filter out dismissed health alerts
@@ -608,8 +607,7 @@ export default function Dashboard({
           }),
         });
         if (!verifyRes.ok) throw new Error('Payment verification failed');
-        setToastMessage('Payment successful!');
-        setShowToast(true);
+        showToast('Payment successful!', 'success');
         router.reload();
         return;
       }
@@ -633,8 +631,7 @@ export default function Dashboard({
             }),
           });
           if (verifyRes.ok) {
-            setToastMessage('Payment successful!');
-            setShowToast(true);
+            showToast('Payment successful!', 'success');
             router.reload();
           }
         },
@@ -643,8 +640,7 @@ export default function Dashboard({
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch {
-      setToastMessage('Payment failed. Please try again.');
-      setShowToast(true);
+      showToast('Payment failed. Please try again.', 'error');
     } finally {
       setPayingBillId(null);
     }
@@ -964,7 +960,7 @@ export default function Dashboard({
             menuItems={[
               { label: 'Reschedule', onClick: () => setSheetView({ type: 'reschedule', appointment: appt }) },
               { label: 'Cancel appointment', onClick: () => setSheetView({ type: 'cancel', appointment: appt }), destructive: true },
-              { label: 'Add to calendar', onClick: () => { generateICSFile(appt); setToastMessage('Calendar file downloaded'); setShowToast(true); } },
+              { label: 'Add to calendar', onClick: () => { generateICSFile(appt); showToast('Calendar file downloaded', 'success'); } },
             ]}
             isLast={isLast}
             doctorName={appt.type === 'doctor' ? appt.title : undefined}
@@ -1027,7 +1023,7 @@ export default function Dashboard({
             menuItems={[
               { label: 'View details', onClick: () => setSheetView({ type: 'details', appointment: appt }) },
               { label: 'Cancel appointment', onClick: () => setSheetView({ type: 'cancel', appointment: appt }), destructive: true },
-              { label: 'Add to calendar', onClick: () => { generateICSFile(appt); setToastMessage('Calendar file downloaded'); setShowToast(true); } },
+              { label: 'Add to calendar', onClick: () => { generateICSFile(appt); showToast('Calendar file downloaded', 'success'); } },
             ]}
             isLast={isLast}
             doctorName={appt.type === 'doctor' ? appt.title : undefined}
@@ -1291,13 +1287,6 @@ export default function Dashboard({
         )}
       </VStack>
 
-      <Toast
-        show={showToast}
-        message={toastMessage}
-        duration={4000}
-        onHide={() => setShowToast(false)}
-      />
-
       {/* Appointment Action Sheets */}
       <Sheet open={sheetView !== null} onOpenChange={(open) => !open && setSheetView(null)}>
         <SheetContent className="overflow-y-auto">
@@ -1321,13 +1310,11 @@ export default function Dashboard({
               appointment={convertToFullAppointment(sheetView.appointment)}
               onSuccess={() => {
                 setSheetView(null);
-                setToastMessage('Appointment cancelled. Refund initiated.');
-                setShowToast(true);
+                showToast('Appointment cancelled. Refund initiated.', 'success');
                 router.reload();
               }}
               onError={(msg) => {
-                setToastMessage(msg);
-                setShowToast(true);
+                showToast(msg, 'error');
               }}
               onClose={() => setSheetView(null)}
             />
@@ -1337,13 +1324,11 @@ export default function Dashboard({
               appointment={convertToFullAppointment(sheetView.appointment)}
               onSuccess={() => {
                 setSheetView(null);
-                setToastMessage('Appointment rescheduled successfully.');
-                setShowToast(true);
+                showToast('Appointment rescheduled successfully.', 'success');
                 router.reload();
               }}
               onError={(msg) => {
-                setToastMessage(msg);
-                setShowToast(true);
+                showToast(msg, 'error');
               }}
               onClose={() => setSheetView(null)}
             />
