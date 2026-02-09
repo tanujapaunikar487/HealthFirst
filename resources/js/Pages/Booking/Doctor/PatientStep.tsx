@@ -14,6 +14,7 @@ import { cn } from '@/Lib/utils';
 import { ArrowRight, Star, RefreshCw, User } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { getAvatarColorByName } from '@/Lib/avatar-colors';
+import { DoctorCard, type Doctor as DoctorCardDoctor, type TimeSlot as DoctorCardTimeSlot } from '@/Components/Booking/DoctorCard';
 
 const doctorSteps = [
   { id: 'concerns', label: 'Concerns' },
@@ -28,22 +29,9 @@ interface FamilyMember {
   relationship: string;
 }
 
-interface TimeSlot {
-  time: string;
-  available: boolean;
-  preferred: boolean;
-}
+interface TimeSlot extends DoctorCardTimeSlot {}
 
-interface Doctor {
-  id: string;
-  name: string;
-  avatar: string | null;
-  specialization: string;
-  experience_years: number;
-  consultation_modes: string[];
-  video_fee: number;
-  in_person_fee: number;
-}
+interface Doctor extends DoctorCardDoctor {}
 
 interface PreviousConsultation {
   patientId: string;
@@ -568,89 +556,3 @@ export default function PatientStep({
   );
 }
 
-// DoctorCard component for previous consultations
-interface DoctorCardProps {
-  doctor: Doctor;
-  slots: TimeSlot[];
-  selectedTime: string | null;
-  isSelected: boolean;
-  onSelectTime: (time: string) => void;
-}
-
-function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: DoctorCardProps) {
-  const getInitials = (name: string) => {
-    const parts = name.split(' ');
-    return parts.length > 1
-      ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
-      : name.substring(0, 2).toUpperCase();
-  };
-
-  const formatAppointmentModes = (modes: string[]) => {
-    const modeLabels: Record<string, string> = {
-      video: 'Video',
-      in_person: 'In-hospital',
-    };
-    return modes.map((m) => modeLabels[m] || m).join(' and ');
-  };
-
-  const avatarColor = getAvatarColorByName(doctor.name);
-
-  return (
-    <div
-      className={cn(
-        'px-6 py-4 transition-all hover:bg-muted/50',
-        isSelected && 'bg-primary/5'
-      )}
-    >
-      {/* Doctor Info */}
-      <div className="flex items-start gap-3 mb-4">
-        <Avatar className="h-12 w-12">
-          <AvatarImage src={doctor.avatar || undefined} />
-          <AvatarFallback
-            className="text-label"
-            style={{
-              backgroundColor: `hsl(${avatarColor.bg})`,
-              color: `hsl(${avatarColor.text})`,
-            }}
-          >
-            {getInitials(doctor.name)}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-label text-foreground">{doctor.name}</h3>
-          <p className="text-body text-muted-foreground">
-            {doctor.specialization} &bull; {doctor.experience_years} years of experience
-          </p>
-        </div>
-        <div className="flex-shrink-0">
-          <span className="inline-block px-2 py-1 text-label text-primary bg-primary/10 rounded">
-            {formatAppointmentModes(doctor.consultation_modes)}
-          </span>
-        </div>
-      </div>
-
-      {/* Time Slots */}
-      <div className="flex flex-wrap gap-2">
-        {slots.map((slot) => (
-          <Button
-            key={slot.time}
-            variant={selectedTime === slot.time ? 'accent' : 'outline'}
-            onClick={() => slot.available && onSelectTime(slot.time)}
-            disabled={!slot.available}
-            className={cn(
-              'h-auto px-4 py-2 rounded-full transition-all relative',
-              selectedTime !== slot.time && 'hover:border-primary/50 hover:bg-primary/5',
-              selectedTime === slot.time && 'border-foreground',
-              !slot.available && 'opacity-40 cursor-not-allowed'
-            )}
-          >
-            {slot.time}
-            {slot.preferred && selectedTime !== slot.time && (
-              <Icon icon={Star} size={12} className="absolute -top-1 -right-1 fill-black text-black" />
-            )}
-          </Button>
-        ))}
-      </div>
-    </div>
-  );
-}
