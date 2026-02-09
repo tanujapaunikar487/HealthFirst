@@ -1,24 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
-import { AppointmentModeSelector } from '@/Components/Booking/AppointmentModeSelector';
-import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
-import { getAvatarColorByName } from '@/Lib/avatar-colors';
-import { DoctorCard, type Doctor as DoctorCardDoctor, type TimeSlot as DoctorCardTimeSlot } from '@/Components/Booking/DoctorCard';
+import { EmbeddedDoctorList } from '@/Features/booking-chat/embedded/EmbeddedDoctorList';
+import { EmbeddedAppointmentMode } from '@/Features/booking-chat/embedded/EmbeddedAppointmentMode';
 import { Card } from '@/Components/ui/card';
-import { HStack, VStack } from '@/Components/ui/stack';
-import { Input } from '@/Components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/Components/ui/select';
+import { VStack } from '@/Components/ui/stack';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
-import { Search, Star } from '@/Lib/icons';
-import { Icon } from '@/Components/ui/icon';
 
 const doctorSteps = [
   { id: 'concerns', label: 'Concerns' },
@@ -26,10 +14,27 @@ const doctorSteps = [
   { id: 'confirm', label: 'Confirm' },
 ];
 
-interface TimeSlot extends DoctorCardTimeSlot {}
+interface TimeSlot {
+  time: string;
+  available: boolean;
+  preferred: boolean;
+}
 
-interface Doctor extends DoctorCardDoctor {
+interface Doctor {
+  id: string;
+  name: string;
+  avatar: string | null;
+  specialization: string;
+  experience_years: number;
+  consultation_modes: string[];
+  video_fee: number;
+  in_person_fee: number;
   slots: TimeSlot[];
+  rating?: number;
+  total_reviews?: number;
+  education?: string[];
+  languages?: string[];
+  appointment_modes: string[];
 }
 
 interface DateOption {
@@ -75,8 +80,6 @@ export default function DoctorTimeStep({
   const [appointmentMode, setConsultationMode] = useState<'video' | 'in_person' | null>(
     savedData?.appointmentMode || null
   );
-  const [sortBy, setSortBy] = useState('recommended');
-  const [searchQuery, setSearchQuery] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const selectedDoctor = doctors.find((d) => d.id === selectedDoctorId);
@@ -91,29 +94,6 @@ export default function DoctorTimeStep({
     }
   }, [selectedDoctor, selectedTime]);
 
-  // Filter and sort doctors
-  const filteredDoctors = doctors
-    .filter((doctor) => {
-      if (!searchQuery) return true;
-      return (
-        doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doctor.specialization.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    })
-    .sort((a, b) => {
-      if (sortBy === 'price_low') {
-        const aMinPrice = Math.min(a.video_fee || Infinity, a.in_person_fee || Infinity);
-        const bMinPrice = Math.min(b.video_fee || Infinity, b.in_person_fee || Infinity);
-        return aMinPrice - bMinPrice;
-      }
-      if (sortBy === 'price_high') {
-        const aMaxPrice = Math.max(a.video_fee || 0, a.in_person_fee || 0);
-        const bMaxPrice = Math.max(b.video_fee || 0, b.in_person_fee || 0);
-        return bMaxPrice - aMaxPrice;
-      }
-      // Default: recommended (keep original order)
-      return 0;
-    });
 
   const handleDateChange = (date: string) => {
     setSelectedDate(date);
@@ -164,19 +144,15 @@ export default function DoctorTimeStep({
   const getModes = () => {
     if (!selectedDoctor) return [];
     const modes = [];
-    if (selectedDoctor.appointment_modes.includes('video')) {
+    if (selectedDoctor.appointment_modes.includes('video') || selectedDoctor.consultation_modes.includes('video')) {
       modes.push({
         type: 'video' as const,
-        label: 'Video Appointment',
-        description: 'Connect from home via video call',
         price: selectedDoctor.video_fee,
       });
     }
-    if (selectedDoctor.appointment_modes.includes('in_person')) {
+    if (selectedDoctor.appointment_modes.includes('in_person') || selectedDoctor.consultation_modes.includes('in_person')) {
       modes.push({
         type: 'in_person' as const,
-        label: 'In-Person Visit',
-        description: 'Visit the doctor at the clinic',
         price: selectedDoctor.in_person_fee,
       });
     }
@@ -250,65 +226,22 @@ export default function DoctorTimeStep({
         {/* Doctor List */}
         <section>
           <VStack gap={4}>
-            <HStack className="justify-between">
-              <VStack gap={0}>
-                <h2 className="text-section-title">{filteredDoctors.length} doctors available</h2>
-                <p className="text-body text-muted-foreground">
-                  Based on your symptoms and selected date
-                </p>
-              </VStack>
+            <VStack gap={0}>
+              <h2 className="text-section-title">{doctors.length} doctors available</h2>
+              <p className="text-body text-muted-foreground">
+                Based on your symptoms and selected date
+              </p>
+            </VStack>
 
-              <HStack gap={2}>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-36">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="recommended">Recommended</SelectItem>
-                  <SelectItem value="price_low">Price: Low</SelectItem>
-                  <SelectItem value="price_high">Price: High</SelectItem>
-                </SelectContent>
-              </Select>
+            <EmbeddedDoctorList
+              doctors={doctors}
+              selectedDoctorId={selectedDoctorId}
+              selectedTime={selectedTime}
+              onSelect={handleDoctorTimeSelect}
+              disabled={false}
+            />
 
-              <div className="relative">
-                <Icon icon={Search} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground" />
-                <Input
-                  placeholder="Search patient, doctor, date"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 w-48"
-                />
-              </div>
-              </HStack>
-            </HStack>
-
-          {filteredDoctors.length === 0 ? (
-            <Card className="px-6 py-8 text-center">
-              <VStack gap={1}>
-                <p className="text-label text-foreground">No doctors available on this date</p>
-                <p className="text-body text-muted-foreground">
-                  Some doctors don't work on {selectedDateLabel}s. Try selecting a different date.
-                </p>
-              </VStack>
-            </Card>
-          ) : (
-            <Card className="overflow-hidden">
-              <div className="divide-y">
-                {filteredDoctors.map((doctor) => (
-                  <DoctorCard
-                    key={doctor.id}
-                    doctor={doctor}
-                    slots={doctor.slots}
-                    selectedTime={selectedDoctorId === doctor.id ? selectedTime : null}
-                    isSelected={selectedDoctorId === doctor.id}
-                    onSelectTime={(time) => handleDoctorTimeSelect(doctor.id, time)}
-                  />
-                ))}
-              </div>
-            </Card>
-          )}
-
-          {errors.doctor && <p className="text-body text-destructive">{errors.doctor}</p>}
+            {errors.doctor && <p className="text-body text-destructive">{errors.doctor}</p>}
           </VStack>
         </section>
 
@@ -318,10 +251,11 @@ export default function DoctorTimeStep({
             <VStack gap={4}>
               <h2 className="text-section-title">How would you like to consult?</h2>
 
-              <AppointmentModeSelector
+              <EmbeddedAppointmentMode
                 modes={getModes()}
                 selectedMode={appointmentMode}
                 onSelect={(mode) => setConsultationMode(mode as 'video' | 'in_person')}
+                disabled={false}
               />
 
               {errors.mode && <p className="text-body text-destructive">{errors.mode}</p>}

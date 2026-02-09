@@ -9,7 +9,7 @@ import { SideNav } from '@/Components/SideNav';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { useToast } from '@/Contexts/ToastContext';
 import { cn } from '@/Lib/utils';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,8 +50,6 @@ import {
   FileDown,
   Link2,
   User,
-  Sparkles,
-  Loader2,
   Pencil,
 } from '@/Lib/icons';
 import { downloadAsHtml } from '@/Lib/download';
@@ -131,9 +129,6 @@ interface AttachedFile {
 }
 
 interface RecordMetadata {
-  // AI Summary (cached)
-  ai_summary?: string;
-  ai_summary_generated_at?: string;
   // consultation_notes
   diagnosis?: string;
   icd_code?: string;
@@ -595,45 +590,6 @@ export default function Show({ user, record, familyMember }: Props) {
   const { showToast } = useToast();
   const [showShareDialog, setShowShareDialog] = useState(false);
 
-  // AI Summary state
-  const [aiSummary, setAiSummary] = useState<string | null>(record.metadata?.ai_summary || null);
-  const [aiSummaryLoading, setAiSummaryLoading] = useState(false);
-  const [aiSummaryError, setAiSummaryError] = useState<string | null>(null);
-
-  const generateAiSummary = useCallback(async (regenerate = false) => {
-    setAiSummaryLoading(true);
-    setAiSummaryError(null);
-
-    try {
-      const response = await fetch(`/health-records/${record.id}/summary`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-        },
-        body: JSON.stringify({ regenerate }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setAiSummary(data.summary);
-      } else {
-        setAiSummaryError(data.error || 'Failed to generate summary');
-      }
-    } catch (error) {
-      setAiSummaryError('Unable to connect to the AI service. Please try again.');
-    } finally {
-      setAiSummaryLoading(false);
-    }
-  }, [record.id]);
-
-  // Auto-generate summary on page load if no cached summary exists
-  useEffect(() => {
-    if (!aiSummary && !aiSummaryLoading && !aiSummaryError) {
-      generateAiSummary();
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const config = categoryConfig[record.category] || { label: record.category, color: 'hsl(var(--muted-foreground))', bg: 'hsl(var(--secondary))' };
 
@@ -809,51 +765,6 @@ export default function Show({ user, record, familyMember }: Props) {
         <div className="flex gap-24">
           <RecordSideNav items={navItems} />
           <div className="flex-1 min-w-0 space-y-12 pb-12">
-
-            {/* AI Summary Section */}
-            {!['prescription', 'vaccination', 'medical_certificate'].includes(record.category) && (
-              <div
-                className="rounded-3xl p-6"
-                style={{
-                  background: 'linear-gradient(135deg, #F3E8FF 0%, #F5F3FF 50%, #FAF5FF 100%)'
-                }}
-              >
-                <div className="flex items-center gap-2 mb-4">
-                  <Sparkles className="h-5 w-5 fill-purple-700 text-purple-700" />
-                  <h2 className="text-section-title text-foreground">AI Summary</h2>
-                </div>
-
-                {aiSummaryLoading ? (
-                  <div className="flex items-center gap-3">
-                    <Loader2 className="h-5 w-5 text-primary animate-spin" />
-                    <span className="text-body text-foreground">Generating AI summary...</span>
-                  </div>
-                ) : aiSummaryError ? (
-                  <div>
-                    <p className="text-body text-foreground mb-3">{aiSummaryError}</p>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => generateAiSummary()}
-                    >
-                      Try Again
-                    </Button>
-                  </div>
-                ) : aiSummary ? (
-                  <div>
-                    <p className="text-body leading-relaxed text-foreground mb-4">{aiSummary}</p>
-                    <p className="text-caption text-muted-foreground">
-                      This is an AI-generated summary for informational purposes. Always consult your doctor for medical advice.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-3">
-                    <Loader2 className="h-5 w-5 text-primary animate-spin" />
-                    <span className="text-body text-foreground">Generating AI summary...</span>
-                  </div>
-                )}
-              </div>
-            )}
 
             {/* Overview Section */}
             <Section id="overview" title="Overview" icon={FileText}>
@@ -1061,7 +972,7 @@ export default function Show({ user, record, familyMember }: Props) {
 
 function getCategorySections(category: string, meta: RecordMetadata, onAction: (msg: string) => void): CategorySection[] {
   switch (category) {
-    case 'consultation_notes': return getConsultationSections(meta, onAction);
+    case 'consultation_notes': return getConsultationSections(meta);
     case 'prescription': return getPrescriptionSections(meta);
     case 'lab_report': return getLabReportSections(meta);
     case 'xray_report': return getXraySections(meta);
@@ -1071,13 +982,13 @@ function getCategorySections(category: string, meta: RecordMetadata, onAction: (
     case 'pathology_report': return getPathologySections(meta);
     case 'pft_report': return getPftSections(meta);
     case 'other_report': return getOtherReportSections(meta);
-    case 'procedure_notes': return getProcedureSections(meta, onAction);
+    case 'procedure_notes': return getProcedureSections(meta);
     case 'er_visit': return getErVisitSections(meta, onAction);
     case 'referral': return getReferralSections(meta);
     case 'discharge_summary': return getDischargeSections(meta, onAction);
     case 'other_visit': return getOtherVisitSections(meta);
     case 'medication_active': return getMedicationActiveSections(meta, onAction);
-    case 'medication_past': return getMedicationPastSections(meta, onAction);
+    case 'medication_past': return getMedicationPastSections(meta);
     case 'vaccination': return getVaccinationSections(meta, onAction);
     case 'medical_certificate': return getMedicalCertificateSections(meta, onAction);
     case 'invoice': return getInvoiceSections(meta);
@@ -1169,7 +1080,7 @@ function getConsultationSections(meta: RecordMetadata): CategorySection[] {
   return sections;
 }
 
-function getProcedureSections(meta: RecordMetadata, onAction: (msg: string) => void): CategorySection[] {
+function getProcedureSections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
   sections.push({
@@ -1844,59 +1755,31 @@ function getPrescriptionSections(meta: RecordMetadata): CategorySection[] {
   sections.push({
     id: 'prescription', title: 'Prescription', icon: Pill,
     content: (
-      <>
+      <div className="divide-y">
         {meta.diagnosis && (
-          <div className="px-6 py-4 border-b">
-            <DetailRow label="Diagnosis">
-              <div>
-                <span className="text-card-title">{meta.diagnosis}</span>
-                {meta.icd_code && <span className="text-body text-muted-foreground ml-2">ICD: {meta.icd_code}</span>}
-              </div>
-            </DetailRow>
-          </div>
+          <DetailRow label="Diagnosis">
+            <div>
+              <span className="text-card-title">{meta.diagnosis}</span>
+              {meta.icd_code && <span className="text-body text-muted-foreground ml-2">ICD: {meta.icd_code}</span>}
+            </div>
+          </DetailRow>
         )}
-        {meta.drugs && meta.drugs.length > 0 && (
-          <div className="divide-y">
-            {meta.drugs.map((drug, i) => (
-              <div key={i} className="px-6 py-4">
-                <p className="text-card-title mb-3">{drug.name}</p>
-                <div className="space-y-2">
-                  {drug.dosage && (
-                    <div className="flex items-start gap-2">
-                      <span className="text-body text-muted-foreground w-24 flex-shrink-0">Dosage:</span>
-                      <span className="text-body text-foreground">{drug.dosage}</span>
-                    </div>
-                  )}
-                  {drug.frequency && (
-                    <div className="flex items-start gap-2">
-                      <span className="text-body text-muted-foreground w-24 flex-shrink-0">Frequency:</span>
-                      <span className="text-body text-foreground">{drug.frequency}</span>
-                    </div>
-                  )}
-                  {drug.duration && (
-                    <div className="flex items-start gap-2">
-                      <span className="text-body text-muted-foreground w-24 flex-shrink-0">Duration:</span>
-                      <span className="text-body text-foreground">{drug.duration}</span>
-                    </div>
-                  )}
-                  {drug.instructions && (
-                    <div className="flex items-start gap-2">
-                      <span className="text-body text-muted-foreground w-24 flex-shrink-0">Instructions:</span>
-                      <span className="text-body text-foreground">{drug.instructions}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
+        {meta.drugs && meta.drugs.length > 0 && meta.drugs.map((drug, i) => (
+          <div key={i}>
+            <div className="px-6 pt-4 pb-2">
+              <h3 className="text-card-title">{drug.name}</h3>
+            </div>
+            <div className="divide-y">
+              {drug.dosage && <DetailRow label="Dosage">{drug.dosage}</DetailRow>}
+              {drug.frequency && <DetailRow label="Frequency">{drug.frequency}</DetailRow>}
+              {drug.duration && <DetailRow label="Duration">{drug.duration}</DetailRow>}
+              {drug.instructions && <DetailRow label="Instructions">{drug.instructions}</DetailRow>}
+            </div>
           </div>
-        )}
-        {(meta.valid_until || meta.pharmacy_notes) && (
-          <div className="divide-y border-t">
-            {meta.valid_until && <DetailRow label="Valid until">{fmtDate(meta.valid_until)}</DetailRow>}
-            {meta.pharmacy_notes && <DetailRow label="Pharmacy Notes">{meta.pharmacy_notes}</DetailRow>}
-          </div>
-        )}
-      </>
+        ))}
+        {meta.valid_until && <DetailRow label="Valid until">{fmtDate(meta.valid_until)}</DetailRow>}
+        {meta.pharmacy_notes && <DetailRow label="Pharmacy Notes">{meta.pharmacy_notes}</DetailRow>}
+      </div>
     ),
   });
 
@@ -1997,7 +1880,7 @@ function getMedicationActiveSections(meta: RecordMetadata, onAction: (msg: strin
   return sections;
 }
 
-function getMedicationPastSections(meta: RecordMetadata, onAction: (msg: string) => void): CategorySection[] {
+function getMedicationPastSections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
   sections.push({
