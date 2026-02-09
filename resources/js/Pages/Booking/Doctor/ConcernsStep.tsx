@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { FollowUpBanner } from '@/Components/Booking/FollowUpBanner';
 import { SymptomChips } from '@/Components/Booking/SymptomChips';
+import { EmbeddedUrgencySelector } from '@/Features/booking-chat/embedded/EmbeddedUrgencySelector';
 import { Card } from '@/Components/ui/card';
 import { HStack, VStack } from '@/Components/ui/stack';
 import { Textarea } from '@/Components/ui/textarea';
@@ -127,12 +128,6 @@ export default function ConcernsStep({
     }
   };
 
-  const dotStyles: Record<string, { dot: string; ring: string }> = {
-    urgent: { dot: 'bg-destructive', ring: 'ring-destructive/15' },
-    this_week: { dot: 'bg-warning', ring: 'ring-warning/15' },
-    specific_date: { dot: 'bg-primary', ring: 'ring-primary/15' },
-  };
-
   return (
     <GuidedBookingLayout
       steps={doctorSteps}
@@ -200,39 +195,11 @@ export default function ConcernsStep({
                 </p>
               </VStack>
 
-            <Card className="overflow-hidden">
-              <div className="divide-y">
-                {urgencyOptions.map((option) => {
-                  const style = dotStyles[option.value] || { dot: 'bg-muted-foreground', ring: 'ring-muted-foreground/15' };
-                  return (
-                    <Button
-                      key={option.value}
-                      variant="ghost"
-                      onClick={() => setUrgency(option.value)}
-                      className={cn(
-                        'w-full h-auto flex items-start gap-3 px-6 py-4 rounded-none justify-start text-left transition-all text-body',
-                        'hover:bg-muted/50',
-                        urgency === option.value && 'bg-primary/5'
-                      )}
-                    >
-                    <HStack gap={3} className="items-start">
-                      <div
-                        className={cn(
-                          'mt-2 w-2 h-2 rounded-full flex-shrink-0 ring-4 ring-offset-0',
-                          style.dot,
-                          style.ring
-                        )}
-                      />
-                      <VStack gap={0} className="flex-1 min-w-0">
-                        <p className="text-label">{option.label}</p>
-                        <p className="text-body text-muted-foreground">{option.description}</p>
-                      </VStack>
-                    </HStack>
-                  </Button>
-                  );
-                })}
-              </div>
-            </Card>
+            <EmbeddedUrgencySelector
+              selectedUrgency={urgency}
+              onSelect={setUrgency}
+              disabled={false}
+            />
 
             {errors.urgency && <p className="text-body text-destructive">{errors.urgency}</p>}
             </VStack>
