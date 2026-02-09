@@ -2,7 +2,6 @@ import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { Button } from '@/Components/ui/button';
 import { Card } from '@/Components/ui/card';
-import { DetailRow } from '@/Components/ui/detail-row';
 import { format, parseISO } from 'date-fns';
 
 const doctorSteps = [
@@ -60,10 +59,11 @@ export default function ConfirmStep({ summary }: Props) {
 
   // Build rows array for proper divider handling
   const rows = [
-    { label: 'Doctor', value: summary.doctor.name, step: 'doctor-time' },
-    { label: 'Patient', value: summary.patient.name, step: 'patient' },
-    { label: 'Date & Time', value: formatDateTime(summary.datetime), step: 'doctor-time' },
-    { label: 'Type', value: summary.appointmentType, step: 'doctor-time' },
+    { label: 'Doctor', value: summary.doctor.name, showChange: true, step: 'doctor-time' },
+    { label: 'Patient', value: summary.patient.name, showChange: true, step: 'patient' },
+    { label: 'Date & Time', value: formatDateTime(summary.datetime), showChange: true, step: 'doctor-time' },
+    { label: 'Type', value: summary.appointmentType, showChange: true, step: 'doctor-time' },
+    { label: 'Appointment Fee', value: `₹${summary.fee.toLocaleString()}`, showChange: false, step: '' },
   ];
 
   return (
@@ -78,25 +78,26 @@ export default function ConfirmStep({ summary }: Props) {
       <div>
         <h2 className="text-step-title mb-6">Booking Summary</h2>
 
-        <Card>
+        <Card className="overflow-hidden">
           <div className="divide-y">
             {rows.map((row) => (
-              <DetailRow key={row.label} label={row.label}>
-                <div className="flex items-center justify-between">
-                  <span>{row.value}</span>
-                  <Button
-                    variant="link"
-                    onClick={() => handleChange(row.step)}
-                    className="h-auto p-0 text-primary text-body hover:underline"
-                  >
-                    Change
-                  </Button>
+              <div key={row.label} className="flex items-center justify-between px-6 py-4">
+                <span className="text-body text-muted-foreground">{row.label}</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-label text-right">{row.value}</span>
+                  {row.showChange && (
+                    <Button
+                      variant="link"
+                      size="sm"
+                      onClick={() => handleChange(row.step)}
+                      className="h-auto p-0 text-primary text-body hover:underline"
+                    >
+                      change
+                    </Button>
+                  )}
                 </div>
-              </DetailRow>
+              </div>
             ))}
-            <DetailRow label="Appointment Fee">
-              ₹{summary.fee.toLocaleString()}
-            </DetailRow>
           </div>
         </Card>
       </div>
