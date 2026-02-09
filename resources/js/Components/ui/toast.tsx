@@ -119,7 +119,6 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
         <HugeiconsIcon
           icon={iconData}
           size={20}
-          variant="solid"
           className="flex-shrink-0"
           style={{ color: iconConfig.color }}
         />
