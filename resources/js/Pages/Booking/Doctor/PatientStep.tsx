@@ -1,19 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
-import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Card } from '@/Components/ui/card';
 import { Textarea } from '@/Components/ui/textarea';
 import { FollowUpBanner } from '@/Components/Booking/FollowUpBanner';
 import { SymptomChips } from '@/Components/Booking/SymptomChips';
+import { PatientSelector } from '@/Components/Booking/PatientSelector';
 import InlineMemberTypeSelector from '@/Features/booking-chat/embedded/InlineMemberTypeSelector';
 import { EmbeddedFollowUpReason, type FollowUpReasonOption } from '@/Features/booking-chat/embedded/EmbeddedFollowUpReason';
 import { EmbeddedAppointmentType } from '@/Features/booking-chat/embedded/EmbeddedAppointmentType';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
-import { ArrowRight, Star, RefreshCw, User } from '@/Lib/icons';
+import { ArrowRight } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
-import { getAvatarColorByName } from '@/Lib/avatar-colors';
 import { DoctorCard, type Doctor as DoctorCardDoctor, type TimeSlot as DoctorCardTimeSlot } from '@/Components/Booking/DoctorCard';
 
 const doctorSteps = [
@@ -347,53 +346,18 @@ export default function PatientStep({
             Select a family member or add a new patient
           </p>
 
-          <Card className="overflow-hidden">
-            <div className="divide-y">
-              {members.map((member, index) => {
-                const avatarColor = getAvatarColorByName(member.name);
-                return (
-                  <Button
-                    key={member.id}
-                    variant="ghost"
-                    onClick={() => handlePatientSelect(member.id)}
-                    className={cn(
-                      'w-full h-auto px-6 py-4 rounded-none text-left transition-all flex items-center gap-3',
-                      'hover:bg-muted/50',
-                      patientId === member.id && 'bg-primary/5'
-                    )}
-                  >
-                    <Avatar className="w-10 h-10 shrink-0">
-                      <AvatarImage src={member.avatar || undefined} />
-                      <AvatarFallback
-                        className="text-label"
-                        style={{
-                          backgroundColor: `hsl(${avatarColor.bg})`,
-                          color: `hsl(${avatarColor.text})`,
-                        }}
-                      >
-                        {member.name.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-label text-foreground">{member.name}</p>
-                      <p className="text-body text-muted-foreground">{member.relationship}</p>
-                    </div>
-                  </Button>
-                );
-              })}
-            </div>
-          </Card>
-
-          {!showAddMemberInline && (
-            <Button
-              variant="outline"
-              onClick={() => setShowAddMemberInline(true)}
-              className="mt-3 h-auto inline-flex items-center gap-1 px-4 py-2.5 rounded-full text-body text-foreground hover:border-primary/50 hover:bg-primary/5 transition-all"
-            >
-              Add family member or guest
-              <Icon icon={ArrowRight} className="h-4 w-4" />
-            </Button>
-          )}
+          <PatientSelector
+            patients={members.map(m => ({
+              id: m.id,
+              name: m.name,
+              avatar: m.avatar,
+              relation: m.relationship
+            }))}
+            selected={patientId}
+            onSelect={handlePatientSelect}
+            onAddMember={() => setShowAddMemberInline(true)}
+            disabled={false}
+          />
 
           {/* Inline Member Type Selector */}
           {showAddMemberInline && (

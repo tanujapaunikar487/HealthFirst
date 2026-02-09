@@ -353,10 +353,10 @@ const categoryConfig: Record<string, { label: string; icon: React.ComponentType<
 };
 
 const typeGroups: Record<string, string[]> = {
-  reports:       ['lab_report', 'xray_report', 'mri_report', 'ultrasound_report', 'ecg_report', 'pathology_report', 'pft_report', 'other_report'],
-  visits:        ['consultation_notes', 'procedure_notes', 'discharge_summary', 'er_visit', 'referral', 'other_visit'],
-  prescriptions: ['prescription'],
-  documents:     ['vaccination', 'medical_certificate'],
+  visit_notes: ['consultation_notes', 'procedure_notes', 'er_visit', 'referral', 'other_visit', 'prescription'],
+  labs:        ['lab_report', 'pathology_report', 'pft_report'],
+  imaging:     ['xray_report', 'mri_report', 'ultrasound_report', 'ecg_report'],
+  summaries:   ['discharge_summary', 'other_report', 'vaccination', 'medical_certificate'],
 };
 
 const RECORDS_PER_PAGE = 10;
@@ -496,9 +496,9 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
       if (validCategories.includes(category)) {
         setSubCategoryFilter(category);
 
-        // If it's prescription category, switch to prescriptions tab
+        // If it's prescription category, switch to visit_notes tab
         if (category === 'prescription') {
-          setActiveTab('prescriptions');
+          setActiveTab('visit_notes');
         }
       }
     }
@@ -685,10 +685,10 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
           <TabsList>
             {[
               { value: 'all', label: 'All' },
-              { value: 'reports', label: 'Reports' },
-              { value: 'visits', label: 'Visits' },
-              { value: 'prescriptions', label: 'Prescriptions' },
-              { value: 'documents', label: 'Documents' },
+              { value: 'visit_notes', label: 'Visit Notes' },
+              { value: 'labs', label: 'Labs' },
+              { value: 'imaging', label: 'Imaging' },
+              { value: 'summaries', label: 'Summaries' },
             ].map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value}>
                 {tab.label}
@@ -714,29 +714,19 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-[150px] h-9">
-                <SelectValue placeholder={activeTab === 'prescriptions' ? 'All prescriptions' : 'All statuses'} />
+                <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>
-                {activeTab === 'prescriptions' ? (
-                  <>
-                    <SelectItem value="all">All prescriptions</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="past">Past</SelectItem>
-                  </>
-                ) : (
-                  <>
-                    <SelectItem value="all">All statuses</SelectItem>
-                    <SelectItem value="normal">Normal</SelectItem>
-                    <SelectItem value="needs_attention">Needs attention</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="follow_up_required">Follow-up required</SelectItem>
-                    <SelectItem value="valid">Valid</SelectItem>
-                    <SelectItem value="expired">Expired</SelectItem>
-                    <SelectItem value="discontinued">Discontinued</SelectItem>
-                  </>
-                )}
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="normal">Normal</SelectItem>
+                <SelectItem value="needs_attention">Needs attention</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="follow_up_required">Follow-up required</SelectItem>
+                <SelectItem value="valid">Valid</SelectItem>
+                <SelectItem value="expired">Expired</SelectItem>
+                <SelectItem value="discontinued">Discontinued</SelectItem>
               </SelectContent>
             </Select>
 

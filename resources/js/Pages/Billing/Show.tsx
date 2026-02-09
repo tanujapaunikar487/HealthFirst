@@ -752,7 +752,9 @@ export default function Show({ user, bill }: Props) {
         </div>
 
         {/* ─── Status Alert ─── */}
-        <StatusAlertBanner bill={bill} />
+        <div className="mb-12">
+          <StatusAlertBanner bill={bill} />
+        </div>
 
         {/* ─── Main Content with Side Nav ─── */}
         <div className="flex gap-24">

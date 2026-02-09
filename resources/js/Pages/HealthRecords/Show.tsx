@@ -1,4 +1,4 @@
-import { Link, router } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Badge, type BadgeVariant } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
@@ -18,7 +18,6 @@ import {
   DropdownMenuTrigger,
 } from '@/Components/ui/dropdown-menu';
 import {
-  ChevronLeft,
   Download,
   Share2,
   MoreHorizontal,
@@ -86,6 +85,7 @@ interface Drug {
 }
 
 interface LinkedRecord {
+  id: number;
   icon_type: string;
   title: string;
   link_text: string;
@@ -351,6 +351,7 @@ interface CategorySection {
   icon: React.ElementType;
   content: React.ReactNode;
   action?: React.ReactNode;
+  noPadding?: boolean;
 }
 
 /* ─── Category Config ─── */
@@ -557,17 +558,16 @@ function NumberedList({ items, variant = 'default' }: { items: string[]; variant
   );
 }
 
-function LinkedRecordsList({ records, onView }: { records: LinkedRecord[]; onView: (title: string) => void }) {
+function LinkedRecordsList({ records }: { records: LinkedRecord[] }) {
   return (
     <div className="divide-y">
       {records.map((rec, i) => {
         const config = categoryConfig[rec.icon_type];
         return (
-          <Button
+          <Link
             key={i}
-            variant="ghost"
-            className="flex items-center gap-3 w-full rounded-none px-6 py-4 h-auto text-left hover:bg-muted/50 transition-colors"
-            onClick={() => onView(rec.title)}
+            href={`/health-records/${rec.id}`}
+            className="flex items-center gap-3 w-full px-6 py-4 text-left hover:bg-muted/50 transition-colors"
           >
             {config ? (
               <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: config.bg }}>
@@ -580,7 +580,7 @@ function LinkedRecordsList({ records, onView }: { records: LinkedRecord[]; onVie
             )}
             <span className="text-label flex-1 truncate">{rec.title}</span>
             <ChevronRight className="h-5 w-5 text-muted-foreground" />
-          </Button>
+          </Link>
         );
       })}
     </div>
@@ -599,9 +599,6 @@ export default function Show({ user, record, familyMember }: Props) {
   const [aiSummary, setAiSummary] = useState<string | null>(record.metadata?.ai_summary || null);
   const [aiSummaryLoading, setAiSummaryLoading] = useState(false);
   const [aiSummaryError, setAiSummaryError] = useState<string | null>(null);
-  const [summaryGeneratedAt, setSummaryGeneratedAt] = useState<string | null>(
-    record.metadata?.ai_summary_generated_at || null
-  );
 
   const generateAiSummary = useCallback(async (regenerate = false) => {
     setAiSummaryLoading(true);
@@ -621,7 +618,6 @@ export default function Show({ user, record, familyMember }: Props) {
 
       if (data.success) {
         setAiSummary(data.summary);
-        setSummaryGeneratedAt(data.generated_at);
       } else {
         setAiSummaryError(data.error || 'Failed to generate summary');
       }
@@ -695,7 +691,7 @@ export default function Show({ user, record, familyMember }: Props) {
   ];
 
   return (
-    <AppLayout user={user} pageTitle="Health Records" pageIcon="/assets/icons/records.svg">
+    <AppLayout pageTitle="Health Records" pageIcon="/assets/icons/records.svg">
       <div className="w-full max-w-page min-h-full flex flex-col pb-10">
         {/* Breadcrumb */}
         <nav className="mb-6 flex items-center gap-1.5 text-body text-muted-foreground self-start">
@@ -723,8 +719,14 @@ export default function Show({ user, record, familyMember }: Props) {
             </div>
 
             <div className="flex items-center gap-2">
+              {(record.metadata?.follow_up_recommendation || record.metadata?.follow_up_date || record.metadata?.follow_up) && (
+                <Button onClick={() => window.location.href = '/booking'}>
+                  <Calendar className="h-4 w-4" />
+                  Book Follow-up
+                </Button>
+              )}
               {record.file_type && (
-                <Button onClick={handleDownload}>
+                <Button variant={(record.metadata?.follow_up_recommendation || record.metadata?.follow_up_date || record.metadata?.follow_up) ? 'secondary' : undefined} onClick={handleDownload}>
                   <Download className="h-4 w-4" />
                   Download
                 </Button>
@@ -789,10 +791,70 @@ export default function Show({ user, record, familyMember }: Props) {
             </div>
         </div>
 
+        {/* Follow-up Alert */}
+        <div className="mb-12">
+          {(record.metadata?.follow_up_recommendation || record.metadata?.follow_up_date || record.metadata?.follow_up) && (
+            <Alert variant="info" title={(record.metadata.follow_up_recommendation || record.metadata.follow_up) || 'Follow-up Required'}>
+              {(record.metadata.follow_up_recommendation || record.metadata.follow_up) && (
+                <p className="text-body">{record.metadata.follow_up_recommendation || record.metadata.follow_up}</p>
+              )}
+              {record.metadata.follow_up_date && (
+                <p className="text-body text-muted-foreground mt-1">Recommended: {formatDate(record.metadata.follow_up_date)}</p>
+              )}
+            </Alert>
+          )}
+        </div>
+
         {/* Main Content with Side Nav */}
         <div className="flex gap-24">
           <RecordSideNav items={navItems} />
           <div className="flex-1 min-w-0 space-y-12 pb-12">
+
+            {/* AI Summary Section */}
+            {!['prescription', 'vaccination', 'medical_certificate'].includes(record.category) && (
+              <div
+                className="rounded-3xl p-6"
+                style={{
+                  background: 'linear-gradient(135deg, #F3E8FF 0%, #F5F3FF 50%, #FAF5FF 100%)'
+                }}
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <Sparkles className="h-5 w-5 fill-purple-700 text-purple-700" />
+                  <h2 className="text-section-title text-foreground">AI Summary</h2>
+                </div>
+
+                {aiSummaryLoading ? (
+                  <div className="flex items-center gap-3">
+                    <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                    <span className="text-body text-foreground">Generating AI summary...</span>
+                  </div>
+                ) : aiSummaryError ? (
+                  <div>
+                    <p className="text-body text-foreground mb-3">{aiSummaryError}</p>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => generateAiSummary()}
+                    >
+                      Try Again
+                    </Button>
+                  </div>
+                ) : aiSummary ? (
+                  <div>
+                    <p className="text-body leading-relaxed text-foreground mb-4">{aiSummary}</p>
+                    <p className="text-caption text-muted-foreground">
+                      This is an AI-generated summary for informational purposes. Always consult your doctor for medical advice.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                    <span className="text-body text-foreground">Generating AI summary...</span>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Overview Section */}
             <Section id="overview" title="Overview" icon={FileText}>
               <div className="divide-y">
@@ -856,91 +918,125 @@ export default function Show({ user, record, familyMember }: Props) {
                 )}
 
                 {/* Category-specific highlights using DetailRow */}
-                {record.category === 'lab_report' && record.metadata?.results && (
-                  <DetailRow label="Results">
-                    <div className="flex items-center gap-2">
-                      <span className="text-label">{record.metadata.results.length} Tests</span>
-                      {(() => {
-                        const abnormalCount = record.metadata.results.filter((r: any) => r.status !== 'normal').length;
-                        return abnormalCount > 0 && (
-                          <Badge variant="warning" size="sm">{abnormalCount} Abnormal</Badge>
-                        );
-                      })()}
-                    </div>
-                  </DetailRow>
-                )}
 
-                {record.category === 'discharge_summary' && record.metadata?.length_of_stay && (
-                  <DetailRow label="Length of Stay">
-                    {record.metadata.length_of_stay}
-                    {record.metadata.ipd_number && ` · IPD #${record.metadata.ipd_number}`}
-                  </DetailRow>
-                )}
-              </div>
-              <div className="p-6 space-y-6">
-                {record.description ? (
-                  <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{record.description}</p>
-                ) : (
-                  <p className="text-body text-muted-foreground">No description available.</p>
-                )}
-
-                {/* AI Summary - excluded for prescription and documents categories */}
-                {!['prescription', 'vaccination', 'medical_certificate'].includes(record.category) && (
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <Sparkles className="h-4 w-4 text-primary" />
-                      <span className="text-overline text-muted-foreground">AI Summary</span>
-                    </div>
-
-                    {aiSummaryLoading ? (
-                      <Alert variant="info" hideIcon>
-                        <div className="flex items-center gap-3">
-                          <Loader2 className="h-5 w-5 text-primary animate-spin" />
-                          <span>Generating AI summary...</span>
-                        </div>
-                      </Alert>
-                    ) : aiSummaryError ? (
-                      <Alert variant="error">
-                        <p className="mb-3">{aiSummaryError}</p>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => generateAiSummary()}
-                        >
-                          Try Again
-                        </Button>
-                      </Alert>
-                    ) : aiSummary ? (
-                      <Alert variant="info" hideIcon>
-                        <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{aiSummary}</p>
-                        {summaryGeneratedAt && (
-                          <p className="text-body text-muted-foreground mt-3">
-                            Generated {new Date(summaryGeneratedAt).toLocaleDateString('en-IN', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </p>
-                        )}
-                      </Alert>
-                    ) : (
-                      <Alert variant="info" hideIcon>
-                        <div className="flex items-center gap-3">
-                          <Loader2 className="h-5 w-5 text-primary animate-spin" />
-                          <span>Generating AI summary...</span>
-                        </div>
-                      </Alert>
+                {/* Lab Reports */}
+                {record.category === 'lab_report' && (
+                  <>
+                    {record.metadata?.test_name && (
+                      <DetailRow label="Test">{record.metadata.test_name}</DetailRow>
                     )}
-                  </div>
+                    {record.metadata?.lab_name && (
+                      <DetailRow label="Laboratory">{record.metadata.lab_name}</DetailRow>
+                    )}
+                    {record.metadata?.results && (
+                      <DetailRow label="Results">
+                        <div className="flex items-center gap-2">
+                          <span className="text-label">{record.metadata.results.length} Tests</span>
+                          {(() => {
+                            const abnormalCount = record.metadata.results.filter((r: any) => r.status !== 'normal').length;
+                            const criticalCount = record.metadata.results.filter((r: any) => r.status === 'critical').length;
+                            return (
+                              <>
+                                {abnormalCount > 0 && (
+                                  <Badge variant="warning" size="sm">{abnormalCount} Abnormal</Badge>
+                                )}
+                                {criticalCount > 0 && (
+                                  <Badge variant="danger" size="sm">{criticalCount} Critical</Badge>
+                                )}
+                              </>
+                            );
+                          })()}
+                        </div>
+                      </DetailRow>
+                    )}
+                  </>
+                )}
+
+                {/* Imaging Reports */}
+                {['xray_report', 'mri_report', 'ultrasound_report', 'ecg_report'].includes(record.category) && (
+                  <>
+                    {record.metadata?.body_part && (
+                      <DetailRow label="Body Part">{record.metadata.body_part}</DetailRow>
+                    )}
+                    {record.metadata?.indication && (
+                      <DetailRow label="Indication">{record.metadata.indication}</DetailRow>
+                    )}
+                    {record.metadata?.impression && (
+                      <DetailRow label="Impression">
+                        <span className="text-label">{record.metadata.impression}</span>
+                      </DetailRow>
+                    )}
+                    {record.metadata?.radiologist && (
+                      <DetailRow label="Radiologist">{record.metadata.radiologist}</DetailRow>
+                    )}
+                  </>
+                )}
+
+                {/* Visit Notes / Consultation */}
+                {['consultation_notes', 'procedure_notes', 'er_visit'].includes(record.category) && (
+                  <>
+                    {record.metadata?.chief_complaint && (
+                      <DetailRow label="Chief Complaint">
+                        <span className="text-label">{record.metadata.chief_complaint}</span>
+                      </DetailRow>
+                    )}
+                    {record.metadata?.diagnosis && (
+                      <DetailRow label="Diagnosis">{record.metadata.diagnosis}</DetailRow>
+                    )}
+                    {record.metadata?.opd_number && (
+                      <DetailRow label="OPD No">{record.metadata.opd_number}</DetailRow>
+                    )}
+                    {record.metadata?.duration && (
+                      <DetailRow label="Duration">{record.metadata.duration}</DetailRow>
+                    )}
+                    {record.metadata?.follow_up_date && (
+                      <DetailRow label="Follow-up">
+                        <Badge variant="info" size="sm">{formatDate(record.metadata.follow_up_date)}</Badge>
+                      </DetailRow>
+                    )}
+                  </>
+                )}
+
+                {/* Discharge Summary */}
+                {record.category === 'discharge_summary' && (
+                  <>
+                    {record.metadata?.admission_date && record.metadata?.discharge_date && (
+                      <DetailRow label="Admission">
+                        {formatDate(record.metadata.admission_date)} → {formatDate(record.metadata.discharge_date)}
+                      </DetailRow>
+                    )}
+                    {record.metadata?.length_of_stay && (
+                      <DetailRow label="Length of Stay">
+                        {record.metadata.length_of_stay}
+                        {record.metadata.ipd_number && ` · IPD #${record.metadata.ipd_number}`}
+                      </DetailRow>
+                    )}
+                    {record.metadata?.room_info && (
+                      <DetailRow label="Room">{record.metadata.room_info}</DetailRow>
+                    )}
+                    {record.metadata?.primary_diagnosis && (
+                      <DetailRow label="Primary Diagnosis">{record.metadata.primary_diagnosis}</DetailRow>
+                    )}
+                    {record.metadata?.treating_doctor && (
+                      <DetailRow label="Treating Doctor">{record.metadata.treating_doctor}</DetailRow>
+                    )}
+                  </>
+                )}
+
+                {/* Prescription */}
+                {record.category === 'prescription' && record.metadata?.valid_until && (
+                  <DetailRow label="Valid Until">
+                    <Badge variant={new Date(record.metadata.valid_until) > new Date() ? 'success' : 'neutral'}>
+                      {formatDate(record.metadata.valid_until)}
+                    </Badge>
+                  </DetailRow>
                 )}
               </div>
             </Section>
 
             {/* Category-specific sections */}
             {categorySections.map(section => (
-              <Section key={section.id} id={section.id} title={section.title} icon={section.icon} action={section.action}>
+              <Section key={section.id} id={section.id} title={section.title} icon={section.icon} action={section.action} noPadding={section.noPadding}>
                 {section.content}
               </Section>
             ))}
@@ -991,7 +1087,7 @@ function getCategorySections(category: string, meta: RecordMetadata, onAction: (
 
 /* ─── Visit Detail Sections ─── */
 
-function getConsultationSections(meta: RecordMetadata, onAction: (msg: string) => void): CategorySection[] {
+function getConsultationSections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
   sections.push({
@@ -1060,33 +1156,12 @@ function getConsultationSections(meta: RecordMetadata, onAction: (msg: string) =
     ),
   });
 
-  if (meta.follow_up_recommendation || meta.follow_up_date || meta.follow_up) {
-    sections.push({
-      id: 'follow-up', title: 'Follow-up', icon: Calendar,
-      content: (
-        <div className="p-6">
-          <Alert variant="info">
-            {(meta.follow_up_recommendation || meta.follow_up) && (
-              <p className="text-body" style={{ color: 'hsl(var(--foreground))' }}>{meta.follow_up_recommendation || meta.follow_up}</p>
-            )}
-            {meta.follow_up_date && (
-              <p className="text-body text-muted-foreground mt-1">Recommended: {fmtDate(meta.follow_up_date)}</p>
-            )}
-            <Button size="sm" variant="secondary" className="w-full mt-3" onClick={() => { window.location.href = '/booking'; }}>
-              <Calendar className="h-4 w-4" />
-              Book Follow-up Appointment
-            </Button>
-          </Alert>
-        </div>
-      ),
-    });
-  }
 
   if (meta.linked_records && meta.linked_records.length > 0) {
     sections.push({
       id: 'linked-records', title: 'Linked Records', icon: Link2,
       content: (
-        <LinkedRecordsList records={meta.linked_records} onView={(title) => onAction(`Opening ${title}...`)} />
+        <LinkedRecordsList records={meta.linked_records} />
       ),
     });
   }
@@ -1098,37 +1173,16 @@ function getProcedureSections(meta: RecordMetadata, onAction: (msg: string) => v
   const sections: CategorySection[] = [];
 
   sections.push({
-    id: 'procedure-details', title: 'Procedure Details', icon: Syringe,
+    id: 'procedure-details', title: 'Procedure Details', icon: Syringe, noPadding: true,
     content: (
-      <>
-        <div className="divide-y">
-          {meta.procedure_name && <DetailRow label="Procedure">{meta.procedure_name}</DetailRow>}
-          {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-          {meta.anesthesia && <DetailRow label="Anesthesia">{meta.anesthesia}</DetailRow>}
-        </div>
-        {(meta.technique || meta.findings || meta.complications) && (
-          <div className="p-6 space-y-4">
-            {meta.technique && (
-              <div>
-                <p className="text-overline text-muted-foreground mb-1">Technique</p>
-                <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.technique}</p>
-              </div>
-            )}
-            {meta.findings && (
-              <div>
-                <p className="text-overline text-muted-foreground mb-1">Findings</p>
-                <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.findings}</p>
-              </div>
-            )}
-            {meta.complications && (
-              <div>
-                <p className="text-overline text-muted-foreground mb-1">Complications</p>
-                <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.complications}</p>
-              </div>
-            )}
-          </div>
-        )}
-      </>
+      <div className="divide-y">
+        {meta.procedure_name && <DetailRow label="Procedure">{meta.procedure_name}</DetailRow>}
+        {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+        {meta.anesthesia && <DetailRow label="Anesthesia">{meta.anesthesia}</DetailRow>}
+        {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
+        {meta.findings && <DetailRow label="Findings">{meta.findings}</DetailRow>}
+        {meta.complications && <DetailRow label="Complications">{meta.complications}</DetailRow>}
+      </div>
     ),
   });
 
@@ -1147,7 +1201,7 @@ function getProcedureSections(meta: RecordMetadata, onAction: (msg: string) => v
     sections.push({
       id: 'linked-records', title: 'Linked Records', icon: Link2,
       content: (
-        <LinkedRecordsList records={meta.linked_records} onView={(title) => onAction(`Opening ${title}...`)} />
+        <LinkedRecordsList records={meta.linked_records} />
       ),
     });
   }
@@ -1243,7 +1297,7 @@ function getErVisitSections(meta: RecordMetadata, onAction: (msg: string) => voi
     sections.push({
       id: 'linked-records', title: 'Linked Records', icon: Link2,
       content: (
-        <LinkedRecordsList records={meta.linked_records} onView={(title) => onAction(`Opening ${title}...`)} />
+        <LinkedRecordsList records={meta.linked_records} />
       ),
     });
   }
@@ -1255,42 +1309,29 @@ function getReferralSections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
   sections.push({
-    id: 'referral', title: 'Referral', icon: UserPlus,
+    id: 'referral', title: 'Referral', icon: UserPlus, noPadding: true,
     content: (
-      <>
-        <div className="divide-y">
-          {meta.referred_to_doctor && <DetailRow label="Referred To">{meta.referred_to_doctor}</DetailRow>}
-          {meta.referred_to_department && <DetailRow label="Department">{meta.referred_to_department}</DetailRow>}
-          {meta.priority && (
-            <DetailRow label="Priority">
-              <Badge variant={meta.priority === 'urgent' ? 'danger' : 'neutral'} className="capitalize">
-                {meta.priority}
-              </Badge>
-            </DetailRow>
-          )}
-          {meta.referral_status && (
-            <DetailRow label="Status">
-              <Badge variant={meta.referral_status === 'scheduled' ? 'success' : meta.referral_status === 'accepted' ? 'info' : 'warning'} className="capitalize">
-                {meta.referral_status}
-              </Badge>
-            </DetailRow>
-          )}
-          {meta.appointment_date && <DetailRow label="Appointment Date">{fmtDate(meta.appointment_date)}</DetailRow>}
-        </div>
-        {(meta.reason || meta.clinical_summary) && (
-          <div className="p-6 space-y-4">
-            {meta.reason && (
-              <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.reason}</p>
-            )}
-            {meta.clinical_summary && (
-              <div>
-                <p className="text-overline text-muted-foreground mb-1">Clinical Summary</p>
-                <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.clinical_summary}</p>
-              </div>
-            )}
-          </div>
+      <div className="divide-y">
+        {meta.referred_to_doctor && <DetailRow label="Referred To">{meta.referred_to_doctor}</DetailRow>}
+        {meta.referred_to_department && <DetailRow label="Department">{meta.referred_to_department}</DetailRow>}
+        {meta.priority && (
+          <DetailRow label="Priority">
+            <Badge variant={meta.priority === 'urgent' ? 'danger' : 'neutral'} className="capitalize">
+              {meta.priority}
+            </Badge>
+          </DetailRow>
         )}
-      </>
+        {meta.referral_status && (
+          <DetailRow label="Status">
+            <Badge variant={meta.referral_status === 'scheduled' ? 'success' : meta.referral_status === 'accepted' ? 'info' : 'warning'} className="capitalize">
+              {meta.referral_status}
+            </Badge>
+          </DetailRow>
+        )}
+        {meta.appointment_date && <DetailRow label="Appointment Date">{fmtDate(meta.appointment_date)}</DetailRow>}
+        {meta.reason && <DetailRow label="Reason">{meta.reason}</DetailRow>}
+        {meta.clinical_summary && <DetailRow label="Clinical Summary">{meta.clinical_summary}</DetailRow>}
+      </div>
     ),
   });
 
@@ -1301,7 +1342,7 @@ function getDischargeSections(meta: RecordMetadata, onAction: (msg: string) => v
   const sections: CategorySection[] = [];
 
   sections.push({
-    id: 'admission', title: 'Admission Details', icon: ClipboardList,
+    id: 'admission', title: 'Admission Details', icon: ClipboardList, noPadding: true,
     content: (
       <div className="divide-y">
         {meta.admission_date && <DetailRow label="Admission Date">{fmtDate(meta.admission_date)}</DetailRow>}
@@ -1316,7 +1357,7 @@ function getDischargeSections(meta: RecordMetadata, onAction: (msg: string) => v
 
   if (meta.primary_diagnosis || meta.diagnosis || meta.secondary_diagnosis || meta.procedure_performed || meta.procedures || meta.hospital_course) {
     sections.push({
-      id: 'diagnosis', title: 'Diagnosis & Course', icon: Stethoscope,
+      id: 'diagnosis', title: 'Diagnosis & Course', icon: Stethoscope, noPadding: true,
       content: (
         <div className="divide-y">
           {(meta.primary_diagnosis || meta.diagnosis) && (
@@ -1440,7 +1481,7 @@ function getDischargeSections(meta: RecordMetadata, onAction: (msg: string) => v
     sections.push({
       id: 'linked-records', title: 'Linked Records', icon: Link2,
       content: (
-        <LinkedRecordsList records={meta.linked_records} onView={(title) => onAction(`Opening ${title}...`)} />
+        <LinkedRecordsList records={meta.linked_records} />
       ),
     });
   }
@@ -1469,20 +1510,9 @@ function getOtherVisitSections(meta: RecordMetadata): CategorySection[] {
         <div className="divide-y">
           {meta.visit_type && <DetailRow label="Visit Type">{meta.visit_type}</DetailRow>}
           {meta.follow_up && <DetailRow label="Follow-up">{meta.follow_up}</DetailRow>}
+          {meta.notes && <DetailRow label="Notes">{meta.notes}</DetailRow>}
+          {meta.progress && <DetailRow label="Progress">{meta.progress}</DetailRow>}
         </div>
-        {(meta.notes || meta.progress) && (
-          <div className="p-6 space-y-4">
-            {meta.notes && (
-              <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.notes}</p>
-            )}
-            {meta.progress && (
-              <div>
-                <p className="text-overline text-muted-foreground mb-1">Progress</p>
-                <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.progress}</p>
-              </div>
-            )}
-          </div>
-        )}
       </>
     ),
   });
@@ -1536,10 +1566,10 @@ function getLabReportSections(meta: RecordMetadata): CategorySection[] {
 
   if (meta.interpretation) {
     sections.push({
-      id: 'interpretation', title: 'Interpretation', icon: Stethoscope,
+      id: 'interpretation', title: 'Interpretation', icon: Stethoscope, noPadding: true,
       content: (
-        <div className="p-6">
-          <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.interpretation}</p>
+        <div className="divide-y">
+          <DetailRow label="Interpretation">{meta.interpretation}</DetailRow>
         </div>
       ),
     });
@@ -1565,20 +1595,14 @@ function getXraySections(meta: RecordMetadata): CategorySection[] {
 
   if (meta.findings || meta.impression) {
     sections.push({
-      id: 'findings', title: 'Findings', icon: FileText,
+      id: 'findings', title: 'Findings', icon: FileText, noPadding: true,
       content: (
-        <div className="p-6 space-y-4">
+        <div className="divide-y">
           {meta.findings && (
-            <div>
-              <p className="text-overline text-muted-foreground mb-1">Observations</p>
-              <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.findings}</p>
-            </div>
+            <DetailRow label="Observations">{meta.findings}</DetailRow>
           )}
           {meta.impression && (
-            <div>
-              <p className="text-overline text-muted-foreground mb-1">Impression</p>
-              <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.impression}</p>
-            </div>
+            <DetailRow label="Impression">{meta.impression}</DetailRow>
           )}
         </div>
       ),
@@ -1592,7 +1616,7 @@ function getMriSections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
   sections.push({
-    id: 'study-details', title: 'Study Details', icon: BrainCircuit,
+    id: 'study-details', title: 'Study Details', icon: BrainCircuit, noPadding: true,
     content: (
       <div className="divide-y">
         {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
@@ -1607,20 +1631,14 @@ function getMriSections(meta: RecordMetadata): CategorySection[] {
 
   if (meta.findings || meta.impression) {
     sections.push({
-      id: 'findings', title: 'Findings', icon: FileText,
+      id: 'findings', title: 'Findings', icon: FileText, noPadding: true,
       content: (
-        <div className="p-6 space-y-4">
+        <div className="divide-y">
           {meta.findings && (
-            <div>
-              <p className="text-overline text-muted-foreground mb-1">Observations</p>
-              <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.findings}</p>
-            </div>
+            <DetailRow label="Observations">{meta.findings}</DetailRow>
           )}
           {meta.impression && (
-            <div>
-              <p className="text-overline text-muted-foreground mb-1">Impression</p>
-              <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.impression}</p>
-            </div>
+            <DetailRow label="Impression">{meta.impression}</DetailRow>
           )}
         </div>
       ),
@@ -1634,7 +1652,7 @@ function getUltrasoundSections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
   sections.push({
-    id: 'study-details', title: 'Study Details', icon: Radio,
+    id: 'study-details', title: 'Study Details', icon: Radio, noPadding: true,
     content: (
       <div className="divide-y">
         {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
@@ -1646,20 +1664,14 @@ function getUltrasoundSections(meta: RecordMetadata): CategorySection[] {
 
   if (meta.findings || meta.impression) {
     sections.push({
-      id: 'findings', title: 'Findings', icon: FileText,
+      id: 'findings', title: 'Findings', icon: FileText, noPadding: true,
       content: (
-        <div className="p-6 space-y-4">
+        <div className="divide-y">
           {meta.findings && (
-            <div>
-              <p className="text-overline text-muted-foreground mb-1">Observations</p>
-              <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.findings}</p>
-            </div>
+            <DetailRow label="Observations">{meta.findings}</DetailRow>
           )}
           {meta.impression && (
-            <div>
-              <p className="text-overline text-muted-foreground mb-1">Impression</p>
-              <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.impression}</p>
-            </div>
+            <DetailRow label="Impression">{meta.impression}</DetailRow>
           )}
         </div>
       ),
@@ -1673,7 +1685,7 @@ function getEcgSections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
   sections.push({
-    id: 'measurements', title: 'Measurements', icon: HeartPulse,
+    id: 'measurements', title: 'Measurements', icon: HeartPulse, noPadding: true,
     content: (
       <div className="divide-y">
         {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
@@ -1693,16 +1705,16 @@ function getEcgSections(meta: RecordMetadata): CategorySection[] {
                        meta.impression?.toLowerCase().includes('arrhythmia');
 
     sections.push({
-      id: 'findings', title: 'Findings', icon: FileText,
+      id: 'findings', title: 'Findings', icon: FileText, noPadding: true,
       content: (
-        <div className="p-6 space-y-4">
+        <div className="divide-y">
           {meta.findings && (
-            <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.findings}</p>
+            <DetailRow label="Observations">{meta.findings}</DetailRow>
           )}
           {meta.impression && (
-            <p className={`text-body leading-relaxed ${isAbnormal ? 'text-destructive' : ''}`} style={!isAbnormal ? { color: 'hsl(var(--foreground))' } : undefined}>
-              {meta.impression}
-            </p>
+            <DetailRow label="Impression">
+              <span className={isAbnormal ? 'text-destructive' : ''}>{meta.impression}</span>
+            </DetailRow>
           )}
         </div>
       ),
@@ -1716,42 +1728,30 @@ function getPathologySections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
   sections.push({
-    id: 'specimen-analysis', title: 'Specimen & Analysis', icon: Microscope,
+    id: 'specimen-analysis', title: 'Specimen & Analysis', icon: Microscope, noPadding: true,
     content: (
-      <>
-        <div className="divide-y">
-          {meta.specimen_type && <DetailRow label="Specimen">{meta.specimen_type}</DetailRow>}
-          {meta.pathologist && <DetailRow label="Pathologist">{meta.pathologist}</DetailRow>}
-        </div>
-        {(meta.gross_description || meta.microscopic_findings) && (
-          <div className="p-6 space-y-4">
-            {meta.gross_description && (
-              <div>
-                <p className="text-overline text-muted-foreground mb-1">Gross Description</p>
-                <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.gross_description}</p>
-              </div>
-            )}
-            {meta.microscopic_findings && (
-              <div>
-                <p className="text-overline text-muted-foreground mb-1">Microscopic Findings</p>
-                <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.microscopic_findings}</p>
-              </div>
-            )}
-          </div>
+      <div className="divide-y">
+        {meta.specimen_type && <DetailRow label="Specimen">{meta.specimen_type}</DetailRow>}
+        {meta.pathologist && <DetailRow label="Pathologist">{meta.pathologist}</DetailRow>}
+        {meta.gross_description && (
+          <DetailRow label="Gross Description">{meta.gross_description}</DetailRow>
         )}
-      </>
+        {meta.microscopic_findings && (
+          <DetailRow label="Microscopic Findings">{meta.microscopic_findings}</DetailRow>
+        )}
+      </div>
     ),
   });
 
   if (meta.diagnosis) {
     sections.push({
-      id: 'diagnosis', title: 'Diagnosis', icon: ClipboardCheck,
+      id: 'diagnosis', title: 'Diagnosis', icon: ClipboardCheck, noPadding: true,
       content: (
-        <div className="p-6">
-          <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>
+        <div className="divide-y">
+          <DetailRow label="Diagnosis">
             {meta.diagnosis}
             {meta.grade && <span className="text-muted-foreground ml-2">— Grade: {meta.grade}</span>}
-          </p>
+          </DetailRow>
         </div>
       ),
     });
@@ -1806,10 +1806,10 @@ function getPftSections(meta: RecordMetadata): CategorySection[] {
 
   if (meta.interpretation) {
     sections.push({
-      id: 'interpretation', title: 'Interpretation', icon: Stethoscope,
+      id: 'interpretation', title: 'Interpretation', icon: Stethoscope, noPadding: true,
       content: (
-        <div className="p-6">
-          <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.interpretation}</p>
+        <div className="divide-y">
+          <DetailRow label="Interpretation">{meta.interpretation}</DetailRow>
         </div>
       ),
     });
@@ -1822,27 +1822,14 @@ function getOtherReportSections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
   sections.push({
-    id: 'report', title: 'Report', icon: ClipboardList,
+    id: 'report', title: 'Report', icon: ClipboardList, noPadding: true,
     content: (
-      <>
-        <div className="divide-y">
-          {meta.report_type && <DetailRow label="Report Type">{meta.report_type}</DetailRow>}
-          {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-        </div>
-        {(meta.findings || meta.impression) && (
-          <div className="p-6 space-y-4">
-            {meta.findings && (
-              <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.findings}</p>
-            )}
-            {meta.impression && (
-              <div>
-                <p className="text-overline text-muted-foreground mb-1">Impression</p>
-                <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>{meta.impression}</p>
-              </div>
-            )}
-          </div>
-        )}
-      </>
+      <div className="divide-y">
+        {meta.report_type && <DetailRow label="Report Type">{meta.report_type}</DetailRow>}
+        {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
+        {meta.findings && <DetailRow label="Observations">{meta.findings}</DetailRow>}
+        {meta.impression && <DetailRow label="Impression">{meta.impression}</DetailRow>}
+      </div>
     ),
   });
 
@@ -2002,7 +1989,7 @@ function getMedicationActiveSections(meta: RecordMetadata, onAction: (msg: strin
     sections.push({
       id: 'related-records', title: 'Related Records', icon: Link2,
       content: (
-        <LinkedRecordsList records={meta.linked_records} onView={(title) => onAction(`Opening ${title}...`)} />
+        <LinkedRecordsList records={meta.linked_records} />
       ),
     });
   }
@@ -2207,7 +2194,7 @@ function getMedicalCertificateSections(meta: RecordMetadata, onAction: (msg: str
     sections.push({
       id: 'linked-records', title: 'Linked Records', icon: Link2,
       content: (
-        <LinkedRecordsList records={meta.linked_records} onView={(title) => onAction(`Opening ${title}...`)} />
+        <LinkedRecordsList records={meta.linked_records} />
       ),
     });
   }

@@ -24,6 +24,7 @@ import { EmbeddedFamilyMemberForm } from './embedded/EmbeddedFamilyMemberForm';
 import { EmbeddedAddressForm } from './embedded/EmbeddedAddressForm';
 import EmbeddedFamilyMemberFlow from './embedded/EmbeddedFamilyMemberFlow';
 import InlineMemberTypeSelector from './embedded/InlineMemberTypeSelector';
+import { PatientSelector } from '@/Components/Booking/PatientSelector';
 import { Alert } from '@/Components/ui/alert';
 
 /**
@@ -890,70 +891,6 @@ export function EmbeddedComponent({
 }
 
 // Patient Selector Component - 2 column grid
-function PatientSelector({ patients, selected, defaultPatientId, onSelect, onAddMember, disabled }: any) {
-  // Resolve default patient ID: "self" maps to the patient with relation "Self"
-  const resolvedDefaultId = React.useMemo(() => {
-    if (!defaultPatientId) return null;
-    if (defaultPatientId === 'self') {
-      const selfPatient = patients.find((p: any) => p.relation?.toLowerCase() === 'self');
-      return selfPatient?.id ?? null;
-    }
-    const numId = Number(defaultPatientId);
-    return isNaN(numId) ? null : numId;
-  }, [defaultPatientId, patients]);
-
-  // Pre-highlight: show default when no selection has been made yet
-  const highlightedId = selected ?? resolvedDefaultId;
-
-  return (
-    <div className="space-y-2">
-      <div className="grid grid-cols-2 gap-2 max-w-2xl">
-        {patients.map((patient: any) => (
-          <Button
-            key={patient.id}
-            variant="outline"
-            onClick={() => !disabled && onSelect(patient.id)}
-            disabled={disabled}
-            className={cn(
-              'h-auto flex items-center gap-3 p-3 rounded-full text-left font-normal',
-              'hover:border-primary/50 hover:bg-primary/10',
-              highlightedId === patient.id
-                ? disabled ? 'border-primary bg-primary/10 disabled:opacity-60' : 'border-primary bg-primary/10'
-                : disabled ? 'disabled:opacity-30' : ''
-            )}
-          >
-            <Avatar className="w-9 h-9 flex-shrink-0">
-              <AvatarImage src={patient.avatar} />
-              <AvatarFallback
-                style={(() => {
-                  const color = getAvatarColorByName(patient.name);
-                  return { backgroundColor: color.bg, color: color.text };
-                })()}
-              >
-                {patient.name.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <div className="text-label leading-tight text-foreground truncate">{patient.name}</div>
-              {patient.relation && (
-                <div className="text-body leading-tight text-muted-foreground mt-0.5">{patient.relation}</div>
-              )}
-            </div>
-          </Button>
-        ))}
-      </div>
-
-      <Button
-        variant="outline"
-        onClick={() => !disabled && onAddMember?.()}
-        disabled={disabled}
-        className="h-auto mt-2 px-4 py-2.5 rounded-full text-body hover:border-primary/50 hover:bg-primary/10 disabled:opacity-30"
-      >
-        Add family member or guest &rarr;
-      </Button>
-    </div>
-  );
-}
 
 // Generic Option Selector (for appointment type, test type)
 function OptionSelector({ options, selected, onSelect, disabled }: any) {

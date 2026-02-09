@@ -212,7 +212,7 @@ class InsuranceController extends Controller
                 'patient_prn' => $claim->familyMember?->prn ?? null,
                 'visit_type' => $claim->visit_type ?? $claim->appointment?->visit_type ?? null,
                 'visit_number' => $claim->visit_number ?? $claim->appointment?->visit_number ?? null,
-                'facility_name' => $claim->facility?->name ?? $claim->appointment?->facility?->name ?? null,
+                'facility_name' => null, // TODO: Add facility relationship to models
                 'ward' => $claim->stay_details['ward'] ?? null,
                 'bed_category' => $claim->stay_details['bed_category'] ?? null,
                 'financial' => $claim->financial,

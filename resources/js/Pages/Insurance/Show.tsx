@@ -501,11 +501,13 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
         </div>
 
         {/* Expiry warning */}
-        {policy.is_expiring_soon && (
-          <Alert variant="warning" title={`Policy expires in ${policy.days_until_expiry} days`} className="mb-8">
-            Valid until {formatDate(policy.end_date)}. Consider renewing soon.
-          </Alert>
-        )}
+        <div className="mb-12">
+          {policy.is_expiring_soon && (
+            <Alert variant="warning" title={`Policy expires in ${policy.days_until_expiry} days`}>
+              Valid until {formatDate(policy.end_date)}. Consider renewing soon.
+            </Alert>
+          )}
+        </div>
 
         {/* Main Content with Side Nav */}
         <div className="flex gap-24">

@@ -81,7 +81,7 @@ class BillingController extends Controller
             abort(403);
         }
 
-        $appointment->load(['doctor', 'familyMember', 'labPackage', 'department', 'facility']);
+        $appointment->load(['doctor', 'familyMember', 'labPackage', 'department']);
 
         return Inertia::render('Billing/Show', [
             'user' => $user,
@@ -484,7 +484,7 @@ class BillingController extends Controller
             'patient_prn' => $appt->familyMember?->prn ?? null,
             'visit_type' => $appt->visit_type ?? null,
             'visit_number' => $appt->visit_number ?? null,
-            'facility_name' => $appt->facility?->name ?? null,
+            'facility_name' => null, // TODO: Add facility relationship to Appointment model
             'ward' => $appt->ward ?? null,
             'bed_number' => $appt->bed_number ?? null,
 

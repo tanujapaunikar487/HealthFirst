@@ -43,6 +43,23 @@ import {
   FolderOpen,
 } from '@/Lib/icons';
 
+/* ─── Status Helper ─── */
+
+function getStatusBadge(status: string) {
+  const map: Record<string, { label: string; variant: 'success' | 'danger' | 'warning' | 'info' | 'neutral' }> = {
+    current: { label: 'Current', variant: 'warning' },
+    processing: { label: 'Current', variant: 'warning' },
+    settled: { label: 'Settled', variant: 'success' },
+    approved: { label: 'Settled', variant: 'success' },
+    rejected: { label: 'Rejected', variant: 'danger' },
+    disputed: { label: 'Disputed', variant: 'warning' },
+    pending: { label: 'Pending', variant: 'warning' },
+    partially_approved: { label: 'Partially Approved', variant: 'warning' },
+  };
+  const entry = map[status] ?? map.pending;
+  return <Badge variant={entry.variant}>{entry.label}</Badge>;
+}
+
 /* ─── Section Config ─── */
 
 const SECTIONS = [
@@ -877,18 +894,19 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         </div>
 
         {/* Status Banner */}
-        <Alert
-          variant={banner.variant}
-          title={banner.title}
-          className="mb-8"
-        >
-          {(banner.subtitle || banner.breakdown) && (
-            <div className="space-y-1">
-              {banner.subtitle && <p>{banner.subtitle}</p>}
-              {banner.breakdown && <p className="text-label opacity-70">{banner.breakdown}</p>}
-            </div>
-          )}
-        </Alert>
+        <div className="mb-12">
+          <Alert
+            variant={banner.variant}
+            title={banner.title}
+          >
+            {(banner.subtitle || banner.breakdown) && (
+              <div className="space-y-1">
+                {banner.subtitle && <p>{banner.subtitle}</p>}
+                {banner.breakdown && <p className="text-label opacity-70">{banner.breakdown}</p>}
+              </div>
+            )}
+          </Alert>
+        </div>
 
         {/* Main Content with Side Nav */}
         <div className="flex gap-24">
