@@ -307,6 +307,13 @@ interface HealthRecord {
   description: string | null;
   doctor_name: string | null;
   department_name: string | null;
+  // New overview fields
+  patient_mrn?: string;
+  patient_prn?: string;
+  visit_type?: 'opd' | 'ipd';
+  visit_number?: string;
+  facility_name?: string;
+  verified_status?: boolean;
   record_date: string;
   record_date_formatted: string;
   metadata: RecordMetadata | null;
@@ -789,6 +796,31 @@ export default function Show({ user, record, familyMember }: Props) {
             {/* Overview Section */}
             <Section id="overview" title="Overview" icon={FileText}>
               <div className="divide-y">
+                {/* Patient Identifiers */}
+                {record.patient_mrn && (
+                  <DetailRow label="Patient ID (MRN)">{record.patient_mrn}</DetailRow>
+                )}
+                {record.patient_prn && (
+                  <DetailRow label="Registration No">{record.patient_prn}</DetailRow>
+                )}
+
+                {/* Visit Information */}
+                {record.visit_number && (
+                  <DetailRow label="Visit">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="neutral" size="sm">
+                        {record.visit_type === 'ipd' ? 'IPD' : 'OPD'}
+                      </Badge>
+                      <span className="text-label">{record.visit_number}</span>
+                    </div>
+                  </DetailRow>
+                )}
+
+                {/* Facility */}
+                {record.facility_name && (
+                  <DetailRow label="Facility">{record.facility_name}</DetailRow>
+                )}
+
                 <DetailRow label="Record ID">#{record.id}</DetailRow>
                 <DetailRow label="Date">{formatDate(record.record_date)}</DetailRow>
                 <DetailRow label="Category">
@@ -811,6 +843,37 @@ export default function Show({ user, record, familyMember }: Props) {
                         <p className="text-body text-muted-foreground">{record.department_name}</p>
                       )}
                     </>
+                  </DetailRow>
+                )}
+
+                {/* Verification Status */}
+                {record.verified_status !== undefined && (
+                  <DetailRow label="Verification">
+                    <Badge variant={record.verified_status ? 'success' : 'warning'}>
+                      {record.verified_status ? 'Verified' : 'Pending'}
+                    </Badge>
+                  </DetailRow>
+                )}
+
+                {/* Category-specific highlights using DetailRow */}
+                {record.category === 'lab_report' && record.metadata?.results && (
+                  <DetailRow label="Results">
+                    <div className="flex items-center gap-2">
+                      <span className="text-label">{record.metadata.results.length} Tests</span>
+                      {(() => {
+                        const abnormalCount = record.metadata.results.filter((r: any) => r.status !== 'normal').length;
+                        return abnormalCount > 0 && (
+                          <Badge variant="warning" size="sm">{abnormalCount} Abnormal</Badge>
+                        );
+                      })()}
+                    </div>
+                  </DetailRow>
+                )}
+
+                {record.category === 'discharge_summary' && record.metadata?.length_of_stay && (
+                  <DetailRow label="Length of Stay">
+                    {record.metadata.length_of_stay}
+                    {record.metadata.ipd_number && ` · IPD #${record.metadata.ipd_number}`}
                   </DetailRow>
                 )}
               </div>

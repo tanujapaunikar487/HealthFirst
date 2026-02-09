@@ -183,7 +183,7 @@ export function EmbeddedPackageList({
               </div>
             )}
 
-            <div className="divide-y overflow-y-auto" style={{ maxHeight: '400px' }}>
+            <div className="divide-y overflow-y-auto max-h-scroll-list">
               {sortedTests.map((test) => {
                 const idStr = String(test.id);
                 const isChecked = checkedIds.has(idStr);
@@ -249,15 +249,17 @@ export function EmbeddedPackageList({
                       </div>
 
                       {/* Expand button */}
-                      <button
+                      <Button
+                        variant="secondary"
+                        size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
                           setExpandedTestId(isExpanded ? null : idStr);
                         }}
-                        className="flex items-center justify-center flex-shrink-0 w-10 h-10 ml-2"
+                        className="flex-shrink-0 h-8 w-8 p-0 rounded-full ml-2"
                       >
-                        <Icon icon={isExpanded ? ChevronDown : ChevronRight} size={16} className="text-muted-foreground" />
-                      </button>
+                        <Icon icon={isExpanded ? ChevronDown : ChevronRight} size={16} />
+                      </Button>
                     </Button>
 
                     {/* Expanded detail */}
@@ -336,7 +338,7 @@ export function EmbeddedPackageList({
 
         {/* Health Packages Tab */}
         {(activeTab === 'packages' || !showTabs) && hasPackages && (
-          <div className="divide-y overflow-y-auto" style={{ maxHeight: '400px' }}>
+          <div className="divide-y overflow-y-auto max-h-scroll-list">
             {!showTabs && !hasTests && null}
             {packages.map((pkg) => {
               const isExpanded = expandedPkgId === String(pkg.id);
@@ -408,15 +410,17 @@ export function EmbeddedPackageList({
                     </div>
 
                     {/* Chevron button */}
-                    <button
+                    <Button
+                      variant="secondary"
+                      size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         setExpandedPkgId(isExpanded ? null : String(pkg.id));
                       }}
-                      className="flex items-center justify-center flex-shrink-0 w-10 h-10 ml-2"
+                      className="flex-shrink-0 h-8 w-8 p-0 rounded-full ml-2"
                     >
-                      <Icon icon={isExpanded ? ChevronDown : ChevronRight} size={16} className="text-muted-foreground" />
-                    </button>
+                      <Icon icon={isExpanded ? ChevronDown : ChevronRight} size={16} />
+                    </Button>
                   </Button>
 
                   {/* Expanded detail section */}

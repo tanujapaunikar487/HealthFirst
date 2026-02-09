@@ -81,7 +81,7 @@ class BillingController extends Controller
             abort(403);
         }
 
-        $appointment->load(['doctor', 'familyMember', 'labPackage', 'department']);
+        $appointment->load(['doctor', 'familyMember', 'labPackage', 'department', 'facility']);
 
         return Inertia::render('Billing/Show', [
             'user' => $user,
@@ -478,6 +478,15 @@ class BillingController extends Controller
             'appointment_status' => $appt->status,
             'department' => $appt->department?->name,
             'patient_name' => $appt->familyMember?->name ?? 'You',
+
+            // New overview fields
+            'patient_mrn' => $appt->familyMember?->mrn ?? null,
+            'patient_prn' => $appt->familyMember?->prn ?? null,
+            'visit_type' => $appt->visit_type ?? null,
+            'visit_number' => $appt->visit_number ?? null,
+            'facility_name' => $appt->facility?->name ?? null,
+            'ward' => $appt->ward ?? null,
+            'bed_number' => $appt->bed_number ?? null,
 
             // Billing status
             'billing_status' => $billingStatus,

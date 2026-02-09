@@ -3,6 +3,7 @@ import { User, Users, Loader2, CheckCircle2, AlertCircle } from '@/Lib/icons';
 import { router } from '@inertiajs/react';
 import { Alert } from '@/Components/ui/alert';
 import { Button } from '@/Components/ui/button';
+import { Icon } from '@/Components/ui/icon';
 import { Input } from '@/Components/ui/input';
 import { PhoneInput } from '@/Components/ui/phone-input';
 import { DatePicker } from '@/Components/ui/date-picker';
@@ -826,7 +827,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                         />
                         {state.loadingField === 'phone' && (
                             <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                                <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                                <Icon icon={Loader2} size={20} className="animate-spin text-primary" />
                             </div>
                         )}
                     </div>
@@ -1038,7 +1039,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                     <div className="rounded-xl border border-border bg-muted/30 p-4">
                         <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center">
-                                <User className="h-5 w-5 text-primary" />
+                                <Icon icon={User} size={20} className="text-blue-800" />
                             </div>
                             <div>
                                 <h4 className="font-semibold">{foundMember.name}</h4>

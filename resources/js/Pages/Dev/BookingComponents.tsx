@@ -10,8 +10,6 @@ import { EmbeddedPackageList } from '@/Features/booking-chat/embedded/EmbeddedPa
 import { EmbeddedDoctorList } from '@/Features/booking-chat/embedded/EmbeddedDoctorList';
 import { EmbeddedCenterList } from '@/Features/booking-chat/embedded/EmbeddedCenterList';
 import { EmbeddedPreviousDoctorsList } from '@/Features/booking-chat/embedded/EmbeddedPreviousDoctorsList';
-import { EmbeddedFamilyMemberForm } from '@/Features/booking-chat/embedded/EmbeddedFamilyMemberForm';
-import { EmbeddedAddressForm } from '@/Features/booking-chat/embedded/EmbeddedAddressForm';
 import { EmbeddedPreviousVisit } from '@/Features/booking-chat/embedded/EmbeddedPreviousVisit';
 import { DetectionCard } from '@/Features/booking-chat/embedded/DetectionCard';
 import { EmbeddedFollowUpFlow } from '@/Features/booking-chat/embedded/EmbeddedFollowUpFlow';
@@ -19,11 +17,6 @@ import { EmbeddedAddressSelector } from '@/Features/booking-chat/embedded/Embedd
 import { EmbeddedCollectionMethod } from '@/Features/booking-chat/embedded/EmbeddedCollectionMethod';
 import { EmbeddedBookingSummary } from '@/Features/booking-chat/embedded/EmbeddedBookingSummary';
 import { EmbeddedDateTimePicker } from '@/Features/booking-chat/embedded/EmbeddedDateTimePicker';
-import { TypeSelectorCard } from '@/Features/booking-chat/embedded/TypeSelectorCard';
-import { Collapsible, CollapsibleContent } from '@/Components/ui/collapsible';
-import { Input } from '@/Components/ui/input';
-import { Button } from '@/Components/ui/button';
-import { PhoneInput } from '@/Components/ui/phone-input';
 import { useState } from 'react';
 
 export default function BookingComponents() {
@@ -44,7 +37,6 @@ export default function BookingComponents() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [selectedTestIds, setSelectedTestIds] = useState<string[]>([]);
-  const [typeSelectorExpanded, setTypeSelectorExpanded] = useState<'new_member' | 'link_existing' | 'guest' | null>(null);
 
   // Mock data
   const mockAppointmentModes = [
@@ -387,6 +379,8 @@ export default function BookingComponents() {
       avatar: null,
       specialization: 'Cardiologist',
       experience_years: 15,
+      education: ['MBBS', 'MD (Cardiology)', 'DM (Cardiology)'],
+      languages: ['English', 'Hindi'],
       rating: 4.8,
       reviewCount: 234,
       last_visit: '2026-01-15',
@@ -404,6 +398,8 @@ export default function BookingComponents() {
         avatar: null,
         specialization: 'General Physician',
         experience_years: 12,
+        education: ['MBBS', 'MD (General Medicine)'],
+        languages: ['English', 'Hindi', 'Marathi'],
         rating: 4.6,
         reviewCount: 189,
         last_visit: '2025-12-20',
@@ -490,14 +486,14 @@ export default function BookingComponents() {
   ];
 
   return (
-    <AppLayout title="Booking Components Showcase">
+    <AppLayout>
       <div className="max-w-4xl mx-auto px-4 py-8">
         <VStack gap={12}>
           {/* Header */}
           <div>
             <h1 className="text-page-title mb-2">AI Booking Flow Components</h1>
             <p className="text-body text-muted-foreground">
-              Complete showcase of all 22 embedded components used in the AI booking conversation flow
+              Complete showcase of all embedded components used in the AI booking conversation flow
             </p>
           </div>
 
@@ -655,9 +651,32 @@ export default function BookingComponents() {
           <div>
             <h2 className="text-section-title mb-6">Patient & Address Components</h2>
             <VStack gap={8}>
-              {/* Address Selector */}
+              {/* Family Member Flow - Full Modal */}
               <div>
-                <h3 className="text-card-title mb-3 text-muted-foreground">Address Selector</h3>
+                <h3 className="text-card-title mb-3 text-muted-foreground">Member Selection Flows</h3>
+                <Card className="p-6">
+                  <VStack gap={3}>
+                    <div>
+                      <h4 className="text-label mb-2">EmbeddedFamilyMemberFlow (Sheet Modal)</h4>
+                      <p className="text-body text-muted-foreground">
+                        Full sheet modal that handles adding new family members, linking existing patients, or adding guests.
+                        Includes multi-step flows with OTP verification for linking existing members.
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="text-label mb-2">InlineMemberTypeSelector (Inline Collapsible)</h4>
+                      <p className="text-body text-muted-foreground">
+                        Inline version with collapsible cards for new member, link existing, and guest options.
+                        Same functionality as the full flow but rendered inline in the conversation.
+                      </p>
+                    </div>
+                  </VStack>
+                </Card>
+              </div>
+
+              {/* Address Selector with integrated form */}
+              <div>
+                <h3 className="text-card-title mb-3 text-muted-foreground">Address Selector (with Add Address form)</h3>
                 <EmbeddedAddressSelector
                   addresses={mockAddresses}
                   selectedAddressId={addressId}
@@ -665,25 +684,7 @@ export default function BookingComponents() {
                     setAddressId(id);
                     console.log('Selected:', { id, label, address });
                   }}
-                  onAddAddress={() => console.log('Add new address')}
-                  disabled={false}
-                />
-              </div>
-
-              {/* Address Form */}
-              <div>
-                <h3 className="text-card-title mb-3 text-muted-foreground">Address Form</h3>
-                <EmbeddedAddressForm
-                  onSelect={(data) => console.log('Address added:', data)}
-                  disabled={false}
-                />
-              </div>
-
-              {/* Family Member Form */}
-              <div>
-                <h3 className="text-card-title mb-3 text-muted-foreground">Family Member Form</h3>
-                <EmbeddedFamilyMemberForm
-                  onSelect={(data) => console.log('Member added:', data)}
+                  onSubmitAddress={(data) => console.log('Address added:', data)}
                   disabled={false}
                 />
               </div>
@@ -704,7 +705,7 @@ export default function BookingComponents() {
           <div>
             <h2 className="text-section-title mb-6">Date/Time & Summary Components</h2>
             <VStack gap={8}>
-              {/* Date Time Selector */}
+              {/* Date Time Picker with custom dates/slots */}
               <div>
                 <h3 className="text-card-title mb-3 text-muted-foreground">Date Time Picker (with custom dates/slots)</h3>
                 <EmbeddedDateTimePicker
@@ -754,95 +755,6 @@ export default function BookingComponents() {
             </VStack>
           </div>
 
-          {/* Helper Components */}
-          <div>
-            <h2 className="text-section-title mb-6">Helper Components</h2>
-            <VStack gap={8}>
-              {/* Adding New Member Cards */}
-              <div>
-                <h3 className="text-card-title mb-3 text-muted-foreground">Adding New Member Cards</h3>
-                <Card className="overflow-hidden">
-                  <div className="divide-y">
-                    {/* New Member */}
-                    <div>
-                      <TypeSelectorCard
-                        type="new_member"
-                        isExpanded={typeSelectorExpanded === 'new_member'}
-                        onClick={() => setTypeSelectorExpanded(typeSelectorExpanded === 'new_member' ? null : 'new_member')}
-                        disabled={false}
-                      />
-                      <Collapsible open={typeSelectorExpanded === 'new_member'}>
-                        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
-                          <div className="px-6 pb-6 pt-4 space-y-4">
-                            <div className="space-y-2">
-                              <label className="text-label text-foreground">Full Name <span className="text-destructive">*</span></label>
-                              <Input placeholder="Enter full name" />
-                            </div>
-                            <div className="space-y-2">
-                              <label className="text-label text-foreground">Phone Number <span className="text-destructive">*</span></label>
-                              <PhoneInput value="+91" onChange={() => {}} />
-                            </div>
-                            <div className="space-y-2">
-                              <label className="text-label text-foreground">Relationship <span className="text-destructive">*</span></label>
-                              <Input placeholder="e.g., Mother, Father, Sister" />
-                            </div>
-                            <Button variant="accent" size="md">Add Member</Button>
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-                    </div>
-
-                    {/* Existing Patient */}
-                    <div>
-                      <TypeSelectorCard
-                        type="link_existing"
-                        isExpanded={typeSelectorExpanded === 'link_existing'}
-                        onClick={() => setTypeSelectorExpanded(typeSelectorExpanded === 'link_existing' ? null : 'link_existing')}
-                        disabled={false}
-                      />
-                      <Collapsible open={typeSelectorExpanded === 'link_existing'}>
-                        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
-                          <div className="px-6 pb-6 pt-4 space-y-4">
-                            <div className="space-y-2">
-                              <label className="text-label text-foreground">Search by phone, email, or patient ID</label>
-                              <Input placeholder="e.g., 9876543210, email@example.com, or PT-000001" />
-                            </div>
-                            <Button variant="accent" size="md">Search</Button>
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-                    </div>
-
-                    {/* Guest */}
-                    <div>
-                      <TypeSelectorCard
-                        type="guest"
-                        isExpanded={typeSelectorExpanded === 'guest'}
-                        onClick={() => setTypeSelectorExpanded(typeSelectorExpanded === 'guest' ? null : 'guest')}
-                        disabled={false}
-                      />
-                      <Collapsible open={typeSelectorExpanded === 'guest'}>
-                        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
-                          <div className="px-6 pb-6 pt-4 space-y-4">
-                            <div className="space-y-2">
-                              <label className="text-label text-foreground">Guest Name <span className="text-destructive">*</span></label>
-                              <Input placeholder="Enter guest name" />
-                            </div>
-                            <div className="space-y-2">
-                              <label className="text-label text-foreground">Phone Number <span className="text-destructive">*</span></label>
-                              <PhoneInput value="+91" onChange={() => {}} />
-                            </div>
-                            <Button variant="accent" size="md">Add Guest</Button>
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-                    </div>
-                  </div>
-                </Card>
-              </div>
-            </VStack>
-          </div>
-
           {/* Component Patterns */}
           <div className="border-t pt-8">
             <h2 className="text-section-title mb-4">Design System Patterns</h2>
@@ -851,7 +763,7 @@ export default function BookingComponents() {
                 <div>
                   <h4 className="text-label mb-1">Component Standardization</h4>
                   <p className="text-body text-muted-foreground">
-                    All 22 components follow the global design system with <code className="bg-background px-1.5 py-0.5 rounded">Card</code> component,
+                    All components follow the global design system with <code className="bg-background px-1.5 py-0.5 rounded">Card</code> component,
                     <code className="bg-background px-1.5 py-0.5 rounded ml-1">Icon</code> component, design tokens, and zero arbitrary values.
                   </p>
                 </div>
@@ -863,10 +775,10 @@ export default function BookingComponents() {
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-label mb-1">Selection State</h4>
+                  <h4 className="text-label mb-1">Integrated Forms</h4>
                   <p className="text-body text-muted-foreground">
-                    Selected: <code className="bg-background px-1.5 py-0.5 rounded">bg-primary/10 border-l-2 border-l-primary</code> |
-                    Hover: <code className="bg-background px-1.5 py-0.5 rounded">hover:bg-muted/50</code>
+                    Address and member forms are now integrated into their respective selector components using collapsible sections.
+                    This provides a seamless UX without navigation to separate forms.
                   </p>
                 </div>
                 <div>

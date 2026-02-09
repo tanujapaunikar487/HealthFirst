@@ -175,12 +175,11 @@ export function EmbeddedDoctorList({ doctors, selectedDoctorId, selectedTime, on
 
       {/* Doctor cards */}
       <Card>
-        <CardContent className="p-0 divide-y overflow-y-auto" style={{ maxHeight: '400px' }}>
+        <CardContent className="p-0 divide-y overflow-y-auto max-h-scroll-list">
           {filteredDoctors.map((doctor) => (
             <DoctorCard
               key={doctor.id}
               doctor={doctor}
-              isSelected={selectedDoctorId === doctor.id}
               selectedTime={selectedDoctorId === doctor.id ? selectedTime : null}
               onSelectTime={(time) => onSelect(doctor.id, time)}
               disabled={disabled}
@@ -194,13 +193,11 @@ export function EmbeddedDoctorList({ doctors, selectedDoctorId, selectedTime, on
 
 function DoctorCard({
   doctor,
-  isSelected,
   selectedTime,
   onSelectTime,
   disabled,
 }: {
   doctor: Doctor;
-  isSelected: boolean;
   selectedTime: string | null;
   onSelectTime: (time: string) => void;
   disabled: boolean;
@@ -218,10 +215,7 @@ function DoctorCard({
   };
 
   return (
-    <div className={cn(
-      "px-6 py-4 transition-colors hover:bg-muted/50",
-      isSelected && "bg-primary/10 border-l-2 border-l-primary"
-    )}>
+    <div className="px-6 py-4 transition-colors hover:bg-muted/50">
       {/* Doctor info */}
       <div className="flex items-start justify-between gap-4 mb-3">
         <div className="flex items-start gap-3 flex-1">
@@ -283,7 +277,7 @@ function DoctorCard({
       </div>
 
       {/* Time slots */}
-      <div className="flex flex-wrap gap-2">
+      <div className="ml-13 flex flex-wrap gap-2">
         {doctor.slots?.map((slot) => (
           <Button
             key={slot.time}

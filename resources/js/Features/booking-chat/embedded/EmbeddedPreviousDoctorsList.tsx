@@ -19,6 +19,8 @@ interface PreviousDoctor {
   avatar: string | null;
   specialization: string;
   experience_years?: number;
+  education?: string[];
+  languages?: string[];
   rating?: number;
   reviewCount?: number;
   price?: number;
@@ -71,7 +73,6 @@ export function EmbeddedPreviousDoctorsList({
           <PreviousDoctorCard
             key={doctor.id}
             doctor={doctor}
-            isSelected={selectedDoctorId === doctor.id}
             selectedTime={selectedDoctorId === doctor.id ? selectedTime : null}
             onSelectTime={(time) => onSelect(doctor.id, time)}
             disabled={disabled}
@@ -95,13 +96,11 @@ export function EmbeddedPreviousDoctorsList({
 
 function PreviousDoctorCard({
   doctor,
-  isSelected,
   selectedTime,
   onSelectTime,
   disabled,
 }: {
   doctor: PreviousDoctor;
-  isSelected: boolean;
   selectedTime: string | null;
   onSelectTime: (time: string) => void;
   disabled: boolean;
@@ -140,12 +139,7 @@ function PreviousDoctorCard({
   };
 
   return (
-    <div
-      className={cn(
-        "px-6 py-4 transition-colors hover:bg-muted/50",
-        isSelected && "bg-primary/10 border-l-2 border-l-primary"
-      )}
-    >
+    <div className="px-6 py-4 transition-colors hover:bg-muted/50">
       {/* Doctor info */}
       <div className="flex items-start justify-between gap-4 mb-3">
         <div className="flex items-start gap-3 flex-1">
@@ -165,6 +159,16 @@ function PreviousDoctorCard({
             <p className="text-body text-muted-foreground">
               {doctor.specialization} {doctor.experience_years ? `· ${doctor.experience_years} years` : ''}
             </p>
+            {doctor.education && doctor.education.length > 0 && (
+              <p className="text-body text-muted-foreground">
+                {doctor.education.join(', ')}
+              </p>
+            )}
+            {doctor.languages && doctor.languages.length > 0 && (
+              <p className="text-body text-muted-foreground">
+                {doctor.languages.join(', ')}
+              </p>
+            )}
             {doctor.rating && (
               <div className="flex items-center gap-1">
                 <Icon icon={Star} size={14} className="fill-warning text-warning" />
@@ -202,11 +206,11 @@ function PreviousDoctorCard({
 
       {/* Time slots */}
       {doctor.available_on_date === false ? (
-        <div className="text-body text-muted-foreground italic">
+        <div className="ml-13 text-body text-muted-foreground italic">
           No available slots on the selected date
         </div>
       ) : (
-        <div className="flex flex-wrap gap-2">
+        <div className="ml-13 flex flex-wrap gap-2">
           {/* Show quick times if available */}
           {doctor.quick_times && doctor.quick_times.length > 0 ? (
             doctor.quick_times.map((time) => (

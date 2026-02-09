@@ -43,7 +43,6 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled }: TypeSe
                 'w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50',
                 'flex items-center gap-4 text-left transition-all',
                 'disabled:cursor-not-allowed',
-                isExpanded && 'bg-primary/10 border-l-2 border-l-primary',
                 disabled && 'opacity-50'
             )}
         >

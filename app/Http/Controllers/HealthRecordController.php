@@ -218,6 +218,9 @@ class HealthRecordController extends Controller
 
         $status = $this->computeStatus($record->category, $record->metadata, $record->record_date);
 
+        // Load family member for MRN/PRN access
+        $record->load('familyMember');
+
         $recordData = [
             'id' => $record->id,
             'appointment_id' => $record->appointment_id,
@@ -227,6 +230,13 @@ class HealthRecordController extends Controller
             'description' => $record->description,
             'doctor_name' => $record->doctor_name,
             'department_name' => $record->department_name,
+            // New overview fields
+            'patient_mrn' => $record->familyMember?->mrn ?? null,
+            'patient_prn' => $record->familyMember?->prn ?? null,
+            'visit_type' => $record->metadata['visit_type'] ?? null,
+            'visit_number' => $record->metadata['opd_number'] ?? $record->metadata['ipd_number'] ?? null,
+            'facility_name' => $record->metadata['facility_name'] ?? null,
+            'verified_status' => $record->metadata['verified'] ?? null,
             'record_date' => $record->record_date->format('Y-m-d'),
             'record_date_formatted' => $record->record_date->format('d M Y'),
             'metadata' => $record->metadata,

@@ -3,6 +3,7 @@ import { User, Users, ChevronLeft, Loader2, CheckCircle2, AlertCircle } from '@/
 import { router } from '@inertiajs/react';
 import { Alert } from '@/Components/ui/alert';
 import { Button } from '@/Components/ui/button';
+import { Icon } from '@/Components/ui/icon';
 import { Input } from '@/Components/ui/input';
 import { PhoneInput } from '@/Components/ui/phone-input';
 import { DatePicker } from '@/Components/ui/date-picker';
@@ -917,19 +918,19 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             <div className="grid gap-3">
                                 <Button variant="ghost" onClick={() => handleInitialChoice('add_new_family')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/10 text-body">
                                     <div className="flex items-center gap-4">
-                                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><Users className="h-5 w-5" /></div>
+                                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><Icon icon={Users} size={20} /></div>
                                         <div><h4 className="font-semibold">Add New Family Member</h4><p className="text-card-title text-muted-foreground">Create a full family member profile</p></div>
                                     </div>
                                 </Button>
                                 <Button variant="ghost" onClick={() => handleInitialChoice('link_existing')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/10 text-body">
                                     <div className="flex items-center gap-4">
-                                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><Users className="h-5 w-5" /></div>
+                                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><Icon icon={Users} size={20} /></div>
                                         <div><h4 className="font-semibold">Link Existing Patient</h4><p className="text-card-title text-muted-foreground">Connect to an existing hospital patient record</p></div>
                                     </div>
                                 </Button>
                                 <Button variant="ghost" onClick={() => handleInitialChoice('guest')} className="w-full h-auto p-4 rounded-xl text-left border border-border hover:border-primary hover:bg-primary/10 text-body">
                                     <div className="flex items-center gap-4">
-                                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><User className="h-5 w-5" /></div>
+                                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><Icon icon={User} size={20} /></div>
                                         <div><h4 className="font-semibold">Guest</h4><p className="text-card-title text-muted-foreground">One-time booking only</p></div>
                                     </div>
                                 </Button>
@@ -1198,7 +1199,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             <div className="rounded-xl border border-border bg-muted/30 p-4">
                                 <div className="flex items-center gap-3">
                                     <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center">
-                                        <User className="h-5 w-5 text-primary" />
+                                        <Icon icon={User} size={20} className="text-blue-800" />
                                     </div>
                                     <div>
                                         <h4 className="font-semibold">{state.foundMember.name}</h4>
@@ -1442,7 +1443,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         >
                             <div className="flex items-center gap-4">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <User className="h-5 w-5" />
+                                    <Icon icon={User} size={20} />
                                 </div>
                                 <div>
                                     <h4 className="font-semibold">Guest</h4>
@@ -1463,7 +1464,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         >
                             <div className="flex items-center gap-4">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Users className="h-5 w-5" />
+                                    <Icon icon={Users} size={20} />
                                 </div>
                                 <div>
                                     <h4 className="font-semibold">Add New Family Member</h4>
@@ -1482,7 +1483,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                         >
                             <div className="flex items-center gap-4">
                                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Users className="h-5 w-5" />
+                                    <Icon icon={Users} size={20} />
                                 </div>
                                 <div>
                                     <h4 className="font-semibold">Link Existing Patient</h4>
@@ -1900,7 +1901,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     <div className="rounded-xl border border-border bg-muted/30 p-4">
                         <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center">
-                                <User className="h-5 w-5 text-primary" />
+                                <Icon icon={User} size={20} className="text-blue-800" />
                             </div>
                             <div>
                                 <h4 className="font-semibold">{state.foundMember.name}</h4>

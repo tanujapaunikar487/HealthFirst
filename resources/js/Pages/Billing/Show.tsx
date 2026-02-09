@@ -123,6 +123,14 @@ interface Bill {
   appointment_status: string;
   department: string | null;
   patient_name: string;
+  // New overview fields
+  patient_mrn?: string;
+  patient_prn?: string;
+  visit_type?: 'opd' | 'ipd';
+  visit_number?: string;
+  facility_name?: string;
+  ward?: string;
+  bed_number?: string;
   billing_status: BillingStatus;
   due_amount: number;
   original_amount: number;
@@ -192,6 +200,7 @@ const PAYABLE_STATUSES: BillingStatus[] = ['due', 'copay_due'];
 /* ─── Sections Config ─── */
 
 const SECTIONS = [
+  { id: 'overview', label: 'Overview', icon: ClipboardList },
   { id: 'invoice', label: 'Invoice', icon: FileText },
   { id: 'charges', label: 'Charges', icon: Receipt },
   { id: 'payment', label: 'Payment', icon: CreditCard },
@@ -753,6 +762,74 @@ export default function Show({ user, bill }: Props) {
             hasPayment={!!(bill.payment_info || bill.insurance_details)}
           />
           <div className="flex-1 min-w-0 space-y-12 pb-12">
+
+            {/* ─── Overview Section ─── */}
+            <DetailSection id="overview" title="Overview" icon={ClipboardList} noPadding>
+              <div className="divide-y">
+                {/* Patient Identifiers */}
+                {bill.patient_mrn && (
+                  <DetailRow label="Patient ID (MRN)">{bill.patient_mrn}</DetailRow>
+                )}
+                {bill.patient_prn && (
+                  <DetailRow label="Registration No">{bill.patient_prn}</DetailRow>
+                )}
+
+                {/* Visit Information */}
+                {bill.visit_number && (
+                  <DetailRow label="Visit">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="neutral" size="sm">
+                        {bill.visit_type === 'ipd' ? 'IPD' : 'OPD'}
+                      </Badge>
+                      <span className="text-label">{bill.visit_number}</span>
+                    </div>
+                  </DetailRow>
+                )}
+
+                {/* Facility & Location */}
+                {bill.facility_name && (
+                  <DetailRow label="Facility">{bill.facility_name}</DetailRow>
+                )}
+                {bill.department && (
+                  <DetailRow label="Department">{bill.department}</DetailRow>
+                )}
+                {bill.ward && (
+                  <DetailRow label="Ward">
+                    {bill.ward}
+                    {bill.bed_number && ` · Bed ${bill.bed_number}`}
+                  </DetailRow>
+                )}
+
+                {/* Document Information */}
+                <DetailRow label="Invoice No">{bill.invoice_number}</DetailRow>
+                <DetailRow label="Invoice Date">{bill.generated_date}</DetailRow>
+                <DetailRow label="Service Date">{bill.service_date}</DetailRow>
+
+                {/* Doctor & Service */}
+                {bill.doctor_name && (
+                  <DetailRow label="Doctor">
+                    {bill.doctor_name}
+                    {bill.doctor_specialization && ` · ${bill.doctor_specialization}`}
+                  </DetailRow>
+                )}
+
+                {/* Status */}
+                <DetailRow label="Status">
+                  <Badge variant={STATUS_CONFIG[bill.billing_status].variant}>
+                    {STATUS_CONFIG[bill.billing_status].label}
+                  </Badge>
+                </DetailRow>
+
+                {/* Key Financial Data */}
+                <DetailRow label="Total Amount">₹{bill.total.toLocaleString('en-IN')}</DetailRow>
+                {bill.due_amount > 0 && (
+                  <DetailRow label="Due Amount">₹{bill.due_amount.toLocaleString('en-IN')}</DetailRow>
+                )}
+                {bill.insurance_covered > 0 && (
+                  <DetailRow label="Insurance Covered">₹{bill.insurance_covered.toLocaleString('en-IN')}</DetailRow>
+                )}
+              </div>
+            </DetailSection>
 
             {/* ─── Invoice Section ─── */}
             <DetailSection id="invoice" title="Invoice" icon={FileText} noPadding>

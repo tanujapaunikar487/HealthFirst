@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { cn } from '@/Lib/utils';
 import { Badge } from '@/Components/ui/badge';
 import { Card } from '@/Components/ui/card';
-import { Home, MapPin, Plus, Check } from '@/Lib/icons';
+import { Home, MapPin, Plus } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
@@ -88,8 +88,7 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
             className={cn(
               'w-full h-auto rounded-none justify-start px-6 py-4 text-body hover:bg-muted/50',
               'flex items-start gap-3 text-left transition-all',
-              isSelected && 'bg-primary/10 border-l-2 border-l-primary',
-              disabled && !isSelected && 'opacity-60',
+              disabled && 'opacity-60',
             )}
           >
             <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -108,12 +107,6 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
                 <span className="truncate">{addr.address}</span>
               </div>
             </div>
-
-            {isSelected && (
-              <div className="flex-shrink-0 mt-2">
-                <Icon icon={Check} size={20} className="text-blue-800" />
-              </div>
-            )}
           </Button>
         );
       })}

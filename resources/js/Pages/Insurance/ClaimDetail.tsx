@@ -208,6 +208,14 @@ interface ClaimData {
   appointment_id: number | null;
   family_member_id: number | null;
   stay_details: StayDetails | null;
+  // New overview fields
+  patient_mrn?: string;
+  patient_prn?: string;
+  visit_type?: 'opd' | 'ipd';
+  visit_number?: string;
+  facility_name?: string;
+  ward?: string;
+  bed_category?: string;
   financial: Financial | null;
   documents: Document[];
   timeline: TimelineEvent[];
@@ -890,6 +898,37 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
         {/* Overview Section */}
         <Section id="overview" title="Overview" icon={ClipboardList} noPadding>
           <div className="divide-y">
+            {/* Patient Identifiers */}
+            {claim.patient_mrn && (
+              <DetailRow label="Patient ID (MRN)">{claim.patient_mrn}</DetailRow>
+            )}
+            {claim.patient_prn && (
+              <DetailRow label="Registration No">{claim.patient_prn}</DetailRow>
+            )}
+
+            {/* Visit Information */}
+            {claim.visit_number && (
+              <DetailRow label="Visit">
+                <div className="flex items-center gap-2">
+                  <Badge variant="neutral" size="sm">
+                    {claim.visit_type === 'ipd' ? 'IPD' : 'OPD'}
+                  </Badge>
+                  <span className="text-label">{claim.visit_number}</span>
+                </div>
+              </DetailRow>
+            )}
+
+            {/* Facility */}
+            {claim.facility_name && (
+              <DetailRow label="Facility">{claim.facility_name}</DetailRow>
+            )}
+
+            {/* Document Information */}
+            <DetailRow label="Claim ID">{claim.claim_reference}</DetailRow>
+            {claim.claim_date_formatted && (
+              <DetailRow label="Claim Date">{claim.claim_date_formatted}</DetailRow>
+            )}
+
             {/* Patient */}
             <DetailRow label="Patient">
               <Button
@@ -943,6 +982,18 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                       </span>
                     </>
                   )}
+                  {claim.ward && (
+                    <>
+                      <span className="text-muted-foreground">&middot;</span>
+                      <span className="text-muted-foreground">Ward: {claim.ward}</span>
+                    </>
+                  )}
+                  {claim.bed_category && (
+                    <>
+                      <span className="text-muted-foreground">&middot;</span>
+                      <span className="text-muted-foreground">{claim.bed_category}</span>
+                    </>
+                  )}
                 </div>
               )}
             </DetailRow>
@@ -965,6 +1016,28 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                     </>
                   )}
                 </div>
+              </DetailRow>
+            )}
+
+            {/* Status */}
+            <DetailRow label="Status">
+              {getStatusBadge(claim.status)}
+            </DetailRow>
+
+            {/* Financial Summary */}
+            {fin?.total_approved && (
+              <DetailRow label="Approved Amount">
+                {formatCurrency(fin.total_approved)}
+              </DetailRow>
+            )}
+            {fin?.not_covered && fin.not_covered > 0 && (
+              <DetailRow label="Not Covered">
+                {formatCurrency(fin.not_covered)}
+              </DetailRow>
+            )}
+            {fin?.patient_paid && fin.patient_paid > 0 && (
+              <DetailRow label="Patient Paid">
+                {formatCurrency(fin.patient_paid)}
               </DetailRow>
             )}
           </div>
