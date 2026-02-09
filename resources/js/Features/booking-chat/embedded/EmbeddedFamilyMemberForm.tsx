@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { cn } from '@/Lib/utils';
 import { Button } from '@/Components/ui/button';
+import { Card } from '@/Components/ui/card';
 import { PhoneInput } from '@/Components/ui/phone-input';
 import { DatePicker } from '@/Components/ui/date-picker';
 import { UserPlus } from '@/Lib/icons';
@@ -71,14 +72,14 @@ export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
 
   const selectClasses = cn(
     inputClasses,
-    'appearance-none bg-[url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E")] bg-[length:16px] bg-[right_8px_center] bg-no-repeat pr-8',
+    'appearance-none pr-8',
   );
 
   return (
-    <div className="border rounded-xl p-4 space-y-4 max-w-md">
+    <Card className="p-4 space-y-4 max-w-md">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
-          <UserPlus className="h-4 w-4 text-primary" />
+        <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
+          <Icon icon={UserPlus} size={20} className="text-blue-800" />
         </div>
         <h4 className="text-card-title text-foreground">Add family member or guest</h4>
       </div>
@@ -188,6 +189,6 @@ export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
       >
         Add & Continue
       </Button>
-    </div>
+    </Card>
   );
 }

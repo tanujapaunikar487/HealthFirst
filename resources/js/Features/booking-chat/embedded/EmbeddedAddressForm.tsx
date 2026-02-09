@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { cn } from '@/Lib/utils';
 import { Button } from '@/Components/ui/button';
+import { Card } from '@/Components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { MapPin } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
@@ -82,10 +83,10 @@ export function EmbeddedAddressForm({ onSelect, disabled }: Props) {
   const errorClass = 'border-destructive focus:ring-destructive/20';
 
   return (
-    <div className="border rounded-xl p-4 space-y-4 max-w-md">
+    <Card className="p-4 space-y-4 max-w-md">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
-          <Icon icon={MapPin} size={16} className="text-primary" />
+        <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
+          <Icon icon={MapPin} size={20} className="text-blue-800" />
         </div>
         <h4 className="text-card-title text-foreground">Add new address</h4>
       </div>
@@ -187,7 +188,7 @@ export function EmbeddedAddressForm({ onSelect, disabled }: Props) {
           placeholder="6-digit pincode"
           maxLength={6}
           disabled={disabled}
-          className={cn(inputClasses, errors.pincode && errorClass, 'max-w-[140px]')}
+          className={cn(inputClasses, errors.pincode && errorClass)}
         />
         {errors.pincode && <p className="text-body text-destructive">{errors.pincode}</p>}
       </div>
@@ -201,6 +202,6 @@ export function EmbeddedAddressForm({ onSelect, disabled }: Props) {
       >
         Save & Continue
       </Button>
-    </div>
+    </Card>
   );
 }

@@ -33,7 +33,7 @@ export function EmbeddedFollowUpFlow({
 
       {/* Reason selector section */}
       <div className="space-y-3">
-        <p className="text-base font-normal text-foreground">
+        <p className="text-body font-normal text-foreground">
           What's the reason for this follow-up?
         </p>
         <EmbeddedFollowUpReason

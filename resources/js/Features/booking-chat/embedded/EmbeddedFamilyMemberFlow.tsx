@@ -1324,7 +1324,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     {state.showContactUpdateModal && (
                         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                             <div className="bg-background rounded-xl p-6 max-w-sm w-full space-y-4">
-                                <h3 className="text-lg font-semibold">Request Contact Update</h3>
+                                <h3 className="text-card-title font-semibold">Request Contact Update</h3>
                                 <p className="text-body text-muted-foreground">
                                     For security, contact information can only be updated by visiting the hospital or calling our helpline.
                                 </p>
@@ -1391,7 +1391,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     {state.step === 'success' && (
                         <div className="space-y-4 text-center py-8">
                             <div className="h-16 w-16 rounded-full bg-success/10 flex items-center justify-center mx-auto"><CheckCircle2 className="h-8 w-8 text-success" /></div>
-                            <h3 className="text-lg font-semibold">Successfully Linked!</h3>
+                            <h3 className="text-card-title font-semibold">Successfully Linked!</h3>
                             <p className="text-body text-muted-foreground">{state.foundMember?.name} has been added to your family members</p>
                         </div>
                     )}
@@ -1426,7 +1426,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             {/* Step Content */}
             {state.step === 'choice' && (
                 <div className="space-y-4">
-                    <h3 id="choice-heading" className="text-lg font-semibold">Add New Person</h3>
+                    <h3 id="choice-heading" className="text-card-title font-semibold">Add New Person</h3>
                     <p className="text-body text-muted-foreground">
                         Choose how you'd like to add this person
                     </p>
@@ -1503,7 +1503,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             {/* Guest Form - Single grouped form */}
             {state.step === 'guest_form' && (
                 <div className="space-y-6">
-                    <h3 className="text-lg font-semibold">Guest Information</h3>
+                    <h3 className="text-card-title font-semibold">Guest Information</h3>
                     <p className="text-body text-muted-foreground">Add a guest for this appointment</p>
 
                     {/* Required Information */}
@@ -1609,7 +1609,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             {/* New Family Member Flow - Grouped Form */}
             {state.step === 'member_details' && (
                 <div className="space-y-6">
-                    <h3 className="text-lg font-semibold">Add Family Member</h3>
+                    <h3 className="text-card-title font-semibold">Add Family Member</h3>
                     <p className="text-body text-muted-foreground">Add a new family member to your account</p>
 
                     {/* SECTION 1: Required Fields */}
@@ -1837,7 +1837,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
             {state.step === 'search' && (
                 <div className="space-y-6">
-                    <h3 className="text-lg font-semibold">Link Existing Patient</h3>
+                    <h3 className="text-card-title font-semibold">Link Existing Patient</h3>
                     <p className="text-body text-muted-foreground">Search for an existing patient record to link</p>
 
                     {/* Smart Single Input */}
@@ -1891,7 +1891,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             {/* NEW: Contact Selection Step */}
             {state.step === 'contact_selection' && state.foundMember && (
                 <div className="space-y-6">
-                    <h3 className="text-lg font-semibold">Verify Ownership</h3>
+                    <h3 className="text-card-title font-semibold">Verify Ownership</h3>
                     <p className="text-body text-muted-foreground">
                         Send OTP to verify you own {state.foundMember.name}'s record
                     </p>
@@ -2026,7 +2026,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             {state.showContactUpdateModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-background rounded-xl p-6 max-w-sm w-full space-y-4">
-                        <h3 className="text-lg font-semibold">Request Contact Update</h3>
+                        <h3 className="text-card-title font-semibold">Request Contact Update</h3>
                         <p className="text-body text-muted-foreground">
                             For security, contact information can only be updated by visiting the hospital or calling our helpline.
                         </p>
@@ -2046,7 +2046,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
             {state.step === 'otp' && (
                 <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Enter OTP</h3>
+                    <h3 className="text-card-title font-semibold">Enter OTP</h3>
 
                     {/* Show where OTP was sent */}
                     {state.otpSentTo && (
@@ -2097,7 +2097,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     <div className="h-16 w-16 rounded-full bg-success/10 flex items-center justify-center mx-auto">
                         <CheckCircle2 className="h-8 w-8 text-success" />
                     </div>
-                    <h3 className="text-lg font-semibold">Successfully Linked!</h3>
+                    <h3 className="text-card-title font-semibold">Successfully Linked!</h3>
                     <p className="text-body text-muted-foreground">
                         {state.foundMember?.name} has been added to your family members
                     </p>

@@ -971,7 +971,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
                     <div className="h-16 w-16 rounded-full bg-success/10 flex items-center justify-center mx-auto">
                         <CheckCircle2 className="h-8 w-8 text-success" />
                     </div>
-                    <h3 className="text-lg font-semibold">Successfully Linked!</h3>
+                    <h3 className="text-card-title font-semibold">Successfully Linked!</h3>
                     <p className="text-body text-muted-foreground">
                         {foundMember?.name} has been added to your family members
                     </p>

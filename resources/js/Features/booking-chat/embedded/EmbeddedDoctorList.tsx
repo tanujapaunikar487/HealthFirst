@@ -220,8 +220,8 @@ function DoctorCard({
 
   return (
     <div className={cn(
-      "px-6 py-4 transition-colors hover:bg-accent",
-      isSelected && "bg-accent border-l-4 border-l-primary"
+      "px-6 py-4 transition-colors hover:bg-muted/50",
+      isSelected && "bg-primary/10 border-l-2 border-l-primary"
     )}>
       {/* Doctor info */}
       <div className="flex items-start justify-between gap-4 mb-3">

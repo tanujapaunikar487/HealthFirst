@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
+import { Card } from '@/Components/ui/card';
 import { Clock } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { format, parseISO } from 'date-fns';
@@ -43,7 +44,7 @@ export function EmbeddedPreviousVisit({ visit }: Props) {
   };
 
   return (
-    <div className="border border-border rounded-xl p-4 bg-background space-y-4">
+    <Card className="p-4 space-y-4">
       {/* Header */}
       <div className="flex items-center gap-2 text-primary">
         <Icon icon={Clock} size={16} />
@@ -85,6 +86,6 @@ export function EmbeddedPreviousVisit({ visit }: Props) {
         <span className="font-semibold text-foreground">Doctor's notes:</span>{' '}
         <span className="text-muted-foreground">{visit.doctorNotes}</span>
       </p>
-    </div>
+    </Card>
   );
 }
