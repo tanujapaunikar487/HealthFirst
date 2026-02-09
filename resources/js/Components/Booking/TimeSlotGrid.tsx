@@ -27,15 +27,14 @@ export function TimeSlotGrid({ slots, selectedTime, onSelect, className }: TimeS
           onClick={() => slot.available && onSelect(slot.time)}
           disabled={!slot.available}
           className={cn(
-            'h-auto px-4 py-2 rounded-xl text-label disabled:opacity-60 relative',
-            'hover:border-primary/50',
-            selectedTime === slot.time &&
-              'hover:border-foreground'
+            'h-auto px-4 py-2 rounded-full text-label disabled:opacity-60 relative transition-all',
+            selectedTime !== slot.time && 'hover:border-primary/50 hover:bg-primary/5',
+            selectedTime === slot.time && 'border-foreground'
           )}
         >
           {slot.time}
           {slot.preferred && selectedTime !== slot.time && (
-            <Icon icon={Star} className="absolute -top-1 -right-1 fill-black text-black" size="sm" />
+            <Icon icon={Star} size={12} className="absolute -top-1 -right-1 fill-black text-black" />
           )}
         </Button>
       ))}
