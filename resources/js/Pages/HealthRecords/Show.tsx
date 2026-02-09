@@ -352,6 +352,7 @@ interface CategorySection {
   content: React.ReactNode;
   action?: React.ReactNode;
   noPadding?: boolean;
+  iconClassName?: string;
 }
 
 /* ─── Category Config ─── */
@@ -494,6 +495,7 @@ function Section({
   children,
   action,
   noPadding = true,
+  iconClassName,
 }: {
   id: string;
   title: string;
@@ -501,9 +503,10 @@ function Section({
   children: React.ReactNode;
   action?: React.ReactNode;
   noPadding?: boolean;
+  iconClassName?: string;
 }) {
   return (
-    <DetailSection id={id} title={title} icon={icon} action={action} noPadding={noPadding}>
+    <DetailSection id={id} title={title} icon={icon} action={action} noPadding={noPadding} iconClassName={iconClassName}>
       {children}
     </DetailSection>
   );
@@ -994,7 +997,7 @@ export default function Show({ user, record, familyMember }: Props) {
 
             {/* Category-specific sections */}
             {categorySections.map(section => (
-              <Section key={section.id} id={section.id} title={section.title} icon={section.icon} action={section.action} noPadding={section.noPadding}>
+              <Section key={section.id} id={section.id} title={section.title} icon={section.icon} action={section.action} noPadding={section.noPadding} iconClassName={section.iconClassName}>
                 {section.content}
               </Section>
             ))}
@@ -1553,12 +1556,13 @@ function getAiSummarySection(
     id: 'ai-summary',
     title: 'AI Summary',
     icon: Sparkles,
-    noPadding: false,
+    iconClassName: 'h-5 w-5 text-primary',
+    noPadding: true,
     content: (
-      <div className="p-6" style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.05) 0%, hsl(var(--primary) / 0.02) 100%)' }}>
+      <div className="rounded-xl p-6 space-y-4" style={{ background: 'linear-gradient(135deg, #F3E8FF 0%, #EDE9FE 100%)' }}>
         {aiSummaryLoading && (
           <div className="flex items-center gap-3">
-            <Loader2 className="h-5 w-5 animate-spin" style={{ color: 'hsl(var(--primary))' }} />
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
             <span className="text-body text-muted-foreground">Generating AI summary...</span>
           </div>
         )}
@@ -1577,20 +1581,14 @@ function getAiSummarySection(
           </div>
         )}
         {aiSummary && !aiSummaryLoading && (
-          <div className="space-y-3">
-            <p className="text-body leading-relaxed" style={{ color: 'hsl(var(--foreground))' }}>
+          <>
+            <p className="text-body leading-relaxed text-foreground">
               {aiSummary}
             </p>
-            <Button
-              variant="link"
-              size="sm"
-              className="h-auto p-0 text-body hover:underline"
-              style={{ color: 'hsl(var(--primary))' }}
-              onClick={() => generateAiSummary?.(true)}
-            >
-              Regenerate
-            </Button>
-          </div>
+            <p className="text-caption text-muted-foreground">
+              This is an AI-generated summary for informational purposes. Always consult your doctor for medical advice.
+            </p>
+          </>
         )}
       </div>
     ),

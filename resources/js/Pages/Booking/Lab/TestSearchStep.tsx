@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { Card } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
+import { Input } from '@/Components/ui/input';
 import { Alert } from '@/Components/ui/alert';
 import { EmbeddedPackageList } from '@/Features/booking-chat/embedded/EmbeddedPackageList';
 import { Search, Loader2 } from '@/Lib/icons';
@@ -209,22 +210,21 @@ export default function TestSearchStep({ savedData }: Props) {
           {/* Search input */}
           <div className="flex gap-2 mb-4">
             <div className="relative flex-1">
-              <Icon icon={Search} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground" />
-              <input
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <Input
                 type="text"
                 placeholder="e.g., CBC, thyroid, diabetes, fatigue, headache..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border bg-background text-body focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="pl-10"
               />
             </div>
             <Button
               onClick={() => handleSearch()}
               disabled={isSearching || searchQuery.trim().length < 2}
-              className="rounded-xl"
             >
-              {isSearching ? <Icon icon={Loader2} className="h-4 w-4 animate-spin" /> : 'Search'}
+              {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Search'}
             </Button>
           </div>
 

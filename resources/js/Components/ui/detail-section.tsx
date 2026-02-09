@@ -9,6 +9,7 @@ interface DetailSectionProps {
   children: React.ReactNode;
   action?: React.ReactNode;
   noPadding?: boolean;
+  iconClassName?: string;
 }
 
 function DetailSection({
@@ -18,12 +19,13 @@ function DetailSection({
   children,
   action,
   noPadding,
+  iconClassName,
 }: DetailSectionProps) {
   return (
     <div id={id} className="scroll-mt-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
-          <Icon icon={SectionIcon} className="h-5 w-5 text-foreground" />
+          <Icon icon={SectionIcon} className={iconClassName || "h-5 w-5 text-foreground"} />
           <h2 className="text-section-title text-foreground">{title}</h2>
         </div>
         {action}
