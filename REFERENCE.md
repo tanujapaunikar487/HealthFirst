@@ -44,9 +44,11 @@ All in `app.css` via `@utility`. Each sets size+weight+line-height.
 **Dialogs**: max-w-lg, 20px radius, flex-col
 Body CSS: `.dialog-body > *` = 20px pad, `> * + *` = auto dividers
 
-**Page**: 960px max-width, 40px padding
+**Page**: 960px max-width, 40px padding (responsive: 16px mobile → 24px tablet → 40px desktop)
 
 **Sections**: `space-y-12` between sections
+
+**Mobile Navigation**: Sidebar hidden on mobile (`lg:block`), hamburger menu button visible (`lg:hidden`). Mobile drawer uses Sheet with MobileSidebar component. All nav items call `onNavigate()` callback to close drawer.
 
 **Borders**: 1px (spinner/Switch = 2px)
 
