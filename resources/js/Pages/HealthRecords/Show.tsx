@@ -627,29 +627,6 @@ export default function Show({ user, record, familyMember }: Props) {
     setShowShareDialog(true);
   };
 
-  const getHealthSyncLabel = () => {
-    const userAgent = navigator.userAgent || '';
-    const isIOS = /iPad|iPhone|iPod/.test(userAgent);
-    const isAndroid = /Android/.test(userAgent);
-    if (isIOS) return 'Add to Apple Health';
-    if (isAndroid) return 'Add to Google Fit';
-    return 'Add to Health App';
-  };
-
-  const handleHealthSync = () => {
-    const userAgent = navigator.userAgent || '';
-    const isIOS = /iPad|iPhone|iPod/.test(userAgent);
-    const isAndroid = /Android/.test(userAgent);
-
-    if (isIOS) {
-      showToast('Opening Apple Health...', 'info');
-    } else if (isAndroid) {
-      showToast('Opening Google Fit...', 'info');
-    } else {
-      showToast('Health sync is available on mobile devices', 'info');
-    }
-  };
-
   const handleRequestAmendment = () => {
     showToast('Amendment request submitted. You will be contacted within 48 hours.', 'success');
   };
@@ -764,15 +741,6 @@ export default function Show({ user, record, familyMember }: Props) {
                       <Download className="h-4 w-4 mr-2" />
                       Download
                     </DropdownMenuItem>
-                  )}
-                  {['lab_report', 'vitals', 'immunization'].includes(record.category) && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleHealthSync}>
-                        <HeartPulse className="h-4 w-4 mr-2" />
-                        {getHealthSyncLabel()}
-                      </DropdownMenuItem>
-                    </>
                   )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleRequestAmendment}>

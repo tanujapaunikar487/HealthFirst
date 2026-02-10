@@ -255,7 +255,10 @@ export default function Show({ user, appointment }: Props) {
       <div className="w-full max-w-[960px] min-h-full flex flex-col pb-10">
         {/* Breadcrumb */}
         <nav className="mb-6 flex items-center gap-1.5 text-body text-muted-foreground self-start">
-          <Link href="/appointments" className="hover:text-foreground transition-colors">
+          <Link
+            href={isPastAppointment ? '/appointments?tab=past' : '/appointments?tab=upcoming'}
+            className="hover:text-foreground transition-colors"
+          >
             Appointments
           </Link>
           <ChevronRight className="h-3.5 w-3.5" />
@@ -293,9 +296,29 @@ export default function Show({ user, appointment }: Props) {
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            {/* Past appointments: Book Again + menu with Share */}
-            {isPastAppointment ? (
+            {/* Doctor appointments with follow-up recommendation: Book Follow-up */}
+            {appointment.follow_up && appointment.type === 'doctor' ? (
               <>
+                <Button onClick={() => setShowFollowUpSheet(true)}>
+                  Book Follow-up
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="secondary" iconOnly size="lg">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-[140px]">
+                    <DropdownMenuItem onClick={() => setShowShareDialog(true)}>
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Share
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : isPastAppointment ? (
+              <>
+                {/* Past appointments without follow-up: Book Again */}
                 <Button onClick={() => setShowBookAgainSheet(true)}>
                   <RotateCcw className="h-4 w-4 mr-2" />
                   Book Again
@@ -316,12 +339,7 @@ export default function Show({ user, appointment }: Props) {
               </>
             ) : (
               <>
-                {/* Upcoming: Only show header button if NO follow-up recommendation */}
-                {appointment.type === 'doctor' && !appointment.follow_up && (
-                  <Button onClick={() => setShowFollowUpSheet(true)}>
-                    Book Follow-up
-                  </Button>
-                )}
+                {/* Upcoming appointments */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="secondary" iconOnly size="lg">
@@ -351,9 +369,6 @@ export default function Show({ user, appointment }: Props) {
               <p className="text-body text-muted-foreground mt-2 leading-relaxed">
                 {appointment.follow_up.notes}
               </p>
-              <Button size="md" variant="secondary" className="mt-3" onClick={() => setShowFollowUpSheet(true)}>
-                Schedule
-              </Button>
             </Alert>
           )}
 
@@ -732,7 +747,6 @@ function PrescriptionsSection({ prescriptions, appointmentId, appointmentTitle, 
         <Button
           variant="secondary"
           size="md"
-          className="text-body"
           onClick={() => {
             const rows = prescriptions.map((rx) =>
               `<tr>
@@ -804,7 +818,7 @@ function LabTestsSection({ tests }: { tests: LabTest[] }) {
       action={
         hasPending ? (
           <Link href="/booking/lab/patient">
-            <Button variant="secondary" size="md" className="text-body">Book pending tests</Button>
+            <Button variant="secondary" size="md">Book pending tests</Button>
           </Link>
         ) : undefined
       }
@@ -856,7 +870,6 @@ function BillingSection({ billing, appointmentId, insuranceClaimId, onDownloadIn
         <Button
           variant="secondary"
           size="md"
-          className="text-body"
           onClick={onDownloadInvoice}
         >
           <Download className="h-3.5 w-3.5" />
@@ -943,7 +956,7 @@ function DocumentsSection({ documents }: { documents: AppDocument[] }) {
       title="Documents"
       icon={FolderOpen}
       action={
-        <Button variant="secondary" size="md" className="text-body" onClick={handleDownloadAll}>
+        <Button variant="secondary" size="md" onClick={handleDownloadAll}>
           <Download className="h-3.5 w-3.5" />
           Download All
         </Button>
@@ -958,8 +971,8 @@ function DocumentsSection({ documents }: { documents: AppDocument[] }) {
             className="w-full flex items-center justify-between px-6 py-4 h-auto rounded-none hover:bg-muted/30 transition-colors text-left"
           >
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-icon-bg flex items-center justify-center flex-shrink-0">
-                <FileText className="h-5 w-5 text-icon" />
+              <div className="h-10 w-10 rounded-full bg-info-subtle flex items-center justify-center flex-shrink-0">
+                <FileText className="h-5 w-5 text-info-subtle-foreground" />
               </div>
               <div>
                 <p className="text-label">{doc.name}</p>

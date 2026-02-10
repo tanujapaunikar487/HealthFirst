@@ -425,7 +425,7 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                 />
               </div>
             ) : (
-              <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full text-card-title bg-icon-bg text-icon">
+              <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full text-card-title bg-info-subtle text-info-subtle-foreground">
                 {getProviderInitials(policy.provider_name)}
               </div>
             )}

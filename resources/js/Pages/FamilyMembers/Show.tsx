@@ -1053,8 +1053,8 @@ export default function FamilyMemberShow({
                       onClick={() => router.visit(link.href)}
                       className="w-full flex items-center gap-4 px-6 py-4 h-auto rounded-none text-left hover:bg-muted/30 transition-colors"
                     >
-                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-icon-bg">
-                        <link.icon className="h-5 w-5 text-icon" />
+                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-info-subtle">
+                        <link.icon className="h-5 w-5 text-info-subtle-foreground" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-card-title text-foreground">{link.title}</p>

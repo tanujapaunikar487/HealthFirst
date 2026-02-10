@@ -145,6 +145,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
   const [searchQuery, setSearchQuery] = useState('');
   const [sheetView, setSheetView] = useState<SheetView>(null);
   const [shareAppointment, setShareAppointment] = useState<Appointment | null>(null);
+  const [activeTab, setActiveTab] = useState<'upcoming' | 'past' | 'cancelled'>('upcoming');
 
   // Handle query params to auto-open sheets (for deep-linking from dashboard)
   useEffect(() => {
@@ -175,11 +176,18 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
     }
   }, [appointments]);
 
-  // Read member filter from URL parameter
+  // Read tab and member filter from URL parameters
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const memberId = params.get('member');
 
+    // Tab parameter
+    const tabParam = params.get('tab');
+    if (tabParam === 'past' || tabParam === 'cancelled' || tabParam === 'upcoming') {
+      setActiveTab(tabParam);
+    }
+
+    // Member filter
+    const memberId = params.get('member');
     if (memberId) {
       // Verify the member ID exists in familyMembers
       const memberExists = familyMembers.some(m => String(m.id) === memberId);
@@ -300,7 +308,14 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
           />
         ) : (
         /* Tabs */
-        <Tabs defaultValue="upcoming" className="space-y-4">
+        <Tabs value={activeTab} onValueChange={(v) => {
+          const newTab = v as typeof activeTab;
+          setActiveTab(newTab);
+          // Update URL without full page reload
+          const url = new URL(window.location.href);
+          url.searchParams.set('tab', newTab);
+          window.history.pushState({}, '', url.toString());
+        }} className="space-y-4">
           <TabsList>
             <TabsTrigger value="upcoming">
               Upcoming

@@ -1331,7 +1331,6 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               <Button
                 variant="secondary"
                 size="sm"
-                className="text-body"
                 onClick={() => {
                   const docList = claim.documents.map(d => `<div class="row"><span class="row-label">${d.type}</span><span class="row-value">${d.date}</span></div>`).join('');
                   downloadAsHtml(`claim-documents-${claim.claim_reference}.pdf`, `

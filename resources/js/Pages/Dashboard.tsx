@@ -1044,7 +1044,7 @@ export default function Dashboard({
             badge="Due soon"
             badgeVariant="warning"
             actionLabel="Book follow-up"
-            actionVariant="secondary"
+            actionVariant="primary"
             onAction={() => router.visit('/booking')}
             menuItems={[
               { label: 'View previous visit', onClick: () => router.visit(`/appointments/${followup.original_appointment_id}`) },
@@ -1070,7 +1070,7 @@ export default function Dashboard({
             badge={isPast ? 'Overdue' : `Due ${daysUntil}d`}
             badgeVariant={isPast ? 'danger' : 'warning'}
             actionLabel="Schedule"
-            actionVariant="secondary"
+            actionVariant="primary"
             onAction={() => router.visit('/booking')}
             menuItems={[
               { label: 'View vaccination history', onClick: () => router.visit(`/health-records?member_id=${vaccination.id}`) },
@@ -1094,7 +1094,7 @@ export default function Dashboard({
             badge={care.months_since !== null && care.months_since > 12 ? 'Overdue' : 'Due soon'}
             badgeVariant={care.months_since !== null && care.months_since > 12 ? 'danger' : 'warning'}
             actionLabel="Book now"
-            actionVariant="secondary"
+            actionVariant="primary"
             onAction={() => router.visit('/booking')}
             menuItems={[
               { label: 'View records', onClick: () => router.visit(`/health-records?member_id=${care.member_id}`) },
