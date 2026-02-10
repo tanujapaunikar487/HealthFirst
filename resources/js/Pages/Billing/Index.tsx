@@ -224,6 +224,15 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
   const [excludedPayBillIds, setExcludedPayBillIds] = useState<Set<number>>(new Set());
   const [paymentState, setPaymentState] = useState<'idle' | 'processing' | 'success'>('idle');
 
+  // Read tab from URL parameter
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tabParam = params.get('tab');
+    if (tabParam === 'all' || tabParam === 'outstanding' || tabParam === 'paid') {
+      setTab(tabParam);
+    }
+  }, []);
+
   // Reset sheet state when payBills changes
   useEffect(() => {
     if (payBills.length > 0) {
@@ -412,9 +421,14 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
   const clearSelection = () => setSelectedIds(new Set());
 
   const handleTabChange = (value: string) => {
-    setTab(value as 'all' | 'outstanding' | 'paid');
+    const newTab = value as 'all' | 'outstanding' | 'paid';
+    setTab(newTab);
     setPage(1);
     setSelectedIds(new Set());
+    // Update URL without full page reload
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', newTab);
+    window.history.pushState({}, '', url.toString());
   };
 
   if (hasError) {

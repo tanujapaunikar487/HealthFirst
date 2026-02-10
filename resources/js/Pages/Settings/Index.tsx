@@ -126,7 +126,14 @@ export default function SettingsIndex({
     calendarSettings,
     videoSettings,
 }: Props) {
-    const [activeTab, setActiveTab] = useState<Tab>('profile');
+    // Read active tab from URL query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabFromUrl = urlParams.get('tab') as Tab | null;
+    const [activeTab, setActiveTab] = useState<Tab>(
+        tabFromUrl && ['profile', 'notifications', 'preferences', 'connections'].includes(tabFromUrl)
+            ? tabFromUrl
+            : 'profile'
+    );
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [loggingOut, setLoggingOut] = useState(false);
 
@@ -138,6 +145,15 @@ export default function SettingsIndex({
             setActiveTab(tab as Tab);
         }
     }, []);
+
+    // Update tab and URL when tab changes
+    const handleTabChange = (tab: Tab) => {
+        setActiveTab(tab);
+        // Update URL without full page reload
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', tab);
+        window.history.pushState({}, '', url.toString());
+    };
 
     const handleLogout = () => {
         setLoggingOut(true);
@@ -160,7 +176,7 @@ export default function SettingsIndex({
                             <SideNav
                                 items={NAV_ITEMS}
                                 activeId={activeTab}
-                                onSelect={(id) => setActiveTab(id as Tab)}
+                                onSelect={(id) => handleTabChange(id as Tab)}
                                 sticky={false}
                             />
 

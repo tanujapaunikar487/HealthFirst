@@ -330,6 +330,68 @@ Drug names as section titles with Active/Inactive badge as `action` prop
 
 ---
 
+## Navigation Patterns
+
+### Back Button Navigation
+
+Use `useNavigation()` hook from `@/Hooks/useNavigation` for all back buttons.
+
+**Pattern**:
+```tsx
+import { useNavigation } from '@/Hooks/useNavigation';
+
+const { goBack } = useNavigation();
+
+const handleBack = () => {
+  goBack('/fallback-url'); // Goes to browser history, or fallback if none
+};
+```
+
+**Applied to**: All 8 booking flow pages (Doctor/Lab flows)
+
+### Tab State Persistence
+
+All pages with tabs MUST persist tab state in URL query parameter for proper navigation memory.
+
+**Pattern**:
+```tsx
+// 1. Read from URL on mount
+useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  const tabParam = params.get('tab');
+  if (tabParam && isValidTab(tabParam)) {
+    setActiveTab(tabParam);
+  }
+}, []);
+
+// 2. Update URL when tab changes
+const handleTabChange = (newTab) => {
+  setActiveTab(newTab);
+  const url = new URL(window.location.href);
+  url.searchParams.set('tab', newTab);
+  window.history.pushState({}, '', url.toString());
+};
+
+// 3. Use in Tabs component
+<Tabs value={activeTab} onValueChange={handleTabChange} />
+```
+
+**Applied to**:
+- `Settings/Index.tsx` — `?tab=profile|notifications|preferences|connections`
+- `Appointments/Index.tsx` — `?tab=upcoming|past|cancelled`
+- `Billing/Index.tsx` — `?tab=all|outstanding|paid`
+- `HealthRecords/Index.tsx` — `?tab=all|visit_notes|labs|imaging|summaries`
+
+**Benefits**:
+- Browser back button returns to correct tab
+- Direct links to specific tabs work
+- Tab state survives page refresh
+- Multi-tab browsing preserves state
+
+**Rule**: Never use tabs without URL persistence. Users expect to return to the tab they were on when navigating back from detail pages.
+
+---
+
 ## Tailwind v4 Migration Notes
 
 Config is in `app.css @theme inline`, not `tailwind.config.js` (deleted)

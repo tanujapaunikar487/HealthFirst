@@ -466,6 +466,15 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
 
+    // Read tab filter
+    const tabParam = params.get('tab');
+    if (tabParam) {
+      const validTabs = ['all', 'visit_notes', 'labs', 'imaging', 'summaries'];
+      if (validTabs.includes(tabParam)) {
+        setActiveTab(tabParam);
+      }
+    }
+
     // Read member filter
     const memberId = params.get('member');
     if (memberId) {
@@ -681,7 +690,13 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
 
 
         {/* Tabs + Filters */}
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v)} className="space-y-4">
+        <Tabs value={activeTab} onValueChange={(v) => {
+          setActiveTab(v);
+          // Update URL without full page reload
+          const url = new URL(window.location.href);
+          url.searchParams.set('tab', v);
+          window.history.pushState({}, '', url.toString());
+        }} className="space-y-4">
           <TabsList>
             {[
               { value: 'all', label: 'All' },
