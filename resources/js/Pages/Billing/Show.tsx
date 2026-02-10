@@ -19,26 +19,18 @@ import {
   ChevronLeft,
   Download,
   ExternalLink,
-  Stethoscope,
-  TestTube2,
   CreditCard,
   IndianRupee,
-
-
   AlertTriangle,
-  CheckCircle2,
-
   MoreVertical,
   Receipt,
   Mail,
   MessageSquare,
   ChevronRight,
-  FileText,
   Share2,
   ClipboardList,
   XCircle,
 } from '@/Lib/icons';
-import { Icon } from '@/Components/ui/icon';
 import { downloadAsHtml } from '@/Lib/download';
 import { Textarea } from '@/Components/ui/textarea';
 import { ShareDialog } from '@/Components/ui/share-dialog';
@@ -201,7 +193,6 @@ const PAYABLE_STATUSES: BillingStatus[] = ['due', 'copay_due'];
 
 const SECTIONS = [
   { id: 'overview', label: 'Overview', icon: ClipboardList },
-  { id: 'invoice', label: 'Invoice', icon: FileText },
   { id: 'charges', label: 'Charges', icon: Receipt },
   { id: 'payment', label: 'Payment', icon: CreditCard },
   { id: 'emi', label: 'EMI', icon: IndianRupee },
@@ -210,7 +201,7 @@ const SECTIONS = [
 /* ─── SideNav Component ─── */
 
 function BillingSideNav({ hasEmi, hasPayment }: { hasEmi: boolean; hasPayment: boolean }) {
-  const [activeSection, setActiveSection] = useState(SECTIONS[0].id);
+  const [activeSection, setActiveSection] = useState<string>(SECTIONS[0].id);
   const isScrollingRef = useRef(false);
 
   // Filter sections based on what's visible
@@ -260,15 +251,9 @@ function BillingSideNav({ hasEmi, hasPayment }: { hasEmi: boolean; hasPayment: b
       items={visibleSections.map(s => ({ id: s.id, label: s.label, icon: s.icon }))}
       activeId={activeSection}
       onSelect={scrollTo}
+      hiddenOnMobile
     />
   );
-}
-
-/* ─── Helpers ─── */
-
-function StatusBadge({ status }: { status: BillingStatus }) {
-  const cfg = STATUS_CONFIG[status];
-  return <Badge variant={cfg.variant}>{cfg.label}</Badge>;
 }
 
 /* ─── Status Alert Banner (embedded in header) ─── */
@@ -395,7 +380,6 @@ export default function Show({ user, bill }: Props) {
   const [disputeReason, setDisputeReason] = useState('');
   const [disputeLoading, setDisputeLoading] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
-  const isDoctor = bill.appointment_type === 'doctor';
   const isPayable = PAYABLE_STATUSES.includes(bill.billing_status);
   const isEmi = bill.billing_status === 'emi';
   const isPaid = ['paid', 'covered', 'reimbursed'].includes(bill.billing_status);
@@ -628,7 +612,7 @@ export default function Show({ user, bill }: Props) {
               )
             )}
             {(bill.billing_status === 'awaiting_approval' || bill.billing_status === 'claim_pending') && (
-              <Button variant="secondary" onClick={() => document.getElementById('payment')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+              <Button onClick={() => document.getElementById('payment')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
                 <ClipboardList className="h-4 w-4" />
                 Track Claim
               </Button>
@@ -785,7 +769,14 @@ export default function Show({ user, bill }: Props) {
             {/* ─── Overview Section ─── */}
             <DetailSection id="overview" title="Overview" icon={ClipboardList} noPadding>
               <div className="divide-y">
-                {/* Patient Identifiers */}
+                {/* Hospital/Facility Information */}
+                <div className="px-6 py-4">
+                  <p className="text-card-title text-foreground">HealthFirst Hospital</p>
+                  <p className="text-body text-muted-foreground mt-0.5">123 Hospital Road, Pune 411001 &middot; GSTIN: 27AABCH1234P1ZP</p>
+                </div>
+
+                {/* Patient Information */}
+                <DetailRow label="Patient">{bill.patient_name}</DetailRow>
                 {bill.patient_mrn && (
                   <DetailRow label="Patient ID (MRN)">{bill.patient_mrn}</DetailRow>
                 )}
@@ -804,8 +795,6 @@ export default function Show({ user, bill }: Props) {
                     </div>
                   </DetailRow>
                 )}
-
-                {/* Facility & Location */}
                 {bill.facility_name && (
                   <DetailRow label="Facility">{bill.facility_name}</DetailRow>
                 )}
@@ -819,48 +808,12 @@ export default function Show({ user, bill }: Props) {
                   </DetailRow>
                 )}
 
-                {/* Document Information */}
+                {/* Invoice Information */}
                 <DetailRow label="Invoice No">{bill.invoice_number}</DetailRow>
                 <DetailRow label="Invoice Date">{bill.generated_date}</DetailRow>
-                <DetailRow label="Service Date">{bill.service_date}</DetailRow>
-
-                {/* Doctor & Service */}
-                {bill.doctor_name && (
-                  <DetailRow label="Doctor">
-                    {bill.doctor_name}
-                    {bill.doctor_specialization && ` · ${bill.doctor_specialization}`}
-                  </DetailRow>
-                )}
-
-                {/* Status */}
-                <DetailRow label="Status">
-                  <Badge variant={STATUS_CONFIG[bill.billing_status].variant}>
-                    {STATUS_CONFIG[bill.billing_status].label}
-                  </Badge>
-                </DetailRow>
-
-                {/* Key Financial Data */}
-                <DetailRow label="Total Amount">₹{bill.total.toLocaleString('en-IN')}</DetailRow>
-                {bill.due_amount > 0 && (
-                  <DetailRow label="Due Amount">₹{bill.due_amount.toLocaleString('en-IN')}</DetailRow>
-                )}
-                {bill.insurance_covered > 0 && (
-                  <DetailRow label="Insurance Covered">₹{bill.insurance_covered.toLocaleString('en-IN')}</DetailRow>
-                )}
-              </div>
-            </DetailSection>
-
-            {/* ─── Invoice Section ─── */}
-            <DetailSection id="invoice" title="Invoice" icon={FileText} noPadding>
-              <div className="divide-y">
-                <div className="px-6 py-4">
-                  <p className="text-card-title text-foreground">HealthFirst Hospital</p>
-                  <p className="text-body text-muted-foreground mt-0.5">123 Hospital Road, Pune 411001 &middot; GSTIN: 27AABCH1234P1ZP</p>
-                </div>
-                <DetailRow label="Invoice date">{bill.generated_date}</DetailRow>
                 <DetailRow label="Reference">{bill.reference_number}</DetailRow>
                 {bill.due_date && (
-                  <DetailRow label="Due date">
+                  <DetailRow label="Due Date">
                     <span className={`flex items-center gap-2 ${bill.is_overdue ? 'text-destructive' : ''}`}>
                       {bill.due_date}
                       {bill.is_overdue && (
@@ -869,26 +822,32 @@ export default function Show({ user, bill }: Props) {
                     </span>
                   </DetailRow>
                 )}
-                <DetailRow label="Patient">{bill.patient_name}</DetailRow>
-                <DetailRow label="Service">
-                  <span className="flex items-center gap-2">
-                    <span className="h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'hsl(var(--primary) / 0.2)' }}>
-                      {isDoctor ? <Stethoscope className="h-2.5 w-2.5" style={{ color: 'hsl(var(--primary))' }} /> : <TestTube2 className="h-2.5 w-2.5" style={{ color: 'hsl(var(--primary))' }} />}
-                    </span>
-                    {bill.appointment_title}
-                  </span>
+
+                {/* Service Information */}
+                <DetailRow label="Service">{bill.appointment_title}</DetailRow>
+                <DetailRow label="Service Date">
+                  <>{bill.service_date}<span className="text-muted-foreground font-normal"> &middot; {bill.appointment_mode}</span></>
                 </DetailRow>
                 {bill.doctor_name && (
                   <DetailRow label="Doctor">
-                    <>
-                      {bill.doctor_name}
-                      {bill.doctor_specialization && <span className="text-muted-foreground font-normal"> &middot; {bill.doctor_specialization}</span>}
-                    </>
+                    {bill.doctor_name}
+                    {bill.doctor_specialization && <span className="text-muted-foreground font-normal"> &middot; {bill.doctor_specialization}</span>}
                   </DetailRow>
                 )}
-                <DetailRow label="Date of service">
-                  <>{bill.service_date}<span className="text-muted-foreground font-normal"> &middot; {bill.appointment_mode}</span></>
+
+                {/* Status & Financial Summary */}
+                <DetailRow label="Status">
+                  <Badge variant={STATUS_CONFIG[bill.billing_status].variant}>
+                    {STATUS_CONFIG[bill.billing_status].label}
+                  </Badge>
                 </DetailRow>
+                <DetailRow label="Total Amount">₹{bill.total.toLocaleString('en-IN')}</DetailRow>
+                {bill.due_amount > 0 && (
+                  <DetailRow label="Due Amount">₹{bill.due_amount.toLocaleString('en-IN')}</DetailRow>
+                )}
+                {bill.insurance_covered > 0 && (
+                  <DetailRow label="Insurance Covered">₹{bill.insurance_covered.toLocaleString('en-IN')}</DetailRow>
+                )}
               </div>
             </DetailSection>
 

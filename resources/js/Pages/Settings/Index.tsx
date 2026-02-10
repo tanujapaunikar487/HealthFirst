@@ -171,13 +171,14 @@ export default function SettingsIndex({
 
                 <div className="flex gap-24">
                     {/* Sidebar Navigation */}
-                    <div className="min-w-sidebar flex-shrink-0">
+                    <div className="min-w-sidebar flex-shrink-0 hidden lg:block">
                         <div className="sticky top-6">
                             <SideNav
                                 items={NAV_ITEMS}
                                 activeId={activeTab}
                                 onSelect={(id) => handleTabChange(id as Tab)}
                                 sticky={false}
+                                hiddenOnMobile
                             />
 
                             {/* Logout Button */}

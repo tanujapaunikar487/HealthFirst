@@ -580,6 +580,7 @@ function AppointmentSideNav() {
       items={SECTIONS.map(s => ({ id: s.id, label: s.label, icon: s.icon }))}
       activeId={activeSection}
       onSelect={scrollTo}
+      hiddenOnMobile
     />
   );
 }

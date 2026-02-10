@@ -759,14 +759,6 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
   return (
     <AppLayout pageTitle="Insurance" pageIcon="insurance">
-      {/* Mobile sticky header */}
-      <div className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur px-6 py-3 md:hidden">
-        <div className="flex items-center justify-between">
-          <span className="text-label text-muted-foreground">{claim.claim_reference}</span>
-          <ThreeDotMenu />
-        </div>
-      </div>
-
       <div className="w-full max-w-page min-h-full flex flex-col pb-10">
         {/* Breadcrumb */}
         <nav className="mb-6 flex items-center gap-1.5 text-body text-muted-foreground self-start">
@@ -820,7 +812,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 )}
               </div>
             </div>
-            <div className="hidden md:flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0">
               {/* Primary Action Button */}
               {banner.action && (
                 <Button
@@ -1278,11 +1270,11 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   </div>
                 )}
 
-                {/* You Paid — bold dark row */}
+                {/* You Paid — bold row */}
                 {fin.patient_paid != null && (
-                  <div className="flex items-center justify-between bg-foreground px-6 py-4">
-                    <span className="text-card-title text-white">You paid</span>
-                    <span className="text-subheading text-white">
+                  <div className="flex items-center justify-between bg-background px-6 py-4">
+                    <span className="text-card-title text-foreground">You paid</span>
+                    <span className="text-subheading text-foreground">
                       {formatCurrency(fin.patient_paid)}
                     </span>
                   </div>
