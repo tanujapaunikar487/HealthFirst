@@ -215,6 +215,49 @@ Negative margin breaks out of parent padding for full-width dividers.
 - **Table Details column**: 40px Avatar for doctors, 40px icon circle for lab tests
 - **Never in DetailRow children** — plain text only for names
 
+### Responsive Side Navigation (CRITICAL)
+
+**All detail pages with side navigation MUST hide it on mobile to prevent cramped layouts.**
+
+**Pattern**:
+```tsx
+// Define side navigation component with hiddenOnMobile
+function PageSideNav() {
+  return (
+    <SideNav
+      items={sections}
+      activeId={activeSection}
+      onSelect={scrollTo}
+      hiddenOnMobile  // REQUIRED - hides on mobile (< 1024px)
+    />
+  );
+}
+
+// Use in page layout with flex gap-24
+<div className="flex gap-24">
+  <PageSideNav />
+  <div className="flex-1 min-w-0 space-y-12 pb-12">
+    {/* Content sections */}
+  </div>
+</div>
+```
+
+**Behavior**:
+- **Desktop (≥ 1024px)**: Side navigation shows as vertical sidebar (200px width), sticky to top
+- **Mobile (< 1024px)**: Side navigation hidden, content displays full-width
+- **Navigation**: Users scroll through sections naturally on mobile; click section links on desktop
+
+**Applied to**:
+- `Billing/Show.tsx` — Overview, Charges, Payment, EMI sections
+- `Appointments/Show.tsx` — Overview, Clinical Summary, Documents, Lab Tests sections
+- `FamilyMembers/Show.tsx` — Details, Health Information, Insurance sections
+- `Insurance/Show.tsx` — Details, Members, Claims sections
+- `Insurance/ClaimDetail.tsx` — Overview, Linked, Financial, Documents, Timeline sections
+- `Settings/Index.tsx` — Profile, Notifications, Preferences, Connections tabs
+- `HealthRecords/Show.tsx` — Category-specific sections
+
+**Common mistake**: Forgetting `hiddenOnMobile` causes side navigation and content to display side-by-side on mobile, creating a cramped, unusable layout.
+
 ---
 
 ## Feature-Specific Decisions
