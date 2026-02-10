@@ -5,6 +5,7 @@ import { Pulse, ErrorState, useSkeletonLoading, SheetSkeleton } from '@/Componen
 import { EmptyState } from '@/Components/ui/empty-state';
 import { CtaBanner } from '@/Components/ui/cta-banner';
 import { Badge } from '@/Components/ui/badge';
+import { Card, CardContent } from '@/Components/ui/card';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { Button, buttonVariants } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
@@ -90,7 +91,7 @@ interface Props {
 
 function AppointmentsSkeleton() {
   return (
-    <div className="w-full max-w-page">
+    <div className="w-full">
       <div className="flex items-center justify-between mb-8">
         <Pulse className="h-9 w-48" />
         <Pulse className="h-10 w-40 rounded-full" />
@@ -276,7 +277,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
       pageTitle="Appointments"
       pageIcon="/assets/icons/appointment.svg"
     >
-      <div className="min-h-full flex flex-col w-full max-w-page">
+      <div className="min-h-full flex flex-col w-full">
         {/* Header - Stack on mobile, side-by-side on desktop */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <h1
@@ -511,7 +512,7 @@ function AppointmentsTable({
   return (
     <>
       {/* Mobile Card View - visible on mobile only */}
-      <div className="lg:hidden space-y-3">
+      <div className="md:hidden space-y-3">
         {appointments.map((appt) => {
           const handleCardClick = () => {
             if (tab === 'upcoming') {
@@ -593,16 +594,16 @@ function AppointmentsTable({
       </div>
 
       {/* Desktop Table View - hidden on mobile */}
-      <TableContainer className="hidden lg:block">
+      <TableContainer className="hidden md:block">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead className="w-col-date">Date</TableHead>
-              <TableHead>Details</TableHead>
+              <TableHead className="max-w-col-details">Details</TableHead>
               <TableHead className="w-col-member">Family member</TableHead>
               <TableHead className="w-col-amount text-right">Amount</TableHead>
               <TableHead className="w-col-status">Status</TableHead>
-              <TableHead />
+              <TableHead className="w-col-actions" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -627,7 +628,7 @@ function AppointmentsTable({
                 <p className="text-label whitespace-nowrap">{formatDate(appt.date) || '—'}</p>
                 <p className="text-body text-muted-foreground">{formatTime(appt.date) || '—'}</p>
               </TableCell>
-              <TableCell className="align-top">
+              <TableCell className="max-w-col-details align-top">
                 <div className="flex items-center gap-2.5">
                   {appt.type === 'doctor' ? (
                     <Avatar className="h-10 w-10 flex-shrink-0">
@@ -693,7 +694,7 @@ function AppointmentsTable({
       </TableContainer>
 
       {/* Mobile Pagination - Only show count on mobile */}
-      <div className="lg:hidden mt-4 text-center">
+      <div className="md:hidden mt-4 text-center">
         <p className="text-body text-muted-foreground">
           Showing {appointments.length} {appointments.length === 1 ? 'appointment' : 'appointments'}
         </p>

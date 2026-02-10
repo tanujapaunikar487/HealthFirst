@@ -1,159 +1,234 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
-import { Button } from '@/Components/ui/button';
-import { HStack, VStack } from '@/Components/ui/stack';
-import { Icon } from '@/Components/ui/icon';
-import { Star } from '@/Lib/icons';
-import { cn } from '@/Lib/utils';
+import * as React from 'react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
 import { getAvatarColorByName } from '@/Lib/avatar-colors';
+import { Badge } from '@/Components/ui/badge';
+import { Button } from '@/Components/ui/button';
+import { Star } from '@/Lib/icons';
+import { Icon } from '@/Components/ui/icon';
+import { cn } from '@/Lib/utils';
 
 export interface TimeSlot {
   time: string;
   available: boolean;
-  preferred: boolean;
+  preferred?: boolean;
 }
 
-export interface Doctor {
+export interface DoctorCardProps {
   id: string;
   name: string;
   avatar: string | null;
   specialization: string;
-  experience_years: number;
-  appointment_modes: string[];
-  video_fee: number;
-  in_person_fee: number;
+  experienceYears?: number;
   education?: string[];
   languages?: string[];
   rating?: number;
-  total_reviews?: number;
-}
-
-interface DoctorCardProps {
-  doctor: Doctor;
-  slots: TimeSlot[];
+  reviewCount?: number;
+  consultationModes?: string[];
+  videoFee?: number;
+  inPersonFee?: number;
+  price?: number; // Legacy fallback
+  slots?: TimeSlot[];
+  quickTimes?: string[]; // For previous doctors
+  availableOnDate?: boolean; // For previous doctors
+  availabilityMessage?: string;
   selectedTime: string | null;
-  isSelected: boolean;
   onSelectTime: (time: string) => void;
+  disabled?: boolean;
 }
 
-export function DoctorCard({ doctor, slots, selectedTime, isSelected, onSelectTime }: DoctorCardProps) {
-  const getInitials = (name: string) => {
-    const parts = name.split(' ');
-    return parts.length > 1
-      ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
-      : name.substring(0, 2).toUpperCase();
+/**
+ * DoctorCard Component
+ *
+ * Global component for displaying doctor information in booking flows.
+ * Supports both full doctor lists and previous doctors lists.
+ *
+ * @example
+ * // Basic usage
+ * <DoctorCard
+ *   id={doctor.id}
+ *   name={doctor.name}
+ *   avatar={doctor.avatar}
+ *   specialization={doctor.specialization}
+ *   experienceYears={doctor.experience_years}
+ *   selectedTime={selectedTime}
+ *   onSelectTime={handleSelectTime}
+ * />
+ *
+ * @example
+ * // With time slots and consultation modes
+ * <DoctorCard
+ *   {...doctor}
+ *   consultationModes={['video', 'in_person']}
+ *   videoFee={800}
+ *   inPersonFee={1000}
+ *   slots={doctor.slots}
+ *   selectedTime={selectedTime}
+ *   onSelectTime={handleSelectTime}
+ * />
+ */
+export function DoctorCard({
+  id,
+  name,
+  avatar,
+  specialization,
+  experienceYears,
+  education,
+  languages,
+  rating,
+  reviewCount,
+  consultationModes,
+  videoFee,
+  inPersonFee,
+  price,
+  slots,
+  quickTimes,
+  availableOnDate,
+  availabilityMessage,
+  selectedTime,
+  onSelectTime,
+  disabled = false,
+}: DoctorCardProps) {
+  const getPrice = () => {
+    const vFee = videoFee ?? 0;
+    const iPFee = inPersonFee ?? 0;
+
+    if (consultationModes?.length === 2 && vFee && iPFee) {
+      return `₹${vFee.toLocaleString()} / ${iPFee.toLocaleString()}`;
+    }
+
+    if (vFee && iPFee) {
+      return `₹${vFee.toLocaleString()} / ${iPFee.toLocaleString()}`;
+    }
+
+    const fee = vFee || iPFee || price;
+    return fee ? `₹${fee.toLocaleString()}` : 'Price not available';
   };
 
-  const formatConsultationModes = (modes: string[]) => {
-    if (modes.includes('video') && modes.includes('in_person')) {
-      return 'Video and In-hospital';
-    }
-    if (modes.includes('video')) {
-      return 'Video';
-    }
-    if (modes.includes('in_person')) {
-      return 'In-hospital';
-    }
-    return '';
-  };
-
-  const getFeeRange = () => {
-    const fees = [];
-    if (doctor.appointment_modes.includes('video')) {
-      fees.push(doctor.video_fee);
-    }
-    if (doctor.appointment_modes.includes('in_person')) {
-      fees.push(doctor.in_person_fee);
-    }
-
-    const uniqueFees = [...new Set(fees)];
-    if (uniqueFees.length === 1) {
-      return `₹${uniqueFees[0].toLocaleString()}`;
-    }
-    return `₹${Math.min(...uniqueFees).toLocaleString()} / ${Math.max(...uniqueFees).toLocaleString()}`;
-  };
-
-  const avatarColor = getAvatarColorByName(doctor.name);
+  const getInitial = (doctorName: string) => doctorName.charAt(0).toUpperCase();
 
   return (
-    <div
-      className={cn(
-        'px-6 py-4 transition-all hover:bg-muted/50',
-        isSelected && 'bg-primary/5'
-      )}
-    >
-      <VStack gap={4}>
-        {/* Doctor Info */}
-        <HStack gap={3} className="items-start">
-          <Avatar className="h-12 w-12">
-            <AvatarImage src={doctor.avatar || undefined} />
+    <div className="px-6 py-4 transition-colors hover:bg-muted/50">
+      {/* Doctor info */}
+      <div className="flex items-start justify-between gap-4 mb-3">
+        <div className="flex items-start gap-3 flex-1">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={avatar || undefined} />
             <AvatarFallback
-              className="text-label"
-              style={{
-                backgroundColor: `hsl(${avatarColor.bg})`,
-                color: `hsl(${avatarColor.text})`,
-              }}
+              style={(() => {
+                const color = getAvatarColorByName(name || 'Doctor');
+                return { backgroundColor: color.bg, color: color.text };
+              })()}
             >
-              {getInitials(doctor.name)}
+              {getInitial(name || 'D')}
             </AvatarFallback>
           </Avatar>
-          <VStack gap={0} className="flex-1 min-w-0">
-            <h3 className="text-label text-foreground">{doctor.name}</h3>
+          <div className="space-y-1">
+            <p className="text-label leading-none">{name || 'Unknown Doctor'}</p>
             <p className="text-body text-muted-foreground">
-              {doctor.specialization} • {doctor.experience_years} years
+              {specialization || 'General'}{experienceYears ? ` • ${experienceYears} years` : ''}
             </p>
-            {doctor.education && doctor.education.length > 0 && (
+            {education && education.length > 0 && (
               <p className="text-body text-muted-foreground">
-                {doctor.education.join(', ')}
+                {education.join(', ')}
               </p>
             )}
-            {doctor.languages && doctor.languages.length > 0 && (
+            {languages && languages.length > 0 && (
               <p className="text-body text-muted-foreground">
-                {doctor.languages.join(', ')}
+                {languages.join(', ')}
               </p>
             )}
-            {doctor.rating && (
+            {rating && (
               <div className="flex items-center gap-1">
                 <Icon icon={Star} size={14} className="fill-warning text-warning" />
-                <span className="text-label">{doctor.rating}</span>
-                {doctor.total_reviews && (
+                <span className="text-label">{rating}</span>
+                {reviewCount && (
                   <span className="text-body text-muted-foreground">
-                    ({doctor.total_reviews})
+                    ({reviewCount})
                   </span>
                 )}
               </div>
             )}
-          </VStack>
-          <VStack gap={1} className="items-end">
-            <span className="px-2 py-1 text-label text-primary bg-primary/10 rounded whitespace-nowrap">
-              {formatConsultationModes(doctor.appointment_modes)}
-            </span>
-            <span className="text-card-title">{getFeeRange()}</span>
-          </VStack>
-        </HStack>
+          </div>
+        </div>
 
-        {/* Time Slots */}
-        <HStack gap={2} className="flex-wrap">
-          {slots.map((slot) => (
-            <Button
-              key={slot.time}
-              variant={selectedTime === slot.time ? 'accent' : 'outline'}
-              onClick={() => slot.available && onSelectTime(slot.time)}
-              disabled={!slot.available}
-              className={cn(
-                'h-auto px-4 py-2 rounded-full transition-all relative',
-                selectedTime !== slot.time && 'hover:border-primary/50 hover:bg-primary/5',
-                selectedTime === slot.time && 'border-foreground',
-                !slot.available && 'opacity-40 cursor-not-allowed'
+        <div className="flex flex-col items-end gap-2">
+          {consultationModes && consultationModes.length > 0 && (
+            <div className="flex gap-2">
+              {consultationModes.includes('video') && (
+                <Badge variant="neutral">Video</Badge>
               )}
-            >
-              {slot.time}
-              {slot.preferred && selectedTime !== slot.time && (
-                <Icon icon={Star} size={12} className="absolute -top-1 -right-1 fill-black text-black" />
+              {consultationModes.includes('in_person') && (
+                <Badge variant="neutral">In-person</Badge>
               )}
-            </Button>
-          ))}
-        </HStack>
-      </VStack>
+            </div>
+          )}
+          <p className="text-label">{getPrice()}</p>
+        </div>
+      </div>
+
+      {/* Time slots */}
+      {availableOnDate === false ? (
+        <div className="ml-13 text-body text-muted-foreground italic">
+          {availabilityMessage || 'No available slots on the selected date'}
+        </div>
+      ) : (
+        <div className="ml-13 flex flex-wrap gap-2">
+          {/* Show quick times if available */}
+          {quickTimes && quickTimes.length > 0 ? (
+            quickTimes.map((time) => (
+              <Button
+                key={time}
+                variant={selectedTime === time ? 'accent' : 'outline'}
+                onClick={() => !disabled && onSelectTime(time)}
+                disabled={disabled}
+                className={cn(
+                  "h-auto px-3 py-1.5 rounded-full text-label",
+                  "disabled:opacity-60",
+                  selectedTime === time && "border-foreground"
+                )}
+              >
+                {formatTime(time)}
+              </Button>
+            ))
+          ) : slots && slots.length > 0 ? (
+            /* Show full slots with availability */
+            slots.map((slot) => (
+              <Button
+                key={slot.time}
+                variant={selectedTime === slot.time ? 'accent' : 'outline'}
+                onClick={() => !disabled && slot.available && onSelectTime(slot.time)}
+                disabled={disabled || !slot.available}
+                className={cn(
+                  "h-auto px-3 py-1.5 rounded-full text-label",
+                  "disabled:opacity-60",
+                  selectedTime === slot.time && "border-foreground"
+                )}
+              >
+                {formatTime(slot.time)}
+                {slot.preferred && <Icon icon={Star} size={12} className="fill-current text-muted-foreground" />}
+              </Button>
+            ))
+          ) : null}
+        </div>
+      )}
     </div>
   );
+}
+
+/**
+ * Format time from 24-hour to 12-hour with AM/PM
+ * If time already has AM/PM, return as-is
+ */
+function formatTime(time: string): string {
+  // If time already has AM/PM, return as-is
+  if (time.includes('AM') || time.includes('PM') || time.includes('am') || time.includes('pm')) {
+    return time;
+  }
+
+  // Otherwise, format from 24-hour to 12-hour with AM/PM
+  const [hours, minutes] = time.split(':');
+  const hour = parseInt(hours, 10);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour % 12 || 12;
+  return `${displayHour}:${minutes} ${ampm}`;
 }

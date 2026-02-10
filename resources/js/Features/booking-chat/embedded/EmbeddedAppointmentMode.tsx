@@ -1,7 +1,4 @@
-import { cn } from '@/Lib/utils';
-import { Card } from '@/Components/ui/card';
-import { Button } from '@/Components/ui/button';
-import { Icon } from '@/Components/ui/icon';
+import { OptionList, OptionListItem } from '@/Components/ui/option-list';
 import { Monitor, Users } from '@/Lib/icons';
 
 interface Mode {
@@ -30,47 +27,23 @@ const modeConfig = {
 };
 
 export function EmbeddedAppointmentMode({ modes, selectedMode, onSelect, disabled }: Props) {
-  return (
-    <Card className="overflow-hidden">
-      <div className="divide-y">
-        {modes.map((mode) => {
-          const config = modeConfig[mode.type];
-          const ModeIcon = config.icon;
-          const isSelected = selectedMode === mode.type;
+  const options: OptionListItem[] = modes.map((mode) => {
+    const config = modeConfig[mode.type];
+    return {
+      value: mode.type,
+      label: config.label,
+      description: config.description,
+      icon: config.icon,
+      rightContent: <p className="text-label">₹{mode.price.toLocaleString()}</p>,
+    };
+  });
 
-          return (
-            <Button
-              key={mode.type}
-              variant="ghost"
-              onClick={() => !disabled && onSelect(mode.type)}
-              disabled={disabled}
-              className={cn(
-                "w-full h-auto justify-start px-6 py-4 text-body",
-                "flex items-center gap-4 text-left transition-all",
-                "disabled:cursor-not-allowed",
-                isSelected
-                  ? "relative z-10 rounded-3xl border-2 border-primary bg-primary/10 [&:not(:first-child)]:-mt-px [&+*]:border-t-transparent"
-                  : "rounded-none hover:bg-muted/50",
-                disabled && isSelected && "[opacity:1!important]",
-                disabled && !isSelected && "opacity-40"
-              )}
-            >
-              <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center shrink-0">
-                <Icon icon={ModeIcon} size={20} className="text-blue-800" />
-              </div>
-              <div className="flex-1 min-w-0 text-left">
-                <p className="text-label text-foreground leading-tight mb-0.5">
-                  {config.label}
-                </p>
-                <p className="text-body text-muted-foreground leading-tight">
-                  {config.description}
-                </p>
-              </div>
-              <p className="text-label shrink-0">₹{mode.price.toLocaleString()}</p>
-            </Button>
-          );
-        })}
-      </div>
-    </Card>
+  return (
+    <OptionList
+      options={options}
+      selected={selectedMode}
+      onSelect={onSelect}
+      disabled={disabled}
+    />
   );
 }

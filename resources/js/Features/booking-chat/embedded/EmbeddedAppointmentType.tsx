@@ -1,7 +1,4 @@
-import { cn } from '@/Lib/utils';
-import { Button } from '@/Components/ui/button';
-import { Card } from '@/Components/ui/card';
-import { Icon } from '@/Components/ui/icon';
+import { OptionList } from '@/Components/ui/option-list';
 import { User, RefreshCw } from '@/Lib/icons';
 
 interface Props {
@@ -27,38 +24,12 @@ const options = [
 
 export function EmbeddedAppointmentType({ selectedType, onSelect, disabled }: Props) {
   return (
-    <Card className="overflow-hidden mt-3">
-      <div className="divide-y">
-        {options.map((option) => {
-          const isSelected = selectedType === option.value;
-
-          return (
-            <Button
-              key={option.value}
-              variant="ghost"
-              onClick={() => !disabled && onSelect(option.value)}
-              disabled={disabled}
-              className={cn(
-                'w-full h-auto px-6 py-4 text-left transition-all flex items-center gap-4',
-                'disabled:cursor-not-allowed',
-                isSelected
-                  ? 'relative z-10 rounded-3xl border-2 border-primary bg-primary/10 [&:not(:first-child)]:-mt-px [&+*]:border-t-transparent'
-                  : 'rounded-none hover:bg-muted/50',
-                disabled && isSelected && '[opacity:1!important]',
-                disabled && !isSelected && 'opacity-40'
-              )}
-            >
-              <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center shrink-0">
-                <Icon icon={option.icon} size={20} className="text-blue-800" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-label text-foreground">{option.label}</p>
-                <p className="text-body text-muted-foreground">{option.description}</p>
-              </div>
-            </Button>
-          );
-        })}
-      </div>
-    </Card>
+    <OptionList
+      options={options}
+      selected={selectedType}
+      onSelect={onSelect}
+      disabled={disabled}
+      className="mt-3"
+    />
   );
 }

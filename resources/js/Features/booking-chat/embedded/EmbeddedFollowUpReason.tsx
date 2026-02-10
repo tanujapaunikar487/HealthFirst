@@ -1,7 +1,4 @@
-import { cn } from '@/Lib/utils';
-import { Card } from '@/Components/ui/card';
-import { Button } from '@/Components/ui/button';
-import { Icon } from '@/Components/ui/icon';
+import { OptionList, OptionListItem } from '@/Components/ui/option-list';
 import { CalendarClock, AlertCircle, RefreshCw } from '@/Lib/icons';
 
 export interface FollowUpReasonOption {
@@ -49,45 +46,19 @@ const getReasonIcon = (value: string) => {
 };
 
 export function EmbeddedFollowUpReason({ selectedReason, onSelect, disabled, reasons = defaultReasons }: Props) {
-  return (
-    <Card className="overflow-hidden">
-      <div className="divide-y">
-        {reasons.map((reason) => {
-          const isSelected = selectedReason === reason.value;
-          const ReasonIcon = getReasonIcon(reason.value);
+  const options: OptionListItem[] = reasons.map((reason) => ({
+    value: reason.value,
+    label: reason.label,
+    description: reason.description,
+    icon: getReasonIcon(reason.value),
+  }));
 
-          return (
-            <Button
-              key={reason.value}
-              variant="ghost"
-              onClick={() => !disabled && onSelect(reason.value)}
-              disabled={disabled}
-            className={cn(
-                "w-full h-auto justify-start px-6 py-4 text-body",
-                "flex items-center gap-4 text-left transition-all",
-                "disabled:cursor-not-allowed",
-                isSelected
-                  ? "relative z-10 rounded-3xl border-2 border-primary bg-primary/10 [&:not(:first-child)]:-mt-px [&+*]:border-t-transparent"
-                  : "rounded-none hover:bg-muted/50",
-                disabled && isSelected && "[opacity:1!important]",
-                disabled && !isSelected && "opacity-40"
-              )}
-            >
-            <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center shrink-0">
-              <Icon icon={ReasonIcon} size={20} className="text-blue-800" />
-            </div>
-            <div className="min-w-0 text-left">
-              <p className="text-label text-foreground leading-tight mb-0.5">
-                {reason.label}
-              </p>
-              <p className="text-body text-muted-foreground leading-tight">
-                {reason.description}
-              </p>
-            </div>
-            </Button>
-          );
-        })}
-      </div>
-    </Card>
+  return (
+    <OptionList
+      options={options}
+      selected={selectedReason}
+      onSelect={onSelect}
+      disabled={disabled}
+    />
   );
 }

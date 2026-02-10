@@ -1,3 +1,5 @@
+import { Link } from '@inertiajs/react';
+
 interface SupportFooterProps {
     pageName: string;
 }
@@ -8,6 +10,14 @@ export function SupportFooter({ pageName }: SupportFooterProps) {
     return (
         <div className="pt-20 text-center">
             <p className="text-caption text-muted-foreground">
+                <Link href="/privacy-policy" className="hover:text-foreground transition-colors">
+                    Privacy Policy
+                </Link>
+                <span className="mx-2">•</span>
+                <Link href="/terms-of-service" className="hover:text-foreground transition-colors">
+                    Terms of Service
+                </Link>
+                <span className="mx-2">•</span>
                 Need help with {pageName}?{' '}
                 <a
                     href={gmailUrl}

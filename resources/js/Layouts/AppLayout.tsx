@@ -370,7 +370,7 @@ export default function AppLayout({
     return (
         <div className="flex h-screen bg-background">
             {/* Desktop Sidebar - Hidden on mobile */}
-            <div className="hidden lg:block">
+            <div className="hidden md:block h-full">
                 <Sidebar user={user} />
             </div>
 
@@ -393,7 +393,7 @@ export default function AppLayout({
                                     variant="ghost"
                                     iconOnly
                                     size="lg"
-                                    className="lg:hidden hover:bg-accent"
+                                    className="md:hidden hover:bg-accent"
                                     style={{
                                         backgroundColor: "hsl(var(--background))",
                                         border: "1px solid hsl(var(--border))",
@@ -508,7 +508,7 @@ export default function AppLayout({
 
                 {/* Page Content */}
                 <main
-                    className="flex-1 overflow-y-auto flex flex-col pt-20 pb-5 px-4 sm:px-6 lg:px-10"
+                    className="flex-1 overflow-y-auto flex flex-col pt-20 pb-5 px-4 sm:px-6 md:px-10"
                     style={{
                         background:
                             "linear-gradient(180deg, hsl(var(--primary) / 0.1) 0%, hsl(var(--background) / 0.5) 13.94%, hsl(var(--background)) 30.77%)",
@@ -740,19 +740,6 @@ function MobileSidebar({ user, onNavigate }: { user: User | null; onNavigate: ()
                 </nav>
             )}
 
-            {/* Legal Links */}
-            <div className="px-6 py-3 border-t" style={{ borderColor: "hsl(var(--border))" }}>
-                <div className="flex items-center justify-center gap-3 text-caption text-muted-foreground">
-                    <Link href="/privacy-policy" className="hover:text-foreground transition-colors" onClick={onNavigate}>
-                        Privacy Policy
-                    </Link>
-                    <span>·</span>
-                    <Link href="/terms-of-service" className="hover:text-foreground transition-colors" onClick={onNavigate}>
-                        Terms of Service
-                    </Link>
-                </div>
-            </div>
-
             {/* User Profile Section */}
             {user && (
                 <div
@@ -808,7 +795,7 @@ function Sidebar({ user }: { user: User | null }) {
 
     return (
         <aside
-            className="w-80 bg-background flex flex-col"
+            className="w-80 h-full bg-background flex flex-col"
             style={{ borderRight: "1px solid hsl(var(--border))" }}
         >
             {/* Logo */}
@@ -869,19 +856,6 @@ function Sidebar({ user }: { user: User | null }) {
 
             {/* Spacer for guest mode */}
             {!user && <div className="flex-1" />}
-
-            {/* Legal Links */}
-            <div className="px-6 py-3 border-t" style={{ borderColor: "hsl(var(--border))" }}>
-                <div className="flex items-center justify-center gap-3 text-caption text-muted-foreground">
-                    <Link href="/privacy-policy" className="hover:text-foreground transition-colors">
-                        Privacy Policy
-                    </Link>
-                    <span>·</span>
-                    <Link href="/terms-of-service" className="hover:text-foreground transition-colors">
-                        Terms of Service
-                    </Link>
-                </div>
-            </div>
 
             {/* User Profile Section - authenticated */}
             {user && (

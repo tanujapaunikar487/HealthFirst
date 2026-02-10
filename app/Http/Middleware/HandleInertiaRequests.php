@@ -42,6 +42,7 @@ class HandleInertiaRequests extends Middleware
                 : 0,
             'allNotifications' => $user
                 ? \App\Models\BillingNotification::where('user_id', $user->id)
+                    ->with('appointment.doctor')
                     ->orderByDesc('created_at')
                     ->get()
                     ->map(fn ($n) => [
@@ -57,6 +58,10 @@ class HandleInertiaRequests extends Middleware
                         'health_record_id' => $n->data['health_record_id'] ?? null,
                         'family_member_id' => $n->data['family_member_id'] ?? null,
                         'insurance_policy_id' => $n->data['insurance_policy_id'] ?? null,
+                        'doctor' => $n->appointment && $n->appointment->doctor ? [
+                            'name' => $n->appointment->doctor->name,
+                            'avatar_url' => $n->appointment->doctor->avatar_url,
+                        ] : null,
                     ])
                 : [],
             'profileWarnings' => $user ? $this->getProfileWarnings($user) : [],

@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import * as React from 'react';
-import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
-import { getAvatarColorByName } from '@/Lib/avatar-colors';
-import { Badge } from '@/Components/ui/badge';
-import { Button } from '@/Components/ui/button';
+import { DoctorCard } from '@/Components/Booking/DoctorCard';
 import { Card, CardContent } from '@/Components/ui/card';
 import { Input } from '@/Components/ui/input';
 import {
@@ -13,8 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/Components/ui/select';
-import { cn } from '@/Lib/utils';
-import { Search, Star } from '@/Lib/icons';
+import { Search } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 
 interface TimeSlot {
@@ -179,7 +175,19 @@ export function EmbeddedDoctorList({ doctors, selectedDoctorId, selectedTime, on
           {filteredDoctors.map((doctor) => (
             <DoctorCard
               key={doctor.id}
-              doctor={doctor}
+              id={doctor.id}
+              name={doctor.name}
+              avatar={doctor.avatar}
+              specialization={doctor.specialization}
+              experienceYears={doctor.experience_years}
+              education={doctor.education}
+              languages={doctor.languages}
+              rating={doctor.rating}
+              reviewCount={doctor.total_reviews}
+              consultationModes={doctor.consultation_modes}
+              videoFee={doctor.video_fee}
+              inPersonFee={doctor.in_person_fee}
+              slots={doctor.slots}
               selectedTime={selectedDoctorId === doctor.id ? selectedTime : null}
               onSelectTime={(time) => onSelect(doctor.id, time)}
               disabled={disabled}
@@ -189,126 +197,4 @@ export function EmbeddedDoctorList({ doctors, selectedDoctorId, selectedTime, on
       </Card>
     </div>
   );
-}
-
-function DoctorCard({
-  doctor,
-  selectedTime,
-  onSelectTime,
-  disabled,
-}: {
-  doctor: Doctor;
-  selectedTime: string | null;
-  onSelectTime: (time: string) => void;
-  disabled: boolean;
-}) {
-  const getPrice = () => {
-    const videoFee = doctor.video_fee ?? 0;
-    const inPersonFee = doctor.in_person_fee ?? 0;
-
-    if (doctor.consultation_modes?.length === 2 && videoFee && inPersonFee) {
-      return `₹${videoFee.toLocaleString()} / ${inPersonFee.toLocaleString()}`;
-    }
-
-    const fee = videoFee || inPersonFee;
-    return fee ? `₹${fee.toLocaleString()}` : 'Price not available';
-  };
-
-  return (
-    <div className="px-6 py-4 transition-colors hover:bg-muted/50">
-      {/* Doctor info */}
-      <div className="flex items-start justify-between gap-4 mb-3">
-        <div className="flex items-start gap-3 flex-1">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={doctor.avatar || undefined} />
-            <AvatarFallback
-              style={(() => {
-                const color = getAvatarColorByName(doctor.name || 'Doctor');
-                return { backgroundColor: color.bg, color: color.text };
-              })()}
-            >
-              {doctor.name?.charAt(0).toUpperCase() || 'D'}
-            </AvatarFallback>
-          </Avatar>
-          <div className="space-y-1">
-            <p className="text-label leading-none">{doctor.name || 'Unknown Doctor'}</p>
-            <p className="text-body text-muted-foreground">
-              {doctor.specialization || 'General'} • {doctor.experience_years || 0} years
-            </p>
-            {doctor.education && doctor.education.length > 0 && (
-              <p className="text-body text-muted-foreground">
-                {doctor.education.join(', ')}
-              </p>
-            )}
-            {doctor.languages && doctor.languages.length > 0 && (
-              <p className="text-body text-muted-foreground">
-                {doctor.languages.join(', ')}
-              </p>
-            )}
-            {doctor.rating && (
-              <div className="flex items-center gap-1">
-                <Icon icon={Star} size={14} className="fill-warning text-warning" />
-                <span className="text-label">{doctor.rating}</span>
-                {doctor.total_reviews && (
-                  <span className="text-body text-muted-foreground">
-                    ({doctor.total_reviews})
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="flex flex-col items-end gap-2">
-          <div className="flex gap-2">
-            {doctor.consultation_modes?.includes('video') && (
-              <Badge variant="neutral">
-                Video
-              </Badge>
-            )}
-            {doctor.consultation_modes?.includes('in_person') && (
-              <Badge variant="neutral">
-                In-person
-              </Badge>
-            )}
-          </div>
-          <p className="text-label">{getPrice()}</p>
-        </div>
-      </div>
-
-      {/* Time slots */}
-      <div className="ml-13 flex flex-wrap gap-2">
-        {doctor.slots?.map((slot) => (
-          <Button
-            key={slot.time}
-            variant={selectedTime === slot.time ? 'accent' : 'outline'}
-            onClick={() => !disabled && slot.available && onSelectTime(slot.time)}
-            disabled={disabled || !slot.available}
-            className={cn(
-              "h-auto px-3 py-1.5 rounded-full text-label",
-              "disabled:opacity-60",
-              selectedTime === slot.time && "border-foreground"
-            )}
-          >
-            {formatTime(slot.time)}
-            {slot.preferred && <Icon icon={Star} size={12} className="fill-current text-muted-foreground" />}
-          </Button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function formatTime(time: string): string {
-  // If time already has AM/PM, return as-is
-  if (time.includes('AM') || time.includes('PM') || time.includes('am') || time.includes('pm')) {
-    return time;
-  }
-
-  // Otherwise, format from 24-hour to 12-hour with AM/PM
-  const [hours, minutes] = time.split(':');
-  const hour = parseInt(hours, 10);
-  const ampm = hour >= 12 ? 'PM' : 'AM';
-  const displayHour = hour % 12 || 12;
-  return `${displayHour}:${minutes} ${ampm}`;
 }

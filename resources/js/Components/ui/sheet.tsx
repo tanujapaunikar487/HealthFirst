@@ -178,8 +178,8 @@ const SheetContent = React.forwardRef<
       ref={ref}
       className={cn(
         sheetVariants({ side }),
-        // Mobile: Full width with small inset, Desktop: Fixed 500px with larger inset
-        'w-full sm:w-[500px] rounded-3xl border bg-card flex flex-col items-stretch',
+        // Mobile: Full width with small inset, Desktop: Fixed 420px with larger inset
+        'w-full sm:w-[420px] rounded-3xl border bg-card flex flex-col items-stretch',
         // Mobile: Small inset on all sides, Desktop: Larger inset on top/right/bottom
         'inset-2 sm:inset-y-2.5 sm:right-2.5 sm:left-auto h-auto overflow-hidden',
         className

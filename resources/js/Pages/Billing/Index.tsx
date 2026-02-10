@@ -580,7 +580,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
         ) : (
           <>
             {/* Desktop Table */}
-            <div className="hidden lg:block">
+            <div className="hidden md:block">
               <TableContainer>
                 <Table>
                   <TableHeader>
@@ -699,7 +699,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
             </div>
 
             {/* Mobile Card List */}
-            <div className="lg:hidden space-y-3">
+            <div className="md:hidden space-y-3">
               {paged.map((bill) => {
                 const isPayable = PAYABLE_STATUSES.includes(bill.billing_status);
                 const cfg = STATUS_CONFIG[bill.billing_status] ?? { label: bill.billing_status, variant: 'neutral' as const };

@@ -12,13 +12,16 @@ Laravel 11 + React 18 + TS + Inertia v2 + Tailwind v4 + shadcn/ui | `php artisan
 **Toast**: Global notification system. 4 variants (success/error/warning/info). Dark bg with colored circle icons. Usage: `useToast()` hook → `showToast(message, variant)`. Auto-dismisses 3s.
 **BulkActionBar**: Global component for table bulk actions. Light grey `bg-muted` background with dark `variant="accent"` buttons. Auto-pluralizes item labels, hides when count is 0. Pattern: `className="mb-4"` on bar, `className="mt-4"` on table wrapper for consistent 32px spacing.
 **Button**: 8 variants, 4 sizes (lg/md/sm/xs). Use `buttonVariants()` on Links. Default: primary lg. Adjacent icons match parent size (lg→lg).
+**Chip**: Unified chip component (`Components/ui/chip`). 2 variants: `default` (symptoms/filters: outline→primary/10 selected), `accent` (time slots: outline→accent selected). Props: variant, selected, icon. Pattern: `<Chip selected={bool}>Label</Chip>`. Wrap in `HStack gap={2}` with `flex-wrap`. Never use ad-hoc rounded buttons.
+**OptionList**: Global selection list component (`Components/ui/option-list`) for AI booking and option selections. Props: options (array of {value, label, description?, icon?, indicator?, rightContent?}), selected, onSelect, disabled. Supports: icons (blue circle default), colored indicators (dots for urgency), pricing/badges (rightContent). Selected state: `rounded-3xl border-2 border-primary bg-primary/10`. Used in: follow-up reasons, appointment modes/types, urgency, collection methods. Generic type `<T>` for typed values. Always use OptionList for Card+divide-y selection patterns—never duplicate the structure.
+**DoctorCard**: Global doctor card component (`Components/Booking/DoctorCard`) for AI booking flows. Props: id, name, avatar, specialization, experienceYears, education, languages, rating, reviewCount, consultationModes, videoFee, inPersonFee, price, slots, quickTimes, availableOnDate, selectedTime, onSelectTime, disabled. Displays: doctor avatar with colored fallback, info (specialty, experience, education, languages, rating), consultation mode badges (Video/In-person), pricing (single or dual), time slot chips with preferred markers. Layout: `px-6 py-4`, `hover:bg-muted/50`. Time slots: `ml-13` offset, `rounded-full`, `variant="accent"` when selected, `border-foreground`. Used in: EmbeddedDoctorList, EmbeddedPreviousDoctorsList. Always use DoctorCard—never duplicate doctor card structure.
 **Avatar**: Only for doctors and family members. If image exists, show it; else fallback with initials using `getAvatarColorByName(name)` from `@/Lib/avatar-colors` (7-color palette: Cyan, Purple, Indigo, Pink, Emerald, Orange, Amber). For non-doctor entities (updates, notifications, lab tests), use colored icons in `bg-primary/10` circle with `text-primary`. Current user=`bg-muted text-muted-foreground`. Dashboard cards: doctors get avatars, lab tests get icons. Notifications: doctors get avatars, updates get icons. Family member groups: show up to 3 avatars with `-space-x-2`, then `+X` circle for remaining.
 **Insurance Providers**: Display provider logo if available (`provider_logo` field), else fallback to avatar with initials. Logos: `h-10 w-10` (table) or `h-14 w-14` (detail), `object-contain`, no background. Logo assets in `/public/assets/images/{provider-slug}.png`.
 **DetailRow/Section** (`Components/ui/`): Grid with `w-detail-label`, `px-6 py-4`. Edge-to-edge dividers: `noPadding` + `p-6` + `divide-y -mx-6`. No card-in-card—list items use `divide-y`, tables direct content.
 **Tables**: `TableContainer` wrap + `TablePagination` + `w-col-*` tokens. Rows: `cursor-pointer hover:bg-muted/50 align-top`. Icons from `@/Lib/icons` not `lucide-react`.
 **Empty**: CtaBanner (action pages) | EmptyState (passive) | Filtered=EmptyState no CTA
 **Financial rows**: `flex justify-between` (NOT DetailRow). Pattern: `px-6 py-4`, label=`text-body text-muted-foreground`, value=`text-label`, total=`text-card-title`.
-**Sheets**: Composable primitives for right-side overlays (500px). Components: `SheetHeader` (auto center-aligned), `SheetBody`, `SheetFooter`, `SheetEdgeContent` (full-width), `SheetSectionHeading`. Patterns: Simple forms (header+body+footer) | List views (header+edge content with divide-y) | Details (mixed padded/edge sections) | Multi-step (header with onBack). Always use design tokens: `space-y-5` for sections, `px-6 py-4` for list items, `text-label` for headings. See [sheet.tsx](resources/js/Components/ui/sheet.tsx) for full pattern documentation.
+**Sheets**: Composable primitives for right-side overlays (420px). Components: `SheetHeader` (auto center-aligned), `SheetBody`, `SheetFooter`, `SheetEdgeContent` (full-width), `SheetSectionHeading`. Patterns: Simple forms (header+body+footer) | List views (header+edge content with divide-y) | Details (mixed padded/edge sections) | Multi-step (header with onBack). Always use design tokens: `space-y-5` for sections, `px-6 py-4` for list items, `text-label` for headings. See [sheet.tsx](resources/js/Components/ui/sheet.tsx) for full pattern documentation.
 
 ## Booking Flow
 **Page Structure**: `VStack gap={12}` for sections | `VStack gap={4}` for section content | `VStack gap={1}` for title+subtitle pairs
@@ -26,10 +29,11 @@ Laravel 11 + React 18 + TS + Inertia v2 + Tailwind v4 + shadcn/ui | `php artisan
 **Icons**: `<Icon icon={IconName} size={20} />` not `<IconName className="h-5 w-5" />` | Sizes: 12/14 (sm), 16 (default), 20 (lg), 24 (xl) | Adjacent icons in `HStack gap={1}`
 
 **Selection Patterns** (use Card-based lists for all selections):
-- **Patient/Doctor lists**: `Card` + `divide-y` + `Button variant="ghost"` (`px-6 py-4` `rounded-none`) + Avatar with `getAvatarColorByName()` | Selected: `bg-primary/5` | Hover: `hover:bg-muted/50`
-- **Option lists** (follow-up reasons, appointment modes, etc.): `Card` + `divide-y` + `Button variant="ghost"` (`px-6 py-4` `rounded-none`) + Icon in `bg-primary/10` circle (size 10, icon size 20) | Selected: `bg-primary/5` | Hover: `hover:bg-muted/50`
-- **Chip selections** (symptoms, filters): `HStack gap={2}` with `flex-wrap` + `Button variant="outline"` (`px-4 py-2` `rounded-full`) | Selected: `bg-primary/10 border-primary text-label`
-- **Time slots**: `HStack gap={2}` with `flex-wrap` + `Button variant="accent/outline"` (`px-4 py-2` `rounded-full`) | Selected: `variant="accent" border-foreground` | Preferred: Star icon (`absolute -top-1 -right-1`)
+- **Doctor lists**: Use `<DoctorCard>` component for AI booking. Pass doctor data props + time slots. Component handles avatar, info, badges, pricing, time selection automatically.
+- **Patient lists**: `Card` + `divide-y` + `Button variant="ghost"` (`px-6 py-4` `rounded-none`) + Avatar with `getAvatarColorByName()` | Selected: `bg-primary/5` | Hover: `hover:bg-muted/50`
+- **Option lists** (follow-up reasons, appointment modes, urgency, collection methods): Use `<OptionList>` component. Never duplicate Card+divide-y+Button structure. Pass options array with icon/indicator and optional rightContent for pricing.
+- **Chip selections** (symptoms, filters): `HStack gap={2}` with `flex-wrap` + `<Chip selected={bool}>Label</Chip>` | Use `Chip` component, never ad-hoc buttons
+- **Time slots**: `HStack gap={2}` with `flex-wrap` + `<Chip variant="accent" selected={bool}>Time</Chip>` | Preferred slots: add `icon={<Star />}` prop
 
 ## AI Booking Chat
 **AIPromptInput** (`Components/ui/ai-prompt-input`): Global chatbot component. Props: value, onValueChange, onSubmit, placeholder, enableFileAttachments, enableVoiceRecording. Features: Gradient border (intensifies on focus), 80px min-height (`min-h-20`), file attachments with chips, voice recording with waveform. Used in: booking entry, conversation, appointment creation. No other chatbot components allowed.
@@ -45,7 +49,7 @@ Laravel 11 + React 18 + TS + Inertia v2 + Tailwind v4 + shadcn/ui | `php artisan
 
 ## Core Rules
 - UUIDs everywhere
-- Overlays: Sheets=forms (right 500px). Dialogs=security/search. AlertDialog=confirmations.
+- Overlays: Sheets=forms (right 420px). Dialogs=security/search. AlertDialog=confirmations.
 - JSON metadata for category-specific data
 - Server-side status (controllers compute badges)
 - Row click=details; 3-dot=actions only

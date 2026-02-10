@@ -841,7 +841,7 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
         {/* Desktop Table */}
         {filteredRecords.length > 0 ? (
           <div className="mt-4">
-            <div className="hidden lg:block">
+            <div className="hidden md:block">
               <TableContainer>
                 <Table>
                   <TableHeader>
@@ -926,7 +926,7 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
             </div>
 
             {/* Mobile Card List */}
-            <div className="lg:hidden space-y-3">
+            <div className="md:hidden space-y-3">
               {paginatedRecords.map((record) => {
                 const config = categoryConfig[record.category] || { label: record.category, color: 'hsl(var(--muted-foreground))', bg: 'hsl(var(--secondary))' };
                 const member = record.family_member_id ? memberMap[record.family_member_id] : undefined;
