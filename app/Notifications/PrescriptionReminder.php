@@ -8,6 +8,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 class PrescriptionReminder extends BaseNotification
 {
     protected HealthRecord $record;
+
     protected array $expiringDrugs;
 
     public function __construct(HealthRecord $record, array $expiringDrugs)
@@ -21,18 +22,19 @@ class PrescriptionReminder extends BaseNotification
         $drugLines = collect($this->expiringDrugs)->map(function ($drug) {
             $days = $drug['days_remaining'] ?? null;
             $timeLeft = $days !== null
-                ? ($days <= 0 ? 'expires today' : "expires in {$days} day" . ($days > 1 ? 's' : ''))
+                ? ($days <= 0 ? 'expires today' : "expires in {$days} day".($days > 1 ? 's' : ''))
                 : 'expiring soon';
+
             return "• **{$drug['name']}** — {$timeLeft}";
         })->implode("\n");
 
         return (new MailMessage)
             ->subject('Medication refill needed')
-            ->greeting('Hello ' . $notifiable->name . ',')
+            ->greeting('Hello '.$notifiable->name.',')
             ->line('The following medications are expiring and may need a refill:')
             ->line($drugLines)
-            ->line('**Prescribed by:** ' . $this->record->doctor_name)
-            ->line('**Prescription date:** ' . $this->record->record_date->format('d M Y'))
+            ->line('**Prescribed by:** '.$this->record->doctor_name)
+            ->line('**Prescription date:** '.$this->record->record_date->format('d M Y'))
             ->line('Please book an appointment with your doctor to get a refill before your medication runs out.')
             ->action('Book appointment', url('/booking'))
             ->line('Thank you for using HealthCare!');
@@ -43,17 +45,18 @@ class PrescriptionReminder extends BaseNotification
         $drugLines = collect($this->expiringDrugs)->map(function ($drug) {
             $days = $drug['days_remaining'] ?? null;
             $timeLeft = $days !== null
-                ? ($days <= 0 ? 'expires today' : "expires in {$days} day" . ($days > 1 ? 's' : ''))
+                ? ($days <= 0 ? 'expires today' : "expires in {$days} day".($days > 1 ? 's' : ''))
                 : 'expiring soon';
+
             return "• {$drug['name']} — {$timeLeft}";
         })->implode("\n");
 
         return "Hello {$notifiable->name},\n\n"
-            . "Medication refill needed:\n{$drugLines}\n\n"
-            . "Prescribed by: {$this->record->doctor_name}\n"
-            . "Prescription date: {$this->record->record_date->format('d M Y')}\n\n"
-            . "Please book an appointment to get a refill before your medication runs out.\n\n"
-            . "Thank you for using HealthCare!";
+            ."Medication refill needed:\n{$drugLines}\n\n"
+            ."Prescribed by: {$this->record->doctor_name}\n"
+            ."Prescription date: {$this->record->record_date->format('d M Y')}\n\n"
+            ."Please book an appointment to get a refill before your medication runs out.\n\n"
+            .'Thank you for using HealthCare!';
     }
 
     public function toArray(object $notifiable): array

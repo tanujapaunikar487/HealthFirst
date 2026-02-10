@@ -19,9 +19,13 @@ class BookingFlowTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private MockInterface $aiMock;
+
     private IntelligentBookingOrchestrator $orchestrator;
+
     private DoctorService $doctorService;
+
     private LabService $labService;
 
     protected function setUp(): void
@@ -37,8 +41,8 @@ class BookingFlowTest extends TestCase
 
         $this->seed(HospitalSeeder::class);
 
-        $this->doctorService = new DoctorService();
-        $this->labService = new LabService();
+        $this->doctorService = new DoctorService;
+        $this->labService = new LabService;
 
         // Mock only AIService — everything else uses real services + seeded DB
         $this->aiMock = Mockery::mock(AIService::class);
@@ -99,6 +103,7 @@ class BookingFlowTest extends TestCase
                 return $date;
             }
         }
+
         return null;
     }
 
@@ -439,6 +444,7 @@ class BookingFlowTest extends TestCase
     private function summaryConversation(): BookingConversation
     {
         $date = $this->getAvailableDateForDoctor(1) ?? now()->addDays(2)->format('Y-m-d');
+
         return $this->conversation('doctor', [
             'booking_type' => 'doctor',
             'selectedPatientId' => 1,
@@ -847,12 +853,12 @@ class BookingFlowTest extends TestCase
             }
         }
 
-        if (!$singleModeDoctor) {
+        if (! $singleModeDoctor) {
             $this->markTestSkipped('No single-mode doctor in seeded data');
         }
 
         $date = $this->getAvailableDateForDoctor($singleModeDoctor['id']);
-        if (!$date) {
+        if (! $date) {
             $this->markTestSkipped('No available date for single-mode doctor');
         }
 
@@ -1025,7 +1031,7 @@ class BookingFlowTest extends TestCase
 
         // If only 1 test and 0 packages matched, auto-select happens
         // If multiple results, user sees the list — either way the flow progresses
-        if (!empty($data['selectedTestIds'])) {
+        if (! empty($data['selectedTestIds'])) {
             // Auto-selected: verify test data is set (as arrays)
             $this->assertIsArray($data['selectedTestIds']);
             $this->assertNotEmpty($data['selectedTestNames']);
@@ -1128,7 +1134,7 @@ class BookingFlowTest extends TestCase
         // Select both tests via component
         $r = $this->orchestrator->process($conv, null, [
             'test_ids' => $tests->pluck('id')->toArray(),
-            'display_message' => 'Selected: ' . $tests->pluck('name')->join(', '),
+            'display_message' => 'Selected: '.$tests->pluck('name')->join(', '),
         ]);
         $conv->refresh();
         $data = $conv->collected_data;
@@ -1136,7 +1142,7 @@ class BookingFlowTest extends TestCase
         // Both tests should be selected
         $this->assertCount(2, $data['selectedTestIds']);
         $this->assertCount(2, $data['selectedTestNames']);
-        $this->assertEquals($tests->pluck('id')->map(fn($id) => (int) $id)->toArray(), $data['selectedTestIds']);
+        $this->assertEquals($tests->pluck('id')->map(fn ($id) => (int) $id)->toArray(), $data['selectedTestIds']);
         // Package should NOT be set
         $this->assertEmpty($data['selectedPackageId'] ?? null);
         // Flow should advance to collection type

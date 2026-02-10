@@ -66,13 +66,13 @@ Be precise. Extract everything mentioned. Do not hallucinate entities that aren'
                 1 => 'tomorrow',
                 default => '',
             };
-            $days[] = "  {$d->format('l, M j')} = {$d->format('Y-m-d')}" . ($label ? " ({$label})" : '');
+            $days[] = "  {$d->format('l, M j')} = {$d->format('Y-m-d')}".($label ? " ({$label})" : '');
         }
 
         return "TODAY: {$dayName}, {$dateFormatted}
 
 UPCOMING DATES:
-" . implode("\n", $days);
+".implode("\n", $days);
     }
 
     private function buildDoctorSection(): string
@@ -101,24 +101,24 @@ Collection types: 'home' (home collection) or 'center' (visit lab center).";
     private function buildStateSection(array $data): string
     {
         if (empty($data)) {
-            return "CURRENT BOOKING STATE: No booking in progress.";
+            return 'CURRENT BOOKING STATE: No booking in progress.';
         }
 
         $bookingType = $data['booking_type'] ?? 'doctor';
         $state = [];
         $state['booking_type'] = $bookingType;
-        $state['patient'] = !empty($data['selectedPatientId'])
+        $state['patient'] = ! empty($data['selectedPatientId'])
             ? ($data['selectedPatientName'] ?? 'Selected')
             : 'not selected';
 
         if ($bookingType === 'lab_test') {
-            $state['package'] = !empty($data['selectedPackageId'])
+            $state['package'] = ! empty($data['selectedPackageId'])
                 ? ($data['selectedPackageName'] ?? "ID:{$data['selectedPackageId']}")
                 : 'not selected';
             $state['collection'] = $data['collectionType'] ?? 'not selected';
         } else {
             $state['type'] = $data['appointmentType'] ?? 'not selected';
-            $state['doctor'] = !empty($data['selectedDoctorId'])
+            $state['doctor'] = ! empty($data['selectedDoctorId'])
                 ? ($data['selectedDoctorName'] ?? "ID:{$data['selectedDoctorId']}")
                 : 'not selected';
             $state['mode'] = $data['consultationMode'] ?? 'not selected';
@@ -253,15 +253,15 @@ User: 'asdfghjkl'
 
     private function buildOutputFormat(): string
     {
-        return "OUTPUT FORMAT:
+        return 'OUTPUT FORMAT:
 Respond with ONLY valid JSON. No markdown, no explanation, no wrapping.
 
 {
-  \"intent\": \"<intent>\",
-  \"confidence\": <0.0-1.0>,
-  \"entities\": { ... }
+  "intent": "<intent>",
+  "confidence": <0.0-1.0>,
+  "entities": { ... }
 }
 
-If no entities are detected, return an empty entities object: \"entities\": {}";
+If no entities are detected, return an empty entities object: "entities": {}';
     }
 }

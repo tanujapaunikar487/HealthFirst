@@ -14,6 +14,7 @@ abstract class BaseNotification extends Notification
     public function setChannels(array $channels): self
     {
         $this->channels = $channels;
+
         return $this;
     }
 

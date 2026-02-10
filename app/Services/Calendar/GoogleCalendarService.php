@@ -31,7 +31,7 @@ class GoogleCalendarService
     {
         if ($this->isMockMode) {
             return route('settings.calendar.google.callback', [
-                'code' => 'mock_auth_code_' . Str::random(16),
+                'code' => 'mock_auth_code_'.Str::random(16),
                 'state' => $state,
             ]);
         }
@@ -46,7 +46,7 @@ class GoogleCalendarService
             'state' => $state,
         ];
 
-        return 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query($params);
+        return 'https://accounts.google.com/o/oauth2/v2/auth?'.http_build_query($params);
     }
 
     /**
@@ -56,9 +56,10 @@ class GoogleCalendarService
     {
         if ($this->isMockMode) {
             Log::info('[Google Calendar Mock] OAuth code exchanged successfully');
+
             return [
-                'access_token' => 'mock_access_token_' . Str::random(32),
-                'refresh_token' => 'mock_refresh_token_' . Str::random(32),
+                'access_token' => 'mock_access_token_'.Str::random(32),
+                'refresh_token' => 'mock_refresh_token_'.Str::random(32),
                 'expires_in' => 3600,
                 'email' => 'demo@gmail.com',
             ];
@@ -96,20 +97,21 @@ class GoogleCalendarService
     public function createEvent(User $user, Appointment $appointment): ?string
     {
         $settings = $user->getSetting('calendar_sync', []);
-        if (!($settings['google']['connected'] ?? false) || !($settings['google']['enabled'] ?? false)) {
+        if (! ($settings['google']['connected'] ?? false) || ! ($settings['google']['enabled'] ?? false)) {
             return null;
         }
 
         $eventData = $this->buildEventData($appointment);
 
         if ($this->isMockMode) {
-            $eventId = 'gcal_mock_' . Str::random(16);
+            $eventId = 'gcal_mock_'.Str::random(16);
             Log::info("[Google Calendar Mock] Created event {$eventId} for appointment {$appointment->id}");
+
             return $eventId;
         }
 
         $accessToken = $this->getValidToken($user);
-        if (!$accessToken) {
+        if (! $accessToken) {
             return null;
         }
 
@@ -145,12 +147,12 @@ class GoogleCalendarService
      */
     public function updateEvent(User $user, Appointment $appointment): bool
     {
-        if (!$appointment->google_calendar_event_id) {
+        if (! $appointment->google_calendar_event_id) {
             return false;
         }
 
         $settings = $user->getSetting('calendar_sync', []);
-        if (!($settings['google']['connected'] ?? false)) {
+        if (! ($settings['google']['connected'] ?? false)) {
             return false;
         }
 
@@ -158,11 +160,12 @@ class GoogleCalendarService
 
         if ($this->isMockMode) {
             Log::info("[Google Calendar Mock] Updated event {$appointment->google_calendar_event_id} for appointment {$appointment->id}");
+
             return true;
         }
 
         $accessToken = $this->getValidToken($user);
-        if (!$accessToken) {
+        if (! $accessToken) {
             return false;
         }
 
@@ -192,22 +195,23 @@ class GoogleCalendarService
      */
     public function deleteEvent(User $user, Appointment $appointment): bool
     {
-        if (!$appointment->google_calendar_event_id) {
+        if (! $appointment->google_calendar_event_id) {
             return false;
         }
 
         $settings = $user->getSetting('calendar_sync', []);
-        if (!($settings['google']['connected'] ?? false)) {
+        if (! ($settings['google']['connected'] ?? false)) {
             return false;
         }
 
         if ($this->isMockMode) {
             Log::info("[Google Calendar Mock] Deleted event {$appointment->google_calendar_event_id} for appointment {$appointment->id}");
+
             return true;
         }
 
         $accessToken = $this->getValidToken($user);
-        if (!$accessToken) {
+        if (! $accessToken) {
             return false;
         }
 
@@ -230,18 +234,18 @@ class GoogleCalendarService
         $isDoctor = $appointment->appointment_type === 'doctor';
 
         $summary = $isDoctor
-            ? 'Doctor Appointment' . ($appointment->doctor ? " - {$appointment->doctor->name}" : '')
-            : 'Lab Test' . ($appointment->labPackage ? " - {$appointment->labPackage->name}" : '');
+            ? 'Doctor Appointment'.($appointment->doctor ? " - {$appointment->doctor->name}" : '')
+            : 'Lab Test'.($appointment->labPackage ? " - {$appointment->labPackage->name}" : '');
 
         $mode = $appointment->consultation_mode;
         $location = $mode === 'video'
             ? 'Video Call (link in app)'
             : 'Formula Hospital, Koregaon Park';
 
-        $description = "Healthcare appointment booked via Formula Hospital.\nManage your appointments at: " . url('/appointments');
+        $description = "Healthcare appointment booked via Formula Hospital.\nManage your appointments at: ".url('/appointments');
 
         $start = Carbon::parse(
-            $appointment->appointment_date->format('Y-m-d') . ' ' . $appointment->appointment_time
+            $appointment->appointment_date->format('Y-m-d').' '.$appointment->appointment_time
         );
 
         return [
@@ -272,8 +276,9 @@ class GoogleCalendarService
 
         // Need to refresh
         $refreshToken = $google['refresh_token'] ?? null;
-        if (!$refreshToken) {
+        if (! $refreshToken) {
             Log::warning("[Google Calendar] No refresh token for user {$user->id}");
+
             return null;
         }
 
@@ -284,11 +289,12 @@ class GoogleCalendarService
             'grant_type' => 'refresh_token',
         ]);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             Log::warning("[Google Calendar] Token refresh failed for user {$user->id}");
             // Mark as disconnected
             $settings['google']['connected'] = false;
             $user->setSetting('calendar_sync', $settings);
+
             return null;
         }
 

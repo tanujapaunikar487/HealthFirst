@@ -54,9 +54,9 @@ class FamilyMember extends Model
         parent::boot();
 
         static::creating(function (FamilyMember $member) {
-            if (!$member->patient_id) {
+            if (! $member->patient_id) {
                 $lastId = static::max('id') ?? 0;
-                $member->patient_id = 'PT-' . str_pad($lastId + 1, 6, '0', STR_PAD_LEFT);
+                $member->patient_id = 'PT-'.str_pad($lastId + 1, 6, '0', STR_PAD_LEFT);
             }
         });
     }
@@ -66,14 +66,16 @@ class FamilyMember extends Model
         if ($this->date_of_birth) {
             return $this->date_of_birth->age;
         }
+
         return $this->attributes['age'] ?? null;
     }
 
     public function getFullAddressAttribute(): ?string
     {
-        if (!$this->address_line_1) {
+        if (! $this->address_line_1) {
             return null;
         }
+
         return collect([
             $this->address_line_1,
             $this->address_line_2,

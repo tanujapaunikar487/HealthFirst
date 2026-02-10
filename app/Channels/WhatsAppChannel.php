@@ -12,7 +12,7 @@ class WhatsAppChannel
         $message = $notification->toWhatsApp($notifiable);
         $phone = $notifiable->phone;
 
-        if (!$phone || !$message) {
+        if (! $phone || ! $message) {
             return;
         }
 
@@ -20,8 +20,9 @@ class WhatsAppChannel
         $token = config('services.twilio.token');
         $from = config('services.twilio.whatsapp_from');
 
-        if (!$sid || !$token || !$from || $sid === 'your_twilio_sid') {
+        if (! $sid || ! $token || ! $from || $sid === 'your_twilio_sid') {
             \Log::info("[WhatsApp] To: {$phone} | {$message}");
+
             return;
         }
 

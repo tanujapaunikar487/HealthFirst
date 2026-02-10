@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\KnowledgeBaseResource;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 class KnowledgeBaseSeeder extends Seeder
 {
@@ -278,6 +277,6 @@ For refund queries, contact support@healthcare.com',
             KnowledgeBaseResource::create($resource);
         }
 
-        $this->command->info('Knowledge base seeded with ' . count($resources) . ' resources.');
+        $this->command->info('Knowledge base seeded with '.count($resources).' resources.');
     }
 }

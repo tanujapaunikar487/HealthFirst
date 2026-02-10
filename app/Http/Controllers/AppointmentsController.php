@@ -9,18 +9,18 @@ use App\Models\HealthRecord;
 use App\Models\InsuranceClaim;
 use App\Models\LabTestType;
 use App\Models\TimeSlot;
+use App\Notifications\AppointmentCancelled;
+use App\Notifications\AppointmentCheckedIn;
+use App\Notifications\AppointmentConfirmed;
+use App\Notifications\AppointmentRescheduled;
+use App\Notifications\RefundInitiated;
+use App\Services\Calendar\GoogleCalendarService;
+use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
-use App\Services\Calendar\GoogleCalendarService;
-use App\Services\NotificationService;
-use App\Notifications\AppointmentCancelled;
-use App\Notifications\RefundInitiated;
-use App\Notifications\AppointmentRescheduled;
-use App\Notifications\AppointmentCheckedIn;
-use App\Notifications\AppointmentConfirmed;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 
 class AppointmentsController extends Controller
 {
@@ -33,7 +33,7 @@ class AppointmentsController extends Controller
             ->orderByDesc('appointment_date')
             ->orderByDesc('created_at')
             ->get()
-            ->map(fn($appt) => $this->formatAppointment($appt))
+            ->map(fn ($appt) => $this->formatAppointment($appt))
             ->toArray();
 
         $familyMembers = FamilyMember::where('user_id', $user->id)
@@ -101,7 +101,7 @@ class AppointmentsController extends Controller
             app(GoogleCalendarService::class)->deleteEvent($user, $appointment);
             $appointment->update(['google_calendar_event_id' => null]);
         } catch (\Exception $e) {
-            Log::warning('Calendar sync failed on cancel: ' . $e->getMessage());
+            Log::warning('Calendar sync failed on cancel: '.$e->getMessage());
         }
 
         return back()->with('success', 'Appointment cancelled successfully. A full refund has been initiated.');
@@ -120,7 +120,7 @@ class AppointmentsController extends Controller
         }
 
         $validated = $request->validate([
-            'date' => 'required|date|after_or_equal:today|before_or_equal:' . now()->addDays(14)->format('Y-m-d'),
+            'date' => 'required|date|after_or_equal:today|before_or_equal:'.now()->addDays(14)->format('Y-m-d'),
             'time' => 'required|string',
         ]);
 
@@ -138,7 +138,7 @@ class AppointmentsController extends Controller
         try {
             app(GoogleCalendarService::class)->updateEvent($user, $appointment);
         } catch (\Exception $e) {
-            Log::warning('Calendar sync failed on reschedule: ' . $e->getMessage());
+            Log::warning('Calendar sync failed on reschedule: '.$e->getMessage());
         }
 
         return back()->with('success', 'Appointment rescheduled successfully.');
@@ -157,7 +157,7 @@ class AppointmentsController extends Controller
         }
 
         // Check if appointment is within 48 hours
-        $appointmentDate = Carbon::parse($appointment->appointment_date . ' ' . $appointment->appointment_time);
+        $appointmentDate = Carbon::parse($appointment->appointment_date.' '.$appointment->appointment_time);
         $hoursUntil = now()->diffInHours($appointmentDate, false);
 
         if ($hoursUntil < 0 || $hoursUntil > 48) {
@@ -200,7 +200,7 @@ class AppointmentsController extends Controller
                 ->where('is_booked', false)
                 ->orderBy('start_time')
                 ->get()
-                ->map(fn($slot) => [
+                ->map(fn ($slot) => [
                     'time' => Carbon::parse($slot->start_time)->format('H:i'),
                     'display' => Carbon::parse($slot->start_time)->format('g:i A'),
                 ])
@@ -267,10 +267,11 @@ class AppointmentsController extends Controller
                     'patientId' => $appointment->family_member_id,
                     'selectedSymptoms' => $appointment->symptoms ?? [],
                     'appointmentType' => 'new',  // Always "new" for book again
-                    'selectedDoctorId' => 'd' . $appointment->doctor_id,  // Pre-select same doctor
+                    'selectedDoctorId' => 'd'.$appointment->doctor_id,  // Pre-select same doctor
                     'appointmentMode' => $appointment->consultation_mode,  // Pre-select same mode
                 ],
             ]);
+
             // Skip patient step, go directly to doctor-time selection
             return redirect()->route('booking.doctor.doctor-time');
         }
@@ -280,6 +281,7 @@ class AppointmentsController extends Controller
                 'patientId' => $appointment->family_member_id,
             ],
         ]);
+
         return redirect()->route('booking.lab.patient');
     }
 
@@ -293,7 +295,7 @@ class AppointmentsController extends Controller
         }
 
         // Fallback: look up by booking_id in conversations (AI chat flow)
-        if (!$appointment) {
+        if (! $appointment) {
             $conversation = \App\BookingConversation::where('status', 'completed')
                 ->get()
                 ->first(function ($conv) use ($bookingId) {
@@ -309,7 +311,7 @@ class AppointmentsController extends Controller
 
         $bookingData = [
             'id' => (string) $appointment->id,
-            'booking_id' => strtoupper($appointment->appointment_type === 'doctor' ? 'DOC' : 'LAB') . '-' . $appointment->id,
+            'booking_id' => strtoupper($appointment->appointment_type === 'doctor' ? 'DOC' : 'LAB').'-'.$appointment->id,
             'type' => $appointment->appointment_type === 'doctor' ? 'doctor' : 'lab_test',
             'status' => $appointment->status,
             'patient_name' => $appointment->familyMember?->name ?? 'Unknown',
@@ -418,7 +420,7 @@ class AppointmentsController extends Controller
         }
 
         // Only doctor appointments can be booked again via sheet
-        if ($appointment->appointment_type !== 'doctor' || !$appointment->doctor_id) {
+        if ($appointment->appointment_type !== 'doctor' || ! $appointment->doctor_id) {
             return response()->json(['error' => 'Book again only available for doctor appointments'], 400);
         }
 
@@ -452,7 +454,7 @@ class AppointmentsController extends Controller
             ->where('is_booked', false)
             ->orderBy('start_time')
             ->get()
-            ->map(fn($slot) => [
+            ->map(fn ($slot) => [
                 'time' => Carbon::parse($slot->start_time)->format('g:i A'),
                 'available' => true,
                 'preferred' => $slot->is_preferred ?? false,
@@ -508,12 +510,12 @@ class AppointmentsController extends Controller
             abort(403);
         }
 
-        if ($appointment->appointment_type !== 'doctor' || !$appointment->doctor_id) {
+        if ($appointment->appointment_type !== 'doctor' || ! $appointment->doctor_id) {
             return back()->with('error', 'Book again only available for doctor appointments');
         }
 
         $validated = $request->validate([
-            'date' => 'required|date|after_or_equal:today|before_or_equal:' . now()->addDays(14)->format('Y-m-d'),
+            'date' => 'required|date|after_or_equal:today|before_or_equal:'.now()->addDays(14)->format('Y-m-d'),
             'time' => 'required|string',
             'mode' => 'required|in:video,in_person',
         ]);
@@ -523,7 +525,7 @@ class AppointmentsController extends Controller
 
         // Validate mode is supported by doctor
         $supportedModes = $doctor->consultationModes->pluck('mode')->toArray();
-        if (!in_array($validated['mode'], $supportedModes)) {
+        if (! in_array($validated['mode'], $supportedModes)) {
             return back()->with('error', "{$doctor->name} does not offer {$validated['mode']} appointments");
         }
 
@@ -556,7 +558,7 @@ class AppointmentsController extends Controller
                 $newAppointment->update(['google_calendar_event_id' => $eventId]);
             }
         } catch (\Exception $e) {
-            Log::warning('Calendar sync failed on book again: ' . $e->getMessage());
+            Log::warning('Calendar sync failed on book again: '.$e->getMessage());
         }
 
         return back()->with('success', 'Appointment booked successfully.');
@@ -574,7 +576,7 @@ class AppointmentsController extends Controller
         }
 
         // Only doctor appointments can have follow-ups
-        if ($appointment->appointment_type !== 'doctor' || !$appointment->doctor_id) {
+        if ($appointment->appointment_type !== 'doctor' || ! $appointment->doctor_id) {
             return response()->json(['error' => 'Follow-up only available for doctor appointments'], 400);
         }
 
@@ -608,7 +610,7 @@ class AppointmentsController extends Controller
             ->where('is_booked', false)
             ->orderBy('start_time')
             ->get()
-            ->map(fn($slot) => [
+            ->map(fn ($slot) => [
                 'time' => Carbon::parse($slot->start_time)->format('g:i A'),
                 'available' => true,
                 'preferred' => $slot->is_preferred ?? false,
@@ -660,12 +662,12 @@ class AppointmentsController extends Controller
             abort(403);
         }
 
-        if ($appointment->appointment_type !== 'doctor' || !$appointment->doctor_id) {
+        if ($appointment->appointment_type !== 'doctor' || ! $appointment->doctor_id) {
             return back()->with('error', 'Follow-up only available for doctor appointments');
         }
 
         $validated = $request->validate([
-            'date' => 'required|date|after_or_equal:today|before_or_equal:' . now()->addDays(14)->format('Y-m-d'),
+            'date' => 'required|date|after_or_equal:today|before_or_equal:'.now()->addDays(14)->format('Y-m-d'),
             'time' => 'required|string',
             'mode' => 'required|in:video,in_person',
         ]);
@@ -675,7 +677,7 @@ class AppointmentsController extends Controller
 
         // Validate mode is supported by doctor
         $supportedModes = $doctor->consultationModes->pluck('mode')->toArray();
-        if (!in_array($validated['mode'], $supportedModes)) {
+        if (! in_array($validated['mode'], $supportedModes)) {
             return back()->with('error', "{$doctor->name} does not offer {$validated['mode']} appointments");
         }
 
@@ -709,7 +711,7 @@ class AppointmentsController extends Controller
                 $followUp->update(['google_calendar_event_id' => $eventId]);
             }
         } catch (\Exception $e) {
-            Log::warning('Calendar sync failed on follow-up: ' . $e->getMessage());
+            Log::warning('Calendar sync failed on follow-up: '.$e->getMessage());
         }
 
         return back()->with('success', 'Follow-up appointment booked successfully.');
@@ -834,7 +836,7 @@ class AppointmentsController extends Controller
             'total' => $total,
             'payment_method' => 'UPI (PhonePe)',
             'payment_status' => $appt->payment_status ?? 'paid',
-            'invoice_number' => 'INV-' . str_pad($appt->id, 6, '0', STR_PAD_LEFT),
+            'invoice_number' => 'INV-'.str_pad($appt->id, 6, '0', STR_PAD_LEFT),
             'payment_date' => $createdAt->format('d M Y, g:i A'),
         ];
 
@@ -843,7 +845,7 @@ class AppointmentsController extends Controller
             ['name' => 'Prescription', 'type' => 'pdf', 'date' => $apptDate->format('d M Y'), 'size' => '124 KB'],
             ['name' => 'Visit Summary', 'type' => 'pdf', 'date' => $apptDate->format('d M Y'), 'size' => '89 KB'],
         ];
-        if (!$isDoctor || count($labTests) > 0) {
+        if (! $isDoctor || count($labTests) > 0) {
             $documents[] = ['name' => 'Lab Report — CBC', 'type' => 'pdf', 'date' => $apptDate->format('d M Y'), 'size' => '215 KB'];
         }
 
@@ -853,13 +855,13 @@ class AppointmentsController extends Controller
             ['event' => 'Payment Received', 'timestamp' => $createdAt->addMinutes(1)->format('d M Y, g:i A'), 'icon' => 'credit-card'],
         ];
         if ($appt->status === 'completed') {
-            $activity[] = ['event' => 'Check-in', 'timestamp' => $apptDate->format('d M Y') . ', ' . $appt->appointment_time, 'icon' => 'log-in'];
-            $activity[] = ['event' => 'Consultation Completed', 'timestamp' => $apptDate->format('d M Y') . ', ' . Carbon::parse($appt->appointment_time)->addMinutes(30)->format('g:i A'), 'icon' => 'check-circle'];
+            $activity[] = ['event' => 'Check-in', 'timestamp' => $apptDate->format('d M Y').', '.$appt->appointment_time, 'icon' => 'log-in'];
+            $activity[] = ['event' => 'Consultation Completed', 'timestamp' => $apptDate->format('d M Y').', '.Carbon::parse($appt->appointment_time)->addMinutes(30)->format('g:i A'), 'icon' => 'check-circle'];
             if ($isDoctor) {
-                $activity[] = ['event' => 'Prescription Generated', 'timestamp' => $apptDate->format('d M Y') . ', ' . Carbon::parse($appt->appointment_time)->addMinutes(32)->format('g:i A'), 'icon' => 'file-text'];
+                $activity[] = ['event' => 'Prescription Generated', 'timestamp' => $apptDate->format('d M Y').', '.Carbon::parse($appt->appointment_time)->addMinutes(32)->format('g:i A'), 'icon' => 'file-text'];
             }
-            $activity[] = ['event' => 'Lab Order Placed', 'timestamp' => $apptDate->format('d M Y') . ', ' . Carbon::parse($appt->appointment_time)->addMinutes(35)->format('g:i A'), 'icon' => 'flask'];
-            $activity[] = ['event' => 'Follow-up Recommended', 'timestamp' => $apptDate->format('d M Y') . ', ' . Carbon::parse($appt->appointment_time)->addMinutes(36)->format('g:i A'), 'icon' => 'repeat'];
+            $activity[] = ['event' => 'Lab Order Placed', 'timestamp' => $apptDate->format('d M Y').', '.Carbon::parse($appt->appointment_time)->addMinutes(35)->format('g:i A'), 'icon' => 'flask'];
+            $activity[] = ['event' => 'Follow-up Recommended', 'timestamp' => $apptDate->format('d M Y').', '.Carbon::parse($appt->appointment_time)->addMinutes(36)->format('g:i A'), 'icon' => 'repeat'];
         } elseif ($appt->status === 'cancelled') {
             $activity[] = ['event' => 'Appointment Cancelled', 'timestamp' => $appt->updated_at->format('d M Y, g:i A'), 'icon' => 'x-circle'];
             $activity[] = ['event' => 'Refund Initiated', 'timestamp' => $appt->updated_at->addMinutes(5)->format('d M Y, g:i A'), 'icon' => 'rotate-ccw'];
@@ -873,7 +875,7 @@ class AppointmentsController extends Controller
         ];
 
         return array_merge($base, [
-            'appointment_id' => strtoupper($isDoctor ? 'APT' : 'LAB') . '-' . str_pad($appt->id, 3, '0', STR_PAD_LEFT),
+            'appointment_id' => strtoupper($isDoctor ? 'APT' : 'LAB').'-'.str_pad($appt->id, 3, '0', STR_PAD_LEFT),
             'doctor' => $doctor,
             'patient' => $patient,
             'department' => $appt->department?->name,
@@ -925,7 +927,7 @@ class AppointmentsController extends Controller
                     ->pluck('name')
                     ->toArray();
                 $data['title'] = count($testNames) > 2
-                    ? $testNames[0] . ' +' . (count($testNames) - 1) . ' more'
+                    ? $testNames[0].' +'.(count($testNames) - 1).' more'
                     : implode(', ', $testNames);
             } else {
                 $data['title'] = 'Lab Test';

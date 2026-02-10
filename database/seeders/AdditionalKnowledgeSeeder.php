@@ -164,6 +164,6 @@ All doctors on our platform are verified and licensed.',
             );
         }
 
-        $this->command->info('Additional knowledge base resources seeded: ' . count($resources));
+        $this->command->info('Additional knowledge base resources seeded: '.count($resources));
     }
 }

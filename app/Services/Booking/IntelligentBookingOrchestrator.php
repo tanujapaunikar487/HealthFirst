@@ -6,9 +6,8 @@ use App\BookingConversation;
 use App\ConversationMessage;
 use App\Models\UserAddress;
 use App\Services\AI\AIService;
-use App\Services\Booking\BookingStateMachine;
-use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Intelligent Booking Orchestrator
@@ -20,8 +19,11 @@ use Carbon\Carbon;
 class IntelligentBookingOrchestrator
 {
     private DoctorService $doctorService;
+
     private LabService $labService;
+
     private BookingPromptBuilder $promptBuilder;
+
     private EntityNormalizer $entityNormalizer;
 
     public function __construct(
@@ -31,8 +33,8 @@ class IntelligentBookingOrchestrator
         ?BookingPromptBuilder $promptBuilder = null,
         ?EntityNormalizer $entityNormalizer = null
     ) {
-        $this->doctorService = $doctorService ?? new DoctorService();
-        $this->labService = $labService ?? new LabService();
+        $this->doctorService = $doctorService ?? new DoctorService;
+        $this->labService = $labService ?? new LabService;
         $this->promptBuilder = $promptBuilder ?? new BookingPromptBuilder($this->doctorService, $this->labService);
         $this->entityNormalizer = $entityNormalizer ?? new EntityNormalizer($this->doctorService, $this->labService);
     }
@@ -47,7 +49,7 @@ class IntelligentBookingOrchestrator
             'input_message' => $userInput,
             'display_message' => $componentSelection['display_message'] ?? null,
             'current_state' => $conversation->collected_data,
-            'has_attachments' => !empty($attachments),
+            'has_attachments' => ! empty($attachments),
         ]);
 
         // Add user message if there's input
@@ -59,20 +61,21 @@ class IntelligentBookingOrchestrator
         // Component selections should bypass AI parsing
         if ($componentSelection) {
             Log::info('🔒 Process: Component selection detected, calling handleComponentSelection', [
-                'has_userInput' => !empty($userInput),
+                'has_userInput' => ! empty($userInput),
                 'selection_keys' => array_keys($componentSelection),
             ]);
+
             return $this->handleComponentSelection($conversation, $componentSelection);
         }
 
         // Check if we're waiting for followup_notes
         $currentData = $conversation->collected_data;
         $appointmentType = $currentData['appointmentType'] ?? null;
-        $hasFollowupReason = !empty($currentData['followup_reason']);
+        $hasFollowupReason = ! empty($currentData['followup_reason']);
         $followupNotesAsked = $currentData['followup_notes_asked'] ?? false;
 
         // Special handling: If we're waiting for followup_notes, capture the raw message
-        if ($appointmentType === 'followup' && $hasFollowupReason && !$followupNotesAsked) {
+        if ($appointmentType === 'followup' && $hasFollowupReason && ! $followupNotesAsked) {
             $trimmedInput = trim($userInput ?? '');
             $isSkip = in_array(strtolower($trimmedInput), ['skip', 'no updates', 'no', 'none', 'nothing']);
 
@@ -89,6 +92,7 @@ class IntelligentBookingOrchestrator
 
             // Use state machine to determine next step
             $stateMachine = new BookingStateMachine($currentData);
+
             return $this->buildResponseFromStateMachine($conversation, $stateMachine, ['entities' => []]);
         }
 
@@ -97,10 +101,10 @@ class IntelligentBookingOrchestrator
         $packageInquiryAsked = $currentData['package_inquiry_asked'] ?? false;
 
         if ($bookingType === 'lab_test'
-            && !empty($currentData['selectedPatientId'])
+            && ! empty($currentData['selectedPatientId'])
             && empty($currentData['selectedPackageId'])
             && empty($currentData['selectedTestIds'])
-            && !$packageInquiryAsked
+            && ! $packageInquiryAsked
             && $userInput) {
 
             $trimmedInput = trim($userInput);
@@ -123,7 +127,7 @@ class IntelligentBookingOrchestrator
                 $currentData['selectedTestNames'] = [$test['name']];
                 $currentData['packageRequiresFasting'] = $test['requires_fasting'];
                 $currentData['packageFastingHours'] = $test['fasting_hours'];
-                if (!in_array('package', $currentData['completedSteps'] ?? [])) {
+                if (! in_array('package', $currentData['completedSteps'] ?? [])) {
                     $currentData['completedSteps'][] = 'package';
                 }
                 Log::info('🎯 Individual test auto-selected', ['test' => $test['name']]);
@@ -134,7 +138,7 @@ class IntelligentBookingOrchestrator
                 $currentData['selectedPackageName'] = $pkg['name'];
                 $currentData['packageRequiresFasting'] = $pkg['requires_fasting'];
                 $currentData['packageFastingHours'] = $pkg['fasting_hours'];
-                if (!in_array('package', $currentData['completedSteps'] ?? [])) {
+                if (! in_array('package', $currentData['completedSteps'] ?? [])) {
                     $currentData['completedSteps'][] = 'package';
                 }
                 Log::info('🎯 Package auto-selected', ['package' => $pkg['name']]);
@@ -153,6 +157,7 @@ class IntelligentBookingOrchestrator
             $conversation->save();
 
             $stateMachine = new BookingStateMachine($currentData);
+
             return $this->buildResponseFromStateMachine($conversation, $stateMachine, ['entities' => []]);
         }
 
@@ -178,14 +183,14 @@ class IntelligentBookingOrchestrator
 
             $this->addAssistantMessage(
                 $conversation,
-                "No problem! Booking cancelled. Let me know if you need anything else.",
+                'No problem! Booking cancelled. Let me know if you need anything else.',
                 null,
                 null
             );
 
             return [
                 'status' => 'cancelled',
-                'message' => "No problem! Booking cancelled. Let me know if you need anything else.",
+                'message' => 'No problem! Booking cancelled. Let me know if you need anything else.',
                 'component_type' => null,
                 'component_data' => null,
                 'ready_to_book' => false,
@@ -208,9 +213,9 @@ class IntelligentBookingOrchestrator
 
         // FALLBACK: If mode is missing but we need it, check for keywords
         $currentData = $conversation->collected_data;
-        $needsMode = !empty($currentData['selectedDoctorId']) &&
-                     !empty($currentData['selectedDate']) &&
-                     !empty($currentData['selectedTime']) &&
+        $needsMode = ! empty($currentData['selectedDoctorId']) &&
+                     ! empty($currentData['selectedDate']) &&
+                     ! empty($currentData['selectedTime']) &&
                      empty($currentData['consultationMode']);
 
         if ($needsMode && $userInput && empty($parsed['entities']['mode']) && empty($parsed['entities']['consultation_mode'])) {
@@ -255,7 +260,7 @@ class IntelligentBookingOrchestrator
         // Handle non-booking intents (greeting, question, general_info, unclear, off_topic)
         $intent = $parsed['intent'] ?? 'unclear';
         $currentData = $conversation->collected_data;
-        $hasBookingProgress = !empty($currentData['selectedPatientId']) || !empty($currentData['appointmentType']) || !empty($currentData['selectedPackageId']) || !empty($currentData['booking_type']);
+        $hasBookingProgress = ! empty($currentData['selectedPatientId']) || ! empty($currentData['appointmentType']) || ! empty($currentData['selectedPackageId']) || ! empty($currentData['booking_type']);
 
         // Handle off-topic input (always, regardless of booking progress)
         if ($intent === 'off_topic') {
@@ -267,15 +272,15 @@ class IntelligentBookingOrchestrator
 
                 // Add context about what we're waiting for
                 if (empty($currentData['selectedPatientId'])) {
-                    $message .= "Who is this appointment for?";
+                    $message .= 'Who is this appointment for?';
                 } elseif ($bookingType === 'doctor' && empty($currentData['selectedDoctorId'])) {
-                    $message .= "Which doctor would you like to see?";
+                    $message .= 'Which doctor would you like to see?';
                 } elseif ($bookingType === 'lab_test' && empty($currentData['selectedPackageId']) && empty($currentData['selectedTestIds'])) {
-                    $message .= "What test or package would you like to book?";
+                    $message .= 'What test or package would you like to book?';
                 } elseif (empty($currentData['selectedDate'])) {
-                    $message .= "What date works best for you?";
+                    $message .= 'What date works best for you?';
                 } elseif (empty($currentData['selectedTime'])) {
-                    $message .= "What time would you prefer?";
+                    $message .= 'What time would you prefer?';
                 } else {
                     $message .= "Is there anything you'd like to change?";
                 }
@@ -307,11 +312,11 @@ class IntelligentBookingOrchestrator
         }
 
         // Handle other non-booking intents (only when no booking progress)
-        if (!$hasBookingProgress && in_array($intent, ['greeting', 'question', 'general_info', 'unclear'])) {
+        if (! $hasBookingProgress && in_array($intent, ['greeting', 'question', 'general_info', 'unclear'])) {
             $greetingResponses = [
                 'greeting' => "Hi there! I'm your booking assistant. I can help you book a doctor appointment or a lab test. What would you like to do?",
                 'question' => $parsed['ai_response'] ?? "I'm here to help you book appointments. Would you like to book a doctor visit or a lab test?",
-                'general_info' => $parsed['ai_response'] ?? "I can help you with booking doctor appointments and lab tests. How can I assist you today?",
+                'general_info' => $parsed['ai_response'] ?? 'I can help you with booking doctor appointments and lab tests. How can I assist you today?',
                 'unclear' => "I'm your booking assistant. I can help you book a doctor appointment or a lab test. What would you like to do?",
             ];
 
@@ -342,8 +347,8 @@ class IntelligentBookingOrchestrator
         // If user sends urgency or date entities while date/time are already set,
         // clear them so the date picker is shown instead of looping back to summary
         $currentData = $conversation->collected_data;
-        $hasExistingDate = !empty($currentData['selectedDate']);
-        $hasExistingTime = !empty($currentData['selectedTime']);
+        $hasExistingDate = ! empty($currentData['selectedDate']);
+        $hasExistingTime = ! empty($currentData['selectedTime']);
         $entities = $parsed['entities'] ?? [];
         $hasDateIntent = isset($entities['urgency']) || isset($entities['specific_date']) || isset($entities['date']);
 
@@ -463,7 +468,7 @@ class IntelligentBookingOrchestrator
             }
 
             // Determine if this is a correction based on changes_requested
-            $isCorrection = !empty($result['changes_requested']);
+            $isCorrection = ! empty($result['changes_requested']);
 
             return [
                 'intent' => $result['intent'] ?? 'unclear',
@@ -518,13 +523,13 @@ class IntelligentBookingOrchestrator
         $entities = $normalized['entities'];
         $warnings = $normalized['warnings'];
 
-        if (!empty($warnings)) {
+        if (! empty($warnings)) {
             Log::info('🔧 Entity Merge: Normalizer warnings', ['warnings' => $warnings]);
         }
 
         $isCorrection = $parsed['is_correction'] ?? false;
         $appointmentType = $currentData['appointmentType'] ?? null;
-        $hasFollowupReason = !empty($currentData['followup_reason']);
+        $hasFollowupReason = ! empty($currentData['followup_reason']);
 
         // Step 2: Merge normalized entities into current data
         foreach ($entities as $dataKey => $entityValue) {
@@ -533,15 +538,16 @@ class IntelligentBookingOrchestrator
             }
 
             // Block symptoms for follow-up until followup_reason is selected
-            if ($appointmentType === 'followup' && !$hasFollowupReason && $dataKey === 'symptoms') {
+            if ($appointmentType === 'followup' && ! $hasFollowupReason && $dataKey === 'symptoms') {
                 Log::info('⛔ Entity Merge: BLOCKING symptoms until followup_reason selected');
+
                 continue;
             }
 
             $currentValue = $updated[$dataKey] ?? null;
 
             // Decide if we should update this field
-            if (!$this->shouldUpdateField($dataKey, $entityValue, $currentValue, $isCorrection)) {
+            if (! $this->shouldUpdateField($dataKey, $entityValue, $currentValue, $isCorrection)) {
                 continue;
             }
 
@@ -555,7 +561,7 @@ class IntelligentBookingOrchestrator
 
             // Track fields explicitly mentioned in user's text input
             $textMentioned = $updated['textMentionedFields'] ?? [];
-            if (!in_array($dataKey, $textMentioned)) {
+            if (! in_array($dataKey, $textMentioned)) {
                 $textMentioned[] = $dataKey;
                 $updated['textMentionedFields'] = $textMentioned;
             }
@@ -574,7 +580,7 @@ class IntelligentBookingOrchestrator
                     $updated['selectedPatientId'] = $matchingMember->id;
                     $updated['selectedPatientName'] = $matchingMember->name;
                     $updated['selectedPatientAvatar'] = $matchingMember->avatar_url ?? '';
-                    if (!in_array('patient', $updated['completedSteps'] ?? [])) {
+                    if (! in_array('patient', $updated['completedSteps'] ?? [])) {
                         $updated['completedSteps'][] = 'patient';
                     }
                 } else {
@@ -590,7 +596,7 @@ class IntelligentBookingOrchestrator
             }
 
             // Appointment type change → clear all downstream
-            if ($dataKey === 'appointmentType' && !empty($currentValue) && $entityValue !== $currentValue) {
+            if ($dataKey === 'appointmentType' && ! empty($currentValue) && $entityValue !== $currentValue) {
                 unset($updated['urgency'], $updated['selectedDoctorId'], $updated['selectedDoctorName']);
                 unset($updated['selectedDoctorAvatar'], $updated['selectedDoctorSpecialization']);
                 unset($updated['doctorSearchQuery'], $updated['selectedDate']);
@@ -606,7 +612,7 @@ class IntelligentBookingOrchestrator
             }
 
             // Urgency change → clear downstream date/time
-            if ($dataKey === 'urgency' && !empty($currentValue) && $entityValue !== $currentValue) {
+            if ($dataKey === 'urgency' && ! empty($currentValue) && $entityValue !== $currentValue) {
                 unset($updated['selectedDate'], $updated['selectedTime'], $updated['consultationMode']);
                 $updated['completedSteps'] = array_values(array_diff(
                     $updated['completedSteps'] ?? [], ['date', 'time', 'mode']
@@ -614,7 +620,7 @@ class IntelligentBookingOrchestrator
             }
 
             // Package name handling — auto-select if resolved by normalizer
-            if ($dataKey === 'selectedPackageName' && !empty($entityValue)) {
+            if ($dataKey === 'selectedPackageName' && ! empty($entityValue)) {
                 $packageId = $entities['selectedPackageId'] ?? $this->labService->findPackageByName($entityValue);
                 if ($packageId) {
                     $package = $this->labService->getPackageById($packageId);
@@ -623,14 +629,14 @@ class IntelligentBookingOrchestrator
                     $updated['packageRequiresFasting'] = $package['requires_fasting'] ?? false;
                     $updated['packageFastingHours'] = $package['fasting_hours'] ?? null;
                     $updated['package_inquiry_asked'] = true; // Skip inquiry since AI resolved it
-                    if (!in_array('package', $updated['completedSteps'] ?? [])) {
+                    if (! in_array('package', $updated['completedSteps'] ?? [])) {
                         $updated['completedSteps'][] = 'package';
                     }
                 }
             }
 
             // Collection type change → clear date/time
-            if ($dataKey === 'collectionType' && !empty($currentValue) && $entityValue !== $currentValue) {
+            if ($dataKey === 'collectionType' && ! empty($currentValue) && $entityValue !== $currentValue) {
                 unset($updated['selectedDate'], $updated['selectedTime']);
                 unset($updated['selectedCenterId'], $updated['selectedCenterName']);
                 $updated['completedSteps'] = array_values(array_diff(
@@ -639,7 +645,7 @@ class IntelligentBookingOrchestrator
             }
 
             // Doctor name handling — auto-select if resolved by normalizer, otherwise show list
-            if ($dataKey === 'selectedDoctorName' && !empty($entityValue)) {
+            if ($dataKey === 'selectedDoctorName' && ! empty($entityValue)) {
                 $doctorId = $entities['selectedDoctorId'] ?? $this->doctorService->findByName($entityValue);
                 $existingDoctorId = $updated['selectedDoctorId'] ?? null;
 
@@ -658,7 +664,7 @@ class IntelligentBookingOrchestrator
                     $updated['selectedDoctorName'] = $doctor['name'] ?? $entityValue;
                     $updated['selectedDoctorSpecialization'] = $doctor['specialization'] ?? '';
                     $updated['selectedDoctorAvatar'] = $doctor['avatar'] ?? '';
-                    if (!in_array('doctor', $updated['completedSteps'] ?? [])) {
+                    if (! in_array('doctor', $updated['completedSteps'] ?? [])) {
                         $updated['completedSteps'][] = 'doctor';
                     }
                     unset($updated['doctorSearchQuery']);
@@ -669,7 +675,7 @@ class IntelligentBookingOrchestrator
         // Step 3: Apply normalizer-detected conflicts and warnings
 
         // Past date warning — user typed a date that has already passed
-        if (!empty($entities['past_date_warning'])) {
+        if (! empty($entities['past_date_warning'])) {
             $updated['past_date_warning'] = $entities['past_date_warning'];
             // Ensure date-related fields are cleared
             unset($updated['selectedDate']);
@@ -686,10 +692,10 @@ class IntelligentBookingOrchestrator
             }
         }
 
-        if (!empty($entities['mode_conflict'])) {
+        if (! empty($entities['mode_conflict'])) {
             $updated['mode_conflict'] = $entities['mode_conflict'];
         }
-        if (!empty($entities['doctor_date_conflict'])) {
+        if (! empty($entities['doctor_date_conflict'])) {
             $conflict = $entities['doctor_date_conflict'];
             Log::info('⚠️ Entity Merge: Doctor-date conflict detected by normalizer', [
                 'doctor' => $conflict['searched_doctor'] ?? '',
@@ -766,12 +772,12 @@ class IntelligentBookingOrchestrator
 
         // Define required fields based on appointment type
         $requiredFields = [
-            'patient' => !empty($data['selectedPatientId']) || !empty($data['patientRelation']),
-            'appointment_type' => !empty($data['appointmentType']),
-            'doctor' => !empty($data['selectedDoctorId']),
-            'date' => !empty($data['selectedDate']),
-            'time' => !empty($data['selectedTime']),
-            'mode' => !empty($data['consultationMode']),
+            'patient' => ! empty($data['selectedPatientId']) || ! empty($data['patientRelation']),
+            'appointment_type' => ! empty($data['appointmentType']),
+            'doctor' => ! empty($data['selectedDoctorId']),
+            'date' => ! empty($data['selectedDate']),
+            'time' => ! empty($data['selectedTime']),
+            'mode' => ! empty($data['consultationMode']),
         ];
 
         Log::info('📊 State Analysis: Checking fields', [
@@ -793,8 +799,8 @@ class IntelligentBookingOrchestrator
         // Add appointment-type-specific requirements
         if (in_array($appointmentType, ['new', 'followup'])) {
             // Urgency is required if no specific date is provided
-            $hasSpecificDate = !empty($data['selectedDate']);
-            $requiredFields['urgency'] = !$hasSpecificDate && !empty($data['urgency']);
+            $hasSpecificDate = ! empty($data['selectedDate']);
+            $requiredFields['urgency'] = ! $hasSpecificDate && ! empty($data['urgency']);
 
             Log::info('📊 State Analysis: Checking urgency for appointment', [
                 'appointmentType' => $appointmentType,
@@ -807,7 +813,7 @@ class IntelligentBookingOrchestrator
 
         if ($appointmentType === 'followup') {
             $followupReasonValue = $data['followup_reason'] ?? null;
-            $followupReasonSatisfied = !empty($followupReasonValue);
+            $followupReasonSatisfied = ! empty($followupReasonValue);
             $requiredFields['followup_reason'] = $followupReasonSatisfied;
 
             Log::info('📊 State Analysis: Checking followup_reason', [
@@ -833,7 +839,7 @@ class IntelligentBookingOrchestrator
         // Calculate completeness
         $totalFields = count($requiredFields);
         $completedFields = count($have);
-        $completeness = $totalFields > 0 ? round(($completedFields / $totalFields) * 100) . '%' : '0%';
+        $completeness = $totalFields > 0 ? round(($completedFields / $totalFields) * 100).'%' : '0%';
 
         // Determine next field with priority logic
         $nextField = $this->determineNextField($missing, $data);
@@ -869,6 +875,7 @@ class IntelligentBookingOrchestrator
     {
         if (empty($missing)) {
             Log::info('🎯 Next Field: No missing fields, ready for summary');
+
             return null; // Ready for summary
         }
 
@@ -903,6 +910,7 @@ class IntelligentBookingOrchestrator
 
         if (empty($missing)) {
             Log::info('🎯 Next Field: All fields completed, ready for summary');
+
             return null;
         }
 
@@ -925,13 +933,15 @@ class IntelligentBookingOrchestrator
             // 1. followup_reason is REQUIRED (must be selected)
             if (in_array('followup_reason', $missing)) {
                 Log::info('🔒 Next Field: MANDATORY followup_reason is missing - RETURNING followup_reason');
+
                 return 'followup_reason';
             }
 
             // 2. followup_notes must be ASKED (user can skip, but we must ask)
             $followupNotesAsked = $data['followup_notes_asked'] ?? false;
-            if (!$followupNotesAsked) {
+            if (! $followupNotesAsked) {
                 Log::info('🔒 Next Field: MANDATORY followup_notes needs to be asked - RETURNING followup_notes');
+
                 return 'followup_notes';
             }
 
@@ -939,8 +949,9 @@ class IntelligentBookingOrchestrator
             if (in_array('doctor', $missing)) {
                 // Check if we should show previous doctors first
                 $previousDoctorsShown = $data['previous_doctors_shown'] ?? false;
-                if (!$previousDoctorsShown) {
+                if (! $previousDoctorsShown) {
                     Log::info('🔒 Next Field: Showing previous_doctors before generic doctor list - RETURNING previous_doctors');
+
                     return 'previous_doctors';
                 }
             }
@@ -957,7 +968,7 @@ class IntelligentBookingOrchestrator
             switch ($field) {
                 case 'patient':
                     $score += 100; // Always highest priority
-                    Log::debug('🎯 Next Field: patient score = ' . ($score + 100));
+                    Log::debug('🎯 Next Field: patient score = '.($score + 100));
                     break;
 
                 case 'appointment_type':
@@ -973,7 +984,7 @@ class IntelligentBookingOrchestrator
 
                 case 'urgency':
                     // NEVER ask urgency if date, doctor, or time is already selected
-                    if (!empty($data['selectedDate']) || !empty($data['selectedDoctorId']) || !empty($data['selectedTime'])) {
+                    if (! empty($data['selectedDate']) || ! empty($data['selectedDoctorId']) || ! empty($data['selectedTime'])) {
                         $score = 0; // Skip urgency - user has already made specific selections
                     } elseif (in_array($data['appointmentType'] ?? null, ['new', 'followup'])) {
                         $score += 80;
@@ -984,11 +995,11 @@ class IntelligentBookingOrchestrator
 
                 case 'doctor':
                     // Higher priority if we have symptoms (can suggest relevant doctor)
-                    if (!empty($data['symptoms'])) {
+                    if (! empty($data['symptoms'])) {
                         $score += 25;
                     }
                     // Higher priority if we have date (can show availability)
-                    if (!empty($data['selectedDate'])) {
+                    if (! empty($data['selectedDate'])) {
                         $score += 20;
                     }
                     $score += 70;
@@ -996,7 +1007,7 @@ class IntelligentBookingOrchestrator
 
                 case 'date':
                     // Higher priority if doctor is selected (can show available dates)
-                    if (!empty($data['selectedDoctorId'])) {
+                    if (! empty($data['selectedDoctorId'])) {
                         $score += 30;
                     }
                     $score += 60;
@@ -1004,7 +1015,7 @@ class IntelligentBookingOrchestrator
 
                 case 'time':
                     // ONLY meaningful if we have both doctor and date
-                    if (!empty($data['selectedDoctorId']) && !empty($data['selectedDate'])) {
+                    if (! empty($data['selectedDoctorId']) && ! empty($data['selectedDate'])) {
                         $score += 50;
                     } else {
                         $score = 0; // Can't ask for time without doctor+date
@@ -1031,11 +1042,12 @@ class IntelligentBookingOrchestrator
 
         // Skip any field with score 0 (not applicable in current context)
         while ($nextField && ($scores[$nextField] ?? 0) === 0) {
-            Log::info('🎯 Next Field: Skipping ' . $nextField . ' (score 0), finding next field');
+            Log::info('🎯 Next Field: Skipping '.$nextField.' (score 0), finding next field');
             unset($scores[$nextField]);
 
             if (empty($scores)) {
                 Log::info('🎯 Next Field: No more fields with score > 0');
+
                 return null;
             }
 
@@ -1072,7 +1084,7 @@ class IntelligentBookingOrchestrator
         }
 
         // Check if time validation failed (user changed doctor and time is not available)
-        $timeValidationFailed = !empty($data['time_validation_failed']);
+        $timeValidationFailed = ! empty($data['time_validation_failed']);
         $requestedTime = $data['requested_time'] ?? null;
 
         // Build acknowledgment of what was understood
@@ -1094,8 +1106,8 @@ class IntelligentBookingOrchestrator
 
         // Construct message
         $message = trim($acknowledgment);
-        if (!empty($component['intro_message'])) {
-            $message = trim($message . ' ' . $component['intro_message']);
+        if (! empty($component['intro_message'])) {
+            $message = trim($message.' '.$component['intro_message']);
         }
 
         // Remove duplicate sentences
@@ -1103,9 +1115,9 @@ class IntelligentBookingOrchestrator
 
         // Log flow completion check
         Log::info('FLOW COMPLETION CHECK', [
-            'has_message' => !empty($message),
+            'has_message' => ! empty($message),
             'component_type' => $component['type'] ?? 'none',
-            'has_component_data' => !empty($component['data']),
+            'has_component_data' => ! empty($component['data']),
             'next_field' => $nextField,
             'missing_fields' => $analysis['missing'],
             'ready_to_book' => $analysis['ready_to_book'],
@@ -1132,24 +1144,24 @@ class IntelligentBookingOrchestrator
 
         // Check if there's a doctor unavailability context to prepend to the message
         $message = $component['message'];
-        if (!empty($data['doctor_unavailable_on_date']) && !empty($data['doctor_unavailable_context'])) {
+        if (! empty($data['doctor_unavailable_on_date']) && ! empty($data['doctor_unavailable_context'])) {
             $ctx = $data['doctor_unavailable_context'];
             $doctorName = $ctx['doctor_name'];
             $requestedDate = Carbon::parse($ctx['requested_date'])->format('M j');
 
             $unavailMsg = "{$doctorName} isn't available on {$requestedDate}.";
 
-            if (!empty($ctx['next_available_date'])) {
+            if (! empty($ctx['next_available_date'])) {
                 $nextDate = Carbon::parse($ctx['next_available_date'])->format('M j');
                 $unavailMsg .= " Their next available date is {$nextDate}.";
             }
 
-            if (!empty($ctx['alternative_doctors'])) {
-                $altNames = array_map(fn($d) => $d['name'], array_slice($ctx['alternative_doctors'], 0, 2));
-                $unavailMsg .= ' ' . implode(' and ', $altNames) . ' available on ' . $requestedDate . '.';
+            if (! empty($ctx['alternative_doctors'])) {
+                $altNames = array_map(fn ($d) => $d['name'], array_slice($ctx['alternative_doctors'], 0, 2));
+                $unavailMsg .= ' '.implode(' and ', $altNames).' available on '.$requestedDate.'.';
             }
 
-            $message = $unavailMsg . ' ' . $message;
+            $message = $unavailMsg.' '.$message;
 
             // Clear the flag so it doesn't repeat
             unset($data['doctor_unavailable_on_date']);
@@ -1157,16 +1169,16 @@ class IntelligentBookingOrchestrator
         }
 
         // Check if there's a mode conflict to notify the user about
-        if (!empty($data['mode_conflict'])) {
+        if (! empty($data['mode_conflict'])) {
             $conflictMsg = $data['mode_conflict']['message'];
-            $message = $conflictMsg . "\n\n" . $message;
+            $message = $conflictMsg."\n\n".$message;
 
             // Clear the flag so it doesn't repeat
             unset($data['mode_conflict']);
         }
 
         // Check for doctor-date conflict from entity normalization
-        if (!empty($data['doctor_date_conflict'])) {
+        if (! empty($data['doctor_date_conflict'])) {
             $message = $data['doctor_date_conflict']['message'];
 
             // Clear the flag so it doesn't repeat
@@ -1174,7 +1186,7 @@ class IntelligentBookingOrchestrator
         }
 
         // Check for past date warning
-        if (!empty($data['past_date_warning'])) {
+        if (! empty($data['past_date_warning'])) {
             $message = $data['past_date_warning']['message'];
 
             // Clear the flag so it doesn't repeat
@@ -1199,7 +1211,7 @@ class IntelligentBookingOrchestrator
         }
 
         // Contextual message when mentioned family relation doesn't exist
-        if ($component['type'] === 'patient_selector' && !empty($data['missingRelation'])) {
+        if ($component['type'] === 'patient_selector' && ! empty($data['missingRelation'])) {
             $relation = $data['missingRelation'];
             $message = "I don't see a family member listed as \"{$relation}\" in your profile. You can add them below, or select someone else.";
 
@@ -1210,7 +1222,7 @@ class IntelligentBookingOrchestrator
         }
 
         // Check for doctor-date conflict (requested doctor unavailable on selected date)
-        if (!empty($componentData['doctor_date_conflict'])) {
+        if (! empty($componentData['doctor_date_conflict'])) {
             $message = $componentData['doctor_date_conflict']['message'];
             // Clear the conflicting date so user can pick an available one
             unset($data['selectedDate']);
@@ -1269,11 +1281,11 @@ class IntelligentBookingOrchestrator
      */
     protected function buildComponentDataForType(?string $type, array $data, ?string $userId = null): ?array
     {
-        if (!$type) {
+        if (! $type) {
             return null;
         }
 
-        return match($type) {
+        return match ($type) {
             'patient_selector' => $this->getPatientSelectorData($userId),
             'appointment_type_selector' => [
                 'options' => [
@@ -1361,28 +1373,28 @@ class IntelligentBookingOrchestrator
         $parts = [];
 
         // Acknowledge symptoms with empathy
-        if (!empty($entities['symptoms'])) {
+        if (! empty($entities['symptoms'])) {
             $parts[] = "I'm sorry you're not feeling well.";
         }
 
         // Acknowledge patient selection
-        if (!empty($entities['patient_relation']) && empty($data['selectedPatientName'])) {
+        if (! empty($entities['patient_relation']) && empty($data['selectedPatientName'])) {
             $relation = $entities['patient_relation'];
             if ($relation === 'self') {
-                $parts[] = "Got it, booking for yourself.";
+                $parts[] = 'Got it, booking for yourself.';
             } else {
                 $parts[] = "Got it, booking for your {$relation}.";
             }
         }
 
         // Acknowledge doctor selection
-        if (!empty($entities['doctor_name']) && !str_contains(strtolower($entities['doctor_name']), 'id')) {
+        if (! empty($entities['doctor_name']) && ! str_contains(strtolower($entities['doctor_name']), 'id')) {
             $parts[] = "I'll book with Dr. {$entities['doctor_name']}.";
         }
 
         // Acknowledge date/time (check both 'date' and 'specific_date')
         $dateEntity = $entities['specific_date'] ?? $entities['date'] ?? null;
-        if (!empty($dateEntity)) {
+        if (! empty($dateEntity)) {
             try {
                 $date = Carbon::parse($dateEntity);
                 $formatted = $date->format('M j');
@@ -1393,12 +1405,12 @@ class IntelligentBookingOrchestrator
         }
 
         // Acknowledge appointment type
-        if (!empty($entities['appointment_type'])) {
+        if (! empty($entities['appointment_type'])) {
             $type = $entities['appointment_type'];
             if ($type === 'new') {
-                $parts[] = "New appointment.";
+                $parts[] = 'New appointment.';
             } elseif ($type === 'followup') {
-                $parts[] = "Follow-up appointment.";
+                $parts[] = 'Follow-up appointment.';
             }
         }
 
@@ -1420,8 +1432,9 @@ class IntelligentBookingOrchestrator
      */
     protected function buildComponentForField(?string $field, array $data, array $analysis): array
     {
-        if (!$field) {
+        if (! $field) {
             Log::info('🧩 Component Builder: No field needed');
+
             return ['type' => null, 'data' => null, 'intro_message' => ''];
         }
 
@@ -1437,6 +1450,7 @@ class IntelligentBookingOrchestrator
                     'current_selectedPatientId' => $data['selectedPatientId'] ?? 'null',
                     'current_patientRelation' => $data['patientRelation'] ?? 'null',
                 ]);
+
                 return [
                     'type' => 'patient_selector',
                     'data' => $this->getPatientSelectorData(),
@@ -1510,9 +1524,9 @@ class IntelligentBookingOrchestrator
 
                 // Context-aware message based on followup_reason
                 $followupReason = $data['followup_reason'] ?? null;
-                $message = match($followupReason) {
+                $message = match ($followupReason) {
                     'scheduled' => "Got it. Any updates you'd like to share with the doctor? This will help them prepare for your visit. You can skip this.",
-                    'new_concern' => "What new symptoms or changes have you noticed? This will help the doctor prepare for your visit. You can skip this.",
+                    'new_concern' => 'What new symptoms or changes have you noticed? This will help the doctor prepare for your visit. You can skip this.',
                     'ongoing_issue' => "I'm sorry to hear that. Can you describe what's still bothering you? This will help the doctor prepare for your visit. You can skip this.",
                     default => "Can you describe what's bothering you? This will help the doctor prepare. You can skip this by typing 'skip' or 'no updates'.",
                 };
@@ -1585,7 +1599,7 @@ class IntelligentBookingOrchestrator
     protected function buildDoctorComponent(array $data, array $analysis): array
     {
         $urgency = $data['urgency'] ?? null;
-        $hasSymptoms = !empty($data['symptoms']);
+        $hasSymptoms = ! empty($data['symptoms']);
         $selectedDate = $data['selectedDate'] ?? null;
 
         Log::info('IntelligentOrchestrator: Building doctor selector component', [
@@ -1605,7 +1619,7 @@ class IntelligentBookingOrchestrator
         } elseif ($selectedDate) {
             try {
                 $date = Carbon::parse($selectedDate);
-                $introMessage = 'Showing doctors available on ' . $date->format('M j');
+                $introMessage = 'Showing doctors available on '.$date->format('M j');
             } catch (\Exception $e) {
                 $introMessage = 'Available doctors';
             }
@@ -1630,7 +1644,7 @@ class IntelligentBookingOrchestrator
         $doctorId = $data['selectedDoctorId'] ?? null;
         $selectedDate = $data['selectedDate'] ?? null;
 
-        if (!$doctorId) {
+        if (! $doctorId) {
             // Need doctor first
             return $this->buildDoctorComponent($data, $analysis);
         }
@@ -1673,7 +1687,7 @@ class IntelligentBookingOrchestrator
      */
     protected function formatDateTime(?string $date, ?string $time): string
     {
-        if (!$date || !$time) {
+        if (! $date || ! $time) {
             return 'Not set';
         }
 
@@ -1738,29 +1752,29 @@ class IntelligentBookingOrchestrator
         $collectionType = $data['collectionType'] ?? 'center';
 
         // Calculate fee
-        $fee = $this->labService->calculateFee($packageId, $collectionType, !empty($testIds) ? $testIds : null);
+        $fee = $this->labService->calculateFee($packageId, $collectionType, ! empty($testIds) ? $testIds : null);
 
         // Get center address
         $address = 'Address not available';
         if ($collectionType === 'home') {
             $address = $data['selectedAddressText'] ?? 'Your registered address';
-        } elseif (!empty($data['selectedCenterId'])) {
+        } elseif (! empty($data['selectedCenterId'])) {
             $center = $this->labService->getCenterById($data['selectedCenterId']);
             $address = $center['address'] ?? $address;
         } else {
             $centers = $this->labService->getAllCenters();
-            if (!empty($centers)) {
+            if (! empty($centers)) {
                 $address = $centers[0]['address'];
             }
         }
 
         // Build preparation instructions
         $prepInstructions = [];
-        $requiresFasting = $package ? ($package['requires_fasting'] ?? false) : !empty($data['packageRequiresFasting']);
+        $requiresFasting = $package ? ($package['requires_fasting'] ?? false) : ! empty($data['packageRequiresFasting']);
         if ($requiresFasting) {
             $fastingHours = $package ? ($package['fasting_hours'] ?? 12) : ($data['packageFastingHours'] ?? 12);
             $prepInstructions = [
-                "Fasting for {$fastingHours}-" . ($fastingHours + 2) . " hours required",
+                "Fasting for {$fastingHours}-".($fastingHours + 2).' hours required',
                 'Water is allowed',
                 'Avoid alcohol 24 hours before',
                 'Continue regular medications unless advised otherwise',
@@ -1768,7 +1782,7 @@ class IntelligentBookingOrchestrator
         }
 
         return [
-            'package' => $data['selectedPackageName'] ?? (!empty($testNames) ? implode(', ', $testNames) : ($package['name'] ?? 'Unknown Package')),
+            'package' => $data['selectedPackageName'] ?? (! empty($testNames) ? implode(', ', $testNames) : ($package['name'] ?? 'Unknown Package')),
             'patient' => [
                 'name' => $data['selectedPatientName'] ?? 'Unknown Patient',
                 'avatar' => $data['selectedPatientAvatar'] ?? null,
@@ -1790,12 +1804,12 @@ class IntelligentBookingOrchestrator
     {
         $searchResultIds = $data['packageSearchResults'] ?? null;
 
-        if (!empty($searchResultIds)) {
+        if (! empty($searchResultIds)) {
             // Show only filtered packages matching search results
             $allPackages = $this->labService->getAllPackages();
             $packages = array_values(array_filter(
                 $allPackages,
-                fn($p) => in_array($p['id'], $searchResultIds)
+                fn ($p) => in_array($p['id'], $searchResultIds)
             ));
         } else {
             // Fallback to all packages (no search or zero results)
@@ -1808,7 +1822,7 @@ class IntelligentBookingOrchestrator
                 ? json_decode($p['test_ids'], true)
                 : ($p['test_ids'] ?? []);
             $testNames = [];
-            if (!empty($testIds)) {
+            if (! empty($testIds)) {
                 $testNames = \App\Models\LabTestType::whereIn('id', $testIds)
                     ->pluck('name')
                     ->toArray();
@@ -1834,7 +1848,7 @@ class IntelligentBookingOrchestrator
         // Build individual tests list from search results
         $individualTests = [];
         $testResultIds = $data['testSearchResults'] ?? [];
-        if (!empty($testResultIds)) {
+        if (! empty($testResultIds)) {
             foreach ($testResultIds as $testId) {
                 $test = $this->labService->getTestById($testId);
                 if ($test) {
@@ -1907,7 +1921,7 @@ class IntelligentBookingOrchestrator
                 ->where('is_active', true)
                 ->orderByDesc('is_default')
                 ->get()
-                ->map(fn($a) => [
+                ->map(fn ($a) => [
                     'id' => $a->id,
                     'label' => $a->label,
                     'address' => $a->getFullAddress(),
@@ -1962,7 +1976,7 @@ class IntelligentBookingOrchestrator
             ['time' => '4:00 PM', 'available' => true, 'preferred' => false],
         ];
 
-        $requiresFasting = !empty($data['packageRequiresFasting']);
+        $requiresFasting = ! empty($data['packageRequiresFasting']);
         $fastingHours = $data['packageFastingHours'] ?? null;
 
         return [
@@ -2004,7 +2018,7 @@ class IntelligentBookingOrchestrator
         $keywords = $parsed['emergency_keywords'] ?? [];
         $keywordText = implode(', ', array_slice($keywords, 0, 2));
 
-        $message = "⚠️ EMERGENCY: This sounds like a medical emergency. Please call 108 (Ambulance) or 112 (Emergency Services) immediately. Do NOT wait for an appointment.";
+        $message = '⚠️ EMERGENCY: This sounds like a medical emergency. Please call 108 (Ambulance) or 112 (Emergency Services) immediately. Do NOT wait for an appointment.';
 
         $this->addAssistantMessage($conversation, $message, 'emergency_alert', [
             'keywords' => $keywords,
@@ -2031,12 +2045,12 @@ class IntelligentBookingOrchestrator
         $updated = $conversation->collected_data;
 
         // Initialize completedSteps if not present
-        if (!isset($updated['completedSteps'])) {
+        if (! isset($updated['completedSteps'])) {
             $updated['completedSteps'] = [];
         }
 
         // Handle "Add family member or guest" trigger from patient selector
-        if (!empty($selection['add_family_member'])) {
+        if (! empty($selection['add_family_member'])) {
             Log::info('🔒 Selection Handler: Add family member or guest flow requested');
 
             $conversation->collected_data = $updated;
@@ -2069,7 +2083,7 @@ class IntelligentBookingOrchestrator
         if (isset($selection['member_type']) && $selection['member_type'] === 'guest' && isset($selection['member_name'])) {
             $guestName = trim($selection['member_name']);
             $guestPhone = isset($selection['member_phone']) ? trim($selection['member_phone']) : null;
-            $guestAge = isset($selection['member_age']) ? (int)$selection['member_age'] : null;
+            $guestAge = isset($selection['member_age']) ? (int) $selection['member_age'] : null;
             $guestGender = isset($selection['member_gender']) ? trim($selection['member_gender']) : null;
 
             Log::info('🔒 Selection Handler: Creating guest member', [
@@ -2094,7 +2108,7 @@ class IntelligentBookingOrchestrator
             $updated['selectedPatientName'] = $guestMember->name;
             $updated['selectedPatientAvatar'] = '';
             $updated['patientRelation'] = 'guest';
-            if (!in_array('patient', $updated['completedSteps'])) {
+            if (! in_array('patient', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'patient';
             }
 
@@ -2123,7 +2137,7 @@ class IntelligentBookingOrchestrator
             $updated['selectedPatientName'] = $memberName;
             $updated['selectedPatientAvatar'] = '';
             $updated['patientRelation'] = $memberRelation;
-            if (!in_array('patient', $updated['completedSteps'])) {
+            if (! in_array('patient', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'patient';
             }
 
@@ -2195,7 +2209,7 @@ class IntelligentBookingOrchestrator
             $updated['selectedPatientName'] = $newMember->name;
             $updated['selectedPatientAvatar'] = '';
             $updated['patientRelation'] = $memberRelation;
-            if (!in_array('patient', $updated['completedSteps'])) {
+            if (! in_array('patient', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'patient';
             }
 
@@ -2209,14 +2223,14 @@ class IntelligentBookingOrchestrator
         if (isset($selection['patient_id'])) {
             $updated['selectedPatientId'] = $selection['patient_id'];
             $updated['selectedPatientName'] = $selection['patient_name'] ?? 'Unknown';
-            if (!in_array('patient', $updated['completedSteps'])) {
+            if (! in_array('patient', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'patient';
             }
         }
 
         if (isset($selection['appointment_type'])) {
             $updated['appointmentType'] = $selection['appointment_type'];
-            if (!in_array('appointmentType', $updated['completedSteps'])) {
+            if (! in_array('appointmentType', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'appointmentType';
             }
 
@@ -2224,24 +2238,24 @@ class IntelligentBookingOrchestrator
             // Only clear if the field is NOT in completedSteps (UI-selected) AND NOT in
             // textMentionedFields (explicitly mentioned in user's text, e.g. "5th Feb").
             $textMentioned = $updated['textMentionedFields'] ?? [];
-            if (!in_array('urgency', $updated['completedSteps']) && !in_array('urgency', $textMentioned)) {
+            if (! in_array('urgency', $updated['completedSteps']) && ! in_array('urgency', $textMentioned)) {
                 unset($updated['urgency']);
             }
-            if (!in_array('date', $updated['completedSteps']) && !in_array('selectedDate', $textMentioned)) {
+            if (! in_array('date', $updated['completedSteps']) && ! in_array('selectedDate', $textMentioned)) {
                 unset($updated['selectedDate']);
             }
         }
 
         if (isset($selection['urgency'])) {
             $updated['urgency'] = $selection['urgency'];
-            if (!in_array('urgency', $updated['completedSteps'])) {
+            if (! in_array('urgency', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'urgency';
             }
         }
 
         if (isset($selection['followup_reason'])) {
             $updated['followup_reason'] = $selection['followup_reason'];
-            if (!in_array('followup_reason', $updated['completedSteps'])) {
+            if (! in_array('followup_reason', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'followup_reason';
             }
             Log::info('🔒 Selection Handler: followup_reason selected', [
@@ -2254,11 +2268,11 @@ class IntelligentBookingOrchestrator
         if (isset($selection['followup_notes'])) {
             $updated['followup_notes'] = $selection['followup_notes'];
             $updated['followup_notes_asked'] = true;
-            if (!in_array('followup_notes', $updated['completedSteps'])) {
+            if (! in_array('followup_notes', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'followup_notes';
             }
             Log::info('🔒 Selection Handler: followup_notes provided', [
-                'has_notes' => !empty($selection['followup_notes']),
+                'has_notes' => ! empty($selection['followup_notes']),
             ]);
         }
 
@@ -2267,7 +2281,7 @@ class IntelligentBookingOrchestrator
             if ($selection['field'] === 'followup_notes') {
                 $updated['followup_notes'] = $selection['text_input'];
                 $updated['followup_notes_asked'] = true;
-                if (!in_array('followup_notes', $updated['completedSteps'])) {
+                if (! in_array('followup_notes', $updated['completedSteps'])) {
                     $updated['completedSteps'][] = 'followup_notes';
                 }
                 Log::info('🔒 Selection Handler: followup_notes provided via text_input', [
@@ -2280,7 +2294,7 @@ class IntelligentBookingOrchestrator
         if (isset($selection['skip']) && $selection['skip'] === 'followup_notes') {
             $updated['followup_notes'] = '';
             $updated['followup_notes_asked'] = true;
-            if (!in_array('followup_notes', $updated['completedSteps'])) {
+            if (! in_array('followup_notes', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'followup_notes';
             }
             Log::info('🔒 Selection Handler: followup_notes skipped by user');
@@ -2289,7 +2303,7 @@ class IntelligentBookingOrchestrator
         if (isset($selection['doctor_id'])) {
             $updated['selectedDoctorId'] = $selection['doctor_id'];
             $updated['selectedDoctorName'] = $selection['doctor_name'] ?? '';
-            if (!in_array('doctor', $updated['completedSteps'])) {
+            if (! in_array('doctor', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'doctor';
             }
 
@@ -2309,7 +2323,7 @@ class IntelligentBookingOrchestrator
                 $currentMode = $updated['consultationMode'] ?? null;
                 $doctorName = $doctor['name'] ?? 'this doctor';
 
-                if ($currentMode && !in_array($currentMode, $supportedModes)) {
+                if ($currentMode && ! in_array($currentMode, $supportedModes)) {
                     // User's previously chosen mode is NOT supported by this doctor
                     $modeLabel = $currentMode === 'video' ? 'video consultations' : 'in-person visits';
                     $onlyModeLabel = count($supportedModes) === 1
@@ -2319,7 +2333,7 @@ class IntelligentBookingOrchestrator
                     if (count($supportedModes) === 1) {
                         // Single-mode doctor — auto-select their only mode but notify user
                         $updated['consultationMode'] = $supportedModes[0];
-                        if (!in_array('mode', $updated['completedSteps'])) {
+                        if (! in_array('mode', $updated['completedSteps'])) {
                             $updated['completedSteps'][] = 'mode';
                         }
                         $updated['mode_conflict'] = [
@@ -2343,7 +2357,7 @@ class IntelligentBookingOrchestrator
                 } elseif (count($supportedModes) === 1 && $currentMode !== $supportedModes[0]) {
                     // No prior mode set, but doctor only supports one — auto-select silently
                     $updated['consultationMode'] = $supportedModes[0];
-                    if (!in_array('mode', $updated['completedSteps'])) {
+                    if (! in_array('mode', $updated['completedSteps'])) {
                         $updated['completedSteps'][] = 'mode';
                     }
                     Log::info('🔒 Selection Handler: Auto-selected only supported mode', [
@@ -2362,7 +2376,7 @@ class IntelligentBookingOrchestrator
 
         if (isset($selection['date'])) {
             $updated['selectedDate'] = $selection['date'];
-            if (!in_array('date', $updated['completedSteps'])) {
+            if (! in_array('date', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'date';
             }
             // When user picks a specific date, ensure urgency reflects it
@@ -2370,14 +2384,14 @@ class IntelligentBookingOrchestrator
             if (empty($updated['urgency']) || $updated['urgency'] === 'urgent') {
                 $updated['urgency'] = 'specific_date';
             }
-            if (!in_array('urgency', $updated['completedSteps'])) {
+            if (! in_array('urgency', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'urgency';
             }
         }
 
         if (isset($selection['time'])) {
             $updated['selectedTime'] = $selection['time'];
-            if (!in_array('time', $updated['completedSteps'])) {
+            if (! in_array('time', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'time';
             }
         }
@@ -2391,7 +2405,7 @@ class IntelligentBookingOrchestrator
                 $doctor = $this->doctorService->getById($doctorId);
                 if ($doctor) {
                     $supportedModes = $doctor['consultation_modes'] ?? [];
-                    if (!in_array($selectedMode, $supportedModes)) {
+                    if (! in_array($selectedMode, $supportedModes)) {
                         Log::warning('⚠️ Mode validation failed: doctor does not support this mode', [
                             'doctor_id' => $doctorId,
                             'doctor_name' => $doctor['name'] ?? 'Unknown',
@@ -2410,7 +2424,7 @@ class IntelligentBookingOrchestrator
             }
 
             $updated['consultationMode'] = $selectedMode;
-            if (!in_array('mode', $updated['completedSteps'])) {
+            if (! in_array('mode', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'mode';
             }
             Log::info('🔍 MODE SELECTION HANDLER', [
@@ -2433,7 +2447,7 @@ class IntelligentBookingOrchestrator
                 // Clear any individual test selection
                 unset($updated['selectedTestIds']);
                 unset($updated['selectedTestNames']);
-                if (!in_array('package', $updated['completedSteps'])) {
+                if (! in_array('package', $updated['completedSteps'])) {
                     $updated['completedSteps'][] = 'package';
                 }
                 Log::info('🔒 Selection Handler: Package selected', [
@@ -2462,7 +2476,7 @@ class IntelligentBookingOrchestrator
                 }
             }
 
-            if (!empty($testNames)) {
+            if (! empty($testNames)) {
                 $updated['selectedTestIds'] = $testIds;
                 $updated['selectedTestNames'] = $testNames;
                 $updated['packageRequiresFasting'] = $requiresFasting;
@@ -2470,7 +2484,7 @@ class IntelligentBookingOrchestrator
                 // Clear any package selection
                 unset($updated['selectedPackageId']);
                 unset($updated['selectedPackageName']);
-                if (!in_array('package', $updated['completedSteps'])) {
+                if (! in_array('package', $updated['completedSteps'])) {
                     $updated['completedSteps'][] = 'package';
                 }
                 Log::info('🔒 Selection Handler: Individual test(s) selected', [
@@ -2488,7 +2502,7 @@ class IntelligentBookingOrchestrator
                 unset($updated['selectedCenterId']);
                 unset($updated['selectedCenterName']);
             }
-            if (!in_array('collection_type', $updated['completedSteps'])) {
+            if (! in_array('collection_type', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'collection_type';
             }
             Log::info('🔒 Selection Handler: Collection type selected', [
@@ -2504,7 +2518,7 @@ class IntelligentBookingOrchestrator
                 $updated['selectedCenterId'] = $centerId;
                 $updated['selectedCenterName'] = $center['name'];
             }
-            if (!in_array('center', $updated['completedSteps'])) {
+            if (! in_array('center', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'center';
             }
             Log::info('🔒 Selection Handler: Center selected', [
@@ -2515,7 +2529,7 @@ class IntelligentBookingOrchestrator
 
         // Address selection (for home collection)
         // Handle "Add new address" trigger from address selector
-        if (!empty($selection['add_address'])) {
+        if (! empty($selection['add_address'])) {
             Log::info('🔒 Selection Handler: Add address form requested');
 
             $conversation->collected_data = $updated;
@@ -2598,14 +2612,14 @@ class IntelligentBookingOrchestrator
                 'city' => $addrCity,
                 'state' => $addrState,
                 'pincode' => $addrPincode,
-                'is_default' => !$hasExistingAddresses,
+                'is_default' => ! $hasExistingAddresses,
                 'is_active' => true,
             ]);
 
             $updated['selectedAddressId'] = $newAddress->id;
             $updated['selectedAddressLabel'] = $newAddress->label;
             $updated['selectedAddressText'] = $newAddress->getFullAddress();
-            if (!in_array('address', $updated['completedSteps'])) {
+            if (! in_array('address', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'address';
             }
 
@@ -2619,7 +2633,7 @@ class IntelligentBookingOrchestrator
             $updated['selectedAddressId'] = $selection['address_id'];
             $updated['selectedAddressLabel'] = $selection['address_label'] ?? 'Selected address';
             $updated['selectedAddressText'] = $selection['address_text'] ?? '';
-            if (!in_array('address', $updated['completedSteps'])) {
+            if (! in_array('address', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'address';
             }
             Log::info('🔒 Selection Handler: Address selected', [
@@ -2644,7 +2658,7 @@ class IntelligentBookingOrchestrator
                     $updated['selectedCenterName'] = $center['name'];
                 }
             }
-            if (!in_array('location', $updated['completedSteps'])) {
+            if (! in_array('location', $updated['completedSteps'])) {
                 $updated['completedSteps'][] = 'location';
             }
             Log::info('🔒 Selection Handler: Location selected (legacy)', [
@@ -2721,13 +2735,13 @@ class IntelligentBookingOrchestrator
         }
 
         // Handle new date selection - validate doctor availability on that date
-        if (isset($selection['date']) && !empty($updated['selectedDoctorId'])) {
+        if (isset($selection['date']) && ! empty($updated['selectedDoctorId'])) {
             $newDate = $selection['date'];
             $doctorId = $updated['selectedDoctorId'];
             $doctorName = $updated['selectedDoctorName'] ?? 'your doctor';
             $availability = $this->checkDoctorAvailabilityForDate($doctorId, $newDate);
 
-            if (!$availability['available']) {
+            if (! $availability['available']) {
                 Log::info('⚠️ Doctor not available on selected date', [
                     'doctor_id' => $doctorId,
                     'doctor_name' => $doctorName,
@@ -2755,10 +2769,10 @@ class IntelligentBookingOrchestrator
                     $updated['completedSteps'],
                     ['doctor', 'time', 'mode']
                 ));
-            } else if (!empty($updated['selectedTime'])) {
+            } elseif (! empty($updated['selectedTime'])) {
                 // Doctor is available on date, but validate the specific time slot
                 $timeAvailable = $this->validateTimeSlotForDoctor($doctorId, $newDate, $updated['selectedTime']);
-                if (!$timeAvailable) {
+                if (! $timeAvailable) {
                     Log::info('⚠️ Time slot not available for doctor on new date', [
                         'doctor_id' => $doctorId,
                         'date' => $newDate,
@@ -2853,7 +2867,7 @@ class IntelligentBookingOrchestrator
         }
 
         // Handle new doctor selection when time validation is pending
-        if (isset($selection['doctor_id']) && !empty($updated['pending_time_validation'])) {
+        if (isset($selection['doctor_id']) && ! empty($updated['pending_time_validation'])) {
             $newDoctorId = $selection['doctor_id'];
             $pendingTime = $updated['pending_time_validation'];
 
@@ -2866,7 +2880,7 @@ class IntelligentBookingOrchestrator
                 'is_available' => $isTimeAvailable,
             ]);
 
-            if (!$isTimeAvailable) {
+            if (! $isTimeAvailable) {
                 // Time not available - clear time and show available slots
                 unset($updated['selectedTime']);
                 $updated['time_validation_failed'] = true;
@@ -2912,7 +2926,7 @@ class IntelligentBookingOrchestrator
         if ($userId) {
             $patients = \App\Models\FamilyMember::where('user_id', $userId)
                 ->get()
-                ->map(fn($m) => [
+                ->map(fn ($m) => [
                     'id' => $m->id,
                     'name' => $m->name,
                     'relation' => ucfirst($m->relation),
@@ -2952,12 +2966,12 @@ class IntelligentBookingOrchestrator
             $anyAvailable = false;
             foreach ($checkDoctorIds as $docId) {
                 $daysOff = $this->doctorService->getDaysOff($docId);
-                if (!in_array($dayOfWeek, $daysOff)) {
+                if (! in_array($dayOfWeek, $daysOff)) {
                     $anyAvailable = true;
                     break;
                 }
             }
-            if (!$anyAvailable) {
+            if (! $anyAvailable) {
                 continue;
             }
 
@@ -2975,7 +2989,7 @@ class IntelligentBookingOrchestrator
         ];
 
         // Include past date warning if present
-        if (!empty($data['past_date_warning'])) {
+        if (! empty($data['past_date_warning'])) {
             $result['warning'] = [
                 'title' => 'Date Unavailable',
                 'description' => $data['past_date_warning']['message'],
@@ -3010,7 +3024,7 @@ class IntelligentBookingOrchestrator
                         // Show the doctor with their available dates this week instead.
                         $dateFormatted = Carbon::parse($selectedDate)->format('M j');
                         $availableDays = $this->doctorService->getAvailableDates($doctorId);
-                        $dayLabels = array_map(fn($d) => Carbon::parse($d)->format('D'), $availableDays);
+                        $dayLabels = array_map(fn ($d) => Carbon::parse($d)->format('D'), $availableDays);
 
                         // Strip "Dr." prefix to avoid "Dr. Dr. Vikram"
                         $cleanName = preg_replace('/^Dr\.?\s*/i', '', $searchQuery);
@@ -3018,7 +3032,7 @@ class IntelligentBookingOrchestrator
                             'searched_doctor' => $searchQuery,
                             'date' => $dateFormatted,
                             'available_dates' => $availableDays,
-                            'message' => "Dr. {$cleanName} isn't available on {$dateFormatted}. They're available " . implode(', ', $dayLabels) . ' this week.',
+                            'message' => "Dr. {$cleanName} isn't available on {$dateFormatted}. They're available ".implode(', ', $dayLabels).' this week.',
                         ];
 
                         // Override: show full week dates filtered to doctor's availability
@@ -3054,7 +3068,8 @@ class IntelligentBookingOrchestrator
             // Filter doctors to those available on the selected date
             $filteredDoctors = array_values(array_filter($result['doctors'], function ($doc) use ($dayOfWeek) {
                 $daysOff = $this->doctorService->getDaysOff($doc['id']);
-                return !in_array($dayOfWeek, $daysOff);
+
+                return ! in_array($dayOfWeek, $daysOff);
             }));
 
             $result['doctors'] = $filteredDoctors;
@@ -3069,6 +3084,7 @@ class IntelligentBookingOrchestrator
         // Get all doctors from centralized DoctorService, add time slots
         $doctors = array_map(function ($doctor) {
             $doctor['slots'] = $this->generateTimeSlots();
+
             return $doctor;
         }, $this->doctorService->getAllAsList());
 
@@ -3078,9 +3094,10 @@ class IntelligentBookingOrchestrator
         if ($searchQuery) {
             $filtered = array_map(function ($doctor) {
                 $doctor['slots'] = $this->generateTimeSlots();
+
                 return $doctor;
             }, $this->doctorService->search($searchQuery));
-            if (!empty($filtered)) {
+            if (! empty($filtered)) {
                 $doctors = $filtered;
             }
         }
@@ -3106,7 +3123,7 @@ class IntelligentBookingOrchestrator
             // Count how many doctors are available on this day
             $availableCount = 0;
             foreach ($doctors as $doctor) {
-                if (!in_array($dayOfWeek, $doctorDaysOff[$doctor['id']])) {
+                if (! in_array($dayOfWeek, $doctorDaysOff[$doctor['id']])) {
                     $availableCount++;
                 }
             }
@@ -3131,7 +3148,7 @@ class IntelligentBookingOrchestrator
             $availDates = [];
             foreach ($dates as $d) {
                 $dow = Carbon::parse($d['value'])->dayOfWeek;
-                if (!in_array($dow, $daysOff)) {
+                if (! in_array($dow, $daysOff)) {
                     $availDates[] = $d['value'];
                 }
             }
@@ -3142,7 +3159,7 @@ class IntelligentBookingOrchestrator
         // Determine which date is pre-selected.
         // Explicit selectedDate always takes priority over urgency-based defaults.
         $selectedDate = null;
-        if (!empty($data['selectedDate'])) {
+        if (! empty($data['selectedDate'])) {
             $selectedDate = $data['selectedDate'];
         } elseif ($urgency === 'urgent') {
             $selectedDate = $dates[0]['value'] ?? Carbon::today()->format('Y-m-d');
@@ -3322,7 +3339,7 @@ class IntelligentBookingOrchestrator
         $transformedDates = [];
         for ($i = 0; $i < 14; $i++) {
             $date = Carbon::today()->addDays($i);
-            $isAvailable = empty($daysOff) || !in_array($date->dayOfWeek, $daysOff);
+            $isAvailable = empty($daysOff) || ! in_array($date->dayOfWeek, $daysOff);
 
             if ($isAvailable) {
                 $transformedDates[] = [
@@ -3330,13 +3347,15 @@ class IntelligentBookingOrchestrator
                     'label' => $i === 0 ? 'Today' : ($i === 1 ? 'Tomorrow' : $date->format('D')),
                     'sublabel' => $date->format('M j'),
                 ];
-                if (count($transformedDates) >= 5) break;
+                if (count($transformedDates) >= 5) {
+                    break;
+                }
             }
         }
 
         // Use doctor's actual time slots if available, otherwise generic
         $slots = [];
-        if ($doctor && !empty($doctor['slots'])) {
+        if ($doctor && ! empty($doctor['slots'])) {
             $slots = $doctor['slots'];
         } else {
             $slots = $this->generateTimeSlots();
@@ -3393,7 +3412,7 @@ class IntelligentBookingOrchestrator
                     ->where('role', 'user')
                     ->exists();
 
-                if (!$hasUserMessageAfter) {
+                if (! $hasUserMessageAfter) {
                     Log::info('🔄 Component Deduplication: Updating existing component instead of creating duplicate', [
                         'conversation_id' => $conversation->id,
                         'component_type' => $componentType,
@@ -3404,7 +3423,7 @@ class IntelligentBookingOrchestrator
                     $lastAssistantMessage->update([
                         'content' => $message,
                         'component_data' => $componentData,
-                        'thinking_steps' => !empty($thinkingSteps) ? $thinkingSteps : null,
+                        'thinking_steps' => ! empty($thinkingSteps) ? $thinkingSteps : null,
                     ]);
 
                     return;
@@ -3419,14 +3438,14 @@ class IntelligentBookingOrchestrator
             'content' => $message,
             'component_type' => $componentType,
             'component_data' => $componentData,
-            'thinking_steps' => !empty($thinkingSteps) ? $thinkingSteps : null,
+            'thinking_steps' => ! empty($thinkingSteps) ? $thinkingSteps : null,
         ]);
 
         Log::info('✉️ New Assistant Message Created', [
             'conversation_id' => $conversation->id,
             'component_type' => $componentType ?? 'none',
-            'has_component_data' => !empty($componentData),
-            'has_thinking_steps' => !empty($thinkingSteps),
+            'has_component_data' => ! empty($componentData),
+            'has_thinking_steps' => ! empty($thinkingSteps),
         ]);
     }
 
@@ -3468,7 +3487,7 @@ class IntelligentBookingOrchestrator
 
         $patientId = $data['selectedPatientId'] ?? null;
 
-        if (!$patientId) {
+        if (! $patientId) {
             return [];
         }
 
@@ -3499,16 +3518,16 @@ class IntelligentBookingOrchestrator
                 if ($doctorDetails) {
                     // Get available time slots for this doctor on the selected date
                     $slots = $doctorDetails['slots'] ?? $this->generateTimeSlots();
-                    $availableSlots = array_filter($slots, fn($slot) => $slot['available'] ?? false);
+                    $availableSlots = array_filter($slots, fn ($slot) => $slot['available'] ?? false);
                     $availableTimes = array_column($availableSlots, 'time');
 
-                    if (!empty($availableTimes)) {
+                    if (! empty($availableTimes)) {
                         $doctor['available_on_date'] = true;
-                        $doctor['availability_message'] = 'Available on ' . Carbon::parse($selectedDate)->format('M j');
+                        $doctor['availability_message'] = 'Available on '.Carbon::parse($selectedDate)->format('M j');
                         $doctor['quick_times'] = array_slice($availableTimes, 0, 3); // First 3 available slots
                     } else {
                         $doctor['available_on_date'] = false;
-                        $doctor['availability_message'] = 'Not available on ' . Carbon::parse($selectedDate)->format('M j');
+                        $doctor['availability_message'] = 'Not available on '.Carbon::parse($selectedDate)->format('M j');
                         $doctor['quick_times'] = [];
                     }
 
@@ -3545,8 +3564,9 @@ class IntelligentBookingOrchestrator
         // Get doctor details
         $doctorDetails = $this->doctorService->getById($doctorId);
 
-        if (!$doctorDetails) {
+        if (! $doctorDetails) {
             Log::warning('⚠️ Time Validation: Doctor not found', ['doctor_id' => $doctorId]);
+
             return true;
         }
 
@@ -3561,6 +3581,7 @@ class IntelligentBookingOrchestrator
                     'time' => $time,
                     'slot' => $slot,
                 ]);
+
                 return true;
             }
         }
@@ -3568,7 +3589,7 @@ class IntelligentBookingOrchestrator
         Log::warning('⚠️ Time Validation: Slot not available', [
             'doctor_id' => $doctorId,
             'requested_time' => $time,
-            'available_slots' => array_column(array_filter($slots, fn($s) => $s['available'] ?? false), 'time'),
+            'available_slots' => array_column(array_filter($slots, fn ($s) => $s['available'] ?? false), 'time'),
         ]);
 
         return false;

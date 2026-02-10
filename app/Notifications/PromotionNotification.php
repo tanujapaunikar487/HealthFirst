@@ -18,7 +18,7 @@ class PromotionNotification extends BaseNotification
     {
         $message = (new MailMessage)
             ->subject($this->promotion->title)
-            ->greeting('Hello ' . $notifiable->name . ',')
+            ->greeting('Hello '.$notifiable->name.',')
             ->line($this->promotion->description);
 
         if ($this->promotion->button_href) {
@@ -36,15 +36,15 @@ class PromotionNotification extends BaseNotification
     public function toWhatsApp(object $notifiable): string
     {
         $text = "Hello {$notifiable->name},\n\n"
-            . "{$this->promotion->title}\n\n"
-            . "{$this->promotion->description}\n\n";
+            ."{$this->promotion->title}\n\n"
+            ."{$this->promotion->description}\n\n";
 
         if ($this->promotion->button_href) {
             $buttonText = $this->promotion->button_text ?? 'Learn more';
-            $text .= "{$buttonText}: " . url($this->promotion->button_href) . "\n\n";
+            $text .= "{$buttonText}: ".url($this->promotion->button_href)."\n\n";
         }
 
-        $text .= "Thank you for using HealthCare!";
+        $text .= 'Thank you for using HealthCare!';
 
         return $text;
     }
@@ -58,7 +58,7 @@ class PromotionNotification extends BaseNotification
             'description' => $this->promotion->description,
             'button_text' => $this->promotion->button_text,
             'button_href' => $this->promotion->button_href,
-            'message' => $this->promotion->title . ': ' . $this->promotion->description,
+            'message' => $this->promotion->title.': '.$this->promotion->description,
         ];
     }
 }

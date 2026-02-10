@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Appointment;
 use App\Models\BillingNotification;
-use App\Models\HealthRecord;
 use App\Models\Department;
 use App\Models\Doctor;
 use App\Models\DoctorAlias;
@@ -12,6 +11,7 @@ use App\Models\DoctorAvailability;
 use App\Models\DoctorConsultationMode;
 use App\Models\EmergencyKeyword;
 use App\Models\FamilyMember;
+use App\Models\HealthRecord;
 use App\Models\InsuranceClaim;
 use App\Models\InsurancePolicy;
 use App\Models\InsuranceProvider;
@@ -19,9 +19,9 @@ use App\Models\LabCenter;
 use App\Models\LabPackage;
 use App\Models\LabTestType;
 use App\Models\Promotion;
-use App\Models\UserAddress;
 use App\Models\Symptom;
 use App\Models\TimeSlot;
+use App\Models\UserAddress;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
@@ -301,7 +301,7 @@ class HospitalSeeder extends Seeder
             // Availability (all days except days off)
             $allDays = [0, 1, 2, 3, 4, 5, 6];
             foreach ($allDays as $day) {
-                $isAvailable = !in_array($day, $doctorData['days_off']);
+                $isAvailable = ! in_array($day, $doctorData['days_off']);
                 DoctorAvailability::create([
                     'doctor_id' => $doctor->id,
                     'day_of_week' => $day,
@@ -345,7 +345,9 @@ class HospitalSeeder extends Seeder
                     ->where('is_available', true)
                     ->first();
 
-                if (!$availability) continue;
+                if (! $availability) {
+                    continue;
+                }
 
                 $startHour = (int) substr($availability->start_time, 0, 2);
                 $endHour = (int) substr($availability->end_time, 0, 2);
@@ -353,7 +355,9 @@ class HospitalSeeder extends Seeder
 
                 // Skip lunch hour (13:00)
                 for ($h = $startHour; $h < $endHour; $h++) {
-                    if ($h === 13) continue; // lunch break
+                    if ($h === 13) {
+                        continue;
+                    } // lunch break
 
                     $isPreferred = $h >= 9 && $h <= 10;
                     $isBooked = false;
@@ -1636,7 +1640,7 @@ class HospitalSeeder extends Seeder
                 'appointment_id' => $appt->id,
                 'type' => 'payment_due_reminder',
                 'title' => 'Payment Due in 3 Days',
-                'message' => 'Your bill INV-000005 of ₹800 is due on ' . now()->addDays(3)->format('M d') . '. Pay now to avoid late fees.',
+                'message' => 'Your bill INV-000005 of ₹800 is due on '.now()->addDays(3)->format('M d').'. Pay now to avoid late fees.',
                 'channels' => ['push', 'email'],
                 'data' => ['amount' => 800, 'invoice_number' => 'INV-000005', 'due_date' => now()->addDays(3)->format('Y-m-d')],
                 'read_at' => null,
@@ -1660,7 +1664,7 @@ class HospitalSeeder extends Seeder
                 'appointment_id' => $appt->id,
                 'type' => 'emi_due_reminder',
                 'title' => 'EMI Payment Due',
-                'message' => 'Your EMI installment 2/6 of ₹833 is due on ' . now()->addDays(5)->format('M d') . '. Pay to avoid penalties.',
+                'message' => 'Your EMI installment 2/6 of ₹833 is due on '.now()->addDays(5)->format('M d').'. Pay to avoid penalties.',
                 'channels' => ['push', 'email'],
                 'data' => ['amount' => 833, 'installment' => 2, 'total_installments' => 6, 'invoice_number' => 'INV-000006'],
                 'read_at' => null,
@@ -1812,7 +1816,7 @@ class HospitalSeeder extends Seeder
                 'appointment_id' => $appt->id,
                 'type' => 'appointment_confirmed',
                 'title' => 'Appointment Confirmed',
-                'message' => 'Your Complete Health Checkup (home collection) on ' . now()->addDays(5)->format('M d') . ' has been confirmed.',
+                'message' => 'Your Complete Health Checkup (home collection) on '.now()->addDays(5)->format('M d').' has been confirmed.',
                 'channels' => ['push', 'email'],
                 'data' => ['test_name' => 'Complete Health Checkup', 'collection_type' => 'home'],
                 'read_at' => now()->subDays(1),
@@ -1840,7 +1844,7 @@ class HospitalSeeder extends Seeder
                 'appointment_id' => $appt->id,
                 'type' => 'appointment_rescheduled',
                 'title' => 'Appointment Rescheduled',
-                'message' => 'Your appointment with Dr. Sarah Johnson has been rescheduled to ' . now()->subDays(16)->format('M d') . ' at 10:00 AM.',
+                'message' => 'Your appointment with Dr. Sarah Johnson has been rescheduled to '.now()->subDays(16)->format('M d').' at 10:00 AM.',
                 'channels' => ['push', 'email', 'sms'],
                 'data' => ['doctor_name' => 'Dr. Sarah Johnson', 'new_date' => now()->subDays(16)->format('Y-m-d'), 'new_time' => '10:00 AM'],
                 'read_at' => now()->subDays(17),
@@ -1958,7 +1962,7 @@ class HospitalSeeder extends Seeder
                 'appointment_id' => null,
                 'type' => 'member_verification_pending',
                 'title' => 'Verification Pending',
-                'message' => 'Phone verification pending for ' . $unverifiedMember->full_name . '. Verify now to enable appointment booking.',
+                'message' => 'Phone verification pending for '.$unverifiedMember->full_name.'. Verify now to enable appointment booking.',
                 'channels' => ['push'],
                 'data' => ['member_name' => $unverifiedMember->full_name, 'family_member_id' => $unverifiedMember->id],
                 'read_at' => null,
@@ -1973,7 +1977,7 @@ class HospitalSeeder extends Seeder
                 'appointment_id' => null,
                 'type' => 'member_added',
                 'title' => 'Family Member Added',
-                'message' => $recentMember->full_name . ' (' . ucfirst($recentMember->relation) . ') has been added to your family members.',
+                'message' => $recentMember->full_name.' ('.ucfirst($recentMember->relation).') has been added to your family members.',
                 'channels' => ['push', 'email'],
                 'data' => ['member_name' => $recentMember->full_name, 'relation' => $recentMember->relation, 'family_member_id' => $recentMember->id],
                 'read_at' => now()->subDays(20),
@@ -1994,7 +1998,7 @@ class HospitalSeeder extends Seeder
                 'appointment_id' => null,
                 'type' => 'policy_expiring_soon',
                 'title' => 'Policy Expiring Soon',
-                'message' => 'Your ' . $expiringPolicy->plan_name . ' policy expires on ' . now()->addDays(45)->format('M d, Y') . '. Renew now to avoid coverage gaps.',
+                'message' => 'Your '.$expiringPolicy->plan_name.' policy expires on '.now()->addDays(45)->format('M d, Y').'. Renew now to avoid coverage gaps.',
                 'channels' => ['push', 'email'],
                 'data' => ['policy_name' => $expiringPolicy->plan_name, 'expiry_date' => now()->addDays(45)->format('Y-m-d'), 'insurance_policy_id' => $expiringPolicy->id],
                 'read_at' => null,
@@ -2009,7 +2013,7 @@ class HospitalSeeder extends Seeder
                 'appointment_id' => null,
                 'type' => 'policy_expired',
                 'title' => 'Policy Expired',
-                'message' => 'Your ' . $expiredPolicy->plan_name . ' policy has expired. Renew immediately to restore coverage.',
+                'message' => 'Your '.$expiredPolicy->plan_name.' policy has expired. Renew immediately to restore coverage.',
                 'channels' => ['push', 'email', 'sms'],
                 'data' => ['policy_name' => $expiredPolicy->plan_name, 'expired_on' => now()->subDays(30)->format('Y-m-d'), 'insurance_policy_id' => $expiredPolicy->id],
                 'read_at' => null,

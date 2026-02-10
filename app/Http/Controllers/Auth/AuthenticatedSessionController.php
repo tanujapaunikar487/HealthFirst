@@ -22,8 +22,8 @@ class AuthenticatedSessionController extends Controller
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
             'socialLoginEnabled' => [
-                'google' => !empty(config('services.google.client_id')),
-                'apple' => !empty(config('services.apple.client_id')),
+                'google' => ! empty(config('services.google.client_id')),
+                'apple' => ! empty(config('services.apple.client_id')),
             ],
         ]);
     }

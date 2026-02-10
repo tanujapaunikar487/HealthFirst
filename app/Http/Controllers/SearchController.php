@@ -8,7 +8,6 @@ use App\Models\DoctorAlias;
 use App\Models\HealthRecord;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class SearchController extends Controller
 {
@@ -27,22 +26,22 @@ class SearchController extends Controller
 
         $results = [];
 
-        if (!$category || $category === 'doctors') {
+        if (! $category || $category === 'doctors') {
             $data = $this->searchDoctors($q, $limit);
             $results['doctors'] = $data['items'];
             $results['doctors_total'] = $data['total'];
         }
-        if (!$category || $category === 'appointments') {
+        if (! $category || $category === 'appointments') {
             $data = $this->searchAppointments($q, $user, $limit);
             $results['appointments'] = $data['items'];
             $results['appointments_total'] = $data['total'];
         }
-        if (!$category || $category === 'health_records') {
+        if (! $category || $category === 'health_records') {
             $data = $this->searchHealthRecords($q, $user, $limit);
             $results['health_records'] = $data['items'];
             $results['health_records_total'] = $data['total'];
         }
-        if (!$category || $category === 'bills') {
+        if (! $category || $category === 'bills') {
             $data = $this->searchBills($q, $user, $limit);
             $results['bills'] = $data['items'];
             $results['bills_total'] = $data['total'];
@@ -56,7 +55,7 @@ class SearchController extends Controller
         $baseQuery = Doctor::with('department')
             ->where(function ($query) use ($q) {
                 $query->whereRaw('LOWER(name) LIKE ?', ["%{$q}%"])
-                      ->orWhereRaw('LOWER(specialization) LIKE ?', ["%{$q}%"]);
+                    ->orWhereRaw('LOWER(specialization) LIKE ?', ["%{$q}%"]);
             })
             ->where('is_active', true);
 
@@ -68,7 +67,7 @@ class SearchController extends Controller
             ->pluck('doctor_id')
             ->toArray();
 
-        if (!empty($aliasDocIds)) {
+        if (! empty($aliasDocIds)) {
             $aliasOnlyQuery = Doctor::where('is_active', true)
                 ->whereIn('id', $aliasDocIds)
                 ->whereNotIn('id', (clone $baseQuery)->pluck('id'));
@@ -102,9 +101,9 @@ class SearchController extends Controller
             ->with(['doctor', 'familyMember', 'labPackage'])
             ->where(function ($query) use ($q) {
                 $query->whereHas('doctor', fn ($dq) => $dq->whereRaw('LOWER(name) LIKE ?', ["%{$q}%"]))
-                      ->orWhereHas('familyMember', fn ($fq) => $fq->whereRaw('LOWER(name) LIKE ?', ["%{$q}%"]))
-                      ->orWhereHas('labPackage', fn ($lq) => $lq->whereRaw('LOWER(name) LIKE ?', ["%{$q}%"]))
-                      ->orWhereRaw('LOWER(appointment_type) LIKE ?', ["%{$q}%"]);
+                    ->orWhereHas('familyMember', fn ($fq) => $fq->whereRaw('LOWER(name) LIKE ?', ["%{$q}%"]))
+                    ->orWhereHas('labPackage', fn ($lq) => $lq->whereRaw('LOWER(name) LIKE ?', ["%{$q}%"]))
+                    ->orWhereRaw('LOWER(appointment_type) LIKE ?', ["%{$q}%"]);
             })
             ->orderByDesc('appointment_date');
 
@@ -137,10 +136,10 @@ class SearchController extends Controller
             ->with('familyMember')
             ->where(function ($query) use ($q) {
                 $query->whereRaw('LOWER(title) LIKE ?', ["%{$q}%"])
-                      ->orWhereRaw('LOWER(COALESCE(description, \'\')) LIKE ?', ["%{$q}%"])
-                      ->orWhereRaw('LOWER(COALESCE(doctor_name, \'\')) LIKE ?', ["%{$q}%"])
-                      ->orWhereRaw('LOWER(COALESCE(department_name, \'\')) LIKE ?', ["%{$q}%"])
-                      ->orWhereHas('familyMember', fn ($fq) => $fq->whereRaw('LOWER(name) LIKE ?', ["%{$q}%"]));
+                    ->orWhereRaw('LOWER(COALESCE(description, \'\')) LIKE ?', ["%{$q}%"])
+                    ->orWhereRaw('LOWER(COALESCE(doctor_name, \'\')) LIKE ?', ["%{$q}%"])
+                    ->orWhereRaw('LOWER(COALESCE(department_name, \'\')) LIKE ?', ["%{$q}%"])
+                    ->orWhereHas('familyMember', fn ($fq) => $fq->whereRaw('LOWER(name) LIKE ?', ["%{$q}%"]));
             })
             ->orderByDesc('record_date');
 
@@ -184,7 +183,7 @@ class SearchController extends Controller
             'items' => (clone $query)->limit($limit)->get()
                 ->map(fn ($a) => [
                     'id' => $a->id,
-                    'invoice_number' => 'INV-' . str_pad($a->id, 6, '0', STR_PAD_LEFT),
+                    'invoice_number' => 'INV-'.str_pad($a->id, 6, '0', STR_PAD_LEFT),
                     'title' => $a->appointment_type === 'doctor'
                         ? ($a->doctor?->name ?? 'Doctor Appointment')
                         : ($a->labPackage?->name ?? 'Lab Test'),

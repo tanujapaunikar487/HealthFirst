@@ -40,20 +40,20 @@ export function AIBookingHeader({
 
   return (
     <header className="bg-card border-b border-border">
-      <HStack className="justify-between items-center px-6 py-4">
+      <HStack className="justify-between items-center px-4 sm:px-6 py-4">
         <HStack gap={2} className="flex-shrink-0">
           <img src="/assets/icons/hugeicons/appointment-02.svg" alt="" className="w-5 h-5" />
-          <span className="text-label">Booking an appointment</span>
+          <span className="text-label hidden sm:inline">Booking an appointment</span>
         </HStack>
 
-        {/* Step indicator for guided flow - centered in available space */}
+        {/* Step indicator for guided flow - centered in available space, hidden on mobile */}
         {isGuidedFlow && steps && currentStepId && (
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 hidden md:block">
             <StepIndicator steps={steps} currentStepId={currentStepId} className="!px-0 !py-0" />
           </div>
         )}
 
-        <HStack gap={4} className="items-center flex-shrink-0">
+        <HStack gap={2} className="items-center flex-shrink-0 sm:gap-4">
           {/* Mode toggle - shown on entry page (AI flow only) */}
           {isAIFlow && showModeToggle && onModeChange && (
             <HStack gap={1} className="border border-border rounded-full p-1 bg-muted">

@@ -2,9 +2,9 @@
 
 namespace App\Services\AI;
 
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Http\UploadedFile;
 
 /**
  * Audio Transcription Service
@@ -14,7 +14,9 @@ use Illuminate\Http\UploadedFile;
 class AudioTranscriptionService
 {
     private string $apiKey;
+
     private string $apiUrl;
+
     private string $model;
 
     public function __construct()
@@ -27,13 +29,13 @@ class AudioTranscriptionService
     /**
      * Transcribe an audio file to text
      *
-     * @param UploadedFile|string $audio Audio file or path
-     * @param string $language Optional language code (e.g., 'en', 'hi')
+     * @param  UploadedFile|string  $audio  Audio file or path
+     * @param  string  $language  Optional language code (e.g., 'en', 'hi')
      * @return array Transcription result with text and metadata
      */
     public function transcribe($audio, string $language = 'en'): array
     {
-        if (!$this->isAvailable()) {
+        if (! $this->isAvailable()) {
             throw new \Exception('Audio transcription is not configured. Please set GROQ_API_KEY in .env');
         }
 
@@ -55,7 +57,7 @@ class AudioTranscriptionService
 
             // Make API request
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Authorization' => 'Bearer '.$this->apiKey,
             ])
                 ->timeout(30)
                 ->attach('file', file_get_contents($filePath), $fileName)
@@ -70,7 +72,7 @@ class AudioTranscriptionService
                     'status' => $response->status(),
                     'body' => $response->body(),
                 ]);
-                throw new \Exception('Audio transcription failed: ' . $response->body());
+                throw new \Exception('Audio transcription failed: '.$response->body());
             }
 
             $result = $response->json();
@@ -92,7 +94,7 @@ class AudioTranscriptionService
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            throw new \Exception('Failed to transcribe audio: ' . $e->getMessage());
+            throw new \Exception('Failed to transcribe audio: '.$e->getMessage());
         }
     }
 
@@ -101,7 +103,7 @@ class AudioTranscriptionService
      */
     public function isAvailable(): bool
     {
-        return !empty($this->apiKey);
+        return ! empty($this->apiKey);
     }
 
     /**
@@ -124,8 +126,8 @@ class AudioTranscriptionService
 
         // Check format
         $extension = strtolower($file->getClientOriginalExtension());
-        if (!in_array($extension, $this->getSupportedFormats())) {
-            throw new \Exception('Unsupported audio format. Supported formats: ' . implode(', ', $this->getSupportedFormats()));
+        if (! in_array($extension, $this->getSupportedFormats())) {
+            throw new \Exception('Unsupported audio format. Supported formats: '.implode(', ', $this->getSupportedFormats()));
         }
 
         return true;

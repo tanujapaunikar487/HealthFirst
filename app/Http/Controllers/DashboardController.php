@@ -29,7 +29,7 @@ class DashboardController extends Controller
 
         $allCompleted = collect($profileSteps)->every(fn ($s) => $s['completed']);
         $profileJustCompleted = false;
-        if ($allCompleted && !session('profile_completed_seen')) {
+        if ($allCompleted && ! session('profile_completed_seen')) {
             session(['profile_completed_seen' => true]);
             $profileJustCompleted = true;
         }
@@ -69,6 +69,7 @@ class DashboardController extends Controller
                 ->get()
                 ->filter(function ($a) {
                     $dueDate = $a->appointment_date->copy()->addDays(7);
+
                     return $dueDate->isPast();
                 })
                 ->map(fn ($a) => [
@@ -95,6 +96,7 @@ class DashboardController extends Controller
                             return true;
                         }
                     }
+
                     return false;
                 })
                 ->take(3)
@@ -134,7 +136,7 @@ class DashboardController extends Controller
 
                 if ($monthsSince === null || $monthsSince >= 6) {
                     $preventiveCare[] = [
-                        'id' => 'checkup-' . $member->id,
+                        'id' => 'checkup-'.$member->id,
                         'member_id' => $member->id,
                         'patient_name' => $member->name,
                         'patient_initials' => $this->getInitials($member->name),
@@ -228,6 +230,7 @@ class DashboardController extends Controller
             ->filter(function ($a) {
                 $dueDate = $a->appointment_date->copy()->addDays(7);
                 $daysUntilDue = (int) now()->diffInDays($dueDate, false);
+
                 return $daysUntilDue >= 1 && $daysUntilDue <= 7;
             })
             ->sortBy(function ($a) {
@@ -236,6 +239,7 @@ class DashboardController extends Controller
             ->take(3)
             ->map(function ($a) {
                 $dueDate = $a->appointment_date->copy()->addDays(7);
+
                 return [
                     'id' => $a->id,
                     'patient_name' => $a->familyMember?->name ?? 'Self',
@@ -315,10 +319,15 @@ class DashboardController extends Controller
                 $consultationNote = HealthRecord::where('appointment_id', $a->id)
                     ->where('category', 'consultation_notes')
                     ->first();
-                if (!$consultationNote) return false;
+                if (! $consultationNote) {
+                    return false;
+                }
                 $followUpDate = $consultationNote->metadata['follow_up_date'] ?? null;
-                if (!$followUpDate) return false;
+                if (! $followUpDate) {
+                    return false;
+                }
                 $daysOverdue = (int) Carbon::parse($followUpDate)->diffInDays(now(), false);
+
                 return $daysOverdue >= -7; // Show if due in next 7 days or already overdue
             })
             ->take(2)
@@ -327,6 +336,7 @@ class DashboardController extends Controller
                     ->where('category', 'consultation_notes')
                     ->first();
                 $followUpDate = Carbon::parse($consultationNote->metadata['follow_up_date']);
+
                 return [
                     'id' => $a->id,
                     'original_appointment_id' => $a->id,
@@ -354,12 +364,14 @@ class DashboardController extends Controller
             ->with(['familyMember', 'doctor', 'department', 'labPackage'])
             ->get()
             ->filter(function ($a) use ($sixHoursFromNow, $twentyFourHoursFromNow) {
-                $apptDateTime = Carbon::parse($a->appointment_date->toDateString() . ' ' . $a->appointment_time);
+                $apptDateTime = Carbon::parse($a->appointment_date->toDateString().' '.$a->appointment_time);
+
                 return $apptDateTime->between($sixHoursFromNow, $twentyFourHoursFromNow);
             })
             ->take(2)
             ->map(function ($a) {
-                $apptDateTime = Carbon::parse($a->appointment_date->toDateString() . ' ' . $a->appointment_time);
+                $apptDateTime = Carbon::parse($a->appointment_date->toDateString().' '.$a->appointment_time);
+
                 return [
                     'id' => $a->id,
                     'appointment_id' => $a->id,
@@ -427,6 +439,7 @@ class DashboardController extends Controller
                         }
                     }
                 }
+
                 return false;
             })
             ->take(2)
@@ -437,6 +450,7 @@ class DashboardController extends Controller
                     ->first();
 
                 $upcomingVacc = ($vaccinations->metadata['upcoming_vaccinations'] ?? [])[0] ?? null;
+
                 return [
                     'id' => $member->id,
                     'patient_name' => $member->name,
@@ -460,7 +474,9 @@ class DashboardController extends Controller
             ->map(function ($r) {
                 $drugs = $r->metadata['drugs'] ?? [];
                 $startDate = $r->record_date;
-                if (!$startDate || empty($drugs)) return null;
+                if (! $startDate || empty($drugs)) {
+                    return null;
+                }
 
                 $now = Carbon::now();
                 $threshold = $now->copy()->addDays(7);
@@ -468,7 +484,9 @@ class DashboardController extends Controller
 
                 foreach ($drugs as $drug) {
                     $duration = $this->parseDuration($drug['duration'] ?? '');
-                    if ($duration <= 0) continue;
+                    if ($duration <= 0) {
+                        continue;
+                    }
                     $endDate = $startDate->copy()->addDays($duration);
 
                     if ($endDate->isAfter($now) && $endDate->lte($threshold)) {
@@ -479,7 +497,9 @@ class DashboardController extends Controller
                     }
                 }
 
-                if (empty($expiringDrugs)) return null;
+                if (empty($expiringDrugs)) {
+                    return null;
+                }
 
                 return [
                     'id' => $r->id,
@@ -501,6 +521,7 @@ class DashboardController extends Controller
         if (preg_match('/(\d+)\s*(day|week|month)/i', $duration, $matches)) {
             $num = (int) $matches[1];
             $unit = strtolower($matches[2]);
+
             return match ($unit) {
                 'day', 'days' => $num,
                 'week', 'weeks' => $num * 7,
@@ -508,6 +529,7 @@ class DashboardController extends Controller
                 default => 0,
             };
         }
+
         return 0;
     }
 
@@ -544,8 +566,9 @@ class DashboardController extends Controller
     {
         $parts = explode(' ', trim($name));
         if (count($parts) >= 2) {
-            return strtoupper($parts[0][0] . $parts[count($parts) - 1][0]);
+            return strtoupper($parts[0][0].$parts[count($parts) - 1][0]);
         }
+
         return strtoupper(substr($name, 0, 2));
     }
 

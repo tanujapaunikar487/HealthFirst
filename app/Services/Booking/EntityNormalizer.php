@@ -27,7 +27,7 @@ class EntityNormalizer
      *
      * @param  array  $rawEntities  Entities from AI response
      * @param  array  $collectedData  Current booking state
-     * @return array  ['entities' => [...], 'warnings' => [...]]
+     * @return array ['entities' => [...], 'warnings' => [...]]
      */
     public function normalize(array $rawEntities, array $collectedData = []): array
     {
@@ -84,12 +84,12 @@ class EntityNormalizer
                 $normalized[$dataKey] = $result['value'];
             }
 
-            if (!empty($result['warning'])) {
+            if (! empty($result['warning'])) {
                 $warnings[] = $result['warning'];
             }
 
             // Include any extra data the normalizer produced (e.g., resolved doctor details)
-            if (!empty($result['extra'])) {
+            if (! empty($result['extra'])) {
                 foreach ($result['extra'] as $extraKey => $extraValue) {
                     $normalized[$extraKey] = $extraValue;
                 }
@@ -97,7 +97,7 @@ class EntityNormalizer
         }
 
         // Post-normalization: if we have doctor_id from AI but no doctor_name, resolve it
-        if (isset($normalized['selectedDoctorId']) && !isset($normalized['selectedDoctorName'])) {
+        if (isset($normalized['selectedDoctorId']) && ! isset($normalized['selectedDoctorName'])) {
             $doctor = $this->doctorService->getById($normalized['selectedDoctorId']);
             if ($doctor) {
                 $normalized['selectedDoctorName'] = $doctor['name'];
@@ -105,7 +105,7 @@ class EntityNormalizer
         }
 
         // Post-normalization: if we have package_id but no package_name, resolve it
-        if (isset($normalized['selectedPackageId']) && !isset($normalized['selectedPackageName'])) {
+        if (isset($normalized['selectedPackageId']) && ! isset($normalized['selectedPackageName'])) {
             $package = $this->labService->getPackageById($normalized['selectedPackageId']);
             if ($package) {
                 $normalized['selectedPackageName'] = $package['name'];
@@ -128,7 +128,7 @@ class EntityNormalizer
         $dateWarning = $this->validateDoctorDateCombo($normalized, $collectedData);
         if ($dateWarning) {
             $warnings[] = $dateWarning['warning'];
-            if (!empty($dateWarning['conflict_info'])) {
+            if (! empty($dateWarning['conflict_info'])) {
                 $normalized['doctor_date_conflict'] = $dateWarning['conflict_info'];
             }
         }
@@ -150,7 +150,7 @@ class EntityNormalizer
      */
     private function normalizeDate($value): array
     {
-        if (!is_string($value) || empty(trim($value))) {
+        if (! is_string($value) || empty(trim($value))) {
             return ['value' => null, 'warning' => 'Empty date value'];
         }
 
@@ -210,6 +210,7 @@ class EntityNormalizer
             return ['value' => $parsed->format('Y-m-d'), 'warning' => null];
         } catch (\Exception $e) {
             Log::warning('⚠️ EntityNormalizer: Date parse failed', ['value' => $value]);
+
             return ['value' => null, 'warning' => "Could not parse date: {$value}"];
         }
     }
@@ -219,7 +220,7 @@ class EntityNormalizer
      */
     private function normalizeTime($value): array
     {
-        if (!is_string($value) || empty(trim($value))) {
+        if (! is_string($value) || empty(trim($value))) {
             return ['value' => null, 'warning' => 'Empty time value'];
         }
 
@@ -238,8 +239,13 @@ class EntityNormalizer
             $hours = (int) $m[1];
             $minutes = $m[2];
             $period = strtoupper($m[3]);
-            if ($period === 'PM' && $hours !== 12) $hours += 12;
-            if ($period === 'AM' && $hours === 12) $hours = 0;
+            if ($period === 'PM' && $hours !== 12) {
+                $hours += 12;
+            }
+            if ($period === 'AM' && $hours === 12) {
+                $hours = 0;
+            }
+
             return ['value' => sprintf('%02d:%s', $hours, $minutes), 'warning' => null];
         }
 
@@ -259,12 +265,18 @@ class EntityNormalizer
         if (preg_match('/^(\d{1,2})\s*(AM|PM)$/i', $value, $m)) {
             $hours = (int) $m[1];
             $period = strtoupper($m[2]);
-            if ($period === 'PM' && $hours !== 12) $hours += 12;
-            if ($period === 'AM' && $hours === 12) $hours = 0;
+            if ($period === 'PM' && $hours !== 12) {
+                $hours += 12;
+            }
+            if ($period === 'AM' && $hours === 12) {
+                $hours = 0;
+            }
+
             return ['value' => sprintf('%02d:00', $hours), 'warning' => null];
         }
 
         Log::warning('⚠️ EntityNormalizer: Time format not recognized', ['value' => $value]);
+
         return ['value' => $value, 'warning' => "Unusual time format: {$value}"];
     }
 
@@ -273,7 +285,7 @@ class EntityNormalizer
      */
     private function normalizeDoctorName($value, array $allEntities): array
     {
-        if (!is_string($value) || empty(trim($value))) {
+        if (! is_string($value) || empty(trim($value))) {
             return ['value' => null, 'warning' => null];
         }
 
@@ -281,6 +293,7 @@ class EntityNormalizer
 
         if ($doctorId) {
             $doctor = $this->doctorService->getById($doctorId);
+
             return [
                 'value' => $doctor['name'], // Use canonical name
                 'warning' => null,
@@ -316,6 +329,7 @@ class EntityNormalizer
 
         if ($id) {
             Log::warning('⚠️ EntityNormalizer: Invalid doctor ID', ['id' => $value]);
+
             return ['value' => null, 'warning' => "Doctor ID {$value} does not exist"];
         }
 
@@ -345,7 +359,7 @@ class EntityNormalizer
 
         $normalized = $modeMap[strtolower(trim($value))] ?? null;
 
-        if (!$normalized) {
+        if (! $normalized) {
             return ['value' => null, 'warning' => "Unknown consultation mode: {$value}"];
         }
 
@@ -432,7 +446,7 @@ class EntityNormalizer
      */
     private function normalizePackageName($value, array $allEntities): array
     {
-        if (!is_string($value) || empty(trim($value))) {
+        if (! is_string($value) || empty(trim($value))) {
             return ['value' => null, 'warning' => null];
         }
 
@@ -440,6 +454,7 @@ class EntityNormalizer
 
         if ($packageId) {
             $package = $this->labService->getPackageById($packageId);
+
             return [
                 'value' => $package['name'],
                 'warning' => null,
@@ -473,6 +488,7 @@ class EntityNormalizer
 
         if ($id) {
             Log::warning('⚠️ EntityNormalizer: Invalid package ID', ['id' => $value]);
+
             return ['value' => null, 'warning' => "Package ID {$value} does not exist"];
         }
 
@@ -503,7 +519,7 @@ class EntityNormalizer
 
         $normalized = $collectionMap[strtolower(trim($value))] ?? null;
 
-        if (!$normalized) {
+        if (! $normalized) {
             return ['value' => null, 'warning' => "Unknown collection type: {$value}"];
         }
 
@@ -519,7 +535,7 @@ class EntityNormalizer
         $mode = $normalized['consultationMode'] ?? null;
         $doctorId = $normalized['selectedDoctorId'] ?? ($collectedData['selectedDoctorId'] ?? null);
 
-        if (!$mode || !$doctorId) {
+        if (! $mode || ! $doctorId) {
             return null;
         }
 
@@ -562,7 +578,7 @@ class EntityNormalizer
         $date = $normalized['selectedDate'] ?? ($collectedData['selectedDate'] ?? null);
         $doctorId = $normalized['selectedDoctorId'] ?? ($collectedData['selectedDoctorId'] ?? null);
 
-        if (!$date || !$doctorId) {
+        if (! $date || ! $doctorId) {
             return null;
         }
 
@@ -585,8 +601,8 @@ class EntityNormalizer
                 'available_dates' => $availability['available_dates_this_week'] ?? [],
                 'next_available_date' => $availability['next_available_date'] ?? null,
                 'alternative_doctors' => $availability['alternative_doctors'] ?? [],
-                'message' => "Dr. {$cleanName} isn't available on {$dateFormatted}. They're available on: " . implode(', ', array_map(
-                    fn($d) => Carbon::parse($d)->format('D, M j'),
+                'message' => "Dr. {$cleanName} isn't available on {$dateFormatted}. They're available on: ".implode(', ', array_map(
+                    fn ($d) => Carbon::parse($d)->format('D, M j'),
                     $availability['available_dates_this_week'] ?? []
                 )),
             ],

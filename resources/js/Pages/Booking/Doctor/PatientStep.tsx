@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
+import { useNavigation } from '@/Hooks/useNavigation';
 import { Card } from '@/Components/ui/card';
 import { Textarea } from '@/Components/ui/textarea';
 import { FollowUpBanner } from '@/Components/Booking/FollowUpBanner';
@@ -252,8 +253,10 @@ export default function PatientStep({
     handleFollowupNotesContinue();
   };
 
+  const { goBack } = useNavigation();
+
   const handleBack = () => {
-    router.get('/booking');
+    goBack('/booking');
   };
 
   const handleContinue = () => {

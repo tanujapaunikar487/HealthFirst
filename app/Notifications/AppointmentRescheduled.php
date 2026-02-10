@@ -7,7 +7,9 @@ use Illuminate\Notifications\Messages\MailMessage;
 class AppointmentRescheduled extends BaseNotification
 {
     protected $appointment;
+
     protected $oldDate;
+
     protected $oldTime;
 
     public function __construct($appointment, $oldDate, $oldTime)
@@ -21,25 +23,25 @@ class AppointmentRescheduled extends BaseNotification
     {
         return (new MailMessage)
             ->subject('Appointment rescheduled')
-            ->greeting('Hello ' . $notifiable->name . ',')
+            ->greeting('Hello '.$notifiable->name.',')
             ->line('Your appointment has been rescheduled.')
-            ->line('**Doctor:** ' . $this->appointment->doctor_name)
-            ->line('**Previous date:** ' . $this->oldDate . ' at ' . $this->oldTime)
-            ->line('**New date:** ' . $this->appointment->date_formatted . ' at ' . $this->appointment->time_formatted)
-            ->line('**Mode:** ' . ucfirst($this->appointment->mode))
-            ->action('View appointment', url('/appointments/' . $this->appointment->id))
+            ->line('**Doctor:** '.$this->appointment->doctor_name)
+            ->line('**Previous date:** '.$this->oldDate.' at '.$this->oldTime)
+            ->line('**New date:** '.$this->appointment->date_formatted.' at '.$this->appointment->time_formatted)
+            ->line('**Mode:** '.ucfirst($this->appointment->mode))
+            ->action('View appointment', url('/appointments/'.$this->appointment->id))
             ->line('Thank you for using HealthCare!');
     }
 
     public function toWhatsApp(object $notifiable): string
     {
         return "Hello {$notifiable->name},\n\n"
-            . "Your appointment has been rescheduled.\n\n"
-            . "Doctor: {$this->appointment->doctor_name}\n"
-            . "Previous date: {$this->oldDate} at {$this->oldTime}\n"
-            . "New date: {$this->appointment->date_formatted} at {$this->appointment->time_formatted}\n"
-            . "Mode: " . ucfirst($this->appointment->mode) . "\n\n"
-            . "Thank you for using HealthCare!";
+            ."Your appointment has been rescheduled.\n\n"
+            ."Doctor: {$this->appointment->doctor_name}\n"
+            ."Previous date: {$this->oldDate} at {$this->oldTime}\n"
+            ."New date: {$this->appointment->date_formatted} at {$this->appointment->time_formatted}\n"
+            .'Mode: '.ucfirst($this->appointment->mode)."\n\n"
+            .'Thank you for using HealthCare!';
     }
 
     public function toArray(object $notifiable): array

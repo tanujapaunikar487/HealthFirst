@@ -114,7 +114,7 @@ class HealthRecordController extends Controller
         $drugs = $metadata['drugs'] ?? [];
         $startDate = $recordDate ?? ($metadata['date'] ? Carbon::parse($metadata['date']) : null);
 
-        if ($startDate && !empty($drugs)) {
+        if ($startDate && ! empty($drugs)) {
             foreach ($drugs as $drug) {
                 $duration = $this->parseDuration($drug['duration'] ?? '');
                 if ($duration > 0) {
@@ -141,6 +141,7 @@ class HealthRecordController extends Controller
         if (preg_match('/(\d+)\s*(day|week|month)/i', $duration, $matches)) {
             $num = (int) $matches[1];
             $unit = strtolower($matches[2]);
+
             return match ($unit) {
                 'day', 'days' => $num,
                 'week', 'weeks' => $num * 7,
@@ -148,6 +149,7 @@ class HealthRecordController extends Controller
                 default => 0,
             };
         }
+
         return 0;
     }
 
@@ -274,7 +276,7 @@ class HealthRecordController extends Controller
 
         try {
             // Check if AI is enabled
-            if (!$aiService->isEnabled()) {
+            if (! $aiService->isEnabled()) {
                 return response()->json([
                     'success' => false,
                     'error' => 'AI service is currently unavailable.',

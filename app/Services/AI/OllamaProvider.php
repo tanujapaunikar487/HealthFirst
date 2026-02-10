@@ -21,8 +21,11 @@ use Illuminate\Support\Facades\Log;
 class OllamaProvider implements AIProviderInterface
 {
     private string $baseUrl;
+
     private string $model;
+
     private int $maxTokens;
+
     private float $temperature;
 
     public function __construct()
@@ -38,7 +41,7 @@ class OllamaProvider implements AIProviderInterface
      */
     public function complete(string $prompt, array $options = []): string
     {
-        if (!$this->isAvailable()) {
+        if (! $this->isAvailable()) {
             throw new \Exception('Ollama is not running or not configured. Please start Ollama service.');
         }
 
@@ -54,7 +57,7 @@ class OllamaProvider implements AIProviderInterface
      */
     public function chat(array $messages, array $options = []): string
     {
-        if (!$this->isAvailable()) {
+        if (! $this->isAvailable()) {
             throw new \Exception('Ollama is not running. Start it with: ollama serve');
         }
 
@@ -72,7 +75,7 @@ class OllamaProvider implements AIProviderInterface
             // Add JSON format enforcement via Ollama's constrained decoding
             if (isset($options['json_schema'])) {
                 $payload['format'] = $options['json_schema'];
-            } elseif (!empty($options['json_mode'])) {
+            } elseif (! empty($options['json_mode'])) {
                 $payload['format'] = 'json';
             }
 
@@ -94,7 +97,7 @@ class OllamaProvider implements AIProviderInterface
             }
 
             $response = Http::timeout(120) // Longer timeout for local inference
-                ->post($this->baseUrl . '/api/chat', $payload);
+                ->post($this->baseUrl.'/api/chat', $payload);
 
             if ($response->failed()) {
                 Log::error('Ollama request failed', [
@@ -124,7 +127,7 @@ class OllamaProvider implements AIProviderInterface
                     'trace' => $e->getTraceAsString(),
                 ]);
             }
-            throw new \Exception('Ollama service error: ' . $e->getMessage());
+            throw new \Exception('Ollama service error: '.$e->getMessage());
         }
     }
 
@@ -150,6 +153,7 @@ class OllamaProvider implements AIProviderInterface
 
         try {
             $decoded = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+
             return $decoded;
         } catch (\JsonException $e) {
             Log::error('Failed to parse Ollama JSON response', [
@@ -171,7 +175,7 @@ class OllamaProvider implements AIProviderInterface
 
         try {
             // Quick health check - ping Ollama API
-            $response = Http::timeout(2)->get($this->baseUrl . '/api/tags');
+            $response = Http::timeout(2)->get($this->baseUrl.'/api/tags');
 
             if ($response->successful()) {
                 // Check if our model is available
@@ -200,6 +204,7 @@ class OllamaProvider implements AIProviderInterface
                 'error' => $e->getMessage(),
                 'hint' => 'Start Ollama with: ollama serve',
             ]);
+
             return false;
         }
     }

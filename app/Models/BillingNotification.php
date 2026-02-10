@@ -44,7 +44,7 @@ class BillingNotification extends Model
 
     public function markAsRead(): void
     {
-        if (!$this->read_at) {
+        if (! $this->read_at) {
             $this->update(['read_at' => now()]);
         }
     }

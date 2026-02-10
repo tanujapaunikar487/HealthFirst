@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
+import { useNavigation } from '@/Hooks/useNavigation';
 import { FollowUpBanner } from '@/Components/Booking/FollowUpBanner';
 import { SymptomChips } from '@/Components/Booking/SymptomChips';
 import { EmbeddedUrgencySelector } from '@/Features/booking-chat/embedded/EmbeddedUrgencySelector';
@@ -106,8 +107,10 @@ export default function ConcernsStep({
     setShowUrgency(true);
   };
 
+  const { goBack } = useNavigation();
+
   const handleBack = () => {
-    router.get('/booking/doctor/patient');
+    goBack('/booking/doctor/patient');
   };
 
   const handleContinue = () => {

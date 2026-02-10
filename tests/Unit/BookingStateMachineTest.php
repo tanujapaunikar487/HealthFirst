@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use App\Services\Booking\BookingStateMachine;
+use Tests\TestCase;
 
 class BookingStateMachineTest extends TestCase
 {

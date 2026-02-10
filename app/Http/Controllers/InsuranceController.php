@@ -189,7 +189,7 @@ class InsuranceController extends Controller
         return Inertia::render('Insurance/ClaimDetail', [
             'claim' => [
                 'id' => $claim->id,
-                'claim_reference' => 'CLM-' . now()->format('Y') . '-' . str_pad($claim->id, 4, '0', STR_PAD_LEFT),
+                'claim_reference' => 'CLM-'.now()->format('Y').'-'.str_pad($claim->id, 4, '0', STR_PAD_LEFT),
                 'treatment_name' => $claim->treatment_name ?? $claim->description,
                 'procedure_type' => $claim->procedure_type,
                 'status' => $claim->status,
@@ -325,7 +325,7 @@ class InsuranceController extends Controller
                 'event' => 'Pre-authorization requested',
                 'date' => now()->format('d M Y'),
                 'status' => 'pending',
-                'details' => 'Pre-auth request submitted for ' . $validated['treatment_name'],
+                'details' => 'Pre-auth request submitted for '.$validated['treatment_name'],
             ]],
             'documents' => [],
             'description' => $validated['notes'] ?? null,

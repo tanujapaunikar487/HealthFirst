@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
+import { useNavigation } from '@/Hooks/useNavigation';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { Button } from '@/Components/ui/button';
 import { Card } from '@/Components/ui/card';
@@ -28,8 +29,10 @@ interface Props {
 export default function ConfirmStep({ summary }: Props) {
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const { goBack } = useNavigation();
+
   const handleBack = () => {
-    router.get('/booking/lab/schedule');
+    goBack('/booking/lab/schedule');
   };
 
   const handlePay = () => {

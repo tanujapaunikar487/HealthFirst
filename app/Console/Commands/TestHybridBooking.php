@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Artisan;
 class TestHybridBooking extends Command
 {
     protected $signature = 'test:booking {--scenario=all : Which scenario to test (all, symptom, datetime, vague, relative, followup)}';
+
     protected $description = 'Test the Hybrid Booking System with various conversation scenarios';
 
     public function handle()

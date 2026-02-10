@@ -41,10 +41,10 @@ class BillingController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        $bills = $appointments->map(fn($appt, $i) => $this->formatBillSummary($appt, $i))->values()->toArray();
+        $bills = $appointments->map(fn ($appt, $i) => $this->formatBillSummary($appt, $i))->values()->toArray();
 
         // Compute outstanding stats
-        $outstandingBills = collect($bills)->filter(fn($b) => in_array($b['billing_status'], self::OUTSTANDING_STATUSES));
+        $outstandingBills = collect($bills)->filter(fn ($b) => in_array($b['billing_status'], self::OUTSTANDING_STATUSES));
 
         $stats = [
             'outstanding_count' => $outstandingBills->count(),
@@ -58,7 +58,7 @@ class BillingController extends Controller
             ->orderByRaw("CASE WHEN relation = 'self' THEN 0 ELSE 1 END")
             ->orderBy('name')
             ->get()
-            ->map(fn($m) => [
+            ->map(fn ($m) => [
                 'id' => $m->id,
                 'name' => $m->relation === 'self' ? 'You' : $m->name,
                 'relation' => $m->relation,
@@ -115,7 +115,7 @@ class BillingController extends Controller
                 str_contains($secret, 'your_secret_here');
 
             if ($isMockMode) {
-                $orderId = 'order_mock_' . uniqid();
+                $orderId = 'order_mock_'.uniqid();
 
                 return response()->json([
                     'order_id' => $orderId,
@@ -131,10 +131,10 @@ class BillingController extends Controller
             $order = $razorpay->order->create([
                 'amount' => $amount * 100,
                 'currency' => 'INR',
-                'receipt' => 'bill_' . $appointment->id,
+                'receipt' => 'bill_'.$appointment->id,
                 'notes' => [
                     'appointment_id' => $appointment->id,
-                    'invoice_number' => 'INV-' . str_pad($appointment->id, 6, '0', STR_PAD_LEFT),
+                    'invoice_number' => 'INV-'.str_pad($appointment->id, 6, '0', STR_PAD_LEFT),
                 ],
             ]);
 
@@ -145,7 +145,8 @@ class BillingController extends Controller
                 'key' => $key,
             ]);
         } catch (\Exception $e) {
-            Log::error('Billing Razorpay order creation failed: ' . $e->getMessage());
+            Log::error('Billing Razorpay order creation failed: '.$e->getMessage());
+
             return response()->json(['error' => 'Failed to create payment order'], 500);
         }
     }
@@ -175,7 +176,7 @@ class BillingController extends Controller
                 str_contains($key, 'your_key_here') ||
                 str_contains($secret, 'your_secret_here');
 
-            if (!$isMockMode) {
+            if (! $isMockMode) {
                 $razorpay = new Api($key, $secret);
                 $razorpay->utility->verifyPaymentSignature([
                     'razorpay_order_id' => $validated['razorpay_order_id'],
@@ -196,7 +197,8 @@ class BillingController extends Controller
                 'message' => 'Payment successful',
             ]);
         } catch (\Exception $e) {
-            Log::error('Billing payment verification failed: ' . $e->getMessage());
+            Log::error('Billing payment verification failed: '.$e->getMessage());
+
             return response()->json(['success' => false, 'error' => 'Payment verification failed'], 400);
         }
     }
@@ -257,7 +259,7 @@ class BillingController extends Controller
                 'insurance_covered' => 0,
                 'emi_current' => ($index % 5) + 1,
                 'emi_total' => 6,
-                ],
+            ],
             'awaiting_approval', 'claim_pending' => [
                 'due_amount' => $total,
                 'original_amount' => $total,
@@ -301,7 +303,7 @@ class BillingController extends Controller
         } elseif ($appt->lab_test_ids) {
             $testNames = LabTestType::whereIn('id', $appt->lab_test_ids)->pluck('name')->toArray();
             $title = count($testNames) > 2
-                ? $testNames[0] . ' +' . (count($testNames) - 1) . ' more'
+                ? $testNames[0].' +'.(count($testNames) - 1).' more'
                 : implode(', ', $testNames);
         } else {
             $title = 'Lab Test';
@@ -316,7 +318,7 @@ class BillingController extends Controller
 
         return [
             'id' => $appt->id,
-            'invoice_number' => 'INV-' . str_pad($appt->id, 6, '0', STR_PAD_LEFT),
+            'invoice_number' => 'INV-'.str_pad($appt->id, 6, '0', STR_PAD_LEFT),
             'appointment_id' => $appt->id,
             'appointment_type' => $appt->appointment_type === 'doctor' ? 'doctor' : 'lab_test',
             'appointment_title' => $title,
@@ -369,7 +371,7 @@ class BillingController extends Controller
         } elseif ($appt->lab_test_ids) {
             $testNames = LabTestType::whereIn('id', $appt->lab_test_ids)->pluck('name')->toArray();
             $title = implode(', ', $testNames);
-            $subtitle = count($testNames) . ' test(s)';
+            $subtitle = count($testNames).' test(s)';
             $serviceType = 'Lab Test';
         } else {
             $title = 'Lab Test';
@@ -380,7 +382,9 @@ class BillingController extends Controller
         $amountDetails = $this->computeAmountDetails($billingStatus, $subtotal, $appt->id);
         $insuranceDeduction = $amountDetails['insurance_covered'];
         $total = $subtotal + $tax - $discount - $insuranceDeduction;
-        if ($total < 0) $total = 0;
+        if ($total < 0) {
+            $total = 0;
+        }
 
         // Line items with qty/unit_price
         $lineItems = [
@@ -399,9 +403,9 @@ class BillingController extends Controller
         if (in_array($billingStatus, ['paid', 'covered', 'reimbursed'])) {
             $paymentInfo = [
                 'method' => 'UPI (PhonePe)',
-                'transaction_id' => 'TXN' . str_pad($appt->id * 7919, 12, '0', STR_PAD_LEFT),
+                'transaction_id' => 'TXN'.str_pad($appt->id * 7919, 12, '0', STR_PAD_LEFT),
                 'paid_at' => $appt->created_at->format('d M Y, g:i A'),
-                'receipt_number' => 'RCP-' . str_pad($appt->id, 6, '0', STR_PAD_LEFT),
+                'receipt_number' => 'RCP-'.str_pad($appt->id, 6, '0', STR_PAD_LEFT),
             ];
         }
 
@@ -415,7 +419,7 @@ class BillingController extends Controller
             $insuranceDetails = [
                 'provider_name' => $claim?->insuranceProvider?->name ?? 'Star Health Insurance',
                 'policy_number' => $claim?->policy_number ?? 'SH-2025-789456',
-                'claim_id' => 'CLM-' . str_pad($appt->id * 31, 8, '0', STR_PAD_LEFT),
+                'claim_id' => 'CLM-'.str_pad($appt->id * 31, 8, '0', STR_PAD_LEFT),
                 'insurance_claim_id' => $claim?->id,
                 'claim_status' => match ($billingStatus) {
                     'awaiting_approval' => 'Under Review',
@@ -452,7 +456,7 @@ class BillingController extends Controller
         $disputeDetails = null;
         if ($billingStatus === 'disputed') {
             $disputeDetails = [
-                'dispute_id' => 'DSP-' . str_pad($appt->id * 47, 8, '0', STR_PAD_LEFT),
+                'dispute_id' => 'DSP-'.str_pad($appt->id * 47, 8, '0', STR_PAD_LEFT),
                 'raised_on' => $appt->created_at->copy()->addDays(3)->format('d M Y'),
                 'reason' => 'Incorrect charges applied',
                 'status' => 'Under Review',
@@ -465,7 +469,7 @@ class BillingController extends Controller
 
         return [
             'id' => $appt->id,
-            'invoice_number' => 'INV-' . str_pad($appt->id, 6, '0', STR_PAD_LEFT),
+            'invoice_number' => 'INV-'.str_pad($appt->id, 6, '0', STR_PAD_LEFT),
             'appointment_id' => $appt->id,
             'appointment_type' => $isDoctor ? 'doctor' : 'lab_test',
             'appointment_title' => $title,
@@ -499,7 +503,7 @@ class BillingController extends Controller
             // Overview
             'generated_date' => $appt->created_at->format('d M Y'),
             'due_date' => $dueDate,
-            'reference_number' => ($isDoctor ? 'OPD-' : 'LAB-') . str_pad($appt->id, 6, '0', STR_PAD_LEFT),
+            'reference_number' => ($isDoctor ? 'OPD-' : 'LAB-').str_pad($appt->id, 6, '0', STR_PAD_LEFT),
 
             // Service details
             'service_type' => $serviceType,
@@ -577,7 +581,7 @@ class BillingController extends Controller
         $metadata = $appointment->metadata ?? [];
         $dispute = $metadata['dispute'] ?? null;
 
-        if (!$dispute || $dispute['status'] !== 'Under Review') {
+        if (! $dispute || $dispute['status'] !== 'Under Review') {
             return back()->with('error', 'Dispute cannot be cancelled at this stage.');
         }
 

@@ -42,7 +42,7 @@ class FamilyMembersController extends Controller
                 'enhancement_required',
                 'partially_approved',
                 'disputed',
-                'enhancement_rejected'
+                'enhancement_rejected',
             ])
             ->get();
 
@@ -51,11 +51,16 @@ class FamilyMembersController extends Controller
             $labAlertCount = $healthRecords
                 ->where('family_member_id', $m->id)
                 ->filter(function ($r) {
-                    if ($r->category !== 'lab_report') return false;
+                    if ($r->category !== 'lab_report') {
+                        return false;
+                    }
                     foreach ($r->metadata['results'] ?? [] as $result) {
                         $status = strtolower($result['status'] ?? 'normal');
-                        if (in_array($status, ['abnormal', 'high', 'borderline'])) return true;
+                        if (in_array($status, ['abnormal', 'high', 'borderline'])) {
+                            return true;
+                        }
                     }
+
                     return false;
                 })
                 ->count();
@@ -85,8 +90,8 @@ class FamilyMembersController extends Controller
         })
         // Sort members with alerts first (alert_count > 0 at top)
         // Maintains original ordering within each group (self first, then by created_at)
-        ->sortByDesc('alert_count')
-        ->values(); // Re-index the array
+            ->sortByDesc('alert_count')
+            ->values(); // Re-index the array
 
         return Inertia::render('FamilyMembers/Index', [
             'members' => $membersData,
@@ -114,6 +119,7 @@ class FamilyMembersController extends Controller
                         return true;
                     }
                 }
+
                 return false;
             });
 
@@ -135,7 +141,7 @@ class FamilyMembersController extends Controller
                 'title' => $record->title,
                 'message' => 'Lab results needs attention',
                 'date' => $record->record_date->format('Y-m-d'),
-                'details' => implode(', ', $abnormalParams) . ' - ' . $lastStatus,
+                'details' => implode(', ', $abnormalParams).' - '.$lastStatus,
                 'url' => "/health-records?record={$record->id}",
             ];
         }
@@ -156,7 +162,7 @@ class FamilyMembersController extends Controller
                 'title' => $bill->title ?? 'Medical Bill',
                 'message' => "Bill overdue by {$daysOverdue} days",
                 'date' => $bill->appointment_date->format('Y-m-d'),
-                'details' => 'Amount due: ₹' . number_format($bill->fee, 0),
+                'details' => 'Amount due: ₹'.number_format($bill->fee, 0),
                 'url' => "/billing/{$bill->id}",
             ];
         }
@@ -166,7 +172,7 @@ class FamilyMembersController extends Controller
             'enhancement_required',
             'partially_approved',
             'disputed',
-            'enhancement_rejected'
+            'enhancement_rejected',
         ];
 
         $actionableClaims = InsuranceClaim::where('user_id', $user->id)
@@ -189,7 +195,7 @@ class FamilyMembersController extends Controller
                 'title' => $claim->treatment_name ?? 'Insurance Claim',
                 'message' => $messageMap[$claim->claim_status] ?? 'Claim requires action',
                 'date' => $claim->claim_date->format('Y-m-d'),
-                'details' => 'Claim amount: ₹' . number_format($claim->claim_amount, 0),
+                'details' => 'Claim amount: ₹'.number_format($claim->claim_amount, 0),
                 'url' => "/insurance/claims/{$claim->id}",
             ];
         }
@@ -207,11 +213,12 @@ class FamilyMembersController extends Controller
      */
     private function maskPhone(?string $phone): ?string
     {
-        if (!$phone || strlen($phone) < 8) {
+        if (! $phone || strlen($phone) < 8) {
             return null;
         }
+
         // Keep first 3 chars and last 4 chars, mask the middle
-        return substr($phone, 0, 3) . '****' . substr($phone, -4);
+        return substr($phone, 0, 3).'****'.substr($phone, -4);
     }
 
     /**
@@ -219,14 +226,15 @@ class FamilyMembersController extends Controller
      */
     private function maskEmail(?string $email): ?string
     {
-        if (!$email || !str_contains($email, '@')) {
+        if (! $email || ! str_contains($email, '@')) {
             return null;
         }
         $parts = explode('@', $email);
         $localPart = $parts[0];
         $domain = $parts[1];
+
         // Keep first character of local part, mask the rest
-        return substr($localPart, 0, 1) . '***@' . $domain;
+        return substr($localPart, 0, 1).'***@'.$domain;
     }
 
     public function show(FamilyMember $member)
@@ -247,7 +255,7 @@ class FamilyMembersController extends Controller
             ->get()
             ->map(fn ($d) => [
                 'id' => $d->id,
-                'name' => 'Dr. ' . $d->name,
+                'name' => 'Dr. '.$d->name,
                 'specialization' => $d->specialization,
             ]);
 
@@ -272,7 +280,7 @@ class FamilyMembersController extends Controller
                 'pincode' => $member->pincode,
                 'primary_doctor_id' => $member->primary_doctor_id,
                 'primary_doctor_name' => $member->primaryDoctor
-                    ? 'Dr. ' . $member->primaryDoctor->name
+                    ? 'Dr. '.$member->primaryDoctor->name
                     : null,
                 'medical_conditions' => $member->medical_conditions ?? [],
                 'allergies' => $member->allergies ?? [],
@@ -430,7 +438,7 @@ class FamilyMembersController extends Controller
         ]);
 
         // Compute age from DOB for backward compatibility
-        if (!empty($validated['date_of_birth'])) {
+        if (! empty($validated['date_of_birth'])) {
             $validated['age'] = Carbon::parse($validated['date_of_birth'])->age;
         }
 
@@ -472,7 +480,7 @@ class FamilyMembersController extends Controller
         }
 
         // Only guests can be upgraded
-        if (!$member->is_guest) {
+        if (! $member->is_guest) {
             return redirect()->back()->with('toast', 'This member is already a full family member');
         }
 
@@ -509,7 +517,7 @@ class FamilyMembersController extends Controller
 
         $member = $query->first();
 
-        if (!$member) {
+        if (! $member) {
             return response()->json([
                 'found' => false,
                 'member_data' => null,
@@ -532,8 +540,8 @@ class FamilyMembersController extends Controller
                 'masked_phone' => $this->maskPhone($member->phone),
                 'masked_email' => $this->maskEmail($member->email),
                 // Flags for available contact methods
-                'has_phone' => !empty($member->phone),
-                'has_email' => !empty($member->email),
+                'has_phone' => ! empty($member->phone),
+                'has_email' => ! empty($member->email),
             ],
             'already_linked' => $alreadyLinked,
         ]);
@@ -558,7 +566,7 @@ class FamilyMembersController extends Controller
         // Get the contact value from MEMBER'S record (not user input)
         $contactValue = $contactMethod === 'phone' ? $member->phone : $member->email;
 
-        if (!$contactValue) {
+        if (! $contactValue) {
             return response()->json([
                 'otp_sent' => false,
                 'error' => $contactMethod === 'phone'
@@ -568,7 +576,7 @@ class FamilyMembersController extends Controller
         }
 
         // Check if attempts are within limit
-        if (!$otpService->checkAttempts($contactMethod, $contactValue)) {
+        if (! $otpService->checkAttempts($contactMethod, $contactValue)) {
             return response()->json([
                 'otp_sent' => false,
                 'error' => 'Too many attempts. Please try again after 15 minutes.',
@@ -586,7 +594,7 @@ class FamilyMembersController extends Controller
             $sent = $otpService->send($contactValue, $otp);
         }
 
-        if (!$sent) {
+        if (! $sent) {
             return response()->json([
                 'otp_sent' => false,
                 'error' => 'Failed to send OTP. Please try again.',
@@ -631,7 +639,7 @@ class FamilyMembersController extends Controller
         // Get contact value from MEMBER'S record (not user input)
         $contactValue = $contactMethod === 'phone' ? $member->phone : $member->email;
 
-        if (!$contactValue) {
+        if (! $contactValue) {
             return response()->json([
                 'verified' => false,
                 'verification_token' => null,
@@ -644,7 +652,7 @@ class FamilyMembersController extends Controller
             ? $otpService->verifyEmail($contactValue, $otp)
             : $otpService->verify($contactValue, $otp);
 
-        if (!$verified) {
+        if (! $verified) {
             return response()->json([
                 'verified' => false,
                 'verification_token' => null,
@@ -684,7 +692,7 @@ class FamilyMembersController extends Controller
         // Verify token validity
         $verificationData = $otpService->verifyToken($validated['verification_token']);
 
-        if (!$verificationData) {
+        if (! $verificationData) {
             return response()->json([
                 'linked' => false,
                 'member_data' => null,

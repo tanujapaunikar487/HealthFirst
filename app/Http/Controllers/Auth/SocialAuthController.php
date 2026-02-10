@@ -27,7 +27,7 @@ class SocialAuthController extends Controller
      */
     public function redirect(string $provider): RedirectResponse
     {
-        if (!in_array($provider, $this->providers)) {
+        if (! in_array($provider, $this->providers)) {
             return redirect()->route('login')
                 ->with('error', 'Unsupported authentication provider.');
         }
@@ -47,7 +47,7 @@ class SocialAuthController extends Controller
      */
     public function callback(string $provider): RedirectResponse
     {
-        if (!in_array($provider, $this->providers)) {
+        if (! in_array($provider, $this->providers)) {
             return redirect()->route('login')
                 ->with('error', 'Unsupported authentication provider.');
         }
@@ -56,14 +56,16 @@ class SocialAuthController extends Controller
             $socialUser = Socialite::driver($provider)->user();
         } catch (InvalidStateException $e) {
             Log::warning("Social auth state mismatch for {$provider}", [
-                'exception' => $e->getMessage()
+                'exception' => $e->getMessage(),
             ]);
+
             return redirect()->route('login')
                 ->with('error', 'Authentication session expired. Please try again.');
         } catch (\Exception $e) {
             Log::error("Social auth callback error for {$provider}", [
-                'exception' => $e->getMessage()
+                'exception' => $e->getMessage(),
             ]);
+
             return redirect()->route('login')
                 ->with('error', 'Unable to authenticate. Please try again.');
         }
@@ -81,9 +83,10 @@ class SocialAuthController extends Controller
             // Apple sends user data in the POST body on first auth only
             $socialUser = Socialite::driver('apple')->user();
         } catch (\Exception $e) {
-            Log::error("Apple auth callback error", [
-                'exception' => $e->getMessage()
+            Log::error('Apple auth callback error', [
+                'exception' => $e->getMessage(),
             ]);
+
             return redirect()->route('login')
                 ->with('error', 'Unable to authenticate with Apple. Please try again.');
         }
@@ -110,6 +113,7 @@ class SocialAuthController extends Controller
             // Existing social account - log in the user
             $this->updateSocialAccountTokens($socialAccount, $socialUser);
             Auth::login($socialAccount->user, remember: true);
+
             return redirect()->intended(route('dashboard'));
         }
 
@@ -125,11 +129,12 @@ class SocialAuthController extends Controller
                 // Link social account to existing user
                 $this->createSocialAccount($user, $provider, $providerId, $email, $name, $avatar, $socialUser);
                 Auth::login($user, remember: true);
+
                 return redirect()->intended(route('dashboard'));
             }
 
             // Handle case where Apple doesn't provide email
-            if (!$email && $provider === 'apple') {
+            if (! $email && $provider === 'apple') {
                 // Apple only sends email on first auth - this is a re-auth without email
                 // Store provider_id in session and redirect to email collection page
                 return redirect()->route('login')

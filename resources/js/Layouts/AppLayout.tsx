@@ -33,6 +33,7 @@ import {
     Receipt,
     CreditCard,
     Info,
+    Menu,
 } from "@/Lib/icons";
 import { Icon } from "@/Components/ui/icon";
 import { Alert } from "@/Components/ui/alert";
@@ -256,6 +257,7 @@ export default function AppLayout({
     const [notifOpen, setNotifOpen] = useState(false);
     const [notifFilter, setNotifFilter] = useState<"all" | "appointments" | "updates">("all");
     const [searchOpen, setSearchOpen] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [profileBannerDismissed, setProfileBannerDismissed] = useState(() => {
         if (typeof window !== "undefined") {
             return localStorage.getItem("profileBannerDismissed") === "true";
@@ -367,8 +369,10 @@ export default function AppLayout({
 
     return (
         <div className="flex h-screen bg-background">
-            {/* Sidebar Navigation */}
-            <Sidebar user={user} />
+            {/* Desktop Sidebar - Hidden on mobile */}
+            <div className="hidden lg:block">
+                <Sidebar user={user} />
+            </div>
 
             {/* Main Content Area */}
             <div className="flex flex-col flex-1 overflow-hidden">
@@ -380,9 +384,25 @@ export default function AppLayout({
                         borderBottom: "1px solid hsl(var(--border))",
                     }}
                 >
-                    <div className="h-full flex items-center justify-between px-6">
-                        {/* Page Title */}
-                        <div className="flex items-center gap-3">
+                    <div className="h-full flex items-center justify-between px-4 sm:px-6">
+                        {/* Mobile Menu Button + Page Title */}
+                        <div className="flex items-center gap-2 sm:gap-3">
+                            {/* Mobile Hamburger Menu - Only visible on mobile */}
+                            {user && (
+                                <Button
+                                    variant="ghost"
+                                    iconOnly
+                                    size="lg"
+                                    className="lg:hidden hover:bg-accent"
+                                    style={{
+                                        backgroundColor: "hsl(var(--background))",
+                                        border: "1px solid hsl(var(--border))",
+                                    }}
+                                    onClick={() => setMobileMenuOpen(true)}
+                                >
+                                    <Icon icon={Menu} className="h-5 w-5 text-foreground" />
+                                </Button>
+                            )}
                             {typeof pageIcon === "string" ? (
                                 <img
                                     src={
@@ -488,7 +508,7 @@ export default function AppLayout({
 
                 {/* Page Content */}
                 <main
-                    className="flex-1 overflow-y-auto flex flex-col pt-20 pb-5"
+                    className="flex-1 overflow-y-auto flex flex-col pt-20 pb-5 px-4 sm:px-6 lg:px-10"
                     style={{
                         background:
                             "linear-gradient(180deg, hsl(var(--primary) / 0.1) 0%, hsl(var(--background) / 0.5) 13.94%, hsl(var(--background)) 30.77%)",
@@ -620,6 +640,15 @@ export default function AppLayout({
                 </SheetContent>
             </Sheet>
 
+            {/* Mobile Navigation Drawer */}
+            {user && (
+                <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                    <SheetContent side="left" className="w-80 p-0 inset-0 rounded-none sm:rounded-3xl">
+                        <MobileSidebar user={user} onNavigate={() => setMobileMenuOpen(false)} />
+                    </SheetContent>
+                </Sheet>
+            )}
+
             {/* Global Search Modal */}
             <SearchModal open={searchOpen} onOpenChange={setSearchOpen} />
         </div>
@@ -627,7 +656,125 @@ export default function AppLayout({
 }
 
 /**
- * Sidebar Navigation Component
+ * Mobile Sidebar Navigation Component (used in drawer)
+ */
+function MobileSidebar({ user, onNavigate }: { user: User | null; onNavigate: () => void }) {
+    const { url } = usePage();
+
+    const isActive = (href: string) => {
+        if (href === "/dashboard")
+            return url === "/" || url.startsWith("/dashboard");
+        return url.startsWith(href);
+    };
+
+    const getInitials = (name: string) =>
+        name
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .toUpperCase()
+            .slice(0, 2);
+
+    return (
+        <div className="flex flex-col h-full bg-background">
+            {/* Logo */}
+            <div className="px-6 py-8 border-b" style={{ borderColor: "hsl(var(--border))" }}>
+                <Link
+                    href={user ? "/dashboard" : "/"}
+                    className="flex items-center gap-3"
+                    onClick={onNavigate}
+                >
+                    <img
+                        src="/assets/logos/logo.svg"
+                        alt="Hospital Logo"
+                        className="h-12 w-12"
+                    />
+                </Link>
+            </div>
+
+            {/* Navigation Links */}
+            {user && (
+                <nav className="flex-1 px-6 py-4 space-y-3 overflow-y-auto">
+                    <MobileNavLink
+                        href="/dashboard"
+                        iconName="home"
+                        label="Home"
+                        active={isActive("/dashboard")}
+                        onClick={onNavigate}
+                    />
+                    <MobileNavLink
+                        href="/appointments"
+                        iconName="appointment"
+                        label="Appointments"
+                        active={isActive("/appointments")}
+                        onClick={onNavigate}
+                    />
+                    <MobileNavLink
+                        href="/health-records"
+                        iconName="records"
+                        label="Health Records"
+                        active={isActive("/health-records")}
+                        onClick={onNavigate}
+                    />
+                    <MobileNavLink
+                        href="/insurance"
+                        iconName="insurance"
+                        label="Insurance"
+                        active={isActive("/insurance")}
+                        onClick={onNavigate}
+                    />
+                    <MobileNavLink
+                        href="/billing"
+                        iconName="billing"
+                        label="Billing"
+                        active={isActive("/billing")}
+                        onClick={onNavigate}
+                    />
+                    <MobileNavLink
+                        href="/family-members"
+                        iconName="family"
+                        label="Family Members"
+                        active={isActive("/family-members")}
+                        onClick={onNavigate}
+                    />
+                </nav>
+            )}
+
+            {/* User Profile Section */}
+            {user && (
+                <div
+                    className="px-6 py-4 border-t"
+                    style={{ borderColor: "hsl(var(--border))" }}
+                >
+                    <Link
+                        href="/settings"
+                        className="flex items-center gap-3 px-3 py-2.5 hover:bg-muted transition-colors"
+                        style={{ borderRadius: "24px" }}
+                        onClick={onNavigate}
+                    >
+                        <Avatar className="h-10 w-10 flex-shrink-0">
+                            <AvatarImage src={user.avatar_url} />
+                            <AvatarFallback className="text-body">
+                                {getInitials(user.name)}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-card-title truncate text-foreground">
+                                {user.name}
+                            </p>
+                            <p className="text-body text-muted-foreground truncate">
+                                {user.email}
+                            </p>
+                        </div>
+                    </Link>
+                </div>
+            )}
+        </div>
+    );
+}
+
+/**
+ * Desktop Sidebar Navigation Component
  */
 function Sidebar({ user }: { user: User | null }) {
     const { url } = usePage();
@@ -799,6 +946,48 @@ function NavLink({ href, iconName, label, active = false }: NavLinkProps) {
             href={href}
             className={`${baseClasses} ${shapeClasses} ${restClasses}`}
             style={activeStyle}
+        >
+            <img src={iconSrc} alt={label} className="h-6 w-6 flex-shrink-0" />
+            <span>{label}</span>
+        </Link>
+    );
+}
+
+/**
+ * Mobile Navigation Link Component (for drawer)
+ */
+interface MobileNavLinkProps {
+    href: string;
+    iconName: string;
+    label: string;
+    active?: boolean;
+    onClick: () => void;
+}
+
+function MobileNavLink({ href, iconName, label, active = false, onClick }: MobileNavLinkProps) {
+    const baseClasses =
+        "flex items-center gap-3 px-4 py-3 text-subheading transition-all h-[50px]";
+
+    const shapeClasses = "rounded-full";
+    const restClasses = !active ? "text-foreground hover:bg-muted" : "";
+
+    const iconSrc = active
+        ? `/assets/icons/${iconName}-selected.svg`
+        : `/assets/icons/${iconName}.svg`;
+
+    const activeStyle = active
+        ? {
+              backgroundColor: "hsl(var(--primary) / 0.05)",
+              color: "hsl(var(--primary))",
+          }
+        : {};
+
+    return (
+        <Link
+            href={href}
+            className={`${baseClasses} ${shapeClasses} ${restClasses}`}
+            style={activeStyle}
+            onClick={onClick}
         >
             <img src={iconSrc} alt={label} className="h-6 w-6 flex-shrink-0" />
             <span>{label}</span>

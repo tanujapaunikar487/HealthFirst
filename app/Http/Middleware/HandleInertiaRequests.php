@@ -82,7 +82,7 @@ class HandleInertiaRequests extends Middleware
             ->where('relation', 'self')
             ->first();
 
-        if (!\App\Models\InsurancePolicy::where('user_id', $user->id)->where('is_active', true)->exists()) {
+        if (! \App\Models\InsurancePolicy::where('user_id', $user->id)->where('is_active', true)->exists()) {
             $warnings[] = [
                 'key' => 'insurance',
                 'label' => 'insurance details',
@@ -90,15 +90,15 @@ class HandleInertiaRequests extends Middleware
             ];
         }
 
-        if (!$selfMember || !$selfMember->blood_group) {
+        if (! $selfMember || ! $selfMember->blood_group) {
             $warnings[] = [
                 'key' => 'blood_group',
                 'label' => 'blood type',
-                'href' => '/family-members/' . ($selfMember?->id ?? ''),
+                'href' => '/family-members/'.($selfMember?->id ?? ''),
             ];
         }
 
-        if (!$selfMember || !$selfMember->emergency_contact_name || !$selfMember->emergency_contact_phone) {
+        if (! $selfMember || ! $selfMember->emergency_contact_name || ! $selfMember->emergency_contact_phone) {
             $warnings[] = [
                 'key' => 'emergency_contact',
                 'label' => 'emergency contact',

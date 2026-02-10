@@ -11,6 +11,7 @@ use Illuminate\Console\Command;
 class SendPromotionNotifications extends Command
 {
     protected $signature = 'notifications:promotions';
+
     protected $description = 'Send notifications for new active promotions to opted-in users';
 
     public function handle(): void
@@ -21,6 +22,7 @@ class SendPromotionNotifications extends Command
 
         if ($promotions->isEmpty()) {
             $this->info('No new promotions to send.');
+
             return;
         }
 

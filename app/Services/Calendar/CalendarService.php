@@ -20,7 +20,7 @@ class CalendarService
             'location' => $eventData['location'],
         ];
 
-        return 'https://calendar.google.com/calendar/render?' . http_build_query($params);
+        return 'https://calendar.google.com/calendar/render?'.http_build_query($params);
     }
 
     /**
@@ -110,12 +110,12 @@ class CalendarService
         $description = implode("\n", [
             "Type: {$consultationType}",
             "Mode: {$modeText}",
-            "",
+            '',
             $mode === 'video'
-                ? "Video link will be sent 30 minutes before the appointment."
-                : "Please arrive 10 minutes early.",
-            "",
-            "Contact: support@formulahospital.com",
+                ? 'Video link will be sent 30 minutes before the appointment.'
+                : 'Please arrive 10 minutes early.',
+            '',
+            'Contact: support@formulahospital.com',
         ]);
 
         $location = $mode === 'video'
@@ -161,13 +161,13 @@ class CalendarService
 
         $description = implode("\n", [
             "Package: {$packageName}",
-            "Collection: " . ($locationData['type'] === 'home' ? 'Home Collection' : 'Visit Center'),
-            "",
-            "Preparation:",
-            "- Fasting required 12 hours before",
-            "- Morning appointment recommended",
-            "",
-            "Contact: support@formulahospital.com",
+            'Collection: '.($locationData['type'] === 'home' ? 'Home Collection' : 'Visit Center'),
+            '',
+            'Preparation:',
+            '- Fasting required 12 hours before',
+            '- Morning appointment recommended',
+            '',
+            'Contact: support@formulahospital.com',
         ]);
 
         $location = $locationData['name'];
@@ -185,6 +185,7 @@ class CalendarService
     {
         $startFormatted = $start->setTimezone('UTC')->format('Ymd\THis\Z');
         $endFormatted = $start->copy()->addMinutes($duration)->setTimezone('UTC')->format('Ymd\THis\Z');
+
         return "{$startFormatted}/{$endFormatted}";
     }
 

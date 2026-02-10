@@ -5,13 +5,13 @@ use App\Http\Controllers\BillingController;
 use App\Http\Controllers\BookingConversationController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FamilyMembersController;
 use App\Http\Controllers\GuidedDoctorController;
 use App\Http\Controllers\GuidedLabController;
 use App\Http\Controllers\HealthRecordController;
+use App\Http\Controllers\InsuranceController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\FamilyMembersController;
-use App\Http\Controllers\InsuranceController;
 use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
 
@@ -97,8 +97,8 @@ Route::middleware('auth')->group(function () {
             Route::post('/confirm', [GuidedLabController::class, 'processPayment']);
 
             // Legacy redirects (old 3-step URLs)
-            Route::get('/patient-test', fn() => redirect('/booking/lab/patient'));
-            Route::get('/packages-schedule', fn() => redirect('/booking/lab/schedule'));
+            Route::get('/patient-test', fn () => redirect('/booking/lab/patient'));
+            Route::get('/packages-schedule', fn () => redirect('/booking/lab/schedule'));
         });
     });
 
@@ -114,12 +114,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/appointments/{appointment}/available-slots', [AppointmentsController::class, 'availableSlots'])->name('appointments.available-slots');
     Route::get('/appointments/{appointment}/book-again', [AppointmentsController::class, 'bookAgain'])->name('appointments.book-again');
     Route::put('/appointments/{appointment}/notes', [AppointmentsController::class, 'updateNotes'])->name('appointments.update-notes');
-Route::post('/appointments/{appointment}/rate', [AppointmentsController::class, 'rate'])->name('appointments.rate');
+    Route::post('/appointments/{appointment}/rate', [AppointmentsController::class, 'rate'])->name('appointments.rate');
     Route::get('/appointments/{appointment}/followup-slots', [AppointmentsController::class, 'followUpSlots'])->name('appointments.followup-slots');
     Route::post('/appointments/{appointment}/followup', [AppointmentsController::class, 'createFollowUp'])->name('appointments.followup');
     Route::get('/appointments/{appointment}/book-again-slots', [AppointmentsController::class, 'bookAgainSlots'])->name('appointments.book-again-slots');
     Route::post('/appointments/{appointment}/book-again-create', [AppointmentsController::class, 'createBookAgain'])->name('appointments.book-again-create');
-
 
     // Settings
     Route::prefix('settings')->name('settings.')->group(function () {

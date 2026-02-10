@@ -11,6 +11,7 @@ use Illuminate\Console\Command;
 class SendAppointmentReminders extends Command
 {
     protected $signature = 'notifications:appointment-reminders';
+
     protected $description = 'Send reminders for appointments happening in the next 24 hours';
 
     public function handle(): void
@@ -28,7 +29,9 @@ class SendAppointmentReminders extends Command
 
         foreach ($appointments as $appointment) {
             $user = $appointment->user;
-            if (!$user) continue;
+            if (! $user) {
+                continue;
+            }
 
             $service->send($user, new AppointmentReminder($appointment), 'appointments');
             $appointment->update(['reminder_sent_at' => now()]);

@@ -26,7 +26,7 @@ class DoctorService
             ->where('is_active', true)
             ->get()
             ->keyBy('id')
-            ->map(fn(Doctor $d) => $this->toArray($d))
+            ->map(fn (Doctor $d) => $this->toArray($d))
             ->toArray();
     }
 
@@ -44,6 +44,7 @@ class DoctorService
     public function getById(int $id): ?array
     {
         $doctor = Doctor::with(['consultationModes', 'availabilities'])->find($id);
+
         return $doctor ? $this->toArray($doctor) : null;
     }
 
@@ -59,6 +60,7 @@ class DoctorService
             ->get()
             ->first(function (Doctor $d) use ($nameLower) {
                 $doctorNameLower = strtolower($d->name);
+
                 return stripos($doctorNameLower, $nameLower) !== false
                     || stripos($nameLower, $doctorNameLower) !== false;
             });
@@ -71,6 +73,7 @@ class DoctorService
         $alias = DoctorAlias::all()
             ->first(function ($a) use ($nameLower) {
                 $aliasLower = strtolower($a->alias);
+
                 return stripos($aliasLower, $nameLower) !== false
                     || stripos($nameLower, $aliasLower) !== false;
             });
@@ -106,7 +109,7 @@ class DoctorService
         $dayOfWeek = Carbon::parse($date)->dayOfWeek;
         $daysOff = $this->getDaysOff($id);
 
-        return !in_array($dayOfWeek, $daysOff);
+        return ! in_array($dayOfWeek, $daysOff);
     }
 
     /**
@@ -119,7 +122,7 @@ class DoctorService
 
         for ($i = 0; $i < $days; $i++) {
             $date = Carbon::today()->addDays($i);
-            if (!in_array($date->dayOfWeek, $daysOff)) {
+            if (! in_array($date->dayOfWeek, $daysOff)) {
                 $dates[] = $date->format('Y-m-d');
             }
         }
@@ -158,6 +161,7 @@ class DoctorService
         }
 
         $default = $modes->firstWhere('is_default', true);
+
         return $default ? $default->mode : 'video';
     }
 
@@ -196,7 +200,7 @@ class DoctorService
                 ->where('is_available', false)
                 ->pluck('day_of_week')
                 ->toArray();
-            $dayNames = array_map(fn($d) => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][$d], $daysOff);
+            $dayNames = array_map(fn ($d) => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][$d], $daysOff);
             $offStr = implode(', ', $dayNames);
 
             $lines[] = "{$doctor->id}. {$doctor->name} | {$doctor->specialization} | {$doctor->experience_years}y | {$modesStr} | Off: {$offStr}";
@@ -218,7 +222,7 @@ class DoctorService
                 $q->where('day_of_week', $dayOfWeek)->where('is_available', true);
             })
             ->get()
-            ->map(fn(Doctor $d) => $this->toArray($d))
+            ->map(fn (Doctor $d) => $this->toArray($d))
             ->values()
             ->toArray();
     }
@@ -234,10 +238,10 @@ class DoctorService
             ->where('is_active', true)
             ->where(function ($q) use ($queryLower) {
                 $q->whereRaw('LOWER(name) LIKE ?', ["%{$queryLower}%"])
-                  ->orWhereRaw('LOWER(specialization) LIKE ?', ["%{$queryLower}%"]);
+                    ->orWhereRaw('LOWER(specialization) LIKE ?', ["%{$queryLower}%"]);
             })
             ->get()
-            ->map(fn(Doctor $d) => $this->toArray($d))
+            ->map(fn (Doctor $d) => $this->toArray($d))
             ->values()
             ->toArray();
     }
@@ -259,7 +263,7 @@ class DoctorService
         $daysOff = $this->getDaysOff($id);
         for ($i = 1; $i <= 14; $i++) {
             $checkDate = $dateObj->copy()->addDays($i);
-            if (!in_array($checkDate->dayOfWeek, $daysOff)) {
+            if (! in_array($checkDate->dayOfWeek, $daysOff)) {
                 $nextAvailable = $checkDate->format('Y-m-d');
                 break;
             }

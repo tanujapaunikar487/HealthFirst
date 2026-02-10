@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Models\KnowledgeBaseResource;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class KnowledgeBaseService
 {
@@ -17,13 +17,13 @@ class KnowledgeBaseService
      */
     public function search(string $query, array $options = []): Collection
     {
-        if (!config('ai.knowledge_base.enabled')) {
+        if (! config('ai.knowledge_base.enabled')) {
             return collect([]);
         }
 
         $category = $options['category'] ?? null;
         $limit = $options['limit'] ?? 5;
-        $cacheKey = 'kb_search:' . md5($query . $category . $limit);
+        $cacheKey = 'kb_search:'.md5($query.$category.$limit);
         $cacheTtl = config('ai.knowledge_base.cache_ttl', 3600);
 
         return Cache::remember($cacheKey, $cacheTtl, function () use ($query, $category, $limit) {
@@ -77,7 +77,6 @@ class KnowledgeBaseService
      *
      * @param  array  $tags  Array of tags to search
      * @param  array  $options  Search options
-     * @return Collection
      */
     public function getByTags(array $tags, array $options = []): Collection
     {
@@ -102,7 +101,6 @@ class KnowledgeBaseService
      *
      * @param  string  $category  Category name
      * @param  int  $limit  Maximum number of resources
-     * @return Collection
      */
     public function getByCategory(string $category, int $limit = 10): Collection
     {
@@ -117,7 +115,6 @@ class KnowledgeBaseService
      * Get a single resource by slug.
      *
      * @param  string  $slug  Resource slug
-     * @return KnowledgeBaseResource|null
      */
     public function getBySlug(string $slug): ?KnowledgeBaseResource
     {
@@ -158,6 +155,7 @@ class KnowledgeBaseService
                         $currentLength += strlen($summaryText);
                     }
                 }
+
                 continue;
             }
 
@@ -177,7 +175,6 @@ class KnowledgeBaseService
      * Create or update a knowledge base resource.
      *
      * @param  array  $data  Resource data
-     * @return KnowledgeBaseResource
      */
     public function createOrUpdate(array $data): KnowledgeBaseResource
     {
@@ -185,6 +182,7 @@ class KnowledgeBaseService
             $resource = KnowledgeBaseResource::where('slug', $data['slug'])->first();
             if ($resource) {
                 $resource->update($data);
+
                 return $resource;
             }
         }
@@ -196,7 +194,6 @@ class KnowledgeBaseService
      * Delete a resource.
      *
      * @param  string  $slug  Resource slug
-     * @return bool
      */
     public function delete(string $slug): bool
     {
@@ -204,6 +201,7 @@ class KnowledgeBaseService
         if ($resource) {
             return $resource->delete();
         }
+
         return false;
     }
 

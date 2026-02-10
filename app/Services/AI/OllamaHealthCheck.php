@@ -3,12 +3,13 @@
 namespace App\Services\AI;
 
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class OllamaHealthCheck
 {
     private string $baseUrl;
+
     private int $timeout;
 
     public function __construct()
@@ -36,7 +37,7 @@ class OllamaHealthCheck
     {
         try {
             $response = Http::timeout($this->timeout)
-                ->get($this->baseUrl . '/api/tags');
+                ->get($this->baseUrl.'/api/tags');
 
             if ($response->successful()) {
                 return true;
@@ -85,9 +86,9 @@ class OllamaHealthCheck
     {
         try {
             $response = Http::timeout($this->timeout)
-                ->get($this->baseUrl . '/api/tags');
+                ->get($this->baseUrl.'/api/tags');
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return false;
             }
 
@@ -119,7 +120,7 @@ class OllamaHealthCheck
         $baseHealth = $this->getHealthDetails();
         $modelName = config('ai.ollama.model', 'deepseek-r1:7b');
 
-        if (!$baseHealth['healthy']) {
+        if (! $baseHealth['healthy']) {
             return array_merge($baseHealth, [
                 'model_available' => false,
                 'model_message' => 'Cannot check model - Ollama not running',
@@ -151,11 +152,11 @@ class OllamaHealthCheck
     {
         $status = $this->getComprehensiveStatus();
 
-        if (!$status['healthy']) {
+        if (! $status['healthy']) {
             return '🔴 AI Offline: Ollama not running';
         }
 
-        if (!$status['model_available']) {
+        if (! $status['model_available']) {
             return '🟡 AI Limited: Model not downloaded';
         }
 

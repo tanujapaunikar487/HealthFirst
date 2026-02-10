@@ -24,7 +24,7 @@ class LabService
             ->orderByDesc('is_popular')
             ->orderBy('price')
             ->get()
-            ->map(fn(LabPackage $p) => $this->packageToArray($p))
+            ->map(fn (LabPackage $p) => $this->packageToArray($p))
             ->toArray();
     }
 
@@ -34,6 +34,7 @@ class LabService
     public function getPackageById(int $id): ?array
     {
         $package = LabPackage::find($id);
+
         return $package ? $this->packageToArray($package) : null;
     }
 
@@ -48,6 +49,7 @@ class LabService
             ->get()
             ->first(function (LabPackage $p) use ($nameLower) {
                 $pkgNameLower = strtolower($p->name);
+
                 return stripos($pkgNameLower, $nameLower) !== false
                     || stripos($nameLower, $pkgNameLower) !== false;
             });
@@ -81,7 +83,7 @@ class LabService
         return LabCenter::where('is_active', true)
             ->orderBy('distance_km')
             ->get()
-            ->map(fn(LabCenter $c) => $this->centerToArray($c))
+            ->map(fn (LabCenter $c) => $this->centerToArray($c))
             ->toArray();
     }
 
@@ -91,6 +93,7 @@ class LabService
     public function getCenterById(int $id): ?array
     {
         $center = LabCenter::find($id);
+
         return $center ? $this->centerToArray($center) : null;
     }
 
@@ -125,7 +128,7 @@ class LabService
 
         foreach ($centers as $center) {
             $locations[] = [
-                'id' => 'center_' . $center->id,
+                'id' => 'center_'.$center->id,
                 'type' => 'center',
                 'label' => $center->name,
                 'description' => $center->address,
@@ -147,7 +150,7 @@ class LabService
         if ($packageId) {
             $package = LabPackage::find($packageId);
             $itemPrice = $package ? $package->price : 0;
-        } elseif (!empty($testIds)) {
+        } elseif (! empty($testIds)) {
             $itemPrice = LabTestType::whereIn('id', $testIds)->where('is_active', true)->sum('price');
         }
 
@@ -221,10 +224,18 @@ class LabService
 
             // Keyword matching
             foreach ($keywords as $kw) {
-                if (strlen($kw) < 3) continue;
-                if (stripos($nameLower, $kw) !== false) $score += 5;
-                if (stripos($descLower, $kw) !== false) $score += 2;
-                if (stripos($slugLower, $kw) !== false) $score += 3;
+                if (strlen($kw) < 3) {
+                    continue;
+                }
+                if (stripos($nameLower, $kw) !== false) {
+                    $score += 5;
+                }
+                if (stripos($descLower, $kw) !== false) {
+                    $score += 2;
+                }
+                if (stripos($slugLower, $kw) !== false) {
+                    $score += 3;
+                }
             }
 
             // Alias matching
@@ -239,9 +250,9 @@ class LabService
             }
         }
 
-        usort($scored, fn($a, $b) => $b['score'] - $a['score']);
+        usort($scored, fn ($a, $b) => $b['score'] - $a['score']);
 
-        return array_map(fn($s) => $s['package'], $scored);
+        return array_map(fn ($s) => $s['package'], $scored);
     }
 
     /**
@@ -250,6 +261,7 @@ class LabService
     public function getTestById(int $id): ?array
     {
         $test = LabTestType::find($id);
+
         return $test ? $this->testToArray($test) : null;
     }
 
@@ -335,11 +347,21 @@ class LabService
             }
 
             foreach ($keywords as $kw) {
-                if (strlen($kw) < 2) continue;
-                if (stripos($nameLower, $kw) !== false) $score += 5;
-                if (stripos($descLower, $kw) !== false) $score += 2;
-                if (stripos($slugLower, $kw) !== false) $score += 3;
-                if (stripos($catLower, $kw) !== false) $score += 3;
+                if (strlen($kw) < 2) {
+                    continue;
+                }
+                if (stripos($nameLower, $kw) !== false) {
+                    $score += 5;
+                }
+                if (stripos($descLower, $kw) !== false) {
+                    $score += 2;
+                }
+                if (stripos($slugLower, $kw) !== false) {
+                    $score += 3;
+                }
+                if (stripos($catLower, $kw) !== false) {
+                    $score += 3;
+                }
             }
 
             foreach ($aliases as $alias => $slugs) {
@@ -353,9 +375,9 @@ class LabService
             }
         }
 
-        usort($scored, fn($a, $b) => $b['score'] - $a['score']);
+        usort($scored, fn ($a, $b) => $b['score'] - $a['score']);
 
-        return array_map(fn($s) => $s['test'], $scored);
+        return array_map(fn ($s) => $s['test'], $scored);
     }
 
     /**

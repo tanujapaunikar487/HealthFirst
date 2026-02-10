@@ -25,10 +25,11 @@ const buttonVariants = cva(
         white: 'bg-white text-foreground hover:bg-white/95',
       },
       size: {
+        // Mobile-first: Ensure 44px minimum touch target, desktop keeps original sizes
         lg: 'h-12 px-8 py-2 text-subheading',
-        md: 'h-10 px-6 py-2 text-card-title',
-        sm: 'h-8 px-4 py-1.5 text-card-title',
-        xs: 'h-6 px-3 py-0.5 text-caption',
+        md: 'min-h-[44px] h-10 sm:h-10 px-6 py-2 text-card-title',
+        sm: 'min-h-[44px] h-8 sm:h-8 px-4 py-1.5 text-card-title',
+        xs: 'min-h-[44px] h-6 sm:h-6 px-3 py-0.5 text-caption',
       },
     },
     defaultVariants: {
@@ -40,9 +41,9 @@ const buttonVariants = cva(
 
 const iconOnlySizes: Record<string, string> = {
   lg: 'w-12 p-0',
-  md: 'w-10 p-0',
-  sm: 'w-8 p-0',
-  xs: 'w-6 p-0',
+  md: 'min-w-[44px] w-10 sm:w-10 p-0',
+  sm: 'min-w-[44px] w-8 sm:w-8 p-0',
+  xs: 'min-w-[44px] w-6 sm:w-6 p-0',
 };
 
 export interface ButtonProps

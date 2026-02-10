@@ -277,8 +277,8 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
       pageIcon="/assets/icons/appointment.svg"
     >
       <div className="min-h-full flex flex-col w-full max-w-page">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        {/* Header - Stack on mobile, side-by-side on desktop */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <h1
             className="font-bold text-foreground"
             style={{
@@ -290,7 +290,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
             Appointments
           </h1>
           {appointments.length > 0 && (
-            <Link href="/booking" className={buttonVariants({ size: 'lg' }) + ' font-semibold'}>
+            <Link href="/booking" className={buttonVariants({ size: 'lg', className: 'w-full sm:w-auto' }) + ' font-semibold'}>
               <Icon icon={CalendarPlus} className="h-5 w-5" />
               Book appointment
             </Link>
@@ -328,9 +328,9 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
             </TabsTrigger>
           </TabsList>
 
-          {/* Filters + Search */}
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
+          {/* Filters + Search - Stack on mobile, side-by-side on desktop */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <Select value={typeFilter} onValueChange={setTypeFilter}>
                 <SelectTrigger className="w-44 h-9">
                   <SelectValue placeholder="All types" />
@@ -509,20 +509,104 @@ function AppointmentsTable({
   }
 
   return (
-    <TableContainer>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-col-date">Date</TableHead>
-            <TableHead>Details</TableHead>
-            <TableHead className="w-col-member">Family member</TableHead>
-            <TableHead className="w-col-amount text-right">Amount</TableHead>
-            <TableHead className="w-col-status">Status</TableHead>
-            <TableHead />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {appointments.map((appt) => {
+    <>
+      {/* Mobile Card View - visible on mobile only */}
+      <div className="lg:hidden space-y-3">
+        {appointments.map((appt) => {
+          const handleCardClick = () => {
+            if (tab === 'upcoming') {
+              onAction({ type: 'details', appointment: appt });
+            } else if (tab === 'past') {
+              router.visit(`/appointments/${appt.id}`);
+            } else if (tab === 'cancelled') {
+              onAction({ type: 'cancelled_details', appointment: appt });
+            }
+          };
+
+          return (
+            <Card key={appt.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={handleCardClick}>
+              <CardContent className="p-0">
+                <div className="px-6 py-4 space-y-4">
+                  {/* Header: Avatar/Icon + Title + Status */}
+                  <div className="flex items-start gap-3">
+                    {appt.type === 'doctor' ? (
+                      <Avatar className="h-10 w-10 flex-shrink-0">
+                        <AvatarImage src={appt.doctor_avatar_url || undefined} alt={appt.title} />
+                        <AvatarFallback
+                          className="text-label"
+                          style={(() => {
+                            const color = getAvatarColorByName(appt.title);
+                            return { backgroundColor: color.bg, color: color.text };
+                          })()}
+                        >
+                          {appt.title.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    ) : (
+                      <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-200">
+                        <Icon icon={TestTube2} className="h-5 w-5 text-blue-800" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-label truncate">{appt.title}</p>
+                      <p className="text-body text-muted-foreground truncate">
+                        {appt.mode}
+                        {appt.subtitle ? ` • ${appt.subtitle}` : ''}
+                      </p>
+                    </div>
+                    <PaymentStatusTag status={appt.payment_status} />
+                  </div>
+
+                  {/* Details Grid */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <p className="text-caption text-muted-foreground mb-1">Date & Time</p>
+                      <p className="text-label">{formatDate(appt.date)}</p>
+                      <p className="text-body text-muted-foreground">{formatTime(appt.date)}</p>
+                    </div>
+                    <div>
+                      <p className="text-caption text-muted-foreground mb-1">Amount</p>
+                      <p className="text-label">₹{appt.fee.toLocaleString()}</p>
+                    </div>
+                    <div className="col-span-2">
+                      <p className="text-caption text-muted-foreground mb-1">Family Member</p>
+                      <p className="text-label">{appt.patient_name}</p>
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  {tab === 'past' && appt.type === 'lab_test' && appt.health_record_id && (
+                    <Link
+                      href={`/health-records/${appt.health_record_id}`}
+                      className={buttonVariants({ variant: 'outline', size: 'md', className: 'w-full' })}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Icon icon={FileText} size={20} />
+                      View Results
+                    </Link>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Desktop Table View - hidden on mobile */}
+      <TableContainer className="hidden lg:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-col-date">Date</TableHead>
+              <TableHead>Details</TableHead>
+              <TableHead className="w-col-member">Family member</TableHead>
+              <TableHead className="w-col-amount text-right">Amount</TableHead>
+              <TableHead className="w-col-status">Status</TableHead>
+              <TableHead />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {appointments.map((appt) => {
             // All rows are clickable - each tab has its own details pattern
             const handleRowClick = () => {
               if (tab === 'upcoming') {
@@ -597,16 +681,24 @@ function AppointmentsTable({
             </TableRow>
             );
           })}
-        </TableBody>
-      </Table>
+          </TableBody>
+        </Table>
 
-      <TablePagination
-        from={1}
-        to={appointments.length}
-        total={appointments.length}
-        itemLabel={appointments.length === 1 ? 'appointment' : 'appointments'}
-      />
-    </TableContainer>
+        <TablePagination
+          from={1}
+          to={appointments.length}
+          total={appointments.length}
+          itemLabel={appointments.length === 1 ? 'appointment' : 'appointments'}
+        />
+      </TableContainer>
+
+      {/* Mobile Pagination - Only show count on mobile */}
+      <div className="lg:hidden mt-4 text-center">
+        <p className="text-body text-muted-foreground">
+          Showing {appointments.length} {appointments.length === 1 ? 'appointment' : 'appointments'}
+        </p>
+      </div>
+    </>
   );
 }
 

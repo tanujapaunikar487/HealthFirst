@@ -20,7 +20,7 @@ class PaymentDue extends BaseNotification
             ->line("**Date:** {$this->appointment->date_formatted}");
 
         if (isset($this->appointment->days_overdue) && $this->appointment->days_overdue > 0) {
-            $message->line("**Overdue by:** {$this->appointment->days_overdue} " .
+            $message->line("**Overdue by:** {$this->appointment->days_overdue} ".
                 ($this->appointment->days_overdue === 1 ? 'day' : 'days'));
         }
 
@@ -34,11 +34,11 @@ class PaymentDue extends BaseNotification
         $message = "Payment reminder: ₹{$this->appointment->fee} due for your {$this->appointment->type} with {$this->appointment->doctor_name} on {$this->appointment->date_formatted}.";
 
         if (isset($this->appointment->days_overdue) && $this->appointment->days_overdue > 0) {
-            $message .= " Overdue by {$this->appointment->days_overdue} " .
-                ($this->appointment->days_overdue === 1 ? 'day' : 'days') . '.';
+            $message .= " Overdue by {$this->appointment->days_overdue} ".
+                ($this->appointment->days_overdue === 1 ? 'day' : 'days').'.';
         }
 
-        return $message . ' Please pay now.';
+        return $message.' Please pay now.';
     }
 
     public function toArray(object $notifiable): array

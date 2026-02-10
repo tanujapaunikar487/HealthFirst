@@ -11,6 +11,7 @@ use Illuminate\Console\Command;
 class SendPaymentDueReminders extends Command
 {
     protected $signature = 'notifications:payment-due';
+
     protected $description = 'Send reminders for overdue payments';
 
     public function handle(): void
@@ -25,7 +26,9 @@ class SendPaymentDueReminders extends Command
 
         foreach ($appointments as $appointment) {
             $user = $appointment->user;
-            if (!$user) continue;
+            if (! $user) {
+                continue;
+            }
 
             $service->send($user, new PaymentDue($appointment), 'billing');
             $appointment->update(['payment_reminder_sent_at' => now()]);

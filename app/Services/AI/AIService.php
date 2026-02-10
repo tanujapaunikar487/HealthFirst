@@ -30,7 +30,7 @@ class AIService
      */
     public function classifyIntent(string $message, array $conversationHistory = [], ?string $systemPrompt = null): array
     {
-        if (!config('ai.features.intent_classification')) {
+        if (! config('ai.features.intent_classification')) {
             throw new \Exception('Intent classification feature is disabled.');
         }
 
@@ -103,7 +103,9 @@ class AIService
 
                 foreach ($lines as $line) {
                     $line = trim($line);
-                    if (empty($line)) continue;
+                    if (empty($line)) {
+                        continue;
+                    }
 
                     // Try to decode each line as JSON
                     $parsed = json_decode($line, true);
@@ -114,7 +116,7 @@ class AIService
                 }
 
                 // If we successfully merged multiple objects, use the merged version
-                if ($foundMultipleObjects && !empty($merged)) {
+                if ($foundMultipleObjects && ! empty($merged)) {
                     $cleanedResponse = json_encode($merged);
                 }
             }
@@ -122,7 +124,7 @@ class AIService
             // Parse JSON response
             $result = json_decode($cleanedResponse, true);
 
-            if (!$result || !isset($result['intent'])) {
+            if (! $result || ! isset($result['intent'])) {
                 Log::error('Intent JSON parse failed', [
                     'original_response' => $actualResponse,
                     'cleaned_response' => $cleanedResponse,
@@ -177,7 +179,7 @@ class AIService
      */
     public function generateResponse(string $message, array $context = [], array $knowledgeBase = []): string
     {
-        if (!config('ai.features.booking_conversation')) {
+        if (! config('ai.features.booking_conversation')) {
             throw new \Exception('Booking conversation feature is disabled.');
         }
 
@@ -191,10 +193,10 @@ class AIService
         ];
 
         // Add context as system message if available
-        if (!empty($contextString)) {
+        if (! empty($contextString)) {
             $messages[] = [
                 'role' => 'system',
-                'content' => "CONTEXT:\n" . $contextString,
+                'content' => "CONTEXT:\n".$contextString,
             ];
         }
 
@@ -277,7 +279,7 @@ class AIService
         }
 
         return [
-            'should_initiate' => $shouldInitiate && !$requireConfirmation,
+            'should_initiate' => $shouldInitiate && ! $requireConfirmation,
             'should_suggest' => $shouldInitiate && $requireConfirmation,
             'flow_type' => $flowType,
             'confidence' => $confidence,
@@ -294,7 +296,7 @@ class AIService
      */
     public function extractSearchKeywords(string $query): array
     {
-        if (!config('ai.features.resource_learning')) {
+        if (! config('ai.features.resource_learning')) {
             // Fallback to simple extraction
             return $this->simpleKeywordExtraction($query);
         }
@@ -310,12 +312,14 @@ class AIService
 
             // Parse comma-separated keywords
             $keywords = array_map('trim', explode(',', $response));
+
             return array_filter($keywords);
         } catch (\Exception $e) {
             Log::warning('Keyword extraction failed, using fallback', [
                 'query' => $query,
                 'error' => $e->getMessage(),
             ]);
+
             return $this->simpleKeywordExtraction($query);
         }
     }
@@ -342,22 +346,22 @@ class AIService
         $parts = [];
 
         // Add collected booking data
-        if (isset($context['collected_data']) && !empty($context['collected_data'])) {
-            $parts[] = "BOOKING INFORMATION:";
+        if (isset($context['collected_data']) && ! empty($context['collected_data'])) {
+            $parts[] = 'BOOKING INFORMATION:';
             foreach ($context['collected_data'] as $key => $value) {
-                if (!empty($value) && !is_array($value)) {
-                    $parts[] = "- " . ucwords(str_replace('_', ' ', $key)) . ": " . $value;
+                if (! empty($value) && ! is_array($value)) {
+                    $parts[] = '- '.ucwords(str_replace('_', ' ', $key)).': '.$value;
                 }
             }
         }
 
         // Add current step
         if (isset($context['current_step'])) {
-            $parts[] = "\nCURRENT STEP: " . $context['current_step'];
+            $parts[] = "\nCURRENT STEP: ".$context['current_step'];
         }
 
         // Add knowledge base information
-        if (!empty($knowledgeBase)) {
+        if (! empty($knowledgeBase)) {
             $parts[] = "\nKNOWLEDGE BASE:";
             foreach ($knowledgeBase as $resource) {
                 if (isset($resource['title']) && isset($resource['content'])) {
@@ -384,11 +388,11 @@ class AIService
         ?array $metadata = null,
         ?array $status = null
     ): string {
-        if (!config('ai.features.summarize_medical_history')) {
+        if (! config('ai.features.summarize_medical_history')) {
             throw new \Exception('Medical history summarization feature is disabled.');
         }
 
-        $systemPrompt = <<<PROMPT
+        $systemPrompt = <<<'PROMPT'
 You are a helpful health assistant that explains medical reports in plain, easy-to-understand language.
 
 GUIDELINES:
@@ -429,7 +433,7 @@ PROMPT;
 
         $messages = [
             ['role' => 'system', 'content' => $systemPrompt],
-            ['role' => 'user', 'content' => $recordContext . "\n\nPlease provide a brief, easy-to-understand summary of this health record."],
+            ['role' => 'user', 'content' => $recordContext."\n\nPlease provide a brief, easy-to-understand summary of this health record."],
         ];
 
         try {
@@ -500,7 +504,7 @@ PROMPT;
                     $formatted .= "Diagnosis: {$metadata['diagnosis']}\n";
                 }
                 if (isset($metadata['symptoms']) && is_array($metadata['symptoms'])) {
-                    $formatted .= "Symptoms: " . implode(', ', $metadata['symptoms']) . "\n";
+                    $formatted .= 'Symptoms: '.implode(', ', $metadata['symptoms'])."\n";
                 }
                 if (isset($metadata['treatment_plan'])) {
                     $formatted .= "Treatment plan: {$metadata['treatment_plan']}\n";
@@ -512,7 +516,7 @@ PROMPT;
 
             case 'discharge_summary':
                 if (isset($metadata['primary_diagnosis']) || isset($metadata['diagnosis'])) {
-                    $formatted .= "Primary diagnosis: " . ($metadata['primary_diagnosis'] ?? $metadata['diagnosis']) . "\n";
+                    $formatted .= 'Primary diagnosis: '.($metadata['primary_diagnosis'] ?? $metadata['diagnosis'])."\n";
                 }
                 if (isset($metadata['length_of_stay'])) {
                     $formatted .= "Hospital stay: {$metadata['length_of_stay']}\n";
@@ -576,8 +580,8 @@ PROMPT;
             default:
                 // Generic formatting for other categories
                 foreach ($metadata as $key => $value) {
-                    if (is_string($value) && !empty($value)) {
-                        $formatted .= ucfirst(str_replace('_', ' ', $key)) . ": {$value}\n";
+                    if (is_string($value) && ! empty($value)) {
+                        $formatted .= ucfirst(str_replace('_', ' ', $key)).": {$value}\n";
                     }
                 }
         }
@@ -594,26 +598,26 @@ PROMPT;
      */
     public function answerGeneralQuestion(string $question, array $knowledgeBase = []): string
     {
-        if (!config('ai.features.answer_general_questions')) {
+        if (! config('ai.features.answer_general_questions')) {
             throw new \Exception('Question answering feature is disabled.');
         }
 
-        $systemPrompt = "You are a helpful assistant for a healthcare booking system. "
-            . "Answer questions about booking appointments, lab tests, facility information, "
-            . "and general healthcare procedures. "
-            . "\nIMPORTANT:\n"
-            . "- Provide general educational information only\n"
-            . "- Do NOT provide specific medical advice\n"
-            . "- Do NOT attempt to diagnose\n"
-            . "- Always recommend consulting a healthcare professional for medical concerns\n"
-            . "- Use the knowledge base information when available\n";
+        $systemPrompt = 'You are a helpful assistant for a healthcare booking system. '
+            .'Answer questions about booking appointments, lab tests, facility information, '
+            .'and general healthcare procedures. '
+            ."\nIMPORTANT:\n"
+            ."- Provide general educational information only\n"
+            ."- Do NOT provide specific medical advice\n"
+            ."- Do NOT attempt to diagnose\n"
+            ."- Always recommend consulting a healthcare professional for medical concerns\n"
+            ."- Use the knowledge base information when available\n";
 
         $messages = [
             ['role' => 'system', 'content' => $systemPrompt],
         ];
 
         // Add knowledge base as context
-        if (!empty($knowledgeBase)) {
+        if (! empty($knowledgeBase)) {
             $kbContent = "AVAILABLE INFORMATION:\n";
             foreach ($knowledgeBase as $resource) {
                 if (isset($resource['title']) && isset($resource['content'])) {

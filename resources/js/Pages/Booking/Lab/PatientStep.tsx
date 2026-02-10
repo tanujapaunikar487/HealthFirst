@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
+import { useNavigation } from '@/Hooks/useNavigation';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { PatientSelector } from '@/Components/Booking/PatientSelector';
 import InlineMemberTypeSelector from '@/Features/booking-chat/embedded/InlineMemberTypeSelector';
@@ -36,8 +37,10 @@ export default function PatientStep({ familyMembers, savedData }: Props) {
   const [showAddMemberInline, setShowAddMemberInline] = useState(false);
   const [members, setMembers] = useState(familyMembers);
 
+  const { goBack } = useNavigation();
+
   const handleBack = () => {
-    router.get('/booking');
+    goBack('/booking');
   };
 
   const handleMemberAdded = (data: {

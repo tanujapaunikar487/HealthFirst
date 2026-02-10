@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { router } from '@inertiajs/react';
+import { useNavigation } from '@/Hooks/useNavigation';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { FastingAlert } from '@/Components/Booking/FastingAlert';
 import { TimeSlotGrid } from '@/Components/Booking/TimeSlotGrid';
@@ -213,8 +214,10 @@ export default function ScheduleStep({
     }
   };
 
+  const { goBack } = useNavigation();
+
   const handleBack = () => {
-    router.get('/booking/lab/test-search');
+    goBack('/booking/lab/test-search');
   };
 
   const isCollectionComplete = () => {

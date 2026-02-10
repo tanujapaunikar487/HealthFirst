@@ -5,18 +5,19 @@ namespace App\Http\Controllers;
 use App\BookingConversation;
 use App\Models\Appointment;
 use App\Models\Doctor;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Razorpay\Api\Api;
-use Illuminate\Support\Facades\Log;
-use App\Services\Calendar\GoogleCalendarService;
-use App\Services\NotificationService;
 use App\Notifications\AppointmentConfirmed;
 use App\Notifications\PaymentSuccessful;
+use App\Services\Calendar\GoogleCalendarService;
+use App\Services\NotificationService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Razorpay\Api\Api;
 
 class PaymentController extends Controller
 {
     protected $razorpay;
+
     protected $isMockMode;
 
     public function __construct()
@@ -29,7 +30,7 @@ class PaymentController extends Controller
                             str_contains($key, 'your_key_here') ||
                             str_contains($secret, 'your_secret_here');
 
-        if (!$this->isMockMode) {
+        if (! $this->isMockMode) {
             $this->razorpay = new Api($key, $secret);
         }
     }
@@ -45,7 +46,7 @@ class PaymentController extends Controller
 
             if ($this->isMockMode) {
                 // Mock mode - generate fake order
-                $orderId = 'order_mock_' . uniqid();
+                $orderId = 'order_mock_'.uniqid();
 
                 // Store order ID in conversation
                 $conversation->collected_data = array_merge($conversation->collected_data, [
@@ -67,7 +68,7 @@ class PaymentController extends Controller
             $order = $this->razorpay->order->create([
                 'amount' => $amount * 100, // Amount in paise
                 'currency' => 'INR',
-                'receipt' => 'booking_' . $conversation->id,
+                'receipt' => 'booking_'.$conversation->id,
                 'notes' => [
                     'conversation_id' => $conversation->id,
                     'booking_type' => $conversation->collected_data['booking_type'] ?? '',
@@ -87,7 +88,8 @@ class PaymentController extends Controller
                 'key' => config('razorpay.key'),
             ]);
         } catch (\Exception $e) {
-            Log::error('Razorpay order creation failed: ' . $e->getMessage());
+            Log::error('Razorpay order creation failed: '.$e->getMessage());
+
             return response()->json(['error' => 'Failed to create payment order'], 500);
         }
     }
@@ -107,7 +109,7 @@ class PaymentController extends Controller
             // Check if this is a mock payment
             $isMockPayment = $conversation->collected_data['mock_payment'] ?? false;
 
-            if (!$isMockPayment) {
+            if (! $isMockPayment) {
                 // Real Razorpay payment - verify signature
                 $attributes = [
                     'razorpay_order_id' => $validated['razorpay_order_id'],
@@ -144,7 +146,7 @@ class PaymentController extends Controller
                         $appointment->update(['google_calendar_event_id' => $eventId]);
                     }
                 } catch (\Exception $e) {
-                    Log::warning('Calendar sync failed on payment: ' . $e->getMessage());
+                    Log::warning('Calendar sync failed on payment: '.$e->getMessage());
                 }
             }
 
@@ -153,7 +155,7 @@ class PaymentController extends Controller
                 'redirect' => route('booking.confirmation', ['booking' => $bookingId]),
             ]);
         } catch (\Exception $e) {
-            Log::error('Payment verification failed: ' . $e->getMessage());
+            Log::error('Payment verification failed: '.$e->getMessage());
 
             // Mark payment as failed
             $conversation->collected_data = array_merge($conversation->collected_data, [
@@ -180,6 +182,7 @@ class PaymentController extends Controller
             if (isset($data['mode'])) {
                 return $data['mode'] === 'video' ? 800 : 1200;
             }
+
             return 800; // Default
         }
 

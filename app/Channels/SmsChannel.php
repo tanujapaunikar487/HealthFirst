@@ -12,7 +12,7 @@ class SmsChannel
         $message = $notification->toSms($notifiable);
         $phone = $notifiable->phone;
 
-        if (!$phone || !$message) {
+        if (! $phone || ! $message) {
             return;
         }
 
@@ -20,8 +20,9 @@ class SmsChannel
         $token = config('services.twilio.token');
         $from = config('services.twilio.sms_from');
 
-        if (!$sid || !$token || !$from || $sid === 'your_twilio_sid') {
+        if (! $sid || ! $token || ! $from || $sid === 'your_twilio_sid') {
             \Log::info("[SMS] To: {$phone} | {$message}");
+
             return;
         }
 

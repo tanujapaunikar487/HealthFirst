@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\BookingConversation;
 use App\Models\FamilyMember;
-use App\Services\Booking\IntelligentBookingOrchestrator;
 use App\Services\AI\AudioTranscriptionService;
+use App\Services\Booking\IntelligentBookingOrchestrator;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -67,7 +67,7 @@ class BookingConversationController extends Controller
         $requiredFields = ['selectedPatientId', 'appointmentType', 'selectedDoctorId', 'selectedDate', 'selectedTime', 'consultationMode'];
         $completedCount = 0;
         foreach ($requiredFields as $field) {
-            if (!empty($data[$field])) {
+            if (! empty($data[$field])) {
                 $completedCount++;
             }
         }
@@ -75,7 +75,7 @@ class BookingConversationController extends Controller
 
         \Illuminate\Support\Facades\Log::info('Intelligent orchestrator result', [
             'conversation_id' => $conversation->id,
-            'has_component' => !empty($response['component_type']),
+            'has_component' => ! empty($response['component_type']),
             'component_type' => $response['component_type'] ?? 'none',
             'completeness' => $completeness,
         ]);
@@ -96,7 +96,7 @@ class BookingConversationController extends Controller
         // Get family members for the conversation owner
         $familyMembers = FamilyMember::where('user_id', $conversation->user_id)
             ->get()
-            ->map(fn($m) => [
+            ->map(fn ($m) => [
                 'id' => $m->id,
                 'name' => $m->name,
                 'relation' => ucfirst($m->relation),
@@ -133,7 +133,7 @@ class BookingConversationController extends Controller
         $attachments = [];
         if ($request->hasFile('attachments')) {
             \Illuminate\Support\Facades\Log::info('Files detected', [
-                'count' => count($request->file('attachments'))
+                'count' => count($request->file('attachments')),
             ]);
 
             foreach ($request->file('attachments') as $file) {
@@ -152,8 +152,8 @@ class BookingConversationController extends Controller
 
         \Illuminate\Support\Facades\Log::info('Message received (Intelligent)', [
             'conversation_id' => $conversation->id,
-            'has_input' => !empty($validated['content']),
-            'has_selection' => !empty($validated['user_selection']),
+            'has_input' => ! empty($validated['content']),
+            'has_selection' => ! empty($validated['user_selection']),
             'has_attachments' => count($attachments) > 0,
             'attachment_count' => count($attachments),
         ]);
@@ -172,7 +172,7 @@ class BookingConversationController extends Controller
         $requiredFields = ['selectedPatientId', 'appointmentType', 'selectedDoctorId', 'selectedDate', 'selectedTime', 'consultationMode'];
         $completedCount = 0;
         foreach ($requiredFields as $field) {
-            if (!empty($data[$field])) {
+            if (! empty($data[$field])) {
                 $completedCount++;
             }
         }
@@ -180,7 +180,7 @@ class BookingConversationController extends Controller
 
         \Illuminate\Support\Facades\Log::info('Intelligent message processed', [
             'conversation_id' => $conversation->id,
-            'has_component' => !empty($response['component_type']),
+            'has_component' => ! empty($response['component_type']),
             'component_type' => $response['component_type'] ?? 'none',
             'completeness' => $completeness,
         ]);

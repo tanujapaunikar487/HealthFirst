@@ -58,6 +58,20 @@
             "@php artisan config:clear --ansi",
             "@php artisan test"
         ],
+        "test:unit": "./vendor/bin/pest --testsuite=Unit",
+        "test:feature": "./vendor/bin/pest --testsuite=Feature",
+        "test:coverage": "./vendor/bin/pest --coverage --min=70",
+        "test:parallel": "./vendor/bin/pest --parallel",
+        "test:all": [
+            "@php artisan config:clear --ansi",
+            "@test"
+        ],
+        "format": "./vendor/bin/pint",
+        "format:check": "./vendor/bin/pint --test",
+        "quality": [
+            "@format:check",
+            "@test"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"

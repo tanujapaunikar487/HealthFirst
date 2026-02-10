@@ -41,8 +41,11 @@ class BookingStateMachine
     ];
 
     private array $data;
+
     private string $currentState;
+
     private string $appointmentType;
+
     private string $bookingType;
 
     public function __construct(array $collectedData)
@@ -56,12 +59,12 @@ class BookingStateMachine
             'current_state' => $this->currentState,
             'booking_type' => $this->bookingType,
             'appointment_type' => $this->appointmentType,
-            'has_patient' => !empty($this->data['selectedPatientId']),
-            'has_doctor' => !empty($this->data['selectedDoctorId']),
-            'has_package' => !empty($this->data['selectedPackageId']),
-            'has_date' => !empty($this->data['selectedDate']),
-            'has_time' => !empty($this->data['selectedTime']),
-            'has_mode' => !empty($this->data['consultationMode']),
+            'has_patient' => ! empty($this->data['selectedPatientId']),
+            'has_doctor' => ! empty($this->data['selectedDoctorId']),
+            'has_package' => ! empty($this->data['selectedPackageId']),
+            'has_date' => ! empty($this->data['selectedDate']),
+            'has_time' => ! empty($this->data['selectedTime']),
+            'has_mode' => ! empty($this->data['consultationMode']),
         ]);
     }
 
@@ -101,9 +104,9 @@ class BookingStateMachine
             }
 
             // Need urgency (unless date already known)
-            $hasDate = !empty($this->data['selectedDate']);
-            $hasUrgency = !empty($this->data['urgency']);
-            if (!$hasDate && !$hasUrgency) {
+            $hasDate = ! empty($this->data['selectedDate']);
+            $hasUrgency = ! empty($this->data['urgency']);
+            if (! $hasDate && ! $hasUrgency) {
                 return 'urgency';
             }
 
@@ -126,10 +129,10 @@ class BookingStateMachine
         // 4. NEW APPOINTMENT-SPECIFIC STATES
         if ($type === 'new') {
             // Skip urgency if date is already known (AI extracted or user specified)
-            $hasDate = !empty($this->data['selectedDate']);
-            $hasUrgency = !empty($this->data['urgency']);
+            $hasDate = ! empty($this->data['selectedDate']);
+            $hasUrgency = ! empty($this->data['urgency']);
 
-            if (!$hasDate && !$hasUrgency) {
+            if (! $hasDate && ! $hasUrgency) {
                 return 'urgency';
             }
 
@@ -233,6 +236,7 @@ class BookingStateMachine
             if (empty($this->data['package_inquiry_asked'])) {
                 return 'package_inquiry';
             }
+
             // User responded but no package/test selected yet — show filtered list
             return 'package_selection';
         }
@@ -331,7 +335,7 @@ class BookingStateMachine
                 unset($this->data['urgency']);
                 break;
 
-            // Lab-specific change requests
+                // Lab-specific change requests
             case 'package':
                 unset($this->data['selectedPackageId']);
                 unset($this->data['selectedPackageName']);
@@ -370,7 +374,7 @@ class BookingStateMachine
      */
     public function getComponentForCurrentState(): array
     {
-        return match($this->currentState) {
+        return match ($this->currentState) {
             'patient_selection' => [
                 'type' => 'patient_selector',
                 'message' => 'Who is this appointment for?',
@@ -473,18 +477,14 @@ class BookingStateMachine
     {
         $reason = $this->data['followup_reason'] ?? '';
 
-        return match($reason) {
-            'scheduled', 'routine_checkup', 'scheduled_followup' =>
-                "Got it. Any updates you'd like to share with the doctor? This will help the doctor prepare for your visit. You can also skip this.",
+        return match ($reason) {
+            'scheduled', 'routine_checkup', 'scheduled_followup' => "Got it. Any updates you'd like to share with the doctor? This will help the doctor prepare for your visit. You can also skip this.",
 
-            'new_concerns', 'new_concern' =>
-                "What new symptoms or changes have you noticed? This will help the doctor prepare for your visit. You can also skip this.",
+            'new_concerns', 'new_concern' => 'What new symptoms or changes have you noticed? This will help the doctor prepare for your visit. You can also skip this.',
 
-            'ongoing_treatment', 'ongoing_issue' =>
-                "I'm sorry to hear that. Can you describe what's still bothering you? This will help the doctor prepare for your visit. You can also skip this.",
+            'ongoing_treatment', 'ongoing_issue' => "I'm sorry to hear that. Can you describe what's still bothering you? This will help the doctor prepare for your visit. You can also skip this.",
 
-            default =>
-                "Can you describe what's bothering you? This will help the doctor prepare. You can also skip this.",
+            default => "Can you describe what's bothering you? This will help the doctor prepare. You can also skip this.",
         };
     }
 
@@ -526,18 +526,19 @@ class BookingStateMachine
         if ($date) {
             try {
                 $formatted = Carbon::parse($date)->format('M j');
+
                 return "Here are doctors available on {$formatted}:";
             } catch (\Exception $e) {
-                return "Here are the available doctors:";
+                return 'Here are the available doctors:';
             }
         }
 
         $urgency = $this->data['urgency'] ?? null;
         if ($urgency === 'urgent') {
-            return "Here are doctors available today:";
+            return 'Here are doctors available today:';
         }
 
-        return "Here are the available doctors:";
+        return 'Here are the available doctors:';
     }
 
     /**
@@ -552,12 +553,25 @@ class BookingStateMachine
         }
 
         if ($this->bookingType === 'lab_test') {
-            if (empty($this->data['selectedPackageId']) && empty($this->data['selectedTestIds'])) $missing[] = 'package';
-            if (empty($this->data['collectionType'])) $missing[] = 'collection_type';
-            if (($this->data['collectionType'] ?? '') === 'home' && empty($this->data['selectedAddressId'])) $missing[] = 'address';
-            if (($this->data['collectionType'] ?? '') === 'center' && empty($this->data['selectedCenterId'])) $missing[] = 'center';
-            if (empty($this->data['selectedDate'])) $missing[] = 'date';
-            if (empty($this->data['selectedTime'])) $missing[] = 'time';
+            if (empty($this->data['selectedPackageId']) && empty($this->data['selectedTestIds'])) {
+                $missing[] = 'package';
+            }
+            if (empty($this->data['collectionType'])) {
+                $missing[] = 'collection_type';
+            }
+            if (($this->data['collectionType'] ?? '') === 'home' && empty($this->data['selectedAddressId'])) {
+                $missing[] = 'address';
+            }
+            if (($this->data['collectionType'] ?? '') === 'center' && empty($this->data['selectedCenterId'])) {
+                $missing[] = 'center';
+            }
+            if (empty($this->data['selectedDate'])) {
+                $missing[] = 'date';
+            }
+            if (empty($this->data['selectedTime'])) {
+                $missing[] = 'time';
+            }
+
             return $missing;
         }
 
@@ -576,9 +590,9 @@ class BookingStateMachine
         }
 
         if (in_array($this->appointmentType, ['new', 'followup'])) {
-            $hasDate = !empty($this->data['selectedDate']);
-            $hasUrgency = !empty($this->data['urgency']);
-            if (!$hasDate && !$hasUrgency) {
+            $hasDate = ! empty($this->data['selectedDate']);
+            $hasUrgency = ! empty($this->data['urgency']);
+            if (! $hasDate && ! $hasUrgency) {
                 $missing[] = 'urgency';
             }
         }
@@ -611,22 +625,22 @@ class BookingStateMachine
      */
     public function hasField(string $field): bool
     {
-        return match($field) {
-            'patient' => !empty($this->data['selectedPatientId']),
-            'appointment_type' => !empty($this->data['appointmentType']),
-            'urgency' => !empty($this->data['urgency']) || !empty($this->data['selectedDate']),
-            'followup_reason' => !empty($this->data['followup_reason']),
-            'followup_notes' => !empty($this->data['followup_notes_asked']),
-            'doctor' => !empty($this->data['selectedDoctorId']),
-            'date' => !empty($this->data['selectedDate']),
-            'time' => !empty($this->data['selectedTime']),
-            'mode' => !empty($this->data['consultationMode']),
+        return match ($field) {
+            'patient' => ! empty($this->data['selectedPatientId']),
+            'appointment_type' => ! empty($this->data['appointmentType']),
+            'urgency' => ! empty($this->data['urgency']) || ! empty($this->data['selectedDate']),
+            'followup_reason' => ! empty($this->data['followup_reason']),
+            'followup_notes' => ! empty($this->data['followup_notes_asked']),
+            'doctor' => ! empty($this->data['selectedDoctorId']),
+            'date' => ! empty($this->data['selectedDate']),
+            'time' => ! empty($this->data['selectedTime']),
+            'mode' => ! empty($this->data['consultationMode']),
             // Lab-specific fields
-            'package' => !empty($this->data['selectedPackageId']) || !empty($this->data['selectedTestIds']),
-            'collection_type' => !empty($this->data['collectionType']),
-            'location' => !empty($this->data['collectionType']),
-            'address' => !empty($this->data['selectedAddressId']),
-            'center' => !empty($this->data['selectedCenterId']),
+            'package' => ! empty($this->data['selectedPackageId']) || ! empty($this->data['selectedTestIds']),
+            'collection_type' => ! empty($this->data['collectionType']),
+            'location' => ! empty($this->data['collectionType']),
+            'address' => ! empty($this->data['selectedAddressId']),
+            'center' => ! empty($this->data['selectedCenterId']),
             default => false,
         };
     }
@@ -642,13 +656,28 @@ class BookingStateMachine
             $isHomeCollection = $collectionType === 'home';
             $total = 6; // patient, package, collection_type, [address|center], date, time
             $completed = 0;
-            if ($this->hasField('patient')) $completed++;
-            if ($this->hasField('package')) $completed++;
-            if ($this->hasField('collection_type')) $completed++;
-            if ($isHomeCollection && $this->hasField('address')) $completed++;
-            if ($isCenterVisit && $this->hasField('center')) $completed++;
-            if ($this->hasField('date')) $completed++;
-            if ($this->hasField('time')) $completed++;
+            if ($this->hasField('patient')) {
+                $completed++;
+            }
+            if ($this->hasField('package')) {
+                $completed++;
+            }
+            if ($this->hasField('collection_type')) {
+                $completed++;
+            }
+            if ($isHomeCollection && $this->hasField('address')) {
+                $completed++;
+            }
+            if ($isCenterVisit && $this->hasField('center')) {
+                $completed++;
+            }
+            if ($this->hasField('date')) {
+                $completed++;
+            }
+            if ($this->hasField('time')) {
+                $completed++;
+            }
+
             return $total > 0 ? $completed / $total : 0;
         }
 
@@ -666,20 +695,38 @@ class BookingStateMachine
         }
 
         $completed = 0;
-        if ($this->hasField('patient')) $completed++;
-        if ($this->hasField('appointment_type')) $completed++;
-        if ($this->hasField('doctor')) $completed++;
-        if ($this->hasField('date')) $completed++;
-        if ($this->hasField('time')) $completed++;
-        if ($this->hasField('mode')) $completed++;
+        if ($this->hasField('patient')) {
+            $completed++;
+        }
+        if ($this->hasField('appointment_type')) {
+            $completed++;
+        }
+        if ($this->hasField('doctor')) {
+            $completed++;
+        }
+        if ($this->hasField('date')) {
+            $completed++;
+        }
+        if ($this->hasField('time')) {
+            $completed++;
+        }
+        if ($this->hasField('mode')) {
+            $completed++;
+        }
 
         if ($this->appointmentType === 'followup') {
-            if ($this->hasField('followup_reason')) $completed++;
-            if ($this->hasField('followup_notes')) $completed++;
+            if ($this->hasField('followup_reason')) {
+                $completed++;
+            }
+            if ($this->hasField('followup_notes')) {
+                $completed++;
+            }
         }
 
         if (in_array($this->appointmentType, ['new', 'followup']) && empty($this->data['selectedDate'])) {
-            if ($this->hasField('urgency')) $completed++;
+            if ($this->hasField('urgency')) {
+                $completed++;
+            }
         }
 
         return $total > 0 ? $completed / $total : 0;
@@ -705,8 +752,9 @@ class BookingStateMachine
             return "Here are the matching tests for \"{$query}\":";
         }
         if ($query) {
-            return "Based on your search, here are the matching packages:";
+            return 'Based on your search, here are the matching packages:';
         }
+
         return 'Which health package would you like to book?';
     }
 
@@ -717,8 +765,8 @@ class BookingStateMachine
     {
         $testNames = $this->data['selectedTestNames'] ?? [];
         $packageName = $this->data['selectedPackageName']
-            ?? (count($testNames) === 1 ? $testNames[0] : (count($testNames) > 1 ? count($testNames) . ' tests' : null));
-        $requiresFasting = !empty($this->data['packageRequiresFasting']);
+            ?? (count($testNames) === 1 ? $testNames[0] : (count($testNames) > 1 ? count($testNames).' tests' : null));
+        $requiresFasting = ! empty($this->data['packageRequiresFasting']);
         $fastingHours = $this->data['packageFastingHours'] ?? null;
 
         $message = 'When would you like to schedule your test?';
@@ -751,7 +799,7 @@ class BookingStateMachine
             'current_state' => $this->currentState,
             'booking_type' => $this->bookingType,
             'appointment_type' => $this->appointmentType,
-            'completeness' => round($this->getCompletenessPercentage() * 100) . '%',
+            'completeness' => round($this->getCompletenessPercentage() * 100).'%',
             'missing_fields' => $this->getMissingFields(),
             'ready_for_summary' => $this->isReadyForSummary(),
             'ready_to_book' => $this->isReadyToBook(),

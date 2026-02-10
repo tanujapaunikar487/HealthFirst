@@ -153,9 +153,9 @@ const sheetVariants = cva(
         top: 'inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top',
         bottom:
           'inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
-        left: 'inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm',
+        left: 'inset-y-0 left-0 h-full border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left',
         right:
-          'inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-md',
+          'inset-y-0 right-0 h-full border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right',
       },
     },
     defaultVariants: {
@@ -178,7 +178,10 @@ const SheetContent = React.forwardRef<
       ref={ref}
       className={cn(
         sheetVariants({ side }),
-        'w-[500px] rounded-3xl border bg-card flex flex-col items-stretch inset-y-2.5 right-2.5 left-auto h-auto overflow-hidden',
+        // Mobile: Full width with small inset, Desktop: Fixed 500px with larger inset
+        'w-full sm:w-[500px] rounded-3xl border bg-card flex flex-col items-stretch',
+        // Mobile: Small inset on all sides, Desktop: Larger inset on top/right/bottom
+        'inset-2 sm:inset-y-2.5 sm:right-2.5 sm:left-auto h-auto overflow-hidden',
         className
       )}
       style={{

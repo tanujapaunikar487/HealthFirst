@@ -17,32 +17,32 @@ class InsuranceClaimUpdate extends BaseNotification
 
         $mail = (new MailMessage)
             ->subject('Insurance claim update')
-            ->greeting('Hello ' . $notifiable->name . ',')
+            ->greeting('Hello '.$notifiable->name.',')
             ->line('Your insurance claim has been updated.')
-            ->line('**Claim number:** ' . $this->claim->claim_number)
-            ->line('**Provider:** ' . $this->claim->provider_name)
-            ->line('**Amount:** ₹' . number_format($this->claim->amount, 2))
-            ->line('**New status:** ' . ucfirst(str_replace('_', ' ', $this->newStatus)));
+            ->line('**Claim number:** '.$this->claim->claim_number)
+            ->line('**Provider:** '.$this->claim->provider_name)
+            ->line('**Amount:** ₹'.number_format($this->claim->amount, 2))
+            ->line('**New status:** '.ucfirst(str_replace('_', ' ', $this->newStatus)));
 
         if ($nextSteps) {
-            $mail->line('**Next steps:** ' . $nextSteps);
+            $mail->line('**Next steps:** '.$nextSteps);
         }
 
         return $mail
-            ->action('View Claim', url('/insurance/claims/' . $this->claim->id))
+            ->action('View Claim', url('/insurance/claims/'.$this->claim->id))
             ->line('Thank you for using HealthCare.');
     }
 
     public function toWhatsApp(object $notifiable): string
     {
         $nextSteps = $this->getNextSteps($this->newStatus);
-        $message = "Hello {$notifiable->name}, your insurance claim #{$this->claim->claim_number} has been updated to: " . ucfirst(str_replace('_', ' ', $this->newStatus)) . ". Amount: ₹" . number_format($this->claim->amount, 2) . ".";
+        $message = "Hello {$notifiable->name}, your insurance claim #{$this->claim->claim_number} has been updated to: ".ucfirst(str_replace('_', ' ', $this->newStatus)).'. Amount: ₹'.number_format($this->claim->amount, 2).'.';
 
         if ($nextSteps) {
             $message .= " {$nextSteps}.";
         }
 
-        return $message . " View details: " . url('/insurance/claims/' . $this->claim->id);
+        return $message.' View details: '.url('/insurance/claims/'.$this->claim->id);
     }
 
     public function toArray(object $notifiable): array
@@ -55,7 +55,7 @@ class InsuranceClaimUpdate extends BaseNotification
             'amount' => $this->claim->amount,
             'old_status' => $this->claim->status,
             'new_status' => $this->newStatus,
-            'message' => 'Your insurance claim #' . $this->claim->claim_number . ' has been updated.',
+            'message' => 'Your insurance claim #'.$this->claim->claim_number.' has been updated.',
         ];
     }
 
@@ -76,7 +76,7 @@ class InsuranceClaimUpdate extends BaseNotification
         return [
             'type' => $type,
             'title' => "Insurance Claim {$statusLabel}",
-            'message' => 'Your insurance claim #' . $this->claim->claim_number . ' has been updated to: ' . $statusLabel . '.',
+            'message' => 'Your insurance claim #'.$this->claim->claim_number.' has been updated to: '.$statusLabel.'.',
             'appointment_id' => $this->claim->appointment_id ?? null,
             'data' => [
                 'insurance_claim_id' => $this->claim->id,

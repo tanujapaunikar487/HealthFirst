@@ -10,8 +10,8 @@ use App\Services\AI\DeepSeekProvider;
 use App\Services\AI\GroqProvider;
 use App\Services\AI\OllamaProvider;
 use App\Services\Booking\BookingDataProvider;
-use App\Services\Booking\IntelligentBookingOrchestrator;
 use App\Services\Booking\BookingErrorHandler;
+use App\Services\Booking\IntelligentBookingOrchestrator;
 use App\Services\KnowledgeBaseService;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
@@ -32,9 +32,9 @@ class AppServiceProvider extends ServiceProvider
             $provider = config('ai.default');
 
             return match ($provider) {
-                'groq' => new GroqProvider(),
-                'deepseek' => new DeepSeekProvider(),
-                'ollama' => new OllamaProvider(),
+                'groq' => new GroqProvider,
+                'deepseek' => new DeepSeekProvider,
+                'ollama' => new OllamaProvider,
                 'none' => throw new \Exception('AI provider is disabled'),
                 default => throw new \Exception("Unsupported AI provider: {$provider}"),
             };
@@ -44,6 +44,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(AIService::class, function ($app) {
             try {
                 $provider = $app->make(AIProviderInterface::class);
+
                 return new AIService($provider);
             } catch (\Exception $e) {
                 // Return a disabled AI service if provider initialization fails
@@ -54,7 +55,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Register Knowledge Base Service
         $this->app->singleton(KnowledgeBaseService::class, function ($app) {
-            return new KnowledgeBaseService();
+            return new KnowledgeBaseService;
         });
 
         // Register Booking System Services

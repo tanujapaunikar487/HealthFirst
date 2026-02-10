@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import { router } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
 
 interface AddToCalendarButtonProps {

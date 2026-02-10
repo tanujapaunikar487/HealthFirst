@@ -12,7 +12,7 @@ class OtpService
     /**
      * Generate a 6-digit OTP and store it in cache
      *
-     * @param string $phone The phone number to generate OTP for
+     * @param  string  $phone  The phone number to generate OTP for
      * @return string The generated OTP
      */
     public function generate(string $phone): string
@@ -31,8 +31,8 @@ class OtpService
     /**
      * Verify an OTP for a phone number
      *
-     * @param string $phone The phone number
-     * @param string $otp The OTP to verify
+     * @param  string  $phone  The phone number
+     * @param  string  $otp  The OTP to verify
      * @return bool True if verification successful
      */
     public function verify(string $phone, string $otp): bool
@@ -40,6 +40,7 @@ class OtpService
         // DEV: Accept 000000 as test OTP
         if (app()->environment('local') && $otp === '000000') {
             Log::info('OTP verified (TEST MODE)', ['phone' => $phone]);
+
             return true;
         }
 
@@ -65,14 +66,14 @@ class OtpService
     /**
      * Send OTP via SMS (mock mode - logs to Laravel log)
      *
-     * @param string $phone The phone number
-     * @param string $otp The OTP to send
+     * @param  string  $phone  The phone number
+     * @param  string  $otp  The OTP to send
      * @return bool True if send successful
      */
     public function send(string $phone, string $otp): bool
     {
         // Mock mode: Log OTP to Laravel log
-        Log::info("📱 OTP Verification", [
+        Log::info('📱 OTP Verification', [
             'phone' => $phone,
             'otp' => $otp,
             'expires_at' => now()->addMinutes(5)->toIso8601String(),
@@ -93,7 +94,7 @@ class OtpService
     /**
      * Generate a verification token
      *
-     * @param string $phone The phone number
+     * @param  string  $phone  The phone number
      * @return string The verification token
      */
     public function generateVerificationToken(string $phone): string
@@ -112,7 +113,7 @@ class OtpService
     /**
      * Verify a verification token (phone or email)
      *
-     * @param string $token The token to verify
+     * @param  string  $token  The token to verify
      * @return array|null Array with 'type' and 'value' if valid, null otherwise
      */
     public function verifyToken(string $token): ?array
@@ -151,7 +152,7 @@ class OtpService
     /**
      * Generate a 6-digit OTP for email and store it in cache
      *
-     * @param string $email The email address to generate OTP for
+     * @param  string  $email  The email address to generate OTP for
      * @return string The generated OTP
      */
     public function generateForEmail(string $email): string
@@ -170,26 +171,27 @@ class OtpService
     /**
      * Send OTP via email
      *
-     * @param string $email The email address
-     * @param string $otp The OTP to send
+     * @param  string  $email  The email address
+     * @param  string  $otp  The OTP to send
      * @return bool True if send successful
      */
     public function sendEmail(string $email, string $otp): bool
     {
         // Mock mode in local environment: Log OTP instead of sending
         if (app()->environment('local')) {
-            Log::info("📧 OTP for email (DEV MODE - not sent)", [
+            Log::info('📧 OTP for email (DEV MODE - not sent)', [
                 'email' => $email,
                 'otp' => $otp,
                 'expires_at' => now()->addMinutes(5)->toIso8601String(),
             ]);
+
             return true;  // Always succeed in dev
         }
 
         try {
             Mail::to($email)->send(new OtpMail($otp));
 
-            Log::info("📧 OTP sent via email", [
+            Log::info('📧 OTP sent via email', [
                 'email' => $email,
                 'otp' => $otp,
                 'expires_at' => now()->addMinutes(5)->toIso8601String(),
@@ -209,8 +211,8 @@ class OtpService
     /**
      * Verify an OTP for an email address
      *
-     * @param string $email The email address
-     * @param string $otp The OTP to verify
+     * @param  string  $email  The email address
+     * @param  string  $otp  The OTP to verify
      * @return bool True if verification successful
      */
     public function verifyEmail(string $email, string $otp): bool
@@ -218,6 +220,7 @@ class OtpService
         // DEV: Accept 000000 as test OTP
         if (app()->environment('local') && $otp === '000000') {
             Log::info('Email OTP verified (TEST MODE)', ['email' => $email]);
+
             return true;
         }
 
@@ -243,7 +246,7 @@ class OtpService
     /**
      * Generate a verification token for email
      *
-     * @param string $email The email address
+     * @param  string  $email  The email address
      * @return string The verification token
      */
     public function generateVerificationTokenForEmail(string $email): string
@@ -262,22 +265,22 @@ class OtpService
     /**
      * Check if OTP attempts are within limit
      *
-     * @param string $contactType 'phone' or 'email'
-     * @param string $contactValue The phone number or email address
+     * @param  string  $contactType  'phone' or 'email'
+     * @param  string  $contactValue  The phone number or email address
      * @return bool True if attempts are within limit, false if locked out
      */
     public function checkAttempts(string $contactType, string $contactValue): bool
     {
         $attempts = Cache::get("otp_attempts:{$contactType}:{$contactValue}", 0);
+
         return $attempts < 3;
     }
 
     /**
      * Record an OTP attempt
      *
-     * @param string $contactType 'phone' or 'email'
-     * @param string $contactValue The phone number or email address
-     * @return void
+     * @param  string  $contactType  'phone' or 'email'
+     * @param  string  $contactValue  The phone number or email address
      */
     public function recordAttempt(string $contactType, string $contactValue): void
     {
@@ -295,9 +298,8 @@ class OtpService
     /**
      * Clear OTP attempts
      *
-     * @param string $contactType 'phone' or 'email'
-     * @param string $contactValue The phone number or email address
-     * @return void
+     * @param  string  $contactType  'phone' or 'email'
+     * @param  string  $contactValue  The phone number or email address
      */
     public function clearAttempts(string $contactType, string $contactValue): void
     {
@@ -307,13 +309,14 @@ class OtpService
     /**
      * Get remaining OTP attempts
      *
-     * @param string $contactType 'phone' or 'email'
-     * @param string $contactValue The phone number or email address
+     * @param  string  $contactType  'phone' or 'email'
+     * @param  string  $contactValue  The phone number or email address
      * @return int Remaining attempts (0-3)
      */
     public function getAttemptsRemaining(string $contactType, string $contactValue): int
     {
         $attempts = Cache::get("otp_attempts:{$contactType}:{$contactValue}", 0);
+
         return max(0, 3 - $attempts);
     }
 }

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasColumn('conversation_messages', 'thinking_steps')) {
+        if (! Schema::hasColumn('conversation_messages', 'thinking_steps')) {
             Schema::table('conversation_messages', function (Blueprint $table) {
                 $table->json('thinking_steps')->nullable()->after('user_selection');
             });

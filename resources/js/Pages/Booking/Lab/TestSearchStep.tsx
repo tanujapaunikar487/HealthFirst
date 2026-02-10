@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { router } from '@inertiajs/react';
+import { useNavigation } from '@/Hooks/useNavigation';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
 import { Card } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
@@ -167,8 +168,10 @@ export default function TestSearchStep({ savedData }: Props) {
     }
   };
 
+  const { goBack } = useNavigation();
+
   const handleBack = () => {
-    router.get('/booking/lab/patient');
+    goBack('/booking/lab/patient');
   };
 
   const handleContinue = () => {

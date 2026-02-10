@@ -7,16 +7,15 @@ use App\Models\LabCenter;
 use App\Models\LabPackage;
 use App\Models\LabTestType;
 use App\Models\UserAddress;
-use App\Services\Booking\LabService;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
-use App\Services\Calendar\GoogleCalendarService;
-use App\Services\NotificationService;
 use App\Notifications\AppointmentConfirmed;
 use App\Notifications\PaymentSuccessful;
+use App\Services\Booking\LabService;
+use App\Services\Calendar\GoogleCalendarService;
+use App\Services\NotificationService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 
 class GuidedLabController extends Controller
 {
@@ -29,7 +28,7 @@ class GuidedLabController extends Controller
 
         $familyMembers = FamilyMember::where('user_id', $user->id)
             ->get()
-            ->map(fn($m) => [
+            ->map(fn ($m) => [
                 'id' => (string) $m->id,
                 'name' => $m->name,
                 'avatar' => $m->avatar_url,
@@ -66,7 +65,7 @@ class GuidedLabController extends Controller
     {
         $savedData = session('guided_lab_booking', []);
 
-        if (!isset($savedData['patientId'])) {
+        if (! isset($savedData['patientId'])) {
             return redirect()->route('booking.lab.patient');
         }
 
@@ -119,12 +118,12 @@ class GuidedLabController extends Controller
         // Collect all test IDs from packages to resolve names in one query
         $allTestIds = [];
         foreach ($packages as $p) {
-            if (!empty($p['test_ids'])) {
+            if (! empty($p['test_ids'])) {
                 $allTestIds = array_merge($allTestIds, $p['test_ids']);
             }
         }
         $testNameMap = [];
-        if (!empty($allTestIds)) {
+        if (! empty($allTestIds)) {
             $testNameMap = LabTestType::whereIn('id', array_unique($allTestIds))
                 ->where('is_active', true)
                 ->pluck('name', 'id')
@@ -133,13 +132,14 @@ class GuidedLabController extends Controller
 
         $formattedPackages = array_map(function ($p) use ($testNameMap) {
             $includedTestNames = [];
-            if (!empty($p['test_ids'])) {
+            if (! empty($p['test_ids'])) {
                 foreach ($p['test_ids'] as $tid) {
                     if (isset($testNameMap[$tid])) {
                         $includedTestNames[] = $testNameMap[$tid];
                     }
                 }
             }
+
             return [
                 'id' => (string) $p['id'],
                 'name' => $p['name'],
@@ -157,7 +157,7 @@ class GuidedLabController extends Controller
             ];
         }, $packages);
 
-        $formattedTests = array_map(fn($t) => [
+        $formattedTests = array_map(fn ($t) => [
             'id' => (string) $t['id'],
             'name' => $t['name'],
             'description' => $t['description'] ?? '',
@@ -199,14 +199,14 @@ class GuidedLabController extends Controller
     {
         $savedData = session('guided_lab_booking', []);
 
-        if (!isset($savedData['patientId'])) {
+        if (! isset($savedData['patientId'])) {
             return redirect()->route('booking.lab.patient');
         }
 
-        $hasPackage = !empty($savedData['selectedPackageId']);
-        $hasTests = !empty($savedData['selectedTestIds']);
+        $hasPackage = ! empty($savedData['selectedPackageId']);
+        $hasTests = ! empty($savedData['selectedTestIds']);
 
-        if (!$hasPackage && !$hasTests) {
+        if (! $hasPackage && ! $hasTests) {
             return redirect()->route('booking.lab.test-search');
         }
 
@@ -240,7 +240,7 @@ class GuidedLabController extends Controller
                         'label' => 'Home Collection',
                         'description' => 'Sample collected at your home',
                         'address' => $center->address,
-                        'distance' => $center->distance_km . ' km away',
+                        'distance' => $center->distance_km.' km away',
                         'fee' => $center->home_collection_fee,
                     ];
                 }
@@ -249,9 +249,10 @@ class GuidedLabController extends Controller
                     'label' => 'Visit Center',
                     'description' => $center->name,
                     'address' => $center->address,
-                    'distance' => $center->distance_km . ' km away',
+                    'distance' => $center->distance_km.' km away',
                     'fee' => 0,
                 ];
+
                 return $items;
             })
             ->unique('type')
@@ -287,7 +288,7 @@ class GuidedLabController extends Controller
         $userAddresses = UserAddress::where('user_id', $user->id)
             ->where('is_active', true)
             ->get()
-            ->map(fn($a) => [
+            ->map(fn ($a) => [
                 'id' => $a->id,
                 'label' => $a->label,
                 'address' => $a->getFullAddress(),
@@ -299,7 +300,7 @@ class GuidedLabController extends Controller
         $labCenters = LabCenter::where('is_active', true)
             ->orderBy('distance_km')
             ->get()
-            ->map(fn($c) => [
+            ->map(fn ($c) => [
                 'id' => $c->id,
                 'name' => $c->name,
                 'address' => $c->address,
@@ -325,7 +326,7 @@ class GuidedLabController extends Controller
     {
         $validated = $request->validate([
             'selectedLocation' => 'required|in:home,center',
-            'selectedDate' => 'required|date|after_or_equal:today|before_or_equal:' . now()->addDays(14)->format('Y-m-d'),
+            'selectedDate' => 'required|date|after_or_equal:today|before_or_equal:'.now()->addDays(14)->format('Y-m-d'),
             'selectedTime' => 'required|string',
             'selectedAddressId' => 'nullable|integer|exists:user_addresses,id',
             'selectedCenterId' => 'nullable|integer|exists:lab_centers,id',
@@ -355,10 +356,10 @@ class GuidedLabController extends Controller
     {
         $savedData = session('guided_lab_booking', []);
 
-        $hasPackage = !empty($savedData['selectedPackageId']);
-        $hasTests = !empty($savedData['selectedTestIds']);
+        $hasPackage = ! empty($savedData['selectedPackageId']);
+        $hasTests = ! empty($savedData['selectedTestIds']);
 
-        if (!$hasPackage && !$hasTests) {
+        if (! $hasPackage && ! $hasTests) {
             return redirect()->route('booking.lab.test-search');
         }
 
@@ -379,12 +380,12 @@ class GuidedLabController extends Controller
             $testNames = $savedData['selectedTestNames'] ?? [];
             $tests = LabTestType::whereIn('id', $testIds)->where('is_active', true)->get();
             $itemPrice = $tests->sum('price');
-            $itemName = !empty($testNames) ? implode(', ', $testNames) : $tests->pluck('name')->implode(', ');
+            $itemName = ! empty($testNames) ? implode(', ', $testNames) : $tests->pluck('name')->implode(', ');
 
             $maxFasting = $tests->where('requires_fasting', true)->max('fasting_hours');
             if ($maxFasting) {
                 $prepInstructions = [
-                    "Fasting for {$maxFasting}-" . ($maxFasting + 2) . " hours required",
+                    "Fasting for {$maxFasting}-".($maxFasting + 2).' hours required',
                     'Water is allowed',
                     'Avoid alcohol 24 hours before',
                     'Continue regular medications unless advised otherwise',
@@ -398,7 +399,7 @@ class GuidedLabController extends Controller
 
             if ($package?->requires_fasting) {
                 $prepInstructions = [
-                    "Fasting for {$package->fasting_hours}-" . ($package->fasting_hours + 2) . " hours required",
+                    "Fasting for {$package->fasting_hours}-".($package->fasting_hours + 2).' hours required',
                     'Water is allowed',
                     'Avoid alcohol 24 hours before',
                     'Continue regular medications unless advised otherwise',
@@ -416,15 +417,15 @@ class GuidedLabController extends Controller
             $collection = 'Home Collection';
 
             // Resolve actual address
-            if (!empty($savedData['selectedAddressId'])) {
+            if (! empty($savedData['selectedAddressId'])) {
                 $userAddress = UserAddress::find($savedData['selectedAddressId']);
                 $address = $userAddress ? $userAddress->getFullAddress() : 'Address not available';
             }
         } else {
             // Resolve center details
-            if (!empty($savedData['selectedCenterId'])) {
+            if (! empty($savedData['selectedCenterId'])) {
                 $selectedCenter = LabCenter::find($savedData['selectedCenterId']);
-                $collection = 'Visit Center — ' . ($selectedCenter?->name ?? 'Unknown');
+                $collection = 'Visit Center — '.($selectedCenter?->name ?? 'Unknown');
                 $address = $selectedCenter?->address ?? 'Address not available';
             } else {
                 $fallbackCenter = LabCenter::where('is_active', true)->first();
@@ -434,7 +435,7 @@ class GuidedLabController extends Controller
 
         $totalFee = $itemPrice + $locationFee;
 
-        $datetime = $savedData['selectedDate'] . 'T' . str_replace(' ', '', $savedData['selectedTime']);
+        $datetime = $savedData['selectedDate'].'T'.str_replace(' ', '', $savedData['selectedTime']);
 
         $summary = [
             'package' => [
@@ -502,8 +503,8 @@ class GuidedLabController extends Controller
 
         // Calculate fee
         $itemPrice = 0;
-        $hasPackage = !empty($savedData['selectedPackageId']);
-        $hasTests = !empty($savedData['selectedTestIds']);
+        $hasPackage = ! empty($savedData['selectedPackageId']);
+        $hasTests = ! empty($savedData['selectedTestIds']);
 
         if ($hasPackage) {
             $pkg = LabPackage::find($savedData['selectedPackageId']);
@@ -546,7 +547,7 @@ class GuidedLabController extends Controller
                 $appointment->update(['google_calendar_event_id' => $eventId]);
             }
         } catch (\Exception $e) {
-            Log::warning('Calendar sync failed on lab booking: ' . $e->getMessage());
+            Log::warning('Calendar sync failed on lab booking: '.$e->getMessage());
         }
 
         session()->forget('guided_lab_booking');

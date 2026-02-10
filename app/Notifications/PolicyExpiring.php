@@ -17,22 +17,23 @@ class PolicyExpiring extends BaseNotification
 
         return (new MailMessage)
             ->subject('Insurance policy expiring soon')
-            ->greeting('Hello ' . $notifiable->name . ',')
+            ->greeting('Hello '.$notifiable->name.',')
             ->line('Your insurance policy is expiring soon.')
-            ->line('**Policy number:** ' . $this->policy->policy_number)
-            ->line('**Provider:** ' . $this->policy->provider_name)
-            ->line('**Plan:** ' . $this->policy->plan_name)
-            ->line('**Expiry date:** ' . Carbon::parse($this->policy->end_date)->format('d M Y'))
-            ->line('**Days remaining:** ' . $daysRemaining)
+            ->line('**Policy number:** '.$this->policy->policy_number)
+            ->line('**Provider:** '.$this->policy->provider_name)
+            ->line('**Plan:** '.$this->policy->plan_name)
+            ->line('**Expiry date:** '.Carbon::parse($this->policy->end_date)->format('d M Y'))
+            ->line('**Days remaining:** '.$daysRemaining)
             ->line('Please contact your insurance provider to renew your policy to avoid any interruption in coverage.')
-            ->action('View Policy', url('/insurance/policies/' . $this->policy->id))
+            ->action('View Policy', url('/insurance/policies/'.$this->policy->id))
             ->line('Thank you for using HealthCare.');
     }
 
     public function toWhatsApp(object $notifiable): string
     {
         $daysRemaining = Carbon::parse($this->policy->end_date)->diffInDays(now());
-        return "Hello {$notifiable->name}, your insurance policy #{$this->policy->policy_number} ({$this->policy->plan_name}) is expiring in {$daysRemaining} days on " . Carbon::parse($this->policy->end_date)->format('d M Y') . ". Please renew to avoid coverage interruption. View policy: " . url('/insurance/policies/' . $this->policy->id);
+
+        return "Hello {$notifiable->name}, your insurance policy #{$this->policy->policy_number} ({$this->policy->plan_name}) is expiring in {$daysRemaining} days on ".Carbon::parse($this->policy->end_date)->format('d M Y').'. Please renew to avoid coverage interruption. View policy: '.url('/insurance/policies/'.$this->policy->id);
     }
 
     public function toArray(object $notifiable): array
@@ -47,7 +48,7 @@ class PolicyExpiring extends BaseNotification
             'plan_name' => $this->policy->plan_name,
             'end_date' => $this->policy->end_date,
             'days_remaining' => $daysRemaining,
-            'message' => 'Your insurance policy #' . $this->policy->policy_number . ' is expiring in ' . $daysRemaining . ' days.',
+            'message' => 'Your insurance policy #'.$this->policy->policy_number.' is expiring in '.$daysRemaining.' days.',
         ];
     }
 
@@ -58,7 +59,7 @@ class PolicyExpiring extends BaseNotification
         return [
             'type' => 'policy_expiring_soon',
             'title' => 'Policy Expiring Soon',
-            'message' => 'Your ' . $this->policy->plan_name . ' policy expires in ' . $daysRemaining . ' days. Renew to avoid coverage gaps.',
+            'message' => 'Your '.$this->policy->plan_name.' policy expires in '.$daysRemaining.' days. Renew to avoid coverage gaps.',
             'appointment_id' => null,
             'data' => [
                 'insurance_policy_id' => $this->policy->id,

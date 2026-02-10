@@ -2,12 +2,12 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\User;
 use App\BookingConversation;
 use App\Services\AI\AIService;
+use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
+use Tests\TestCase;
 
 /**
  * Booking Flow Intelligence Tests
@@ -24,6 +24,7 @@ class BookingFlowIntelligenceTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
+
     protected $aiServiceMock;
 
     protected function setUp(): void

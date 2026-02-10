@@ -8,15 +8,15 @@ use App\Models\EmergencyKeyword;
 use App\Models\FamilyMember;
 use App\Models\Symptom;
 use App\Models\TimeSlot;
+use App\Notifications\AppointmentConfirmed;
+use App\Notifications\PaymentSuccessful;
+use App\Services\Calendar\GoogleCalendarService;
+use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
-use App\Services\Calendar\GoogleCalendarService;
-use App\Services\NotificationService;
-use App\Notifications\AppointmentConfirmed;
-use App\Notifications\PaymentSuccessful;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 
 class GuidedDoctorController extends Controller
 {
@@ -31,7 +31,7 @@ class GuidedDoctorController extends Controller
         // Family members from database
         $familyMembers = FamilyMember::where('user_id', $user->id)
             ->get()
-            ->map(fn($m) => [
+            ->map(fn ($m) => [
                 'id' => (string) $m->id,
                 'name' => $m->name,
                 'avatar' => $m->avatar_url,
@@ -56,7 +56,7 @@ class GuidedDoctorController extends Controller
                         ->where('is_booked', false)
                         ->limit(6)
                         ->get()
-                        ->map(fn($s) => [
+                        ->map(fn ($s) => [
                             'time' => Carbon::parse($s->start_time)->format('g:i A'),
                             'available' => true,
                             'preferred' => $s->is_preferred,
@@ -68,7 +68,7 @@ class GuidedDoctorController extends Controller
                     'id' => (string) $appt->id,
                     'patientId' => (string) $appt->family_member_id,
                     'doctor' => $doctor ? [
-                        'id' => 'd' . $doctor->id,
+                        'id' => 'd'.$doctor->id,
                         'name' => $doctor->name,
                         'avatar' => $doctor->avatar_url,
                         'specialization' => $doctor->specialization,
@@ -87,8 +87,8 @@ class GuidedDoctorController extends Controller
         // Symptoms from database
         $symptoms = Symptom::where('is_active', true)
             ->get()
-            ->map(fn($s) => [
-                'id' => 's' . $s->id,
+            ->map(fn ($s) => [
+                'id' => 's'.$s->id,
                 'name' => $s->name,
             ])
             ->toArray();
@@ -152,7 +152,7 @@ class GuidedDoctorController extends Controller
             ->where('id', $validated['patientId'])
             ->exists();
 
-        if (!$patientExists) {
+        if (! $patientExists) {
             return back()->withErrors(['patientId' => 'Invalid patient selection'])->withInput();
         }
 
@@ -163,7 +163,7 @@ class GuidedDoctorController extends Controller
 
         $symptomsText = implode(' ', $validated['selectedSymptoms'] ?? []);
         if (isset($validated['symptomNotes'])) {
-            $symptomsText .= ' ' . $validated['symptomNotes'];
+            $symptomsText .= ' '.$validated['symptomNotes'];
         }
         $symptomsText = strtolower($symptomsText);
 
@@ -205,12 +205,12 @@ class GuidedDoctorController extends Controller
     {
         $savedData = session('guided_doctor_booking', []);
 
-        if (!isset($savedData['patientId'])) {
+        if (! isset($savedData['patientId'])) {
             return redirect()->route('booking.doctor.patient');
         }
 
         // Ensure appointmentType is set (for bookAgain flow that skips patient step)
-        if (!isset($savedData['appointmentType'])) {
+        if (! isset($savedData['appointmentType'])) {
             $savedData['appointmentType'] = 'new';
             session(['guided_doctor_booking' => $savedData]);
         }
@@ -223,7 +223,7 @@ class GuidedDoctorController extends Controller
             $date = now()->addDays($i);
             $dayOfWeek = $date->dayOfWeek;
             $doctorCount = Doctor::where('is_active', true)
-                ->whereHas('availabilities', fn($q) => $q->where('day_of_week', $dayOfWeek)->where('is_available', true))
+                ->whereHas('availabilities', fn ($q) => $q->where('day_of_week', $dayOfWeek)->where('is_available', true))
                 ->count();
             $availableDates[] = [
                 'date' => $date->format('Y-m-d'),
@@ -238,15 +238,15 @@ class GuidedDoctorController extends Controller
 
         $doctorsQuery = Doctor::with(['consultationModes'])
             ->where('is_active', true)
-            ->whereHas('availabilities', fn($q) => $q->where('day_of_week', $dayOfWeek)->where('is_available', true));
+            ->whereHas('availabilities', fn ($q) => $q->where('day_of_week', $dayOfWeek)->where('is_available', true));
 
         // Apply search filter
         $searchQuery = $request->get('search', '');
-        if (!empty($searchQuery)) {
+        if (! empty($searchQuery)) {
             $search = strtolower($searchQuery);
             $doctorsQuery->where(function ($q) use ($search) {
                 $q->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
-                  ->orWhereRaw('LOWER(specialization) LIKE ?', ["%{$search}%"]);
+                    ->orWhereRaw('LOWER(specialization) LIKE ?', ["%{$search}%"]);
             });
         }
 
@@ -256,7 +256,7 @@ class GuidedDoctorController extends Controller
                 ->where('is_booked', false)
                 ->orderBy('start_time')
                 ->get()
-                ->map(fn($s) => [
+                ->map(fn ($s) => [
                     'time' => Carbon::parse($s->start_time)->format('g:i A'),
                     'available' => true,
                     'preferred' => $s->is_preferred,
@@ -264,7 +264,7 @@ class GuidedDoctorController extends Controller
                 ->toArray();
 
             return [
-                'id' => 'd' . $doctor->id,
+                'id' => 'd'.$doctor->id,
                 'name' => $doctor->name,
                 'avatar' => $doctor->avatar_url,
                 'specialization' => $doctor->specialization,
@@ -288,15 +288,15 @@ class GuidedDoctorController extends Controller
 
         // Format symptoms for summary
         $symptomsText = null;
-        if (isset($savedData['selectedSymptoms']) && !empty($savedData['selectedSymptoms'])) {
-            $symptomIds = array_map(fn($s) => (int) str_replace('s', '', $s), $savedData['selectedSymptoms']);
+        if (isset($savedData['selectedSymptoms']) && ! empty($savedData['selectedSymptoms'])) {
+            $symptomIds = array_map(fn ($s) => (int) str_replace('s', '', $s), $savedData['selectedSymptoms']);
             $selectedSymptomNames = Symptom::whereIn('id', $symptomIds)->pluck('name')->toArray();
             $symptomsText = implode(', ', $selectedSymptomNames);
 
-            if (isset($savedData['symptomNotes']) && !empty($savedData['symptomNotes'])) {
-                $symptomsText .= (!empty($symptomsText) ? ' - ' : '') . $savedData['symptomNotes'];
+            if (isset($savedData['symptomNotes']) && ! empty($savedData['symptomNotes'])) {
+                $symptomsText .= (! empty($symptomsText) ? ' - ' : '').$savedData['symptomNotes'];
             }
-        } elseif (isset($savedData['symptomNotes']) && !empty($savedData['symptomNotes'])) {
+        } elseif (isset($savedData['symptomNotes']) && ! empty($savedData['symptomNotes'])) {
             $symptomsText = $savedData['symptomNotes'];
         }
 
@@ -318,7 +318,7 @@ class GuidedDoctorController extends Controller
     public function storeDoctorTime(Request $request)
     {
         $validated = $request->validate([
-            'selectedDate' => 'required|date|after_or_equal:today|before_or_equal:' . now()->addDays(14)->format('Y-m-d'),
+            'selectedDate' => 'required|date|after_or_equal:today|before_or_equal:'.now()->addDays(14)->format('Y-m-d'),
             'selectedDoctorId' => 'required|string',
             'selectedTime' => 'required|string',
             'appointmentMode' => 'required|in:video,in_person',
@@ -328,15 +328,15 @@ class GuidedDoctorController extends Controller
         $doctorId = (int) str_replace('d', '', $validated['selectedDoctorId']);
         $doctor = Doctor::with('consultationModes')->find($doctorId);
 
-        if (!$doctor) {
+        if (! $doctor) {
             return back()->withErrors(['selectedDoctorId' => 'Invalid doctor selection'])->withInput();
         }
 
         // Validate appointment mode is supported
         $supportedModes = $doctor->consultationModes->pluck('mode')->toArray();
-        if (!in_array($validated['appointmentMode'], $supportedModes)) {
+        if (! in_array($validated['appointmentMode'], $supportedModes)) {
             return back()->withErrors([
-                'appointmentMode' => "{$doctor->name} does not offer {$validated['appointmentMode']} appointments"
+                'appointmentMode' => "{$doctor->name} does not offer {$validated['appointmentMode']} appointments",
             ])->withInput();
         }
 
@@ -357,7 +357,7 @@ class GuidedDoctorController extends Controller
     {
         $savedData = session('guided_doctor_booking', []);
 
-        if (!isset($savedData['selectedDoctorId'])) {
+        if (! isset($savedData['selectedDoctorId'])) {
             return redirect()->route('booking.doctor.doctor-time');
         }
 
@@ -378,7 +378,7 @@ class GuidedDoctorController extends Controller
             ?->fee ?? 0;
 
         // Format datetime
-        $datetime = $savedData['selectedDate'] . 'T' . str_replace(' ', '', $savedData['selectedTime']);
+        $datetime = $savedData['selectedDate'].'T'.str_replace(' ', '', $savedData['selectedTime']);
 
         $summary = [
             'doctor' => [
@@ -474,7 +474,7 @@ class GuidedDoctorController extends Controller
                 $appointment->update(['google_calendar_event_id' => $eventId]);
             }
         } catch (\Exception $e) {
-            Log::warning('Calendar sync failed on doctor booking: ' . $e->getMessage());
+            Log::warning('Calendar sync failed on doctor booking: '.$e->getMessage());
         }
 
         session()->forget('guided_doctor_booking');

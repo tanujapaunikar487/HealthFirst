@@ -48,20 +48,20 @@ export function GuidedBookingLayout({
 
       {/* Content */}
       <main className="flex-1 overflow-y-auto">
-        <div className="min-h-full px-6 py-8">
+        <div className="min-h-full px-4 sm:px-6 py-6 sm:py-8">
           <div className={cn("max-w-[800px] mx-auto", className)}>
             {children}
           </div>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="sticky bottom-0 z-10 flex-none border-t bg-background px-6 py-4">
-        <div className="max-w-[800px] mx-auto flex items-center justify-between">
+      {/* Footer - Stack buttons on mobile, side-by-side on desktop */}
+      <footer className="sticky bottom-0 z-10 flex-none border-t bg-background px-4 sm:px-6 py-4">
+        <div className="max-w-[800px] mx-auto flex flex-col-reverse sm:flex-row gap-3 sm:items-center sm:justify-between">
           <Button
             variant="secondary"
             onClick={onBack}
-            className="px-6"
+            className="px-6 w-full sm:w-auto"
             disabled={isProcessing}
           >
             Back
@@ -70,7 +70,7 @@ export function GuidedBookingLayout({
           <Button
             onClick={onContinue}
             disabled={continueDisabled || isProcessing}
-            className="min-w-[120px] text-white"
+            className="min-w-[120px] w-full sm:w-auto text-white"
           >
             {isProcessing ? 'Processing...' : priceEstimate ? `Pay ${priceEstimate.replace(/Total:|Est:/g, '').trim()}` : continueLabel}
           </Button>

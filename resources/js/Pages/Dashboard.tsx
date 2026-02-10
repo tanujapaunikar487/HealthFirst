@@ -1115,7 +1115,7 @@ export default function Dashboard({
 
       <VStack gap={12} className="w-full max-w-content mx-auto">
         {/* Page Header */}
-        <HStack gap={3} align="start" className="w-full">
+        <div className="w-full flex flex-col sm:flex-row gap-3 sm:items-start items-stretch">
           <VStack gap={1} className="flex-1">
             <h1 className="text-page-title text-foreground truncate">
               Hi, {firstName}
@@ -1125,13 +1125,13 @@ export default function Dashboard({
             </p>
           </VStack>
 
-          <HStack gap={2} align="center">
-            <Link href="/booking" className={buttonVariants({ size: 'lg' })}>
+          <div className="flex gap-2 sm:items-center items-stretch">
+            <Link href="/booking" className={buttonVariants({ size: 'lg', className: 'w-full sm:w-auto' })}>
               <img src="/assets/icons/appointment-2.svg" alt="" className="w-5 h-5" />
               Book appointment
             </Link>
-          </HStack>
-        </HStack>
+          </div>
+        </div>
 
         {/* ─── ACTIVE DASHBOARD (all steps completed) ─── */}
         {allStepsCompleted && hasAnyActivity && (

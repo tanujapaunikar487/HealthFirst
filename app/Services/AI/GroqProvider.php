@@ -20,9 +20,13 @@ use Illuminate\Support\Facades\Log;
 class GroqProvider implements AIProviderInterface
 {
     private string $apiKey;
+
     private string $baseUrl;
+
     private string $model;
+
     private int $maxTokens;
+
     private float $temperature;
 
     public function __construct()
@@ -39,7 +43,7 @@ class GroqProvider implements AIProviderInterface
      */
     public function complete(string $prompt, array $options = []): string
     {
-        if (!$this->isAvailable()) {
+        if (! $this->isAvailable()) {
             throw new \Exception('Groq API key is not configured. Please set GROQ_API_KEY in .env');
         }
 
@@ -55,7 +59,7 @@ class GroqProvider implements AIProviderInterface
      */
     public function chat(array $messages, array $options = []): string|array
     {
-        if (!$this->isAvailable()) {
+        if (! $this->isAvailable()) {
             throw new \Exception('Groq API key is not configured. Set GROQ_API_KEY in .env');
         }
 
@@ -85,7 +89,7 @@ class GroqProvider implements AIProviderInterface
             }
 
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Authorization' => 'Bearer '.$this->apiKey,
                 'Content-Type' => 'application/json',
             ])
                 ->timeout(30)
@@ -96,7 +100,7 @@ class GroqProvider implements AIProviderInterface
                     'status' => $response->status(),
                     'body' => $response->body(),
                 ]);
-                throw new \Exception('Groq API request failed: ' . $response->body());
+                throw new \Exception('Groq API request failed: '.$response->body());
             }
 
             $responseData = $response->json();
@@ -124,7 +128,7 @@ class GroqProvider implements AIProviderInterface
                     'trace' => $e->getTraceAsString(),
                 ]);
             }
-            throw new \Exception('Groq API error: ' . $e->getMessage());
+            throw new \Exception('Groq API error: '.$e->getMessage());
         }
     }
 
@@ -134,7 +138,7 @@ class GroqProvider implements AIProviderInterface
     public function completeJson(string $prompt, array $options = []): array
     {
         // Add instruction to return JSON
-        $jsonPrompt = $prompt . "\n\nIMPORTANT: Respond with valid JSON only, no additional text or markdown.";
+        $jsonPrompt = $prompt."\n\nIMPORTANT: Respond with valid JSON only, no additional text or markdown.";
 
         $response = $this->complete($jsonPrompt, array_merge($options, [
             'temperature' => 0.3, // Lower temperature for more consistent JSON
@@ -152,6 +156,7 @@ class GroqProvider implements AIProviderInterface
 
         try {
             $decoded = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+
             return $decoded;
         } catch (\JsonException $e) {
             Log::error('Failed to parse Groq JSON response', [
@@ -167,7 +172,7 @@ class GroqProvider implements AIProviderInterface
      */
     public function isAvailable(): bool
     {
-        return !empty($this->apiKey) && config('ai.default') === 'groq';
+        return ! empty($this->apiKey) && config('ai.default') === 'groq';
     }
 
     /**
@@ -205,11 +210,11 @@ class GroqProvider implements AIProviderInterface
             foreach ($reasoningMarkers as $marker) {
                 if (stripos($content, $marker) !== false) {
                     // Extract reasoning section
-                    if (preg_match('/' . preg_quote($marker, '/') . ':?\s*(.*?)(?=\n\n[A-Z]|\Z)/s', $content, $reasoningMatch)) {
+                    if (preg_match('/'.preg_quote($marker, '/').':?\s*(.*?)(?=\n\n[A-Z]|\Z)/s', $content, $reasoningMatch)) {
                         $reasoningText = $reasoningMatch[1];
                         // Split by numbered steps
                         preg_match_all('/^\d+\.\s+(.+?)(?=\n\d+\.|\Z)/m', $reasoningText, $stepMatches);
-                        if (!empty($stepMatches[1])) {
+                        if (! empty($stepMatches[1])) {
                             $thinkingSteps = array_map('trim', $stepMatches[1]);
                             // Remove reasoning section from final response
                             $finalResponse = trim(str_replace($reasoningMatch[0], '', $content));
@@ -234,23 +239,23 @@ class GroqProvider implements AIProviderInterface
                         $steps[] = "Analyzing user intent: {$json['intent']}";
                     }
 
-                    if (isset($json['entities']) && !empty($json['entities'])) {
+                    if (isset($json['entities']) && ! empty($json['entities'])) {
                         $entityCount = count($json['entities']);
                         $entityTypes = implode(', ', array_keys($json['entities']));
                         $steps[] = "Extracted {$entityCount} entities: {$entityTypes}";
                     }
 
-                    if (isset($json['changes_requested']) && !empty($json['changes_requested'])) {
+                    if (isset($json['changes_requested']) && ! empty($json['changes_requested'])) {
                         $changes = implode(', ', $json['changes_requested']);
                         $steps[] = "Detected changes to: {$changes}";
                     }
 
                     if (isset($json['is_emergency']) && $json['is_emergency']) {
-                        $steps[] = "⚠️ Emergency situation detected";
+                        $steps[] = '⚠️ Emergency situation detected';
                     }
 
-                    if (!empty($steps)) {
-                        array_unshift($steps, "Processing your request...");
+                    if (! empty($steps)) {
+                        array_unshift($steps, 'Processing your request...');
                         $thinkingSteps = $steps;
                     }
                 }

@@ -120,6 +120,7 @@ class User extends Authenticatable
     public function getSetting(string $category, $default = null)
     {
         $setting = $this->settings()->where('category', $category)->first();
+
         return $setting ? $setting->settings : $default;
     }
 

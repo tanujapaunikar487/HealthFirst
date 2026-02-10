@@ -109,6 +109,7 @@ import { LockKeyIcon } from '@hugeicons/core-free-icons';
 import { Settings02Icon } from '@hugeicons/core-free-icons';
 import { ViewOffIcon } from '@hugeicons/core-free-icons';
 import { Unlink01Icon } from '@hugeicons/core-free-icons';
+import { Menu01Icon } from '@hugeicons/core-free-icons';
 
 // Helper to create a React component from icon data
 function createIcon(iconData: any, displayName: string) {
@@ -264,3 +265,4 @@ export const Lock = createIcon(LockKeyIcon, 'Lock');
 export const Settings2 = createIcon(Settings02Icon, 'Settings2');
 export const EyeOff = createIcon(ViewOffIcon, 'EyeOff');
 export const Unlink = createIcon(Unlink01Icon, 'Unlink');
+export const Menu = createIcon(Menu01Icon, 'Menu');

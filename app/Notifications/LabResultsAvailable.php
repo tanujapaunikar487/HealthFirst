@@ -14,18 +14,18 @@ class LabResultsAvailable extends BaseNotification
     {
         return (new MailMessage)
             ->subject('Lab results available')
-            ->greeting('Hello ' . $notifiable->name . ',')
-            ->line('Your lab results for **' . $this->record->title . '** are now available.')
-            ->line('Test: ' . $this->record->category)
-            ->line('Doctor: ' . $this->record->doctor_name)
-            ->line('Date: ' . $this->record->date)
-            ->action('View Results', url('/health-records/' . $this->record->id))
+            ->greeting('Hello '.$notifiable->name.',')
+            ->line('Your lab results for **'.$this->record->title.'** are now available.')
+            ->line('Test: '.$this->record->category)
+            ->line('Doctor: '.$this->record->doctor_name)
+            ->line('Date: '.$this->record->date)
+            ->action('View Results', url('/health-records/'.$this->record->id))
             ->line('Thank you for using HealthCare.');
     }
 
     public function toWhatsApp(object $notifiable): string
     {
-        return "Hello {$notifiable->name}, your lab results for {$this->record->title} are now available. Doctor: {$this->record->doctor_name}. View them in the HealthCare app: " . url('/health-records/' . $this->record->id);
+        return "Hello {$notifiable->name}, your lab results for {$this->record->title} are now available. Doctor: {$this->record->doctor_name}. View them in the HealthCare app: ".url('/health-records/'.$this->record->id);
     }
 
     public function toArray(object $notifiable): array
@@ -37,7 +37,7 @@ class LabResultsAvailable extends BaseNotification
             'category' => $this->record->category,
             'doctor_name' => $this->record->doctor_name,
             'date' => $this->record->date,
-            'message' => 'Your lab results for ' . $this->record->title . ' are now available.',
+            'message' => 'Your lab results for '.$this->record->title.' are now available.',
         ];
     }
 
@@ -46,7 +46,7 @@ class LabResultsAvailable extends BaseNotification
         return [
             'type' => 'lab_results_ready',
             'title' => 'Lab Results Ready',
-            'message' => 'Your lab results for ' . $this->record->title . ' are now available.',
+            'message' => 'Your lab results for '.$this->record->title.' are now available.',
             'appointment_id' => null,
             'data' => [
                 'health_record_id' => $this->record->id,

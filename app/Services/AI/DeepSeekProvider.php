@@ -3,16 +3,20 @@
 namespace App\Services\AI;
 
 use App\Services\AI\Contracts\AIProviderInterface;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
 
 class DeepSeekProvider implements AIProviderInterface
 {
     private string $apiKey;
+
     private string $apiUrl;
+
     private string $model;
+
     private int $maxTokens;
+
     private float $temperature;
 
     public function __construct()
@@ -29,7 +33,7 @@ class DeepSeekProvider implements AIProviderInterface
      */
     public function complete(string $prompt, array $options = []): string
     {
-        if (!$this->isAvailable()) {
+        if (! $this->isAvailable()) {
             throw new \Exception('DeepSeek provider is not configured.');
         }
 
@@ -45,7 +49,7 @@ class DeepSeekProvider implements AIProviderInterface
      */
     public function chat(array $messages, array $options = []): string
     {
-        if (!$this->isAvailable()) {
+        if (! $this->isAvailable()) {
             throw new \Exception('DeepSeek provider is not configured.');
         }
 
@@ -81,10 +85,10 @@ class DeepSeekProvider implements AIProviderInterface
 
             $response = Http::timeout(30)
                 ->withHeaders([
-                    'Authorization' => 'Bearer ' . $this->apiKey,
+                    'Authorization' => 'Bearer '.$this->apiKey,
                     'Content-Type' => 'application/json',
                 ])
-                ->post($this->apiUrl . '/chat/completions', $payload);
+                ->post($this->apiUrl.'/chat/completions', $payload);
 
             if ($response->failed()) {
                 Log::error('DeepSeek API request failed', [
@@ -115,7 +119,7 @@ class DeepSeekProvider implements AIProviderInterface
                     'trace' => $e->getTraceAsString(),
                 ]);
             }
-            throw new \Exception('AI service is temporarily unavailable: ' . $e->getMessage());
+            throw new \Exception('AI service is temporarily unavailable: '.$e->getMessage());
         }
     }
 
@@ -125,7 +129,7 @@ class DeepSeekProvider implements AIProviderInterface
     public function completeJson(string $prompt, array $options = []): array
     {
         // Add instruction to return JSON
-        $jsonPrompt = $prompt . "\n\nIMPORTANT: Respond with valid JSON only, no additional text.";
+        $jsonPrompt = $prompt."\n\nIMPORTANT: Respond with valid JSON only, no additional text.";
 
         $response = $this->complete($jsonPrompt, $options);
 
@@ -137,6 +141,7 @@ class DeepSeekProvider implements AIProviderInterface
 
         try {
             $decoded = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+
             return $decoded;
         } catch (\JsonException $e) {
             Log::error('Failed to parse DeepSeek JSON response', [
@@ -152,7 +157,7 @@ class DeepSeekProvider implements AIProviderInterface
      */
     public function isAvailable(): bool
     {
-        return !empty($this->apiKey)
+        return ! empty($this->apiKey)
             && config('ai.default') === 'deepseek';
     }
 
@@ -169,12 +174,12 @@ class DeepSeekProvider implements AIProviderInterface
      */
     private function isRateLimited(): bool
     {
-        if (!config('ai.rate_limit.enabled')) {
+        if (! config('ai.rate_limit.enabled')) {
             return false;
         }
 
-        $perMinuteKey = 'ai_rate_limit:minute:' . now()->format('Y-m-d-H-i');
-        $perDayKey = 'ai_rate_limit:day:' . now()->format('Y-m-d');
+        $perMinuteKey = 'ai_rate_limit:minute:'.now()->format('Y-m-d-H-i');
+        $perDayKey = 'ai_rate_limit:day:'.now()->format('Y-m-d');
 
         $perMinuteCount = Cache::get($perMinuteKey, 0);
         $perDayCount = Cache::get($perDayKey, 0);
@@ -190,12 +195,12 @@ class DeepSeekProvider implements AIProviderInterface
      */
     private function incrementRateLimit(): void
     {
-        if (!config('ai.rate_limit.enabled')) {
+        if (! config('ai.rate_limit.enabled')) {
             return;
         }
 
-        $perMinuteKey = 'ai_rate_limit:minute:' . now()->format('Y-m-d-H-i');
-        $perDayKey = 'ai_rate_limit:day:' . now()->format('Y-m-d');
+        $perMinuteKey = 'ai_rate_limit:minute:'.now()->format('Y-m-d-H-i');
+        $perDayKey = 'ai_rate_limit:day:'.now()->format('Y-m-d');
 
         Cache::increment($perMinuteKey);
         Cache::put($perMinuteKey, Cache::get($perMinuteKey), now()->addMinute());

@@ -6,11 +6,12 @@ use App\Http\Requests\UpdateNotificationsRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Models\Doctor;
 use App\Models\FamilyMember;
+use App\Services\Calendar\GoogleCalendarService;
 use App\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Services\Calendar\GoogleCalendarService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -18,9 +19,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Inertia\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SettingsController extends Controller
 {
@@ -274,9 +273,9 @@ class SettingsController extends Controller
         $service = app(GoogleCalendarService::class);
 
         // Validate state parameter (skip in mock mode since redirect is immediate)
-        if (!$service->isMockMode()) {
+        if (! $service->isMockMode()) {
             $expectedState = session('google_calendar_oauth_state');
-            if (!$expectedState || $request->input('state') !== $expectedState) {
+            if (! $expectedState || $request->input('state') !== $expectedState) {
                 return redirect()->route('settings.index', ['tab' => 'connections'])
                     ->with('error', 'Invalid OAuth state. Please try again.');
             }
@@ -284,7 +283,7 @@ class SettingsController extends Controller
         session()->forget('google_calendar_oauth_state');
 
         $code = $request->input('code');
-        if (!$code) {
+        if (! $code) {
             return redirect()->route('settings.index', ['tab' => 'connections'])
                 ->with('error', 'Authorization was cancelled.');
         }
@@ -292,7 +291,8 @@ class SettingsController extends Controller
         try {
             $tokens = $service->exchangeCode($code);
         } catch (\Exception $e) {
-            Log::warning('[Google Calendar] OAuth exchange failed: ' . $e->getMessage());
+            Log::warning('[Google Calendar] OAuth exchange failed: '.$e->getMessage());
+
             return redirect()->route('settings.index', ['tab' => 'connections'])
                 ->with('error', 'Failed to connect Google Calendar. Please try again.');
         }
@@ -398,7 +398,9 @@ class SettingsController extends Controller
         $icsContent = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Healthcare Platform//EN\r\nCALSCALE:GREGORIAN\r\n";
 
         foreach ($appointments as $appointment) {
-            if (!$appointment->doctor) continue;
+            if (! $appointment->doctor) {
+                continue;
+            }
 
             $startDate = $appointment->appointment_date->format('Ymd\THis');
             $endDate = $appointment->appointment_date->addMinutes(30)->format('Ymd\THis');
@@ -412,14 +414,14 @@ class SettingsController extends Controller
             $icsContent .= "END:VEVENT\r\n";
         }
 
-        $icsContent .= "END:VCALENDAR";
+        $icsContent .= 'END:VCALENDAR';
 
         // Store temporarily and return download URL
-        $filename = 'appointments-' . now()->format('Y-m-d') . '.ics';
-        Storage::disk('public')->put('exports/' . $filename, $icsContent);
+        $filename = 'appointments-'.now()->format('Y-m-d').'.ics';
+        Storage::disk('public')->put('exports/'.$filename, $icsContent);
 
         return response()->json([
-            'download_url' => Storage::url('exports/' . $filename),
+            'download_url' => Storage::url('exports/'.$filename),
         ]);
     }
 
@@ -434,7 +436,7 @@ class SettingsController extends Controller
 
         $user = Auth::user() ?? User::first();
 
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (! Hash::check($request->current_password, $user->password)) {
             return response()->json([
                 'valid' => false,
                 'message' => 'The current password is incorrect.',
@@ -476,18 +478,18 @@ class SettingsController extends Controller
             'emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_relation',
         ]);
 
-        $familyMembers = $user->familyMembers->map(fn($m) => $m->only([
+        $familyMembers = $user->familyMembers->map(fn ($m) => $m->only([
             'name', 'relation', 'phone', 'email', 'date_of_birth', 'gender',
         ]));
 
-        $appointments = $user->familyMembers->pluck('appointments')->flatten()->map(fn($a) => [
+        $appointments = $user->familyMembers->pluck('appointments')->flatten()->map(fn ($a) => [
             'date' => $a->appointment_date?->format('d M Y'),
             'time' => $a->appointment_time,
             'doctor' => $a->doctor?->name ?? 'N/A',
             'status' => ucfirst($a->status ?? 'N/A'),
         ]);
 
-        $healthRecords = $user->healthRecords->map(fn($r) => [
+        $healthRecords = $user->healthRecords->map(fn ($r) => [
             'category' => ucfirst(str_replace('_', ' ', $r->category ?? '')),
             'title' => $r->title,
             'date' => $r->date?->format('d M Y') ?? 'N/A',
@@ -503,7 +505,7 @@ class SettingsController extends Controller
             'exportDate' => $exportDate,
         ]);
 
-        $filename = 'healthcare-data-' . now()->format('Y-m-d') . '.pdf';
+        $filename = 'healthcare-data-'.now()->format('Y-m-d').'.pdf';
 
         return $pdf->download($filename);
     }
@@ -533,5 +535,4 @@ class SettingsController extends Controller
 
         return redirect('/')->with('success', 'Your account has been deleted.');
     }
-
 }

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
+import { useNavigation } from '@/Hooks/useNavigation';
 import { EmbeddedDoctorList } from '@/Features/booking-chat/embedded/EmbeddedDoctorList';
 import { EmbeddedAppointmentMode } from '@/Features/booking-chat/embedded/EmbeddedAppointmentMode';
 import { Card } from '@/Components/ui/card';
@@ -114,8 +115,10 @@ export default function DoctorTimeStep({
     }
   };
 
+  const { goBack } = useNavigation();
+
   const handleBack = () => {
-    router.get('/booking/doctor/patient');
+    goBack('/booking/doctor/patient');
   };
 
   const handleContinue = () => {

@@ -26,13 +26,13 @@ class NotificationService
     {
         $prefs = $user->getSetting('notifications', $this->defaultPrefs);
 
-        if (!($prefs['categories'][$category] ?? true)) {
+        if (! ($prefs['categories'][$category] ?? true)) {
             return;
         }
 
         if ($subPreference) {
             $subPrefs = $prefs[$category] ?? [];
-            if (!($subPrefs[$subPreference] ?? true)) {
+            if (! ($subPrefs[$subPreference] ?? true)) {
                 return;
             }
         }
@@ -70,10 +70,10 @@ class NotificationService
                 'title' => $billingData['title'],
                 'message' => $billingData['message'],
                 'channels' => $this->mapChannelsForDisplay($channels),
-                'data' => !empty($billingData['data']) ? $billingData['data'] : null,
+                'data' => ! empty($billingData['data']) ? $billingData['data'] : null,
             ]);
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Failed to create billing notification: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning('Failed to create billing notification: '.$e->getMessage());
         }
     }
 
