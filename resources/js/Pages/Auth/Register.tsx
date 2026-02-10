@@ -22,6 +22,8 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
         email: '',
         password: '',
         password_confirmation: '',
+        terms_accepted: false,
+        privacy_accepted: false,
     });
 
     const submit: FormEventHandler = (e) => {
@@ -109,6 +111,55 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
                     />
                     {errors.password_confirmation && (
                         <p className="text-body text-destructive">{errors.password_confirmation}</p>
+                    )}
+                </div>
+
+                {/* Consent Checkboxes */}
+                <div className="space-y-3 pt-2">
+                    <div className="flex items-start gap-3">
+                        <input
+                            type="checkbox"
+                            id="terms_accepted"
+                            checked={data.terms_accepted}
+                            onChange={(e) => setData('terms_accepted', e.target.checked)}
+                            className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                        />
+                        <label htmlFor="terms_accepted" className="text-body text-foreground">
+                            I agree to the{' '}
+                            <Link
+                                href="/terms-of-service"
+                                className="text-primary hover:underline"
+                                target="_blank"
+                            >
+                                Terms of Service
+                            </Link>
+                        </label>
+                    </div>
+                    {errors.terms_accepted && (
+                        <p className="text-body text-destructive ml-7">{errors.terms_accepted}</p>
+                    )}
+
+                    <div className="flex items-start gap-3">
+                        <input
+                            type="checkbox"
+                            id="privacy_accepted"
+                            checked={data.privacy_accepted}
+                            onChange={(e) => setData('privacy_accepted', e.target.checked)}
+                            className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                        />
+                        <label htmlFor="privacy_accepted" className="text-body text-foreground">
+                            I agree to the{' '}
+                            <Link
+                                href="/privacy-policy"
+                                className="text-primary hover:underline"
+                                target="_blank"
+                            >
+                                Privacy Policy
+                            </Link>
+                        </label>
+                    </div>
+                    {errors.privacy_accepted && (
+                        <p className="text-body text-destructive ml-7">{errors.privacy_accepted}</p>
                     )}
                 </div>
 

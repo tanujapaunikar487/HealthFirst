@@ -579,110 +579,188 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
           )
         ) : (
           <>
-            <TableContainer>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-col-checkbox">
-                      {payableBills.length > 0 && (
-                        <input
-                          type="checkbox"
-                          checked={payableBills.length > 0 && payableBills.every((b) => selectedIds.has(b.id))}
-                          onChange={toggleSelectAll}
-                        />
-                      )}
-                    </TableHead>
-                    <TableHead className="w-col-date">Date</TableHead>
-                    <TableHead>Details</TableHead>
-                    <TableHead className="w-col-member">Family member</TableHead>
-                    <TableHead className="w-col-amount text-right">Amount</TableHead>
-                    <TableHead className="w-col-status">Status</TableHead>
-                    <TableHead />
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paged.map((bill) => {
-                    const isPayable = PAYABLE_STATUSES.includes(bill.billing_status);
-                    const cfg = STATUS_CONFIG[bill.billing_status] ?? { label: bill.billing_status, variant: 'neutral' as const };
-                    const statusLabel = bill.billing_status === 'emi' && bill.emi_current != null
-                      ? `EMI ${bill.emi_current}/${bill.emi_total}`
-                      : cfg.label;
-
-                    return (
-                      <TableRow
-                        key={bill.id}
-                        className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => router.visit(`/billing/${bill.id}`)}
-                      >
-                        {/* Checkbox */}
-                        <TableCell className="align-top" onClick={(e) => e.stopPropagation()}>
+            {/* Desktop Table */}
+            <div className="hidden lg:block">
+              <TableContainer>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-col-checkbox">
+                        {payableBills.length > 0 && (
                           <input
                             type="checkbox"
-                            checked={selectedIds.has(bill.id)}
-                            disabled={!isPayable}
-                            onChange={() => toggleSelect(bill.id)}
+                            checked={payableBills.length > 0 && payableBills.every((b) => selectedIds.has(b.id))}
+                            onChange={toggleSelectAll}
                           />
-                        </TableCell>
+                        )}
+                      </TableHead>
+                      <TableHead className="w-col-date">Date</TableHead>
+                      <TableHead>Details</TableHead>
+                      <TableHead className="w-col-member">Family member</TableHead>
+                      <TableHead className="w-col-amount text-right">Amount</TableHead>
+                      <TableHead className="w-col-status">Status</TableHead>
+                      <TableHead />
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paged.map((bill) => {
+                      const isPayable = PAYABLE_STATUSES.includes(bill.billing_status);
+                      const cfg = STATUS_CONFIG[bill.billing_status] ?? { label: bill.billing_status, variant: 'neutral' as const };
+                      const statusLabel = bill.billing_status === 'emi' && bill.emi_current != null
+                        ? `EMI ${bill.emi_current}/${bill.emi_total}`
+                        : cfg.label;
 
-                        {/* Date */}
-                        <TableCell className="align-top">
-                          <p className="text-label whitespace-nowrap">{formatDate(bill.date) || '—'}</p>
-                          <p className="text-body text-muted-foreground">{formatTime(bill.date) || '—'}</p>
-                        </TableCell>
+                      return (
+                        <TableRow
+                          key={bill.id}
+                          className="cursor-pointer hover:bg-muted/50"
+                          onClick={() => router.visit(`/billing/${bill.id}`)}
+                        >
+                          {/* Checkbox */}
+                          <TableCell className="align-top" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.has(bill.id)}
+                              disabled={!isPayable}
+                              onChange={() => toggleSelect(bill.id)}
+                            />
+                          </TableCell>
 
-                        {/* Details */}
-                        <TableCell className="align-top">
-                          <div className="flex items-center gap-2.5">
-                            <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-200">
-                              {bill.appointment_type === 'doctor' ? (
-                                <Stethoscope className="h-5 w-5 text-blue-800" />
-                              ) : (
-                                <TestTube2 className="h-5 w-5 text-blue-800" />
-                              )}
+                          {/* Date */}
+                          <TableCell className="align-top">
+                            <p className="text-label whitespace-nowrap">{formatDate(bill.date) || '—'}</p>
+                            <p className="text-body text-muted-foreground">{formatTime(bill.date) || '—'}</p>
+                          </TableCell>
+
+                          {/* Details */}
+                          <TableCell className="align-top">
+                            <div className="flex items-center gap-2.5">
+                              <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-200">
+                                {bill.appointment_type === 'doctor' ? (
+                                  <Stethoscope className="h-5 w-5 text-blue-800" />
+                                ) : (
+                                  <TestTube2 className="h-5 w-5 text-blue-800" />
+                                )}
+                              </div>
+                              <div>
+                                <p className="text-label">{bill.appointment_title}</p>
+                                <p className="text-overline text-muted-foreground">{bill.invoice_number}</p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="text-label">{bill.appointment_title}</p>
-                              <p className="text-overline text-muted-foreground">{bill.invoice_number}</p>
-                            </div>
-                          </div>
-                        </TableCell>
+                          </TableCell>
 
-                        {/* Member */}
-                        <TableCell className="align-top">
-                          <p className="text-label whitespace-nowrap">{bill.patient_name}</p>
-                        </TableCell>
+                          {/* Member */}
+                          <TableCell className="align-top">
+                            <p className="text-label whitespace-nowrap">{bill.patient_name}</p>
+                          </TableCell>
 
-                        {/* Amount */}
-                        <TableCell className="align-top text-right">
-                          {bill.due_amount > 0 && bill.due_amount !== bill.original_amount ? (
-                            <div>
-                              <p className="text-label">₹{bill.due_amount.toLocaleString()}</p>
-                              <p className="text-body text-muted-foreground line-through">₹{bill.original_amount.toLocaleString()}</p>
-                            </div>
+                          {/* Amount */}
+                          <TableCell className="align-top text-right">
+                            {bill.due_amount > 0 && bill.due_amount !== bill.original_amount ? (
+                              <div>
+                                <p className="text-label">₹{bill.due_amount.toLocaleString()}</p>
+                                <p className="text-body text-muted-foreground line-through">₹{bill.original_amount.toLocaleString()}</p>
+                              </div>
+                            ) : (
+                              <p className="text-label">₹{bill.total.toLocaleString()}</p>
+                            )}
+                          </TableCell>
+
+                          {/* Status */}
+                          <TableCell className="align-top">
+                            <Badge variant={cfg.variant}>
+                              {statusLabel}
+                            </Badge>
+                            {bill.is_overdue && (
+                              <p className="text-micro text-destructive mt-0.5">Overdue {bill.days_overdue}d</p>
+                            )}
+                          </TableCell>
+
+                          {/* Visual indicator - click row for details */}
+                          <TableCell className="align-top w-1">
+                            <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+
+                <TablePagination
+                  from={showingFrom}
+                  to={showingTo}
+                  total={filtered.length}
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setPage}
+                  itemLabel="bills"
+                />
+              </TableContainer>
+            </div>
+
+            {/* Mobile Card List */}
+            <div className="lg:hidden space-y-3">
+              {paged.map((bill) => {
+                const isPayable = PAYABLE_STATUSES.includes(bill.billing_status);
+                const cfg = STATUS_CONFIG[bill.billing_status] ?? { label: bill.billing_status, variant: 'neutral' as const };
+                const statusLabel = bill.billing_status === 'emi' && bill.emi_current != null
+                  ? `EMI ${bill.emi_current}/${bill.emi_total}`
+                  : cfg.label;
+
+                return (
+                  <div
+                    key={bill.id}
+                    className={cn(
+                      "rounded-xl border border-border bg-background p-4 transition-colors",
+                      selectedIds.has(bill.id) && "bg-primary/5 border-primary"
+                    )}
+                    onClick={() => router.visit(`/billing/${bill.id}`)}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="pt-0.5" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(bill.id)}
+                          disabled={!isPayable}
+                          onChange={() => toggleSelect(bill.id)}
+                          className="h-4 w-4"
+                        />
+                      </div>
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-200">
+                          {bill.appointment_type === 'doctor' ? (
+                            <Stethoscope className="h-5 w-5 text-blue-800" />
                           ) : (
-                            <p className="text-label">₹{bill.total.toLocaleString()}</p>
+                            <TestTube2 className="h-5 w-5 text-blue-800" />
                           )}
-                        </TableCell>
-
-                        {/* Status */}
-                        <TableCell className="align-top">
-                          <Badge variant={cfg.variant}>
-                            {statusLabel}
-                          </Badge>
-                          {bill.is_overdue && (
-                            <p className="text-micro text-destructive mt-0.5">Overdue {bill.days_overdue}d</p>
-                          )}
-                        </TableCell>
-
-                        {/* Visual indicator - click row for details */}
-                        <TableCell className="align-top w-1">
-                          <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-label text-foreground">{bill.appointment_title}</p>
+                          <p className="text-overline text-muted-foreground mt-0.5">{bill.invoice_number}</p>
+                          <div className="flex flex-wrap items-center gap-2 mt-2">
+                            <span className="text-body text-muted-foreground">{formatDate(bill.date) || '—'}</span>
+                            <span className="text-muted-foreground">•</span>
+                            <span className="text-body text-muted-foreground">{bill.patient_name}</span>
+                            <span className="text-muted-foreground">•</span>
+                            <span className="text-label text-foreground">
+                              {bill.due_amount > 0 && bill.due_amount !== bill.original_amount
+                                ? `₹${bill.due_amount.toLocaleString()}`
+                                : `₹${bill.total.toLocaleString()}`}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge variant={cfg.variant}>{statusLabel}</Badge>
+                            {bill.is_overdue && (
+                              <span className="text-micro text-destructive">Overdue {bill.days_overdue}d</span>
+                            )}
+                          </div>
+                        </div>
+                        <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
 
               <TablePagination
                 from={showingFrom}
@@ -693,7 +771,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                 onPageChange={setPage}
                 itemLabel="bills"
               />
-            </TableContainer>
+            </div>
           </>
         )}
       </div>

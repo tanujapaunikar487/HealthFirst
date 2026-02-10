@@ -740,6 +740,19 @@ function MobileSidebar({ user, onNavigate }: { user: User | null; onNavigate: ()
                 </nav>
             )}
 
+            {/* Legal Links */}
+            <div className="px-6 py-3 border-t" style={{ borderColor: "hsl(var(--border))" }}>
+                <div className="flex items-center justify-center gap-3 text-caption text-muted-foreground">
+                    <Link href="/privacy-policy" className="hover:text-foreground transition-colors" onClick={onNavigate}>
+                        Privacy Policy
+                    </Link>
+                    <span>·</span>
+                    <Link href="/terms-of-service" className="hover:text-foreground transition-colors" onClick={onNavigate}>
+                        Terms of Service
+                    </Link>
+                </div>
+            </div>
+
             {/* User Profile Section */}
             {user && (
                 <div
@@ -856,6 +869,19 @@ function Sidebar({ user }: { user: User | null }) {
 
             {/* Spacer for guest mode */}
             {!user && <div className="flex-1" />}
+
+            {/* Legal Links */}
+            <div className="px-6 py-3 border-t" style={{ borderColor: "hsl(var(--border))" }}>
+                <div className="flex items-center justify-center gap-3 text-caption text-muted-foreground">
+                    <Link href="/privacy-policy" className="hover:text-foreground transition-colors">
+                        Privacy Policy
+                    </Link>
+                    <span>·</span>
+                    <Link href="/terms-of-service" className="hover:text-foreground transition-colors">
+                        Terms of Service
+                    </Link>
+                </div>
+            </div>
 
             {/* User Profile Section - authenticated */}
             {user && (

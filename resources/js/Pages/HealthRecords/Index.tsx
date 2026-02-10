@@ -838,79 +838,144 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
           className="mb-4"
         />
 
-        {/* Table */}
+        {/* Desktop Table */}
         {filteredRecords.length > 0 ? (
           <div className="mt-4">
-            <TableContainer>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-col-checkbox">
-                      <input
-                        type="checkbox"
-                        checked={allSelected}
-                        onChange={toggleSelectAll}
-                        aria-label="Select all"
-                      />
-                    </TableHead>
-                    <TableHead className="w-col-date">Date</TableHead>
-                    <TableHead className="max-w-col-details">Details</TableHead>
-                    <TableHead className="w-col-member">Family member</TableHead>
-                    <TableHead className="w-col-status">Status</TableHead>
-                    <TableHead></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paginatedRecords.map((record) => {
-                    const config = categoryConfig[record.category] || { label: record.category, color: 'hsl(var(--muted-foreground))', bg: 'hsl(var(--secondary))' };
-                    const member = record.family_member_id ? memberMap[record.family_member_id] : undefined;
-                    const isSelected = selectedIds.has(record.id);
+            <div className="hidden lg:block">
+              <TableContainer>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-col-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={allSelected}
+                          onChange={toggleSelectAll}
+                          aria-label="Select all"
+                        />
+                      </TableHead>
+                      <TableHead className="w-col-date">Date</TableHead>
+                      <TableHead className="max-w-col-details">Details</TableHead>
+                      <TableHead className="w-col-member">Family member</TableHead>
+                      <TableHead className="w-col-status">Status</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedRecords.map((record) => {
+                      const config = categoryConfig[record.category] || { label: record.category, color: 'hsl(var(--muted-foreground))', bg: 'hsl(var(--secondary))' };
+                      const member = record.family_member_id ? memberMap[record.family_member_id] : undefined;
+                      const isSelected = selectedIds.has(record.id);
 
-                    return (
-                      <TableRow
-                        key={record.id}
-                        data-state={isSelected ? 'selected' : undefined}
-                        className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => router.visit(`/health-records/${record.id}`)}
-                      >
-                        <TableCell className="align-top" onClick={(e) => e.stopPropagation()}>
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => toggleSelect(record.id)}
-                            aria-label={`Select ${record.title}`}
-                          />
-                        </TableCell>
-                        <TableCell className="align-top">
-                          <p className="text-label whitespace-nowrap">{formatDate(record.record_date) || '—'}</p>
-                        </TableCell>
-                        <TableCell className="max-w-col-details align-top">
-                          <div className="flex items-center gap-2.5">
-                            <CategoryIcon category={record.category} size="sm" />
-                            <div className="min-w-0">
-                              <p className="text-label truncate">{record.title}</p>
-                              <p className="text-body text-muted-foreground truncate">
-                                {config.label}{record.doctor_name && ` • ${record.doctor_name}`}
-                              </p>
+                      return (
+                        <TableRow
+                          key={record.id}
+                          data-state={isSelected ? 'selected' : undefined}
+                          className="cursor-pointer hover:bg-muted/50"
+                          onClick={() => router.visit(`/health-records/${record.id}`)}
+                        >
+                          <TableCell className="align-top" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => toggleSelect(record.id)}
+                              aria-label={`Select ${record.title}`}
+                            />
+                          </TableCell>
+                          <TableCell className="align-top">
+                            <p className="text-label whitespace-nowrap">{formatDate(record.record_date) || '—'}</p>
+                          </TableCell>
+                          <TableCell className="max-w-col-details align-top">
+                            <div className="flex items-center gap-2.5">
+                              <CategoryIcon category={record.category} size="sm" />
+                              <div className="min-w-0">
+                                <p className="text-label truncate">{record.title}</p>
+                                <p className="text-body text-muted-foreground truncate">
+                                  {config.label}{record.doctor_name && ` • ${record.doctor_name}`}
+                                </p>
+                              </div>
                             </div>
+                          </TableCell>
+                          <TableCell className="align-top">
+                            <span className="text-label whitespace-nowrap">
+                              {member ? member.name : 'You'}
+                            </span>
+                          </TableCell>
+                          <TableCell className="align-top">
+                            {record.status ? <StatusBadge status={record.status} /> : <span className="text-body text-muted-foreground">—</span>}
+                          </TableCell>
+                          <TableCell className="align-top w-1">
+                            <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+
+                <TablePagination
+                  from={startIdx + 1}
+                  to={Math.min(startIdx + RECORDS_PER_PAGE, filteredRecords.length)}
+                  total={filteredRecords.length}
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                  itemLabel="records"
+                />
+              </TableContainer>
+            </div>
+
+            {/* Mobile Card List */}
+            <div className="lg:hidden space-y-3">
+              {paginatedRecords.map((record) => {
+                const config = categoryConfig[record.category] || { label: record.category, color: 'hsl(var(--muted-foreground))', bg: 'hsl(var(--secondary))' };
+                const member = record.family_member_id ? memberMap[record.family_member_id] : undefined;
+                const isSelected = selectedIds.has(record.id);
+
+                return (
+                  <div
+                    key={record.id}
+                    className={cn(
+                      "rounded-xl border border-border bg-background p-4 transition-colors",
+                      isSelected && "bg-primary/5 border-primary"
+                    )}
+                    onClick={() => router.visit(`/health-records/${record.id}`)}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="pt-0.5" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSelect(record.id)}
+                          aria-label={`Select ${record.title}`}
+                          className="h-4 w-4"
+                        />
+                      </div>
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        <CategoryIcon category={record.category} size="sm" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-label text-foreground">{record.title}</p>
+                          <p className="text-body text-muted-foreground mt-0.5">
+                            {config.label}{record.doctor_name && ` • ${record.doctor_name}`}
+                          </p>
+                          <div className="flex flex-wrap items-center gap-2 mt-2">
+                            <span className="text-body text-muted-foreground">{formatDate(record.record_date) || '—'}</span>
+                            <span className="text-muted-foreground">•</span>
+                            <span className="text-body text-muted-foreground">{member ? member.name : 'You'}</span>
+                            {record.status && (
+                              <>
+                                <span className="text-muted-foreground">•</span>
+                                <StatusBadge status={record.status} />
+                              </>
+                            )}
                           </div>
-                        </TableCell>
-                        <TableCell className="align-top">
-                          <span className="text-label whitespace-nowrap">
-                            {member ? member.name : 'You'}
-                          </span>
-                        </TableCell>
-                        <TableCell className="align-top">
-                          {record.status ? <StatusBadge status={record.status} /> : <span className="text-body text-muted-foreground">—</span>}
-                        </TableCell>
-                        <TableCell className="align-top w-1">
-                          <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                        </div>
+                        <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
 
               <TablePagination
                 from={startIdx + 1}
@@ -921,7 +986,7 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
                 onPageChange={setCurrentPage}
                 itemLabel="records"
               />
-            </TableContainer>
+            </div>
 
           </div>
         ) : (

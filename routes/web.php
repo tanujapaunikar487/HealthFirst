@@ -210,5 +210,18 @@ Route::middleware('auth')->group(function () {
     })->name('dev.booking-components');
 });
 
+// Legal Pages
+Route::get('/privacy-policy', function () {
+    return \Inertia\Inertia::render('Legal/PrivacyPolicy', [
+        'user' => auth()->user(),
+    ]);
+})->name('legal.privacy');
+
+Route::get('/terms-of-service', function () {
+    return \Inertia\Inertia::render('Legal/TermsOfService', [
+        'user' => auth()->user(),
+    ]);
+})->name('legal.terms');
+
 // Auth routes
 require __DIR__.'/auth.php';

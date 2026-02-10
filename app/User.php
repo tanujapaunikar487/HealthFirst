@@ -35,6 +35,9 @@ class User extends Authenticatable
         'emergency_contact_name',
         'emergency_contact_phone',
         'emergency_contact_relation',
+        // Consent timestamps
+        'terms_accepted_at',
+        'privacy_accepted_at',
     ];
 
     protected $hidden = [
@@ -55,6 +58,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'date_of_birth' => 'date',
+            'terms_accepted_at' => 'datetime',
+            'privacy_accepted_at' => 'datetime',
         ];
     }
 
