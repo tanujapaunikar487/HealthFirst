@@ -790,7 +790,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
 
         {/* Header with three-dot menu */}
         <div className="mb-6">
-          <div className="flex items-start justify-between">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
             <div>
               <div className="flex items-center gap-3">
                 {(() => {
@@ -809,7 +809,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 md:flex-shrink-0">
               {/* Primary Action Button */}
               {banner.action && (
                 <Button
@@ -1322,7 +1322,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   }}
                 >
                   <div className="flex items-center gap-3">
-                    <IconCircle icon={FileText} size="sm" variant="muted" />
+                    <IconCircle icon={FileText} size="sm" variant="primary" />
                     <div>
                       <p className="text-label text-foreground">{doc.type}</p>
                       <p className="text-body text-muted-foreground">{doc.date}</p>

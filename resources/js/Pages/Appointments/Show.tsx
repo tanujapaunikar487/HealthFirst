@@ -7,6 +7,7 @@ import { Alert } from '@/Components/ui/alert';
 import { Card } from '@/Components/ui/card';
 import { DetailCard } from '@/Components/ui/detail-card';
 import { DetailSection } from '@/Components/ui/detail-section';
+import { DetailRow } from '@/Components/ui/detail-row';
 import { SideNav } from '@/Components/SideNav';
 import {
   Sheet,
@@ -266,7 +267,7 @@ export default function Show({ user, appointment }: Props) {
         </nav>
 
         {/* Header */}
-        <div className="flex items-start justify-between mb-8">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-8">
           <div className="flex items-start gap-4">
             {isDoctor && appointment.doctor ? (
               <Avatar className="h-12 w-12 flex-shrink-0">
@@ -295,7 +296,7 @@ export default function Show({ user, appointment }: Props) {
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 md:flex-shrink-0">
             {/* Doctor appointments with follow-up recommendation: Book Follow-up */}
             {appointment.follow_up && appointment.type === 'doctor' ? (
               <>

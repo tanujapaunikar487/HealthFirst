@@ -53,7 +53,7 @@ class DashboardController extends Controller
                 'patient_name' => $a->familyMember?->name ?? 'Self',
                 'patient_initials' => $this->getInitials($a->familyMember?->name ?? 'Self'),
                 'date_formatted' => $a->appointment_date->format('D, d M'),
-                'time' => $a->appointment_time,
+                'time' => $a->appointment_time ? Carbon::parse($a->appointment_time)->format('H:i') : '',
                 'mode' => $a->consultation_mode,
                 'fee' => $a->fee,
                 'is_today' => $a->appointment_date->isToday(),
@@ -383,7 +383,7 @@ class DashboardController extends Controller
                     'subtitle' => $a->appointment_type === 'doctor'
                         ? ($a->department?->name ?? $a->doctor?->specialization ?? '')
                         : ($a->collection_type === 'home' ? 'Home Collection' : 'Hospital Visit'),
-                    'time' => $a->appointment_time,
+                    'time' => $a->appointment_time ? Carbon::parse($a->appointment_time)->format('H:i') : '',
                     'hours_until' => (int) now()->diffInHours($apptDateTime, false),
                     'preparation_notes' => null, // Could add fasting instructions from lab packages
                 ];

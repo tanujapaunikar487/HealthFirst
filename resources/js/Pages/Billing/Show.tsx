@@ -537,14 +537,14 @@ export default function Show({ user, bill }: Props) {
         </Button>
 
         {/* ─── Page Header ─── */}
-        <div className="mb-6 flex items-start justify-between">
+        <div className="mb-6 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
           <div>
             <h1 className="text-detail-title text-foreground">{bill.invoice_number}</h1>
             <p className="mt-1 text-body text-muted-foreground">
               {bill.patient_name} &middot; {bill.generated_date}
             </p>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 md:flex-shrink-0">
             {/* Primary Button by Status */}
             {isPayable && (
               <Button
