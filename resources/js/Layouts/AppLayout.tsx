@@ -579,7 +579,7 @@ export default function AppLayout({
                             <div>
                                 {/* Today */}
                                 {displayedNotifications.filter((n) => getTimeGroup(n.created_at) === 'today').length > 0 && (
-                                    <div>
+                                    <div className="mt-6">
                                         <h3 className="text-label text-muted-foreground px-5 pb-3">Today</h3>
                                         <div className="divide-y divide-border">
                                             {displayedNotifications

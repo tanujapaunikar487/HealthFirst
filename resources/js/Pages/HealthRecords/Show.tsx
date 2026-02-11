@@ -2306,7 +2306,7 @@ function getVaccinationSections(meta: RecordMetadata, onAction: (msg: string) =>
                 <p className="text-label truncate">{file.name}</p>
                 <p className="text-body text-muted-foreground uppercase">{file.type}{file.size ? ` · ${file.size}` : ''}</p>
               </div>
-              <Button variant="ghost" iconOnly size="md" onClick={() => onAction(`Downloading ${file.name}...`)}>
+              <Button variant="secondary" iconOnly size="md" onClick={() => onAction(`Downloading ${file.name}...`)}>
                 <Download className="h-4 w-4" />
               </Button>
             </div>

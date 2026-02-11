@@ -202,17 +202,17 @@ export function EmbeddedBookingSummary({ summary, onPay, onSelect, disabled, con
           {rows.map((row) => (
             <div
               key={row.label}
-              className="grid grid-cols-[theme(spacing.detail-label)_1fr] items-start gap-4 px-6 py-4"
+              className="grid grid-cols-[theme(spacing.detail-label)_1fr] items-baseline gap-4 px-6 py-4"
             >
               <span className="text-body text-muted-foreground">{row.label}</span>
-              <div className="flex items-start justify-between">
+              <div className="flex items-baseline justify-between">
                 <span className="text-label">{row.value}</span>
                 {row.onChange && (
                   <Button
                     variant="link"
                     size="sm"
                     onClick={row.onChange}
-                    className="h-auto p-0 text-primary text-body hover:underline"
+                    className="h-auto min-h-0 p-0 text-primary text-body hover:underline ml-4"
                   >
                     change
                   </Button>

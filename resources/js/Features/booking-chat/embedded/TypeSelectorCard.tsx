@@ -52,9 +52,9 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled }: TypeSe
             )}
         >
             <IconCircle icon={TypeIcon} size="sm" variant="primary" />
-            <div className="flex-1 min-w-0 text-left">
-                <h4 className="text-label">{config.title}</h4>
-                <p className="text-body text-muted-foreground">{config.description}</p>
+            <div className="flex-1 min-w-0">
+                <h4 className="text-label text-left text-foreground">{config.title}</h4>
+                <p className="text-body text-muted-foreground text-left">{config.description}</p>
             </div>
             <Icon icon={ChevronDown} size={20} className={cn(
                 'shrink-0 text-foreground transition-transform duration-200',

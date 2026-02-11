@@ -115,7 +115,7 @@ export default function BookingIndex() {
         />
 
         {/* Main content */}
-        <main className="flex flex-col items-center justify-center px-6 py-20">
+        <main className="flex flex-col items-center justify-center px-4 sm:px-6 py-12 sm:py-20">
           <VStack gap={10} className="items-center">
             {/* AI Blob */}
             <div className="relative w-28 h-28">
@@ -205,11 +205,11 @@ export default function BookingIndex() {
 
           {/* Guided mode — booking type cards */}
           {mode === 'guided' && (
-            <HStack gap={8}>
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 w-full sm:w-auto">
               <Button
                 variant="ghost"
                 onClick={() => startGuidedBooking('doctor')}
-                className="h-auto p-0 rounded-3xl border border-border bg-card text-left transition-all hover:border-primary hover:shadow-sm overflow-hidden font-normal w-72 shrink-0"
+                className="h-auto p-0 rounded-3xl border border-border bg-card text-left transition-all hover:border-primary hover:shadow-sm overflow-hidden font-normal w-full sm:w-72 sm:shrink-0"
               >
                 <div className="w-full">
                   <div
@@ -234,7 +234,7 @@ export default function BookingIndex() {
               <Button
                 variant="ghost"
                 onClick={() => startGuidedBooking('lab_test')}
-                className="h-auto p-0 rounded-3xl border border-border bg-card text-left transition-all hover:border-primary hover:shadow-sm overflow-hidden font-normal w-72 shrink-0"
+                className="h-auto p-0 rounded-3xl border border-border bg-card text-left transition-all hover:border-primary hover:shadow-sm overflow-hidden font-normal w-full sm:w-72 sm:shrink-0"
               >
                 <div className="w-full">
                   <div
@@ -255,7 +255,7 @@ export default function BookingIndex() {
                   </VStack>
                 </div>
               </Button>
-            </HStack>
+            </div>
           )}
           </VStack>
         </main>

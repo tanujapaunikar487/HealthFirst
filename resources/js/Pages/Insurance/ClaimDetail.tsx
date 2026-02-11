@@ -693,7 +693,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
   const ThreeDotMenu = () => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" iconOnly size="md" className="text-foreground">
+        <Button variant="secondary" iconOnly size="md">
           <MoreVertical className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
