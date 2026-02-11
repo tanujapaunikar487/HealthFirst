@@ -1,12 +1,12 @@
-FROM php:8.2-cli
+FROM php:8.3-cli
 
 # Install system dependencies + Node 20
 RUN apt-get update && apt-get install -y \
     git curl libpng-dev libonig-dev libxml2-dev libpq-dev \
-    zip unzip libzip-dev libcurl4-openssl-dev \
+    zip unzip libzip-dev libcurl4-openssl-dev libsodium-dev libicu-dev \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
-    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd zip curl xml \
+    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd zip curl xml intl sodium \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
@@ -18,7 +18,7 @@ WORKDIR /var/www/html
 
 # Install PHP dependencies (layer caching)
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction 2>&1
 
 # Install Node dependencies (layer caching)
 COPY package.json package-lock.json ./
