@@ -65,12 +65,15 @@ class User extends Authenticatable
 
     /**
      * Get the URL for the user's avatar.
+     * Falls back to social provider avatar (Google/Apple) if no local avatar.
      */
     public function getAvatarUrlAttribute(): ?string
     {
-        return $this->avatar_path
-            ? Storage::url($this->avatar_path)
-            : null;
+        if ($this->avatar_path) {
+            return Storage::url($this->avatar_path);
+        }
+
+        return $this->socialAccounts()->whereNotNull('avatar_url')->value('avatar_url');
     }
 
     /**

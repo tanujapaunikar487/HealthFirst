@@ -30,6 +30,11 @@ class HospitalSeeder extends Seeder
 {
     public function run(): void
     {
+        // Idempotency guard: skip if already seeded
+        if (Department::count() > 0) {
+            return;
+        }
+
         $this->seedDepartments();
         $this->seedDoctors();
         $this->seedSymptoms();
@@ -42,19 +47,53 @@ class HospitalSeeder extends Seeder
         // User-specific data
         $user = User::first();
         if ($user) {
-            $this->seedFamilyMembers($user);
-            $this->seedUserAddresses($user);
-            $this->seedAppointments($user);
-            $this->seedInsurancePolicies($user);
-            $this->seedInsuranceClaims($user);
-            $this->seedBillingNotifications($user);
-            $this->seedHealthRecords($user);
+            static::seedForUser($user, createSecondaryUser: true);
         }
 
         $this->seedPromotions();
 
         // Generate time slots for next 14 days
         $this->seedTimeSlots();
+    }
+
+    /**
+     * Seed demo data for a specific user. Called from seeder and on new user registration.
+     */
+    public static function seedForUser(User $user, bool $createSecondaryUser = false): void
+    {
+        // Skip if user already has demo data
+        if ($user->familyMembers()->count() > 0) {
+            return;
+        }
+
+        $seeder = new static;
+        $seeder->createSecondaryUser = $createSecondaryUser;
+
+        // Generate a unique offset from user ID to avoid phone collisions
+        $seeder->phoneOffset = abs(crc32($user->id)) % 9000000 + 1000000;
+
+        $seeder->seedFamilyMembers($user);
+        $seeder->seedUserAddresses($user);
+        $seeder->seedAppointments($user);
+        $seeder->seedInsurancePolicies($user);
+        $seeder->seedInsuranceClaims($user);
+        $seeder->seedBillingNotifications($user);
+        $seeder->seedHealthRecords($user);
+    }
+
+    private bool $createSecondaryUser = true;
+
+    private int $phoneOffset = 0;
+
+    /**
+     * Make a phone number unique per user by adding an offset to the numeric portion.
+     */
+    private function uniquePhone(string $phone): string
+    {
+        $digits = preg_replace('/\D/', '', $phone);
+        $shifted = bcadd($digits, (string) $this->phoneOffset);
+
+        return '+' . $shifted;
     }
 
     private function seedDepartments(): void
@@ -765,49 +804,56 @@ class HospitalSeeder extends Seeder
         ];
 
         foreach ($members as $member) {
+            // Make phone numbers unique per user
+            if (isset($member['phone'])) {
+                $member['phone'] = $this->uniquePhone($member['phone']);
+            }
+            if (isset($member['emergency_contact_phone'])) {
+                $member['emergency_contact_phone'] = $this->uniquePhone($member['emergency_contact_phone']);
+            }
             FamilyMember::create(array_merge($member, ['user_id' => $user->id]));
         }
 
         // Patients linked to a different user for testing "Link Existing Patient" flow
-        // Create a secondary test user to own these patients
-        $secondaryUser = User::create([
-            'name' => 'Test User 2',
-            'email' => 'test2@example.com',
-            'password' => bcrypt('password'),
-        ]);
+        if ($this->createSecondaryUser) {
+            $secondaryUser = User::create([
+                'name' => 'Test User 2',
+                'email' => 'test2@example.com',
+                'password' => bcrypt('password'),
+            ]);
 
-        // These patients belong to a different user, so the main test user can "link" them
-        $otherUserPatients = [
-            [
-                'user_id' => $secondaryUser->id,
-                'name' => 'Ramesh Kumar',
-                'relation' => 'self',
-                'phone' => '+919876500001',
-                'email' => 'ramesh.kumar@example.com',
-                'patient_id' => 'PT-999001',
-                'age' => 45,
-                'gender' => 'male',
-                'is_guest' => false,
-                'city' => 'Pune',
-                'state' => 'Maharashtra',
-            ],
-            [
-                'user_id' => $secondaryUser->id,
-                'name' => 'Sunita Devi',
-                'relation' => 'self',
-                'phone' => '+919876500002',
-                'email' => 'sunita.devi@example.com',
-                'patient_id' => 'PT-999002',
-                'age' => 62,
-                'gender' => 'female',
-                'is_guest' => false,
-                'city' => 'Mumbai',
-                'state' => 'Maharashtra',
-            ],
-        ];
+            $otherUserPatients = [
+                [
+                    'user_id' => $secondaryUser->id,
+                    'name' => 'Ramesh Kumar',
+                    'relation' => 'self',
+                    'phone' => '+919876500001',
+                    'email' => 'ramesh.kumar@example.com',
+                    'patient_id' => 'PT-999001',
+                    'age' => 45,
+                    'gender' => 'male',
+                    'is_guest' => false,
+                    'city' => 'Pune',
+                    'state' => 'Maharashtra',
+                ],
+                [
+                    'user_id' => $secondaryUser->id,
+                    'name' => 'Sunita Devi',
+                    'relation' => 'self',
+                    'phone' => '+919876500002',
+                    'email' => 'sunita.devi@example.com',
+                    'patient_id' => 'PT-999002',
+                    'age' => 62,
+                    'gender' => 'female',
+                    'is_guest' => false,
+                    'city' => 'Mumbai',
+                    'state' => 'Maharashtra',
+                ],
+            ];
 
-        foreach ($otherUserPatients as $patient) {
-            FamilyMember::create($patient);
+            foreach ($otherUserPatients as $patient) {
+                FamilyMember::create($patient);
+            }
         }
     }
 

@@ -40,8 +40,9 @@ Route::middleware('guest')->group(function () {
         ->name('social.redirect')
         ->where('provider', 'google|apple');
 
-    Route::get('auth/google/callback', [SocialAuthController::class, 'callback'])
-        ->name('social.callback.google');
+    Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback'])
+        ->name('social.callback.google')
+        ->where('provider', 'google');
 
     // Apple uses POST callback
     Route::post('auth/apple/callback', [SocialAuthController::class, 'appleCallback'])
