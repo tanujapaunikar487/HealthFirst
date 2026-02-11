@@ -61,8 +61,12 @@ class SocialAuthController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
+            $message = config('app.debug')
+                ? 'OAuth error: '.$e->getMessage()
+                : 'Unable to authenticate. Please try again.';
+
             return redirect()->route('login')
-                ->with('error', 'Unable to authenticate. Please try again.');
+                ->with('error', $message);
         }
     }
 
