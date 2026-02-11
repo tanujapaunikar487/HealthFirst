@@ -18,7 +18,7 @@ WORKDIR /var/www/html
 
 # Install PHP dependencies (layer caching)
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction 2>&1
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction --ignore-platform-reqs 2>&1
 
 # Install Node dependencies (layer caching)
 COPY package.json package-lock.json ./
