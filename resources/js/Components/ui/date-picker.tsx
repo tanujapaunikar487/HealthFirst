@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { format, parse, isValid } from 'date-fns';
+import { format, parse, isValid, startOfDay } from 'date-fns';
 import { Calendar as CalendarIcon } from '@/Lib/icons';
 import { cn } from '@/Lib/utils';
 import { Calendar } from '@/Components/ui/calendar';
@@ -14,9 +14,9 @@ export interface DatePickerProps {
   value?: Date | string;
   /** Callback when date changes - receives ISO string YYYY-MM-DD or empty string */
   onChange: (value: string) => void;
-  /** Minimum selectable date */
+  /** Minimum selectable date (inclusive). Dates before this will be disabled. */
   min?: Date;
-  /** Maximum selectable date */
+  /** Maximum selectable date (inclusive). Dates after this will be disabled. */
   max?: Date;
   /** Placeholder text */
   placeholder?: string;
@@ -64,11 +64,19 @@ export function DatePicker({
   };
 
   // Disable dates outside min/max range
+  // react-day-picker semantics:
+  // - before: date → disables dates BEFORE date (exclusive)
+  // - after: date → disables dates AFTER date (exclusive)
   const disabledDays = React.useMemo(() => {
-    const disabled: { before?: Date; after?: Date } = {};
-    if (min) disabled.before = min;
-    if (max) disabled.after = max;
-    return Object.keys(disabled).length > 0 ? disabled : undefined;
+    const disabled: Array<{ before: Date } | { after: Date }> = [];
+
+    // If min is set, disable all dates before min
+    if (min) disabled.push({ before: startOfDay(min) });
+
+    // If max is set, disable all dates after max
+    if (max) disabled.push({ after: startOfDay(max) });
+
+    return disabled.length > 0 ? disabled : undefined;
   }, [min, max]);
 
   return (
