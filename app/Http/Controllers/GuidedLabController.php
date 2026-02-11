@@ -21,8 +21,12 @@ class GuidedLabController extends Controller
 {
     // ─── Step 1: Patient Selection ───────────────────────────────────
 
-    public function patient()
+    public function patient(Request $request)
     {
+        if ($request->has('reset')) {
+            session()->forget('guided_lab_booking');
+        }
+
         $savedData = session('guided_lab_booking', []);
         $user = Auth::user() ?? \App\User::first();
 

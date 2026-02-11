@@ -39,9 +39,9 @@ export default function BookingIndex() {
 
   const startGuidedBooking = (type: 'doctor' | 'lab_test') => {
     if (type === 'doctor') {
-      router.get('/booking/doctor/patient');
+      router.get('/booking/doctor/patient', { reset: true });
     } else {
-      router.get('/booking/lab/patient');
+      router.get('/booking/lab/patient', { reset: true });
     }
   };
 

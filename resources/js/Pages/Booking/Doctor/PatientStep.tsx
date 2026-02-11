@@ -88,7 +88,7 @@ export default function PatientStep({
   const defaultPatientId = bookingDefaults?.default_patient_id || null;
 
   const [patientId, setPatientId] = useState<string | null>(
-    savedData?.patientId || defaultPatientId
+    savedData?.patientId || null
   );
   const [appointmentType, setAppointmentType] = useState<'new' | 'followup' | null>(
     savedData?.appointmentType || null

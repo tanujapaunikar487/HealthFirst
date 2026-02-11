@@ -15,8 +15,8 @@ export interface ChipProps extends Omit<ButtonProps, 'variant' | 'size'> {
   /**
    * Chip size
    * - 'default': px-4 py-3 text-body (16px/12px)
-   * - 'md': px-3 py-2 text-body (12px/8px)
-   * - 'sm': px-3 py-1.5 text-caption (12px/6px)
+   * - 'md': px-3 py-1.5 text-body (12px/6px, 14px font)
+   * - 'sm': px-2.5 py-1 text-caption (10px/4px, 12px font)
    */
   size?: 'default' | 'md' | 'sm';
   /**
@@ -95,8 +95,8 @@ export function Chip({
       className={cn(
         'h-auto min-h-0 rounded-3xl relative',
         // Size variants
-        size === 'sm' ? 'px-3 py-1.5 text-caption' :
-        size === 'md' ? 'px-3 py-2 text-body' :
+        size === 'sm' ? 'px-2.5 py-1 text-caption' :
+        size === 'md' ? 'px-3 py-1.5 text-body' :
         'px-4 py-3 text-body',
         // Default variant (symptoms/filters)
         variant === 'default' && selected && 'bg-primary/10 border-primary text-label',
@@ -104,6 +104,8 @@ export function Chip({
         variant === 'accent' && selected && 'border-foreground',
         // Dismissible variant (active filters)
         isDismissible && 'bg-background text-foreground border-border gap-1.5',
+        // Extra left padding for dismissible chips
+        isDismissible && (size === 'sm' ? 'pl-3.5' : size === 'md' ? 'pl-4' : 'pl-5'),
         className
       )}
       {...props}

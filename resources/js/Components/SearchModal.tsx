@@ -264,8 +264,9 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
           {category !== 'all' && (
             <Chip
               variant="dismissible"
+              size="md"
               onDismiss={() => setCategory('all')}
-              className="flex-shrink-0 text-body"
+              className="flex-shrink-0"
             >
               in: {category === 'health_records' ? 'health records' : category}
             </Chip>
@@ -315,31 +316,31 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
             <div className="px-4 py-5">
               <div className="flex flex-wrap gap-3">
                 <Chip
+                  size="md"
                   onClick={() => {
                     setCategory('appointments');
                     inputRef.current?.focus();
                   }}
-                  className="text-body"
                 >
                   <Icon icon={Calendar} size={14} />
                   Search in: appointment
                 </Chip>
                 <Chip
+                  size="md"
                   onClick={() => {
                     setCategory('health_records');
                     inputRef.current?.focus();
                   }}
-                  className="text-body"
                 >
                   <Icon icon={ClipboardList} size={14} />
                   Search in: health records
                 </Chip>
                 <Chip
+                  size="md"
                   onClick={() => {
                     setCategory('bills');
                     inputRef.current?.focus();
                   }}
-                  className="text-body"
                 >
                   <Icon icon={Receipt} size={14} />
                   Search in: bills

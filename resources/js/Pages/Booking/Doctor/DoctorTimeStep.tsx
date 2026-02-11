@@ -72,7 +72,7 @@ export default function DoctorTimeStep({
   savedData
 }: Props) {
   const [selectedDate, setSelectedDate] = useState<string>(
-    savedData?.selectedDate || availableDates[0]?.date || ''
+    savedData?.selectedDate || ''
   );
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(
     savedData?.selectedDoctorId || null

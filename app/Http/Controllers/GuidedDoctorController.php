@@ -23,8 +23,12 @@ class GuidedDoctorController extends Controller
     /**
      * Show concerns step (merged with patient selection)
      */
-    public function patient()
+    public function patient(Request $request)
     {
+        if ($request->has('reset')) {
+            session()->forget('guided_doctor_booking');
+        }
+
         $savedData = session('guided_doctor_booking', []);
         $user = Auth::user() ?? \App\User::first();
 

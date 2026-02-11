@@ -596,7 +596,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
         {activeFilters.length > 0 && (
           <div className="flex items-center gap-2 flex-wrap mb-4">
             {activeFilters.map((f) => (
-              <Chip key={f.key} variant="dismissible" onDismiss={f.onRemove}>
+              <Chip key={f.key} variant="dismissible" size="md" onDismiss={f.onRemove}>
                 {f.label}
               </Chip>
             ))}
