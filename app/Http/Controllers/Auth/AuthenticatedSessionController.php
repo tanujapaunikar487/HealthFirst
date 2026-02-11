@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -36,6 +37,19 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+
+        // Seed demo data if missing (e.g., initial seed failed)
+        $user = $request->user();
+        if ($user && $user->familyMembers()->count() === 0) {
+            try {
+                \Database\Seeders\HospitalSeeder::seedForUser($user);
+            } catch (\Throwable $e) {
+                Log::error('Failed to seed demo data on login', [
+                    'user_id' => $user->id,
+                    'exception' => $e->getMessage(),
+                ]);
+            }
+        }
 
         return redirect()->intended(route('dashboard', absolute: false));
     }

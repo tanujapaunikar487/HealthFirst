@@ -110,7 +110,12 @@ class SocialAuthController extends Controller
         if ($socialAccount) {
             // Existing social account - log in the user
             $this->updateSocialAccountTokens($socialAccount, $socialUser);
-            Auth::login($socialAccount->user, remember: true);
+            $user = $socialAccount->user;
+
+            // Seed demo data if missing (e.g., first seed failed)
+            $this->ensureDemoData($user);
+
+            Auth::login($user, remember: true);
 
             return redirect()->intended(route('dashboard'));
         }
@@ -193,5 +198,24 @@ class SocialAuthController extends Controller
                 ? now()->addSeconds($socialUser->expiresIn)
                 : $socialAccount->token_expires_at,
         ]);
+    }
+
+    /**
+     * Seed demo data if the user has none (e.g., initial seed failed).
+     */
+    protected function ensureDemoData(User $user): void
+    {
+        if ($user->familyMembers()->count() > 0) {
+            return;
+        }
+
+        try {
+            \Database\Seeders\HospitalSeeder::seedForUser($user);
+        } catch (\Throwable $e) {
+            Log::error('Failed to seed demo data on login', [
+                'user_id' => $user->id,
+                'exception' => $e->getMessage(),
+            ]);
+        }
     }
 }

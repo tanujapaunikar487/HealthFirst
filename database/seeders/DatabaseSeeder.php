@@ -15,12 +15,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Sanjana Jaisinghani',
-            'email' => 'test@example.com',
-        ]);
+        User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            ['name' => 'Sanjana Jaisinghani', 'password' => bcrypt('password')],
+        );
 
         $this->call(HospitalSeeder::class);
     }
