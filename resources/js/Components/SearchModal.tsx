@@ -10,7 +10,7 @@ import { Chip } from '@/Components/ui/chip';
 import {
   Search, X, Loader2, AlertTriangle,
   Stethoscope, FileText, Receipt, FlaskConical,
-  ArrowRight, Calendar, ClipboardList,
+  Calendar, ClipboardList,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 
@@ -211,11 +211,6 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
     }
   };
 
-  const handleViewAll = (href: string) => {
-    onOpenChange(false);
-    router.visit(href);
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     const flat = flatResults();
     if (e.key === 'ArrowDown') {
@@ -270,7 +265,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
             <Chip
               variant="dismissible"
               onDismiss={() => setCategory('all')}
-              className="flex-shrink-0"
+              className="flex-shrink-0 text-body"
             >
               in: {category === 'health_records' ? 'health records' : category}
             </Chip>
@@ -324,8 +319,9 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                     setCategory('appointments');
                     inputRef.current?.focus();
                   }}
+                  className="text-body"
                 >
-                  <Icon icon={Calendar} size={16} />
+                  <Icon icon={Calendar} size={14} />
                   Search in: appointment
                 </Chip>
                 <Chip
@@ -333,8 +329,9 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                     setCategory('health_records');
                     inputRef.current?.focus();
                   }}
+                  className="text-body"
                 >
-                  <Icon icon={ClipboardList} size={16} />
+                  <Icon icon={ClipboardList} size={14} />
                   Search in: health records
                 </Chip>
                 <Chip
@@ -342,8 +339,9 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                     setCategory('bills');
                     inputRef.current?.focus();
                   }}
+                  className="text-body"
                 >
-                  <Icon icon={Receipt} size={16} />
+                  <Icon icon={Receipt} size={14} />
                   Search in: bills
                 </Chip>
               </div>
@@ -392,9 +390,6 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
               {results.doctors && results.doctors.length > 0 && (
                 <ResultSection
                   title="Doctors"
-                  total={results.doctors_total}
-                  shownCount={results.doctors.length}
-                  onViewAll={() => handleViewAll('/booking')}
                 >
                   {results.doctors.map((doctor) => {
                     const idx = flat.findIndex((f) => f.type === 'doctor' && f.item.id === doctor.id);
@@ -407,7 +402,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                         <ResultIcon color="hsl(var(--primary))" bg="hsl(var(--primary) / 0.25)">
                           <Icon icon={Stethoscope} className="h-4 w-4" />
                         </ResultIcon>
-                        <div className="min-w-0 flex-1">
+                        <div className="min-w-0 flex-1 text-left">
                           <p className="text-label truncate text-foreground">{doctor.name}</p>
                           <p className="text-body text-muted-foreground truncate">
                             {doctor.specialization} &middot; {doctor.experience_years} years
@@ -423,9 +418,6 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
               {results.appointments && results.appointments.length > 0 && (
                 <ResultSection
                   title="Appointments"
-                  total={results.appointments_total}
-                  shownCount={results.appointments.length}
-                  onViewAll={() => handleViewAll('/appointments')}
                 >
                   {results.appointments.map((appt) => {
                     const idx = flat.findIndex((f) => f.type === 'appointment' && f.item.id === appt.id);
@@ -439,7 +431,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                         <ResultIcon color="hsl(var(--primary))" bg="hsl(var(--primary) / 0.25)">
                           <Icon icon={apptIcon} className="h-4 w-4" />
                         </ResultIcon>
-                        <div className="min-w-0 flex-1">
+                        <div className="min-w-0 flex-1 text-left">
                           <p className="text-label truncate text-foreground">{appt.title}</p>
                           <p className="text-body text-muted-foreground truncate">
                             {appt.subtitle} &middot; {appt.date_formatted} &middot; {appt.patient_name}
@@ -455,9 +447,6 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
               {results.health_records && results.health_records.length > 0 && (
                 <ResultSection
                   title="Health Records"
-                  total={results.health_records_total}
-                  shownCount={results.health_records.length}
-                  onViewAll={() => handleViewAll('/health-records')}
                 >
                   {results.health_records.map((record) => {
                     const idx = flat.findIndex((f) => f.type === 'health_record' && f.item.id === record.id);
@@ -470,7 +459,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                         <ResultIcon color="hsl(var(--primary))" bg="hsl(var(--primary) / 0.25)">
                           <Icon icon={FileText} className="h-4 w-4" />
                         </ResultIcon>
-                        <div className="min-w-0 flex-1">
+                        <div className="min-w-0 flex-1 text-left">
                           <p className="text-label truncate text-foreground">{record.title}</p>
                           <p className="text-body text-muted-foreground truncate">
                             {record.doctor_name || record.category} &middot; {record.record_date_formatted} &middot; {record.patient_name}
@@ -486,9 +475,6 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
               {results.bills && results.bills.length > 0 && (
                 <ResultSection
                   title="Bills"
-                  total={results.bills_total}
-                  shownCount={results.bills.length}
-                  onViewAll={() => handleViewAll('/billing')}
                 >
                   {results.bills.map((bill) => {
                     const idx = flat.findIndex((f) => f.type === 'bill' && f.item.id === bill.id);
@@ -501,7 +487,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                         <ResultIcon color="hsl(var(--primary))" bg="hsl(var(--primary) / 0.25)">
                           <Icon icon={Receipt} className="h-4 w-4" />
                         </ResultIcon>
-                        <div className="min-w-0 flex-1">
+                        <div className="min-w-0 flex-1 text-left">
                           <p className="text-label truncate text-foreground">
                             {bill.title} &middot; {bill.invoice_number}
                           </p>
@@ -527,15 +513,9 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
 function ResultSection({
   title,
   children,
-  total,
-  shownCount,
-  onViewAll,
 }: {
   title: string;
   children: React.ReactNode;
-  total?: number;
-  shownCount?: number;
-  onViewAll?: () => void;
 }) {
   return (
     <div className="mb-1">
@@ -543,17 +523,6 @@ function ResultSection({
         {title}
       </p>
       {children}
-      {total !== undefined && shownCount !== undefined && total > shownCount && onViewAll && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onViewAll}
-          className="w-full justify-start rounded-none px-4 py-2 text-label text-primary gap-1.5"
-        >
-          <span>View all {total} results</span>
-          <Icon icon={ArrowRight} className="h-3 w-3" />
-        </Button>
-      )}
     </div>
   );
 }

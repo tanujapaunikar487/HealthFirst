@@ -5,6 +5,7 @@ import { Pulse, ErrorState, useSkeletonLoading, SheetSkeleton } from '@/Componen
 import { EmptyState } from '@/Components/ui/empty-state';
 import { Badge } from '@/Components/ui/badge';
 import { Button, buttonVariants } from '@/Components/ui/button';
+import { Chip } from '@/Components/ui/chip';
 import { IconCircle } from '@/Components/ui/icon-circle';
 import { TableCard } from '@/Components/ui/table-card';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
@@ -382,6 +383,47 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
     return result;
   }, [bills, tab, statusFilter, memberFilter, searchQuery]);
 
+  // Active filters for chips
+  const activeFilters = useMemo(() => {
+    const filters: { key: string; label: string; onRemove: () => void }[] = [];
+
+    if (statusFilter !== 'all') {
+      const statusLabels: Record<string, string> = {
+        due: 'Due',
+        paid: 'Paid',
+        refunded: 'Refunded',
+        awaiting_approval: 'Awaiting approval',
+        claim_pending: 'Claim pending',
+        copay_due: 'Co-pay due',
+        emi: 'EMI',
+        disputed: 'Disputed',
+        covered: 'Covered',
+        reimbursed: 'Reimbursed',
+      };
+      filters.push({
+        key: 'status',
+        label: statusLabels[statusFilter] || statusFilter,
+        onRemove: () => setStatusFilter('all'),
+      });
+    }
+
+    if (memberFilter !== 'all') {
+      const member = familyMembers.find((m) => String(m.id) === memberFilter);
+      filters.push({
+        key: 'member',
+        label: member ? member.name : 'Unknown',
+        onRemove: () => setMemberFilter('all'),
+      });
+    }
+
+    return filters;
+  }, [statusFilter, memberFilter, familyMembers]);
+
+  const clearAllFilters = () => {
+    setStatusFilter('all');
+    setMemberFilter('all');
+  };
+
   // Reset page when filters change
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const currentPage = Math.min(page, totalPages);
@@ -466,11 +508,9 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
               <Button
                 size="lg"
                 onClick={() => {
-                  const outstandingPayable = bills.filter(
-                    (b) => OUTSTANDING_STATUSES.includes(b.billing_status) && PAYABLE_STATUSES.includes(b.billing_status)
-                  );
-                  if (outstandingPayable.length > 0) setPayBills(outstandingPayable);
-                  else showToast('No payable bills found.', 'info');
+                  const outstanding = bills.filter((b) => OUTSTANDING_STATUSES.includes(b.billing_status));
+                  if (outstanding.length > 0) setPayBills(outstanding);
+                  else showToast('No outstanding bills found.', 'info');
                 }}
               >
                 <CreditCard className="h-4 w-4" />
@@ -540,8 +580,8 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
             </div>
           </div>
 
-          {/* Search - Full width on mobile/tablet, right-aligned on desktop */}
-          <div className="relative w-full lg:w-auto lg:flex-1 lg:basis-64 lg:ml-auto">
+          {/* Search - Full width on mobile/tablet, fixed 200px on desktop */}
+          <div className="relative w-full lg:w-50 lg:ml-auto">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground" />
             <Input
               placeholder="Search invoices..."
@@ -551,6 +591,20 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
             />
           </div>
         </div>
+
+        {/* Active Filter Chips */}
+        {activeFilters.length > 0 && (
+          <div className="flex items-center gap-2 flex-wrap mb-4">
+            {activeFilters.map((f) => (
+              <Chip key={f.key} variant="dismissible" onDismiss={f.onRemove}>
+                {f.label}
+              </Chip>
+            ))}
+            <Button variant="link" size="sm" className="h-auto p-0 text-body text-muted-foreground hover:text-foreground ml-1" onClick={clearAllFilters}>
+              Clear all
+            </Button>
+          </div>
+        )}
 
         {/* Multi-select bar */}
         <BulkActionBar
@@ -803,7 +857,9 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
               <div className="space-y-3 px-5 py-5">
                 {payBills.map((bill) => {
                   const isExcluded = excludedPayBillIds.has(bill.id);
+                  const isPayable = PAYABLE_STATUSES.includes(bill.billing_status);
                   const isLastActive = activePayBills.length === 1 && !isExcluded;
+                  const cfg = STATUS_CONFIG[bill.billing_status] ?? { label: bill.billing_status, variant: 'neutral' as const };
                   return (
                     <div key={bill.id} className={cn('transition-opacity', isExcluded && 'opacity-40')}>
                       <Card>
@@ -815,7 +871,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                               value={
                                 <div className="flex items-center justify-between w-full">
                                   <span className="text-left">{bill.patient_name}</span>
-                                  {payBills.length > 1 && (
+                                  {payBills.length > 1 && isPayable && (
                                     <input
                                       type="checkbox"
                                       checked={!isExcluded}
@@ -876,8 +932,19 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                             />
                           </div>
 
+                          {/* Non-payable status info */}
+                          {!isPayable && (
+                            <div className="mt-3">
+                              <Alert variant="info">
+                                Status: {cfg.label}. {bill.billing_status === 'awaiting_approval' && 'Waiting for insurance approval.'}
+                                {bill.billing_status === 'claim_pending' && 'Insurance claim is being processed.'}
+                                {bill.billing_status === 'emi' && 'EMI payment scheduled.'}
+                              </Alert>
+                            </div>
+                          )}
+
                           {/* Overdue warning */}
-                          {bill.is_overdue && (
+                          {bill.is_overdue && isPayable && (
                             <div className="mt-3">
                               <Alert variant="error">
                                 Overdue by {bill.days_overdue} days. Please pay immediately.

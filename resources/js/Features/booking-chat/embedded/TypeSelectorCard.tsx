@@ -1,6 +1,6 @@
-import { User, Users, Link2, ChevronRight } from '@/Lib/icons';
+import { User, Users, UserPlus, ChevronRight } from '@/Lib/icons';
 import { IconCircle } from '@/Components/ui/icon-circle';
-import { cn } from '@/Lib/utils';
+import { Button } from '@/Components/ui/button';
 
 export type MemberType = 'new_member' | 'link_existing' | 'guest';
 
@@ -13,14 +13,14 @@ interface TypeSelectorCardProps {
 
 const cardConfig: Record<MemberType, { icon: typeof User; title: string; description: string }> = {
     new_member: {
-        icon: Users,
+        icon: UserPlus,
         title: 'New Member',
-        description: 'Create a new family member profile',
+        description: 'Create a full family member profile',
     },
     link_existing: {
-        icon: Link2,
+        icon: Users,
         title: 'Existing Patient',
-        description: 'Connect to their hospital record',
+        description: 'Connect to an existing hospital patient record',
     },
     guest: {
         icon: User,
@@ -31,22 +31,31 @@ const cardConfig: Record<MemberType, { icon: typeof User; title: string; descrip
 
 export function TypeSelectorCard({ type, isExpanded, onClick, disabled }: TypeSelectorCardProps) {
     const config = cardConfig[type];
-    const TypeIcon = config.icon;
 
     return (
-        <button
-            type="button"
+        <Button
+            variant="ghost"
             onClick={onClick}
             disabled={disabled}
-            className="flex items-center gap-4 w-full h-auto pl-3 pr-6 py-4 text-left transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
-            style={{ justifyContent: 'flex-start' }}
+            className="flex w-full items-start gap-3 rounded-xl border px-4 py-3.5 text-left transition-colors hover:bg-accent h-auto"
         >
-            <IconCircle icon={TypeIcon} size="md" variant="primary" />
-            <div className="flex-1 min-w-0">
-                <h4 className="text-card-title text-left text-foreground mb-0.5">{config.title}</h4>
-                <p className="text-body text-muted-foreground text-left">{config.description}</p>
+            <IconCircle icon={config.icon} size="sm" variant="primary" />
+            <div className="flex-1 min-w-0 text-wrap">
+                <p className="text-card-title text-foreground">{config.title}</p>
+                <p className="text-body text-muted-foreground break-words">{config.description}</p>
             </div>
-            <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
-        </button>
+            <span
+                className="flex items-center justify-center flex-shrink-0 rounded-full"
+                style={{
+                    width: '40px',
+                    height: '40px',
+                    border: '1px solid hsl(var(--border))',
+                    background: 'hsl(var(--secondary))',
+                    color: 'hsl(var(--foreground))',
+                }}
+            >
+                <ChevronRight className="h-5 w-5" />
+            </span>
+        </Button>
     );
 }

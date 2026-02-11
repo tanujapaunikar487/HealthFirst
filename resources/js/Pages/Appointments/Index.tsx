@@ -6,6 +6,7 @@ import { EmptyState } from '@/Components/ui/empty-state';
 import { CtaBanner } from '@/Components/ui/cta-banner';
 import { Badge } from '@/Components/ui/badge';
 import { TableCard } from '@/Components/ui/table-card';
+import { Chip } from '@/Components/ui/chip';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { Button, buttonVariants } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
@@ -229,6 +230,49 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
     return filtered;
   };
 
+  // Active filters for chips
+  const activeFilters = useMemo(() => {
+    const filters: { key: string; label: string; onRemove: () => void }[] = [];
+
+    if (typeFilter !== 'all') {
+      const typeLabels: Record<string, string> = {
+        doctor: 'Doctor visit',
+        lab_test: 'Lab test',
+      };
+      filters.push({
+        key: 'type',
+        label: typeLabels[typeFilter] || typeFilter,
+        onRemove: () => setTypeFilter('all'),
+      });
+    }
+
+    if (doctorFilter !== 'all') {
+      const doctor = doctors.find((d) => String(d.id) === doctorFilter);
+      filters.push({
+        key: 'doctor',
+        label: doctor ? doctor.name : 'Unknown doctor',
+        onRemove: () => setDoctorFilter('all'),
+      });
+    }
+
+    if (memberFilter !== 'all') {
+      const member = familyMembers.find((m) => String(m.id) === memberFilter);
+      filters.push({
+        key: 'member',
+        label: member ? `${member.name} (${member.relation})` : 'Unknown member',
+        onRemove: () => setMemberFilter('all'),
+      });
+    }
+
+    return filters;
+  }, [typeFilter, doctorFilter, memberFilter, doctors, familyMembers]);
+
+  const clearAllFilters = () => {
+    setTypeFilter('all');
+    setDoctorFilter('all');
+    setMemberFilter('all');
+  };
+
   const getTab = (appt: Appointment): 'upcoming' | 'past' | 'cancelled' => {
     if (appt.status === 'cancelled') return 'cancelled';
     if (appt.is_upcoming) return 'upcoming';
@@ -376,8 +420,8 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
               </div>
             </div>
 
-            {/* Search - Full width on mobile/tablet, right-aligned on desktop */}
-            <div className="relative w-full lg:w-auto lg:flex-1 lg:basis-64 lg:ml-auto">
+            {/* Search - Full width on mobile/tablet, fixed 200px on desktop */}
+            <div className="relative w-full lg:w-50 lg:ml-auto">
               <Icon icon={Search} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground" />
               <Input
                 placeholder="Search appointments..."
@@ -387,6 +431,20 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
               />
             </div>
           </div>
+
+          {/* Active Filter Chips */}
+          {activeFilters.length > 0 && (
+            <div className="flex items-center gap-2 flex-wrap mb-4">
+              {activeFilters.map((f) => (
+                <Chip key={f.key} variant="dismissible" onDismiss={f.onRemove}>
+                  {f.label}
+                </Chip>
+              ))}
+              <Button variant="link" size="sm" className="h-auto p-0 text-body text-muted-foreground hover:text-foreground ml-1" onClick={clearAllFilters}>
+                Clear all
+              </Button>
+            </div>
+          )}
 
           <TabsContent value="upcoming">
             <AppointmentsTable

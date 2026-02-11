@@ -1229,70 +1229,70 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
     };
 
     return (
-        <Card>
-            <div className="divide-y">
-                {/* New Member */}
-                <div>
-                    <TypeSelectorCard
-                        type="new_member"
-                        isExpanded={state.expandedType === 'new_member'}
-                        onClick={() => toggleType('new_member')}
-                        disabled={state.loading}
-                    />
-                    <Collapsible open={state.expandedType === 'new_member'}>
-                        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
-                            <div className="px-4 pb-4">
-                                {renderNewMemberForm()}
+        <div className="space-y-3">
+            {/* New Member */}
+            <div>
+                <TypeSelectorCard
+                    type="new_member"
+                    isExpanded={state.expandedType === 'new_member'}
+                    onClick={() => toggleType('new_member')}
+                    disabled={state.loading}
+                />
+                <Collapsible open={state.expandedType === 'new_member'}>
+                    <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
+                        <div className="px-4 pb-4 pt-2">
+                            {renderNewMemberForm()}
+                        </div>
+                    </CollapsibleContent>
+                </Collapsible>
+            </div>
+
+            {/* Existing Patient */}
+            <div>
+                <TypeSelectorCard
+                    type="link_existing"
+                    isExpanded={state.expandedType === 'link_existing'}
+                    onClick={() => toggleType('link_existing')}
+                    disabled={state.loading}
+                />
+                <Collapsible open={state.expandedType === 'link_existing'}>
+                    <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
+                        <div className="px-4 pb-4 pt-2">
+                            {renderLinkExistingForm()}
+                        </div>
+                    </CollapsibleContent>
+                </Collapsible>
+            </div>
+
+            {/* Guest */}
+            <div>
+                <TypeSelectorCard
+                    type="guest"
+                    isExpanded={state.expandedType === 'guest'}
+                    onClick={() => toggleType('guest')}
+                    disabled={state.loading}
+                />
+                <Collapsible open={state.expandedType === 'guest'}>
+                    <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
+                        <div className="px-4 pb-4 pt-2">
+                            {renderGuestForm()}
                             </div>
                         </CollapsibleContent>
                     </Collapsible>
                 </div>
 
-                {/* Existing Patient */}
-                <div>
-                    <TypeSelectorCard
-                        type="link_existing"
-                        isExpanded={state.expandedType === 'link_existing'}
-                        onClick={() => toggleType('link_existing')}
-                        disabled={state.loading}
-                    />
-                    <Collapsible open={state.expandedType === 'link_existing'}>
-                        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
-                            <div className="px-4 pb-4">
-                                {renderLinkExistingForm()}
-                            </div>
-                        </CollapsibleContent>
-                    </Collapsible>
-                </div>
-
-                {/* Guest */}
-                <div>
-                    <TypeSelectorCard
-                        type="guest"
-                        isExpanded={state.expandedType === 'guest'}
-                        onClick={() => toggleType('guest')}
-                        disabled={state.loading}
-                    />
-                    <Collapsible open={state.expandedType === 'guest'}>
-                        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2">
-                            <div className="px-4 pb-4">
-                                {renderGuestForm()}
-                            </div>
-                        </CollapsibleContent>
-                    </Collapsible>
-                </div>
-
-                {/* Cancel */}
+            {/* Cancel */}
+            <div className="text-center">
                 <Button
                     variant="link"
                     size="sm"
                     onClick={onCancel}
-                    className="w-full h-auto px-6 py-4 rounded-none text-body text-muted-foreground hover:text-foreground transition-colors justify-center"
+                    className="text-body text-muted-foreground hover:text-foreground"
                     disabled={state.loading}
                 >
                     Cancel
                 </Button>
             </div>
-        </Card>
+        </div>
     );
 }

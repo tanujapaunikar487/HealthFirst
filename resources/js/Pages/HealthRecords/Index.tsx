@@ -5,6 +5,7 @@ import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton'
 import { EmptyState } from '@/Components/ui/empty-state';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
+import { Chip } from '@/Components/ui/chip';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { Input } from '@/Components/ui/input';
 import { DatePicker } from '@/Components/ui/date-picker';
@@ -695,7 +696,7 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
           const url = new URL(window.location.href);
           url.searchParams.set('tab', v);
           window.history.pushState({}, '', url.toString());
-        }} className="space-y-4">
+        }} className="mb-4 space-y-4">
           <TabsList>
             {[
               { value: 'all', label: 'All' },
@@ -785,8 +786,8 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
               </div>
             </div>
 
-            {/* Search - Full width on mobile/tablet, right-aligned on desktop */}
-            <div className="relative w-full lg:w-auto lg:flex-1 lg:basis-64 lg:ml-auto">
+            {/* Search - Full width on mobile/tablet, fixed 200px on desktop */}
+            <div className="relative w-full lg:w-50 lg:ml-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground" />
               <Input
                 placeholder="Search records..."
@@ -801,12 +802,9 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
           {activeFilters.length > 0 && (
             <div className="flex items-center gap-2 flex-wrap">
               {activeFilters.map((f) => (
-                <Badge key={f.key} variant="neutral" className="gap-1 pr-1">
+                <Chip key={f.key} variant="dismissible" onDismiss={f.onRemove}>
                   {f.label}
-                  <Button variant="ghost" className="rounded-full hover:bg-muted-foreground/20 p-0.5 h-auto" onClick={f.onRemove}>
-                    <X className="h-3 w-3" />
-                  </Button>
-                </Badge>
+                </Chip>
               ))}
               <Button variant="link" size="sm" className="h-auto p-0 text-body text-muted-foreground hover:text-foreground ml-1" onClick={clearAllFilters}>
                 Clear all
@@ -845,7 +843,7 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
 
         {/* Desktop Table */}
         {filteredRecords.length > 0 ? (
-          <div className="mt-4">
+          <div>
             <div className="hidden lg:block">
               <TableContainer>
                 <Table>

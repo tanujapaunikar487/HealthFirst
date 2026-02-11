@@ -78,13 +78,13 @@ export function Chip({
           : 'outline'
       }
       className={cn(
-        'px-4 py-2 rounded-full relative',
+        'h-auto min-h-0 px-3 py-1.5 rounded-3xl relative text-caption',
         // Default variant (symptoms/filters)
         variant === 'default' && selected && 'bg-primary/10 border-primary text-label',
         // Accent variant (time slots)
         variant === 'accent' && selected && 'border-foreground',
         // Dismissible variant (active filters)
-        isDismissible && 'bg-primary/10 text-primary text-label border-primary gap-1.5',
+        isDismissible && 'bg-background text-foreground border-border gap-1.5',
         className
       )}
       {...props}
@@ -104,7 +104,7 @@ export function Chip({
             e.stopPropagation();
             onDismiss();
           }}
-          className="h-auto w-auto p-0 text-primary hover:text-primary/80 hover:bg-transparent"
+          className="h-auto w-auto min-h-0 min-w-0 p-0 text-muted-foreground hover:text-foreground hover:bg-transparent"
         >
           <Icon icon={X} className="h-3.5 w-3.5" />
         </Button>

@@ -8,6 +8,7 @@ import { CtaBanner } from '@/Components/ui/cta-banner';
 import { Alert } from '@/Components/ui/alert';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
+import { Chip } from '@/Components/ui/chip';
 import { Input } from '@/Components/ui/input';
 import { TableCard } from '@/Components/ui/table-card';
 import { Textarea } from '@/Components/ui/textarea';
@@ -319,6 +320,50 @@ export default function InsuranceIndex({
       return true;
     });
   }, [claims, policyFilter, statusFilter, memberFilter, search]);
+
+  // Active filters for chips
+  const activeFilters = useMemo(() => {
+    const filters: { key: string; label: string; onRemove: () => void }[] = [];
+
+    if (policyFilter !== 'all') {
+      const policy = uniquePolicies.find((p) => p.policy_number === policyFilter);
+      filters.push({
+        key: 'policy',
+        label: policy ? policy.plan_name : 'Unknown policy',
+        onRemove: () => setPolicyFilter('all'),
+      });
+    }
+
+    if (statusFilter !== 'all') {
+      const statusLabels: Record<string, string> = {
+        current: 'Current',
+        settled: 'Settled',
+        rejected: 'Rejected',
+        pending: 'Pending',
+      };
+      filters.push({
+        key: 'status',
+        label: statusLabels[statusFilter] || statusFilter,
+        onRemove: () => setStatusFilter('all'),
+      });
+    }
+
+    if (memberFilter !== 'all') {
+      filters.push({
+        key: 'member',
+        label: memberFilter,
+        onRemove: () => setMemberFilter('all'),
+      });
+    }
+
+    return filters;
+  }, [policyFilter, statusFilter, memberFilter, uniquePolicies]);
+
+  const clearAllFilters = () => {
+    setPolicyFilter('all');
+    setStatusFilter('all');
+    setMemberFilter('all');
+  };
 
   const hasPolicies = policies.length > 0;
 
@@ -669,8 +714,8 @@ export default function InsuranceIndex({
                   </div>
                 </div>
 
-                {/* Search - Full width on mobile/tablet, right-aligned on desktop */}
-                <div className="relative w-full lg:w-auto lg:flex-1 lg:basis-64 lg:ml-auto">
+                {/* Search - Full width on mobile/tablet, fixed 200px on desktop */}
+                <div className="relative w-full lg:w-50 lg:ml-auto">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground" />
                   <Input
                     placeholder="Search"
@@ -680,6 +725,20 @@ export default function InsuranceIndex({
                   />
                 </div>
               </div>
+
+              {/* Active Filter Chips */}
+              {activeFilters.length > 0 && (
+                <div className="flex items-center gap-2 flex-wrap mb-4">
+                  {activeFilters.map((f) => (
+                    <Chip key={f.key} variant="dismissible" onDismiss={f.onRemove}>
+                      {f.label}
+                    </Chip>
+                  ))}
+                  <Button variant="link" size="sm" className="h-auto p-0 text-body text-muted-foreground hover:text-foreground ml-1" onClick={clearAllFilters}>
+                    Clear all
+                  </Button>
+                </div>
+              )}
 
               {/* Claims Table */}
               {filteredClaims.length === 0 ? (

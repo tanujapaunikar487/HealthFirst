@@ -14,6 +14,7 @@ import { RelationshipSelector } from '@/Components/RelationshipSelector';
 import { OtpInput } from '@/Components/OtpInput';
 import { MemberSearchCard } from '@/Components/MemberSearchCard';
 import { DetectionCard } from './DetectionCard';
+import { TypeSelectorCard, MemberType } from './TypeSelectorCard';
 import { SheetHeader, SheetTitle, SheetFooter, SheetBody } from '@/Components/ui/sheet';
 import { cn } from '@/Lib/utils';
 
@@ -917,51 +918,9 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     {/* Step Content - standalone renders buttons in footer */}
                     {state.step === 'choice' && (
                         <div className="px-5 py-5 space-y-3">
-                            <Card>
-                                <Button
-                                    variant="ghost"
-                                    onClick={() => handleInitialChoice('add_new_family')}
-                                    className="w-full h-auto px-6 py-4 rounded-none text-left hover:bg-muted/50"
-                                >
-                                    <div className="flex items-start gap-4">
-                                        <IconCircle icon={Users} size="sm" variant="primary" />
-                                        <div className="text-left">
-                                            <h4 className="text-card-title">New Member</h4>
-                                            <p className="text-body text-muted-foreground">Create a full family member profile</p>
-                                        </div>
-                                    </div>
-                                </Button>
-                            </Card>
-                            <Card>
-                                <Button
-                                    variant="ghost"
-                                    onClick={() => handleInitialChoice('link_existing')}
-                                    className="w-full h-auto px-6 py-4 rounded-none text-left hover:bg-muted/50"
-                                >
-                                    <div className="flex items-start gap-4">
-                                        <IconCircle icon={Users} size="sm" variant="primary" />
-                                        <div className="text-left">
-                                            <h4 className="text-card-title">Existing Patient</h4>
-                                            <p className="text-body text-muted-foreground">Connect to an existing hospital patient record</p>
-                                        </div>
-                                    </div>
-                                </Button>
-                            </Card>
-                            <Card>
-                                <Button
-                                    variant="ghost"
-                                    onClick={() => handleInitialChoice('guest')}
-                                    className="w-full h-auto px-6 py-4 rounded-none text-left hover:bg-muted/50"
-                                >
-                                    <div className="flex items-start gap-4">
-                                        <IconCircle icon={User} size="sm" variant="primary" />
-                                        <div className="text-left">
-                                            <h4 className="text-card-title">Guest</h4>
-                                            <p className="text-body text-muted-foreground">One-time booking only</p>
-                                        </div>
-                                    </div>
-                                </Button>
-                            </Card>
+                            <TypeSelectorCard type="new_member" isExpanded={false} onClick={() => handleInitialChoice('add_new_family')} />
+                            <TypeSelectorCard type="link_existing" isExpanded={false} onClick={() => handleInitialChoice('link_existing')} />
+                            <TypeSelectorCard type="guest" isExpanded={false} onClick={() => handleInitialChoice('guest')} />
                         </div>
                     )}
 
@@ -1452,69 +1411,10 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
             {/* Step Content */}
             {state.step === 'choice' && (
                 <div className="space-y-4">
-                    <div role="radiogroup" className="space-y-3">
-                        {/* New Member */}
-                        <Card>
-                            <Button
-                                variant="ghost"
-                                role="radio"
-                                aria-checked={state.flowType === 'add_new_family'}
-                                onClick={() => handleInitialChoice('add_new_family')}
-                                className="w-full h-auto px-6 py-4 rounded-none text-left hover:bg-muted/50"
-                            >
-                                <div className="flex items-start gap-4">
-                                    <IconCircle icon={Users} size="sm" variant="primary" />
-                                    <div className="text-left">
-                                        <h4 className="text-card-title">New Member</h4>
-                                        <p className="text-body text-muted-foreground">
-                                            Create a full family member profile
-                                        </p>
-                                    </div>
-                                </div>
-                            </Button>
-                        </Card>
-
-                        {/* Existing Patient */}
-                        <Card>
-                            <Button
-                                variant="ghost"
-                                role="radio"
-                                aria-checked={state.flowType === 'link_existing'}
-                                onClick={() => handleInitialChoice('link_existing')}
-                                className="w-full h-auto px-6 py-4 rounded-none text-left hover:bg-muted/50"
-                            >
-                                <div className="flex items-start gap-4">
-                                    <IconCircle icon={Users} size="sm" variant="primary" />
-                                    <div className="text-left">
-                                        <h4 className="text-card-title">Existing Patient</h4>
-                                        <p className="text-body text-muted-foreground">
-                                            Connect to an existing hospital patient record
-                                        </p>
-                                    </div>
-                                </div>
-                            </Button>
-                        </Card>
-
-                        {/* Guest */}
-                        <Card>
-                            <Button
-                                variant="ghost"
-                                role="radio"
-                                aria-checked={state.flowType === 'guest'}
-                                onClick={() => handleInitialChoice('guest')}
-                                className="w-full h-auto px-6 py-4 rounded-none text-left hover:bg-muted/50"
-                            >
-                                <div className="flex items-start gap-4">
-                                    <IconCircle icon={User} size="sm" variant="primary" />
-                                    <div className="text-left">
-                                        <h4 className="text-card-title">Guest</h4>
-                                        <p className="text-body text-muted-foreground">
-                                            One-time booking only
-                                        </p>
-                                    </div>
-                                </div>
-                            </Button>
-                        </Card>
+                    <div className="space-y-3">
+                        <TypeSelectorCard type="new_member" isExpanded={false} onClick={() => handleInitialChoice('add_new_family')} />
+                        <TypeSelectorCard type="link_existing" isExpanded={false} onClick={() => handleInitialChoice('link_existing')} />
+                        <TypeSelectorCard type="guest" isExpanded={false} onClick={() => handleInitialChoice('guest')} />
                     </div>
 
                     <Button variant="ghost" onClick={onCancel} className="w-full">

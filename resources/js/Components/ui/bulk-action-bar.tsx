@@ -76,14 +76,14 @@ export function BulkActionBar({
         className
       )}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         <span className="text-label text-foreground">
           {count} {pluralizedLabel} selected
         </span>
         <Button
           variant="ghost"
           size="sm"
-          className="h-auto p-0 text-body text-muted-foreground hover:text-foreground"
+          className="h-auto px-2 py-1 text-body text-muted-foreground hover:text-foreground"
           onClick={onClear}
         >
           Clear
