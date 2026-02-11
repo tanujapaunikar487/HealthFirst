@@ -38,13 +38,8 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled }: TypeSe
             type="button"
             onClick={onClick}
             disabled={disabled}
-            className={cn(
-                'flex items-center justify-start gap-4 w-full h-auto px-6 py-4',
-                'text-left transition-colors',
-                'rounded-2xl border border-border bg-card hover:bg-muted/50',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                'disabled:cursor-not-allowed disabled:opacity-40'
-            )}
+            className="flex items-center gap-4 w-full h-auto pl-3 pr-6 py-4 text-left transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
+            style={{ justifyContent: 'flex-start' }}
         >
             <IconCircle icon={TypeIcon} size="md" variant="primary" />
             <div className="flex-1 min-w-0">

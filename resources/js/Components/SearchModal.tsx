@@ -10,7 +10,7 @@ import { Chip } from '@/Components/ui/chip';
 import {
   Search, X, Loader2, AlertTriangle,
   Stethoscope, FileText, Receipt, FlaskConical,
-  Clock, ArrowRight, Calendar, ClipboardList, CreditCard,
+  ArrowRight, Calendar, ClipboardList,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 
@@ -105,27 +105,6 @@ function addRecentSearch(query: string) {
   localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(recent.slice(0, MAX_RECENT)));
 }
 
-function clearRecentSearches() {
-  localStorage.removeItem(RECENT_SEARCHES_KEY);
-}
-
-// --- Category Config ---
-
-const categories: { value: Category; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'doctors', label: 'Doctors' },
-  { value: 'appointments', label: 'Appointments' },
-  { value: 'health_records', label: 'Records' },
-  { value: 'bills', label: 'Bills' },
-];
-
-const quickLinks = [
-  { label: 'View all appointments', href: '/appointments', icon: Calendar },
-  { label: 'View health records', href: '/health-records', icon: ClipboardList },
-  { label: 'View bills', href: '/billing', icon: CreditCard },
-  { label: 'Book appointment', href: '/booking', icon: ArrowRight },
-];
-
 // --- Component ---
 
 export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
@@ -135,7 +114,6 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -143,10 +121,9 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
 
   const debouncedQuery = useDebounce(query, 300);
 
-  // Load recent searches on open
+  // Focus input on open
   useEffect(() => {
     if (open) {
-      setRecentSearches(getRecentSearches());
       setTimeout(() => inputRef.current?.focus(), 50);
     } else {
       setQuery('');
@@ -295,7 +272,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
               onDismiss={() => setCategory('all')}
               className="flex-shrink-0"
             >
-              {category === 'health_records' ? 'Health records' : category.charAt(0).toUpperCase() + category.slice(1)}
+              in: {category === 'health_records' ? 'health records' : category}
             </Chip>
           )}
 
@@ -304,7 +281,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search..."
+            placeholder="search reports, prescriptions.."
             className="flex-1 bg-transparent text-body outline-none border-none focus:outline-none focus:ring-0 placeholder:text-muted-foreground"
             style={{ boxShadow: 'none' }}
             autoComplete="off"
