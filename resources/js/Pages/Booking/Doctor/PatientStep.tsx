@@ -14,7 +14,7 @@ import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
 import { ArrowRight } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
-import { DoctorCard, type Doctor as DoctorCardDoctor, type TimeSlot as DoctorCardTimeSlot } from '@/Components/Booking/DoctorCard';
+import { DoctorCard, type TimeSlot as DoctorCardTimeSlot } from '@/Components/Booking/DoctorCard';
 
 const doctorSteps = [
   { id: 'concerns', label: 'Concerns' },
@@ -31,7 +31,16 @@ interface FamilyMember {
 
 interface TimeSlot extends DoctorCardTimeSlot {}
 
-interface Doctor extends DoctorCardDoctor {}
+interface Doctor {
+  id: string;
+  name: string;
+  avatar: string | null;
+  specialization: string;
+  experience_years: number;
+  appointment_modes: string[];
+  video_fee: number;
+  in_person_fee: number;
+}
 
 interface PreviousConsultation {
   patientId: string;
@@ -484,12 +493,18 @@ export default function PatientStep({
                   {patientPreviousConsultations.map((consultation) => (
                     <DoctorCard
                       key={consultation.doctor.id}
-                      doctor={consultation.doctor}
+                      id={consultation.doctor.id}
+                      name={consultation.doctor.name}
+                      avatar={consultation.doctor.avatar}
+                      specialization={consultation.doctor.specialization}
+                      experienceYears={consultation.doctor.experience_years}
+                      consultationModes={consultation.doctor.appointment_modes}
+                      videoFee={consultation.doctor.video_fee}
+                      inPersonFee={consultation.doctor.in_person_fee}
                       slots={consultation.slots}
                       selectedTime={
                         quickBookDoctorId === consultation.doctor.id ? quickBookTime : null
                       }
-                      isSelected={quickBookDoctorId === consultation.doctor.id}
                       onSelectTime={(time) => handleQuickBook(consultation.doctor.id, time)}
                     />
                   ))}

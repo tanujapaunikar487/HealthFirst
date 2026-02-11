@@ -48,6 +48,7 @@ export function EmbeddedDoctorList({ doctors, selectedDoctorId, selectedTime, on
   const [searchQuery, setSearchQuery] = useState('');
   const [filterSpecialty, setFilterSpecialty] = useState<string>('all');
   const [filterMode, setFilterMode] = useState<string>('all');
+  const [expanded, setExpanded] = useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   // Scroll to show the AI's entire message (including text before this component) when it mounts
@@ -171,8 +172,8 @@ export function EmbeddedDoctorList({ doctors, selectedDoctorId, selectedTime, on
 
       {/* Doctor cards */}
       <Card>
-        <CardContent className="p-0 divide-y overflow-y-auto max-h-scroll-list">
-          {filteredDoctors.map((doctor) => (
+        <CardContent className="p-0 divide-y">
+          {(expanded ? filteredDoctors : filteredDoctors.slice(0, 3)).map((doctor) => (
             <DoctorCard
               key={doctor.id}
               id={doctor.id}
@@ -193,6 +194,17 @@ export function EmbeddedDoctorList({ doctors, selectedDoctorId, selectedTime, on
               disabled={disabled}
             />
           ))}
+
+          {filteredDoctors.length > 3 && (
+            <div
+              className="px-6 py-4 border-t border-border flex justify-center cursor-pointer hover:bg-accent transition-colors"
+              onClick={() => setExpanded(!expanded)}
+            >
+              <span className="text-label text-primary">
+                {expanded ? 'Show less' : `View all ${filteredDoctors.length} doctors`}
+              </span>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

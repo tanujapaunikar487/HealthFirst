@@ -7,6 +7,7 @@ import { Badge } from '@/Components/ui/badge';
 import { Card } from '@/Components/ui/card';
 import { Check, Star, Video, User, Search, ChevronDown, RefreshCw, AlertCircle, FileText, Pill, CalendarClock, UserPlus, CalendarPlus } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { IconCircle } from '@/Components/ui/icon-circle';
 import { EmbeddedDoctorList } from './embedded/EmbeddedDoctorList';
 import { EmbeddedLocationSelector } from './embedded/EmbeddedLocationSelector';
 import { EmbeddedPackageList } from './embedded/EmbeddedPackageList';
@@ -156,9 +157,7 @@ export function EmbeddedComponent({
                     "flex items-center gap-4 text-left transition-all rounded-none hover:bg-muted/50"
                   )}
                 >
-                <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
-                  <Icon icon={TypeIcon} size={20} className="text-blue-800" />
-                </div>
+                <IconCircle icon={TypeIcon} size="sm" variant="primary" />
 
                 <div className="flex-1 min-w-0 text-left">
                   <p className="text-label text-foreground leading-tight mb-0.5">{option.label}</p>
@@ -209,9 +208,7 @@ export function EmbeddedComponent({
                     "flex items-center gap-4 text-left transition-all rounded-none hover:bg-muted/50"
                   )}
                 >
-                <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
-                  <Icon icon={OptionIcon} size={20} className="text-blue-800" />
-                </div>
+                <IconCircle icon={OptionIcon} size="sm" variant="primary" />
 
                 <div className="flex-1 min-w-0 text-left">
                   <p className="text-label text-foreground leading-tight mb-0.5">{option.label}</p>
@@ -952,95 +949,6 @@ function UrgencySelector({ levels, selected, onSelect, disabled }: any) {
           </div>
         </Button>
       ))}
-    </div>
-  );
-}
-
-// Doctor List with time slots and badges
-function DoctorList({ doctors, selectedDoctorId, selectedTime, onSelect, disabled }: any) {
-  const [searchQuery, setSearchQuery] = React.useState('');
-
-  return (
-    <div className="space-y-4 max-w-3xl">
-      {/* Search and filter header */}
-      <div className="flex items-center gap-3">
-        <Button variant="secondary" size="sm" className="rounded-lg gap-2 text-body">
-          Recommended <ChevronDown className="w-4 h-4" />
-        </Button>
-        <div className="flex-1 flex items-center gap-2 px-3 py-2 border border-border rounded-lg">
-          <Search className="w-4 h-4 text-foreground" />
-          <input
-            type="text"
-            placeholder="Search patient, doctor, date"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 text-body bg-transparent border-0 outline-none placeholder:text-placeholder"
-          />
-        </div>
-      </div>
-
-      {/* Doctor cards */}
-      <div className="space-y-3">
-        {doctors.map((doctor: any) => (
-          <div
-            key={doctor.id}
-            className={cn(
-              'p-4 rounded-2xl border transition-all',
-              selectedDoctorId === doctor.id
-                ? 'border-primary bg-primary/10'
-                : 'border-border bg-background'
-            )}
-          >
-            {/* Doctor info */}
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-start gap-3 flex-1">
-                <Avatar className="w-12 h-12 flex-shrink-0">
-                  <AvatarImage src={doctor.avatar} />
-                  <AvatarFallback className="bg-primary/15 text-primary font-semibold">
-                    {doctor.name.split(' ').slice(1).map((n: string) => n[0]).join('')}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <div className="text-card-title text-foreground">{doctor.name}</div>
-                  <div className="text-body text-muted-foreground">{doctor.specialty} • {doctor.experience}</div>
-                </div>
-              </div>
-              <div className="flex items-start gap-2 flex-shrink-0">
-                {doctor.modes?.includes('video') && (
-                  <Badge variant="info">Video</Badge>
-                )}
-                {doctor.modes?.includes('in_person') && (
-                  <Badge variant="success">In-hospital</Badge>
-                )}
-                <div className="text-right">
-                  <div className="text-card-title text-foreground">₹{doctor.fees?.video || doctor.fees}</div>
-                  {doctor.fees?.in_person && doctor.fees.in_person !== doctor.fees.video && (
-                    <div className="text-body text-muted-foreground">/ {doctor.fees.in_person}</div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Time slots */}
-            {doctor.slots && doctor.slots.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {doctor.slots.map((slot: any) => (
-                  <Button
-                    key={slot.time}
-                    variant={selectedDoctorId === doctor.id && selectedTime === slot.time ? 'accent' : 'outline'}
-                    onClick={() => !disabled && onSelect(doctor.id, slot.time)}
-                    disabled={disabled}
-                    className="h-auto px-3 py-1.5 rounded-lg text-label gap-1 disabled:opacity-60"
-                  >
-                    {slot.time}
-                    {slot.priority && <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />}
-                  </Button>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
