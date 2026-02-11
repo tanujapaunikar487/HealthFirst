@@ -163,36 +163,36 @@ export function EmbeddedBookingSummary({ summary, onPay, onSelect, disabled, con
     }
   };
 
-  // Build rows array for proper divider handling
-  const rows: { label: string; value: React.ReactNode; showChange?: boolean; onChange?: () => void }[] = [];
+  // Build rows array
+  const rows: Array<{ label: string; value: React.ReactNode; onChange?: () => void }> = [];
 
   if (summary.doctor) {
-    rows.push({ label: 'Doctor', value: summary.doctor.name, showChange: true, onChange: () => onSelect?.({ change_doctor: true }) });
+    rows.push({ label: 'Doctor', value: summary.doctor.name, onChange: () => onSelect?.({ change_doctor: true }) });
   }
   if (summary.package) {
-    rows.push({ label: 'Package', value: summary.package, showChange: true, onChange: () => onSelect?.({ change_package: true }) });
+    rows.push({ label: 'Package', value: summary.package, onChange: () => onSelect?.({ change_package: true }) });
   }
-  rows.push({ label: 'Patient', value: summary.patient.name, showChange: true, onChange: () => onSelect?.({ change_patient: true }) });
-  rows.push({ label: 'Date & Time', value: formatDateTime(summary.datetime), showChange: true, onChange: () => onSelect?.({ change_datetime: true }) });
+  rows.push({ label: 'Patient', value: summary.patient.name, onChange: () => onSelect?.({ change_patient: true }) });
+  rows.push({ label: 'Date & Time', value: formatDateTime(summary.datetime), onChange: () => onSelect?.({ change_datetime: true }) });
   if (summary.type && !summary.collection) {
-    rows.push({ label: 'Type', value: summary.type, showChange: true, onChange: () => onSelect?.({ change_type: true }) });
+    rows.push({ label: 'Type', value: summary.type, onChange: () => onSelect?.({ change_type: true }) });
   }
   if (summary.mode) {
+    const showChange = (summary.supported_modes?.length ?? 0) > 1;
     rows.push({
       label: 'Mode',
       value: summary.mode === 'video' ? 'Video Appointment' : 'In-Person Visit',
-      showChange: (summary.supported_modes?.length ?? 0) > 1,
-      onChange: () => onSelect?.({ change_mode: true }),
+      onChange: showChange ? () => onSelect?.({ change_mode: true }) : undefined,
     });
   }
   if (summary.collection) {
-    rows.push({ label: 'Collection', value: summary.collection, showChange: true, onChange: () => onSelect?.({ change_location: true }) });
+    rows.push({ label: 'Collection', value: summary.collection, onChange: () => onSelect?.({ change_location: true }) });
   }
   if (summary.address) {
-    rows.push({ label: 'Address', value: summary.address, showChange: true, onChange: () => onSelect?.({ change_address: true, display_message: 'Change Address' }) });
+    rows.push({ label: 'Address', value: summary.address, onChange: () => onSelect?.({ change_address: true, display_message: 'Change Address' }) });
   }
   // Fee row - no Change link
-  rows.push({ label: 'Appointment Fee', value: `₹${summary.fee.toLocaleString()}`, showChange: false });
+  rows.push({ label: 'Appointment Fee', value: `₹${summary.fee.toLocaleString()}` });
 
   return (
     <div className="space-y-4">
@@ -202,22 +202,21 @@ export function EmbeddedBookingSummary({ summary, onPay, onSelect, disabled, con
           {rows.map((row) => (
             <div
               key={row.label}
-              className="flex items-center justify-between px-6 py-4"
+              className="grid grid-cols-[theme(spacing.detail-label)_1fr] items-start gap-4 px-6 py-4"
             >
-            <span className="text-body text-muted-foreground">{row.label}</span>
-            <div className="flex items-center gap-3">
-              <span className="text-label text-right">{row.value}</span>
-              {row.showChange && (
-                <Button
-                  variant="link"
-                  size="sm"
-                  onClick={row.onChange}
-                  className="h-auto p-0 text-primary text-body hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={!row.onChange}
-                >
-                  change
-                </Button>
-              )}
+              <span className="text-body text-muted-foreground">{row.label}</span>
+              <div className="flex items-start justify-between">
+                <span className="text-label">{row.value}</span>
+                {row.onChange && (
+                  <Button
+                    variant="link"
+                    size="sm"
+                    onClick={row.onChange}
+                    className="h-auto p-0 text-primary text-body hover:underline"
+                  >
+                    change
+                  </Button>
+                )}
               </div>
             </div>
           ))}

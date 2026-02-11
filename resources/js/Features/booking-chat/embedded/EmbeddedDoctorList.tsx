@@ -173,7 +173,7 @@ export function EmbeddedDoctorList({ doctors, selectedDoctorId, selectedTime, on
       {/* Doctor cards */}
       <Card>
         <CardContent className="p-0 divide-y">
-          {(expanded ? filteredDoctors : filteredDoctors.slice(0, 3)).map((doctor) => (
+          {(expanded ? filteredDoctors : filteredDoctors.slice(0, 2)).map((doctor) => (
             <DoctorCard
               key={doctor.id}
               id={doctor.id}
@@ -195,9 +195,9 @@ export function EmbeddedDoctorList({ doctors, selectedDoctorId, selectedTime, on
             />
           ))}
 
-          {filteredDoctors.length > 3 && (
+          {filteredDoctors.length > 2 && (
             <div
-              className="px-6 py-4 border-t border-border flex justify-center cursor-pointer hover:bg-accent transition-colors"
+              className="px-6 py-4 flex justify-center cursor-pointer hover:bg-accent transition-colors"
               onClick={() => setExpanded(!expanded)}
             >
               <span className="text-label text-primary">
