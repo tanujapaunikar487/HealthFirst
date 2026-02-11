@@ -54,6 +54,8 @@ class SocialAuthController extends Controller
 
         try {
             $socialUser = Socialite::driver($provider)->user();
+
+            return $this->handleSocialUser($provider, $socialUser);
         } catch (InvalidStateException $e) {
             Log::warning("Social auth state mismatch for {$provider}", [
                 'exception' => $e->getMessage(),
@@ -61,16 +63,15 @@ class SocialAuthController extends Controller
 
             return redirect()->route('login')
                 ->with('error', 'Authentication session expired. Please try again.');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error("Social auth callback error for {$provider}", [
                 'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return redirect()->route('login')
                 ->with('error', 'Unable to authenticate. Please try again.');
         }
-
-        return $this->handleSocialUser($provider, $socialUser);
     }
 
     /**
@@ -82,16 +83,17 @@ class SocialAuthController extends Controller
         try {
             // Apple sends user data in the POST body on first auth only
             $socialUser = Socialite::driver('apple')->user();
-        } catch (\Exception $e) {
+
+            return $this->handleSocialUser('apple', $socialUser);
+        } catch (\Throwable $e) {
             Log::error('Apple auth callback error', [
                 'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return redirect()->route('login')
                 ->with('error', 'Unable to authenticate with Apple. Please try again.');
         }
-
-        return $this->handleSocialUser('apple', $socialUser);
     }
 
     /**
