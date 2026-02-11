@@ -6,6 +6,7 @@ import {
   DialogTitle,
 } from '@/Components/ui/dialog';
 import { Button } from '@/Components/ui/button';
+import { Chip } from '@/Components/ui/chip';
 import {
   Search, X, Loader2, AlertTriangle,
   Stethoscope, FileText, Receipt, FlaskConical,
@@ -289,20 +290,13 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
 
           {/* Category Tag */}
           {category !== 'all' && (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-label flex-shrink-0">
-              <span>
-                {category === 'health_records' ? 'Health records' : category.charAt(0).toUpperCase() + category.slice(1)}
-              </span>
-              <Button
-                variant="ghost"
-                iconOnly
-                size="xs"
-                onClick={() => setCategory('all')}
-                className="h-auto w-auto p-0 text-primary hover:text-primary/80 hover:bg-transparent"
-              >
-                <Icon icon={X} className="h-3.5 w-3.5" />
-              </Button>
-            </div>
+            <Chip
+              variant="dismissible"
+              onDismiss={() => setCategory('all')}
+              className="flex-shrink-0"
+            >
+              {category === 'health_records' ? 'Health records' : category.charAt(0).toUpperCase() + category.slice(1)}
+            </Chip>
           )}
 
           <input
