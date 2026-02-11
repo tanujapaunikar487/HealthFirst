@@ -11,9 +11,6 @@ import InlineMemberTypeSelector from '@/Features/booking-chat/embedded/InlineMem
 import { EmbeddedFollowUpReason, type FollowUpReasonOption } from '@/Features/booking-chat/embedded/EmbeddedFollowUpReason';
 import { EmbeddedAppointmentType } from '@/Features/booking-chat/embedded/EmbeddedAppointmentType';
 import { Button } from '@/Components/ui/button';
-import { cn } from '@/Lib/utils';
-import { ArrowRight } from '@/Lib/icons';
-import { Icon } from '@/Components/ui/icon';
 import { DoctorCard, type TimeSlot as DoctorCardTimeSlot } from '@/Components/Booking/DoctorCard';
 
 const doctorSteps = [
@@ -110,11 +107,9 @@ export default function PatientStep({
     savedData?.selectedSymptoms || []
   );
   const [symptomNotes, setSymptomNotes] = useState(savedData?.symptomNotes || '');
-  const [showAppointmentType, setShowAppointmentType] = useState(false);
-  const [showFollowupReason, setShowFollowupReason] = useState(false);
-  const [showFollowupNotes, setShowFollowupNotes] = useState(false);
-  const [showSymptoms, setShowSymptoms] = useState(false);
-  const [showPreviousDoctors, setShowPreviousDoctors] = useState(false);
+  const [showPreviousDoctors, setShowPreviousDoctors] = useState(
+    !!(savedData?.appointmentType === 'followup' && savedData?.followupReason)
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Add member inline state
@@ -134,32 +129,40 @@ export default function PatientStep({
     (c) => c.patientId === patientId
   );
 
+  // Prevent auto-scroll on mount when restoring savedData
+  const hasSettled = useRef(false);
+  useEffect(() => { hasSettled.current = true; }, []);
+
   // Auto-scroll helpers
   useEffect(() => {
-    if (patientId && showAppointmentType && appointmentTypeSectionRef.current) {
+    if (!hasSettled.current) return;
+    if (patientId && appointmentTypeSectionRef.current) {
       setTimeout(() => {
         appointmentTypeSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
     }
-  }, [patientId, showAppointmentType]);
+  }, [patientId]);
 
   useEffect(() => {
-    if (showFollowupReason && followupReasonRef.current) {
+    if (!hasSettled.current) return;
+    if (appointmentType === 'followup' && followupReasonRef.current) {
       setTimeout(() => {
         followupReasonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
     }
-  }, [showFollowupReason]);
+  }, [appointmentType]);
 
   useEffect(() => {
-    if (showFollowupNotes && followupNotesRef.current) {
+    if (!hasSettled.current) return;
+    if (followupReason && followupNotesRef.current) {
       setTimeout(() => {
         followupNotesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
     }
-  }, [showFollowupNotes]);
+  }, [followupReason]);
 
   useEffect(() => {
+    if (!hasSettled.current) return;
     if (showPreviousDoctors && previousDoctorsRef.current) {
       setTimeout(() => {
         previousDoctorsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -168,21 +171,22 @@ export default function PatientStep({
   }, [showPreviousDoctors]);
 
   useEffect(() => {
-    if (showSymptoms && symptomsSectionRef.current) {
+    if (!hasSettled.current) return;
+    if (appointmentType === 'new' && symptomsSectionRef.current) {
       setTimeout(() => {
         symptomsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
     }
-  }, [showSymptoms]);
+  }, [appointmentType]);
 
-  // Auto-advance: show next section after follow-up notes are typed
+  // Auto-advance: show previous doctors after follow-up notes are typed
   useEffect(() => {
-    if (showFollowupNotes && followupNotes.trim().length > 0) {
+    if (followupReason && followupNotes.trim().length > 0) {
       if (patientPreviousConsultations.length > 0) {
         setShowPreviousDoctors(true);
       }
     }
-  }, [showFollowupNotes, followupNotes, patientPreviousConsultations.length]);
+  }, [followupReason, followupNotes, patientPreviousConsultations.length]);
 
   const handleMemberAdded = (data: {
     member_type: 'guest' | 'family';
@@ -200,7 +204,6 @@ export default function PatientStep({
     setMembers((prev) => [...prev, newMember]);
     setPatientId(newMember.id);
     setShowAddMemberInline(false);
-    setShowAppointmentType(true);
   };
 
   const handleSymptomToggle = (symptomId: string) => {
@@ -231,24 +234,15 @@ export default function PatientStep({
 
   const handleAppointmentTypeSelect = (type: 'new' | 'followup') => {
     setAppointmentType(type);
-    if (type === 'followup') {
-      // Follow-up: show follow-up reason first
-      setShowFollowupReason(true);
-      setShowSymptoms(false);
-    } else {
-      // New: show symptoms directly
-      setShowFollowupReason(false);
-      setShowFollowupNotes(false);
+    if (type !== 'followup') {
       setShowPreviousDoctors(false);
       setFollowupReason(null);
       setFollowupNotes('');
-      setShowSymptoms(true);
     }
   };
 
   const handleFollowupReasonSelect = (reason: string) => {
     setFollowupReason(reason);
-    setShowFollowupNotes(true);
   };
 
   const handleFollowupNotesContinue = () => {
@@ -308,8 +302,6 @@ export default function PatientStep({
       setQuickBookDoctorId(null);
       setQuickBookTime(null);
     }
-    // Auto-advance to next section
-    setShowAppointmentType(true);
   };
 
   // Context-aware follow-up notes prompt
@@ -479,6 +471,7 @@ export default function PatientStep({
         {/* 5. Previous Consultations Quick Book - Follow-up only, after notes */}
         {appointmentType === 'followup' &&
           followupReason &&
+          showPreviousDoctors &&
           patientPreviousConsultations.length > 0 && (
             <section ref={previousDoctorsRef}>
               <h2 className="text-step-title mb-2">

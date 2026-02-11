@@ -5,11 +5,8 @@ import { useNavigation } from '@/Hooks/useNavigation';
 import { FollowUpBanner } from '@/Components/Booking/FollowUpBanner';
 import { SymptomChips } from '@/Components/Booking/SymptomChips';
 import { EmbeddedUrgencySelector } from '@/Features/booking-chat/embedded/EmbeddedUrgencySelector';
-import { Card } from '@/Components/ui/card';
-import { HStack, VStack } from '@/Components/ui/stack';
+import { VStack } from '@/Components/ui/stack';
 import { Textarea } from '@/Components/ui/textarea';
-import { Button } from '@/Components/ui/button';
-import { cn } from '@/Lib/utils';
 
 const doctorSteps = [
   { id: 'patient', label: 'Patient' },
@@ -62,7 +59,6 @@ export default function ConcernsStep({
   );
   const [symptomNotes, setSymptomNotes] = useState(savedData?.symptomNotes || '');
   const [urgency, setUrgency] = useState<string | null>(savedData?.urgency || null);
-  const [showUrgency, setShowUrgency] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const urgencySectionRef = useRef<HTMLDivElement>(null);
@@ -101,10 +97,6 @@ export default function ConcernsStep({
         return prev.trim() + ', ' + symptomName;
       });
     }
-  };
-
-  const handleSymptomContinue = () => {
-    setShowUrgency(true);
   };
 
   const { goBack } = useNavigation();

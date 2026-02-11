@@ -766,7 +766,7 @@ export function EmbeddedComponent({
                     }}
                     disabled={disabled || isSelected}
                     className={cn(
-                      'h-auto flex-shrink-0 px-6 py-3 rounded-3xl min-w-[120px] font-normal disabled:opacity-60',
+                      'h-auto flex-shrink-0 px-6 py-3 rounded-2xl min-w-[120px] font-normal disabled:opacity-60',
                       dateIsActive && 'border-foreground'
                     )}
                   >

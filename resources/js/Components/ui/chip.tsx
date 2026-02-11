@@ -13,6 +13,13 @@ export interface ChipProps extends Omit<ButtonProps, 'variant' | 'size'> {
    */
   variant?: 'default' | 'accent' | 'dismissible';
   /**
+   * Chip size
+   * - 'default': px-4 py-3 text-body (16px/12px)
+   * - 'md': px-3 py-2 text-body (12px/8px)
+   * - 'sm': px-3 py-1.5 text-caption (12px/6px)
+   */
+  size?: 'default' | 'md' | 'sm';
+  /**
    * Whether the chip is selected (not applicable for dismissible variant)
    */
   selected?: boolean;
@@ -32,14 +39,20 @@ export interface ChipProps extends Omit<ButtonProps, 'variant' | 'size'> {
  * Unified component for chip-style selections across the app.
  *
  * @example
- * // Symptoms/Filters
+ * // Symptoms/Filters (default size)
  * <Chip selected={isSelected} onClick={() => toggle()}>
  *   Fever
  * </Chip>
  *
  * @example
- * // Time Slots
- * <Chip variant="accent" selected={isSelected} onClick={() => selectTime()}>
+ * // Medium size chip
+ * <Chip size="md" selected={isSelected} onClick={() => toggle()}>
+ *   Lab Test
+ * </Chip>
+ *
+ * @example
+ * // Time Slots (small)
+ * <Chip variant="accent" size="sm" selected={isSelected} onClick={() => selectTime()}>
  *   10:00 AM
  * </Chip>
  *
@@ -47,6 +60,7 @@ export interface ChipProps extends Omit<ButtonProps, 'variant' | 'size'> {
  * // Time Slot with Preferred Icon
  * <Chip
  *   variant="accent"
+ *   size="sm"
  *   selected={isSelected}
  *   icon={<Star className="h-3 w-3" />}
  * >
@@ -54,13 +68,14 @@ export interface ChipProps extends Omit<ButtonProps, 'variant' | 'size'> {
  * </Chip>
  *
  * @example
- * // Dismissible Filter Chip
+ * // Dismissible Filter Chip (default size)
  * <Chip variant="dismissible" onDismiss={() => clearFilter()}>
  *   Health records
  * </Chip>
  */
 export function Chip({
   variant = 'default',
+  size = 'default',
   selected = false,
   icon,
   onDismiss,
@@ -78,7 +93,11 @@ export function Chip({
           : 'outline'
       }
       className={cn(
-        'h-auto min-h-0 px-3 py-1.5 rounded-3xl relative text-caption',
+        'h-auto min-h-0 rounded-3xl relative',
+        // Size variants
+        size === 'sm' ? 'px-3 py-1.5 text-caption' :
+        size === 'md' ? 'px-3 py-2 text-body' :
+        'px-4 py-3 text-body',
         // Default variant (symptoms/filters)
         variant === 'default' && selected && 'bg-primary/10 border-primary text-label',
         // Accent variant (time slots)

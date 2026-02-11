@@ -19,7 +19,7 @@ export function BookingSummary({ rows, className }: BookingSummaryProps) {
         {rows.map((row) => (
           <div
             key={row.label}
-            className="grid grid-cols-[theme(spacing.detail-label)_1fr] items-baseline gap-4 px-6 py-4"
+            className="grid grid-cols-[theme(spacing.detail-label)_1fr] items-baseline gap-4 px-6 py-3"
           >
             <span className="text-body text-muted-foreground text-left">{row.label}</span>
             <div className="flex items-baseline justify-between">
@@ -27,7 +27,6 @@ export function BookingSummary({ rows, className }: BookingSummaryProps) {
               {row.onChange && (
                 <Button
                   variant="link"
-                  size="sm"
                   onClick={row.onChange}
                   className="h-auto p-0 text-primary text-body hover:underline ml-4"
                 >

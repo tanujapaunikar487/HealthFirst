@@ -44,17 +44,8 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled }: TypeSe
                 <p className="text-card-title text-foreground">{config.title}</p>
                 <p className="text-body text-muted-foreground break-words">{config.description}</p>
             </div>
-            <span
-                className="flex items-center justify-center flex-shrink-0 rounded-full"
-                style={{
-                    width: '40px',
-                    height: '40px',
-                    border: '1px solid hsl(var(--border))',
-                    background: 'hsl(var(--secondary))',
-                    color: 'hsl(var(--foreground))',
-                }}
-            >
-                <ChevronRight className="h-5 w-5" />
+            <span className="flex h-8 w-8 items-center justify-center flex-shrink-0 rounded-full border bg-secondary text-foreground">
+                <ChevronRight className="h-4 w-4" />
             </span>
         </Button>
     );
