@@ -2,7 +2,7 @@ import * as React from 'react';
 import { cn } from '@/Lib/utils';
 import { Card } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
-import { Icon } from '@/Components/ui/icon';
+import { IconCircle } from '@/Components/ui/icon-circle';
 
 export interface OptionListItem<T = string> {
   /**
@@ -144,18 +144,13 @@ export function OptionList<T = string>({
             >
               {/* Left Icon or Indicator */}
               {option.icon && (
-                <div
-                  className={cn(
-                    'h-10 w-10 rounded-full flex items-center justify-center shrink-0',
-                    option.iconColor?.bg || 'bg-blue-200'
-                  )}
-                >
-                  <Icon
-                    icon={option.icon}
-                    size={20}
-                    className={option.iconColor?.text || 'text-blue-800'}
-                  />
-                </div>
+                <IconCircle
+                  icon={option.icon}
+                  size="sm"
+                  variant="primary"
+                  className={option.iconColor?.bg}
+                  iconClassName={option.iconColor?.text}
+                />
               )}
 
               {option.indicator && (

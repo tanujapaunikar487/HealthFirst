@@ -198,8 +198,24 @@ Never embed status alerts inside DetailSection content.
 
 Negative margin breaks out of parent padding for full-width dividers.
 
-### Pure Row Sections
+### Pure Row Sections (Use DetailCard)
 
+**Preferred**: Use the global `DetailCard` component for sections with only DetailRow content:
+
+```tsx
+<DetailCard
+  id="overview"
+  title="Details"
+  icon={ClipboardList}
+  rows={[
+    { label: 'Patient', children: 'John Doe' },
+    { label: 'Date', children: 'Mon, 10 Feb 2026' },
+    ...(condition ? [{ label: 'Optional', children: 'Value' }] : []),
+  ]}
+/>
+```
+
+**Legacy pattern** (avoid duplicating):
 ```tsx
 <DetailSection noPadding>
   <div className="divide-y">

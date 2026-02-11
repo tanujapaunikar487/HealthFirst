@@ -5,7 +5,7 @@ import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Alert } from '@/Components/ui/alert';
 import { Card } from '@/Components/ui/card';
-import { DetailRow } from '@/Components/ui/detail-row';
+import { DetailCard } from '@/Components/ui/detail-card';
 import { DetailSection } from '@/Components/ui/detail-section';
 import { SideNav } from '@/Components/SideNav';
 import {
@@ -622,16 +622,23 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
   ].filter(Boolean).join(' · ');
 
   return (
-    <Section id="overview" title="Overview" icon={isDoctor ? Stethoscope : TestTube2}>
-      <div className="divide-y">
-        <DetailRow label="Patient">
-          <>
-            <p className="text-label">{appointment.patient?.name ?? appointment.patient_name}</p>
-            {patientSub && <p className="text-body text-muted-foreground">{patientSub}</p>}
-          </>
-        </DetailRow>
-        {hasDoctor && (
-          <DetailRow label="Doctor">
+    <DetailCard
+      id="overview"
+      title="Overview"
+      icon={isDoctor ? Stethoscope : TestTube2}
+      rows={[
+        {
+          label: 'Patient',
+          children: (
+            <>
+              <p className="text-label">{appointment.patient?.name ?? appointment.patient_name}</p>
+              {patientSub && <p className="text-body text-muted-foreground">{patientSub}</p>}
+            </>
+          ),
+        },
+        ...(hasDoctor ? [{
+          label: 'Doctor',
+          children: (
             <>
               <p className="text-label">{appointment.doctor!.name}</p>
               <p className="text-body text-muted-foreground">
@@ -644,12 +651,12 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
                 </span>
               </div>
             </>
-          </DetailRow>
-        )}
-        <DetailRow label="Date & time">{`${appointment.date_formatted} · ${appointment.time} · ${appointment.duration}`}</DetailRow>
-        <DetailRow label="Mode">{appointment.mode}</DetailRow>
-      </div>
-    </Section>
+          ),
+        }] : []),
+        { label: 'Date & time', children: `${appointment.date_formatted} · ${appointment.time} · ${appointment.duration}` },
+        { label: 'Mode', children: appointment.mode },
+      ]}
+    />
   );
 }
 
@@ -657,29 +664,31 @@ function OverviewSection({ appointment }: { appointment: DetailedAppointment }) 
 
 function VitalsSection({ vitals }: { vitals: Vital[] }) {
   return (
-    <Section id="vitals" title="Vitals" icon={Heart}>
-      <div className="divide-y">
-        {vitals.map((v) => (
-          <DetailRow key={v.label} label={v.label}>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-label">
-                  {v.value}{v.unit ? ` ${v.unit}` : ''}
-                </span>
-                {v.status !== 'normal' && (
-                  <Badge variant={v.status === 'elevated' ? 'danger' : 'warning'}>
-                    {v.status.charAt(0).toUpperCase() + v.status.slice(1)}
-                  </Badge>
-                )}
-              </div>
-              {v.reference && (
-                <p className="text-body text-muted-foreground mt-0.5">Normal: {v.reference}</p>
+    <DetailCard
+      id="vitals"
+      title="Vitals"
+      icon={Heart}
+      rows={vitals.map((v) => ({
+        label: v.label,
+        children: (
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-label">
+                {v.value}{v.unit ? ` ${v.unit}` : ''}
+              </span>
+              {v.status !== 'normal' && (
+                <Badge variant={v.status === 'elevated' ? 'danger' : 'warning'}>
+                  {v.status.charAt(0).toUpperCase() + v.status.slice(1)}
+                </Badge>
               )}
             </div>
-          </DetailRow>
-        ))}
-      </div>
-    </Section>
+            {v.reference && (
+              <p className="text-body text-muted-foreground mt-0.5">Normal: {v.reference}</p>
+            )}
+          </div>
+        ),
+      }))}
+    />
   );
 }
 
@@ -689,10 +698,14 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
   const diagnosis = summary.diagnosis;
 
   return (
-    <Section id="clinical" title="Clinical Summary" icon={FileText} noPadding>
-      <div className="divide-y">
-        {diagnosis && (
-          <DetailRow label="Diagnosis">
+    <DetailCard
+      id="clinical"
+      title="Clinical Summary"
+      icon={FileText}
+      rows={[
+        ...(diagnosis ? [{
+          label: 'Diagnosis',
+          children: (
             <div className="flex items-center gap-2 flex-wrap">
               <span>{diagnosis.name || 'Not specified'}</span>
               {diagnosis.icd_code && (
@@ -713,26 +726,27 @@ function ClinicalSummarySection({ summary }: { summary: ClinicalSummary }) {
                 </Badge>
               )}
             </div>
-          </DetailRow>
-        )}
-        {(summary.allergies?.length ?? 0) > 0 && (
-          <DetailRow label="Allergies">
+          ),
+        }] : []),
+        ...((summary.allergies?.length ?? 0) > 0 ? [{
+          label: 'Allergies',
+          children: (
             <div className="flex gap-2 flex-wrap">
               {summary.allergies.map((a) => (
                 <Badge key={a} variant="danger">{a}</Badge>
               ))}
             </div>
-          </DetailRow>
-        )}
-        {summary.history_of_present_illness && <DetailRow label="Present illness">{summary.history_of_present_illness}</DetailRow>}
-        {summary.past_medical_history && <DetailRow label="Past medical history">{summary.past_medical_history}</DetailRow>}
-        {summary.family_history && <DetailRow label="Family history">{summary.family_history}</DetailRow>}
-        {summary.social_history && <DetailRow label="Social history">{summary.social_history}</DetailRow>}
-        {summary.examination_findings && <DetailRow label="Exam findings">{summary.examination_findings}</DetailRow>}
-        {summary.assessment && <DetailRow label="Assessment">{summary.assessment}</DetailRow>}
-        {summary.treatment_plan && <DetailRow label="Treatment plan">{summary.treatment_plan}</DetailRow>}
-      </div>
-    </Section>
+          ),
+        }] : []),
+        ...(summary.history_of_present_illness ? [{ label: 'Present illness', children: summary.history_of_present_illness }] : []),
+        ...(summary.past_medical_history ? [{ label: 'Past medical history', children: summary.past_medical_history }] : []),
+        ...(summary.family_history ? [{ label: 'Family history', children: summary.family_history }] : []),
+        ...(summary.social_history ? [{ label: 'Social history', children: summary.social_history }] : []),
+        ...(summary.examination_findings ? [{ label: 'Exam findings', children: summary.examination_findings }] : []),
+        ...(summary.assessment ? [{ label: 'Assessment', children: summary.assessment }] : []),
+        ...(summary.treatment_plan ? [{ label: 'Treatment plan', children: summary.treatment_plan }] : []),
+      ]}
+    />
   );
 }
 

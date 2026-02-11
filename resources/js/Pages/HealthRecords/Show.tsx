@@ -3,6 +3,7 @@ import AppLayout from '@/Layouts/AppLayout';
 import { Badge, type BadgeVariant } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Alert } from '@/Components/ui/alert';
+import { DetailCard } from '@/Components/ui/detail-card';
 import { DetailRow } from '@/Components/ui/detail-row';
 import { DetailSection } from '@/Components/ui/detail-section';
 import { SideNav } from '@/Components/SideNav';
@@ -17,6 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/Components/ui/dropdown-menu';
+import { IconCircle } from '@/Components/ui/icon-circle';
 import {
   Download,
   Share2,
@@ -580,9 +582,7 @@ function LinkedRecordsList({ records }: { records: LinkedRecord[] }) {
                 <config.icon className="h-5 w-5" style={{ color: config.color }} />
               </div>
             ) : (
-              <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-200">
-                <FileText className="h-5 w-5 text-blue-800" />
-              </div>
+              <IconCircle icon={FileText} size="sm" variant="primary" />
             )}
             <span className="text-label flex-1 truncate">{rec.title}</span>
             <ChevronRight className="h-5 w-5 text-muted-foreground" />
@@ -1152,16 +1152,23 @@ function getProcedureSections(meta: RecordMetadata): CategorySection[] {
 
   if (hasProcedureDetails) {
     sections.push({
-      id: 'procedure-details', title: 'Procedure Details', icon: Syringe, noPadding: true,
+      id: 'procedure-details',
+      title: 'Procedure Details',
+      icon: Syringe,
       content: (
-        <div className="divide-y">
-          {meta.procedure_name && <DetailRow label="Procedure">{meta.procedure_name}</DetailRow>}
-          {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-          {meta.anesthesia && <DetailRow label="Anesthesia">{meta.anesthesia}</DetailRow>}
-          {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
-          {meta.findings && <DetailRow label="Findings">{meta.findings}</DetailRow>}
-          {meta.complications && <DetailRow label="Complications">{meta.complications}</DetailRow>}
-        </div>
+        <DetailCard
+          id="procedure-details"
+          title="Procedure Details"
+          icon={Syringe}
+          rows={[
+            ...(meta.procedure_name ? [{ label: 'Procedure', children: meta.procedure_name }] : []),
+            ...(meta.indication ? [{ label: 'Indication', children: meta.indication }] : []),
+            ...(meta.anesthesia ? [{ label: 'Anesthesia', children: meta.anesthesia }] : []),
+            ...(meta.technique ? [{ label: 'Technique', children: meta.technique }] : []),
+            ...(meta.findings ? [{ label: 'Findings', children: meta.findings }] : []),
+            ...(meta.complications ? [{ label: 'Complications', children: meta.complications }] : []),
+          ]}
+        />
       ),
     });
   }
@@ -1309,29 +1316,38 @@ function getReferralSections(meta: RecordMetadata): CategorySection[] {
 
   if (hasReferralData) {
     sections.push({
-      id: 'referral', title: 'Referral', icon: UserPlus, noPadding: true,
+      id: 'referral',
+      title: 'Referral',
+      icon: UserPlus,
       content: (
-        <div className="divide-y">
-          {meta.referred_to_doctor && <DetailRow label="Referred To">{meta.referred_to_doctor}</DetailRow>}
-          {meta.referred_to_department && <DetailRow label="Department">{meta.referred_to_department}</DetailRow>}
-          {meta.priority && (
-            <DetailRow label="Priority">
-              <Badge variant={meta.priority === 'urgent' ? 'danger' : 'neutral'} className="capitalize">
-                {meta.priority}
-              </Badge>
-            </DetailRow>
-          )}
-          {meta.referral_status && (
-            <DetailRow label="Status">
-              <Badge variant={meta.referral_status === 'scheduled' ? 'success' : meta.referral_status === 'accepted' ? 'info' : 'warning'} className="capitalize">
-                {meta.referral_status}
-              </Badge>
-            </DetailRow>
-          )}
-          {meta.appointment_date && <DetailRow label="Appointment Date">{fmtDate(meta.appointment_date)}</DetailRow>}
-          {meta.reason && <DetailRow label="Reason">{meta.reason}</DetailRow>}
-          {meta.clinical_summary && <DetailRow label="Clinical Summary">{meta.clinical_summary}</DetailRow>}
-        </div>
+        <DetailCard
+          id="referral"
+          title="Referral"
+          icon={UserPlus}
+          rows={[
+            ...(meta.referred_to_doctor ? [{ label: 'Referred To', children: meta.referred_to_doctor }] : []),
+            ...(meta.referred_to_department ? [{ label: 'Department', children: meta.referred_to_department }] : []),
+            ...(meta.priority ? [{
+              label: 'Priority',
+              children: (
+                <Badge variant={meta.priority === 'urgent' ? 'danger' : 'neutral'} className="capitalize">
+                  {meta.priority}
+                </Badge>
+              )
+            }] : []),
+            ...(meta.referral_status ? [{
+              label: 'Status',
+              children: (
+                <Badge variant={meta.referral_status === 'scheduled' ? 'success' : meta.referral_status === 'accepted' ? 'info' : 'warning'} className="capitalize">
+                  {meta.referral_status}
+                </Badge>
+              )
+            }] : []),
+            ...(meta.appointment_date ? [{ label: 'Appointment Date', children: fmtDate(meta.appointment_date) }] : []),
+            ...(meta.reason ? [{ label: 'Reason', children: meta.reason }] : []),
+            ...(meta.clinical_summary ? [{ label: 'Clinical Summary', children: meta.clinical_summary }] : []),
+          ]}
+        />
       ),
     });
   }
@@ -1348,42 +1364,53 @@ function getDischargeSections(meta: RecordMetadata, onAction: (msg: string) => v
 
   if (hasAdmissionDetails) {
     sections.push({
-      id: 'admission', title: 'Admission Details', icon: ClipboardList, noPadding: true,
+      id: 'admission',
+      title: 'Admission Details',
+      icon: ClipboardList,
       content: (
-        <div className="divide-y">
-          {meta.admission_date && <DetailRow label="Admission Date">{fmtDate(meta.admission_date)}</DetailRow>}
-          {meta.discharge_date && <DetailRow label="Discharge Date">{fmtDate(meta.discharge_date)}</DetailRow>}
-          {meta.length_of_stay && <DetailRow label="Length of Stay">{meta.length_of_stay}</DetailRow>}
-          {meta.treating_doctor && <DetailRow label="Treating Doctor">{meta.treating_doctor}</DetailRow>}
-          {meta.room_info && <DetailRow label="Room">{meta.room_info}</DetailRow>}
-          {meta.ipd_number && <DetailRow label="IPD Number">{meta.ipd_number}</DetailRow>}
-        </div>
+        <DetailCard
+          id="admission"
+          title="Admission Details"
+          icon={ClipboardList}
+          rows={[
+            ...(meta.admission_date ? [{ label: 'Admission Date', children: fmtDate(meta.admission_date) }] : []),
+            ...(meta.discharge_date ? [{ label: 'Discharge Date', children: fmtDate(meta.discharge_date) }] : []),
+            ...(meta.length_of_stay ? [{ label: 'Length of Stay', children: meta.length_of_stay }] : []),
+            ...(meta.treating_doctor ? [{ label: 'Treating Doctor', children: meta.treating_doctor }] : []),
+            ...(meta.room_info ? [{ label: 'Room', children: meta.room_info }] : []),
+            ...(meta.ipd_number ? [{ label: 'IPD Number', children: meta.ipd_number }] : []),
+          ]}
+        />
       ),
     });
   }
 
   if (meta.primary_diagnosis || meta.diagnosis || meta.secondary_diagnosis || meta.procedure_performed || meta.procedures || meta.hospital_course) {
     sections.push({
-      id: 'diagnosis', title: 'Diagnosis & Course', icon: Stethoscope, noPadding: true,
+      id: 'diagnosis',
+      title: 'Diagnosis & Course',
+      icon: Stethoscope,
       content: (
-        <div className="divide-y">
-          {(meta.primary_diagnosis || meta.diagnosis) && (
-            <DetailRow label="Primary diagnosis">
-              <span className="text-card-title">{meta.primary_diagnosis || meta.diagnosis}</span>
-            </DetailRow>
-          )}
-          {meta.secondary_diagnosis && (
-            <DetailRow label="Secondary diagnosis">{meta.secondary_diagnosis}</DetailRow>
-          )}
-          {(meta.procedures && meta.procedures.length > 0) ? (
-            <DetailRow label="Procedures">{meta.procedures.join(', ')}</DetailRow>
-          ) : meta.procedure_performed ? (
-            <DetailRow label="Procedure">{meta.procedure_performed}</DetailRow>
-          ) : null}
-          {meta.hospital_course && (
-            <DetailRow label="Hospital course">{meta.hospital_course}</DetailRow>
-          )}
-        </div>
+        <DetailCard
+          id="diagnosis"
+          title="Diagnosis & Course"
+          icon={Stethoscope}
+          rows={[
+            ...((meta.primary_diagnosis || meta.diagnosis) ? [{
+              label: 'Primary diagnosis',
+              children: <span className="text-card-title">{meta.primary_diagnosis || meta.diagnosis}</span>
+            }] : []),
+            ...(meta.secondary_diagnosis ? [{ label: 'Secondary diagnosis', children: meta.secondary_diagnosis }] : []),
+            ...((meta.procedures && meta.procedures.length > 0) ? [{
+              label: 'Procedures',
+              children: meta.procedures.join(', ')
+            }] : meta.procedure_performed ? [{
+              label: 'Procedure',
+              children: meta.procedure_performed
+            }] : []),
+            ...(meta.hospital_course ? [{ label: 'Hospital course', children: meta.hospital_course }] : []),
+          ]}
+        />
       ),
     });
   }
@@ -1648,11 +1675,18 @@ function getLabReportSections(
 
   if (meta.interpretation) {
     sections.push({
-      id: 'interpretation', title: 'Interpretation', icon: Stethoscope, noPadding: true,
+      id: 'interpretation',
+      title: 'Interpretation',
+      icon: Stethoscope,
       content: (
-        <div className="divide-y">
-          <DetailRow label="Interpretation">{meta.interpretation}</DetailRow>
-        </div>
+        <DetailCard
+          id="interpretation"
+          title="Interpretation"
+          icon={Stethoscope}
+          rows={[
+            { label: 'Interpretation', children: meta.interpretation }
+          ]}
+        />
       ),
     });
   }
@@ -1680,30 +1714,40 @@ function getXraySections(
 
   if (hasStudyDetails) {
     sections.push({
-      id: 'study-details', title: 'Study Details', icon: ScanLine,
+      id: 'study-details',
+      title: 'Study Details',
+      icon: ScanLine,
       content: (
-        <div className="divide-y">
-          {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
-          {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-          {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
-          {meta.radiologist && <DetailRow label="Radiologist">{meta.radiologist}</DetailRow>}
-        </div>
+        <DetailCard
+          id="study-details"
+          title="Study Details"
+          icon={ScanLine}
+          rows={[
+            ...(meta.body_part ? [{ label: 'Body Part', children: meta.body_part }] : []),
+            ...(meta.indication ? [{ label: 'Indication', children: meta.indication }] : []),
+            ...(meta.technique ? [{ label: 'Technique', children: meta.technique }] : []),
+            ...(meta.radiologist ? [{ label: 'Radiologist', children: meta.radiologist }] : []),
+          ]}
+        />
       ),
     });
   }
 
   if (meta.findings || meta.impression) {
     sections.push({
-      id: 'findings', title: 'Findings', icon: FileText, noPadding: true,
+      id: 'findings',
+      title: 'Findings',
+      icon: FileText,
       content: (
-        <div className="divide-y">
-          {meta.findings && (
-            <DetailRow label="Observations">{meta.findings}</DetailRow>
-          )}
-          {meta.impression && (
-            <DetailRow label="Impression">{meta.impression}</DetailRow>
-          )}
-        </div>
+        <DetailCard
+          id="findings"
+          title="Findings"
+          icon={FileText}
+          rows={[
+            ...(meta.findings ? [{ label: 'Observations', children: meta.findings }] : []),
+            ...(meta.impression ? [{ label: 'Impression', children: meta.impression }] : []),
+          ]}
+        />
       ),
     });
   }
@@ -1732,32 +1776,42 @@ function getMriSections(
 
   if (hasStudyDetails) {
     sections.push({
-      id: 'study-details', title: 'Study Details', icon: BrainCircuit, noPadding: true,
+      id: 'study-details',
+      title: 'Study Details',
+      icon: BrainCircuit,
       content: (
-        <div className="divide-y">
-          {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
-          {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-          {meta.technique && <DetailRow label="Technique">{meta.technique}</DetailRow>}
-          {meta.contrast && <DetailRow label="Contrast">{meta.contrast}</DetailRow>}
-          {meta.sequences && <DetailRow label="Sequences">{meta.sequences}</DetailRow>}
-          {meta.radiologist && <DetailRow label="Radiologist">{meta.radiologist}</DetailRow>}
-        </div>
+        <DetailCard
+          id="study-details"
+          title="Study Details"
+          icon={BrainCircuit}
+          rows={[
+            ...(meta.body_part ? [{ label: 'Body Part', children: meta.body_part }] : []),
+            ...(meta.indication ? [{ label: 'Indication', children: meta.indication }] : []),
+            ...(meta.technique ? [{ label: 'Technique', children: meta.technique }] : []),
+            ...(meta.contrast ? [{ label: 'Contrast', children: meta.contrast }] : []),
+            ...(meta.sequences ? [{ label: 'Sequences', children: meta.sequences }] : []),
+            ...(meta.radiologist ? [{ label: 'Radiologist', children: meta.radiologist }] : []),
+          ]}
+        />
       ),
     });
   }
 
   if (meta.findings || meta.impression) {
     sections.push({
-      id: 'findings', title: 'Findings', icon: FileText, noPadding: true,
+      id: 'findings',
+      title: 'Findings',
+      icon: FileText,
       content: (
-        <div className="divide-y">
-          {meta.findings && (
-            <DetailRow label="Observations">{meta.findings}</DetailRow>
-          )}
-          {meta.impression && (
-            <DetailRow label="Impression">{meta.impression}</DetailRow>
-          )}
-        </div>
+        <DetailCard
+          id="findings"
+          title="Findings"
+          icon={FileText}
+          rows={[
+            ...(meta.findings ? [{ label: 'Observations', children: meta.findings }] : []),
+            ...(meta.impression ? [{ label: 'Impression', children: meta.impression }] : []),
+          ]}
+        />
       ),
     });
   }
@@ -1785,29 +1839,39 @@ function getUltrasoundSections(
 
   if (hasStudyDetails) {
     sections.push({
-      id: 'study-details', title: 'Study Details', icon: Radio, noPadding: true,
+      id: 'study-details',
+      title: 'Study Details',
+      icon: Radio,
       content: (
-        <div className="divide-y">
-          {meta.body_part && <DetailRow label="Body Part">{meta.body_part}</DetailRow>}
-          {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-          {meta.sonographer && <DetailRow label="Sonographer">{meta.sonographer}</DetailRow>}
-        </div>
+        <DetailCard
+          id="study-details"
+          title="Study Details"
+          icon={Radio}
+          rows={[
+            ...(meta.body_part ? [{ label: 'Body Part', children: meta.body_part }] : []),
+            ...(meta.indication ? [{ label: 'Indication', children: meta.indication }] : []),
+            ...(meta.sonographer ? [{ label: 'Sonographer', children: meta.sonographer }] : []),
+          ]}
+        />
       ),
     });
   }
 
   if (meta.findings || meta.impression) {
     sections.push({
-      id: 'findings', title: 'Findings', icon: FileText, noPadding: true,
+      id: 'findings',
+      title: 'Findings',
+      icon: FileText,
       content: (
-        <div className="divide-y">
-          {meta.findings && (
-            <DetailRow label="Observations">{meta.findings}</DetailRow>
-          )}
-          {meta.impression && (
-            <DetailRow label="Impression">{meta.impression}</DetailRow>
-          )}
-        </div>
+        <DetailCard
+          id="findings"
+          title="Findings"
+          icon={FileText}
+          rows={[
+            ...(meta.findings ? [{ label: 'Observations', children: meta.findings }] : []),
+            ...(meta.impression ? [{ label: 'Impression', children: meta.impression }] : []),
+          ]}
+        />
       ),
     });
   }
@@ -1836,17 +1900,24 @@ function getEcgSections(
 
   if (hasMeasurements) {
     sections.push({
-      id: 'measurements', title: 'Measurements', icon: HeartPulse, noPadding: true,
+      id: 'measurements',
+      title: 'Measurements',
+      icon: HeartPulse,
       content: (
-        <div className="divide-y">
-          {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-          {meta.heart_rate && <DetailRow label="Heart Rate">{meta.heart_rate} bpm</DetailRow>}
-          {meta.rhythm && <DetailRow label="Rhythm">{meta.rhythm}</DetailRow>}
-          {meta.axis && <DetailRow label="Axis">{meta.axis}</DetailRow>}
-          {meta.intervals?.pr && <DetailRow label="PR Interval">{meta.intervals.pr}</DetailRow>}
-          {meta.intervals?.qrs && <DetailRow label="QRS Interval">{meta.intervals.qrs}</DetailRow>}
-          {meta.intervals?.qt && <DetailRow label="QT Interval">{meta.intervals.qt}</DetailRow>}
-        </div>
+        <DetailCard
+          id="measurements"
+          title="Measurements"
+          icon={HeartPulse}
+          rows={[
+            ...(meta.indication ? [{ label: 'Indication', children: meta.indication }] : []),
+            ...(meta.heart_rate ? [{ label: 'Heart Rate', children: `${meta.heart_rate} bpm` }] : []),
+            ...(meta.rhythm ? [{ label: 'Rhythm', children: meta.rhythm }] : []),
+            ...(meta.axis ? [{ label: 'Axis', children: meta.axis }] : []),
+            ...(meta.intervals?.pr ? [{ label: 'PR Interval', children: meta.intervals.pr }] : []),
+            ...(meta.intervals?.qrs ? [{ label: 'QRS Interval', children: meta.intervals.qrs }] : []),
+            ...(meta.intervals?.qt ? [{ label: 'QT Interval', children: meta.intervals.qt }] : []),
+          ]}
+        />
       ),
     });
   }
@@ -1857,18 +1928,22 @@ function getEcgSections(
                        meta.impression?.toLowerCase().includes('arrhythmia');
 
     sections.push({
-      id: 'findings', title: 'Findings', icon: FileText, noPadding: true,
+      id: 'findings',
+      title: 'Findings',
+      icon: FileText,
       content: (
-        <div className="divide-y">
-          {meta.findings && (
-            <DetailRow label="Observations">{meta.findings}</DetailRow>
-          )}
-          {meta.impression && (
-            <DetailRow label="Impression">
-              <span className={isAbnormal ? 'text-destructive' : ''}>{meta.impression}</span>
-            </DetailRow>
-          )}
-        </div>
+        <DetailCard
+          id="findings"
+          title="Findings"
+          icon={FileText}
+          rows={[
+            ...(meta.findings ? [{ label: 'Observations', children: meta.findings }] : []),
+            ...(meta.impression ? [{
+              label: 'Impression',
+              children: <span className={isAbnormal ? 'text-destructive' : ''}>{meta.impression}</span>
+            }] : []),
+          ]}
+        />
       ),
     });
   }
@@ -1897,32 +1972,47 @@ function getPathologySections(
 
   if (hasSpecimenAnalysis) {
     sections.push({
-      id: 'specimen-analysis', title: 'Specimen & Analysis', icon: Microscope, noPadding: true,
+      id: 'specimen-analysis',
+      title: 'Specimen & Analysis',
+      icon: Microscope,
       content: (
-        <div className="divide-y">
-          {meta.specimen_type && <DetailRow label="Specimen">{meta.specimen_type}</DetailRow>}
-          {meta.pathologist && <DetailRow label="Pathologist">{meta.pathologist}</DetailRow>}
-          {meta.gross_description && (
-            <DetailRow label="Gross Description">{meta.gross_description}</DetailRow>
-          )}
-          {meta.microscopic_findings && (
-            <DetailRow label="Microscopic Findings">{meta.microscopic_findings}</DetailRow>
-          )}
-        </div>
+        <DetailCard
+          id="specimen-analysis"
+          title="Specimen & Analysis"
+          icon={Microscope}
+          rows={[
+            ...(meta.specimen_type ? [{ label: 'Specimen', children: meta.specimen_type }] : []),
+            ...(meta.pathologist ? [{ label: 'Pathologist', children: meta.pathologist }] : []),
+            ...(meta.gross_description ? [{ label: 'Gross Description', children: meta.gross_description }] : []),
+            ...(meta.microscopic_findings ? [{ label: 'Microscopic Findings', children: meta.microscopic_findings }] : []),
+          ]}
+        />
       ),
     });
   }
 
   if (meta.diagnosis) {
     sections.push({
-      id: 'diagnosis', title: 'Diagnosis', icon: ClipboardCheck, noPadding: true,
+      id: 'diagnosis',
+      title: 'Diagnosis',
+      icon: ClipboardCheck,
       content: (
-        <div className="divide-y">
-          <DetailRow label="Diagnosis">
-            {meta.diagnosis}
-            {meta.grade && <span className="text-muted-foreground ml-2">— Grade: {meta.grade}</span>}
-          </DetailRow>
-        </div>
+        <DetailCard
+          id="diagnosis"
+          title="Diagnosis"
+          icon={ClipboardCheck}
+          rows={[
+            {
+              label: 'Diagnosis',
+              children: (
+                <>
+                  {meta.diagnosis}
+                  {meta.grade && <span className="text-muted-foreground ml-2">— Grade: {meta.grade}</span>}
+                </>
+              )
+            }
+          ]}
+        />
       ),
     });
   }
@@ -1988,11 +2078,18 @@ function getPftSections(
 
   if (meta.interpretation) {
     sections.push({
-      id: 'interpretation', title: 'Interpretation', icon: Stethoscope, noPadding: true,
+      id: 'interpretation',
+      title: 'Interpretation',
+      icon: Stethoscope,
       content: (
-        <div className="divide-y">
-          <DetailRow label="Interpretation">{meta.interpretation}</DetailRow>
-        </div>
+        <DetailCard
+          id="interpretation"
+          title="Interpretation"
+          icon={Stethoscope}
+          rows={[
+            { label: 'Interpretation', children: meta.interpretation }
+          ]}
+        />
       ),
     });
   }
@@ -2020,14 +2117,21 @@ function getOtherReportSections(
 
   if (hasReportData) {
     sections.push({
-      id: 'report', title: 'Report', icon: ClipboardList, noPadding: true,
+      id: 'report',
+      title: 'Report',
+      icon: ClipboardList,
       content: (
-        <div className="divide-y">
-          {meta.report_type && <DetailRow label="Report Type">{meta.report_type}</DetailRow>}
-          {meta.indication && <DetailRow label="Indication">{meta.indication}</DetailRow>}
-          {meta.findings && <DetailRow label="Observations">{meta.findings}</DetailRow>}
-          {meta.impression && <DetailRow label="Impression">{meta.impression}</DetailRow>}
-        </div>
+        <DetailCard
+          id="report"
+          title="Report"
+          icon={ClipboardList}
+          rows={[
+            ...(meta.report_type ? [{ label: 'Report Type', children: meta.report_type }] : []),
+            ...(meta.indication ? [{ label: 'Indication', children: meta.indication }] : []),
+            ...(meta.findings ? [{ label: 'Observations', children: meta.findings }] : []),
+            ...(meta.impression ? [{ label: 'Impression', children: meta.impression }] : []),
+          ]}
+        />
       ),
     });
   }
@@ -2079,27 +2183,32 @@ function getMedicationActiveSections(meta: RecordMetadata, onAction: (msg: strin
   const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   sections.push({
-    id: 'medication', title: 'Medication', icon: Pill,
+    id: 'medication',
+    title: 'Medication',
+    icon: Pill,
     action: <Badge variant="success">Active</Badge>,
     content: (
-      <>
-        <div className="divide-y">
-          {meta.dosage && <DetailRow label="Dose">{meta.dosage}</DetailRow>}
-          {meta.frequency && <DetailRow label="Frequency">{meta.frequency}</DetailRow>}
-          {meta.timing && <DetailRow label="Timing">{meta.timing}</DetailRow>}
-          {meta.with_food && (
-            <DetailRow label="Food">
-              <Badge variant="success">Take with food</Badge>
-            </DetailRow>
-          )}
-          {meta.medication_duration && <DetailRow label="Duration">{meta.medication_duration}</DetailRow>}
-          {meta.route && <DetailRow label="Route">{meta.route}</DetailRow>}
-          {meta.condition && <DetailRow label="Condition">{meta.condition}</DetailRow>}
-          {meta.side_effects && meta.side_effects.length > 0 && (
-            <DetailRow label="Side effects">{meta.side_effects.join(', ')}</DetailRow>
-          )}
-        </div>
-      </>
+      <DetailCard
+        id="medication"
+        title="Medication"
+        icon={Pill}
+        rows={[
+          ...(meta.dosage ? [{ label: 'Dose', children: meta.dosage }] : []),
+          ...(meta.frequency ? [{ label: 'Frequency', children: meta.frequency }] : []),
+          ...(meta.timing ? [{ label: 'Timing', children: meta.timing }] : []),
+          ...(meta.with_food ? [{
+            label: 'Food',
+            children: <Badge variant="success">Take with food</Badge>
+          }] : []),
+          ...(meta.medication_duration ? [{ label: 'Duration', children: meta.medication_duration }] : []),
+          ...(meta.route ? [{ label: 'Route', children: meta.route }] : []),
+          ...(meta.condition ? [{ label: 'Condition', children: meta.condition }] : []),
+          ...(meta.side_effects && meta.side_effects.length > 0 ? [{
+            label: 'Side effects',
+            children: meta.side_effects.join(', ')
+          }] : []),
+        ]}
+      />
     ),
   });
 
@@ -2167,28 +2276,32 @@ function getMedicationPastSections(meta: RecordMetadata): CategorySection[] {
   const sections: CategorySection[] = [];
 
   sections.push({
-    id: 'medication', title: 'Medication', icon: Pill,
+    id: 'medication',
+    title: 'Medication',
+    icon: Pill,
     action: <Badge variant="neutral">Inactive</Badge>,
     content: (
-      <>
-        <div className="divide-y">
-          {meta.dosage && <DetailRow label="Dose">{meta.dosage}</DetailRow>}
-          {meta.frequency && <DetailRow label="Frequency">{meta.frequency}</DetailRow>}
-          {meta.timing && <DetailRow label="Timing">{meta.timing}</DetailRow>}
-          {meta.with_food && (
-            <DetailRow label="Food">
-              <Badge variant="success">Take with food</Badge>
-            </DetailRow>
-          )}
-          {meta.medication_duration && <DetailRow label="Duration">{meta.medication_duration}</DetailRow>}
-          {meta.route && <DetailRow label="Route">{meta.route}</DetailRow>}
-          {meta.condition && <DetailRow label="Condition">{meta.condition}</DetailRow>}
-          {meta.prescribing_doctor && <DetailRow label="Prescribed by">{meta.prescribing_doctor}</DetailRow>}
-          {meta.start_date && <DetailRow label="Started">{fmtDate(meta.start_date)}</DetailRow>}
-          {meta.end_date && <DetailRow label="Ended">{fmtDate(meta.end_date)}</DetailRow>}
-          {meta.reason_stopped && <DetailRow label="Reason stopped">{meta.reason_stopped}</DetailRow>}
-        </div>
-      </>
+      <DetailCard
+        id="medication"
+        title="Medication"
+        icon={Pill}
+        rows={[
+          ...(meta.dosage ? [{ label: 'Dose', children: meta.dosage }] : []),
+          ...(meta.frequency ? [{ label: 'Frequency', children: meta.frequency }] : []),
+          ...(meta.timing ? [{ label: 'Timing', children: meta.timing }] : []),
+          ...(meta.with_food ? [{
+            label: 'Food',
+            children: <Badge variant="success">Take with food</Badge>
+          }] : []),
+          ...(meta.medication_duration ? [{ label: 'Duration', children: meta.medication_duration }] : []),
+          ...(meta.route ? [{ label: 'Route', children: meta.route }] : []),
+          ...(meta.condition ? [{ label: 'Condition', children: meta.condition }] : []),
+          ...(meta.prescribing_doctor ? [{ label: 'Prescribed by', children: meta.prescribing_doctor }] : []),
+          ...(meta.start_date ? [{ label: 'Started', children: fmtDate(meta.start_date) }] : []),
+          ...(meta.end_date ? [{ label: 'Ended', children: fmtDate(meta.end_date) }] : []),
+          ...(meta.reason_stopped ? [{ label: 'Reason stopped', children: meta.reason_stopped }] : []),
+        ]}
+      />
     ),
   });
 
@@ -2315,22 +2428,29 @@ function getMedicalCertificateSections(meta: RecordMetadata, onAction: (msg: str
 
   if (hasCertificateDetails) {
     sections.push({
-      id: 'certificate-details', title: 'Certificate Details', icon: Award,
+      id: 'certificate-details',
+      title: 'Certificate Details',
+      icon: Award,
       content: (
-        <>
-          <div className="divide-y">
-            {meta.certificate_type && <DetailRow label="Type">{meta.certificate_type}</DetailRow>}
-            {meta.certificate_number && <DetailRow label="Certificate No.">{meta.certificate_number}</DetailRow>}
-            {meta.issued_for && <DetailRow label="Issued For">{meta.issued_for}</DetailRow>}
-            {meta.issued_by && <DetailRow label="Issued By">{meta.issued_by}</DetailRow>}
-            {meta.valid_from && meta.valid_until && (
-              <DetailRow label="Validity">{fmtDate(meta.valid_from)} – {fmtDate(meta.valid_until)}</DetailRow>
-            )}
-            {(meta.certificate_content || meta.notes) && (
-              <DetailRow label="Content">{meta.certificate_content || meta.notes}</DetailRow>
-            )}
-          </div>
-        </>
+        <DetailCard
+          id="certificate-details"
+          title="Certificate Details"
+          icon={Award}
+          rows={[
+            ...(meta.certificate_type ? [{ label: 'Type', children: meta.certificate_type }] : []),
+            ...(meta.certificate_number ? [{ label: 'Certificate No.', children: meta.certificate_number }] : []),
+            ...(meta.issued_for ? [{ label: 'Issued For', children: meta.issued_for }] : []),
+            ...(meta.issued_by ? [{ label: 'Issued By', children: meta.issued_by }] : []),
+            ...(meta.valid_from && meta.valid_until ? [{
+              label: 'Validity',
+              children: `${fmtDate(meta.valid_from)} – ${fmtDate(meta.valid_until)}`
+            }] : []),
+            ...((meta.certificate_content || meta.notes) ? [{
+              label: 'Content',
+              children: meta.certificate_content || meta.notes
+            }] : []),
+          ]}
+        />
       ),
     });
   }

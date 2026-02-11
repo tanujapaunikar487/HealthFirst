@@ -2,22 +2,14 @@ import { Head, Link, router } from '@inertiajs/react';
 import { useState, useEffect, useRef } from 'react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Button, buttonVariants } from '@/Components/ui/button';
-import { Badge, type BadgeVariant } from '@/Components/ui/badge';
+import { Badge } from '@/Components/ui/badge';
 import { Card, CardContent } from '@/Components/ui/card';
 import { VStack, HStack } from '@/Components/ui/stack';
-import {
-  ChevronRight, AlertCircle, RefreshCw, Stethoscope, FlaskConical,
-  Receipt, MoreHorizontal, Calendar, X, FileText, Clock, CreditCard, Loader2,
-  Shield, RotateCcw, CheckCircle2, Syringe, Pill,
-} from '@/Lib/icons';
+import { ChevronRight, AlertCircle, RefreshCw, FlaskConical, Clock, CheckCircle2 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
-import { getAvatarColor } from '@/Lib/avatar-colors';
+import { IconCircle } from '@/Components/ui/icon-circle';
 import { useToast } from '@/Contexts/ToastContext';
-import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { CtaBanner } from '@/Components/ui/cta-banner';
-import {
-  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator,
-} from '@/Components/ui/dropdown-menu';
 import { Sheet, SheetContent } from '@/Components/ui/sheet';
 import { SheetSkeleton } from '@/Components/ui/skeleton';
 import {
@@ -30,6 +22,7 @@ import {
 import { HealthProfileSheet } from './Dashboard/components/HealthProfileSheet';
 import { AddInsuranceSheet } from '@/Components/Insurance/AddInsuranceSheet';
 import EmbeddedFamilyMemberFlow from '@/Features/booking-chat/embedded/EmbeddedFamilyMemberFlow';
+import { ActionableCardListItem } from '@/Components/ui/actionable-card-list';
 
 declare global {
   interface Window {
@@ -281,9 +274,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="w-full max-w-content mx-auto">
       <div className="flex flex-col items-center justify-center gap-4 py-32">
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted">
-          <Icon icon={AlertCircle} className="h-7 w-7 text-muted-foreground" />
-        </div>
+        <IconCircle icon={AlertCircle} size="lg" variant="muted" />
         <p className="text-label text-muted-foreground">Unable to load dashboard</p>
         <p className="text-body text-muted-foreground">Please check your connection and try again.</p>
         <Button variant="secondary" className="mt-2" onClick={onRetry}>
@@ -295,160 +286,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
   );
 }
 
-// --- Dashboard Card Component ---
-
-type CardType =
-  | 'overdue_bill' | 'health_alert' | 'appointment_today' | 'appointment_upcoming'
-  | 'payment_due_soon' | 'emi_due' | 'insurance_claim_update'
-  | 'followup_due' | 'pre_appointment_reminder'
-  | 'new_results_ready' | 'vaccination_due' | 'prescription_expiring';
-
-interface DashboardCardProps {
-  type: CardType;
-  title: string;
-  subtitle: string;
-  patientName: string;
-  patientInitials: string;
-  badge?: string;
-  badgeVariant?: BadgeVariant;
-  actionLabel: string;
-  actionVariant?: 'accent' | 'outline' | 'secondary';
-  onAction: () => void;
-  menuItems: { label: string; onClick: () => void; destructive?: boolean }[];
-  isLast: boolean;
-  iconOverride?: typeof Receipt;
-  doctorName?: string;
-  doctorAvatarUrl?: string;
-}
-
-function getAvatarColorByName(name: string) {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return getAvatarColor(Math.abs(hash));
-}
-
-const cardConfig: Record<CardType, { icon: typeof Receipt; iconBgClass: string; iconColorClass: string }> = {
-  overdue_bill: { icon: Receipt, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
-  health_alert: { icon: AlertCircle, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
-  appointment_today: { icon: Stethoscope, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
-  appointment_upcoming: { icon: Calendar, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
-  payment_due_soon: { icon: CreditCard, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
-  emi_due: { icon: CreditCard, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
-  insurance_claim_update: { icon: Shield, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
-  followup_due: { icon: RotateCcw, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
-  pre_appointment_reminder: { icon: Calendar, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
-  new_results_ready: { icon: CheckCircle2, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
-  vaccination_due: { icon: Syringe, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
-  prescription_expiring: { icon: Pill, iconBgClass: 'bg-blue-200', iconColorClass: 'text-blue-800' },
-};
-
-function DashboardCard({
-  type, title, subtitle, patientName, patientInitials, badge, badgeVariant,
-  actionLabel, actionVariant = 'secondary', onAction, menuItems, isLast, iconOverride,
-  doctorName, doctorAvatarUrl,
-}: DashboardCardProps) {
-  const config = cardConfig[type];
-  const CardIcon = iconOverride || config.icon;
-
-  const isDoctorAppointment = (type === 'appointment_today' || type === 'appointment_upcoming' || type === 'pre_appointment_reminder') && doctorName && !iconOverride;
-
-  const getInitials = (name: string) => {
-    const words = name.split(' ').filter(w => w.length > 0);
-    if (words.length >= 2) {
-      return (words[0][0] + words[1][0]).toUpperCase();
-    }
-    return words[0]?.slice(0, 2).toUpperCase() || 'D';
-  };
-
-  return (
-    <HStack
-      gap={3}
-      align="start"
-      className={`p-4 ${!isLast ? 'border-b border-border' : ''}`}
-    >
-      {/* Avatar for doctor appointments, Icon for everything else */}
-      {isDoctorAppointment ? (
-        <Avatar className="h-10 w-10 flex-shrink-0">
-          {doctorAvatarUrl && (
-            <AvatarImage src={doctorAvatarUrl} alt={doctorName} />
-          )}
-          <AvatarFallback
-            className="text-body font-medium"
-            style={(() => {
-              const color = getAvatarColorByName(doctorName!);
-              return { backgroundColor: color.bg, color: color.text };
-            })()}
-          >
-            {getInitials(doctorName!)}
-          </AvatarFallback>
-        </Avatar>
-      ) : (
-        <div className={`flex items-center justify-center flex-shrink-0 w-10 h-10 rounded-full ${config.iconBgClass}`}>
-          <Icon icon={CardIcon} className={`h-5 w-5 ${config.iconColorClass}`} />
-        </div>
-      )}
-
-      {/* Content */}
-      <VStack gap={0.5} className="flex-1 min-w-0">
-        {/* Patient + badge row */}
-        <div className="flex items-center gap-2">
-          <span className="text-label text-muted-foreground">{patientName}</span>
-          {badge && (
-            <Badge variant={badgeVariant || 'danger'} size="sm">
-              {badge}
-            </Badge>
-          )}
-        </div>
-        {/* Title */}
-        <h3
-          className="text-card-title text-foreground truncate"
-        >
-          {title}
-        </h3>
-        {/* Subtitle */}
-        <p className="text-body text-muted-foreground">{subtitle}</p>
-      </VStack>
-
-      {/* Action button */}
-      <Button
-        variant={actionVariant}
-        size="md"
-        className="flex-shrink-0"
-        onClick={(e) => { e.stopPropagation(); onAction(); }}
-      >
-        {actionLabel}
-      </Button>
-
-      {/* Overflow menu */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="secondary"
-            iconOnly
-            size="md"
-            className="flex-shrink-0"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
-          {menuItems.map((item, i) => (
-            <DropdownMenuItem
-              key={i}
-              onClick={item.onClick}
-              className={item.destructive ? 'text-destructive focus:text-destructive' : ''}
-            >
-              {item.label}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </HStack>
-  );
-}
+// --- Dashboard Card Component (now using global ActionableCardListItem) ---
 
 // --- Main Dashboard ---
 
@@ -761,7 +599,7 @@ export default function Dashboard({
       case 'overdue_bill': {
         const bill = card.data as OverdueBill;
         return (
-          <DashboardCard
+          <ActionableCardListItem
             key={`bill-${bill.id}`}
             type="overdue_bill"
             title={bill.title}
@@ -784,7 +622,7 @@ export default function Dashboard({
       case 'payment_due_soon': {
         const payment = card.data as PaymentDueSoon;
         return (
-          <DashboardCard
+          <ActionableCardListItem
             key={`payment-due-${payment.id}`}
             type="payment_due_soon"
             title={payment.title}
@@ -806,7 +644,7 @@ export default function Dashboard({
       case 'emi_due': {
         const emi = card.data as EmiDue;
         return (
-          <DashboardCard
+          <ActionableCardListItem
             key={`emi-${emi.id}`}
             type="emi_due"
             title={emi.title}
@@ -828,7 +666,7 @@ export default function Dashboard({
       case 'insurance_claim_update': {
         const claim = card.data as InsuranceClaimUpdate;
         return (
-          <DashboardCard
+          <ActionableCardListItem
             key={`claim-${claim.id}`}
             type="insurance_claim_update"
             title={claim.title}
@@ -857,7 +695,7 @@ export default function Dashboard({
       case 'health_alert': {
         const alert = card.data as HealthAlert;
         return (
-          <DashboardCard
+          <ActionableCardListItem
             key={`alert-${alert.id}`}
             type="health_alert"
             title={alert.title}
@@ -880,7 +718,7 @@ export default function Dashboard({
         const rx = card.data as PrescriptionExpiring;
         const minDays = Math.min(...rx.drugs.map(d => d.days_remaining));
         return (
-          <DashboardCard
+          <ActionableCardListItem
             key={`rx-${rx.id}`}
             type="prescription_expiring"
             title={`Refill needed · ${rx.drugs.map(d => d.name).join(', ')}`}
@@ -901,7 +739,7 @@ export default function Dashboard({
       case 'followup_due': {
         const followup = card.data as FollowUpDue;
         return (
-          <DashboardCard
+          <ActionableCardListItem
             key={`followup-${followup.id}`}
             type="followup_due"
             title={`Follow-up with Dr. ${followup.doctor_name}`}
@@ -923,7 +761,7 @@ export default function Dashboard({
       case 'new_results_ready': {
         const result = card.data as NewResultsReady;
         return (
-          <DashboardCard
+          <ActionableCardListItem
             key={`result-${result.id}`}
             type="new_results_ready"
             title={result.test_name}
@@ -945,7 +783,7 @@ export default function Dashboard({
       case 'appointment_today': {
         const appt = card.data as UpcomingAppointment;
         return (
-          <DashboardCard
+          <ActionableCardListItem
             key={`today-${appt.id}`}
             type="appointment_today"
             title={appt.title}
@@ -981,7 +819,7 @@ export default function Dashboard({
       case 'pre_appointment_reminder': {
         const reminder = card.data as PreAppointmentReminder;
         return (
-          <DashboardCard
+          <ActionableCardListItem
             key={`pre-appt-${reminder.id}`}
             type="pre_appointment_reminder"
             title={reminder.title}
@@ -1007,7 +845,7 @@ export default function Dashboard({
       case 'appointment_upcoming': {
         const appt = card.data as UpcomingAppointment;
         return (
-          <DashboardCard
+          <ActionableCardListItem
             key={`later-${appt.id}`}
             type="appointment_upcoming"
             title={appt.title}
@@ -1034,7 +872,7 @@ export default function Dashboard({
       case 'followup_due_future': {
         const followup = card.data as FollowUpDue;
         return (
-          <DashboardCard
+          <ActionableCardListItem
             key={`future-followup-${followup.id}`}
             type="followup_due"
             title={`Follow-up with Dr. ${followup.doctor_name}`}
@@ -1060,7 +898,7 @@ export default function Dashboard({
         const isPast = dueDate < new Date();
         const daysUntil = Math.ceil((dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
         return (
-          <DashboardCard
+          <ActionableCardListItem
             key={`vaccination-${vaccination.id}`}
             type="vaccination_due"
             title={vaccination.vaccine_name}
@@ -1083,7 +921,7 @@ export default function Dashboard({
       case 'preventive_care': {
         const care = card.data as PreventiveCarePrompt;
         return (
-          <DashboardCard
+          <ActionableCardListItem
             key={`care-${care.id}`}
             type="appointment_upcoming"
             title="Annual checkup due"
@@ -1216,7 +1054,7 @@ export default function Dashboard({
                 <Card className="overflow-hidden w-full">
                   <CardContent className="p-0">
                     {upcomingAppointments.slice(0, 3).map((appt, i, arr) => (
-                      <DashboardCard
+                      <ActionableCardListItem
                         key={`onboarding-appt-${appt.id}`}
                         type="appointment_upcoming"
                         title={appt.title}
@@ -1464,12 +1302,13 @@ function ProfileStepItem({ step, isLast, onClick }: ProfileStepItemProps) {
       style={{ backgroundColor: step.completed ? 'hsl(var(--success) / 0.1)' : 'hsl(var(--background))' }}
     >
       {step.completed ? (
-        <div
-          className="flex items-center justify-center flex-shrink-0 w-10 h-10 rounded-full bg-success"
+        <IconCircle
+          icon={CheckCircle2}
+          size="sm"
+          className="bg-success"
+          iconClassName="text-white"
           style={{ animation: 'checkmark-pop 0.3s ease-out' }}
-        >
-          <Icon icon={CheckCircle2} className="h-5 w-5 text-white" />
-        </div>
+        />
       ) : (
         <div className="flex items-center justify-center flex-shrink-0 w-10 h-10 rounded-full bg-muted">
           <span className="text-card-title text-muted-foreground">
@@ -1488,9 +1327,12 @@ function ProfileStepItem({ step, isLast, onClick }: ProfileStepItemProps) {
       </VStack>
 
       {!step.completed && (
-        <div className="flex items-center justify-center flex-shrink-0 w-10 h-10 rounded-full bg-secondary border border-border">
-          <Icon icon={ChevronRight} className="h-5 w-5 text-foreground" strokeWidth={1.25} />
-        </div>
+        <IconCircle
+          icon={ChevronRight}
+          size="sm"
+          variant="secondary"
+          className="border border-border"
+        />
       )}
     </HStack>
   );

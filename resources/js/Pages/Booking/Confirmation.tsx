@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { Link } from '@inertiajs/react';
 import { Button, buttonVariants } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
-import { Card } from '@/Components/ui/card';
-import { DetailRow } from '@/Components/ui/detail-row';
+import { DetailCard } from '@/Components/ui/detail-card';
 import { Check, Calendar, Share2 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { useAccessibilityPreferences } from '@/Hooks/useAccessibilityPreferences';
@@ -123,81 +122,95 @@ export default function Confirmation({ booking, calendarPreference }: Props) {
         </div>
 
         {/* Appointment Details Card */}
-        <Card className="overflow-hidden">
-          <div className="divide-y">
-            {/* Doctor Booking Details */}
-            {isDoctorBooking && (
-              <>
-                {booking.doctor_name && (
-                  <DetailRow label="Doctor">
-                    <div>
-                      <p className="text-label">{booking.doctor_name}</p>
-                      {booking.doctor_specialization && (
-                        <p className="text-body text-muted-foreground">{booking.doctor_specialization}</p>
-                      )}
-                    </div>
-                  </DetailRow>
-                )}
-                {booking.mode && (
-                  <DetailRow label="Consultation">
-                    <Badge variant="neutral">{booking.mode}</Badge>
-                  </DetailRow>
-                )}
-                {booking.clinic_name && (
-                  <DetailRow label="Location">
-                    <div>
-                      <p className="text-label">{booking.clinic_name}</p>
-                      {booking.clinic_address && (
-                        <p className="text-body text-muted-foreground">{booking.clinic_address}</p>
-                      )}
-                    </div>
-                  </DetailRow>
-                )}
-              </>
-            )}
-
-            {/* Lab Booking Details */}
-            {isLabBooking && (
-              <>
-                {booking.package_name && (
-                  <DetailRow label="Package">{booking.package_name}</DetailRow>
-                )}
-                {booking.test_names && booking.test_names.length > 0 && (
-                  <DetailRow label="Tests">
-                    <div className="space-y-1">
-                      {booking.test_names.map((test, idx) => (
-                        <p key={idx} className="text-body">• {test}</p>
-                      ))}
-                    </div>
-                  </DetailRow>
-                )}
-                {booking.collection_method && (
-                  <DetailRow label="Collection">
-                    <div>
-                      <p className="text-label">{booking.collection_method}</p>
-                      {booking.collection_address && (
-                        <p className="text-body text-muted-foreground">{booking.collection_address}</p>
-                      )}
-                    </div>
-                  </DetailRow>
-                )}
-                {booking.preparation_notes && (
-                  <DetailRow label="Preparation">
-                    <p className="text-body text-muted-foreground">{booking.preparation_notes}</p>
-                  </DetailRow>
-                )}
-              </>
-            )}
-
-            {/* Common Details */}
-            <DetailRow label="Patient">{booking.patient_name}</DetailRow>
-            <DetailRow label="Date">{dateTime.full}</DetailRow>
-            <DetailRow label="Time">{dateTime.time}</DetailRow>
-            <DetailRow label="Amount Paid">
-              ₹{booking.fee.toLocaleString()}
-            </DetailRow>
-          </div>
-        </Card>
+        <DetailCard
+          rows={[
+            // Doctor Booking Details
+            ...(isDoctorBooking && booking.doctor_name
+              ? [
+                  {
+                    label: 'Doctor',
+                    children: (
+                      <div>
+                        <p className="text-label">{booking.doctor_name}</p>
+                        {booking.doctor_specialization && (
+                          <p className="text-body text-muted-foreground">{booking.doctor_specialization}</p>
+                        )}
+                      </div>
+                    ),
+                  },
+                ]
+              : []),
+            ...(isDoctorBooking && booking.mode
+              ? [
+                  {
+                    label: 'Consultation',
+                    children: <Badge variant="neutral">{booking.mode}</Badge>,
+                  },
+                ]
+              : []),
+            ...(isDoctorBooking && booking.clinic_name
+              ? [
+                  {
+                    label: 'Location',
+                    children: (
+                      <div>
+                        <p className="text-label">{booking.clinic_name}</p>
+                        {booking.clinic_address && (
+                          <p className="text-body text-muted-foreground">{booking.clinic_address}</p>
+                        )}
+                      </div>
+                    ),
+                  },
+                ]
+              : []),
+            // Lab Booking Details
+            ...(isLabBooking && booking.package_name
+              ? [{ label: 'Package', children: booking.package_name }]
+              : []),
+            ...(isLabBooking && booking.test_names && booking.test_names.length > 0
+              ? [
+                  {
+                    label: 'Tests',
+                    children: (
+                      <div className="space-y-1">
+                        {booking.test_names.map((test, idx) => (
+                          <p key={idx} className="text-body">• {test}</p>
+                        ))}
+                      </div>
+                    ),
+                  },
+                ]
+              : []),
+            ...(isLabBooking && booking.collection_method
+              ? [
+                  {
+                    label: 'Collection',
+                    children: (
+                      <div>
+                        <p className="text-label">{booking.collection_method}</p>
+                        {booking.collection_address && (
+                          <p className="text-body text-muted-foreground">{booking.collection_address}</p>
+                        )}
+                      </div>
+                    ),
+                  },
+                ]
+              : []),
+            ...(isLabBooking && booking.preparation_notes
+              ? [
+                  {
+                    label: 'Preparation',
+                    children: <p className="text-body text-muted-foreground">{booking.preparation_notes}</p>,
+                  },
+                ]
+              : []),
+            // Common Details
+            { label: 'Patient', children: booking.patient_name },
+            { label: 'Date', children: dateTime.full },
+            { label: 'Time', children: dateTime.time },
+            { label: 'Amount Paid', children: `₹${booking.fee.toLocaleString()}` },
+          ]}
+        />
 
         {/* Calendar sync status */}
         {googleSynced && (

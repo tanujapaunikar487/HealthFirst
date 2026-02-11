@@ -43,7 +43,7 @@ import {
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
 import { DetailSection } from '@/Components/ui/detail-section';
-import { DetailRow } from '@/Components/ui/detail-row';
+import { DetailCard } from '@/Components/ui/detail-card';
 import { Modal } from '@/Components/ui/modal';
 import { DialogFooter } from '@/Components/ui/dialog';
 
@@ -979,18 +979,19 @@ export default function FamilyMemberShow({
             {!member.is_guest && (
               <div id="emergency" className="scroll-mt-6">
                 {!isEditing ? (
-                  <DetailSection id="emergency-contact" title="Emergency Contact" icon={Phone} noPadding>
-                    {member.emergency_contact_name ? (
-                      <div className="divide-y">
-                        <DetailRow label="Name">{member.emergency_contact_name}</DetailRow>
-                        {member.emergency_contact_relation && (
-                          <DetailRow label="Relationship">{member.emergency_contact_relation}</DetailRow>
-                        )}
-                        {member.emergency_contact_phone && (
-                          <DetailRow label="Phone">{member.emergency_contact_phone}</DetailRow>
-                        )}
-                      </div>
-                    ) : (
+                  member.emergency_contact_name ? (
+                    <DetailCard
+                      id="emergency-contact"
+                      title="Emergency Contact"
+                      icon={Phone}
+                      rows={[
+                        { label: 'Name', children: member.emergency_contact_name },
+                        ...(member.emergency_contact_relation ? [{ label: 'Relationship', children: member.emergency_contact_relation }] : []),
+                        ...(member.emergency_contact_phone ? [{ label: 'Phone', children: member.emergency_contact_phone }] : []),
+                      ]}
+                    />
+                  ) : (
+                    <DetailSection id="emergency-contact" title="Emergency Contact" icon={Phone} noPadding>
                       <div className="px-6 py-12">
                         <EmptyState
                           icon={Phone}
@@ -1003,8 +1004,8 @@ export default function FamilyMemberShow({
                           }
                         />
                       </div>
-                    )}
-                  </DetailSection>
+                    </DetailSection>
+                  )
                 ) : (
                   <div>
                     <div className="flex items-center gap-2.5 mb-4">

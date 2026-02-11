@@ -3,7 +3,7 @@ import { router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { Alert } from '@/Components/ui/alert';
-import { DetailRow } from '@/Components/ui/detail-row';
+import { DetailCard } from '@/Components/ui/detail-card';
 import { DetailSection } from '@/Components/ui/detail-section';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
@@ -515,42 +515,43 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
           <div className="flex-1 min-w-0 space-y-12 pb-12">
 
         {/* Policy Details */}
-        <Section id="details" title="Policy Details" icon={ClipboardList} noPadding>
-          <div className="divide-y">
-            {(() => {
-              const rows: { label: string; value: React.ReactNode }[] = [
-                { label: 'Policy Number', value: policy.policy_number },
-                { label: 'Valid', value: `${formatDate(policy.start_date)} → ${formatDate(policy.end_date)}` },
-                { label: 'Sum Insured', value: formatCurrency(policy.sum_insured) },
-              ];
-              if (policy.premium_amount) rows.push({ label: 'Annual Premium', value: formatCurrency(policy.premium_amount) });
-              if (meta.icu_limit) rows.push({ label: 'ICU Limit', value: meta.icu_limit });
-              if (meta.copay) rows.push({ label: 'Co-pay', value: meta.copay });
-              if (meta.tpa) rows.push({ label: 'TPA', value: meta.tpa });
-              if (meta.tpa_contact) rows.push({ label: 'TPA Contact', value: meta.tpa_contact });
-              return rows.map((row) => (
-                <DetailRow key={row.label} label={row.label}>{row.value}</DetailRow>
-              ));
-            })()}
-          </div>
-        </Section>
+        <DetailCard
+          id="details"
+          title="Policy Details"
+          icon={ClipboardList}
+          rows={(() => {
+            const rows: { label: string; children: React.ReactNode }[] = [
+              { label: 'Policy Number', children: policy.policy_number },
+              { label: 'Valid', children: `${formatDate(policy.start_date)} → ${formatDate(policy.end_date)}` },
+              { label: 'Sum Insured', children: formatCurrency(policy.sum_insured) },
+            ];
+            if (policy.premium_amount) rows.push({ label: 'Annual Premium', children: formatCurrency(policy.premium_amount) });
+            if (meta.icu_limit) rows.push({ label: 'ICU Limit', children: meta.icu_limit });
+            if (meta.copay) rows.push({ label: 'Co-pay', children: meta.copay });
+            if (meta.tpa) rows.push({ label: 'TPA', children: meta.tpa });
+            if (meta.tpa_contact) rows.push({ label: 'TPA Contact', children: meta.tpa_contact });
+            return rows;
+          })()}
+        />
 
         {/* Covered Members */}
-        <Section id="members" title="Covered Members" icon={Users} noPadding>
-          {coveredMembers.length > 0 ? (
-            <div className="divide-y">
-              {coveredMembers.map((member) => (
-                <DetailRow key={member.id} label={member.relation ? member.relation.charAt(0).toUpperCase() + member.relation.slice(1) : 'Member'}>
-                  {member.name}
-                </DetailRow>
-              ))}
-            </div>
-          ) : (
+        {coveredMembers.length > 0 ? (
+          <DetailCard
+            id="members"
+            title="Covered Members"
+            icon={Users}
+            rows={coveredMembers.map((member) => ({
+              label: member.relation ? member.relation.charAt(0).toUpperCase() + member.relation.slice(1) : 'Member',
+              children: member.name,
+            }))}
+          />
+        ) : (
+          <Section id="members" title="Covered Members" icon={Users} noPadding>
             <div className="p-6">
               <EmptyState icon={Users} message="No covered members" description="Add family members to this policy" />
             </div>
-          )}
-        </Section>
+          </Section>
+        )}
 
         {/* Claims at This Hospital */}
         <Section id="claims" title="Claims at This Hospital" icon={Receipt} noPadding>

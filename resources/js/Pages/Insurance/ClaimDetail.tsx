@@ -2,11 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import { router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
-import { DetailRow } from '@/Components/ui/detail-row';
+import { DetailCard } from '@/Components/ui/detail-card';
 import { DetailSection } from '@/Components/ui/detail-section';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Alert } from '@/Components/ui/alert';
+import { IconCircle } from '@/Components/ui/icon-circle';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { useToast } from '@/Contexts/ToastContext';
 
@@ -794,11 +795,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               <div className="flex items-center gap-3">
                 {(() => {
                   const TreatmentIcon = getTreatmentIcon(claim.procedure_type);
-                  return (
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-icon-bg">
-                      <TreatmentIcon className="h-5 w-5 text-icon" />
-                    </div>
-                  );
+                  return <IconCircle icon={TreatmentIcon} size="sm" variant="primary" />;
                 })()}
                 <h1 className="text-detail-title text-foreground">{claim.treatment_name}</h1>
               </div>
@@ -906,61 +903,50 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           <div className="flex-1 min-w-0 space-y-12 pb-12">
 
         {/* Overview Section */}
-        <Section id="overview" title="Overview" icon={ClipboardList} noPadding>
-          <div className="divide-y">
-            {/* Patient Identifiers */}
-            {claim.patient_mrn && (
-              <DetailRow label="Patient ID (MRN)">{claim.patient_mrn}</DetailRow>
-            )}
-            {claim.patient_prn && (
-              <DetailRow label="Registration No">{claim.patient_prn}</DetailRow>
-            )}
-
-            {/* Visit Information */}
-            {claim.visit_number && (
-              <DetailRow label="Visit">
+        <DetailCard
+          id="overview"
+          title="Overview"
+          icon={ClipboardList}
+          rows={[
+            ...(claim.patient_mrn ? [{ label: 'Patient ID (MRN)', children: claim.patient_mrn }] : []),
+            ...(claim.patient_prn ? [{ label: 'Registration No', children: claim.patient_prn }] : []),
+            ...(claim.visit_number ? [{
+              label: 'Visit',
+              children: (
                 <div className="flex items-center gap-2">
                   <Badge variant="neutral" size="sm">
                     {claim.visit_type === 'ipd' ? 'IPD' : 'OPD'}
                   </Badge>
                   <span className="text-label">{claim.visit_number}</span>
                 </div>
-              </DetailRow>
-            )}
-
-            {/* Facility */}
-            {claim.facility_name && (
-              <DetailRow label="Facility">{claim.facility_name}</DetailRow>
-            )}
-
-            {/* Document Information */}
-            <DetailRow label="Claim ID">{claim.claim_reference}</DetailRow>
-            {claim.claim_date_formatted && (
-              <DetailRow label="Claim Date">{claim.claim_date_formatted}</DetailRow>
-            )}
-
-            {/* Patient */}
-            <DetailRow label="Patient">
-              <Button
-                variant="ghost"
-                className="flex items-center gap-1.5 h-auto p-0 hover:opacity-80 hover:bg-transparent transition-opacity"
-                onClick={() => {
-                  if (claim.family_member_id) {
-                    router.visit(`/family-members/${claim.family_member_id}`);
-                  }
-                }}
-                disabled={!claim.family_member_id}
-              >
-                <span className="text-label text-foreground">{patient.name}</span>
-                {patient.relation !== 'self' && (
-                  <span className="text-body capitalize text-muted-foreground">({patient.relation})</span>
-                )}
-              </Button>
-            </DetailRow>
-
-            {/* Doctor */}
-            <DetailRow label="Doctor">
-              {doctor ? (
+              )
+            }] : []),
+            ...(claim.facility_name ? [{ label: 'Facility', children: claim.facility_name }] : []),
+            { label: 'Claim ID', children: claim.claim_reference },
+            ...(claim.claim_date_formatted ? [{ label: 'Claim Date', children: claim.claim_date_formatted }] : []),
+            {
+              label: 'Patient',
+              children: (
+                <Button
+                  variant="ghost"
+                  className="flex items-center gap-1.5 h-auto p-0 hover:opacity-80 hover:bg-transparent transition-opacity"
+                  onClick={() => {
+                    if (claim.family_member_id) {
+                      router.visit(`/family-members/${claim.family_member_id}`);
+                    }
+                  }}
+                  disabled={!claim.family_member_id}
+                >
+                  <span className="text-label text-foreground">{patient.name}</span>
+                  {patient.relation !== 'self' && (
+                    <span className="text-body capitalize text-muted-foreground">({patient.relation})</span>
+                  )}
+                </Button>
+              )
+            },
+            {
+              label: 'Doctor',
+              children: doctor ? (
                 <div className="flex items-center gap-1.5 text-body">
                   <span className="text-label text-foreground">{doctor.name}</span>
                   <span className="text-muted-foreground">&middot;</span>
@@ -968,12 +954,11 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                 </div>
               ) : (
                 <span className="text-body text-muted-foreground">N/A</span>
-              )}
-            </DetailRow>
-
-            {/* Stay */}
-            <DetailRow label="Stay">
-              {isOutpatient ? (
+              )
+            },
+            {
+              label: 'Stay',
+              children: isOutpatient ? (
                 <span className="text-label text-foreground">Outpatient</span>
               ) : (
                 <div className="flex items-center gap-1.5 text-body flex-wrap">
@@ -1005,12 +990,11 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                     </>
                   )}
                 </div>
-              )}
-            </DetailRow>
-
-            {/* Room */}
-            {!isOutpatient && (
-              <DetailRow label="Room">
+              )
+            },
+            ...(!isOutpatient ? [{
+              label: 'Room',
+              children: (
                 <div className="flex items-center gap-1.5 text-body">
                   <span className="text-label text-foreground">{stay!.room_type ?? 'General'}</span>
                   {stay!.room_number && (
@@ -1026,32 +1010,14 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                     </>
                   )}
                 </div>
-              </DetailRow>
-            )}
-
-            {/* Status */}
-            <DetailRow label="Status">
-              {getStatusBadge(claim.status)}
-            </DetailRow>
-
-            {/* Financial Summary */}
-            {fin?.total_approved && (
-              <DetailRow label="Approved Amount">
-                {formatCurrency(fin.total_approved)}
-              </DetailRow>
-            )}
-            {fin?.not_covered && fin.not_covered > 0 && (
-              <DetailRow label="Not Covered">
-                {formatCurrency(fin.not_covered)}
-              </DetailRow>
-            )}
-            {fin?.patient_paid && fin.patient_paid > 0 && (
-              <DetailRow label="Patient Paid">
-                {formatCurrency(fin.patient_paid)}
-              </DetailRow>
-            )}
-          </div>
-        </Section>
+              )
+            }] : []),
+            { label: 'Status', children: getStatusBadge(claim.status) },
+            ...(fin?.total_approved ? [{ label: 'Approved Amount', children: formatCurrency(fin.total_approved) }] : []),
+            ...(fin?.not_covered && fin.not_covered > 0 ? [{ label: 'Not Covered', children: formatCurrency(fin.not_covered) }] : []),
+            ...(fin?.patient_paid && fin.patient_paid > 0 ? [{ label: 'Patient Paid', children: formatCurrency(fin.patient_paid) }] : []),
+          ]}
+        />
 
         {/* Linked Section */}
         <Section id="linked" title="Linked" icon={Link2} noPadding>
@@ -1060,9 +1026,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
           {/* Original Policy (if transferred) */}
           {claim.original_policy_id && claim.original_policy_plan_name && (
             <div className="flex items-center gap-3 px-6 py-4">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-icon-bg">
-                <Shield className="h-5 w-5 text-icon" />
-              </div>
+              <IconCircle icon={Shield} size="sm" variant="primary" />
               <div className="flex-1">
                 <p className="text-label text-muted-foreground">Insurance Plan (Original)</p>
                 <div className="mt-0.5 flex items-center gap-2">
@@ -1088,9 +1052,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               onClick={() => router.visit(`/insurance/${claim.policy_id}`)}
             >
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-icon-bg">
-                  <Shield className="h-5 w-5 text-icon" />
-                </div>
+                <IconCircle icon={Shield} size="sm" variant="primary" className="mt-0.5" />
                 <div>
                   <p className="text-label text-muted-foreground">
                     Insurance Plan{claim.original_policy_id ? ' (Current)' : ''}
@@ -1118,9 +1080,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
               onClick={() => router.visit(`/appointments/${claim.appointment_id}`)}
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-icon-bg">
-                  <Calendar className="h-5 w-5 text-icon" />
-                </div>
+                <IconCircle icon={Calendar} size="sm" variant="primary" />
                 <div>
                   <p className="text-label text-muted-foreground">Related Appointment</p>
                   <p className="mt-0.5 text-card-title text-foreground">
@@ -1362,9 +1322,7 @@ export default function ClaimDetail({ claim, patient, doctor, appointment }: Pro
                   }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-muted">
-                      <FileText className="h-5 w-5 text-foreground" />
-                    </div>
+                    <IconCircle icon={FileText} size="sm" variant="muted" />
                     <div>
                       <p className="text-label text-foreground">{doc.type}</p>
                       <p className="text-body text-muted-foreground">{doc.date}</p>
