@@ -38,7 +38,7 @@ class FamilyMembersController extends Controller
         // Load insurance claims for insurance alerts
         $actionableClaims = InsuranceClaim::where('user_id', $user->id)
             ->whereIn('family_member_id', $members->pluck('id'))
-            ->whereIn('claim_status', [
+            ->whereIn('status', [
                 'enhancement_required',
                 'partially_approved',
                 'disputed',
@@ -177,7 +177,7 @@ class FamilyMembersController extends Controller
 
         $actionableClaims = InsuranceClaim::where('user_id', $user->id)
             ->where('family_member_id', $member->id)
-            ->whereIn('claim_status', $actionableClaimsStatuses)
+            ->whereIn('status', $actionableClaimsStatuses)
             ->get();
 
         foreach ($actionableClaims as $claim) {
@@ -193,7 +193,7 @@ class FamilyMembersController extends Controller
                 'category' => 'claim',
                 'id' => $claim->id,
                 'title' => $claim->treatment_name ?? 'Insurance Claim',
-                'message' => $messageMap[$claim->claim_status] ?? 'Claim requires action',
+                'message' => $messageMap[$claim->status] ?? 'Claim requires action',
                 'date' => $claim->claim_date->format('Y-m-d'),
                 'details' => 'Claim amount: ₹'.number_format($claim->claim_amount, 0),
                 'url' => "/insurance/claims/{$claim->id}",

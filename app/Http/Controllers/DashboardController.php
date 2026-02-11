@@ -286,7 +286,7 @@ class DashboardController extends Controller
     {
         // Query insurance_claims where status changed recently (last 7 days) or status requires action
         return InsuranceClaim::where('user_id', $user->id)
-            ->whereIn('claim_status', ['pending', 'approved', 'rejected', 'action_required'])
+            ->whereIn('status', ['pending', 'approved', 'rejected', 'action_required'])
             ->with('familyMember')
             ->orderByDesc('updated_at')
             ->limit(2)
@@ -297,7 +297,7 @@ class DashboardController extends Controller
                     'claim_id' => $claim->id,
                     'patient_name' => $claim->familyMember?->name ?? 'Self',
                     'patient_initials' => $this->getInitials($claim->familyMember?->name ?? 'Self'),
-                    'claim_status' => $claim->claim_status,
+                    'claim_status' => $claim->status,
                     'claim_amount' => $claim->claim_amount,
                     'treatment' => $claim->treatment_name ?? 'Medical Treatment',
                     'title' => 'Insurance Claim Update',
