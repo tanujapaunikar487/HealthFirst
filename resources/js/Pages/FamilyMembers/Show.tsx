@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
-import { EmptyState } from '@/Components/ui/empty-state';
 import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
 import { Card } from '@/Components/ui/card';
@@ -979,33 +978,16 @@ export default function FamilyMemberShow({
             {!member.is_guest && (
               <div id="emergency" className="scroll-mt-6">
                 {!isEditing ? (
-                  member.emergency_contact_name ? (
-                    <DetailCard
-                      id="emergency-contact"
-                      title="Emergency Contact"
-                      icon={Phone}
-                      rows={[
-                        { label: 'Name', children: member.emergency_contact_name },
-                        ...(member.emergency_contact_relation ? [{ label: 'Relationship', children: member.emergency_contact_relation }] : []),
-                        ...(member.emergency_contact_phone ? [{ label: 'Phone', children: member.emergency_contact_phone }] : []),
-                      ]}
-                    />
-                  ) : (
-                    <DetailSection id="emergency-contact" title="Emergency Contact" icon={Phone} noPadding>
-                      <div className="px-6 py-12">
-                        <EmptyState
-                          icon={Phone}
-                          message="No emergency contact added"
-                          description="Add someone to contact in case of emergencies"
-                          action={
-                            <Button variant="secondary" size="sm" onClick={() => setIsEditing(true)}>
-                              Add contact
-                            </Button>
-                          }
-                        />
-                      </div>
-                    </DetailSection>
-                  )
+                  <DetailCard
+                    id="emergency-contact"
+                    title="Emergency Contact"
+                    icon={Phone}
+                    rows={[
+                      { label: 'Name', children: member.emergency_contact_name || '—' },
+                      { label: 'Relationship', children: member.emergency_contact_relation || '—' },
+                      { label: 'Phone', children: member.emergency_contact_phone || '—' },
+                    ]}
+                  />
                 ) : (
                   <div>
                     <div className="flex items-center gap-2.5 mb-4">
