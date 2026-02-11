@@ -29,6 +29,8 @@ import { Tabs, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import { BulkActionBar } from '@/Components/ui/bulk-action-bar';
 import { cn } from '@/Lib/utils';
 import { useToast } from '@/Contexts/ToastContext';
+import { IconCircle } from '@/Components/ui/icon-circle';
+import { TableCard } from '@/Components/ui/table-card';
 import {
   Search,
   Stethoscope,
@@ -364,11 +366,8 @@ const RECORDS_PER_PAGE = 10;
 function CategoryIcon({ category, size = 'md' }: { category: string; size?: 'sm' | 'md' }) {
   const config = categoryConfig[category] || { icon: FileText };
   const Icon = config.icon;
-  const iconDim = size === 'sm' ? 'h-5 w-5' : 'h-[18px] w-[18px]';
   return (
-    <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
-      <Icon className={cn(iconDim, 'text-blue-800')} />
-    </div>
+    <IconCircle icon={Icon} size="sm" variant="primary" />
   );
 }
 
@@ -712,82 +711,88 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
           </TabsList>
 
           {/* Filter Row */}
-          <div className="flex items-center gap-3 flex-wrap">
-            <Select value={subCategoryFilter} onValueChange={setSubCategoryFilter}>
-              <SelectTrigger className="w-[170px] h-9">
-                <SelectValue placeholder={activeTab === 'all' ? 'All categories' : `All ${activeTab}`} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">
-                  {activeTab === 'all' ? 'All categories' : `All ${activeTab}`}
-                </SelectItem>
-                {subCategoryOptions.map(([key, cfg]) => (
-                  <SelectItem key={key} value={key}>{cfg.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex flex-wrap gap-3">
+            {/* Filters */}
+            <div className="w-full sm:w-auto overflow-x-auto flex-none">
+              <div className="flex items-center gap-3">
+                <Select value={subCategoryFilter} onValueChange={setSubCategoryFilter}>
+                  <SelectTrigger className="w-44 h-9">
+                    <SelectValue placeholder={activeTab === 'all' ? 'All categories' : `All ${activeTab}`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">
+                      {activeTab === 'all' ? 'All categories' : `All ${activeTab}`}
+                    </SelectItem>
+                    {subCategoryOptions.map(([key, cfg]) => (
+                      <SelectItem key={key} value={key}>{cfg.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[150px] h-9">
-                <SelectValue placeholder="All statuses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All statuses</SelectItem>
-                <SelectItem value="normal">Normal</SelectItem>
-                <SelectItem value="needs_attention">Needs attention</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="follow_up_required">Follow-up required</SelectItem>
-                <SelectItem value="valid">Valid</SelectItem>
-                <SelectItem value="expired">Expired</SelectItem>
-                <SelectItem value="discontinued">Discontinued</SelectItem>
-              </SelectContent>
-            </Select>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-44 h-9">
+                    <SelectValue placeholder="All statuses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All statuses</SelectItem>
+                    <SelectItem value="normal">Normal</SelectItem>
+                    <SelectItem value="needs_attention">Needs attention</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="follow_up_required">Follow-up required</SelectItem>
+                    <SelectItem value="valid">Valid</SelectItem>
+                    <SelectItem value="expired">Expired</SelectItem>
+                    <SelectItem value="discontinued">Discontinued</SelectItem>
+                  </SelectContent>
+                </Select>
 
-            <Select value={memberFilter} onValueChange={setMemberFilter}>
-              <SelectTrigger className="w-[150px] h-9">
-                <SelectValue placeholder="All members" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All members</SelectItem>
-                <SelectItem value="self">Yourself</SelectItem>
-                {familyMembers.map((m) => (
-                  <SelectItem key={m.id} value={String(m.id)}>
-                    {m.name} ({m.relation})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                <Select value={memberFilter} onValueChange={setMemberFilter}>
+                  <SelectTrigger className="w-44 h-9">
+                    <SelectValue placeholder="All members" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All members</SelectItem>
+                    <SelectItem value="self">Yourself</SelectItem>
+                    {familyMembers.map((m) => (
+                      <SelectItem key={m.id} value={String(m.id)}>
+                        {m.name} ({m.relation})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
-            <Select value={datePreset} onValueChange={(v) => { setDatePreset(v); if (v !== 'custom') { setDateFrom(''); setDateTo(''); } }}>
-              <SelectTrigger className="w-[150px] h-9">
-                <SelectValue placeholder="Any time" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any time</SelectItem>
-                <SelectItem value="last_7">Last 7 days</SelectItem>
-                <SelectItem value="last_30">Last 30 days</SelectItem>
-                <SelectItem value="last_90">Last 3 months</SelectItem>
-                <SelectItem value="custom">Custom range</SelectItem>
-              </SelectContent>
-            </Select>
+                <Select value={datePreset} onValueChange={(v) => { setDatePreset(v); if (v !== 'custom') { setDateFrom(''); setDateTo(''); } }}>
+                  <SelectTrigger className="w-44 h-9">
+                    <SelectValue placeholder="Any time" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any time</SelectItem>
+                    <SelectItem value="last_7">Last 7 days</SelectItem>
+                    <SelectItem value="last_30">Last 30 days</SelectItem>
+                    <SelectItem value="last_90">Last 3 months</SelectItem>
+                    <SelectItem value="custom">Custom range</SelectItem>
+                  </SelectContent>
+                </Select>
 
-            {datePreset === 'custom' && (
-              <div className="flex items-center gap-1.5">
-                <DatePicker value={dateFrom} onChange={setDateFrom} className="h-9 w-[140px] text-body" placeholder="From" />
-                <span className="text-body text-muted-foreground">to</span>
-                <DatePicker value={dateTo} onChange={setDateTo} className="h-9 w-[140px] text-body" placeholder="To" />
+                {datePreset === 'custom' && (
+                  <div className="flex items-center gap-1.5">
+                    <DatePicker value={dateFrom} onChange={setDateFrom} className="h-9 w-[140px] text-body" placeholder="From" />
+                    <span className="text-body text-muted-foreground">to</span>
+                    <DatePicker value={dateTo} onChange={setDateTo} className="h-9 w-[140px] text-body" placeholder="To" />
+                  </div>
+                )}
               </div>
-            )}
+            </div>
 
-            <div className="relative ml-auto">
+            {/* Search */}
+            <div className="relative w-full sm:flex-1 sm:basis-64 sm:ml-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground" />
               <Input
                 placeholder="Search records..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-9 w-[200px]"
+                className="pl-9 h-9"
               />
             </div>
           </div>
@@ -841,7 +846,7 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
         {/* Desktop Table */}
         {filteredRecords.length > 0 ? (
           <div className="mt-4">
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
               <TableContainer>
                 <Table>
                   <TableHeader>
@@ -886,7 +891,7 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
                             <p className="text-label whitespace-nowrap">{formatDate(record.record_date) || '—'}</p>
                           </TableCell>
                           <TableCell className="max-w-col-details align-top">
-                            <div className="flex items-center gap-2.5">
+                            <div className="flex items-start gap-2.5">
                               <CategoryIcon category={record.category} size="sm" />
                               <div className="min-w-0">
                                 <p className="text-label truncate">{record.title}</p>
@@ -925,55 +930,32 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
               </TableContainer>
             </div>
 
-            {/* Mobile Card List */}
-            <div className="md:hidden space-y-3">
+            {/* Mobile & Tablet Card List */}
+            <div className="lg:hidden space-y-3">
               {paginatedRecords.map((record) => {
                 const config = categoryConfig[record.category] || { label: record.category, color: 'hsl(var(--muted-foreground))', bg: 'hsl(var(--secondary))' };
                 const member = record.family_member_id ? memberMap[record.family_member_id] : undefined;
                 const isSelected = selectedIds.has(record.id);
 
                 return (
-                  <div
+                  <TableCard
                     key={record.id}
-                    className={cn(
-                      "rounded-xl border border-border bg-background p-4 transition-colors",
-                      isSelected && "bg-primary/5 border-primary"
-                    )}
+                    layoutMode="grid"
+                    showCheckbox
+                    checked={isSelected}
+                    onCheckboxChange={() => toggleSelect(record.id)}
+                    selected={isSelected}
+                    icon={config.icon}
+                    title={record.title}
+                    subtitle={record.doctor_name}
+                    fields={[
+                      { label: 'Date', value: formatDate(record.record_date) || '—' },
+                      { label: 'Category', value: config.label },
+                      { label: 'Patient', value: member ? member.name : 'You' },
+                      ...(record.status ? [{ label: 'Status', value: <StatusBadge key="status" status={record.status} /> }] : []),
+                    ]}
                     onClick={() => router.visit(`/health-records/${record.id}`)}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="pt-0.5" onClick={(e) => e.stopPropagation()}>
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => toggleSelect(record.id)}
-                          aria-label={`Select ${record.title}`}
-                          className="h-4 w-4"
-                        />
-                      </div>
-                      <div className="flex items-start gap-3 flex-1 min-w-0">
-                        <CategoryIcon category={record.category} size="sm" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-label text-foreground">{record.title}</p>
-                          <p className="text-body text-muted-foreground mt-0.5">
-                            {config.label}{record.doctor_name && ` • ${record.doctor_name}`}
-                          </p>
-                          <div className="flex flex-wrap items-center gap-2 mt-2">
-                            <span className="text-body text-muted-foreground">{formatDate(record.record_date) || '—'}</span>
-                            <span className="text-muted-foreground">•</span>
-                            <span className="text-body text-muted-foreground">{member ? member.name : 'You'}</span>
-                            {record.status && (
-                              <>
-                                <span className="text-muted-foreground">•</span>
-                                <StatusBadge status={record.status} />
-                              </>
-                            )}
-                          </div>
-                        </div>
-                        <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                      </div>
-                    </div>
-                  </div>
+                  />
                 );
               })}
 

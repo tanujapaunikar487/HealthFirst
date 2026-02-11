@@ -5,10 +5,10 @@ import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton'
 import { EmptyState } from '@/Components/ui/empty-state';
 import { CtaBanner } from '@/Components/ui/cta-banner';
 import { Alert } from '@/Components/ui/alert';
-import { Card } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
+import { TableCard } from '@/Components/ui/table-card';
 import { Textarea } from '@/Components/ui/textarea';
 import { DatePicker } from '@/Components/ui/date-picker';
 import {
@@ -39,18 +39,14 @@ import {
 import { AddInsuranceSheet } from '@/Components/Insurance/AddInsuranceSheet';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { useToast } from '@/Contexts/ToastContext';
-import { cn } from '@/Lib/utils';
 import { getAvatarColor } from '@/Lib/avatar-colors';
+import { IconCircle } from '@/Components/ui/icon-circle';
 import {
-  ShieldCheck,
   Plus,
   Search,
   Users,
-  ClipboardList,
   ChevronRight,
-  ArrowRight,
   Building2,
-  Check,
 } from '@/Lib/icons';
 
 interface Policy {
@@ -435,7 +431,9 @@ export default function InsuranceIndex({
             {/* Policies on file */}
             <div className="mb-10">
               <h2 className="mb-4 text-section-title text-foreground">Policies on file</h2>
-              <TableContainer>
+
+              {/* Desktop Table View */}
+              <TableContainer className="hidden lg:block">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -460,7 +458,7 @@ export default function InsuranceIndex({
                           </p>
                         </TableCell>
                         <TableCell className="align-top">
-                          <div className="flex items-center gap-2.5">
+                          <div className="flex items-start gap-2.5">
                             {policy.provider_logo ? (
                               <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center">
                                 <img
@@ -544,6 +542,77 @@ export default function InsuranceIndex({
                   itemLabel={policies.length === 1 ? 'policy' : 'policies'}
                 />
               </TableContainer>
+
+              {/* Mobile & Tablet Card View */}
+              <div className="lg:hidden space-y-3">
+                {policies.map((policy) => {
+                  const policyMembers = familyMembers.filter(m => policy.members.includes(m.id));
+                  const visibleMembers = policyMembers.slice(0, 3);
+                  const remainingCount = policyMembers.length - 3;
+
+                  return (
+                    <TableCard
+                      key={policy.id}
+                      layoutMode="grid"
+                      icon={Building2}
+                      title={policy.plan_name}
+                      subtitle={policy.policy_number}
+                      badge={{
+                        label: policy.is_expiring_soon
+                          ? `Expires in ${policy.days_until_expiry}d`
+                          : 'Active',
+                        variant: policy.is_expiring_soon ? 'warning' : 'success',
+                      }}
+                      fields={[
+                        {
+                          label: 'Valid Until',
+                          value: policy.end_date ? formatDate(policy.end_date) : '—',
+                        },
+                        {
+                          label: 'Coverage',
+                          value: `₹${policy.sum_insured.toLocaleString()}`,
+                        },
+                        {
+                          label: 'Family Members',
+                          value: (
+                            <div className="flex items-center -space-x-2 justify-end">
+                              {visibleMembers.map((member) => {
+                                const color = getAvatarColorByName(member.name);
+                                return (
+                                  <div
+                                    key={member.id}
+                                    className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border-2 border-background text-caption font-medium"
+                                    style={{ backgroundColor: color.bg, color: color.text }}
+                                    title={member.name}
+                                  >
+                                    {getPatientInitials(member.name)}
+                                  </div>
+                                );
+                              })}
+                              {remainingCount > 0 && (
+                                <div
+                                  className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border-2 border-background bg-muted text-caption font-medium text-muted-foreground"
+                                  title={`+${remainingCount} more`}
+                                >
+                                  +{remainingCount}
+                                </div>
+                              )}
+                            </div>
+                          ),
+                        },
+                      ]}
+                      onClick={() => router.visit('/insurance/' + policy.id)}
+                    />
+                  );
+                })}
+
+                <TablePagination
+                  from={1}
+                  to={policies.length}
+                  total={policies.length}
+                  itemLabel={policies.length === 1 ? 'policy' : 'policies'}
+                />
+              </div>
             </div>
 
             {/* Past Claims Section */}
@@ -551,55 +620,61 @@ export default function InsuranceIndex({
               <h2 className="mb-4 text-section-title text-foreground">Past claims</h2>
 
               {/* Filters */}
-              <div className="mb-4 flex flex-wrap items-center gap-3">
-                <Select value={policyFilter} onValueChange={setPolicyFilter}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="All policies" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All policies</SelectItem>
-                    {uniquePolicies.map((p) => (
-                      <SelectItem key={p.policy_number} value={p.policy_number}>
-                        {p.plan_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="mb-4 flex flex-wrap gap-3">
+                {/* Filters */}
+                <div className="w-full sm:w-auto overflow-x-auto flex-none">
+                  <div className="flex items-center gap-3">
+                    <Select value={policyFilter} onValueChange={setPolicyFilter}>
+                      <SelectTrigger className="w-44 h-9">
+                        <SelectValue placeholder="All policies" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All policies</SelectItem>
+                        {uniquePolicies.map((p) => (
+                          <SelectItem key={p.policy_number} value={p.policy_number}>
+                            {p.plan_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="All statuses" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All statuses</SelectItem>
-                    <SelectItem value="current">Current</SelectItem>
-                    <SelectItem value="settled">Settled</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                  </SelectContent>
-                </Select>
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger className="w-44 h-9">
+                        <SelectValue placeholder="All statuses" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All statuses</SelectItem>
+                        <SelectItem value="current">Current</SelectItem>
+                        <SelectItem value="settled">Settled</SelectItem>
+                        <SelectItem value="rejected">Rejected</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                      </SelectContent>
+                    </Select>
 
-                <Select value={memberFilter} onValueChange={setMemberFilter}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="All family members" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All family members</SelectItem>
-                    {familyMembers.map((m) => (
-                      <SelectItem key={m.id} value={m.name}>
-                        {m.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                    <Select value={memberFilter} onValueChange={setMemberFilter}>
+                      <SelectTrigger className="w-44 h-9">
+                        <SelectValue placeholder="All family members" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All family members</SelectItem>
+                        {familyMembers.map((m) => (
+                          <SelectItem key={m.id} value={m.name}>
+                            {m.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
-                <div className="relative ml-auto">
+                {/* Search */}
+                <div className="relative w-full sm:flex-1 sm:basis-64 sm:ml-auto">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground" />
                   <Input
                     placeholder="Search"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="pl-9 h-9 w-[220px]"
+                    className="pl-9 h-9"
                   />
                 </div>
               </div>
@@ -612,7 +687,9 @@ export default function InsuranceIndex({
                   description="Claims filed against your policies will appear here."
                 />
               ) : (
-                <TableContainer>
+                <>
+                  {/* Desktop Table View */}
+                  <TableContainer className="hidden lg:block">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -637,10 +714,8 @@ export default function InsuranceIndex({
                             </p>
                           </TableCell>
                           <TableCell className="align-top">
-                            <div className="flex items-center gap-2.5">
-                              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-200">
-                                <Building2 className="h-5 w-5 text-blue-800" />
-                              </div>
+                            <div className="flex items-start gap-2.5">
+                              <IconCircle icon={Building2} size="sm" variant="primary" />
                               <div>
                                 <p className="text-label text-foreground">
                                   {claim.treatment_name}
@@ -677,6 +752,59 @@ export default function InsuranceIndex({
                     itemLabel="claims"
                   />
                 </TableContainer>
+
+                {/* Mobile & Tablet Card View */}
+                <div className="lg:hidden space-y-3">
+                  {filteredClaims.map((claim) => {
+                    const statusConfig = {
+                      current: { label: 'Current', variant: 'warning' as const },
+                      processing: { label: 'Current', variant: 'warning' as const },
+                      settled: { label: 'Settled', variant: 'success' as const },
+                      approved: { label: 'Settled', variant: 'success' as const },
+                      rejected: { label: 'Rejected', variant: 'danger' as const },
+                      disputed: { label: 'Disputed', variant: 'warning' as const },
+                      pending: { label: 'Pending', variant: 'warning' as const },
+                    };
+                    const statusEntry = statusConfig[claim.status as keyof typeof statusConfig] ?? statusConfig.pending;
+
+                    return (
+                      <TableCard
+                        key={claim.id}
+                        layoutMode="grid"
+                        icon={Building2}
+                        title={claim.treatment_name}
+                        subtitle={claim.plan_name || undefined}
+                        badge={{
+                          label: statusEntry.label,
+                          variant: statusEntry.variant,
+                        }}
+                        fields={[
+                          {
+                            label: 'Date',
+                            value: formatDate(claim.claim_date) || '—',
+                          },
+                          {
+                            label: 'Amount',
+                            value: formatCurrency(claim.claim_amount),
+                          },
+                          {
+                            label: 'Family Member',
+                            value: claim.patient_name,
+                          },
+                        ]}
+                        onClick={() => router.visit(`/insurance/claims/${claim.id}`)}
+                      />
+                    );
+                  })}
+
+                  <TablePagination
+                    from={1}
+                    to={filteredClaims.length}
+                    total={claims.length}
+                    itemLabel="claims"
+                  />
+                </div>
+                </>
               )}
             </div>
           </>

@@ -5,7 +5,7 @@ import { Pulse, ErrorState, useSkeletonLoading, SheetSkeleton } from '@/Componen
 import { EmptyState } from '@/Components/ui/empty-state';
 import { CtaBanner } from '@/Components/ui/cta-banner';
 import { Badge } from '@/Components/ui/badge';
-import { Card, CardContent } from '@/Components/ui/card';
+import { TableCard } from '@/Components/ui/table-card';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { Button, buttonVariants } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
@@ -46,6 +46,7 @@ import {
   ChevronRight,
 } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { IconCircle } from '@/Components/ui/icon-circle';
 import { Avatar, AvatarImage, AvatarFallback } from '@/Components/ui/avatar';
 import { getAvatarColor } from '@/Lib/avatar-colors';
 import { useToast } from '@/Contexts/ToastContext';
@@ -277,7 +278,7 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
       pageTitle="Appointments"
       pageIcon="/assets/icons/appointment.svg"
     >
-      <div className="min-h-full flex flex-col w-full">
+      <div className="min-h-full flex flex-col" style={{ width: '100%', maxWidth: '960px' }}>
         {/* Header - Stack on mobile, side-by-side on desktop */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <h1
@@ -329,55 +330,60 @@ export default function Index({ user, appointments, familyMembers, doctors }: Pr
             </TabsTrigger>
           </TabsList>
 
-          {/* Filters + Search - Stack on mobile, side-by-side on desktop */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-44 h-9">
-                  <SelectValue placeholder="All types" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All types</SelectItem>
-                  <SelectItem value="doctor">Doctor visit</SelectItem>
-                  <SelectItem value="lab_test">Lab test</SelectItem>
-                </SelectContent>
-              </Select>
-              {doctors.length > 0 && (
-                <Select value={doctorFilter} onValueChange={setDoctorFilter}>
+          {/* Filters + Search */}
+          <div className="flex flex-wrap gap-3">
+            {/* Filters - Left-aligned on desktop, horizontal scroll */}
+            <div className="w-full sm:w-auto overflow-x-auto flex-none">
+              <div className="flex items-center gap-3">
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
                   <SelectTrigger className="w-44 h-9">
-                    <SelectValue placeholder="All doctors" />
+                    <SelectValue placeholder="All types" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All doctors</SelectItem>
-                    {doctors.map((d) => (
-                      <SelectItem key={d.id} value={String(d.id)}>
-                        {d.name}
+                    <SelectItem value="all">All types</SelectItem>
+                    <SelectItem value="doctor">Doctor visit</SelectItem>
+                    <SelectItem value="lab_test">Lab test</SelectItem>
+                  </SelectContent>
+                </Select>
+                {doctors.length > 0 && (
+                  <Select value={doctorFilter} onValueChange={setDoctorFilter}>
+                    <SelectTrigger className="w-44 h-9">
+                      <SelectValue placeholder="All doctors" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All doctors</SelectItem>
+                      {doctors.map((d) => (
+                        <SelectItem key={d.id} value={String(d.id)}>
+                          {d.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                <Select value={memberFilter} onValueChange={setMemberFilter}>
+                  <SelectTrigger className="w-44 h-9">
+                    <SelectValue placeholder="All members" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All members</SelectItem>
+                    {familyMembers.map((m) => (
+                      <SelectItem key={m.id} value={String(m.id)}>
+                        {m.name} ({m.relation})
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-              )}
-              <Select value={memberFilter} onValueChange={setMemberFilter}>
-                <SelectTrigger className="w-44 h-9">
-                  <SelectValue placeholder="All members" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All members</SelectItem>
-                  {familyMembers.map((m) => (
-                    <SelectItem key={m.id} value={String(m.id)}>
-                      {m.name} ({m.relation})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              </div>
             </div>
-            <div className="relative">
+
+            {/* Search - Right-aligned on desktop */}
+            <div className="relative w-full sm:flex-1 sm:basis-64 sm:ml-auto">
               <Icon icon={Search} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground" />
               <Input
                 placeholder="Search appointments..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-9 w-56"
+                className="pl-9 h-9"
               />
             </div>
           </div>
@@ -511,8 +517,8 @@ function AppointmentsTable({
 
   return (
     <>
-      {/* Mobile Card View - visible on mobile only */}
-      <div className="md:hidden space-y-3">
+      {/* Mobile & Tablet Card View - visible on mobile and tablet */}
+      <div className="lg:hidden space-y-3">
         {appointments.map((appt) => {
           const handleCardClick = () => {
             if (tab === 'upcoming') {
@@ -524,77 +530,66 @@ function AppointmentsTable({
             }
           };
 
-          return (
-            <Card key={appt.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={handleCardClick}>
-              <CardContent className="p-0">
-                <div className="px-6 py-4 space-y-4">
-                  {/* Header: Avatar/Icon + Title + Status */}
-                  <div className="flex items-start gap-3">
-                    {appt.type === 'doctor' ? (
-                      <Avatar className="h-10 w-10 flex-shrink-0">
-                        <AvatarImage src={appt.doctor_avatar_url || undefined} alt={appt.title} />
-                        <AvatarFallback
-                          className="text-label"
-                          style={(() => {
-                            const color = getAvatarColorByName(appt.title);
-                            return { backgroundColor: color.bg, color: color.text };
-                          })()}
-                        >
-                          {appt.title.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                    ) : (
-                      <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-200">
-                        <Icon icon={TestTube2} className="h-5 w-5 text-blue-800" />
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-label truncate">{appt.title}</p>
-                      <p className="text-body text-muted-foreground truncate">
-                        {appt.mode}
-                        {appt.subtitle ? ` • ${appt.subtitle}` : ''}
-                      </p>
-                    </div>
-                    <PaymentStatusTag status={appt.payment_status} />
-                  </div>
+          // Payment status config for badge
+          const paymentConfig: Record<string, { label: string; variant: 'success' | 'danger' | 'warning' | 'info' | 'neutral' }> = {
+            paid: { label: 'Paid', variant: 'success' },
+            pending: { label: 'Pending', variant: 'warning' },
+            partially_refunded: { label: 'Partially refunded', variant: 'warning' },
+            fully_refunded: { label: 'Refunded', variant: 'danger' },
+          };
+          const badgeConfig = paymentConfig[appt.payment_status] || { label: appt.payment_status, variant: 'neutral' as const };
 
-                  {/* Details Grid */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <p className="text-caption text-muted-foreground mb-1">Date & Time</p>
+          return (
+            <TableCard
+              key={appt.id}
+              layoutMode="grid"
+              avatar={appt.type === 'doctor' ? { src: appt.doctor_avatar_url, name: appt.title } : undefined}
+              icon={appt.type === 'lab_test' ? TestTube2 : undefined}
+              title={appt.title}
+              subtitle={`${appt.mode}${appt.subtitle ? ` • ${appt.subtitle}` : ''}`}
+              badge={{
+                label: badgeConfig.label,
+                variant: badgeConfig.variant,
+              }}
+              fields={[
+                {
+                  label: 'Date & Time',
+                  value: (
+                    <>
                       <p className="text-label">{formatDate(appt.date)}</p>
                       <p className="text-body text-muted-foreground">{formatTime(appt.date)}</p>
-                    </div>
-                    <div>
-                      <p className="text-caption text-muted-foreground mb-1">Amount</p>
-                      <p className="text-label">₹{appt.fee.toLocaleString()}</p>
-                    </div>
-                    <div className="col-span-2">
-                      <p className="text-caption text-muted-foreground mb-1">Family Member</p>
-                      <p className="text-label">{appt.patient_name}</p>
-                    </div>
-                  </div>
-
-                  {/* Action Button */}
-                  {tab === 'past' && appt.type === 'lab_test' && appt.health_record_id && (
-                    <Link
-                      href={`/health-records/${appt.health_record_id}`}
-                      className={buttonVariants({ variant: 'outline', size: 'md', className: 'w-full' })}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Icon icon={FileText} size={20} />
-                      View Results
-                    </Link>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                    </>
+                  ),
+                },
+                {
+                  label: 'Amount',
+                  value: `₹${appt.fee.toLocaleString()}`,
+                },
+                {
+                  label: 'Family Member',
+                  value: appt.patient_name,
+                },
+              ]}
+              actionButton={
+                tab === 'past' && appt.type === 'lab_test' && appt.health_record_id
+                  ? {
+                      label: 'View Results',
+                      icon: FileText,
+                      onClick: (e) => {
+                        e.stopPropagation();
+                        router.visit(`/health-records/${appt.health_record_id}`);
+                      },
+                    }
+                  : undefined
+              }
+              onClick={handleCardClick}
+            />
           );
         })}
       </div>
 
       {/* Desktop Table View - hidden on mobile */}
-      <TableContainer className="hidden md:block">
+      <TableContainer className="hidden lg:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -603,7 +598,7 @@ function AppointmentsTable({
               <TableHead className="w-col-member">Family member</TableHead>
               <TableHead className="w-col-amount text-right">Amount</TableHead>
               <TableHead className="w-col-status">Status</TableHead>
-              <TableHead className="w-col-actions" />
+              <TableHead />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -629,7 +624,7 @@ function AppointmentsTable({
                 <p className="text-body text-muted-foreground">{formatTime(appt.date) || '—'}</p>
               </TableCell>
               <TableCell className="max-w-col-details align-top">
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-start gap-2.5">
                   {appt.type === 'doctor' ? (
                     <Avatar className="h-10 w-10 flex-shrink-0">
                       <AvatarImage src={appt.doctor_avatar_url || undefined} alt={appt.title} />
@@ -644,9 +639,7 @@ function AppointmentsTable({
                       </AvatarFallback>
                     </Avatar>
                   ) : (
-                    <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-200">
-                      <Icon icon={TestTube2} className="h-5 w-5 text-blue-800" />
-                    </div>
+                    <IconCircle icon={TestTube2} size="sm" variant="primary" />
                   )}
                   <div>
                     <p className="text-label">{appt.title}</p>
@@ -694,7 +687,7 @@ function AppointmentsTable({
       </TableContainer>
 
       {/* Mobile Pagination - Only show count on mobile */}
-      <div className="md:hidden mt-4 text-center">
+      <div className="lg:hidden mt-4 text-center">
         <p className="text-body text-muted-foreground">
           Showing {appointments.length} {appointments.length === 1 ? 'appointment' : 'appointments'}
         </p>

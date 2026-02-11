@@ -34,8 +34,8 @@ export function TablePagination({
   const showRange = from !== 1 || to !== total;
 
   return (
-    <div className="flex items-center justify-between px-6 py-3 border-t border-border">
-      <p className="text-label text-muted-foreground">
+    <div className="flex items-center justify-between px-6 py-2.5 border-t border-border">
+      <p className="text-caption text-muted-foreground">
         {showRange
           ? `Showing ${from}\u2013${to} of ${total} ${itemLabel}`
           : `Showing ${total} ${itemLabel}`}
@@ -45,19 +45,20 @@ export function TablePagination({
           <Button
             variant="outline"
             iconOnly
-            size="sm"
+            size="xs"
             disabled={currentPage <= 1}
             onClick={() => onPageChange(currentPage - 1)}
+            className="!min-h-0 !min-w-0 !h-7 !w-7"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-3.5 w-3.5" />
           </Button>
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
             <Button
               key={p}
               variant={p === currentPage ? 'primary' : 'outline'}
               iconOnly
-              size="sm"
-              className={cn('text-label', p === currentPage && 'pointer-events-none')}
+              size="xs"
+              className={cn('!min-h-0 !min-w-0 !h-7 !w-7 text-caption', p === currentPage && 'pointer-events-none')}
               onClick={() => onPageChange(p)}
             >
               {p}
@@ -66,11 +67,12 @@ export function TablePagination({
           <Button
             variant="outline"
             iconOnly
-            size="sm"
+            size="xs"
             disabled={currentPage >= totalPages}
             onClick={() => onPageChange(currentPage + 1)}
+            className="!min-h-0 !min-w-0 !h-7 !w-7"
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-3.5 w-3.5" />
           </Button>
         </div>
       )}

@@ -5,6 +5,8 @@ import { Pulse, ErrorState, useSkeletonLoading, SheetSkeleton } from '@/Componen
 import { EmptyState } from '@/Components/ui/empty-state';
 import { Badge } from '@/Components/ui/badge';
 import { Button, buttonVariants } from '@/Components/ui/button';
+import { IconCircle } from '@/Components/ui/icon-circle';
+import { TableCard } from '@/Components/ui/table-card';
 import { useFormatPreferences } from '@/Hooks/useFormatPreferences';
 import { Input } from '@/Components/ui/input';
 import {
@@ -499,47 +501,53 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
         </Tabs>
 
         {/* Filters */}
-        <div className="flex items-center gap-3 mb-4 flex-wrap">
-          <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
-            <SelectTrigger className="w-[200px] h-9">
-              <SelectValue placeholder="All statuses" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              <SelectItem value="due">Due</SelectItem>
-              <SelectItem value="paid">Paid</SelectItem>
-              <SelectItem value="refunded">Refunded</SelectItem>
-              <SelectItem value="awaiting_approval">Awaiting approval</SelectItem>
-              <SelectItem value="claim_pending">Claim pending</SelectItem>
-              <SelectItem value="copay_due">Co-pay due</SelectItem>
-              <SelectItem value="emi">EMI</SelectItem>
-              <SelectItem value="disputed">Disputed</SelectItem>
-              <SelectItem value="covered">Covered</SelectItem>
-              <SelectItem value="reimbursed">Reimbursed</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex flex-wrap gap-3 mb-4">
+          {/* Filters */}
+          <div className="w-full sm:w-auto overflow-x-auto flex-none">
+            <div className="flex items-center gap-3">
+              <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+                <SelectTrigger className="w-44 h-9">
+                  <SelectValue placeholder="All statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All statuses</SelectItem>
+                  <SelectItem value="due">Due</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                  <SelectItem value="refunded">Refunded</SelectItem>
+                  <SelectItem value="awaiting_approval">Awaiting approval</SelectItem>
+                  <SelectItem value="claim_pending">Claim pending</SelectItem>
+                  <SelectItem value="copay_due">Co-pay due</SelectItem>
+                  <SelectItem value="emi">EMI</SelectItem>
+                  <SelectItem value="disputed">Disputed</SelectItem>
+                  <SelectItem value="covered">Covered</SelectItem>
+                  <SelectItem value="reimbursed">Reimbursed</SelectItem>
+                </SelectContent>
+              </Select>
 
-          <Select value={memberFilter} onValueChange={(v) => { setMemberFilter(v); setPage(1); }}>
-            <SelectTrigger className="w-[180px] h-9">
-              <SelectValue placeholder="All members" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All members</SelectItem>
-              {familyMembers.map((m) => (
-                <SelectItem key={m.id} value={String(m.id)}>
-                  {m.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+              <Select value={memberFilter} onValueChange={(v) => { setMemberFilter(v); setPage(1); }}>
+                <SelectTrigger className="w-44 h-9">
+                  <SelectValue placeholder="All members" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All members</SelectItem>
+                  {familyMembers.map((m) => (
+                    <SelectItem key={m.id} value={String(m.id)}>
+                      {m.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-          <div className="relative ml-auto">
+          {/* Search */}
+          <div className="relative w-full sm:flex-1 sm:basis-64 sm:ml-auto">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground" />
             <Input
               placeholder="Search invoices..."
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
-              className="pl-9 h-9 w-[220px]"
+              className="pl-9 h-9"
             />
           </div>
         </div>
@@ -580,7 +588,7 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
         ) : (
           <>
             {/* Desktop Table */}
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
               <TableContainer>
                 <Table>
                   <TableHeader>
@@ -634,14 +642,12 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
 
                           {/* Details */}
                           <TableCell className="align-top">
-                            <div className="flex items-center gap-2.5">
-                              <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-200">
-                                {bill.appointment_type === 'doctor' ? (
-                                  <Stethoscope className="h-5 w-5 text-blue-800" />
-                                ) : (
-                                  <TestTube2 className="h-5 w-5 text-blue-800" />
-                                )}
-                              </div>
+                            <div className="flex items-start gap-2.5">
+                              <IconCircle
+                                icon={bill.appointment_type === 'doctor' ? Stethoscope : TestTube2}
+                                size="sm"
+                                variant="primary"
+                              />
                               <div>
                                 <p className="text-label">{bill.appointment_title}</p>
                                 <p className="text-overline text-muted-foreground">{bill.invoice_number}</p>
@@ -698,8 +704,8 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
               </TableContainer>
             </div>
 
-            {/* Mobile Card List */}
-            <div className="md:hidden space-y-3">
+            {/* Mobile & Tablet Card List */}
+            <div className="lg:hidden space-y-3">
               {paged.map((bill) => {
                 const isPayable = PAYABLE_STATUSES.includes(bill.billing_status);
                 const cfg = STATUS_CONFIG[bill.billing_status] ?? { label: bill.billing_status, variant: 'neutral' as const };
@@ -708,57 +714,39 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                   : cfg.label;
 
                 return (
-                  <div
+                  <TableCard
                     key={bill.id}
-                    className={cn(
-                      "rounded-xl border border-border bg-background p-4 transition-colors",
-                      selectedIds.has(bill.id) && "bg-primary/5 border-primary"
-                    )}
+                    layoutMode="grid"
+                    showCheckbox
+                    checked={selectedIds.has(bill.id)}
+                    onCheckboxChange={() => toggleSelect(bill.id)}
+                    checkboxDisabled={!isPayable}
+                    selected={selectedIds.has(bill.id)}
+                    icon={bill.appointment_type === 'doctor' ? Stethoscope : TestTube2}
+                    title={bill.appointment_title}
+                    subtitle={bill.invoice_number}
+                    badge={{
+                      label: statusLabel,
+                      variant: cfg.variant,
+                    }}
+                    fields={[
+                      {
+                        label: 'Date',
+                        value: formatDate(bill.date) || '—',
+                      },
+                      {
+                        label: 'Patient',
+                        value: bill.patient_name,
+                      },
+                      {
+                        label: 'Amount',
+                        value: bill.due_amount > 0 && bill.due_amount !== bill.original_amount
+                          ? `₹${bill.due_amount.toLocaleString()}`
+                          : `₹${bill.total.toLocaleString()}`,
+                      },
+                    ]}
                     onClick={() => router.visit(`/billing/${bill.id}`)}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="pt-0.5" onClick={(e) => e.stopPropagation()}>
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.has(bill.id)}
-                          disabled={!isPayable}
-                          onChange={() => toggleSelect(bill.id)}
-                          className="h-4 w-4"
-                        />
-                      </div>
-                      <div className="flex items-start gap-3 flex-1 min-w-0">
-                        <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-200">
-                          {bill.appointment_type === 'doctor' ? (
-                            <Stethoscope className="h-5 w-5 text-blue-800" />
-                          ) : (
-                            <TestTube2 className="h-5 w-5 text-blue-800" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-label text-foreground">{bill.appointment_title}</p>
-                          <p className="text-overline text-muted-foreground mt-0.5">{bill.invoice_number}</p>
-                          <div className="flex flex-wrap items-center gap-2 mt-2">
-                            <span className="text-body text-muted-foreground">{formatDate(bill.date) || '—'}</span>
-                            <span className="text-muted-foreground">•</span>
-                            <span className="text-body text-muted-foreground">{bill.patient_name}</span>
-                            <span className="text-muted-foreground">•</span>
-                            <span className="text-label text-foreground">
-                              {bill.due_amount > 0 && bill.due_amount !== bill.original_amount
-                                ? `₹${bill.due_amount.toLocaleString()}`
-                                : `₹${bill.total.toLocaleString()}`}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 mt-2">
-                            <Badge variant={cfg.variant}>{statusLabel}</Badge>
-                            {bill.is_overdue && (
-                              <span className="text-micro text-destructive">Overdue {bill.days_overdue}d</span>
-                            )}
-                          </div>
-                        </div>
-                        <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                      </div>
-                    </div>
-                  </div>
+                  />
                 );
               })}
 
@@ -853,14 +841,12 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                             <SheetSectionRow
                               label="Service"
                               value={
-                                <div className="flex items-center gap-2.5 text-left">
-                                  <div className="h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-200">
-                                    {bill.appointment_type === 'doctor' ? (
-                                      <Stethoscope className="h-5 w-5 text-blue-800" />
-                                    ) : (
-                                      <TestTube2 className="h-5 w-5 text-blue-800" />
-                                    )}
-                                  </div>
+                                <div className="flex items-start gap-2.5 text-left">
+                                  <IconCircle
+                                    icon={bill.appointment_type === 'doctor' ? Stethoscope : TestTube2}
+                                    size="sm"
+                                    variant="primary"
+                                  />
                                   <span>{bill.appointment_title}</span>
                                 </div>
                               }
