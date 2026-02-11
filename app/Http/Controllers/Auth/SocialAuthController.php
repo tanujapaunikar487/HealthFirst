@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
-use Laravel\Socialite\Two\InvalidStateException;
 
 class SocialAuthController extends Controller
 {
@@ -53,16 +52,9 @@ class SocialAuthController extends Controller
         }
 
         try {
-            $socialUser = Socialite::driver($provider)->user();
+            $socialUser = Socialite::driver($provider)->stateless()->user();
 
             return $this->handleSocialUser($provider, $socialUser);
-        } catch (InvalidStateException $e) {
-            Log::warning("Social auth state mismatch for {$provider}", [
-                'exception' => $e->getMessage(),
-            ]);
-
-            return redirect()->route('login')
-                ->with('error', 'Authentication session expired. Please try again.');
         } catch (\Throwable $e) {
             Log::error("Social auth callback error for {$provider}", [
                 'exception' => $e->getMessage(),
@@ -82,7 +74,7 @@ class SocialAuthController extends Controller
     {
         try {
             // Apple sends user data in the POST body on first auth only
-            $socialUser = Socialite::driver('apple')->user();
+            $socialUser = Socialite::driver('apple')->stateless()->user();
 
             return $this->handleSocialUser('apple', $socialUser);
         } catch (\Throwable $e) {
