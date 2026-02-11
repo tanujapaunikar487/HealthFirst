@@ -116,45 +116,42 @@ class SocialAuthController extends Controller
         }
 
         // Social account doesn't exist - check if email matches existing user
-        return DB::transaction(function () use ($provider, $providerId, $email, $name, $avatar, $socialUser) {
-            $user = null;
+        $existingUser = $email ? User::where('email', $email)->first() : null;
 
-            if ($email) {
-                $user = User::where('email', $email)->first();
-            }
+        if ($existingUser) {
+            // Link social account to existing user
+            $this->createSocialAccount($existingUser, $provider, $providerId, $email, $name, $avatar, $socialUser);
+            Auth::login($existingUser, remember: true);
 
-            if ($user) {
-                // Link social account to existing user
-                $this->createSocialAccount($user, $provider, $providerId, $email, $name, $avatar, $socialUser);
-                Auth::login($user, remember: true);
+            return redirect()->intended(route('dashboard'));
+        }
 
-                return redirect()->intended(route('dashboard'));
-            }
+        // Handle case where Apple doesn't provide email
+        if (! $email && $provider === 'apple') {
+            return redirect()->route('login')
+                ->with('error', 'Unable to retrieve email from Apple. Please sign in with email or try again.');
+        }
 
-            // Handle case where Apple doesn't provide email
-            if (! $email && $provider === 'apple') {
-                // Apple only sends email on first auth - this is a re-auth without email
-                // Store provider_id in session and redirect to email collection page
-                return redirect()->route('login')
-                    ->with('error', 'Unable to retrieve email from Apple. Please sign in with email or try again.');
-            }
-
-            // Create new user
+        // Create new user + social account in a transaction
+        $user = DB::transaction(function () use ($provider, $providerId, $email, $name, $avatar, $socialUser) {
             $user = User::create([
                 'name' => $name ?? 'User',
                 'email' => $email,
-                'password' => bcrypt(Str::random(32)), // Random password for social-only users
-                'email_verified_at' => now(), // Social providers verify email
+                'password' => bcrypt(Str::random(32)),
+                'email_verified_at' => now(),
             ]);
 
-            // Create social account link
             $this->createSocialAccount($user, $provider, $providerId, $email, $name, $avatar, $socialUser);
 
-            event(new Registered($user));
-            Auth::login($user, remember: true);
-
-            return redirect()->route('dashboard');
+            return $user;
         });
+
+        // Fire event and login AFTER transaction commits so seeder errors
+        // don't taint the PostgreSQL connection state
+        event(new Registered($user));
+        Auth::login($user, remember: true);
+
+        return redirect()->route('dashboard');
     }
 
     /**
