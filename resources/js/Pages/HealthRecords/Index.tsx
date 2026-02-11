@@ -802,7 +802,7 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
           {activeFilters.length > 0 && (
             <div className="flex items-center gap-2 flex-wrap mt-3">
               {activeFilters.map((f) => (
-                <Chip key={f.key} variant="dismissible" size="sm" onDismiss={f.onRemove}>
+                <Chip key={f.key} variant="dismissible" size="md" onDismiss={f.onRemove}>
                   {f.label}
                 </Chip>
               ))}
