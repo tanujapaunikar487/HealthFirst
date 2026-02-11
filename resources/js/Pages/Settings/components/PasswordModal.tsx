@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Eye, EyeOff, Check, AlertCircle, Loader2, ArrowLeft } from '@/Lib/icons';
 import { Alert } from '@/Components/ui/alert';
 import { Button } from '@/Components/ui/button';
+import { IconCircle } from '@/Components/ui/icon-circle';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import {
@@ -361,9 +362,7 @@ export function PasswordModal({ open, onOpenChange }: PasswordModalProps) {
                         </DialogHeader>
                         <DialogBody>
                             <div className="px-5 py-8 text-center space-y-4">
-                                <div className="mx-auto h-16 w-16 rounded-full bg-success/10 flex items-center justify-center">
-                                    <Check className="h-8 w-8 text-success" />
-                                </div>
+                                <IconCircle icon={Check} size="xl" variant="success" className="mx-auto" />
                                 <div>
                                     <h3 className="text-subheading">Password changed!</h3>
                                     <p className="text-body text-muted-foreground mt-1">

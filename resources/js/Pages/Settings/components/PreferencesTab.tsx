@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react';
 import { Download, Lock, Trash2, ChevronRight } from '@/Lib/icons';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
+import { IconCircle } from '@/Components/ui/icon-circle';
 import { Label } from '@/Components/ui/label';
 import { Input } from '@/Components/ui/input';
 import { Switch } from '@/Components/ui/switch';
@@ -348,9 +349,7 @@ export function PreferencesTab({
                             className="w-full flex items-center justify-between px-6 py-4 h-auto rounded-none hover:bg-muted/50 transition-colors text-left"
                         >
                             <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Lock className="h-5 w-5 text-foreground" />
-                                </div>
+                                <IconCircle icon={Lock} size="sm" variant="primary" />
                                 <span className="text-card-title text-foreground">Change password</span>
                             </div>
                             <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
@@ -363,9 +362,7 @@ export function PreferencesTab({
                             className="w-full flex items-center justify-between px-6 py-4 h-auto rounded-none hover:bg-muted/50 transition-colors text-left"
                         >
                             <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Download className="h-5 w-5 text-foreground" />
-                                </div>
+                                <IconCircle icon={Download} size="sm" variant="primary" />
                                 <span className="text-card-title text-foreground">Download My Data</span>
                             </div>
                             <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>
@@ -378,9 +375,7 @@ export function PreferencesTab({
                             className="w-full flex items-center justify-between px-6 py-4 h-auto rounded-none hover:bg-muted/50 transition-colors text-left"
                         >
                             <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Trash2 className="h-5 w-5 text-foreground" />
-                                </div>
+                                <IconCircle icon={Trash2} size="sm" variant="primary" />
                                 <span className="text-card-title text-foreground">Delete account</span>
                             </div>
                             <Button variant="secondary" iconOnly size="md"><ChevronRight className="h-5 w-5" /></Button>

@@ -274,7 +274,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="w-full max-w-content mx-auto">
       <div className="flex flex-col items-center justify-center gap-4 py-32">
-        <IconCircle icon={AlertCircle} size="lg" variant="muted" />
+        <IconCircle icon={AlertCircle} size="lg" variant="primary" />
         <p className="text-label text-muted-foreground">Unable to load dashboard</p>
         <p className="text-body text-muted-foreground">Please check your connection and try again.</p>
         <Button variant="secondary" className="mt-2" onClick={onRetry}>
@@ -545,47 +545,68 @@ export default function Dashboard({
   const overdueFollowUps = followUpsDue.filter(f => f.days_overdue >= 0);
   const futureFollowUps = followUpsDue.filter(f => f.days_overdue < 0 && f.days_overdue > -7);
 
-  // Build "Up next" items: overdue bills + payment reminders + EMI + insurance claims (non-approved) + health alerts + prescriptions + overdue follow-ups + new results + today's appointments
+  // Filter vaccinations into overdue vs upcoming
+  const overdueVaccinations = vaccinationsDue.filter(v => new Date(v.due_date) < new Date());
+  const upcomingVaccinations = vaccinationsDue.filter(v => new Date(v.due_date) >= new Date());
+
+  // Filter preventive care into overdue vs upcoming
+  const overduePreventiveCare = preventiveCare.filter(c => c.months_since !== null && c.months_since > 12);
+  const upcomingPreventiveCare = preventiveCare.filter(c => c.months_since === null || c.months_since <= 12);
+
+  // Build "Up next" items (priority order):
+  // 1. Today's appointments
+  // 2. Payment alerts: overdue bills → payments due soon → EMI → insurance claims
+  // 3. Health alerts: prescriptions expiring → overdue follow-ups → overdue vaccinations → overdue preventive care → health alerts → new results
   const hasUpNextItems =
+    todayAppointments.length > 0 ||
     overdueBills.length > 0 ||
     paymentsDueSoon.length > 0 ||
     emisDue.length > 0 ||
     insuranceClaimUpdates.filter(c => c.claim_status !== 'approved').length > 0 ||
-    visibleHealthAlerts.length > 0 ||
     prescriptionsExpiring.length > 0 ||
     overdueFollowUps.length > 0 ||
-    newResultsReady.length > 0 ||
-    todayAppointments.length > 0;
+    overdueVaccinations.length > 0 ||
+    overduePreventiveCare.length > 0 ||
+    visibleHealthAlerts.length > 0 ||
+    newResultsReady.length > 0;
 
-  // Build "Later this week" items: pre-appointment reminders + later appointments + future follow-ups + vaccinations + preventive care
+  // Build "Later this week" items: pre-appointment reminders + later appointments + future follow-ups + upcoming vaccinations + upcoming preventive care
   const hasLaterItems =
     preAppointmentReminders.length > 0 ||
     laterAppointments.length > 0 ||
     futureFollowUps.length > 0 ||
-    vaccinationsDue.length > 0 ||
-    preventiveCare.length > 0;
+    upcomingVaccinations.length > 0 ||
+    upcomingPreventiveCare.length > 0;
 
   const hasAnyActivity = hasUpNextItems || hasLaterItems;
 
   // Build flat arrays for each section to handle "View all" expansion
+  // Priority order: Today's appointments → Payment alerts → Health alerts
   const upNextCards = [
+    // 1. Today's appointments (highest priority)
+    ...todayAppointments.map((appt, i) => ({ type: 'appointment_today' as const, data: appt, index: i })),
+
+    // 2. Payment-related alerts (by priority)
     ...overdueBills.map((bill, i) => ({ type: 'overdue_bill' as const, data: bill, index: i })),
     ...paymentsDueSoon.map((payment, i) => ({ type: 'payment_due_soon' as const, data: payment, index: i })),
     ...emisDue.map((emi, i) => ({ type: 'emi_due' as const, data: emi, index: i })),
     ...insuranceClaimUpdates.filter(c => c.claim_status !== 'approved').map((claim, i) => ({ type: 'insurance_claim_update' as const, data: claim, index: i })),
-    ...visibleHealthAlerts.map((alert, i) => ({ type: 'health_alert' as const, data: alert, index: i })),
+
+    // 3. Health-related alerts (by priority)
     ...prescriptionsExpiring.map((rx, i) => ({ type: 'prescription_expiring' as const, data: rx, index: i })),
     ...overdueFollowUps.map((followup, i) => ({ type: 'followup_due' as const, data: followup, index: i })),
+    ...overdueVaccinations.map((vaccination, i) => ({ type: 'vaccination_due' as const, data: vaccination, index: i })),
+    ...overduePreventiveCare.map((care, i) => ({ type: 'preventive_care' as const, data: care, index: i })),
+    ...visibleHealthAlerts.map((alert, i) => ({ type: 'health_alert' as const, data: alert, index: i })),
     ...newResultsReady.map((result, i) => ({ type: 'new_results_ready' as const, data: result, index: i })),
-    ...todayAppointments.map((appt, i) => ({ type: 'appointment_today' as const, data: appt, index: i })),
   ];
 
   const laterCards = [
     ...preAppointmentReminders.map((reminder, i) => ({ type: 'pre_appointment_reminder' as const, data: reminder, index: i })),
     ...laterAppointments.map((appt, i) => ({ type: 'appointment_upcoming' as const, data: appt, index: i })),
     ...futureFollowUps.map((followup, i) => ({ type: 'followup_due_future' as const, data: followup, index: i })),
-    ...vaccinationsDue.map((vaccination, i) => ({ type: 'vaccination_due' as const, data: vaccination, index: i })),
-    ...preventiveCare.map((care, i) => ({ type: 'preventive_care' as const, data: care, index: i })),
+    ...upcomingVaccinations.map((vaccination, i) => ({ type: 'vaccination_due' as const, data: vaccination, index: i })),
+    ...upcomingPreventiveCare.map((care, i) => ({ type: 'preventive_care' as const, data: care, index: i })),
   ];
 
   const visibleUpNextCards = upNextExpanded ? upNextCards : upNextCards.slice(0, 3);
@@ -782,17 +803,20 @@ export default function Dashboard({
       }
       case 'appointment_today': {
         const appt = card.data as UpcomingAppointment;
+        const modeText = appt.type === 'doctor' ? (appt.mode === 'video' ? ' · Video' : ' · In-person') : '';
+        const timeText = appt.time ? formatTime(appt.time) : '';
+        const subtitle = timeText
+          ? `Today · ${timeText} · ${appt.subtitle}${modeText}`
+          : `Today · ${appt.subtitle}${modeText}`;
         return (
           <ActionableCardListItem
             key={`today-${appt.id}`}
             type="appointment_today"
             title={appt.title}
-            subtitle={`Today · ${appt.time ? formatTime(appt.time) : ''} · ${appt.subtitle}`}
+            subtitle={subtitle}
             iconOverride={appt.type === 'lab_test' ? FlaskConical : undefined}
             patientName={appt.patient_name}
             patientInitials={appt.patient_initials}
-            badge={appt.mode === 'video' ? 'Video' : appt.type === 'lab_test' ? 'Lab Test' : undefined}
-            badgeVariant={appt.mode === 'video' ? 'info' : appt.type === 'lab_test' ? 'warning' : undefined}
             actionLabel="View"
             onAction={() => setSheetView({ type: 'details', appointment: appt })}
             menuItems={[
@@ -844,17 +868,20 @@ export default function Dashboard({
       }
       case 'appointment_upcoming': {
         const appt = card.data as UpcomingAppointment;
+        const modeText = appt.type === 'doctor' ? (appt.mode === 'video' ? ' · Video' : ' · In-person') : '';
+        const timeText = appt.time ? formatTime(appt.time) : '';
+        const subtitle = timeText
+          ? `${appt.date_formatted} · ${timeText} · ${appt.subtitle}${modeText}`
+          : `${appt.date_formatted} · ${appt.subtitle}${modeText}`;
         return (
           <ActionableCardListItem
             key={`later-${appt.id}`}
             type="appointment_upcoming"
             title={appt.title}
-            subtitle={`${appt.date_formatted} · ${appt.time ? formatTime(appt.time) : ''} · ${appt.subtitle}`}
+            subtitle={subtitle}
             iconOverride={appt.type === 'lab_test' ? FlaskConical : undefined}
             patientName={appt.patient_name}
             patientInitials={appt.patient_initials}
-            badge={appt.type === 'lab_test' ? 'Lab Test' : appt.mode === 'video' ? 'Video' : undefined}
-            badgeVariant={appt.type === 'lab_test' ? 'warning' : appt.mode === 'video' ? 'info' : undefined}
             actionLabel="Reschedule"
             actionVariant="secondary"
             onAction={() => setSheetView({ type: 'reschedule', appointment: appt })}
@@ -882,7 +909,6 @@ export default function Dashboard({
             badge="Due soon"
             badgeVariant="warning"
             actionLabel="Book follow-up"
-            actionVariant="primary"
             onAction={() => router.visit('/booking')}
             menuItems={[
               { label: 'View previous visit', onClick: () => router.visit(`/appointments/${followup.original_appointment_id}`) },
@@ -897,18 +923,20 @@ export default function Dashboard({
         const dueDate = new Date(vaccination.due_date);
         const isPast = dueDate < new Date();
         const daysUntil = Math.ceil((dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+        const subtitle = vaccination.age_requirement
+          ? `${vaccination.age_requirement} · Due on ${vaccination.due_date}`
+          : `Due on ${vaccination.due_date}`;
         return (
           <ActionableCardListItem
             key={`vaccination-${vaccination.id}`}
             type="vaccination_due"
             title={vaccination.vaccine_name}
-            subtitle={`${vaccination.age_requirement} · Due on ${vaccination.due_date}`}
+            subtitle={subtitle}
             patientName={vaccination.patient_name}
             patientInitials={vaccination.patient_initials}
             badge={isPast ? 'Overdue' : `Due ${daysUntil}d`}
             badgeVariant={isPast ? 'danger' : 'warning'}
             actionLabel="Schedule"
-            actionVariant="primary"
             onAction={() => router.visit('/booking')}
             menuItems={[
               { label: 'View vaccination history', onClick: () => router.visit(`/health-records?member_id=${vaccination.id}`) },
@@ -932,7 +960,6 @@ export default function Dashboard({
             badge={care.months_since !== null && care.months_since > 12 ? 'Overdue' : 'Due soon'}
             badgeVariant={care.months_since !== null && care.months_since > 12 ? 'danger' : 'warning'}
             actionLabel="Book now"
-            actionVariant="primary"
             onAction={() => router.visit('/booking')}
             menuItems={[
               { label: 'View records', onClick: () => router.visit(`/health-records?member_id=${care.member_id}`) },
@@ -1212,8 +1239,12 @@ export default function Dashboard({
 // --- Helpers ---
 
 function formatTime(time: string): string {
-  if (!time) return '';
-  const [h, m] = time.split(':').map(Number);
+  if (!time || time.trim() === '') return '';
+  const parts = time.split(':');
+  if (parts.length < 2) return time; // Return as-is if invalid format
+  const h = parseInt(parts[0], 10);
+  const m = parseInt(parts[1], 10);
+  if (isNaN(h) || isNaN(m)) return time; // Return as-is if parsing fails
   const suffix = h >= 12 ? 'PM' : 'AM';
   const hour = h % 12 || 12;
   return `${hour}:${String(m).padStart(2, '0')} ${suffix}`;

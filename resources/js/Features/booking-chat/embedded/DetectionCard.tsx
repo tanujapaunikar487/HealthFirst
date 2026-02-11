@@ -2,6 +2,7 @@ import * as React from 'react';
 import { cn } from '@/Lib/utils';
 import { User, Check } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { IconCircle } from '@/Components/ui/icon-circle';
 import { Button } from '@/Components/ui/button';
 import { Alert } from '@/Components/ui/alert';
 import { Card } from '@/Components/ui/card';
@@ -44,9 +45,7 @@ export function DetectionCard({ member, onAccept, disabled }: DetectionCardProps
 
             {/* Member details */}
             <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
-                    <Icon icon={User} size={20} className="text-blue-800" />
-                </div>
+                <IconCircle icon={User} size="sm" variant="primary" />
                 <div className="flex-1 min-w-0">
                     <p className="text-card-title text-foreground mb-1">{member.name}</p>
                     <div className="flex flex-wrap gap-2 text-body text-muted-foreground">

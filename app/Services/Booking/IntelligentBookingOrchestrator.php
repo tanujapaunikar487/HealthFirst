@@ -949,11 +949,22 @@ class IntelligentBookingOrchestrator
             if (in_array('doctor', $missing)) {
                 // Check if we should show previous doctors first
                 $previousDoctorsShown = $data['previous_doctors_shown'] ?? false;
+                Log::info('🔒 FOLLOWUP DEBUG: Checking previous_doctors status', [
+                    'doctor_in_missing' => true,
+                    'previous_doctors_shown' => $previousDoctorsShown,
+                    'selectedDoctorId' => $data['selectedDoctorId'] ?? 'null',
+                    'DECISION' => !$previousDoctorsShown ? 'SHOW previous_doctors' : 'Skip to generic doctor list',
+                ]);
+
                 if (! $previousDoctorsShown) {
-                    Log::info('🔒 Next Field: Showing previous_doctors before generic doctor list - RETURNING previous_doctors');
+                    Log::info('🔒 Next Field: Showing previous_doctors before generic doctor list - RETURNING previous_doctors', [
+                        'IMPORTANT' => 'This should display component and STOP until user selects',
+                    ]);
 
                     return 'previous_doctors';
                 }
+
+                Log::info('🔒 FOLLOWUP DEBUG: previous_doctors already shown, proceeding to regular doctor selection');
             }
 
             Log::info('🔒 Next Field: Follow-up mandatory fields satisfied, continuing with normal priority');
@@ -1256,10 +1267,26 @@ class IntelligentBookingOrchestrator
         // Extract thinking steps from parsed AI response
         $thinkingSteps = $parsed['thinking'] ?? [];
 
+        Log::info('📤 RESPONSE DEBUG: About to add assistant message', [
+            'component_type' => $component['type'],
+            'message_preview' => substr($message, 0, 100),
+            'has_component_data' => !empty($componentData),
+            'missing_fields' => $stateMachine->getMissingFields(),
+            'CRITICAL' => $component['type'] === 'previous_doctors' ? 'SHOULD STOP HERE AND WAIT FOR USER' : 'Normal flow',
+        ]);
+
         // Add assistant message with thinking steps
         $this->addAssistantMessage($conversation, $message, $component['type'], $componentData, $thinkingSteps);
 
         Log::info('🎰 State Machine Response', $stateMachine->getDebugInfo());
+
+        Log::info('✅ RESPONSE DEBUG: Returning response to controller', [
+            'status' => 'success',
+            'component_type' => $component['type'],
+            'message_preview' => substr($message, 0, 80),
+            'ready_to_book' => $stateMachine->isReadyToBook(),
+            'SHOULD_WAIT_FOR_USER' => in_array($component['type'], ['previous_doctors', 'doctor_selector', 'patient_selector', 'appointment_type_selector']),
+        ]);
 
         return [
             'status' => 'success',
@@ -1543,10 +1570,19 @@ class IntelligentBookingOrchestrator
                     'has_previous_appointments' => true,
                 ]);
 
+                $previousDoctorsData = $this->getPreviousDoctors($data);
+
+                Log::info('🩺 PREVIOUS_DOCTORS DEBUG: Component being returned', [
+                    'component_type' => 'previous_doctors',
+                    'doctors_count' => count($previousDoctorsData),
+                    'message' => 'Would you like to book with one of these doctors you\'ve seen before?',
+                    'IMPORTANT' => 'This should WAIT for user selection before proceeding',
+                ]);
+
                 return [
                     'type' => 'previous_doctors',
                     'data' => [
-                        'options' => $this->getPreviousDoctors($data),
+                        'options' => $previousDoctorsData,
                         'show_all_doctors_option' => true,
                     ],
                     'intro_message' => 'Would you like to book with one of these doctors you\'ve seen before?',
@@ -2041,6 +2077,14 @@ class IntelligentBookingOrchestrator
      */
     protected function handleComponentSelection(BookingConversation $conversation, array $selection): array
     {
+        Log::info('🎯 SELECTION HANDLER: Processing user selection', [
+            'selection_keys' => array_keys($selection),
+            'is_doctor_selection' => isset($selection['doctor_id']),
+            'is_show_all_doctors' => isset($selection['show_all_doctors']),
+            'is_from_previous_doctors' => isset($selection['from_previous_doctors']),
+            'selection_preview' => array_map(fn($v) => is_scalar($v) ? $v : gettype($v), $selection),
+        ]);
+
         // Update data based on selection
         $updated = $conversation->collected_data;
 
@@ -2313,7 +2357,12 @@ class IntelligentBookingOrchestrator
             // Track if this came from previous_doctors component
             if (isset($selection['from_previous_doctors']) && $selection['from_previous_doctors']) {
                 $updated['previous_doctors_shown'] = true;
-                Log::info('🔒 Selection Handler: Doctor selected from previous doctors');
+                Log::info('🔒 Selection Handler: Doctor selected from previous doctors', [
+                    'doctor_id' => $selection['doctor_id'],
+                    'doctor_name' => $selection['doctor_name'] ?? 'unknown',
+                    'previous_doctors_shown' => true,
+                    'NEXT_STEP' => 'Should ask for date/time next',
+                ]);
             }
 
             // Validate and auto-select consultation mode based on doctor's supported modes
@@ -2371,7 +2420,12 @@ class IntelligentBookingOrchestrator
         // Handle "show all doctors" action from previous_doctors component
         if (isset($selection['show_all_doctors']) && $selection['show_all_doctors']) {
             $updated['previous_doctors_shown'] = true;
-            Log::info('🔒 Selection Handler: User chose to see all doctors');
+            Log::info('🔒 Selection Handler: User chose to see all doctors', [
+                'action' => 'show_all_doctors',
+                'previous_doctors_shown' => true,
+                'doctor_still_missing' => empty($updated['selectedDoctorId']),
+                'NEXT_STEP' => 'Should show doctor_selector component next',
+            ]);
         }
 
         if (isset($selection['date'])) {
@@ -2909,10 +2963,25 @@ class IntelligentBookingOrchestrator
             'followup_reason_in_saved_data' => $conversation->collected_data['followup_reason'] ?? 'MISSING',
         ]);
 
+        Log::info('🔄 SELECTION HANDLER: About to initialize state machine', [
+            'selectedDoctorId' => $updated['selectedDoctorId'] ?? 'null',
+            'selectedDate' => $updated['selectedDate'] ?? 'null',
+            'selectedTime' => $updated['selectedTime'] ?? 'null',
+            'appointmentType' => $updated['appointmentType'] ?? 'null',
+            'previous_doctors_shown' => $updated['previous_doctors_shown'] ?? false,
+            'completedSteps' => $updated['completedSteps'] ?? [],
+        ]);
+
         // Use state machine to determine next step
         $stateMachine = new BookingStateMachine($updated);
 
         Log::info('🔒 Selection Handler: State machine initialized', $stateMachine->getDebugInfo());
+
+        Log::info('📍 ABOUT TO BUILD RESPONSE: Check if this creates another message immediately', [
+            'current_state' => $stateMachine->getCurrentState(),
+            'missing_fields' => $stateMachine->getMissingFields(),
+            'WARNING' => 'If previous_doctors was just shown, we should NOT be here yet!',
+        ]);
 
         return $this->buildResponseFromStateMachine($conversation, $stateMachine, ['entities' => []]);
     }

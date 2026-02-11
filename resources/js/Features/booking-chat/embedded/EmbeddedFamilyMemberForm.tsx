@@ -5,7 +5,7 @@ import { Card } from '@/Components/ui/card';
 import { PhoneInput } from '@/Components/ui/phone-input';
 import { DatePicker } from '@/Components/ui/date-picker';
 import { UserPlus } from '@/Lib/icons';
-import { Icon } from '@/Components/ui/icon';
+import { IconCircle } from '@/Components/ui/icon-circle';
 
 const RELATION_OPTIONS = [
   'mother', 'father', 'brother', 'sister',
@@ -78,9 +78,7 @@ export function EmbeddedFamilyMemberForm({ onSelect, disabled }: Props) {
   return (
     <Card className="p-4 space-y-4 max-w-md">
       <div className="flex items-center gap-2">
-        <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
-          <Icon icon={UserPlus} size={20} className="text-blue-800" />
-        </div>
+        <IconCircle icon={UserPlus} size="sm" variant="primary" />
         <h4 className="text-card-title text-foreground">Add family member or guest</h4>
       </div>
 

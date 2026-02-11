@@ -4,6 +4,7 @@ import { Badge } from '@/Components/ui/badge';
 import { Card } from '@/Components/ui/card';
 import { Home, MapPin, Plus } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { IconCircle } from '@/Components/ui/icon-circle';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Textarea } from '@/Components/ui/textarea';
@@ -95,9 +96,7 @@ export function EmbeddedAddressSelector({ addresses, selectedAddressId, onSelect
               disabled && !isSelected && 'opacity-40'
             )}
           >
-            <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0 mt-0.5">
-              <Icon icon={Home} size={20} className="text-blue-800" />
-            </div>
+            <IconCircle icon={Home} size="sm" variant="primary" className="mt-0.5" />
 
             <div className="flex-1 min-w-0 text-left">
               <div className="flex items-center gap-2">

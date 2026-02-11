@@ -111,18 +111,31 @@ class BookingStateMachine
             }
 
             // Show previous doctors (unless already shown or user chose "see all")
-            if (empty($this->data['selectedDoctorId']) && empty($this->data['previous_doctors_shown'])) {
+            $previousDoctorsShown = !empty($this->data['previous_doctors_shown']);
+            $hasDoctor = !empty($this->data['selectedDoctorId']);
+
+            Log::info('🩺 STATE DETERMINATION: Followup doctor selection logic', [
+                'has_doctor' => $hasDoctor,
+                'previous_doctors_shown' => $previousDoctorsShown,
+                'has_date' => $hasDate,
+                'DECISION' => !$hasDoctor && !$previousDoctorsShown ? 'previous_doctors' : (!$hasDoctor ? 'doctor_selection' : 'continue'),
+            ]);
+
+            if (!$hasDoctor && !$previousDoctorsShown) {
+                Log::info('🔹 STATE: Returning previous_doctors state');
                 return 'previous_doctors';
             }
 
-            // Need date selection (pick a date before seeing doctors)
-            if (empty($this->data['selectedDate'])) {
-                return 'date_selection';
+            // Need doctor selection (if previous_doctors shown but no doctor selected yet)
+            if (!$hasDoctor) {
+                Log::info('🔹 STATE: previous_doctors already shown, returning doctor_selection state');
+                return 'doctor_selection';
             }
 
-            // Need doctor selection
-            if (empty($this->data['selectedDoctorId'])) {
-                return 'doctor_selection';
+            // Need date selection (AFTER doctor is selected)
+            if (empty($this->data['selectedDate'])) {
+                Log::info('🔹 STATE: Doctor selected, returning date_selection state');
+                return 'date_selection';
             }
         }
 
@@ -374,6 +387,16 @@ class BookingStateMachine
      */
     public function getComponentForCurrentState(): array
     {
+        Log::info('📋 STATE MACHINE: Getting component for current state', [
+            'current_state' => $this->currentState,
+            'booking_type' => $this->bookingType,
+            'appointment_type' => $this->appointmentType,
+            'has_doctor' => !empty($this->data['selectedDoctorId']),
+            'has_date' => !empty($this->data['selectedDate']),
+            'previous_doctors_shown' => $this->data['previous_doctors_shown'] ?? false,
+            'CRITICAL' => $this->currentState === 'previous_doctors' ? 'Should show previous_doctors component and WAIT' : 'Normal flow',
+        ]);
+
         return match ($this->currentState) {
             'patient_selection' => [
                 'type' => 'patient_selector',

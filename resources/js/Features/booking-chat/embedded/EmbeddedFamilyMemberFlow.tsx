@@ -5,6 +5,7 @@ import { Alert } from '@/Components/ui/alert';
 import { Button } from '@/Components/ui/button';
 import { Card } from '@/Components/ui/card';
 import { Icon } from '@/Components/ui/icon';
+import { IconCircle } from '@/Components/ui/icon-circle';
 import { Input } from '@/Components/ui/input';
 import { PhoneInput } from '@/Components/ui/phone-input';
 import { DatePicker } from '@/Components/ui/date-picker';
@@ -923,9 +924,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                     className="w-full h-auto px-6 py-4 rounded-none text-left hover:bg-muted/50"
                                 >
                                     <div className="flex items-start gap-4">
-                                        <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
-                                            <Icon icon={Users} size={20} className="text-blue-800" />
-                                        </div>
+                                        <IconCircle icon={Users} size="sm" variant="primary" />
                                         <div className="text-left">
                                             <h4 className="text-card-title">New Member</h4>
                                             <p className="text-body text-muted-foreground">Create a full family member profile</p>
@@ -940,9 +939,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                     className="w-full h-auto px-6 py-4 rounded-none text-left hover:bg-muted/50"
                                 >
                                     <div className="flex items-start gap-4">
-                                        <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
-                                            <Icon icon={Users} size={20} className="text-blue-800" />
-                                        </div>
+                                        <IconCircle icon={Users} size="sm" variant="primary" />
                                         <div className="text-left">
                                             <h4 className="text-card-title">Existing Patient</h4>
                                             <p className="text-body text-muted-foreground">Connect to an existing hospital patient record</p>
@@ -957,9 +954,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                     className="w-full h-auto px-6 py-4 rounded-none text-left hover:bg-muted/50"
                                 >
                                     <div className="flex items-start gap-4">
-                                        <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
-                                            <Icon icon={User} size={20} className="text-blue-800" />
-                                        </div>
+                                        <IconCircle icon={User} size="sm" variant="primary" />
                                         <div className="text-left">
                                             <h4 className="text-card-title">Guest</h4>
                                             <p className="text-body text-muted-foreground">One-time booking only</p>
@@ -1230,9 +1225,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                             {/* Patient Card */}
                             <div className="rounded-xl border border-border bg-muted/30 p-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center">
-                                        <Icon icon={User} size={20} className="text-blue-800" />
-                                    </div>
+                                    <IconCircle icon={User} size="sm" variant="primary" />
                                     <div>
                                         <h4 className="font-semibold">{state.foundMember.name}</h4>
                                         {state.foundMember.patient_id && (
@@ -1470,9 +1463,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 className="w-full h-auto px-6 py-4 rounded-none text-left hover:bg-muted/50"
                             >
                                 <div className="flex items-start gap-4">
-                                    <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
-                                        <Icon icon={Users} size={20} className="text-blue-800" />
-                                    </div>
+                                    <IconCircle icon={Users} size="sm" variant="primary" />
                                     <div className="text-left">
                                         <h4 className="text-card-title">New Member</h4>
                                         <p className="text-body text-muted-foreground">
@@ -1493,9 +1484,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 className="w-full h-auto px-6 py-4 rounded-none text-left hover:bg-muted/50"
                             >
                                 <div className="flex items-start gap-4">
-                                    <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
-                                        <Icon icon={Users} size={20} className="text-blue-800" />
-                                    </div>
+                                    <IconCircle icon={Users} size="sm" variant="primary" />
                                     <div className="text-left">
                                         <h4 className="text-card-title">Existing Patient</h4>
                                         <p className="text-body text-muted-foreground">
@@ -1516,9 +1505,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                                 className="w-full h-auto px-6 py-4 rounded-none text-left hover:bg-muted/50"
                             >
                                 <div className="flex items-start gap-4">
-                                    <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
-                                        <Icon icon={User} size={20} className="text-blue-800" />
-                                    </div>
+                                    <IconCircle icon={User} size="sm" variant="primary" />
                                     <div className="text-left">
                                         <h4 className="text-card-title">Guest</h4>
                                         <p className="text-body text-muted-foreground">
@@ -1935,9 +1922,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     {/* Patient Card */}
                     <div className="rounded-xl border border-border bg-muted/30 p-4">
                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center">
-                                <Icon icon={User} size={20} className="text-blue-800" />
-                            </div>
+                            <IconCircle icon={User} size="sm" variant="primary" />
                             <div>
                                 <h4 className="font-semibold">{state.foundMember.name}</h4>
                                 {state.foundMember.patient_id && (

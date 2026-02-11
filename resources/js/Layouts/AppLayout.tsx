@@ -4,6 +4,7 @@ import SearchModal from "@/Components/SearchModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { Button, buttonVariants } from "@/Components/ui/button";
 import { Badge } from "@/Components/ui/badge";
+import { IconCircle } from "@/Components/ui/icon-circle";
 import { cn } from "@/Lib/utils";
 import { useAccessibilityPreferences } from "@/Hooks/useAccessibilityPreferences";
 import {
@@ -207,9 +208,7 @@ function NotificationItem({
                     </AvatarFallback>
                 </Avatar>
             ) : (
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Icon icon={NotificationIcon} className="h-5 w-5 text-primary" />
-                </div>
+                <IconCircle icon={NotificationIcon} size="sm" variant="primary" />
             )}
             <div className="flex-1 min-w-0">
                 <p className="text-label text-foreground mb-1 break-words">{notification.title}</p>

@@ -1,5 +1,6 @@
 import { User, Users, Link2, ChevronDown } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { IconCircle } from '@/Components/ui/icon-circle';
 import { cn } from '@/Lib/utils';
 import { Button } from '@/Components/ui/button';
 
@@ -50,9 +51,7 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled }: TypeSe
                 disabled && !isExpanded && 'opacity-40'
             )}
         >
-            <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center shrink-0">
-                <Icon icon={TypeIcon} size={20} className="text-blue-800" />
-            </div>
+            <IconCircle icon={TypeIcon} size="sm" variant="primary" />
             <div className="flex-1 min-w-0 text-left">
                 <h4 className="text-label">{config.title}</h4>
                 <p className="text-body text-muted-foreground">{config.description}</p>

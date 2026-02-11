@@ -453,6 +453,134 @@ const handleTabChange = (newTab) => {
 
 ---
 
+## AI Booking Flow State Machine
+
+### Followup Appointment Flow
+
+**Critical Bug Fix (Feb 11, 2026)**: Fixed conversation flow where AI was jumping to date selection before showing doctor list.
+
+**Root Cause**: In `BookingStateMachine.php`, state determination logic checked for date_selection before doctor_selection after `previous_doctors_shown` flag was set, causing the flow to skip showing the full doctor list.
+
+**Correct Flow for Followup Appointments**:
+1. Patient selection
+2. Appointment type (followup)
+3. Followup reason
+4. Followup notes (chat input)
+5. Urgency (unless date already known)
+6. **Previous doctors** (`previous_doctors` component) — WAIT for user selection
+7. If user clicks "Show all doctors" → Set `previous_doctors_shown=true`
+8. **Doctor selection** (`doctor_selector` component) — Show full list, WAIT for selection
+9. Date selection (after doctor is selected)
+10. Time selection
+11. Mode selection
+12. Summary
+
+**State Machine Logic** (`BookingStateMachine.php:113-145`):
+```php
+// Show previous doctors (unless already shown or user chose "see all")
+if (!$hasDoctor && !$previousDoctorsShown) {
+    return 'previous_doctors';
+}
+
+// Need doctor selection (if previous_doctors shown but no doctor selected yet)
+if (!$hasDoctor) {
+    return 'doctor_selection';
+}
+
+// Need date selection (AFTER doctor is selected)
+if (empty($this->data['selectedDate'])) {
+    return 'date_selection';
+}
+```
+
+**Key Fix**: Moved doctor_selection check BEFORE date_selection to ensure doctor is selected first.
+
+### Debugging Logs Added
+
+Comprehensive logging added to track conversation flow issues:
+
+**`IntelligentBookingOrchestrator.php`**:
+- 🩺 Component building for `previous_doctors`
+- 🎯 User selection processing
+- 📤 Response generation before adding message
+- ✅ Final response with wait indicators
+
+**`BookingStateMachine.php`**:
+- 📋 Component retrieval for current state
+- 🩺 Followup doctor selection logic with decisions
+- 🔹 State transitions with explanations
+
+**Log Markers**:
+- `CRITICAL` — Marks where flow should WAIT for user input
+- `DECISION` — Shows which branch logic is taking
+- `SHOULD_WAIT_FOR_USER` — Flags components that require user interaction
+
+---
+
+## Responsive Table Cards
+
+### TableCard Component
+
+**Purpose**: Unified mobile/tablet card view for all table pages, eliminating 200+ lines of duplicated code.
+
+**Location**: `resources/js/Components/ui/table-card.tsx`
+
+**Layout Modes**:
+- `grid` — DetailRow-style: full-width rows with label left, value right, dividers between
+- `inline` — Compact: bullet-separated horizontal layout
+
+**Props**:
+- `layoutMode`: `'grid' | 'inline'`
+- `fields`: Array of `{ label: string, value: ReactNode }` for grid mode
+- `inlineDetails`: Array of ReactNode for inline mode
+- `icon` / `avatar`: Left visual (IconCircle or Avatar)
+- `title` / `subtitle`: Card header
+- `badge`: Status badge
+- `showCheckbox` / `checked` / `onCheckboxChange`: Bulk selection
+- `actionButton`: Optional action (label, icon, onClick)
+- `onClick`: Card click handler
+
+**Responsive Breakpoints**:
+- **Mobile/Tablet (<1024px)**: Show TableCard components
+- **Desktop (≥1024px)**: Show standard tables
+- Pattern: `lg:hidden` for cards, `hidden lg:block` for tables
+
+**Search Bar Responsive Behavior**:
+- **Mobile/Tablet (<1024px)**: Full width below filters (`w-full`)
+- **Desktop (≥1024px)**: Right-aligned with flex sizing (`lg:w-auto lg:flex-1 lg:basis-64 lg:ml-auto`)
+
+**Applied to**:
+- [Appointments/Index.tsx](resources/js/Pages/Appointments/Index.tsx) — Grid mode (Date & Time, Amount, Family Member)
+- [Billing/Index.tsx](resources/js/Pages/Billing/Index.tsx) — Grid mode (Date, Patient, Amount) with checkbox
+- [HealthRecords/Index.tsx](resources/js/Pages/HealthRecords/Index.tsx) — Grid mode (Date, Category, Patient, Status) with checkbox
+- [Insurance/Index.tsx](resources/js/Pages/Insurance/Index.tsx) — Grid mode (Valid Until, Coverage, Family Members)
+
+### DetailCard Component Duplicate Heading Fix
+
+**Bug**: Health Records detail page showing duplicate section headings (e.g., "Study Details" appearing twice).
+
+**Root Cause**: DetailCard components inside Section content were passing `id`, `title`, `icon` props, creating duplicate headings since the Section wrapper already provides the heading.
+
+**Fix**: Removed `id`, `title`, `icon` props from all DetailCard components in [HealthRecords/Show.tsx](resources/js/Pages/HealthRecords/Show.tsx) (20 instances).
+
+**Correct Pattern**:
+```tsx
+sections.push({
+  id: 'findings',          // Section props — creates heading
+  title: 'Findings',       // Section props — creates heading
+  icon: FileText,          // Section props — creates heading
+  content: (
+    <DetailCard            // Simple card wrapper, NO heading props
+      rows={[...]}
+    />
+  ),
+})
+```
+
+**Button Width Fix**: Removed `w-full sm:w-auto` from "Book appointment" button in [Appointments/Index.tsx](resources/js/Pages/Appointments/Index.tsx#L295) to make buttons hug content on all screen sizes (mobile, tablet, desktop).
+
+---
+
 ## Tailwind v4 Migration Notes
 
 Config is in `app.css @theme inline`, not `tailwind.config.js` (deleted)

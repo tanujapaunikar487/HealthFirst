@@ -7,6 +7,7 @@ import { Checkbox } from '@/Components/ui/checkbox';
 import { cn } from '@/Lib/utils';
 import { FlaskConical, ChevronRight, ChevronDown, TestTube, CheckCircle2, Calendar, Clock, User, AlertCircle } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { IconCircle } from '@/Components/ui/icon-circle';
 
 interface TestGroup {
   name: string;
@@ -369,9 +370,7 @@ export function EmbeddedPackageList({
                     )}
                   >
                     {/* Icon */}
-                    <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Icon icon={FlaskConical} size={20} className="text-blue-800" />
-                    </div>
+                    <IconCircle icon={FlaskConical} size="sm" variant="primary" className="mt-0.5" />
 
                     {/* Content */}
                     <div className="flex-1 min-w-0 overflow-hidden text-left">

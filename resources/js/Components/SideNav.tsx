@@ -46,7 +46,7 @@ export function SideNav({
               className={cn(
                 'w-full justify-start gap-3 text-label text-left cursor-pointer',
                 isActive
-                  ? 'bg-primary/5 text-primary'
+                  ? 'bg-primary/5 text-primary font-semibold'
                   : 'text-foreground hover:bg-muted'
               )}
               style={{ padding: '8px 12px', height: 'auto' }}

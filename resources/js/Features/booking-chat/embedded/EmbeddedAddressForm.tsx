@@ -4,7 +4,7 @@ import { Button } from '@/Components/ui/button';
 import { Card } from '@/Components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { MapPin } from '@/Lib/icons';
-import { Icon } from '@/Components/ui/icon';
+import { IconCircle } from '@/Components/ui/icon-circle';
 import { INDIAN_STATES, getCitiesForState } from '@/Lib/locations';
 
 interface Props {
@@ -85,9 +85,7 @@ export function EmbeddedAddressForm({ onSelect, disabled }: Props) {
   return (
     <Card className="p-4 space-y-4 max-w-md">
       <div className="flex items-center gap-2">
-        <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
-          <Icon icon={MapPin} size={20} className="text-blue-800" />
-        </div>
+        <IconCircle icon={MapPin} size="sm" variant="primary" />
         <h4 className="text-card-title text-foreground">Add new address</h4>
       </div>
 

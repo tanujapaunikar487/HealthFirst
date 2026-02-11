@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react';
 import { Mail, MessageSquare, Phone } from '@/Lib/icons';
 import { Card, CardContent } from '@/Components/ui/card';
 import { Switch } from '@/Components/ui/switch';
+import { IconCircle } from '@/Components/ui/icon-circle';
 import { CardTitle, CardSubtext } from '@/Components/ui/card-typography';
 import { useToast } from '@/Contexts/ToastContext';
 
@@ -98,9 +99,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                         {/* Email */}
                         <div className="flex items-center justify-between px-6 py-4">
                             <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Mail className="h-5 w-5 text-foreground" />
-                                </div>
+                                <IconCircle icon={Mail} size="sm" variant="primary" />
                                 <div>
                                     <CardTitle>Email</CardTitle>
                                     <CardSubtext>Receive notifications via email</CardSubtext>
@@ -115,9 +114,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                         {/* WhatsApp */}
                         <div className="flex items-center justify-between px-6 py-4">
                             <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <MessageSquare className="h-5 w-5 text-foreground" />
-                                </div>
+                                <IconCircle icon={MessageSquare} size="sm" variant="primary" />
                                 <div>
                                     <CardTitle>WhatsApp</CardTitle>
                                     <CardSubtext>Receive notifications via WhatsApp</CardSubtext>
@@ -132,9 +129,7 @@ export function NotificationsTab({ settings }: NotificationsTabProps) {
                         {/* SMS */}
                         <div className="flex items-center justify-between px-6 py-4">
                             <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                    <Phone className="h-5 w-5 text-foreground" />
-                                </div>
+                                <IconCircle icon={Phone} size="sm" variant="primary" />
                                 <div>
                                     <CardTitle>SMS</CardTitle>
                                     <CardSubtext>Receive notifications via SMS</CardSubtext>

@@ -4,6 +4,7 @@ import { router } from '@inertiajs/react';
 import { Alert } from '@/Components/ui/alert';
 import { Button } from '@/Components/ui/button';
 import { Icon } from '@/Components/ui/icon';
+import { IconCircle } from '@/Components/ui/icon-circle';
 import { Input } from '@/Components/ui/input';
 import { PhoneInput } from '@/Components/ui/phone-input';
 import { DatePicker } from '@/Components/ui/date-picker';
@@ -1041,9 +1042,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
 
                     <div className="rounded-xl border border-border bg-muted/30 p-4">
                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center">
-                                <Icon icon={User} size={20} className="text-blue-800" />
-                            </div>
+                            <IconCircle icon={User} size="sm" variant="primary" />
                             <div>
                                 <h4 className="font-semibold">{foundMember.name}</h4>
                                 {foundMember.patient_id && (
@@ -1230,7 +1229,7 @@ export default function InlineMemberTypeSelector({ onComplete, onCancel }: Props
     };
 
     return (
-        <Card className="overflow-hidden">
+        <Card>
             <div className="divide-y">
                 {/* New Member */}
                 <div>

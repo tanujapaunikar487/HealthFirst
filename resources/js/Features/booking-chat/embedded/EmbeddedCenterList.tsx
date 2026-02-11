@@ -2,6 +2,7 @@ import { cn } from '@/Lib/utils';
 import { Card } from '@/Components/ui/card';
 import { Building2, MapPin, Star } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { IconCircle } from '@/Components/ui/icon-circle';
 import { Button } from '@/Components/ui/button';
 
 interface Center {
@@ -42,9 +43,7 @@ export function EmbeddedCenterList({ centers, selectedCenterId, onSelect, disabl
               disabled && !isSelected && "opacity-40"
             )}
           >
-            <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0 mt-0.5">
-              <Icon icon={Building2} size={20} className="text-blue-800" />
-            </div>
+            <IconCircle icon={Building2} size="sm" variant="primary" className="mt-0.5" />
 
             <div className="flex-1 min-w-0 text-left">
               <p className="text-label">{center.name}</p>

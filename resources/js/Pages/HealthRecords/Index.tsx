@@ -785,8 +785,8 @@ export default function Index({ user, records, familyMembers, preSelectedRecordI
               </div>
             </div>
 
-            {/* Search */}
-            <div className="relative w-full sm:flex-1 sm:basis-64 sm:ml-auto">
+            {/* Search - Full width on mobile/tablet, right-aligned on desktop */}
+            <div className="relative w-full lg:w-auto lg:flex-1 lg:basis-64 lg:ml-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground" />
               <Input
                 placeholder="Search records..."

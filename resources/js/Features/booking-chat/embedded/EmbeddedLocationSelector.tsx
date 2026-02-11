@@ -2,6 +2,7 @@ import { cn } from '@/Lib/utils';
 import { Card } from '@/Components/ui/card';
 import { Home, Building2, MapPin } from '@/Lib/icons';
 import { Icon } from '@/Components/ui/icon';
+import { IconCircle } from '@/Components/ui/icon-circle';
 import { Button } from '@/Components/ui/button';
 
 interface Location {
@@ -51,9 +52,7 @@ export function EmbeddedLocationSelector({ locations, selectedLocationId, onSele
               className="w-full h-auto justify-start px-6 py-4 text-body flex items-start gap-4 text-left transition-all rounded-none hover:bg-muted/50"
             >
               {/* Icon */}
-              <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
-                <Icon icon={LocationIcon} size={20} className="text-blue-800" />
-              </div>
+              <IconCircle icon={LocationIcon} size="sm" variant="primary" />
 
               {/* Text */}
               <div className="flex-1 min-w-0 text-left">
