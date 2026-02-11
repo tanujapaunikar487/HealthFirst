@@ -61,7 +61,7 @@ class InsuranceController extends Controller
             ->map(fn ($m) => ['id' => $m->id, 'name' => $m->name, 'relation' => $m->relation]);
 
         $providers = InsuranceProvider::where('is_active', true)
-            ->select('id', 'name')
+            ->select('id', 'name', 'logo_url')
             ->orderBy('name')
             ->get();
 
@@ -365,7 +365,7 @@ class InsuranceController extends Controller
         $policy->load('insuranceProvider');
 
         $providers = InsuranceProvider::where('is_active', true)
-            ->select('id', 'name')
+            ->select('id', 'name', 'logo_url')
             ->orderBy('name')
             ->get();
 

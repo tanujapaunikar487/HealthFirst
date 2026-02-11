@@ -966,7 +966,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     )}
 
                     {state.step === 'guest_form' && (
-                        <div className="space-y-6">
+                        <div className="px-5 py-5 space-y-6">
                             <div className="space-y-4">
                                 <div className="space-y-2">
                                     <label htmlFor="guest_name_s" className="block text-label text-foreground">Name <span className="text-destructive">*</span></label>
@@ -1004,7 +1004,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     )}
 
                     {state.step === 'member_details' && (
-                        <div className="space-y-6">
+                        <div className="px-5 py-5 space-y-6">
                             {/* Essential Information Section */}
                             <div className="space-y-4">
                                 {/* Relationship dropdown */}
@@ -1182,7 +1182,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     )}
 
                     {state.step === 'search' && (
-                        <div className="space-y-6">
+                        <div className="px-5 py-5 space-y-6">
                             {/* Smart Single Input */}
                             <div className="space-y-2">
                                 <label htmlFor="search_value_s" className="block text-label text-foreground">
@@ -1221,7 +1221,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
 
                     {/* NEW: Contact Selection Step */}
                     {state.step === 'contact_selection' && state.foundMember && (
-                        <div className="space-y-6">
+                        <div className="px-5 py-5 space-y-6">
                             {/* Patient Card */}
                             <div className="rounded-xl border border-border bg-muted/30 p-4">
                                 <div className="flex items-center gap-3">
@@ -1369,7 +1369,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     )}
 
                     {state.step === 'otp' && (
-                        <div className="space-y-4">
+                        <div className="px-5 py-5 space-y-4">
                             {/* Show where OTP was sent */}
                             {state.otpSentTo && (
                                 <div className="text-center p-3 bg-primary/10 border border-primary/20 rounded-lg">
@@ -1415,7 +1415,7 @@ export default function EmbeddedFamilyMemberFlow({ mode = 'embedded', onComplete
                     )}
 
                     {state.step === 'success' && (
-                        <div className="space-y-4 text-center py-8">
+                        <div className="px-5 py-8 space-y-4 text-center">
                             <div className="h-16 w-16 rounded-full bg-success/10 flex items-center justify-center mx-auto"><CheckCircle2 className="h-8 w-8 text-success" /></div>
                             <h3 className="text-card-title font-semibold">Successfully Linked!</h3>
                             <p className="text-body text-muted-foreground">{state.foundMember?.name} has been added to your family members</p>

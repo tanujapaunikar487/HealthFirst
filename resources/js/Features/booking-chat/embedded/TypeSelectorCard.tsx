@@ -1,8 +1,6 @@
-import { User, Users, Link2, ChevronDown } from '@/Lib/icons';
-import { Icon } from '@/Components/ui/icon';
+import { User, Users, Link2, ChevronRight } from '@/Lib/icons';
 import { IconCircle } from '@/Components/ui/icon-circle';
 import { cn } from '@/Lib/utils';
-import { Button } from '@/Components/ui/button';
 
 export type MemberType = 'new_member' | 'link_existing' | 'guest';
 
@@ -36,30 +34,24 @@ export function TypeSelectorCard({ type, isExpanded, onClick, disabled }: TypeSe
     const TypeIcon = config.icon;
 
     return (
-        <Button
-            variant="ghost"
+        <button
+            type="button"
             onClick={onClick}
             disabled={disabled}
             className={cn(
-                'w-full h-auto justify-start px-6 py-4 text-body',
-                'flex items-center gap-4 text-left transition-all',
-                'disabled:cursor-not-allowed',
-                isExpanded
-                    ? 'relative z-10 rounded-3xl border-2 border-primary bg-primary/10 [&:not(:first-child)]:-mt-px [&+*]:border-t-transparent'
-                    : 'rounded-none hover:bg-muted/50',
-                disabled && isExpanded && '[opacity:1!important]',
-                disabled && !isExpanded && 'opacity-40'
+                'flex items-center justify-start gap-4 w-full h-auto px-6 py-4',
+                'text-left transition-colors',
+                'rounded-2xl border border-border bg-card hover:bg-muted/50',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                'disabled:cursor-not-allowed disabled:opacity-40'
             )}
         >
-            <IconCircle icon={TypeIcon} size="sm" variant="primary" />
+            <IconCircle icon={TypeIcon} size="md" variant="primary" />
             <div className="flex-1 min-w-0">
-                <h4 className="text-label text-left text-foreground">{config.title}</h4>
+                <h4 className="text-card-title text-left text-foreground mb-0.5">{config.title}</h4>
                 <p className="text-body text-muted-foreground text-left">{config.description}</p>
             </div>
-            <Icon icon={ChevronDown} size={20} className={cn(
-                'shrink-0 text-foreground transition-transform duration-200',
-                isExpanded && 'rotate-180 text-primary'
-            )} />
-        </Button>
+            <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
+        </button>
     );
 }

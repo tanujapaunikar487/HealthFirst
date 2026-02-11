@@ -34,6 +34,7 @@ import {
 interface InsuranceProvider {
   id: number;
   name: string;
+  logo_url: string | null;
 }
 
 interface FamilyMember {
@@ -377,35 +378,42 @@ export function AddInsuranceSheet({
 
           {/* Step 2b: Extraction Failed */}
           {addStep === 'extract_failed' && (
-            <div className="flex flex-col items-center justify-center px-5 py-12">
+            <div className="flex flex-col items-center justify-center text-center px-5 py-12">
               <div
-                className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10"
+                className="mb-4 flex h-16 w-16 items-center justify-center rounded-full"
+                style={{ backgroundColor: 'hsl(var(--destructive) / 0.1)' }}
               >
-                <XCircle className="h-6 w-6 text-destructive" />
+                <XCircle className="h-8 w-8 text-destructive" />
               </div>
-              <p className="mb-1 text-card-title text-foreground">
+              <h3 className="text-section-title text-foreground mb-2">
                 Couldn't extract policy details
-              </p>
-              <p className="mb-6 max-w-xs text-center text-body text-muted-foreground">
+              </h3>
+              <p className="text-body text-muted-foreground mb-6 max-w-[280px]">
                 The document may be encrypted or in an unsupported format.
               </p>
               {uploadedFile && (
-                <div className="mb-6 flex items-center gap-2 rounded-lg bg-muted px-4 py-2">
-                  <FileText className="h-4 w-4 text-foreground" />
-                  <span className="text-body text-muted-foreground">{uploadedFile.name}</span>
-                  <span className="text-body text-muted-foreground">
-                    ({formatFileSize(uploadedFile.size)})
-                  </span>
+                <div className="mb-6 w-full max-w-[320px] rounded-lg bg-muted px-4 py-3">
+                  <p className="text-body text-muted-foreground truncate">
+                    {uploadedFile.name}
+                  </p>
                 </div>
               )}
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full max-w-[320px]">
                 <Button
                   variant="secondary"
+                  size="lg"
                   onClick={() => setAddStep('extracting')}
+                  className="flex-1"
                 >
                   Try again
                 </Button>
-                <Button onClick={handleEnterManually}>Enter manually</Button>
+                <Button
+                  size="lg"
+                  onClick={handleEnterManually}
+                  className="flex-1"
+                >
+                  Enter manually
+                </Button>
               </div>
             </div>
           )}
@@ -464,6 +472,28 @@ export function AddInsuranceSheet({
                         {formErrors.insurance_provider_id}
                       </p>
                     )}
+                    {policyForm.insurance_provider_id && (() => {
+                      const selectedProvider = insuranceProviders.find(
+                        (p) => p.id.toString() === policyForm.insurance_provider_id
+                      );
+                      if (selectedProvider?.logo_url) {
+                        return (
+                          <div className="mt-3 flex items-center gap-3 rounded-lg border border-border bg-card p-3">
+                            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center">
+                              <img
+                                src={selectedProvider.logo_url}
+                                alt={selectedProvider.name}
+                                className="h-full w-full object-contain"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-body text-muted-foreground">Provider logo</p>
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
                 </div>
               </div>

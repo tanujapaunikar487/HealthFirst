@@ -642,16 +642,9 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
 
                           {/* Details */}
                           <TableCell className="align-top">
-                            <div className="flex items-start gap-2.5">
-                              <IconCircle
-                                icon={bill.appointment_type === 'doctor' ? Stethoscope : TestTube2}
-                                size="sm"
-                                variant="primary"
-                              />
-                              <div>
-                                <p className="text-label">{bill.appointment_title}</p>
-                                <p className="text-overline text-muted-foreground">{bill.invoice_number}</p>
-                              </div>
+                            <div>
+                              <p className="text-label">{bill.appointment_title}</p>
+                              <p className="text-overline text-muted-foreground">{bill.invoice_number}</p>
                             </div>
                           </TableCell>
 
@@ -722,7 +715,6 @@ export default function Index({ user, bills, stats, familyMembers }: Props) {
                     onCheckboxChange={() => toggleSelect(bill.id)}
                     checkboxDisabled={!isPayable}
                     selected={selectedIds.has(bill.id)}
-                    icon={bill.appointment_type === 'doctor' ? Stethoscope : TestTube2}
                     title={bill.appointment_title}
                     subtitle={bill.invoice_number}
                     badge={{

@@ -1,6 +1,6 @@
 import { Button } from '@/Components/ui/button';
-import { Card } from '@/Components/ui/card';
 import { Alert } from '@/Components/ui/alert';
+import { BookingSummary } from '@/Components/BookingSummary';
 import { format, parseISO } from 'date-fns';
 import { useState } from 'react';
 
@@ -197,31 +197,7 @@ export function EmbeddedBookingSummary({ summary, onPay, onSelect, disabled, con
   return (
     <div className="space-y-4">
       {/* Summary card */}
-      <Card className="overflow-hidden">
-        <div className="divide-y">
-          {rows.map((row) => (
-            <div
-              key={row.label}
-              className="grid grid-cols-[theme(spacing.detail-label)_1fr] items-baseline gap-4 px-6 py-4"
-            >
-              <span className="text-body text-muted-foreground">{row.label}</span>
-              <div className="flex items-baseline justify-between">
-                <span className="text-label">{row.value}</span>
-                {row.onChange && (
-                  <Button
-                    variant="link"
-                    size="sm"
-                    onClick={row.onChange}
-                    className="h-auto min-h-0 p-0 text-primary text-body hover:underline ml-4"
-                  >
-                    change
-                  </Button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
+      <BookingSummary rows={rows} className="overflow-hidden" />
 
       {/* Preparation Instructions (for lab) */}
       {summary.prepInstructions && summary.prepInstructions.length > 0 && (

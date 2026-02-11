@@ -342,42 +342,33 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
           {category === 'all' && (
             <div className="px-4 py-5">
               <div className="flex flex-wrap gap-3">
-                <Button
-                  variant="outline"
-                  size="md"
+                <Chip
                   onClick={() => {
                     setCategory('appointments');
                     inputRef.current?.focus();
                   }}
-                  className="h-auto px-4 py-2.5 gap-2 font-medium"
                 >
-                  <Icon icon={Calendar} className="h-4 w-4 text-foreground" />
-                  Search in <span className="font-semibold">appointment</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="md"
+                  <Icon icon={Calendar} size={16} />
+                  Search in: appointment
+                </Chip>
+                <Chip
                   onClick={() => {
                     setCategory('health_records');
                     inputRef.current?.focus();
                   }}
-                  className="h-auto px-4 py-2.5 gap-2 font-medium"
                 >
-                  <Icon icon={ClipboardList} className="h-4 w-4 text-foreground" />
-                  Search in <span className="font-semibold">health records</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="md"
+                  <Icon icon={ClipboardList} size={16} />
+                  Search in: health records
+                </Chip>
+                <Chip
                   onClick={() => {
                     setCategory('bills');
                     inputRef.current?.focus();
                   }}
-                  className="h-auto px-4 py-2.5 gap-2 font-medium"
                 >
-                  <Icon icon={FileText} className="h-4 w-4 text-foreground" />
-                  Search in <span className="font-semibold">bills</span>
-                </Button>
+                  <Icon icon={Receipt} size={16} />
+                  Search in: bills
+                </Chip>
               </div>
             </div>
           )}

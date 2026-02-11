@@ -535,31 +535,29 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
         />
 
         {/* Covered Members */}
-        {coveredMembers.length > 0 ? (
-          <DetailCard
-            id="members"
-            title="Covered Members"
-            icon={Users}
-            rows={coveredMembers.map((member) => ({
-              label: member.relation ? member.relation.charAt(0).toUpperCase() + member.relation.slice(1) : 'Member',
-              children: member.name,
-            }))}
-          />
-        ) : (
-          <Section id="members" title="Covered Members" icon={Users} noPadding>
-            <div className="p-6">
-              <EmptyState icon={Users} message="No covered members" description="Add family members to this policy" />
-            </div>
-          </Section>
-        )}
+        <DetailCard
+          id="members"
+          title="Covered Members"
+          icon={Users}
+          rows={coveredMembers.length > 0
+            ? coveredMembers.map((member) => ({
+                label: member.relation ? member.relation.charAt(0).toUpperCase() + member.relation.slice(1) : 'Member',
+                children: member.name,
+              }))
+            : [{ label: 'Members', children: '—' }]
+          }
+        />
 
         {/* Claims at This Hospital */}
-        <Section id="claims" title="Claims at This Hospital" icon={Receipt} noPadding>
-          {claims.length === 0 ? (
-            <div className="p-6">
-              <EmptyState icon={FileText} message="No claims yet" description="Claims filed at this hospital will appear here" />
-            </div>
-          ) : (
+        {claims.length === 0 ? (
+          <DetailCard
+            id="claims"
+            title="Claims at This Hospital"
+            icon={Receipt}
+            rows={[{ label: 'Claims', children: '—' }]}
+          />
+        ) : (
+          <Section id="claims" title="Claims at This Hospital" icon={Receipt} noPadding>
             <div className="divide-y">
               {claims.map((claim) => (
                 <Button
@@ -585,8 +583,8 @@ export default function InsuranceShow({ policy, coveredMembers, claims }: Props)
                 </Button>
               ))}
             </div>
-          )}
-        </Section>
+          </Section>
+        )}
 
           </div>{/* End flex-1 */}
         </div>{/* End flex container */}

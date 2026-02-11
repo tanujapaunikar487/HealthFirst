@@ -1,8 +1,7 @@
 import { router } from '@inertiajs/react';
 import { useNavigation } from '@/Hooks/useNavigation';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
-import { Button } from '@/Components/ui/button';
-import { Card } from '@/Components/ui/card';
+import { BookingSummary, type BookingSummaryRow } from '@/Components/BookingSummary';
 import { format, parseISO } from 'date-fns';
 
 const doctorSteps = [
@@ -61,12 +60,12 @@ export default function ConfirmStep({ summary }: Props) {
   };
 
   // Build rows array for proper divider handling
-  const rows = [
-    { label: 'Doctor', value: summary.doctor.name, showChange: true, step: 'doctor-time' },
-    { label: 'Patient', value: summary.patient.name, showChange: true, step: 'patient' },
-    { label: 'Date & Time', value: formatDateTime(summary.datetime), showChange: true, step: 'doctor-time' },
-    { label: 'Type', value: summary.appointmentType, showChange: true, step: 'doctor-time' },
-    { label: 'Appointment Fee', value: `₹${summary.fee.toLocaleString()}`, showChange: false, step: '' },
+  const rows: BookingSummaryRow[] = [
+    { label: 'Doctor', value: summary.doctor.name, onChange: () => handleChange('doctor-time') },
+    { label: 'Patient', value: summary.patient.name, onChange: () => handleChange('patient') },
+    { label: 'Date & Time', value: formatDateTime(summary.datetime), onChange: () => handleChange('doctor-time') },
+    { label: 'Type', value: summary.appointmentType, onChange: () => handleChange('doctor-time') },
+    { label: 'Appointment Fee', value: `₹${summary.fee.toLocaleString()}` },
   ];
 
   return (
@@ -80,29 +79,7 @@ export default function ConfirmStep({ summary }: Props) {
     >
       <div>
         <h2 className="text-step-title mb-6">Booking Summary</h2>
-
-        <Card className="overflow-hidden">
-          <div className="divide-y">
-            {rows.map((row) => (
-              <div key={row.label} className="flex items-center justify-between px-6 py-4">
-                <span className="text-body text-muted-foreground">{row.label}</span>
-                <div className="flex items-center gap-3">
-                  <span className="text-label text-right">{row.value}</span>
-                  {row.showChange && (
-                    <Button
-                      variant="link"
-                      size="sm"
-                      onClick={() => handleChange(row.step)}
-                      className="h-auto p-0 text-primary text-body hover:underline"
-                    >
-                      change
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
+        <BookingSummary rows={rows} className="overflow-hidden" />
       </div>
     </GuidedBookingLayout>
   );

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
+import { PlanCard } from '@/Components/PlanCard';
 import { Pulse, ErrorState, useSkeletonLoading } from '@/Components/ui/skeleton';
 import { EmptyState } from '@/Components/ui/empty-state';
 import { CtaBanner } from '@/Components/ui/cta-banner';
@@ -88,6 +89,7 @@ interface FamilyMember {
 interface InsuranceProvider {
   id: number;
   name: string;
+  logo_url: string | null;
 }
 
 interface Props {
@@ -842,44 +844,13 @@ export default function InsuranceIndex({
             {preAuthStep === 'policy' && (
               <div className="space-y-3 px-5 py-5">
                 {policies.map(p => (
-                  <Button
+                  <PlanCard
                     key={p.id}
-                    variant="ghost"
-                    className="flex w-full items-center gap-3 rounded-xl border px-4 py-3.5 text-left transition-colors hover:bg-accent h-auto"
+                    title={p.plan_name}
+                    subtitle={`${p.provider_name} · ${formatCurrency(p.sum_insured)}`}
+                    logo={p.provider_logo}
                     onClick={() => handlePreAuthPolicySelect(p.id)}
-                  >
-                    {p.provider_logo ? (
-                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center">
-                        <img
-                          src={p.provider_logo}
-                          alt={p.provider_name}
-                          className="h-full w-full object-contain"
-                        />
-                      </div>
-                    ) : (
-                      <div
-                        className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-card-title"
-                        style={{ backgroundColor: 'hsl(var(--primary) / 0.2)', color: 'hsl(var(--primary))' }}
-                      >
-                        {getProviderInitials(p.provider_name)}
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-card-title text-foreground truncate">{p.plan_name}</p>
-                      <p className="text-body text-muted-foreground">{p.provider_name} &middot; {formatCurrency(p.sum_insured)}</p>
-                    </div>
-                    <span
-                      className="flex items-center justify-center flex-shrink-0 rounded-full"
-                      style={{
-                        width: '40px', height: '40px',
-                        border: '1px solid hsl(var(--border))',
-                        background: 'hsl(var(--secondary))',
-                        color: 'hsl(var(--foreground))',
-                      }}
-                    >
-                      <ChevronRight className="h-5 w-5" />
-                    </span>
-                  </Button>
+                  />
                 ))}
               </div>
             )}
@@ -892,6 +863,17 @@ export default function InsuranceIndex({
                     icon={Users}
                     message="No covered members"
                     description="Add family members to this policy before requesting pre-authorization."
+                    action={
+                      <Button
+                        onClick={() => {
+                          if (preAuthPolicy) {
+                            router.visit(`/insurance/${preAuthPolicy.id}`);
+                          }
+                        }}
+                      >
+                        Manage Policy Members
+                      </Button>
+                    }
                   />
                 ) : (
                   preAuthCoveredMembers.map(member => {
