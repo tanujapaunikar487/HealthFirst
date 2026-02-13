@@ -688,7 +688,6 @@ function MobileSidebar({ user, onNavigate }: { user: User | null; onNavigate: ()
                         alt="HealthFirst Logo"
                         className="h-10.5 w-auto"
                     />
-                    <span className="text-detail-title">HealthFirst</span>
                 </Link>
             </div>
 
@@ -809,7 +808,6 @@ function Sidebar({ user }: { user: User | null }) {
                         alt="HealthFirst Logo"
                         className="h-10.5 w-auto"
                     />
-                    <span className="text-detail-title">HealthFirst</span>
                 </Link>
             </div>
 
