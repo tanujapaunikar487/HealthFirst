@@ -527,7 +527,13 @@ export function EmbeddedComponent({
                           return { backgroundColor: color.bg, color: color.text };
                         })()}
                       >
-                        {doctor.name?.charAt(0) || 'D'}
+                        {(() => {
+                          const clean = (doctor.name || '').replace(/^Dr\.\s*/i, '');
+                          const words = clean.split(' ').filter((w: string) => w.length > 0);
+                          return words.length >= 2
+                            ? (words[0][0] + words[1][0]).toUpperCase()
+                            : words[0]?.slice(0, 2).toUpperCase() || 'D';
+                        })()}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">

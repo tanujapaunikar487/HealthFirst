@@ -176,9 +176,10 @@ function NotificationItem({
     const isDoctorNotification = isAppointmentNotification;
     const NotificationIcon = getNotificationIcon(notification.type);
 
-    // Generate initials from doctor name or notification title
+    // Generate initials from doctor name (strips "Dr." prefix)
     const getInitials = (name: string) => {
-        const words = name.split(' ').filter(w => w.length > 0);
+        const clean = name.replace(/^Dr\.\s*/i, '');
+        const words = clean.split(' ').filter(w => w.length > 0);
         if (words.length >= 2) {
             return (words[0][0] + words[1][0]).toUpperCase();
         }

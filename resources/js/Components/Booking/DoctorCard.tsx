@@ -104,7 +104,12 @@ export function DoctorCard({
     return fee ? `₹${fee.toLocaleString()}` : 'Price not available';
   };
 
-  const getInitial = (doctorName: string) => doctorName.charAt(0).toUpperCase();
+  const getInitial = (doctorName: string) => {
+    const clean = doctorName.replace(/^Dr\.\s*/i, '');
+    const words = clean.split(' ').filter(w => w.length > 0);
+    if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+    return words[0]?.slice(0, 2).toUpperCase() || 'D';
+  };
 
   return (
     <div className="px-6 py-4 transition-colors hover:bg-muted/50">

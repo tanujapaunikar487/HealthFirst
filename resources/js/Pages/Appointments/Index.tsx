@@ -693,7 +693,13 @@ function AppointmentsTable({
                           return { backgroundColor: color.bg, color: color.text };
                         })()}
                       >
-                        {appt.title.charAt(0).toUpperCase()}
+                        {(() => {
+                          const clean = appt.title.replace(/^Dr\.\s*/i, '');
+                          const words = clean.split(' ').filter((w: string) => w.length > 0);
+                          return words.length >= 2
+                            ? (words[0][0] + words[1][0]).toUpperCase()
+                            : words[0]?.slice(0, 2).toUpperCase() || '?';
+                        })()}
                       </AvatarFallback>
                     </Avatar>
                   ) : (
