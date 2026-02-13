@@ -21,7 +21,7 @@ class AudioTranscriptionService
 
     public function __construct()
     {
-        $this->apiKey = config('services.groq.api_key', '');
+        $this->apiKey = config('services.groq.api_key') ?? '';
         $this->apiUrl = config('services.groq.whisper_url', 'https://api.groq.com/openai/v1/audio/transcriptions');
         $this->model = config('services.groq.whisper_model', 'whisper-large-v3');
     }
