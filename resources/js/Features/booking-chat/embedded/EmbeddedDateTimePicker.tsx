@@ -132,20 +132,20 @@ export function EmbeddedDateTimePicker({
               return (
                 <Button
                   key={dateValue || index}
-                  variant={isSelected ? 'accent' : 'outline'}
+                  variant="outline"
                   onClick={() => handleDateSelect(dateValue)}
                   disabled={disabled}
                   className={cn(
                     'h-auto px-6 py-3 rounded-2xl font-normal',
                     'flex flex-col items-center flex-shrink-0 min-w-[120px] gap-2',
                     'disabled:opacity-60',
-                    isSelected && 'border-foreground'
+                    isSelected && 'border-primary bg-primary/10'
                   )}
                 >
-                  <div className={cn('text-card-title leading-none', isSelected && 'text-background')}>
+                  <div className={cn('text-card-title leading-none', isSelected && 'text-primary')}>
                     {dateOption.label}
                   </div>
-                  <div className={cn('text-body leading-none', isSelected ? 'text-background/70' : 'text-muted-foreground')}>
+                  <div className={cn('text-body leading-none', isSelected ? 'text-primary/70' : 'text-muted-foreground')}>
                     {subLabel}
                   </div>
                 </Button>
@@ -166,13 +166,13 @@ export function EmbeddedDateTimePicker({
               return (
                 <Button
                   key={slot.time}
-                  variant={isSelected ? 'accent' : 'outline'}
+                  variant="outline"
                   onClick={() => handleTimeSelect(slot.time)}
                   disabled={disabled || !slot.available}
                   className={cn(
                     'h-auto px-3 py-1.5 rounded-full text-label',
                     'disabled:opacity-60',
-                    isSelected && 'border-foreground'
+                    isSelected && 'border-primary bg-primary/10 text-primary'
                   )}
                 >
                   {slot.time}

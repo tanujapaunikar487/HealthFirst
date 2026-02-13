@@ -8,6 +8,13 @@
 
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
+        <!-- Open Graph -->
+        <meta property="og:title" content="{{ config('app.name', 'HealthFirst') }}" />
+        <meta property="og:description" content="Book appointments, consult doctors, and manage your health — all in one place." />
+        <meta property="og:image" content="{{ url('/assets/images/og-image.png') }}" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="{{ url('/') }}" />
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
