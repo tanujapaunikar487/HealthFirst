@@ -14,12 +14,13 @@ export default function GuestLayout({ children }: GuestLayoutProps) {
             }}
         >
             <div>
-                <Link href="/">
+                <Link href="/" className="flex items-center gap-3">
                     <img
                         src="/assets/logos/logo.svg"
-                        alt="Hospital Logo"
-                        className="h-16 w-16"
+                        alt="HealthFirst Logo"
+                        className="h-10.5 w-auto"
                     />
+                    <span className="text-detail-title">HealthFirst</span>
                 </Link>
             </div>
 
