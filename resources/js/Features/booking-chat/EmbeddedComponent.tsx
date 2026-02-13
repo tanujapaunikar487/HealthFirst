@@ -758,7 +758,7 @@ export function EmbeddedComponent({
                 return (
                   <Button
                     key={dateValue}
-                    variant={dateIsActive ? 'accent' : 'outline'}
+                    variant="outline"
                     onClick={() => {
                       if (disabled || isSelected) return;
                       setPickedDate(dateValue);
@@ -767,14 +767,14 @@ export function EmbeddedComponent({
                     disabled={disabled || isSelected}
                     className={cn(
                       'h-auto flex-shrink-0 px-6 py-3 rounded-2xl min-w-[120px] font-normal disabled:opacity-60',
-                      dateIsActive && 'border-foreground'
+                      dateIsActive && 'border-primary bg-primary/10'
                     )}
                   >
                     <div className="text-left">
-                      <div className={cn('text-card-title', dateIsActive && 'text-background')}>
+                      <div className={cn('text-card-title', dateIsActive && 'text-primary')}>
                         {d.label}
                       </div>
-                      <div className={cn('text-body', dateIsActive ? 'text-background/70' : 'text-muted-foreground')}>
+                      <div className={cn('text-body', dateIsActive ? 'text-primary/70' : 'text-muted-foreground')}>
                         {d.day}
                       </div>
                     </div>
@@ -795,13 +795,16 @@ export function EmbeddedComponent({
           {data?.dates?.map((d: any) => (
             <Button
               key={d.date}
-              variant={d.date === selectedWeekDate ? 'accent' : 'secondary'}
+              variant="outline"
               onClick={() => {
                 setSelectedWeekDate(d.date);
                 onSelect({ date: d.date });
               }}
               disabled={disabled}
-              className="h-auto px-4 py-2 rounded-lg font-normal"
+              className={cn(
+                "h-auto px-4 py-2 rounded-lg font-normal",
+                d.date === selectedWeekDate && 'border-primary bg-primary/10'
+              )}
             >
               <div className="text-left">
                 <div className="text-label">{d.label}</div>
@@ -1191,19 +1194,19 @@ function DateTimePicker({ selectedDate, selectedTime, onSelect, disabled, warnin
               return (
                 <Button
                   key={dateItem.value}
-                  variant={isSelected ? 'accent' : 'outline'}
+                  variant="outline"
                   onClick={() => handleDateSelect(dateItem.value)}
                   disabled={disabled}
                   className={cn(
                     'h-auto flex-shrink-0 px-6 py-3 rounded-2xl min-w-[120px] font-normal disabled:opacity-60',
-                    isSelected && 'border-foreground'
+                    isSelected && 'border-primary bg-primary/10'
                   )}
                 >
                   <div className="text-left">
-                    <div className={cn('text-card-title', isSelected && 'text-background')}>
+                    <div className={cn('text-card-title', isSelected && 'text-primary')}>
                       {dateItem.label}
                     </div>
-                    <div className={cn('text-body', isSelected ? 'text-background/70' : 'text-muted-foreground')}>
+                    <div className={cn('text-body', isSelected ? 'text-primary/70' : 'text-muted-foreground')}>
                       {dateItem.sublabel}
                     </div>
                   </div>
@@ -1225,12 +1228,12 @@ function DateTimePicker({ selectedDate, selectedTime, onSelect, disabled, warnin
               return (
                 <Button
                   key={slot.time}
-                  variant={isSelected ? 'accent' : 'outline'}
+                  variant="outline"
                   onClick={() => handleTimeSelect(slot.time)}
                   disabled={disabled || !slot.available}
                   className={cn(
                     'h-auto px-3.5 py-1.5 rounded-full text-label gap-1.5 disabled:opacity-60',
-                    isSelected && 'border-foreground'
+                    isSelected && 'border-primary bg-primary/10 text-primary'
                   )}
                 >
                   {formatTimeDisplay(slot.time)}

@@ -915,18 +915,18 @@ export function RescheduleSheet({
                   return (
                     <Button
                       key={d.date}
-                      variant={isSelected ? 'accent' : 'outline'}
+                      variant="outline"
                       onClick={() => handleDateChange(d.date)}
                       className={cn(
                         'h-auto px-6 py-3 rounded-2xl font-normal',
                         'flex flex-col items-center flex-shrink-0 min-w-[120px] gap-2',
-                        isSelected && 'border-foreground'
+                        isSelected && 'border-primary bg-primary/10'
                       )}
                     >
-                      <div className={cn('text-card-title leading-none', isSelected && 'text-background')}>
+                      <div className={cn('text-card-title leading-none', isSelected && 'text-primary')}>
                         {label}
                       </div>
-                      <div className={cn('text-body leading-none', isSelected ? 'text-background/70' : 'text-muted-foreground')}>
+                      <div className={cn('text-body leading-none', isSelected ? 'text-primary/70' : 'text-muted-foreground')}>
                         {sublabel}
                       </div>
                     </Button>
@@ -957,11 +957,11 @@ export function RescheduleSheet({
                       return (
                         <Button
                           key={s.time}
-                          variant={isSelected ? 'accent' : 'outline'}
+                          variant="outline"
                           onClick={() => setSelectedTime(s.display)}
                           className={cn(
                             'h-auto px-3 py-1.5 rounded-full text-label',
-                            isSelected && 'border-foreground'
+                            isSelected && 'border-primary bg-primary/10 text-primary'
                           )}
                         >
                           {s.display}
@@ -1166,18 +1166,18 @@ export function FollowUpSheet({
                   return (
                     <Button
                       key={d.date}
-                      variant={isSelected ? 'accent' : 'outline'}
+                      variant="outline"
                       onClick={() => handleDateChange(d.date)}
                       className={cn(
                         'h-auto px-6 py-3 rounded-2xl font-normal',
                         'flex flex-col items-center flex-shrink-0 min-w-[120px] gap-2',
-                        isSelected && 'border-foreground'
+                        isSelected && 'border-primary bg-primary/10'
                       )}
                     >
-                      <div className={cn('text-card-title leading-none', isSelected && 'text-background')}>
+                      <div className={cn('text-card-title leading-none', isSelected && 'text-primary')}>
                         {label}
                       </div>
-                      <div className={cn('text-body leading-none', isSelected ? 'text-background/70' : 'text-muted-foreground')}>
+                      <div className={cn('text-body leading-none', isSelected ? 'text-primary/70' : 'text-muted-foreground')}>
                         {d.sublabel}
                       </div>
                     </Button>
@@ -1208,12 +1208,12 @@ export function FollowUpSheet({
                       return (
                         <Button
                           key={s.time}
-                          variant={isSelected ? 'accent' : 'outline'}
+                          variant="outline"
                           onClick={() => s.available && setSelectedTime(s.time)}
                           disabled={!s.available}
                           className={cn(
                             'h-auto px-3 py-1.5 rounded-full text-label',
-                            isSelected && 'border-foreground'
+                            isSelected && 'border-primary bg-primary/10 text-primary'
                           )}
                         >
                           {s.time}
@@ -1476,18 +1476,18 @@ export function BookAgainSheet({
                   return (
                     <Button
                       key={d.date}
-                      variant={isSelected ? 'accent' : 'outline'}
+                      variant="outline"
                       onClick={() => handleDateChange(d.date)}
                       className={cn(
                         'h-auto px-6 py-3 rounded-2xl font-normal',
                         'flex flex-col items-center flex-shrink-0 min-w-[120px] gap-2',
-                        isSelected && 'border-foreground'
+                        isSelected && 'border-primary bg-primary/10'
                       )}
                     >
-                      <div className={cn('text-card-title leading-none', isSelected && 'text-background')}>
+                      <div className={cn('text-card-title leading-none', isSelected && 'text-primary')}>
                         {label}
                       </div>
-                      <div className={cn('text-body leading-none', isSelected ? 'text-background/70' : 'text-muted-foreground')}>
+                      <div className={cn('text-body leading-none', isSelected ? 'text-primary/70' : 'text-muted-foreground')}>
                         {d.sublabel}
                       </div>
                     </Button>
@@ -1518,12 +1518,12 @@ export function BookAgainSheet({
                       return (
                         <Button
                           key={s.time}
-                          variant={isSelected ? 'accent' : 'outline'}
+                          variant="outline"
                           onClick={() => s.available && setSelectedTime(s.time)}
                           disabled={!s.available}
                           className={cn(
                             'h-auto px-3 py-1.5 rounded-full text-label',
-                            isSelected && 'border-foreground'
+                            isSelected && 'border-primary bg-primary/10 text-primary'
                           )}
                         >
                           {s.time}

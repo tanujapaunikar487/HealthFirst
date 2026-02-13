@@ -272,22 +272,22 @@ export default function ScheduleStep({
             {availableDates.map((dateOption) => (
               <Button
                 key={dateOption.date}
-                variant={selectedDate === dateOption.date ? 'accent' : 'outline'}
+                variant="outline"
                 onClick={() => handleDateChange(dateOption.date)}
                 className={cn(
                   'h-auto flex-shrink-0 px-6 py-3 rounded-2xl transition-all min-w-[100px] font-normal',
                   selectedDate === dateOption.date
-                    ? 'border-foreground'
+                    ? 'border-primary bg-primary/10'
                     : 'bg-background hover:border-primary/50'
                 )}
               >
                 <div className="w-full text-left">
-                  <p className="text-label">{dateOption.label}</p>
+                  <p className={cn('text-label', selectedDate === dateOption.date && 'text-primary')}>{dateOption.label}</p>
                   <p
                     className={cn(
                       'text-body',
                       selectedDate === dateOption.date
-                        ? 'text-background/70'
+                        ? 'text-primary/70'
                         : 'text-muted-foreground'
                     )}
                   >

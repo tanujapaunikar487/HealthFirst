@@ -199,22 +199,22 @@ export default function DoctorTimeStep({
               return (
                 <Button
                   key={dateOption.date}
-                  variant={isSelected ? 'accent' : 'outline'}
+                  variant="outline"
                   onClick={() => handleDateChange(dateOption.date)}
                   className={cn(
                     'h-auto flex-shrink-0 px-6 py-3 rounded-2xl transition-all min-w-[100px]',
                     isSelected
-                      ? 'border-foreground'
+                      ? 'border-primary bg-primary/10'
                       : noDoctors
                         ? 'bg-card border-dashed opacity-60'
                         : 'bg-card hover:border-primary/50'
                   )}
                 >
                   <VStack gap={0} className="w-full text-left">
-                    <p className="text-label">{dateOption.label}</p>
+                    <p className={cn('text-label', isSelected && 'text-primary')}>{dateOption.label}</p>
                     <p className={cn(
                       'text-body',
-                      isSelected ? 'text-background/70' : 'text-muted-foreground'
+                      isSelected ? 'text-primary/70' : 'text-muted-foreground'
                     )}>
                       {dateOption.sublabel}
                     </p>

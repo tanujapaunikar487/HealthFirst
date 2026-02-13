@@ -178,13 +178,13 @@ export function DoctorCard({
             quickTimes.map((time) => (
               <Button
                 key={time}
-                variant={selectedTime === time ? 'accent' : 'outline'}
+                variant="outline"
                 onClick={() => !disabled && onSelectTime(time)}
                 disabled={disabled}
                 className={cn(
                   "h-auto px-3 py-1.5 rounded-full text-label",
                   "disabled:opacity-60",
-                  selectedTime === time && "border-foreground"
+                  selectedTime === time && "border-primary bg-primary/10 text-primary"
                 )}
               >
                 {formatTime(time)}
@@ -195,13 +195,13 @@ export function DoctorCard({
             slots.map((slot) => (
               <Button
                 key={slot.time}
-                variant={selectedTime === slot.time ? 'accent' : 'outline'}
+                variant="outline"
                 onClick={() => !disabled && slot.available && onSelectTime(slot.time)}
                 disabled={disabled || !slot.available}
                 className={cn(
                   "h-auto px-3 py-1.5 rounded-full text-label",
                   "disabled:opacity-60",
-                  selectedTime === slot.time && "border-foreground"
+                  selectedTime === slot.time && "border-primary bg-primary/10 text-primary"
                 )}
               >
                 {formatTime(slot.time)}
