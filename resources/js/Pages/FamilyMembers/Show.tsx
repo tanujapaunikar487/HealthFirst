@@ -8,6 +8,7 @@ import { Card } from '@/Components/ui/card';
 import { InfoCard } from '@/Components/ui/info-card';
 import { Alert as AlertComponent } from '@/Components/ui/alert';
 import { Input } from '@/Components/ui/input';
+import { Label } from '@/Components/ui/label';
 import { PhoneInput } from '@/Components/ui/phone-input';
 import { DatePicker } from '@/Components/ui/date-picker';
 import { SideNav } from '@/Components/SideNav';
@@ -44,7 +45,7 @@ import { Icon } from '@/Components/ui/icon';
 import { DetailSection } from '@/Components/ui/detail-section';
 import { DetailCard } from '@/Components/ui/detail-card';
 import { Modal } from '@/Components/ui/modal';
-import { DialogFooter } from '@/Components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogBody, DialogFooter } from '@/Components/ui/dialog';
 
 /* ─── Types ─── */
 
@@ -1084,60 +1085,61 @@ export default function FamilyMemberShow({
         className="max-w-[500px]"
       />
 
-      {/* Delete Confirmation Modal */}
-      <Modal
+      {/* Delete Confirmation Dialog */}
+      <Dialog
         open={showDeleteConfirm}
         onOpenChange={(open) => {
           if (!open) { setShowDeleteConfirm(false); setDeleteConfirmName(''); }
           else setShowDeleteConfirm(true);
         }}
-        title={<span style={{ color: 'hsl(var(--destructive))' }}>Remove {member.name}?</span>}
-        className="max-w-[500px]"
       >
-        <div className="space-y-4">
-          <AlertComponent variant="error" title="This action cannot be undone">
-            <p>This will permanently delete:</p>
-            <ul className="mt-2 space-y-1 ml-4 list-disc">
-              <li>All health records and medical history</li>
-              <li>Past appointments and consultation notes</li>
-              <li>Billing and insurance claim records</li>
-              <li>Prescriptions and lab reports</li>
-            </ul>
-          </AlertComponent>
-          <div>
-            <label className="block text-label text-foreground mb-2">
-              Type <span className="font-semibold">{member.name}</span> to confirm
-            </label>
-            <Input
-              type="text"
-              value={deleteConfirmName}
-              onChange={(e) => setDeleteConfirmName(e.target.value)}
-              placeholder={`Type "${member.name}" to confirm`}
-              className="w-full"
-            />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button
-            variant="secondary"
-            className="flex-1"
-            onClick={() => {
-              setShowDeleteConfirm(false);
-              setDeleteConfirmName('');
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="destructive"
-            className="flex-1"
-            onClick={handleDelete}
-            disabled={deleteConfirmName !== member.name}
-          >
-            Remove
-          </Button>
-        </DialogFooter>
-      </Modal>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Remove {member.name}?</DialogTitle>
+          </DialogHeader>
+
+          <DialogBody>
+            <div className="px-5 py-5 space-y-4">
+              <p className="text-body text-muted-foreground">
+                This action cannot be undone. This will permanently delete all data associated with this family member.
+              </p>
+
+              <div className="rounded-lg border bg-muted/50 p-4 text-body">
+                <p className="text-label text-foreground mb-2">The following data will be deleted:</p>
+                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                  <li>All health records and medical history</li>
+                  <li>Past appointments and consultation notes</li>
+                  <li>Billing and insurance claim records</li>
+                  <li>Prescriptions and lab reports</li>
+                </ul>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="delete-confirm-name">
+                  Type <span className="font-semibold">{member.name}</span> to confirm
+                </Label>
+                <Input
+                  id="delete-confirm-name"
+                  type="text"
+                  value={deleteConfirmName}
+                  onChange={(e) => setDeleteConfirmName(e.target.value)}
+                  placeholder={`Type "${member.name}" to confirm`}
+                />
+              </div>
+            </div>
+          </DialogBody>
+
+          <DialogFooter>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={deleteConfirmName !== member.name}
+            >
+              Remove
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </AppLayout>
   );
