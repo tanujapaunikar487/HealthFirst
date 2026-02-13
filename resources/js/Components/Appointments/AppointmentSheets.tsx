@@ -920,7 +920,7 @@ export function RescheduleSheet({
                       className={cn(
                         'h-auto px-6 py-3 rounded-2xl font-normal',
                         'flex flex-col items-center flex-shrink-0 min-w-[120px] gap-2',
-                        isSelected && 'border-primary bg-primary/10'
+                        isSelected && 'border-2 border-primary bg-primary/10'
                       )}
                     >
                       <div className={cn('text-card-title leading-none', isSelected && 'text-primary')}>
@@ -961,7 +961,7 @@ export function RescheduleSheet({
                           onClick={() => setSelectedTime(s.display)}
                           className={cn(
                             'h-auto px-3 py-1.5 rounded-full text-label',
-                            isSelected && 'border-primary bg-primary/10 text-primary'
+                            isSelected && 'border-2 border-primary bg-primary/10 text-primary'
                           )}
                         >
                           {s.display}
@@ -1171,7 +1171,7 @@ export function FollowUpSheet({
                       className={cn(
                         'h-auto px-6 py-3 rounded-2xl font-normal',
                         'flex flex-col items-center flex-shrink-0 min-w-[120px] gap-2',
-                        isSelected && 'border-primary bg-primary/10'
+                        isSelected && 'border-2 border-primary bg-primary/10'
                       )}
                     >
                       <div className={cn('text-card-title leading-none', isSelected && 'text-primary')}>
@@ -1213,7 +1213,7 @@ export function FollowUpSheet({
                           disabled={!s.available}
                           className={cn(
                             'h-auto px-3 py-1.5 rounded-full text-label',
-                            isSelected && 'border-primary bg-primary/10 text-primary'
+                            isSelected && 'border-2 border-primary bg-primary/10 text-primary'
                           )}
                         >
                           {s.time}
@@ -1481,7 +1481,7 @@ export function BookAgainSheet({
                       className={cn(
                         'h-auto px-6 py-3 rounded-2xl font-normal',
                         'flex flex-col items-center flex-shrink-0 min-w-[120px] gap-2',
-                        isSelected && 'border-primary bg-primary/10'
+                        isSelected && 'border-2 border-primary bg-primary/10'
                       )}
                     >
                       <div className={cn('text-card-title leading-none', isSelected && 'text-primary')}>
@@ -1523,7 +1523,7 @@ export function BookAgainSheet({
                           disabled={!s.available}
                           className={cn(
                             'h-auto px-3 py-1.5 rounded-full text-label',
-                            isSelected && 'border-primary bg-primary/10 text-primary'
+                            isSelected && 'border-2 border-primary bg-primary/10 text-primary'
                           )}
                         >
                           {s.time}

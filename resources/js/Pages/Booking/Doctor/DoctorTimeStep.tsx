@@ -204,7 +204,7 @@ export default function DoctorTimeStep({
                   className={cn(
                     'h-auto flex-shrink-0 px-6 py-3 rounded-2xl transition-all min-w-[100px]',
                     isSelected
-                      ? 'border-primary bg-primary/10'
+                      ? 'border-2 border-primary bg-primary/10'
                       : noDoctors
                         ? 'bg-card border-dashed opacity-60'
                         : 'bg-card hover:border-primary/50'

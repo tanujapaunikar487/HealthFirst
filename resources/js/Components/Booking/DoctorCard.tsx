@@ -184,7 +184,7 @@ export function DoctorCard({
                 className={cn(
                   "h-auto px-3 py-1.5 rounded-full text-label",
                   "disabled:opacity-60",
-                  selectedTime === time && "border-primary bg-primary/10 text-primary"
+                  selectedTime === time && "border-2 border-primary bg-primary/10 text-primary"
                 )}
               >
                 {formatTime(time)}
@@ -201,7 +201,7 @@ export function DoctorCard({
                 className={cn(
                   "h-auto px-3 py-1.5 rounded-full text-label",
                   "disabled:opacity-60",
-                  selectedTime === slot.time && "border-primary bg-primary/10 text-primary"
+                  selectedTime === slot.time && "border-2 border-primary bg-primary/10 text-primary"
                 )}
               >
                 {formatTime(slot.time)}

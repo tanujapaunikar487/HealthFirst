@@ -277,7 +277,7 @@ export default function ScheduleStep({
                 className={cn(
                   'h-auto flex-shrink-0 px-6 py-3 rounded-2xl transition-all min-w-[100px] font-normal',
                   selectedDate === dateOption.date
-                    ? 'border-primary bg-primary/10'
+                    ? 'border-2 border-primary bg-primary/10'
                     : 'bg-background hover:border-primary/50'
                 )}
               >

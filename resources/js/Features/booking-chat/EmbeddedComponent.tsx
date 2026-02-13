@@ -767,7 +767,7 @@ export function EmbeddedComponent({
                     disabled={disabled || isSelected}
                     className={cn(
                       'h-auto flex-shrink-0 px-6 py-3 rounded-2xl min-w-[120px] font-normal disabled:opacity-60',
-                      dateIsActive && 'border-primary bg-primary/10'
+                      dateIsActive && 'border-2 border-primary bg-primary/10'
                     )}
                   >
                     <div className="text-left">
@@ -803,7 +803,7 @@ export function EmbeddedComponent({
               disabled={disabled}
               className={cn(
                 "h-auto px-4 py-2 rounded-lg font-normal",
-                d.date === selectedWeekDate && 'border-primary bg-primary/10'
+                d.date === selectedWeekDate && 'border-2 border-primary bg-primary/10'
               )}
             >
               <div className="text-left">
@@ -902,7 +902,7 @@ function OptionSelector({ options, selected, onSelect, disabled }: any) {
             'h-auto px-5 py-2.5 rounded-full text-label',
             'hover:border-primary/50 hover:bg-primary/10',
             selected === option.id
-              ? disabled ? 'border-primary bg-primary/10 disabled:opacity-60' : 'border-primary bg-primary/10'
+              ? disabled ? 'border-2 border-primary bg-primary/10 disabled:opacity-60' : 'border-2 border-primary bg-primary/10'
               : disabled ? 'disabled:opacity-30' : ''
           )}
         >
@@ -939,7 +939,7 @@ function UrgencySelector({ levels, selected, onSelect, disabled }: any) {
           className={cn(
             'w-full h-auto flex items-start gap-3 p-4 rounded-2xl border text-left text-body hover:bg-primary/10 disabled:opacity-60',
             selected === level.id
-              ? 'border-primary bg-primary/10'
+              ? 'border-2 border-primary bg-primary/10'
               : 'border-border'
           )}
         >
@@ -969,7 +969,7 @@ function ConsultationModeSelector({ modes, selected, onSelect, disabled }: any) 
           className={cn(
             'w-full h-auto flex items-center justify-between p-4 rounded-2xl border text-left text-body hover:bg-primary/10 disabled:opacity-60',
             selected === mode.id
-              ? 'border-primary bg-primary/10'
+              ? 'border-2 border-primary bg-primary/10'
               : 'border-border'
           )}
         >
@@ -1053,7 +1053,7 @@ function PackageList({ packages, selected, onSelect, disabled }: any) {
           className={cn(
             'w-full h-auto p-4 rounded-2xl border text-left text-body hover:bg-primary/10 disabled:opacity-60',
             selected === pkg.id
-              ? 'border-primary bg-primary/10'
+              ? 'border-2 border-primary bg-primary/10'
               : 'border-border'
           )}
         >
@@ -1088,7 +1088,7 @@ function LocationSelector({ locations, selected, onSelect, disabled }: any) {
           className={cn(
             'w-full h-auto p-3 rounded-xl border text-left text-body hover:bg-primary/10 disabled:opacity-60',
             selected === location.id
-              ? 'border-primary bg-primary/10'
+              ? 'border-2 border-primary bg-primary/10'
               : 'border-border'
           )}
         >
@@ -1199,7 +1199,7 @@ function DateTimePicker({ selectedDate, selectedTime, onSelect, disabled, warnin
                   disabled={disabled}
                   className={cn(
                     'h-auto flex-shrink-0 px-6 py-3 rounded-2xl min-w-[120px] font-normal disabled:opacity-60',
-                    isSelected && 'border-primary bg-primary/10'
+                    isSelected && 'border-2 border-primary bg-primary/10'
                   )}
                 >
                   <div className="text-left">
@@ -1233,7 +1233,7 @@ function DateTimePicker({ selectedDate, selectedTime, onSelect, disabled, warnin
                   disabled={disabled || !slot.available}
                   className={cn(
                     'h-auto px-3.5 py-1.5 rounded-full text-label gap-1.5 disabled:opacity-60',
-                    isSelected && 'border-primary bg-primary/10 text-primary'
+                    isSelected && 'border-2 border-primary bg-primary/10 text-primary'
                   )}
                 >
                   {formatTimeDisplay(slot.time)}

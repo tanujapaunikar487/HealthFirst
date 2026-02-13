@@ -93,7 +93,7 @@ export function EmbeddedDateTimeSelector({
                     'h-auto px-6 py-3 rounded-2xl font-normal',
                     'flex-shrink-0 min-w-[100px]',
                     'disabled:opacity-60',
-                    isDateSelected && 'border-primary bg-primary/10'
+                    isDateSelected && 'border-2 border-primary bg-primary/10'
                   )}
                 >
                   <div className="w-full text-left">
@@ -136,7 +136,7 @@ export function EmbeddedDateTimeSelector({
                   className={cn(
                     'h-auto px-3 py-1.5 rounded-full text-label',
                     'disabled:opacity-60',
-                    isTimeSelected && 'border-primary bg-primary/10 text-primary'
+                    isTimeSelected && 'border-2 border-primary bg-primary/10 text-primary'
                   )}
                 >
                   {slot.time}

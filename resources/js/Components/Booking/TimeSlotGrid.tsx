@@ -29,7 +29,7 @@ export function TimeSlotGrid({ slots, selectedTime, onSelect, className }: TimeS
           className={cn(
             'h-auto px-4 py-2 rounded-full text-label disabled:opacity-60 transition-all',
             selectedTime !== slot.time && 'hover:border-primary/50 hover:bg-primary/5',
-            selectedTime === slot.time && 'border-primary bg-primary/10 text-primary'
+            selectedTime === slot.time && 'border-2 border-primary bg-primary/10 text-primary'
           )}
         >
           {slot.time}

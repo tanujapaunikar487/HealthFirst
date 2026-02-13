@@ -97,7 +97,7 @@ export function Chip({
         // Default variant (symptoms/filters)
         variant === 'default' && selected && 'bg-primary/10 border-primary text-label',
         // Accent variant (time slots)
-        variant === 'accent' && selected && 'border-primary bg-primary/10 text-primary',
+        variant === 'accent' && selected && 'border-2 border-primary bg-primary/10 text-primary',
         // Dismissible variant (active filters)
         isDismissible && 'bg-background text-foreground border-border gap-1.5',
         // Extra left padding for dismissible chips

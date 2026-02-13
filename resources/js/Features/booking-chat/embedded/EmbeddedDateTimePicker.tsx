@@ -139,7 +139,7 @@ export function EmbeddedDateTimePicker({
                     'h-auto px-6 py-3 rounded-2xl font-normal',
                     'flex flex-col items-center flex-shrink-0 min-w-[120px] gap-2',
                     'disabled:opacity-60',
-                    isSelected && 'border-primary bg-primary/10'
+                    isSelected && 'border-2 border-primary bg-primary/10'
                   )}
                 >
                   <div className={cn('text-card-title leading-none', isSelected && 'text-primary')}>
@@ -172,7 +172,7 @@ export function EmbeddedDateTimePicker({
                   className={cn(
                     'h-auto px-3 py-1.5 rounded-full text-label',
                     'disabled:opacity-60',
-                    isSelected && 'border-primary bg-primary/10 text-primary'
+                    isSelected && 'border-2 border-primary bg-primary/10 text-primary'
                   )}
                 >
                   {slot.time}
