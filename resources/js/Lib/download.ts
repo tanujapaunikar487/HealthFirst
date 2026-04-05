@@ -3,10 +3,9 @@
  *
  * Uses html2pdf.js to convert styled HTML into real PDF files.
  * For zip bundles, uses JSZip to package multiple PDFs.
+ *
+ * Both libraries are lazy-loaded so they don't bloat the main bundle.
  */
-
-import html2pdf from 'html2pdf.js';
-import JSZip from 'jszip';
 
 const PDF_OPTIONS: {
   margin: [number, number, number, number];
@@ -20,8 +19,14 @@ const PDF_OPTIONS: {
   jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
 };
 
+async function getHtml2Pdf() {
+  const mod = await import('html2pdf.js');
+  return mod.default;
+}
+
 /** Generate a PDF from styled HTML and trigger download */
-export function downloadAsPdf(title: string, htmlContent: string): void {
+export async function downloadAsPdf(title: string, htmlContent: string): Promise<void> {
+  const html2pdf = await getHtml2Pdf();
   const fullHtml = buildStyledHtml(title, htmlContent);
   const filename = title.replace(/\s+/g, '-').toLowerCase() + '.pdf';
   html2pdf().from(fullHtml).set({ ...PDF_OPTIONS, filename }).save();
@@ -31,7 +36,8 @@ export function downloadAsPdf(title: string, htmlContent: string): void {
  * Backward-compatible alias — existing call sites pass a filename + HTML content.
  * Converts to PDF regardless of the extension in the filename.
  */
-export function downloadAsHtml(filename: string, htmlContent: string): void {
+export async function downloadAsHtml(filename: string, htmlContent: string): Promise<void> {
+  const html2pdf = await getHtml2Pdf();
   const title = filename.replace(/\.(html|pdf)$/i, '').replace(/[-_]/g, ' ');
   const pdfFilename = filename.replace(/\.(html)$/i, '.pdf');
   const fullHtml = buildStyledHtml(title, htmlContent);
@@ -39,7 +45,8 @@ export function downloadAsHtml(filename: string, htmlContent: string): void {
 }
 
 /** Download styled HTML content as a PDF file */
-export function downloadFile(filename: string, htmlContent: string): void {
+export async function downloadFile(filename: string, htmlContent: string): Promise<void> {
+  const html2pdf = await getHtml2Pdf();
   const title = filename.replace(/\.(html|pdf)$/i, '').replace(/[-_]/g, ' ');
   const pdfFilename = filename.replace(/\.(html)$/i, '.pdf');
   const fullHtml = buildStyledHtml(title, htmlContent);
@@ -51,6 +58,10 @@ export async function downloadAsZip(
   zipFilename: string,
   files: { filename: string; htmlContent: string }[]
 ): Promise<void> {
+  const [html2pdf, { default: JSZip }] = await Promise.all([
+    getHtml2Pdf(),
+    import('jszip'),
+  ]);
   const zip = new JSZip();
   for (const file of files) {
     const title = file.filename.replace(/\.(html|pdf)$/i, '').replace(/[-_]/g, ' ');

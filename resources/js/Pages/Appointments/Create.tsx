@@ -4,6 +4,7 @@ import { AIPromptInput } from '@/Components/ui/ai-prompt-input';
 import { AIBookingHeader } from '@/Components/Booking/AIBookingHeader';
 import { PromptSuggestion } from '@/Components/ui/prompt-suggestion';
 import { Button } from '@/Components/ui/button';
+import { AIBlob } from '@/Components/ui/ai-blob';
 
 interface User {
   id: number;
@@ -72,15 +73,7 @@ export default function CreateAppointment({ user }: CreateAppointmentProps) {
           }}
         >
           {/* AI Blob Image */}
-          <img
-            src="/assets/images/ai-blob.png"
-            alt="AI Assistant"
-            style={{
-              width: '120px',
-              height: '120px',
-              objectFit: 'contain',
-            }}
-          />
+          <AIBlob size="lg" />
 
           {/* Heading */}
           <h1

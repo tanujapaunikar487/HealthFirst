@@ -457,6 +457,58 @@
     animation: wave 1.2s ease-in-out infinite;
 }
 
+/* AI Blob fluid animations */
+@keyframes blob-float {
+    0% {
+        transform: translateY(0px) scaleX(1) scaleY(1) rotate(0deg);
+    }
+    15% {
+        transform: translateY(-6px) scaleX(1.03) scaleY(0.97) rotate(1deg);
+    }
+    30% {
+        transform: translateY(-10px) scaleX(0.97) scaleY(1.04) rotate(-1deg);
+    }
+    50% {
+        transform: translateY(-4px) scaleX(1.04) scaleY(0.96) rotate(1.5deg);
+    }
+    70% {
+        transform: translateY(-8px) scaleX(0.96) scaleY(1.03) rotate(-0.5deg);
+    }
+    85% {
+        transform: translateY(-3px) scaleX(1.02) scaleY(0.98) rotate(0.5deg);
+    }
+    100% {
+        transform: translateY(0px) scaleX(1) scaleY(1) rotate(0deg);
+    }
+}
+
+@keyframes blob-glow {
+    0% {
+        transform: scale(0.85);
+        opacity: 0.3;
+    }
+    33% {
+        transform: scale(1.05);
+        opacity: 0.5;
+    }
+    66% {
+        transform: scale(0.95);
+        opacity: 0.35;
+    }
+    100% {
+        transform: scale(0.85);
+        opacity: 0.3;
+    }
+}
+
+@utility animate-blob-float {
+    animation: blob-float 6s ease-in-out infinite;
+}
+
+@utility animate-blob-glow {
+    animation: blob-glow 4s ease-in-out infinite;
+}
+
 /* ──────────────────────────────────────
    Typography Tokens
    ────────────────────────────────────── */

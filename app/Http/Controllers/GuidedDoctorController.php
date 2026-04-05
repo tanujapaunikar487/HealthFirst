@@ -15,6 +15,7 @@ use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
@@ -45,48 +46,51 @@ class GuidedDoctorController extends Controller
             ->toArray();
 
         // Previous appointments from database
-        $previousConsultations = Appointment::where('user_id', $user->id)
+        $previousAppts = Appointment::where('user_id', $user->id)
             ->where('appointment_type', 'doctor')
             ->where('status', 'completed')
             ->with(['doctor.consultationModes'])
             ->orderByDesc('appointment_date')
             ->limit(5)
-            ->get()
-            ->map(function ($appt) {
-                $doctor = $appt->doctor;
-                $slots = $doctor
-                    ? TimeSlot::where('doctor_id', $doctor->id)
-                        ->whereDate('date', Carbon::today())
-                        ->where('is_booked', false)
-                        ->limit(6)
-                        ->get()
-                        ->map(fn ($s) => [
-                            'time' => Carbon::parse($s->start_time)->format('g:i A'),
-                            'available' => true,
-                            'preferred' => $s->is_preferred,
-                        ])
-                        ->toArray()
-                    : [];
+            ->get();
 
-                return [
-                    'id' => (string) $appt->id,
-                    'patientId' => (string) $appt->family_member_id,
-                    'doctor' => $doctor ? [
-                        'id' => 'd'.$doctor->id,
-                        'name' => $doctor->name,
-                        'avatar' => $doctor->avatar_url,
-                        'specialization' => $doctor->specialization,
-                        'experience_years' => $doctor->experience_years,
-                        'appointment_modes' => $doctor->consultationModes->pluck('mode')->toArray(),
-                        'video_fee' => $doctor->consultationModes->firstWhere('mode', 'video')?->fee ?? 0,
-                        'in_person_fee' => $doctor->consultationModes->firstWhere('mode', 'in_person')?->fee ?? 0,
-                    ] : null,
-                    'date' => $appt->appointment_date->format('Y-m-d'),
-                    'symptoms' => $appt->symptoms ?? [],
-                    'slots' => $slots,
-                ];
-            })
-            ->toArray();
+        // Batch-load today's available slots for all doctors at once (1 query instead of N)
+        $doctorIds = $previousAppts->pluck('doctor_id')->filter()->unique()->toArray();
+        $todaySlots = TimeSlot::whereIn('doctor_id', $doctorIds)
+            ->whereDate('date', Carbon::today())
+            ->where('is_booked', false)
+            ->orderBy('start_time')
+            ->get()
+            ->groupBy('doctor_id');
+
+        $previousConsultations = $previousAppts->map(function ($appt) use ($todaySlots) {
+            $doctor = $appt->doctor;
+            $slots = $doctor
+                ? ($todaySlots->get($doctor->id) ?? collect())->take(6)->map(fn ($s) => [
+                    'time' => Carbon::parse($s->start_time)->format('g:i A'),
+                    'available' => true,
+                    'preferred' => $s->is_preferred,
+                ])->toArray()
+                : [];
+
+            return [
+                'id' => (string) $appt->id,
+                'patientId' => (string) $appt->family_member_id,
+                'doctor' => $doctor ? [
+                    'id' => 'd'.$doctor->id,
+                    'name' => $doctor->name,
+                    'avatar' => $doctor->avatar_url,
+                    'specialization' => $doctor->specialization,
+                    'experience_years' => $doctor->experience_years,
+                    'appointment_modes' => $doctor->consultationModes->pluck('mode')->toArray(),
+                    'video_fee' => $doctor->consultationModes->firstWhere('mode', 'video')?->fee ?? 0,
+                    'in_person_fee' => $doctor->consultationModes->firstWhere('mode', 'in_person')?->fee ?? 0,
+                ] : null,
+                'date' => $appt->appointment_date->format('Y-m-d'),
+                'symptoms' => $appt->symptoms ?? [],
+                'slots' => $slots,
+            ];
+        })->toArray();
 
         // Symptoms from database
         $symptoms = Symptom::where('is_active', true)
@@ -221,19 +225,25 @@ class GuidedDoctorController extends Controller
 
         $selectedDate = $request->get('date', now()->toDateString());
 
-        // Available dates (next 14 days) with doctor counts
+        // 1 query: get doctor counts per day_of_week (instead of 14 separate COUNT queries)
+        $doctorCountsByDay = Cache::remember('doctor_counts_by_day', 300, fn () =>
+            Doctor::where('is_active', true)
+                ->join('doctor_availabilities', 'doctors.id', '=', 'doctor_availabilities.doctor_id')
+                ->where('doctor_availabilities.is_available', true)
+                ->selectRaw('doctor_availabilities.day_of_week, COUNT(DISTINCT doctors.id) as count')
+                ->groupBy('doctor_availabilities.day_of_week')
+                ->pluck('count', 'day_of_week')
+                ->toArray()
+        );
+
         $availableDates = [];
         for ($i = 0; $i < 14; $i++) {
             $date = now()->addDays($i);
-            $dayOfWeek = $date->dayOfWeek;
-            $doctorCount = Doctor::where('is_active', true)
-                ->whereHas('availabilities', fn ($q) => $q->where('day_of_week', $dayOfWeek)->where('is_available', true))
-                ->count();
             $availableDates[] = [
                 'date' => $date->format('Y-m-d'),
                 'label' => $i === 0 ? 'Today' : ($i === 1 ? 'Tomorrow' : $date->format('D')),
                 'sublabel' => $date->format('M d'),
-                'doctorCount' => $doctorCount,
+                'doctorCount' => $doctorCountsByDay[$date->dayOfWeek] ?? 0,
             ];
         }
 
@@ -254,18 +264,23 @@ class GuidedDoctorController extends Controller
             });
         }
 
-        $doctors = $doctorsQuery->get()->map(function ($doctor) use ($selectedDate) {
-            $slots = TimeSlot::where('doctor_id', $doctor->id)
-                ->whereDate('date', $selectedDate)
-                ->where('is_booked', false)
-                ->orderBy('start_time')
-                ->get()
-                ->map(fn ($s) => [
-                    'time' => Carbon::parse($s->start_time)->format('g:i A'),
-                    'available' => true,
-                    'preferred' => $s->is_preferred,
-                ])
-                ->toArray();
+        $doctorResults = $doctorsQuery->get();
+
+        // Batch-load all time slots for these doctors on the selected date (1 query instead of N)
+        $doctorIds = $doctorResults->pluck('id')->toArray();
+        $allSlots = TimeSlot::whereIn('doctor_id', $doctorIds)
+            ->whereDate('date', $selectedDate)
+            ->where('is_booked', false)
+            ->orderBy('start_time')
+            ->get()
+            ->groupBy('doctor_id');
+
+        $doctors = $doctorResults->map(function ($doctor) use ($allSlots) {
+            $slots = ($allSlots->get($doctor->id) ?? collect())->map(fn ($s) => [
+                'time' => Carbon::parse($s->start_time)->format('g:i A'),
+                'available' => true,
+                'preferred' => $s->is_preferred,
+            ])->toArray();
 
             return [
                 'id' => 'd'.$doctor->id,

@@ -7,6 +7,7 @@ use App\Models\DoctorAlias;
 use App\Models\DoctorAvailability;
 use App\Models\DoctorConsultationMode;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -22,12 +23,14 @@ class DoctorService
      */
     public function getAll(): array
     {
-        return Doctor::with(['consultationModes', 'availabilities'])
-            ->where('is_active', true)
-            ->get()
-            ->keyBy('id')
-            ->map(fn (Doctor $d) => $this->toArray($d))
-            ->toArray();
+        return Cache::remember('doctors_all', 600, fn () =>
+            Doctor::with(['consultationModes', 'availabilities'])
+                ->where('is_active', true)
+                ->get()
+                ->keyBy('id')
+                ->map(fn (Doctor $d) => $this->toArray($d))
+                ->toArray()
+        );
     }
 
     /**
@@ -55,28 +58,18 @@ class DoctorService
     {
         $nameLower = strtolower(trim($name));
 
-        // Check canonical names first
+        // Check canonical names first (use SQL instead of loading all into memory)
         $doctor = Doctor::where('is_active', true)
-            ->get()
-            ->first(function (Doctor $d) use ($nameLower) {
-                $doctorNameLower = strtolower($d->name);
-
-                return stripos($doctorNameLower, $nameLower) !== false
-                    || stripos($nameLower, $doctorNameLower) !== false;
-            });
+            ->whereRaw('LOWER(name) LIKE ?', ["%{$nameLower}%"])
+            ->first();
 
         if ($doctor) {
             return $doctor->id;
         }
 
-        // Check aliases
-        $alias = DoctorAlias::all()
-            ->first(function ($a) use ($nameLower) {
-                $aliasLower = strtolower($a->alias);
-
-                return stripos($aliasLower, $nameLower) !== false
-                    || stripos($nameLower, $aliasLower) !== false;
-            });
+        // Check aliases via SQL
+        $alias = DoctorAlias::whereRaw('LOWER(alias) LIKE ?', ["%{$nameLower}%"])
+            ->first();
 
         if ($alias) {
             return $alias->doctor_id;
@@ -182,31 +175,33 @@ class DoctorService
      */
     public function formatForPrompt(): string
     {
-        $doctors = Doctor::with(['consultationModes', 'availabilities'])
-            ->where('is_active', true)
-            ->get();
+        return Cache::remember('doctors_prompt_format', 600, function () {
+            $doctors = Doctor::with(['consultationModes', 'availabilities'])
+                ->where('is_active', true)
+                ->get();
 
-        $lines = [];
+            $lines = [];
 
-        foreach ($doctors as $doctor) {
-            $modes = [];
-            foreach ($doctor->consultationModes as $cm) {
-                $label = $cm->mode === 'video' ? 'video' : 'in-person';
-                $modes[] = "{$label}(₹{$cm->fee})";
+            foreach ($doctors as $doctor) {
+                $modes = [];
+                foreach ($doctor->consultationModes as $cm) {
+                    $label = $cm->mode === 'video' ? 'video' : 'in-person';
+                    $modes[] = "{$label}(₹{$cm->fee})";
+                }
+                $modesStr = implode(', ', $modes);
+
+                $daysOff = $doctor->availabilities
+                    ->where('is_available', false)
+                    ->pluck('day_of_week')
+                    ->toArray();
+                $dayNames = array_map(fn ($d) => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][$d], $daysOff);
+                $offStr = implode(', ', $dayNames);
+
+                $lines[] = "{$doctor->id}. {$doctor->name} | {$doctor->specialization} | {$doctor->experience_years}y | {$modesStr} | Off: {$offStr}";
             }
-            $modesStr = implode(', ', $modes);
 
-            $daysOff = $doctor->availabilities
-                ->where('is_available', false)
-                ->pluck('day_of_week')
-                ->toArray();
-            $dayNames = array_map(fn ($d) => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][$d], $daysOff);
-            $offStr = implode(', ', $dayNames);
-
-            $lines[] = "{$doctor->id}. {$doctor->name} | {$doctor->specialization} | {$doctor->experience_years}y | {$modesStr} | Off: {$offStr}";
-        }
-
-        return implode("\n", $lines);
+            return implode("\n", $lines);
+        });
     }
 
     /**

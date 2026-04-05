@@ -15,6 +15,7 @@ import { EmbeddedComponent } from '@/Features/booking-chat/EmbeddedComponent';
 import { ThinkingIndicator } from '@/Components/Booking/ThinkingIndicator';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
+import { AIBlob } from '@/Components/ui/ai-blob';
 import { useAccessibilityPreferences } from '@/Hooks/useAccessibilityPreferences';
 
 interface ConversationMessage {
@@ -342,9 +343,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
                 {/* AI Blob - shown when no messages yet */}
                 {conversation.messages.length === 0 && !isLoading && (
                   <div className="flex flex-col items-center justify-center py-20">
-                    <div className="relative w-28 h-28 mb-6">
-                      <img src="/assets/images/ai-blob.png" alt="" className="w-full h-full object-contain" />
-                    </div>
+                    <AIBlob size="md" className="mb-6" />
                   </div>
                 )}
 
@@ -416,9 +415,7 @@ export default function Conversation({ conversation, familyMembers: propFamilyMe
 // AI Avatar component (the AI blob)
 function AIAvatar() {
   return (
-    <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
-      <img src="/assets/images/ai-blob.png" alt="" className="w-full h-full object-contain" />
-    </div>
+    <AIBlob size="sm" className="flex-shrink-0" />
   );
 }
 

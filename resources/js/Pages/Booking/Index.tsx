@@ -6,6 +6,7 @@ import { PromptSuggestion } from '@/Components/ui/prompt-suggestion';
 import { HStack, VStack } from '@/Components/ui/stack';
 import { Button } from '@/Components/ui/button';
 import { cn } from '@/Lib/utils';
+import { AIBlob } from '@/Components/ui/ai-blob';
 import { useAccessibilityPreferences } from '@/Hooks/useAccessibilityPreferences';
 
 type BookingMode = 'ai' | 'guided';
@@ -118,9 +119,7 @@ export default function BookingIndex() {
         <main className="flex flex-col items-center justify-center px-4 sm:px-6 py-12 sm:py-20">
           <VStack gap={10} className="items-center">
             {/* AI Blob */}
-            <div className="relative w-28 h-28">
-              <img src="/assets/images/ai-blob.png" alt="" className="w-full h-full object-contain" />
-            </div>
+            <AIBlob size="md" />
 
             {/* Mode toggle */}
             <HStack gap={1} className="border border-border rounded-full p-1 bg-muted">

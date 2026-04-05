@@ -12,6 +12,7 @@ use App\Models\Promotion;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -34,30 +35,32 @@ class DashboardController extends Controller
             $profileJustCompleted = true;
         }
 
-        $upcomingAppointments = Appointment::where('user_id', $user->id)
-            ->where('status', 'confirmed')
-            ->where('appointment_date', '>=', Carbon::today())
-            ->orderBy('appointment_date', 'asc')
-            ->with(['doctor', 'familyMember', 'labPackage'])
-            ->limit(10)
-            ->get()
-            ->map(fn ($a) => [
-                'id' => $a->id,
-                'type' => $a->appointment_type,
-                'title' => $a->appointment_type === 'doctor'
-                    ? ($a->doctor?->name ?? 'Doctor Appointment')
-                    : ($a->labPackage?->name ?? 'Lab Test'),
-                'subtitle' => $a->appointment_type === 'doctor'
-                    ? ($a->doctor?->specialization ?? '')
-                    : ($a->collection_type === 'home' ? 'Home Collection' : 'Hospital Visit'),
-                'patient_name' => $a->familyMember?->name ?? 'Self',
-                'patient_initials' => $this->getInitials($a->familyMember?->name ?? 'Self'),
-                'date_formatted' => $a->appointment_date->format('D, d M'),
-                'time' => $a->appointment_time ? Carbon::parse($a->appointment_time)->format('H:i') : '',
-                'mode' => $a->consultation_mode,
-                'fee' => $a->fee,
-                'is_today' => $a->appointment_date->isToday(),
-            ]);
+        $upcomingAppointments = Cache::remember("dashboard_upcoming:{$user->id}", 120, fn () =>
+            Appointment::where('user_id', $user->id)
+                ->where('status', 'confirmed')
+                ->where('appointment_date', '>=', Carbon::today())
+                ->orderBy('appointment_date', 'asc')
+                ->with(['doctor', 'familyMember', 'labPackage'])
+                ->limit(10)
+                ->get()
+                ->map(fn ($a) => [
+                    'id' => $a->id,
+                    'type' => $a->appointment_type,
+                    'title' => $a->appointment_type === 'doctor'
+                        ? ($a->doctor?->name ?? 'Doctor Appointment')
+                        : ($a->labPackage?->name ?? 'Lab Test'),
+                    'subtitle' => $a->appointment_type === 'doctor'
+                        ? ($a->doctor?->specialization ?? '')
+                        : ($a->collection_type === 'home' ? 'Home Collection' : 'Hospital Visit'),
+                    'patient_name' => $a->familyMember?->name ?? 'Self',
+                    'patient_initials' => $this->getInitials($a->familyMember?->name ?? 'Self'),
+                    'date_formatted' => $a->appointment_date->format('D, d M'),
+                    'time' => $a->appointment_time ? Carbon::parse($a->appointment_time)->format('H:i') : '',
+                    'mode' => $a->consultation_mode,
+                    'fee' => $a->fee,
+                    'is_today' => $a->appointment_date->isToday(),
+                ])
+        );
 
         $overdueBills = [];
         $healthAlerts = [];
@@ -65,13 +68,9 @@ class DashboardController extends Controller
         if ($allCompleted) {
             $overdueBills = Appointment::where('user_id', $user->id)
                 ->where('payment_status', 'pending')
+                ->where('appointment_date', '<', Carbon::today()->subDays(7))
                 ->with(['familyMember', 'doctor', 'labPackage'])
                 ->get()
-                ->filter(function ($a) {
-                    $dueDate = $a->appointment_date->copy()->addDays(7);
-
-                    return $dueDate->isPast();
-                })
                 ->map(fn ($a) => [
                     'id' => $a->id,
                     'patient_name' => $a->familyMember?->name ?? 'Self',
@@ -85,53 +84,58 @@ class DashboardController extends Controller
                 ->values()
                 ->toArray();
 
-            $healthAlerts = HealthRecord::where('user_id', $user->id)
-                ->where('category', 'lab_report')
-                ->with('familyMember')
-                ->orderByDesc('record_date')
-                ->get()
-                ->filter(function ($r) {
-                    foreach ($r->metadata['results'] ?? [] as $result) {
-                        if (in_array($result['status'] ?? '', ['abnormal', 'high', 'borderline'])) {
-                            return true;
+            $healthAlerts = Cache::remember("dashboard_health_alerts:{$user->id}", 300, fn () =>
+                HealthRecord::where('user_id', $user->id)
+                    ->where('category', 'lab_report')
+                    ->with('familyMember')
+                    ->orderByDesc('record_date')
+                    ->get()
+                    ->filter(function ($r) {
+                        foreach ($r->metadata['results'] ?? [] as $result) {
+                            if (in_array($result['status'] ?? '', ['abnormal', 'high', 'borderline'])) {
+                                return true;
+                            }
                         }
-                    }
 
-                    return false;
-                })
-                ->take(3)
-                ->map(function ($r) {
-                    $abnormal = collect($r->metadata['results'] ?? [])
-                        ->first(fn ($res) => in_array($res['status'] ?? '', ['abnormal', 'high', 'borderline']));
+                        return false;
+                    })
+                    ->take(3)
+                    ->map(function ($r) {
+                        $abnormal = collect($r->metadata['results'] ?? [])
+                            ->first(fn ($res) => in_array($res['status'] ?? '', ['abnormal', 'high', 'borderline']));
 
-                    return [
-                        'id' => $r->id,
-                        'title' => $r->title,
-                        'patient_name' => $r->familyMember?->name ?? 'Self',
-                        'patient_initials' => $this->getInitials($r->familyMember?->name ?? 'Self'),
-                        'metric_name' => $abnormal['name'] ?? $r->title,
-                        'metric_value' => $abnormal['value'] ?? '—',
-                        'metric_reference' => $abnormal['reference'] ?? '—',
-                        'record_date_formatted' => $r->record_date->format('d M Y'),
-                    ];
-                })
-                ->values()
-                ->toArray();
+                        return [
+                            'id' => $r->id,
+                            'title' => $r->title,
+                            'patient_name' => $r->familyMember?->name ?? 'Self',
+                            'patient_initials' => $this->getInitials($r->familyMember?->name ?? 'Self'),
+                            'metric_name' => $abnormal['name'] ?? $r->title,
+                            'metric_value' => $abnormal['value'] ?? '—',
+                            'metric_reference' => $abnormal['reference'] ?? '—',
+                            'record_date_formatted' => $r->record_date->format('d M Y'),
+                        ];
+                    })
+                    ->values()
+                    ->toArray()
+            );
         }
 
         $preventiveCare = [];
         if ($allCompleted) {
             $members = FamilyMember::where('user_id', $user->id)->get();
-            foreach ($members as $member) {
-                $lastAppt = Appointment::where('user_id', $user->id)
-                    ->where('family_member_id', $member->id)
-                    ->where('status', 'completed')
-                    ->where('appointment_type', 'doctor')
-                    ->orderByDesc('appointment_date')
-                    ->first();
 
-                $monthsSince = $lastAppt
-                    ? (int) $lastAppt->appointment_date->diffInMonths(now())
+            // Single query: get last completed doctor appointment per family member
+            $lastAppointments = Appointment::where('user_id', $user->id)
+                ->where('status', 'completed')
+                ->where('appointment_type', 'doctor')
+                ->selectRaw('family_member_id, MAX(appointment_date) as last_date')
+                ->groupBy('family_member_id')
+                ->pluck('last_date', 'family_member_id');
+
+            foreach ($members as $member) {
+                $lastDate = $lastAppointments->get($member->id);
+                $monthsSince = $lastDate
+                    ? (int) Carbon::parse($lastDate)->diffInMonths(now())
                     : null;
 
                 if ($monthsSince === null || $monthsSince >= 6) {
@@ -222,21 +226,17 @@ class DashboardController extends Controller
 
     private function getPaymentsDueSoon($user): array
     {
-        // Query appointments with payment_status='pending' where due_date (appointment_date + 7d) is 1-7 days from now
+        // due_date = appointment_date + 7 days; show where due_date is 1-7 days from now
+        $dueDateStart = Carbon::today()->subDays(6); // appointment_date where due in 1 day
+        $dueDateEnd = Carbon::today();               // appointment_date where due in 7 days
+
         return Appointment::where('user_id', $user->id)
             ->where('payment_status', 'pending')
+            ->whereBetween('appointment_date', [$dueDateEnd, $dueDateStart])
+            ->orderBy('appointment_date')
             ->with(['familyMember', 'doctor', 'labPackage'])
+            ->limit(3)
             ->get()
-            ->filter(function ($a) {
-                $dueDate = $a->appointment_date->copy()->addDays(7);
-                $daysUntilDue = (int) now()->diffInDays($dueDate, false);
-
-                return $daysUntilDue >= 1 && $daysUntilDue <= 7;
-            })
-            ->sortBy(function ($a) {
-                return $a->appointment_date->copy()->addDays(7);
-            })
-            ->take(3)
             ->map(function ($a) {
                 $dueDate = $a->appointment_date->copy()->addDays(7);
 
@@ -308,48 +308,38 @@ class DashboardController extends Controller
 
     private function getFollowUpsDue($user): array
     {
-        // Query appointments where status='completed' AND metadata has follow_up_date
-        // AND follow_up_date is past or within 7 days
-        return Appointment::where('user_id', $user->id)
-            ->where('status', 'completed')
-            ->with(['familyMember', 'doctor', 'department'])
+        // Get consultation notes with follow_up_date, eager load the appointment and its relations
+        $consultationNotes = HealthRecord::where('user_id', $user->id)
+            ->where('category', 'consultation_notes')
+            ->whereNotNull('appointment_id')
+            ->with(['appointment.familyMember', 'appointment.doctor', 'appointment.department'])
             ->get()
-            ->filter(function ($a) {
-                // Check if there's a consultation note health record with follow_up field
-                $consultationNote = HealthRecord::where('appointment_id', $a->id)
-                    ->where('category', 'consultation_notes')
-                    ->first();
-                if (! $consultationNote) {
-                    return false;
-                }
-                $followUpDate = $consultationNote->metadata['follow_up_date'] ?? null;
-                if (! $followUpDate) {
+            ->filter(function ($record) {
+                $followUpDate = $record->metadata['follow_up_date'] ?? null;
+                if (! $followUpDate || ! $record->appointment || $record->appointment->status !== 'completed') {
                     return false;
                 }
                 $daysOverdue = (int) Carbon::parse($followUpDate)->diffInDays(now(), false);
 
-                return $daysOverdue >= -7; // Show if due in next 7 days or already overdue
+                return $daysOverdue >= -7;
             })
-            ->take(2)
-            ->map(function ($a) {
-                $consultationNote = HealthRecord::where('appointment_id', $a->id)
-                    ->where('category', 'consultation_notes')
-                    ->first();
-                $followUpDate = Carbon::parse($consultationNote->metadata['follow_up_date']);
+            ->take(2);
 
-                return [
-                    'id' => $a->id,
-                    'original_appointment_id' => $a->id,
-                    'patient_name' => $a->familyMember?->name ?? 'Self',
-                    'patient_initials' => $this->getInitials($a->familyMember?->name ?? 'Self'),
-                    'doctor_name' => $a->doctor?->name ?? 'Doctor',
-                    'department' => $a->department?->name ?? $a->doctor?->specialization ?? '',
-                    'recommended_date' => $followUpDate->toDateString(),
-                    'days_overdue' => (int) $followUpDate->diffInDays(now(), false),
-                ];
-            })
-            ->values()
-            ->toArray();
+        return $consultationNotes->map(function ($record) {
+            $a = $record->appointment;
+            $followUpDate = Carbon::parse($record->metadata['follow_up_date']);
+
+            return [
+                'id' => $a->id,
+                'original_appointment_id' => $a->id,
+                'patient_name' => $a->familyMember?->name ?? 'Self',
+                'patient_initials' => $this->getInitials($a->familyMember?->name ?? 'Self'),
+                'doctor_name' => $a->doctor?->name ?? 'Doctor',
+                'department' => $a->department?->name ?? $a->doctor?->specialization ?? '',
+                'recommended_date' => $followUpDate->toDateString(),
+                'days_overdue' => (int) $followUpDate->diffInDays(now(), false),
+            ];
+        })->values()->toArray();
     }
 
     private function getPreAppointmentReminders($user): array
@@ -418,43 +408,32 @@ class DashboardController extends Controller
 
     private function getVaccinationsDue($user): array
     {
-        // Query family_members and check vaccination schedule against current date
-        // For demo: use vaccination records with upcoming_vaccinations metadata
-        return FamilyMember::where('user_id', $user->id)
-            ->get()
-            ->filter(function ($member) use ($user) {
-                // Check vaccination_history in health_records
-                $vaccinations = HealthRecord::where('user_id', $user->id)
-                    ->where('family_member_id', $member->id)
-                    ->where('category', 'vaccination')
-                    ->get();
+        // Single query: get all vaccination records with family members eager-loaded
+        $vaccinationRecords = HealthRecord::where('user_id', $user->id)
+            ->where('category', 'vaccination')
+            ->with('familyMember')
+            ->get();
 
-                // Determine if any vaccines are due based on upcoming_vaccinations metadata
-                foreach ($vaccinations as $vacc) {
-                    $upcoming = $vacc->metadata['upcoming_vaccinations'] ?? [];
-                    foreach ($upcoming as $upcomingVacc) {
-                        $dueDate = Carbon::parse($upcomingVacc['due_date']);
-                        if ($dueDate->isPast() || $dueDate->diffInDays(now(), false) <= 30) {
-                            return true;
-                        }
+        return $vaccinationRecords
+            ->filter(function ($vacc) {
+                foreach ($vacc->metadata['upcoming_vaccinations'] ?? [] as $upcomingVacc) {
+                    $dueDate = Carbon::parse($upcomingVacc['due_date']);
+                    if ($dueDate->isPast() || $dueDate->diffInDays(now(), false) <= 30) {
+                        return true;
                     }
                 }
 
                 return false;
             })
             ->take(2)
-            ->map(function ($member) use ($user) {
-                $vaccinations = HealthRecord::where('user_id', $user->id)
-                    ->where('family_member_id', $member->id)
-                    ->where('category', 'vaccination')
-                    ->first();
-
-                $upcomingVacc = ($vaccinations->metadata['upcoming_vaccinations'] ?? [])[0] ?? null;
+            ->map(function ($vacc) {
+                $upcomingVacc = ($vacc->metadata['upcoming_vaccinations'] ?? [])[0] ?? null;
+                $member = $vacc->familyMember;
 
                 return [
-                    'id' => $member->id,
-                    'patient_name' => $member->name,
-                    'patient_initials' => $this->getInitials($member->name),
+                    'id' => $member?->id ?? $vacc->id,
+                    'patient_name' => $member?->name ?? 'Self',
+                    'patient_initials' => $this->getInitials($member?->name ?? 'Self'),
                     'vaccine_name' => $upcomingVacc['vaccine_name'] ?? 'Vaccine',
                     'due_date' => $upcomingVacc['due_date'] ?? now()->toDateString(),
                     'age_requirement' => $upcomingVacc['dose_label'] ?? '',

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Channels\SmsChannel;
 use App\Channels\WhatsAppChannel;
+use App\Http\Controllers\NotificationController;
 use App\Models\BillingNotification;
 use App\Notifications\BaseNotification;
 use App\User;
@@ -72,6 +73,8 @@ class NotificationService
                 'channels' => $this->mapChannelsForDisplay($channels),
                 'data' => ! empty($billingData['data']) ? $billingData['data'] : null,
             ]);
+
+            NotificationController::clearNotificationCache($user->id);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning('Failed to create billing notification: '.$e->getMessage());
         }

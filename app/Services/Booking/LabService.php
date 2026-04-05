@@ -5,6 +5,7 @@ namespace App\Services\Booking;
 use App\Models\LabCenter;
 use App\Models\LabPackage;
 use App\Models\LabTestType;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -20,12 +21,14 @@ class LabService
      */
     public function getAllPackages(): array
     {
-        return LabPackage::where('is_active', true)
-            ->orderByDesc('is_popular')
-            ->orderBy('price')
-            ->get()
-            ->map(fn (LabPackage $p) => $this->packageToArray($p))
-            ->toArray();
+        return Cache::remember('lab_packages_all', 600, fn () =>
+            LabPackage::where('is_active', true)
+                ->orderByDesc('is_popular')
+                ->orderBy('price')
+                ->get()
+                ->map(fn (LabPackage $p) => $this->packageToArray($p))
+                ->toArray()
+        );
     }
 
     /**
@@ -45,14 +48,10 @@ class LabService
     {
         $nameLower = strtolower(trim($name));
 
+        // Use SQL instead of loading all into memory
         $package = LabPackage::where('is_active', true)
-            ->get()
-            ->first(function (LabPackage $p) use ($nameLower) {
-                $pkgNameLower = strtolower($p->name);
-
-                return stripos($pkgNameLower, $nameLower) !== false
-                    || stripos($nameLower, $pkgNameLower) !== false;
-            });
+            ->whereRaw('LOWER(name) LIKE ?', ["%{$nameLower}%"])
+            ->first();
 
         if ($package) {
             return $package->id;
@@ -80,11 +79,13 @@ class LabService
      */
     public function getAllCenters(): array
     {
-        return LabCenter::where('is_active', true)
-            ->orderBy('distance_km')
-            ->get()
-            ->map(fn (LabCenter $c) => $this->centerToArray($c))
-            ->toArray();
+        return Cache::remember('lab_centers_all', 600, fn () =>
+            LabCenter::where('is_active', true)
+                ->orderBy('distance_km')
+                ->get()
+                ->map(fn (LabCenter $c) => $this->centerToArray($c))
+                ->toArray()
+        );
     }
 
     /**

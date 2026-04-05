@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -42,33 +43,41 @@ class HandleInertiaRequests extends Middleware
                 'check' => (bool) $user,
             ],
             'notificationUnreadCount' => $user
-                ? \App\Models\BillingNotification::where('user_id', $user->id)->whereNull('read_at')->count()
+                ? fn () => Cache::remember("notifications_unread:{$user->id}", 60, fn () =>
+                    \App\Models\BillingNotification::where('user_id', $user->id)->whereNull('read_at')->count()
+                )
                 : 0,
             'allNotifications' => $user
-                ? \App\Models\BillingNotification::where('user_id', $user->id)
-                    ->with('appointment.doctor')
-                    ->orderByDesc('created_at')
-                    ->get()
-                    ->map(fn ($n) => [
-                        'id' => $n->id,
-                        'type' => $n->type,
-                        'title' => $n->title,
-                        'message' => $n->message,
-                        'channels' => $n->channels,
-                        'read_at' => $n->read_at?->toIso8601String(),
-                        'created_at' => $n->created_at->toIso8601String(),
-                        'appointment_id' => $n->appointment_id,
-                        'insurance_claim_id' => $n->data['insurance_claim_id'] ?? null,
-                        'health_record_id' => $n->data['health_record_id'] ?? null,
-                        'family_member_id' => $n->data['family_member_id'] ?? null,
-                        'insurance_policy_id' => $n->data['insurance_policy_id'] ?? null,
-                        'doctor' => $n->appointment && $n->appointment->doctor ? [
-                            'name' => $n->appointment->doctor->name,
-                            'avatar_url' => $n->appointment->doctor->avatar_url,
-                        ] : null,
-                    ])
+                ? fn () => Cache::remember("notifications_all:{$user->id}", 60, fn () =>
+                    \App\Models\BillingNotification::where('user_id', $user->id)
+                        ->with('appointment.doctor')
+                        ->orderByDesc('created_at')
+                        ->get()
+                        ->map(fn ($n) => [
+                            'id' => $n->id,
+                            'type' => $n->type,
+                            'title' => $n->title,
+                            'message' => $n->message,
+                            'channels' => $n->channels,
+                            'read_at' => $n->read_at?->toIso8601String(),
+                            'created_at' => $n->created_at->toIso8601String(),
+                            'appointment_id' => $n->appointment_id,
+                            'insurance_claim_id' => $n->data['insurance_claim_id'] ?? null,
+                            'health_record_id' => $n->data['health_record_id'] ?? null,
+                            'family_member_id' => $n->data['family_member_id'] ?? null,
+                            'insurance_policy_id' => $n->data['insurance_policy_id'] ?? null,
+                            'doctor' => $n->appointment && $n->appointment->doctor ? [
+                                'name' => $n->appointment->doctor->name,
+                                'avatar_url' => $n->appointment->doctor->avatar_url,
+                            ] : null,
+                        ])
+                )
                 : [],
-            'profileWarnings' => $user ? $this->getProfileWarnings($user) : [],
+            'profileWarnings' => $user
+                ? fn () => Cache::remember("profile_warnings:{$user->id}", 300, fn () =>
+                    $this->getProfileWarnings($user)
+                )
+                : [],
             'toast' => fn () => $request->session()->get('toast'),
             'userPreferences' => $user ? $user->getSetting('preferences', [
                 'language' => 'en',
