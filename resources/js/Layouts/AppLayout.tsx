@@ -1,5 +1,5 @@
 import { Link, usePage, router } from "@inertiajs/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import SearchModal from "@/Components/SearchModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { Button, buttonVariants } from "@/Components/ui/button";
@@ -289,10 +289,10 @@ export default function AppLayout({
     const allNotifications = props.allNotifications || [];
     const profileWarnings = props.profileWarnings || [];
 
-    const displayedNotifications = allNotifications.filter((n) => {
+    const displayedNotifications = useMemo(() => allNotifications.filter((n) => {
         if (notifFilter === 'all') return true;
         return getNotificationCategory(n.type) === notifFilter.replace('s', '') as NotificationCategory;
-    });
+    }), [allNotifications, notifFilter]);
 
     const handleNotificationClick = (notification: NotificationItem) => {
         if (!notification.read_at) {
@@ -944,6 +944,7 @@ function NavLink({ href, iconName, label, active = false }: NavLinkProps) {
     return (
         <Link
             href={href}
+            prefetch
             className={`${baseClasses} ${shapeClasses} ${restClasses}`}
             style={activeStyle}
         >
@@ -985,6 +986,7 @@ function MobileNavLink({ href, iconName, label, active = false, onClick }: Mobil
     return (
         <Link
             href={href}
+            prefetch
             className={`${baseClasses} ${shapeClasses} ${restClasses}`}
             style={activeStyle}
             onClick={onClick}

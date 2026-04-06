@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Button, buttonVariants } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
@@ -538,20 +538,20 @@ export default function Dashboard({
   const allStepsCompleted = profileSteps.every(step => step.completed);
 
   // Split appointments into today vs later
-  const todayAppointments = upcomingAppointments.filter(a => a.is_today);
-  const laterAppointments = upcomingAppointments.filter(a => !a.is_today);
+  const todayAppointments = useMemo(() => upcomingAppointments.filter(a => a.is_today), [upcomingAppointments]);
+  const laterAppointments = useMemo(() => upcomingAppointments.filter(a => !a.is_today), [upcomingAppointments]);
 
   // Filter follow-ups into overdue vs future
-  const overdueFollowUps = followUpsDue.filter(f => f.days_overdue >= 0);
-  const futureFollowUps = followUpsDue.filter(f => f.days_overdue < 0 && f.days_overdue > -7);
+  const overdueFollowUps = useMemo(() => followUpsDue.filter(f => f.days_overdue >= 0), [followUpsDue]);
+  const futureFollowUps = useMemo(() => followUpsDue.filter(f => f.days_overdue < 0 && f.days_overdue > -7), [followUpsDue]);
 
   // Filter vaccinations into overdue vs upcoming
-  const overdueVaccinations = vaccinationsDue.filter(v => new Date(v.due_date) < new Date());
-  const upcomingVaccinations = vaccinationsDue.filter(v => new Date(v.due_date) >= new Date());
+  const overdueVaccinations = useMemo(() => vaccinationsDue.filter(v => new Date(v.due_date) < new Date()), [vaccinationsDue]);
+  const upcomingVaccinations = useMemo(() => vaccinationsDue.filter(v => new Date(v.due_date) >= new Date()), [vaccinationsDue]);
 
   // Filter preventive care into overdue vs upcoming
-  const overduePreventiveCare = preventiveCare.filter(c => c.months_since !== null && c.months_since > 12);
-  const upcomingPreventiveCare = preventiveCare.filter(c => c.months_since === null || c.months_since <= 12);
+  const overduePreventiveCare = useMemo(() => preventiveCare.filter(c => c.months_since !== null && c.months_since > 12), [preventiveCare]);
+  const upcomingPreventiveCare = useMemo(() => preventiveCare.filter(c => c.months_since === null || c.months_since <= 12), [preventiveCare]);
 
   // Build "Up next" items (priority order):
   // 1. Today's appointments
@@ -582,7 +582,7 @@ export default function Dashboard({
 
   // Build flat arrays for each section to handle "View all" expansion
   // Priority order: Today's appointments → Payment alerts → Health alerts
-  const upNextCards = [
+  const upNextCards = useMemo(() => [
     // 1. Today's appointments (highest priority)
     ...todayAppointments.map((appt, i) => ({ type: 'appointment_today' as const, data: appt, index: i })),
 
@@ -599,15 +599,15 @@ export default function Dashboard({
     ...overduePreventiveCare.map((care, i) => ({ type: 'preventive_care' as const, data: care, index: i })),
     ...visibleHealthAlerts.map((alert, i) => ({ type: 'health_alert' as const, data: alert, index: i })),
     ...newResultsReady.map((result, i) => ({ type: 'new_results_ready' as const, data: result, index: i })),
-  ];
+  ], [todayAppointments, overdueBills, paymentsDueSoon, emisDue, insuranceClaimUpdates, prescriptionsExpiring, overdueFollowUps, overdueVaccinations, overduePreventiveCare, visibleHealthAlerts, newResultsReady]);
 
-  const laterCards = [
+  const laterCards = useMemo(() => [
     ...preAppointmentReminders.map((reminder, i) => ({ type: 'pre_appointment_reminder' as const, data: reminder, index: i })),
     ...laterAppointments.map((appt, i) => ({ type: 'appointment_upcoming' as const, data: appt, index: i })),
     ...futureFollowUps.map((followup, i) => ({ type: 'followup_due_future' as const, data: followup, index: i })),
     ...upcomingVaccinations.map((vaccination, i) => ({ type: 'vaccination_due' as const, data: vaccination, index: i })),
     ...upcomingPreventiveCare.map((care, i) => ({ type: 'preventive_care' as const, data: care, index: i })),
-  ];
+  ], [preAppointmentReminders, laterAppointments, futureFollowUps, upcomingVaccinations, upcomingPreventiveCare]);
 
   const visibleUpNextCards = upNextExpanded ? upNextCards : upNextCards.slice(0, 3);
   const visibleLaterCards = laterExpanded ? laterCards : laterCards.slice(0, 3);

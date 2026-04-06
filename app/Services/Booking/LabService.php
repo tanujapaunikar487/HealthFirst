@@ -173,9 +173,6 @@ class LabService
         $queryLower = strtolower(trim($query));
         $keywords = preg_split('/\s+/', $queryLower);
 
-        $packages = LabPackage::where('is_active', true)->get();
-        $scored = [];
-
         // Common search aliases mapped to package slugs
         $aliases = [
             // Package name aliases
@@ -211,6 +208,35 @@ class LabService
             'chest pain' => ['heart-health'],
             'frequent urination' => ['diabetes-screening'],
         ];
+
+        // Collect alias-matched slugs for this query
+        $aliasMatchedSlugs = [];
+        foreach ($aliases as $alias => $slugs) {
+            if (stripos($queryLower, $alias) !== false) {
+                $aliasMatchedSlugs = array_merge($aliasMatchedSlugs, $slugs);
+            }
+        }
+        $aliasMatchedSlugs = array_unique($aliasMatchedSlugs);
+
+        // Pre-filter with SQL: only load packages matching query or alias slugs
+        $packages = LabPackage::where('is_active', true)
+            ->where(function ($q) use ($queryLower, $keywords, $aliasMatchedSlugs) {
+                $q->whereRaw('LOWER(name) LIKE ?', ["%{$queryLower}%"])
+                    ->orWhereRaw('LOWER(description) LIKE ?', ["%{$queryLower}%"])
+                    ->orWhereRaw('LOWER(slug) LIKE ?', ["%{$queryLower}%"]);
+                foreach ($keywords as $kw) {
+                    if (strlen($kw) >= 3) {
+                        $q->orWhereRaw('LOWER(name) LIKE ?', ["%{$kw}%"])
+                            ->orWhereRaw('LOWER(description) LIKE ?', ["%{$kw}%"]);
+                    }
+                }
+                if (! empty($aliasMatchedSlugs)) {
+                    $q->orWhereIn('slug', $aliasMatchedSlugs);
+                }
+            })
+            ->get();
+
+        $scored = [];
 
         foreach ($packages as $pkg) {
             $score = 0;
@@ -275,9 +301,6 @@ class LabService
         $queryLower = strtolower(trim($query));
         $keywords = preg_split('/\s+/', $queryLower);
 
-        $tests = LabTestType::where('is_active', true)->get();
-        $scored = [];
-
         $aliases = [
             // Test name aliases
             'sugar' => ['blood-sugar-fasting', 'blood-sugar-pp'],
@@ -335,6 +358,36 @@ class LabService
             'itching' => ['liver-function-test', 'kidney-function-test', 'blood-sugar-fasting'],
             'breathless' => ['complete-blood-count', 'ecg', 'iron-studies'],
         ];
+
+        // Collect alias-matched slugs for this query
+        $aliasMatchedSlugs = [];
+        foreach ($aliases as $alias => $slugs) {
+            if (stripos($queryLower, $alias) !== false) {
+                $aliasMatchedSlugs = array_merge($aliasMatchedSlugs, $slugs);
+            }
+        }
+        $aliasMatchedSlugs = array_unique($aliasMatchedSlugs);
+
+        // Pre-filter with SQL: only load tests matching query or alias slugs
+        $tests = LabTestType::where('is_active', true)
+            ->where(function ($q) use ($queryLower, $keywords, $aliasMatchedSlugs) {
+                $q->whereRaw('LOWER(name) LIKE ?', ["%{$queryLower}%"])
+                    ->orWhereRaw('LOWER(description) LIKE ?', ["%{$queryLower}%"])
+                    ->orWhereRaw('LOWER(slug) LIKE ?', ["%{$queryLower}%"])
+                    ->orWhereRaw('LOWER(category) LIKE ?', ["%{$queryLower}%"]);
+                foreach ($keywords as $kw) {
+                    if (strlen($kw) >= 2) {
+                        $q->orWhereRaw('LOWER(name) LIKE ?', ["%{$kw}%"])
+                            ->orWhereRaw('LOWER(category) LIKE ?', ["%{$kw}%"]);
+                    }
+                }
+                if (! empty($aliasMatchedSlugs)) {
+                    $q->orWhereIn('slug', $aliasMatchedSlugs);
+                }
+            })
+            ->get();
+
+        $scored = [];
 
         foreach ($tests as $test) {
             $score = 0;

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { router } from '@inertiajs/react';
 import { useNavigation } from '@/Hooks/useNavigation';
 import { GuidedBookingLayout } from '@/Layouts/GuidedBookingLayout';
@@ -88,6 +88,16 @@ export default function TestSearchStep({ savedData }: Props) {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const resultsSectionRef = useRef<HTMLDivElement>(null);
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  const debouncedSearch = useCallback((query: string) => {
+    clearTimeout(searchTimerRef.current);
+    searchTimerRef.current = setTimeout(() => handleSearch(query), 300);
+  }, []);
+
+  useEffect(() => {
+    return () => clearTimeout(searchTimerRef.current);
+  }, []);
 
   useEffect(() => {
     if (searchResults && resultsSectionRef.current) {
@@ -142,9 +152,9 @@ export default function TestSearchStep({ savedData }: Props) {
       const query = newSelection.join(', ');
       setSearchQuery(query);
 
-      // Auto-search if chips are selected
+      // Auto-search if chips are selected (debounced)
       if (newSelection.length > 0) {
-        handleSearch(query);
+        debouncedSearch(query);
       }
 
       return newSelection;

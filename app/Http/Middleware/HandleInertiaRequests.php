@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Inertia\Inertia;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -48,7 +49,7 @@ class HandleInertiaRequests extends Middleware
                 )
                 : 0,
             'allNotifications' => $user
-                ? fn () => Cache::remember("notifications_all:{$user->id}", 60, fn () =>
+                ? Inertia::defer(fn () => Cache::remember("notifications_all:{$user->id}", 60, fn () =>
                     \App\Models\BillingNotification::where('user_id', $user->id)
                         ->with('appointment.doctor')
                         ->orderByDesc('created_at')
@@ -71,7 +72,7 @@ class HandleInertiaRequests extends Middleware
                                 'avatar_url' => $n->appointment->doctor->avatar_url,
                             ] : null,
                         ])
-                )
+                ))
                 : [],
             'profileWarnings' => $user
                 ? fn () => Cache::remember("profile_warnings:{$user->id}", 300, fn () =>
