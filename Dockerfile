@@ -28,22 +28,18 @@ RUN npm ci
 COPY . .
 
 # Generate optimized autoloader + build frontend
-RUN composer dump-autoload --optimize --classmap-authoritative && npm run build
+RUN composer dump-autoload --optimize && npm run build
 
 # Create required directories and set permissions
 RUN mkdir -p storage/logs storage/framework/sessions storage/framework/views \
     storage/framework/cache/data storage/app/public bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-# Bake env-independent caches into the image (route, view, event)
-# config:cache runs at boot since it reads .env values that exist only at runtime
-RUN php artisan route:cache \
-    && php artisan view:cache \
-    && php artisan event:cache
-
 EXPOSE 8080
 
 # Run migrations as a Render Pre-Deploy Command, not on container boot
 CMD php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan view:cache && \
     php artisan storage:link --force 2>/dev/null || true && \
     frankenphp php-server --listen :${PORT:-8080} --root public/
