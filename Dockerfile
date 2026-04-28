@@ -1,4 +1,4 @@
-FROM php:8.3-cli
+FROM dunglas/frankenphp:1-php8.3
 
 # Install system dependencies + Node 20
 RUN apt-get update && apt-get install -y \
@@ -28,20 +28,22 @@ RUN npm ci
 COPY . .
 
 # Generate optimized autoloader + build frontend
-RUN composer dump-autoload --optimize && npm run build
+RUN composer dump-autoload --optimize --classmap-authoritative && npm run build
 
 # Create required directories and set permissions
 RUN mkdir -p storage/logs storage/framework/sessions storage/framework/views \
     storage/framework/cache/data storage/app/public bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
+# Bake env-independent caches into the image (route, view, event)
+# config:cache runs at boot since it reads .env values that exist only at runtime
+RUN php artisan route:cache \
+    && php artisan view:cache \
+    && php artisan event:cache
+
 EXPOSE 8080
 
-CMD php artisan config:clear && \
-    php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache && \
-    php artisan migrate --force && \
-    php artisan db:seed --force && \
+# Run migrations as a Render Pre-Deploy Command, not on container boot
+CMD php artisan config:cache && \
     php artisan storage:link --force 2>/dev/null || true && \
-    php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
+    frankenphp php-server --listen :${PORT:-8080} --root public/
