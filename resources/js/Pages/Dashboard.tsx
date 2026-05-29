@@ -513,24 +513,6 @@ export default function Dashboard({
     router.reload();
   };
 
-  if (hasError) {
-    return (
-      <AppLayout user={user}>
-        <Head title="Dashboard" />
-        <ErrorState onRetry={handleRetry} />
-      </AppLayout>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <AppLayout user={user}>
-        <Head title="Dashboard" />
-        <DashboardSkeleton />
-      </AppLayout>
-    );
-  }
-
   const today = new Date();
   const dateOptions: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
   const formattedDate = today.toLocaleDateString('en-US', dateOptions);
@@ -973,6 +955,24 @@ export default function Dashboard({
         return null;
     }
   };
+
+  if (hasError) {
+    return (
+      <AppLayout user={user}>
+        <Head title="Dashboard" />
+        <ErrorState onRetry={handleRetry} />
+      </AppLayout>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <AppLayout user={user}>
+        <Head title="Dashboard" />
+        <DashboardSkeleton />
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout user={user}>
