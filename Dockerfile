@@ -1,4 +1,4 @@
-FROM dunglas/frankenphp:1-php8.3
+FROM php:8.3-cli
 
 # Install system dependencies + Node 20
 RUN apt-get update && apt-get install -y \
@@ -37,9 +37,11 @@ RUN mkdir -p storage/logs storage/framework/sessions storage/framework/views \
 
 EXPOSE 8080
 
-# Run migrations as a Render Pre-Deploy Command, not on container boot
-CMD php artisan config:cache && \
+CMD php artisan config:clear && \
+    php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache && \
+    php artisan migrate --force && \
+    php artisan db:seed --force && \
     php artisan storage:link --force 2>/dev/null || true && \
-    frankenphp php-server --listen :${PORT:-8080} --root public/
+    php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
