@@ -1,4 +1,4 @@
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
@@ -165,6 +165,16 @@ export default function Register({ socialLoginEnabled }: RegisterProps) {
 
                 <Button type="submit" className="w-full" disabled={processing}>
                     {processing ? 'Creating account...' : 'Create account'}
+                </Button>
+
+                <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    disabled={processing}
+                    onClick={() => router.post(route('guest.login'))}
+                >
+                    Continue as guest
                 </Button>
 
                 {(socialLoginEnabled?.google || socialLoginEnabled?.apple) && (

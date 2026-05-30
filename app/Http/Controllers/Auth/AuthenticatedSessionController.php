@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -50,6 +51,33 @@ class AuthenticatedSessionController extends Controller
                 ]);
             }
         }
+
+        return redirect()->intended(route('dashboard', absolute: false));
+    }
+
+    /**
+     * Log in as the seeded demo user so visitors can explore with all dummy data intact.
+     */
+    public function guest(Request $request): RedirectResponse
+    {
+        $user = User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            ['name' => 'Sanjana Jaisinghani', 'password' => bcrypt('password')],
+        );
+
+        if ($user->familyMembers()->count() === 0) {
+            try {
+                \Database\Seeders\HospitalSeeder::seedForUser($user);
+            } catch (\Throwable $e) {
+                Log::error('Failed to seed demo data for guest user', [
+                    'user_id' => $user->id,
+                    'exception' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        Auth::login($user);
+        $request->session()->regenerate();
 
         return redirect()->intended(route('dashboard', absolute: false));
     }
