@@ -384,7 +384,7 @@ export default function AppLayout({
                         borderBottom: "1px solid hsl(var(--border))",
                     }}
                 >
-                    <div className="h-full flex items-center justify-between px-4 sm:px-6">
+                    <div className="h-full flex items-center justify-between px-4 sm:px-6 bg-primary">
                         {/* Mobile Menu Button + Page Title */}
                         <div className="flex items-center gap-2 sm:gap-3">
                             {/* Mobile Hamburger Menu - Only visible on mobile */}

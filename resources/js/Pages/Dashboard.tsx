@@ -991,7 +991,7 @@ export default function Dashboard({
           </VStack>
 
           <div className="flex gap-2 sm:items-center items-stretch">
-            <Link href="/booking" className={buttonVariants({ size: 'lg', className: 'w-full sm:w-auto' })}>
+            <Link href="/booking" className={buttonVariants({ size: 'lg', className: 'w-full sm:w-auto' })} style={{ background: 'var(--color-destructive)' }}>
               <img src="/assets/icons/appointment-2.svg" alt="" className="w-5 h-5" />
               Book appointment
             </Link>
