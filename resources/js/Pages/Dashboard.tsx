@@ -982,7 +982,7 @@ export default function Dashboard({
         {/* Page Header */}
         <div className="w-full flex flex-col sm:flex-row gap-3 sm:items-start items-stretch">
           <VStack gap={1} className="flex-1">
-            <h1 className="truncate text-foreground">
+            <h1 className="text-page-title text-foreground truncate">
               Hi, {firstName}
             </h1>
             <p className="text-body text-muted-foreground">
@@ -991,7 +991,7 @@ export default function Dashboard({
           </VStack>
 
           <div className="flex gap-2 sm:items-center items-stretch">
-            <Link href="/booking" className={buttonVariants({ size: 'lg', className: 'w-full sm:w-auto' })}>
+            <Link href="/booking" className={buttonVariants({ size: 'lg', className: 'w-full sm:w-auto' })} style={{ background: 'var(--color-destructive)' }}>
               <img src="/assets/icons/appointment-2.svg" alt="" className="w-5 h-5" />
               Book appointment
             </Link>
