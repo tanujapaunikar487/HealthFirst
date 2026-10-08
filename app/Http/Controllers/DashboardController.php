@@ -185,7 +185,7 @@ class DashboardController extends Controller
             $prescriptionsExpiring = $this->getPrescriptionsExpiring($user);
         }
 
-        return Inertia::render('Dashboard', [
+        return Inertia::render($request->routeIs('dashboard.v2') ? 'DashboardV2' : 'Dashboard', [
             'user' => $user,
             'profileSteps' => $profileSteps,
             'profileJustCompleted' => $profileJustCompleted,
