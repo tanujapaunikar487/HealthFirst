@@ -26,6 +26,7 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/v2', [DashboardController::class, 'index'])->name('dashboard.v2');
     Route::put('/dashboard/health-profile', [DashboardController::class, 'updateHealthProfile'])->name('dashboard.health-profile.update');
 
     // Appointments
